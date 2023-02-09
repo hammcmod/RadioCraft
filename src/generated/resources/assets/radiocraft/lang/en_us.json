@@ -1,0 +1,15 @@
+{
+  "block.radiocraft.waterproof_wire": "Waterproof Wire",
+  "block.radiocraft.wire": "Wire",
+  "item.radiocraft.antenna_analyzer": "Antenna Analyzer",
+  "item.radiocraft.coaxial_core": "Coaxial Core",
+  "item.radiocraft.ferrite_core": "Ferrite Core",
+  "item.radiocraft.hand_microphone": "Hand Microphone",
+  "item.radiocraft.hf_circuit_board": "HF Circuit Board",
+  "item.radiocraft.microphone": "Microphone",
+  "item.radiocraft.radio_crystal": "Radio Crystal",
+  "item.radiocraft.radio_speaker": "Radio Speaker",
+  "item.radiocraft.small_battery": "Small Alkaline Battery",
+  "item.radiocraft.vhf_handheld": "VHF Handheld Radio",
+  "tabs.radiocraft.main_tab": "RadioCraft"
+}
