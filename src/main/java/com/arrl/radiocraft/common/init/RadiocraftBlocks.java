@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.blocks.LargeBatteryBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
@@ -24,7 +25,7 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> WIRE = simpleBlock("wire", PROPERTIES_WOOL);
 	public static final RegistryObject<Block> WATERPROOF_WIRE = simpleBlock("waterproof_wire", PROPERTIES_WOOL);
 	public static final RegistryObject<Block> SOLAR_PANEL = simpleBlock("solar_panel", Properties.copy(Blocks.DAYLIGHT_DETECTOR));
-	public static final RegistryObject<Block> LARGE_BATTERY = simpleBlock("large_battery", PROPERTIES_STONE); // Crashing starts here
+	public static final RegistryObject<Block> LARGE_BATTERY = BLOCKS.register("large_battery", () -> new LargeBatteryBlock(PROPERTIES_STONE));
 
 	// Radios/receivers/repeaters
 	public static final RegistryObject<Block> VHF_BASE_STATION = simpleBlock("vhf_base_station", PROPERTIES_STONE);
