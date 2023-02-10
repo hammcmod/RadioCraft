@@ -37,6 +37,27 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 
 			provider.addBlock(RadiocraftBlocks.WIRE, "Wire");
 			provider.addBlock(RadiocraftBlocks.WATERPROOF_WIRE, "Waterproof Wire");
+			provider.addBlock(RadiocraftBlocks.SOLAR_PANEL, "Solar Panel");
+			provider.addBlock(RadiocraftBlocks.SOLAR_WEATHER_STATION, "Solar Weather Station");
+			provider.addBlock(RadiocraftBlocks.LARGE_BATTERY, "Large Battery");
+			provider.addBlock(RadiocraftBlocks.VHF_BASE_STATION, "VHF Base Station");
+			provider.addBlock(RadiocraftBlocks.VHF_RECEIVER, "VHF Receiver");
+			provider.addBlock(RadiocraftBlocks.VHF_REPEATER, "VHF Repeater");
+			provider.addBlock(RadiocraftBlocks.HF_RADIO_10M, "HF Radio (10m)");
+			provider.addBlock(RadiocraftBlocks.HF_RADIO_20M, "HF Radio (20m)");
+			provider.addBlock(RadiocraftBlocks.HF_RADIO_40M, "HF Radio (40m)");
+			provider.addBlock(RadiocraftBlocks.HF_RADIO_80M, "HF Radio (80m)");
+			provider.addBlock(RadiocraftBlocks.HF_RECEIVER, "HF Receiver");
+			provider.addBlock(RadiocraftBlocks.ALL_BAND_RADIO, "All Band Radio");
+			provider.addBlock(RadiocraftBlocks.QRP_RADIO_20M, "QRP Radio (20m)");
+			provider.addBlock(RadiocraftBlocks.QRP_RADIO_40M, "QRP Radio (40m)");
+			provider.addBlock(RadiocraftBlocks.ANTENNA_POLE, "Antenna Pole");
+			provider.addBlock(RadiocraftBlocks.DUPLEXER, "Duplexer");
+			provider.addBlock(RadiocraftBlocks.ANTENNA_TUNER, "Antenna Tuner");
+			provider.addBlock(RadiocraftBlocks.ANTENNA_WIRE, "Antenna Wire");
+			provider.addBlock(RadiocraftBlocks.ANTENNA_CONNECTOR, "Antenna Connector");
+			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
+			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");
 		});
 	}
 
@@ -48,6 +69,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 	@Override
 	protected void addTranslations() {
 		// No error checking, I want a hard crash here if datagen has something bad as it's all hardcoded and should not run if erroring.
+		// Only runs with datagen run config
 		TRANSLATION_PROVIDERS.get(locale).accept(this);
 	}
 

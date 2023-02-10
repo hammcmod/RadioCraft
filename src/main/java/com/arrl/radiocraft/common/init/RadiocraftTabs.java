@@ -36,6 +36,28 @@ public class RadiocraftTabs {
 							output.accept(RadiocraftItems.WIRE.get());
 							output.accept(RadiocraftItems.WATERPROOF_WIRE.get());
 							output.accept(RadiocraftItems.VHF_HANDHELD.get());
+							output.accept(RadiocraftItems.SOLAR_PANEL.get());
+							output.accept(RadiocraftItems.LARGE_BATTERY.get());
+							output.accept(RadiocraftItems.SOLAR_WEATHER_STATION.get());
+							output.accept(RadiocraftItems.VHF_BASE_STATION.get());
+							output.accept(RadiocraftItems.VHF_BASE_STATION.get());
+							output.accept(RadiocraftItems.VHF_RECEIVER.get());
+							output.accept(RadiocraftItems.VHF_REPEATER.get());
+							output.accept(RadiocraftItems.HF_RADIO_10M.get());
+							output.accept(RadiocraftItems.HF_RADIO_20M.get());
+							output.accept(RadiocraftItems.HF_RADIO_40M.get());
+							output.accept(RadiocraftItems.HF_RADIO_80M.get());
+							output.accept(RadiocraftItems.HF_RECEIVER.get());
+							output.accept(RadiocraftItems.ALL_BAND_RADIO.get());
+							output.accept(RadiocraftItems.QRP_RADIO_20M.get());
+							output.accept(RadiocraftItems.QRP_RADIO_40M.get());
+							output.accept(RadiocraftItems.ANTENNA_POLE.get());
+							output.accept(RadiocraftItems.DUPLEXER.get());
+							output.accept(RadiocraftItems.ANTENNA_TUNER.get());
+							output.accept(RadiocraftItems.ANTENNA_WIRE.get());
+							output.accept(RadiocraftItems.ANTENNA_CONNECTOR.get());
+							output.accept(RadiocraftItems.COAX_WIRE.get());
+							output.accept(RadiocraftItems.DIGITAL_INTERFACE.get());
 						})
 		);
 	}
