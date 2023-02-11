@@ -5,6 +5,7 @@ import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
@@ -12,18 +13,32 @@ import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-public class LargeBatteryBlockEntity extends BlockEntity {
+import javax.annotation.Nullable;
 
-	private final BasicEnergyStorage energyStorage = new BasicEnergyStorage(5000, 100); // 3000 capacity, 100 max transfer
+public class SolarPanelBlockEntity extends BlockEntity {
+
+	private final BasicEnergyStorage energyStorage = new BasicEnergyStorage(200, 15); // 200 capacity, 15 max transfer
 	private final LazyOptional<IEnergyStorage> energy = LazyOptional.of(() -> energyStorage);
 
-	public LargeBatteryBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.LARGE_BATTERY.get(), pos, state);
+	public static final int POWER_PER_TICK = 10;
+	public static final float RAIN_MULTIPLIER = 0.5F;
+
+	public SolarPanelBlockEntity(BlockPos pos, BlockState state) {
+		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state);
 	}
 
-	@Override
+	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
+		if(t instanceof SolarPanelBlockEntity be) {
+			if(!level.isClientSide) { // Serverside only
+				if(level.isDay()) { // Time is day
+					int powerGenerated = level.isRaining() ? Math.round(POWER_PER_TICK * RAIN_MULTIPLIER) : POWER_PER_TICK;
+					be.energyStorage.receiveEnergy(powerGenerated, false);
+				}
+			}
+		}
+	}
+
 	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
 		return cap == ForgeCapabilities.ENERGY ? energy.cast() : super.getCapability(cap, side);
 	}
