@@ -2,6 +2,9 @@ package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
+import com.arrl.radiocraft.common.power.ConnectionType;
+import com.arrl.radiocraft.common.power.IPowerNetworkItem;
+import com.arrl.radiocraft.common.power.PowerNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -15,11 +18,14 @@ import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
-public class SolarPanelBlockEntity extends BlockEntity {
+public class SolarPanelBlockEntity extends BlockEntity implements IPowerNetworkItem {
 
 	private final BasicEnergyStorage energyStorage = new BasicEnergyStorage(200, 15); // 200 capacity, 15 max transfer
 	private final LazyOptional<IEnergyStorage> energy = LazyOptional.of(() -> energyStorage);
+	private List<PowerNetwork> networks = new ArrayList<>();
 
 	public static final int POWER_PER_TICK = 10;
 	public static final float RAIN_MULTIPLIER = 0.5F;
@@ -61,4 +67,18 @@ public class SolarPanelBlockEntity extends BlockEntity {
 		energyStorage.deserializeNBT(nbt.get("energy"));
 	}
 
+	@Override
+	public List<PowerNetwork> getNetworks() {
+		return networks;
+	}
+
+	@Override
+	public void setNetworks(List<PowerNetwork> networks) {
+		this.networks = networks;
+	}
+
+	@Override
+	public ConnectionType getDefaultConnectionType() {
+		return ConnectionType.PUSH;
+	}
 }

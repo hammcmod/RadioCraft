@@ -22,7 +22,7 @@ public class RadiocraftBlocks {
 	private static final Properties PROPERTIES_WOOL = Properties.copy(Blocks.WHITE_WOOL);
 
 	// Power related blocks
-	public static final RegistryObject<Block> WIRE = simpleBlock("wire", PROPERTIES_WOOL);
+	public static final RegistryObject<Block> WIRE = BLOCKS.register("wire", () -> new WireBlock(PROPERTIES_WOOL));
 	public static final RegistryObject<Block> WATERPROOF_WIRE = simpleBlock("waterproof_wire", PROPERTIES_WOOL);
 	public static final RegistryObject<Block> SOLAR_PANEL = BLOCKS.register("solar_panel", () -> new SolarPanelBlock(Properties.copy(Blocks.DAYLIGHT_DETECTOR)));
 	public static final RegistryObject<Block> LARGE_BATTERY = BLOCKS.register("large_battery", () -> new LargeBatteryBlock(PROPERTIES_STONE));
