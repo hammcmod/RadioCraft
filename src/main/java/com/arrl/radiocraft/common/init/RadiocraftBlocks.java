@@ -1,10 +1,16 @@
 package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.blocks.*;
+import com.arrl.radiocraft.common.blocks.LargeBatteryBlock;
+import com.arrl.radiocraft.common.blocks.SolarPanelBlock;
+import com.arrl.radiocraft.common.blocks.WireBlock;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.level.material.MaterialColor;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -19,11 +25,11 @@ public class RadiocraftBlocks {
 	// Copy common properties here to avoid using copy method a ton.
 	private static final Properties PROPERTIES_STONE = Properties.copy(Blocks.STONE);
 	private static final Properties PROPERTIES_IRON_BARS = Properties.copy(Blocks.IRON_BARS);
-	private static final Properties PROPERTIES_WOOL = Properties.copy(Blocks.WHITE_WOOL);
+	private static final Properties PROPERTIES_WIRES = Properties.of(Material.STONE, MaterialColor.COLOR_LIGHT_GRAY).instabreak().noCollission().noOcclusion();
 
 	// Power related blocks
-	public static final RegistryObject<Block> WIRE = BLOCKS.register("wire", () -> new WireBlock(PROPERTIES_WOOL));
-	public static final RegistryObject<Block> WATERPROOF_WIRE = simpleBlock("waterproof_wire", PROPERTIES_WOOL);
+	public static final RegistryObject<Block> WIRE = BLOCKS.register("wire", () -> new WireBlock(PROPERTIES_WIRES));
+	public static final RegistryObject<Block> WATERPROOF_WIRE = simpleBlock("waterproof_wire", PROPERTIES_WIRES);
 	public static final RegistryObject<Block> SOLAR_PANEL = BLOCKS.register("solar_panel", () -> new SolarPanelBlock(Properties.copy(Blocks.DAYLIGHT_DETECTOR)));
 	public static final RegistryObject<Block> LARGE_BATTERY = BLOCKS.register("large_battery", () -> new LargeBatteryBlock(PROPERTIES_STONE));
 
@@ -50,9 +56,13 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> ANTENNA_TUNER = simpleBlock("antenna_tuner", PROPERTIES_STONE);
 	public static final RegistryObject<Block> ANTENNA_WIRE = simpleBlock("antenna_wire", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> ANTENNA_CONNECTOR = simpleBlock("antenna_connector", PROPERTIES_IRON_BARS);
-	public static final RegistryObject<Block> COAX_WIRE = simpleBlock("coax_wire", PROPERTIES_WOOL);
+	public static final RegistryObject<Block> COAX_WIRE = simpleBlock("coax_wire", PROPERTIES_WIRES);
 
 	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = simpleBlock("solar_weather_station", PROPERTIES_STONE);
+
+	public static void initRender() {
+		ItemBlockRenderTypes.setRenderLayer(WIRE.get(), RenderType.cutout()); // Temporary, will use model later for this but it currently uses redstone models.
+	}
 
 
 	public static RegistryObject<Block> simpleBlock(String name, Properties properties) {
