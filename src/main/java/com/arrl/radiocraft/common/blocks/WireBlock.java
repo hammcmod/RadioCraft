@@ -1,12 +1,14 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Plane;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -56,29 +58,57 @@ public class WireBlock extends Block {
 	/**
 	 * Calculate desired blockstate for a wire given it's connections.
 	 */
-	public BlockState getConnectionState(Level level, BlockPos pos) {
+	public BlockState getConnectionState(BlockGetter level, BlockPos pos) {
 		BlockState state = defaultBlockState();
 
 		for(Direction direction : Direction.Plane.HORIZONTAL) {
 			BlockPos checkPos = pos.relative(direction);
+			BlockState checkState = level.getBlockState(checkPos);
+			boolean validPlatform = canSurviveOn(level, checkPos, checkState);
+			boolean nonSolidAbove = !level.getBlockState(pos.above()).isRedstoneConductor(level, pos);
 
-			if(level.getBlockState(checkPos.above()).getBlock() == RadiocraftBlocks.WIRE.get())
+
+			if (nonSolidAbove && validPlatform && level.getBlockState(checkPos.above()).is(this)) // If block above is wire
 				state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), RedstoneSide.UP);
-			else if(level.getBlockState(checkPos).getBlock() == RadiocraftBlocks.WIRE.get())
+			else if(checkState.is(this)) // Block at side is wire
 				state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), RedstoneSide.SIDE);
-			else if(level.getBlockState(checkPos.below()).getBlock() == RadiocraftBlocks.WIRE.get())
+			else if(!checkState.isRedstoneConductor(level, pos) && level.getBlockState(checkPos.below()).is(this)) // If side block is not solid & below is wire
 				state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), RedstoneSide.SIDE);
+
 		}
 
 		return state;
 	}
 
 	@Override
-	public void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
-		super.neighborChanged(state, level, pos, block, fromPos, isMoving);
-		BlockState newState = getConnectionState(level, pos);
-		if(!state.equals(newState))
-			level.setBlockAndUpdate(pos, newState);
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos currentPos, BlockPos neighborPos) {
+		if(direction == Direction.DOWN) // Don't need to worry about updates below
+			return state;
+		// Recalculate connections if not down.
+		return getConnectionState(level, currentPos);
+	}
+
+	@Override
+	public void updateIndirectNeighbourShapes(BlockState state, LevelAccessor level, BlockPos pos, int flags, int recursionLeft) {
+		MutableBlockPos mutablePos = new MutableBlockPos(); // MutablePos to reduce resource usage
+		for(Direction direction : Plane.HORIZONTAL) {
+			if(state.getValue(PROPERTY_BY_DIRECTION.get(direction)).isConnected() // Only update connected sides to reduce lag
+					&& !level.getBlockState(mutablePos.setWithOffset(pos, direction)).is(this)) { // Do not update direct neighbours
+
+				mutablePos.move(Direction.DOWN);
+				if (level.getBlockState(mutablePos).is(this)) { // Only update other wires
+					BlockPos blockpos = mutablePos.relative(direction.getOpposite());
+					level.neighborShapeChanged(direction.getOpposite(), level.getBlockState(blockpos), mutablePos, blockpos, flags, recursionLeft);
+				}
+
+				mutablePos.setWithOffset(pos, direction).move(Direction.UP); // Repetition is a bit ugly, fix later.
+				if (level.getBlockState(mutablePos).is(this)) {
+					BlockPos blockPos = mutablePos.relative(direction.getOpposite());
+					level.neighborShapeChanged(direction.getOpposite(), level.getBlockState(blockPos), mutablePos, blockPos, flags, recursionLeft);
+				}
+
+			}
+		}
 	}
 
 	@Override
@@ -86,4 +116,9 @@ public class WireBlock extends Block {
 		BlockPos below = pos.below();
 		return level.getBlockState(below).isFaceSturdy(level, below, Direction.UP);
 	}
+
+	private boolean canSurviveOn(BlockGetter level, BlockPos pos, BlockState state) {
+		return state.isFaceSturdy(level, pos, Direction.UP);
+	}
+
 }
