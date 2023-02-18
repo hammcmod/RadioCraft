@@ -16,14 +16,14 @@ import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LargeBatteryBlockEntity extends BlockEntity implements IPowerNetworkItem {
 
 	private final BasicEnergyStorage energyStorage = new BasicEnergyStorage(5000, 100); // 3000 capacity, 100 max transfer
 	private final LazyOptional<IEnergyStorage> energy = LazyOptional.of(() -> energyStorage);
-	private List<PowerNetwork> networks = new ArrayList<>();
+	private Map<Direction, PowerNetwork> networks = new HashMap<>();
 
 	public LargeBatteryBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.LARGE_BATTERY.get(), pos, state);
@@ -53,12 +53,13 @@ public class LargeBatteryBlockEntity extends BlockEntity implements IPowerNetwor
 	}
 
 	@Override
-	public List<PowerNetwork> getNetworks() {
+	public Map<Direction, PowerNetwork> getNetworks() {
 		return networks;
 	}
 
 	@Override
-	public void setNetworks(List<PowerNetwork> networks) {
+	public void setNetworks(Map<Direction, PowerNetwork> networks) {
 		this.networks = networks;
 	}
+
 }

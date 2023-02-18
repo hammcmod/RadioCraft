@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.power;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +19,7 @@ public class PowerNetwork {
 	}
 
 	public List<PowerNetworkEntry> getConnections() {
+		cleanConnections();
 		return connections;
 	}
 
@@ -30,16 +32,17 @@ public class PowerNetwork {
 	}
 
 	public void removeConnection(IPowerNetworkItem networkItem) {
-		connections.remove(networkItem);
+		cleanConnections();
+		connections.removeIf(entry -> entry.getNetworkItem() == networkItem);
 	}
 
 	/**
 	 * Removes this network from all of it's devices, GC should delete it after.
 	 */
 	public void dissolve() {
-		for(PowerNetworkEntry entry : connections) {
-			entry.networkItem().removeNetwork(this);
-		}
+		for(PowerNetworkEntry entry : connections)
+			if(entry.getNetworkItem() != null)
+				entry.getNetworkItem().removeNetwork(this);
 	}
 
 	/**
@@ -50,16 +53,44 @@ public class PowerNetwork {
 	public static void merge(PowerNetwork first, PowerNetwork second) {
 		List<PowerNetworkEntry> newEntries = first.getConnections();
 		newEntries.addAll(second.getConnections());
+
 		PowerNetwork newNetwork = new PowerNetwork(newEntries);
 
-		for(PowerNetworkEntry entry : first.getConnections()) // Remove existing networks from all devices
-			entry.networkItem().removeNetwork(first);
-		for(PowerNetworkEntry entry : first.getConnections())
-			entry.networkItem().removeNetwork(first);
-
-		first.getConnections().forEach(entry -> entry.networkItem().addNetwork(newNetwork)); // Add merged network to all devices
-		second.getConnections().forEach(entry -> entry.networkItem().addNetwork(newNetwork));
+		// Replace merged network to on devices
+		first.getConnections().forEach(entry -> {
+			IPowerNetworkItem item = entry.getNetworkItem();
+			entry.getNetworkItem().setNetwork(item.getKey(first), newNetwork);
+		});
+		second.getConnections().forEach(entry -> {
+			IPowerNetworkItem item = entry.getNetworkItem();
+			entry.getNetworkItem().setNetwork(item.getKey(second), newNetwork);
+		});
 	}
 
-	private record PowerNetworkEntry(IPowerNetworkItem networkItem, ConnectionType connectionType) {}
+	private void cleanConnections() { // Remove any null connections in case they still exist.
+		connections.removeIf(entry -> entry.getNetworkItem() == null);
+	}
+
+	/**
+	 * Represents a power consumer or provider within a network
+	 */
+	private static class PowerNetworkEntry {
+
+		private final WeakReference<IPowerNetworkItem> networkItem; // Use weak reference so network items don't stay loaded if chunk unloads.
+		private final ConnectionType connectionType;
+
+		public PowerNetworkEntry(IPowerNetworkItem networkItem, ConnectionType connectionType) {
+			this.networkItem = new WeakReference<>(networkItem);
+			this.connectionType = connectionType;
+		}
+
+		public IPowerNetworkItem getNetworkItem() {
+			return networkItem.get();
+		}
+
+		public ConnectionType getConnectionType() {
+			return connectionType;
+		}
+
+	}
 }

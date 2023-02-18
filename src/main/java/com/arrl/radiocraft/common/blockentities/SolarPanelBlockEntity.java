@@ -18,14 +18,14 @@ import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SolarPanelBlockEntity extends BlockEntity implements IPowerNetworkItem {
 
 	private final BasicEnergyStorage energyStorage = new BasicEnergyStorage(200, 15); // 200 capacity, 15 max transfer
 	private final LazyOptional<IEnergyStorage> energy = LazyOptional.of(() -> energyStorage);
-	private List<PowerNetwork> networks = new ArrayList<>();
+	private Map<Direction, PowerNetwork> networks = new HashMap<>();
 
 	public static final int POWER_PER_TICK = 10;
 	public static final float RAIN_MULTIPLIER = 0.5F;
@@ -68,12 +68,12 @@ public class SolarPanelBlockEntity extends BlockEntity implements IPowerNetworkI
 	}
 
 	@Override
-	public List<PowerNetwork> getNetworks() {
+	public Map<Direction, PowerNetwork> getNetworks() {
 		return networks;
 	}
 
 	@Override
-	public void setNetworks(List<PowerNetwork> networks) {
+	public void setNetworks(Map<Direction, PowerNetwork> networks) {
 		this.networks = networks;
 	}
 

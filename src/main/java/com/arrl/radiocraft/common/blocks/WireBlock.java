@@ -18,6 +18,8 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.RedstoneSide;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class WireBlock extends Block {
@@ -78,6 +80,29 @@ public class WireBlock extends Block {
 		}
 
 		return state;
+	}
+
+	/**
+	 * Get pos for all connected wires in a given direction
+	 */
+	public List<BlockPos> getConnections(BlockGetter level, BlockPos pos, Direction direction) {
+		List<BlockPos> out = new ArrayList<>();
+		if(!direction.getAxis().isHorizontal())
+			return out;
+
+		BlockPos checkPos = pos.relative(direction);
+		BlockState checkState = level.getBlockState(checkPos);
+		boolean validPlatform = canSurviveOn(level, checkPos, checkState);
+		boolean nonSolidAbove = !level.getBlockState(pos.above()).isRedstoneConductor(level, pos);
+
+		if (nonSolidAbove && validPlatform && level.getBlockState(checkPos.above()).is(this)) // If block above is wire
+			out.add(checkPos.above());
+		else if(checkState.is(this)) // Block at side is wire
+			out.add(checkPos);
+		else if(!checkState.isRedstoneConductor(level, pos) && level.getBlockState(checkPos.below()).is(this)) // If side block is not solid & below is wire
+			out.add(checkPos.below());
+
+		return out;
 	}
 
 	@Override

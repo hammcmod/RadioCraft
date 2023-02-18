@@ -8,12 +8,12 @@ import net.minecraft.world.level.block.state.BlockState;
 public class PowerUtils {
 
 	/**
-	 * Finds the power network for a specific wire.
+	 * Finds the first power network for a specific wire.
 	 * @param level level to search in.
 	 * @param pos position of a wire block.
 	 * @return First network found.
 	 */
-	public static PowerNetwork findNetwork(Level level, BlockPos pos) {
+	public static PowerNetwork findFirstNetwork(Level level, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
 
 		if(state.getBlock() != RadiocraftBlocks.WIRE.get()) // Not valid if there is no wire here.
