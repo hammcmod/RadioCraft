@@ -28,10 +28,10 @@ public class RadiocraftBlocks {
 	private static final Properties PROPERTIES_WIRES = Properties.of(Material.STONE, MaterialColor.COLOR_LIGHT_GRAY).instabreak().noCollission().noOcclusion();
 
 	// Power related blocks
-	public static final RegistryObject<Block> WIRE = BLOCKS.register("wire", () -> new WireBlock(PROPERTIES_WIRES));
+	public static final RegistryObject<WireBlock> WIRE = BLOCKS.register("wire", () -> new WireBlock(PROPERTIES_WIRES));
 	public static final RegistryObject<Block> WATERPROOF_WIRE = simpleBlock("waterproof_wire", PROPERTIES_WIRES);
-	public static final RegistryObject<Block> SOLAR_PANEL = BLOCKS.register("solar_panel", () -> new SolarPanelBlock(Properties.copy(Blocks.DAYLIGHT_DETECTOR)));
-	public static final RegistryObject<Block> LARGE_BATTERY = BLOCKS.register("large_battery", () -> new LargeBatteryBlock(PROPERTIES_STONE));
+	public static final RegistryObject<SolarPanelBlock> SOLAR_PANEL = BLOCKS.register("solar_panel", () -> new SolarPanelBlock(Properties.copy(Blocks.DAYLIGHT_DETECTOR)));
+	public static final RegistryObject<LargeBatteryBlock> LARGE_BATTERY = BLOCKS.register("large_battery", () -> new LargeBatteryBlock(PROPERTIES_STONE));
 
 	// Radios/receivers/repeaters
 	public static final RegistryObject<Block> VHF_BASE_STATION = simpleBlock("vhf_base_station", PROPERTIES_STONE);

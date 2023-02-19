@@ -1,13 +1,18 @@
 package com.arrl.radiocraft.common.blocks;
 
+import com.arrl.radiocraft.common.power.IPowerNetworkItem;
+import com.arrl.radiocraft.common.power.PowerUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Plane;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
@@ -70,11 +75,11 @@ public class WireBlock extends Block {
 			boolean nonSolidAbove = !level.getBlockState(pos.above()).isRedstoneConductor(level, pos);
 
 
-			if (nonSolidAbove && validPlatform && level.getBlockState(checkPos.above()).is(this)) // If block above is wire
+			if (nonSolidAbove && validPlatform && canConnectTo(level, checkPos.above())) // If block above is connectable
 				state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), RedstoneSide.UP);
-			else if(checkState.is(this)) // Block at side is wire
+			else if(canConnectTo(level, checkPos)) // Block at side is connectable
 				state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), RedstoneSide.SIDE);
-			else if(!checkState.isRedstoneConductor(level, pos) && level.getBlockState(checkPos.below()).is(this)) // If side block is not solid & below is wire
+			else if(!checkState.isRedstoneConductor(level, pos) && canConnectTo(level, checkPos.below())) // If side block is not solid & below is connectable
 				state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), RedstoneSide.SIDE);
 
 		}
@@ -91,18 +96,26 @@ public class WireBlock extends Block {
 			return out;
 
 		BlockPos checkPos = pos.relative(direction);
+
+
 		BlockState checkState = level.getBlockState(checkPos);
 		boolean validPlatform = canSurviveOn(level, checkPos, checkState);
 		boolean nonSolidAbove = !level.getBlockState(pos.above()).isRedstoneConductor(level, pos);
 
-		if (nonSolidAbove && validPlatform && level.getBlockState(checkPos.above()).is(this)) // If block above is wire
+		if (nonSolidAbove && validPlatform && canConnectTo(level, checkPos.above())) // If block above is connectable
 			out.add(checkPos.above());
-		else if(checkState.is(this)) // Block at side is wire
+		else if(canConnectTo(level, checkPos)) // Block at side is connectable
 			out.add(checkPos);
-		else if(!checkState.isRedstoneConductor(level, pos) && level.getBlockState(checkPos.below()).is(this)) // If side block is not solid & below is wire
+		else if(!checkState.isRedstoneConductor(level, pos) && canConnectTo(level, checkPos.below())) // If side block is not solid & below is connectable
 			out.add(checkPos.below());
 
 		return out;
+	}
+
+	@Override
+	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
+		if(!level.isClientSide)
+			PowerUtils.findNetworkConnections(level, pos);
 	}
 
 	@Override
@@ -144,6 +157,10 @@ public class WireBlock extends Block {
 
 	private boolean canSurviveOn(BlockGetter level, BlockPos pos, BlockState state) {
 		return state.isFaceSturdy(level, pos, Direction.UP);
+	}
+
+	private boolean canConnectTo(BlockGetter level, BlockPos pos) {
+		return level.getBlockState(pos).is(this) || level.getBlockEntity(pos) instanceof IPowerNetworkItem;
 	}
 
 }

@@ -66,7 +66,7 @@ public class RadiocraftItems {
 		return ITEMS.register(name, () -> new Item(new Properties()));
 	}
 
-	private static RegistryObject<BlockItem> simpleBlockItem(String name, Supplier<Block> block) {
+	private static RegistryObject<BlockItem> simpleBlockItem(String name, Supplier<? extends Block> block) {
 		return ITEMS.register(name, () -> new BlockItem(block.get(), new Properties()));
 	}
 
