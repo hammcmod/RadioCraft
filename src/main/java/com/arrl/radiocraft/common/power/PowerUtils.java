@@ -1,6 +1,5 @@
 package com.arrl.radiocraft.common.power;
 
-import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -47,7 +46,7 @@ public class PowerUtils {
 
 			for(IPowerNetworkItem networkItem : connections.keySet()) {
 				PowerNetwork network = networkItem.getNetwork(connections.get(networkItem));
-				if(network != null)
+				if(network != null && !existingNetworks.contains(network))
 					existingNetworks.add(network);
 				else
 					nullItems.add(networkItem);
@@ -59,15 +58,29 @@ public class PowerUtils {
 				networkItem.setNetwork(direction, newNetwork);
 				newNetwork.addConnection(networkItem, networkItem.getDefaultConnectionType(), direction);
 			}); // Add new network to any null ones and add null items to the network connections
-
-			Radiocraft.LOGGER.info(newNetwork.getConnections().toString());
 		}
 	}
 
 	/**
-	 * Recursively checks for all connections to a wire network
+	 * Splits the network associated with a given wire block.
 	 */
-	private static void getConnections(Level level, BlockPos pos, Map<IPowerNetworkItem, Direction> connections, List<BlockPos> blackList) {
+	public static void splitWireNetwork(Level level, BlockPos pos) {
+		List<BlockPos> positionsChecked = new ArrayList<>();
+		positionsChecked.add(pos);
+
+		for(Direction direction : Direction.Plane.HORIZONTAL) {
+			BlockPos startPos = pos.relative(direction);
+			Map<IPowerNetworkItem, Direction> connections = getConnections(level, startPos, new HashMap<>(), positionsChecked);
+			connections.keySet().stream().findFirst().ifPresent(
+					item -> PowerNetwork.split(item.getNetwork(connections.get(item)), connections.keySet())
+			); // Split this wire's network by all connected devices found.
+		}
+	}
+
+	/**
+	 * Recursively checks for all connections to a wire block
+	 */
+	private static Map<IPowerNetworkItem, Direction> getConnections(Level level, BlockPos pos, Map<IPowerNetworkItem, Direction> connections, List<BlockPos> blackList) {
 		blackList.add(pos); // Check pos being blacklisted to stop infinite loops
 
 		for(Direction direction : Plane.HORIZONTAL) {
@@ -89,6 +102,7 @@ public class PowerUtils {
 			}
 
 		}
+		return connections;
 	}
 
 }

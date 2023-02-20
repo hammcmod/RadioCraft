@@ -4,6 +4,7 @@ import net.minecraft.core.Direction;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -25,13 +26,29 @@ public class PowerNetwork {
 		return connections;
 	}
 
+	public PowerNetworkEntry getConnectionByItem(IPowerNetworkItem networkItem) {
+		for(PowerNetworkEntry entry : connections)
+			if(entry.getNetworkItem() == networkItem)
+				return entry;
+		return null;
+	}
+
 	public void addConnection(IPowerNetworkItem networkItem, ConnectionType type, Direction direction) {
-		connections.add(new PowerNetworkEntry(networkItem, type, direction));
+		addConnection(new PowerNetworkEntry(networkItem, type, direction));
+	}
+
+	public void addConnection(PowerNetworkEntry entry) {
+		connections.add(entry);
 	}
 
 	public void removeConnection(IPowerNetworkItem networkItem) {
 		cleanConnections();
 		connections.removeIf(entry -> entry.getNetworkItem() == networkItem);
+	}
+
+	public void removeConnection(PowerNetworkEntry entry) {
+		cleanConnections();
+		connections.remove(entry);
 	}
 
 	/**
@@ -59,7 +76,24 @@ public class PowerNetwork {
 		return newNetwork;
 	}
 
-	private void cleanConnections() { // Remove any null connections in case they still exist.
+	/**
+	 * Splits the network associated with a wire block, returns a new network with the entries passed in.
+	 */
+	public static void split(PowerNetwork network, Collection<IPowerNetworkItem> itemsToSplit) {
+		PowerNetwork newNetwork = new PowerNetwork(null);
+
+		for(IPowerNetworkItem item : itemsToSplit) {
+			PowerNetworkEntry entry = network.getConnectionByItem(item);
+			network.removeConnection(entry); // Remove from old network
+			newNetwork.addConnection(entry); // Add to new network
+			item.replaceNetwork(network, newNetwork); // Replace old network with new on the item
+		}
+	}
+
+	/**
+	 * Removes null connection refs
+	 */
+	private void cleanConnections() {
 		connections.removeIf(entry -> entry.getNetworkItem() == null);
 	}
 

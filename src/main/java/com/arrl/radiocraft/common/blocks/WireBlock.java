@@ -8,8 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Plane;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -113,9 +111,21 @@ public class WireBlock extends Block {
 	}
 
 	@Override
-	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
-		if(!level.isClientSide)
-			PowerUtils.mergeWireNetworks(level, pos);
+	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+		if(level.isClientSide)
+			return;
+		if(oldState.is(this))
+			return;
+
+		PowerUtils.mergeWireNetworks(level, pos);
+	}
+
+	@Override
+	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+		if(!newState.is(this)) {
+			PowerUtils.splitWireNetwork(level, pos);
+		}
+		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	@Override
