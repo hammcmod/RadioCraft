@@ -1,5 +1,7 @@
 package com.arrl.radiocraft.common.power;
 
+import net.minecraft.core.Direction;
+
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +25,8 @@ public class PowerNetwork {
 		return connections;
 	}
 
-	public void addConnection(IPowerNetworkItem networkItem) {
-		addConnection(networkItem, networkItem.getDefaultConnectionType());
-	}
-
-	public void addConnection(IPowerNetworkItem networkItem, ConnectionType type) {
-		connections.add(new PowerNetworkEntry(networkItem, type));
+	public void addConnection(IPowerNetworkItem networkItem, ConnectionType type, Direction direction) {
+		connections.add(new PowerNetworkEntry(networkItem, type, direction));
 	}
 
 	public void removeConnection(IPowerNetworkItem networkItem) {
@@ -46,25 +44,19 @@ public class PowerNetwork {
 	}
 
 	/**
-	 * Merges two power networks and replaces their entries on all connected devices with the new merged network.
-	 * @param first
-	 * @param second
+	 * Merges an array of power networks and replaces their entries on all connected devices with the new merged network.
 	 */
-	public static void merge(PowerNetwork first, PowerNetwork second) {
-		List<PowerNetworkEntry> newEntries = first.getConnections();
-		newEntries.addAll(second.getConnections());
+	public static PowerNetwork merge(PowerNetwork... networks) {
+		PowerNetwork newNetwork = new PowerNetwork(null);
+		List<PowerNetworkEntry> newEntries = newNetwork.getConnections();
 
-		PowerNetwork newNetwork = new PowerNetwork(newEntries);
-
-		// Replace merged network to on devices
-		first.getConnections().forEach(entry -> {
-			IPowerNetworkItem item = entry.getNetworkItem();
-			entry.getNetworkItem().setNetwork(item.getKey(first), newNetwork);
-		});
-		second.getConnections().forEach(entry -> {
-			IPowerNetworkItem item = entry.getNetworkItem();
-			entry.getNetworkItem().setNetwork(item.getKey(second), newNetwork);
-		});
+		for(PowerNetwork oldNetwork : networks) {
+			for(PowerNetworkEntry connection : oldNetwork.getConnections()) {
+				newEntries.add(connection); // Add this device to the new network and replace the network entry with the new network
+				connection.getNetworkItem().replaceNetwork(oldNetwork, newNetwork);
+			}
+		}
+		return newNetwork;
 	}
 
 	private void cleanConnections() { // Remove any null connections in case they still exist.
@@ -79,7 +71,7 @@ public class PowerNetwork {
 		private final WeakReference<IPowerNetworkItem> networkItem; // Use weak reference so network items don't stay loaded if chunk unloads.
 		private final ConnectionType connectionType;
 
-		public PowerNetworkEntry(IPowerNetworkItem networkItem, ConnectionType connectionType) {
+		public PowerNetworkEntry(IPowerNetworkItem networkItem, ConnectionType connectionType, Direction direction) {
 			this.networkItem = new WeakReference<>(networkItem);
 			this.connectionType = connectionType;
 		}

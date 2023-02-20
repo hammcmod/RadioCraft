@@ -115,7 +115,7 @@ public class WireBlock extends Block {
 	@Override
 	public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity entity, ItemStack stack) {
 		if(!level.isClientSide)
-			PowerUtils.findNetworkConnections(level, pos);
+			PowerUtils.mergeWireNetworks(level, pos);
 	}
 
 	@Override
