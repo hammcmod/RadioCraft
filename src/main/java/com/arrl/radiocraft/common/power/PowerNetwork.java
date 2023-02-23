@@ -79,14 +79,14 @@ public class PowerNetwork {
 	/**
 	 * Splits the network associated with a wire block, returns a new network with the entries passed in.
 	 */
-	public static void split(PowerNetwork network, Collection<IPowerNetworkItem> itemsToSplit) {
+	public void split(Collection<IPowerNetworkItem> itemsToSplit) {
 		PowerNetwork newNetwork = new PowerNetwork(null);
 
 		for(IPowerNetworkItem item : itemsToSplit) {
-			PowerNetworkEntry entry = network.getConnectionByItem(item);
-			network.removeConnection(entry); // Remove from old network
+			PowerNetworkEntry entry = getConnectionByItem(item);
+			removeConnection(entry); // Remove from old network
 			newNetwork.addConnection(entry); // Add to new network
-			item.replaceNetwork(network, newNetwork); // Replace old network with new on the item
+			item.replaceNetwork(this, newNetwork); // Replace old network with new on the item
 		}
 	}
 

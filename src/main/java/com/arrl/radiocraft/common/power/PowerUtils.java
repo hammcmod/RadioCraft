@@ -38,18 +38,20 @@ public class PowerUtils {
 
 			for(IPowerNetworkItem networkItem : connections.keySet()) {
 				PowerNetwork network = networkItem.getNetwork(connections.get(networkItem));
-				if(network != null && !existingNetworks.contains(network))
-					existingNetworks.add(network);
+				if(network != null) {
+					if(!existingNetworks.contains(network))
+						existingNetworks.add(network);
+				}
 				else
 					nullItems.add(networkItem);
 			}
 
 			PowerNetwork newNetwork = PowerNetwork.merge(existingNetworks.toArray(new PowerNetwork[0]));
-			nullItems.forEach(networkItem -> {
+			nullItems.forEach(networkItem -> { // Shouldn't have any nulls but just in case
 				Direction direction = connections.get(networkItem);
 				networkItem.setNetwork(direction, newNetwork);
 				newNetwork.addConnection(networkItem, networkItem.getDefaultConnectionType(), direction);
-			}); // Add new network to any null ones and add null items to the network connections
+			});
 		}
 	}
 
@@ -57,8 +59,6 @@ public class PowerUtils {
 	 * Splits the network associated with a given wire block.
 	 */
 	public static void splitWireNetwork(BlockGetter level, BlockPos pos) {
-		if(!WireBlock.isWire(level.getBlockState(pos)))
-			return;
 		List<BlockPos> positionsChecked = new ArrayList<>();
 		positionsChecked.add(pos);
 
@@ -66,8 +66,11 @@ public class PowerUtils {
 			BlockPos startPos = pos.relative(direction);
 
 			Map<IPowerNetworkItem, Direction> connections = getConnections(level, startPos, new HashMap<>(), positionsChecked);
-			connections.keySet().stream().findFirst().ifPresent(
-					item -> PowerNetwork.split(item.getNetwork(connections.get(item)), connections.keySet())
+			connections.keySet().stream().findFirst().ifPresent(item -> {
+				PowerNetwork network = item.getNetwork(connections.get(item));
+				if(network != null)
+					network.split(connections.keySet());
+			}
 			); // Split this wire's network by all connected devices found.
 		}
 	}
