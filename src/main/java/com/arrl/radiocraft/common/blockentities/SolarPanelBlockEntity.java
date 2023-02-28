@@ -21,7 +21,7 @@ public class SolarPanelBlockEntity extends AbstractPowerBlockEntity {
 			if(!level.isClientSide) { // Serverside only
 				if(level.isDay()) { // Time is day
 					int powerGenerated = level.isRaining() ? Math.round(POWER_PER_TICK * RAIN_MULTIPLIER) : POWER_PER_TICK;
-					be.energyStorage.receiveEnergy(powerGenerated, false);
+					be.energyStorage.receiveEnergy(powerGenerated, false); // Do not push, only charge controller pushes to batteries, everything else will pull from this.
 				}
 			}
 		}

@@ -1,6 +1,11 @@
 package com.arrl.radiocraft.common.power;
 
+import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.IEnergyStorage;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -19,6 +24,61 @@ public class PowerNetwork {
 			connections = new ArrayList<>();
 		else
 			this.connections = entries;
+	}
+
+	/**
+	 * Attempts to pull power from the network.
+	 * @param simulate If true, do not actually extract energy from providers
+	 * @returns amount pulled from network
+	 */
+	public int pullPower(int amount, boolean simulate) {
+		int pulled = 0;
+
+		cleanConnections();
+		for(PowerNetworkEntry entry : connections) {
+			if(entry.getConnectionType() == ConnectionType.PUSH) {
+				BlockEntity be = (BlockEntity) entry.getNetworkItem();
+				if(be != null) {
+
+					LazyOptional<IEnergyStorage> energyCap = be.getCapability(ForgeCapabilities.ENERGY);
+
+					if(energyCap.isPresent()) { // This is horrendous code but java doesn't like lambdas and vars.
+						IEnergyStorage storage = energyCap.orElse(null);
+						int amountRemoved = storage.extractEnergy(amount - pulled, simulate);
+						pulled += amountRemoved;
+
+						if(pulled >= amount) // Stop checking if required amount is reached
+							return pulled;
+					}
+				}
+			}
+		}
+		return pulled;
+	}
+
+	/**
+	 * Attempts to push power into batteries on network.
+	 * @param simulate If true, do not actually push energy to providers
+	 * @return Amount pushed into batteries
+	 */
+	public int pushBatteries(int amount, boolean simulate) {
+		int pushed = 0;
+
+		for(PowerNetworkEntry entry : connections) {
+			if(entry.getNetworkItem() instanceof LargeBatteryBlockEntity be) {
+				LazyOptional<IEnergyStorage> energyCap = be.getCapability(ForgeCapabilities.ENERGY);
+
+				if(energyCap.isPresent()) { // This is horrendous code but java doesn't like lambdas and vars.
+					IEnergyStorage storage = energyCap.orElse(null);
+					int amountPushed = storage.receiveEnergy(amount - pushed, simulate);
+					pushed += amountPushed;
+
+					if(pushed >= amount) // Stop checking if required amount is reached
+						return pushed;
+				}
+			}
+		}
+		return pushed;
 	}
 
 	public List<PowerNetworkEntry> getConnections() {
