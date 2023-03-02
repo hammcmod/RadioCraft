@@ -1,37 +1,19 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.power.ConnectionType;
-import com.arrl.radiocraft.common.power.IPowerNetworkItem;
-import com.arrl.radiocraft.common.power.PowerNetwork;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
-import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-
-public class SolarPanelBlockEntity extends BlockEntity implements IPowerNetworkItem {
-
-	private final BasicEnergyStorage energyStorage = new BasicEnergyStorage(200, 15); // 200 capacity, 15 max transfer
-	private final LazyOptional<IEnergyStorage> energy = LazyOptional.of(() -> energyStorage);
-	private List<PowerNetwork> networks = new ArrayList<>();
+public class SolarPanelBlockEntity extends AbstractPowerBlockEntity {
 
 	public static final int POWER_PER_TICK = 10;
 	public static final float RAIN_MULTIPLIER = 0.5F;
 
 	public SolarPanelBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state);
+		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state, 200, 15);
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
@@ -39,42 +21,10 @@ public class SolarPanelBlockEntity extends BlockEntity implements IPowerNetworkI
 			if(!level.isClientSide) { // Serverside only
 				if(level.isDay()) { // Time is day
 					int powerGenerated = level.isRaining() ? Math.round(POWER_PER_TICK * RAIN_MULTIPLIER) : POWER_PER_TICK;
-					be.energyStorage.receiveEnergy(powerGenerated, false);
+					be.energyStorage.receiveEnergy(powerGenerated, false); // Do not push, only charge controller pushes to batteries, everything else will pull from this.
 				}
 			}
 		}
-	}
-
-	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-		return cap == ForgeCapabilities.ENERGY ? energy.cast() : super.getCapability(cap, side);
-	}
-
-	@Override
-	public void invalidateCaps() {
-		super.invalidateCaps();
-		energy.invalidate();
-	}
-
-	@Override
-	protected void saveAdditional(CompoundTag nbt) {
-		super.saveAdditional(nbt);
-		nbt.put("energy", energyStorage.serializeNBT());
-	}
-
-	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-		energyStorage.deserializeNBT(nbt.get("energy"));
-	}
-
-	@Override
-	public List<PowerNetwork> getNetworks() {
-		return networks;
-	}
-
-	@Override
-	public void setNetworks(List<PowerNetwork> networks) {
-		this.networks = networks;
 	}
 
 	@Override

@@ -35,6 +35,7 @@ public class RadiocraftItems {
 	public static final RegistryObject<BlockItem> WATERPROOF_WIRE = simpleBlockItem("waterproof_wire", RadiocraftBlocks.WATERPROOF_WIRE);
 	public static final RegistryObject<BlockItem> SOLAR_PANEL = simpleBlockItem("solar_panel", RadiocraftBlocks.SOLAR_PANEL);
 	public static final RegistryObject<BlockItem> LARGE_BATTERY = simpleBlockItem("large_battery", RadiocraftBlocks.LARGE_BATTERY);
+	public static final RegistryObject<BlockItem> CHARGE_CONTROLLER = simpleBlockItem("charge_controller", RadiocraftBlocks.CHARGE_CONTROLLER);
 
 	public static final RegistryObject<BlockItem> VHF_BASE_STATION = simpleBlockItem("vhf_base_station", RadiocraftBlocks.VHF_BASE_STATION);
 	public static final RegistryObject<BlockItem> VHF_RECEIVER = simpleBlockItem("vhf_receiver", RadiocraftBlocks.VHF_RECEIVER);
@@ -66,7 +67,7 @@ public class RadiocraftItems {
 		return ITEMS.register(name, () -> new Item(new Properties()));
 	}
 
-	private static RegistryObject<BlockItem> simpleBlockItem(String name, Supplier<Block> block) {
+	private static RegistryObject<BlockItem> simpleBlockItem(String name, Supplier<? extends Block> block) {
 		return ITEMS.register(name, () -> new BlockItem(block.get(), new Properties()));
 	}
 

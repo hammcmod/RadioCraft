@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.blockentities.ChargeControllerBlockEntity;
 import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
 import com.arrl.radiocraft.common.blockentities.SolarPanelBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -20,5 +21,8 @@ public class RadiocraftBlockEntities {
 
 	public static final RegistryObject<BlockEntityType<?>> SOLAR_PANEL = BLOCK_ENTITY_TYPES.register("solar_panel",
 			() -> BlockEntityType.Builder.of(SolarPanelBlockEntity::new, RadiocraftBlocks.SOLAR_PANEL.get()).build(null));
+
+	public static final RegistryObject<BlockEntityType<?>> CHARGE_CONTROLLER = BLOCK_ENTITY_TYPES.register("charge_controller",
+			() -> BlockEntityType.Builder.of(ChargeControllerBlockEntity::new, RadiocraftBlocks.CHARGE_CONTROLLER.get()).build(null));
 
 }

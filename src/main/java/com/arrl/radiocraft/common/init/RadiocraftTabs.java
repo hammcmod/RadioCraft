@@ -38,6 +38,7 @@ public class RadiocraftTabs {
 							output.accept(RadiocraftItems.VHF_HANDHELD.get());
 							output.accept(RadiocraftItems.SOLAR_PANEL.get());
 							output.accept(RadiocraftItems.LARGE_BATTERY.get());
+							output.accept(RadiocraftItems.CHARGE_CONTROLLER.get());
 							output.accept(RadiocraftItems.SOLAR_WEATHER_STATION.get());
 							output.accept(RadiocraftItems.VHF_BASE_STATION.get());
 							output.accept(RadiocraftItems.VHF_BASE_STATION.get());
