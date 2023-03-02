@@ -80,11 +80,20 @@ minecraft {
 sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-
+    maven {
+        url "https://cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven { url = 'https://maven.maxhenkel.de/repository/public' }
 }
 
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19.3-44.1.16'
+
+    implementation "de.maxhenkel.voicechat:voicechat-api:2.3.3"
+    runtimeOnly fg.deobf("curse.maven:simplevoicechat-416089:4372224")
 }
 
 jar {

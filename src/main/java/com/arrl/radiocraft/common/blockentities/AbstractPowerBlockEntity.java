@@ -81,4 +81,5 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 		for(PowerNetwork network : getNetworks().values())
 			network.removeConnection(this); // Remove self from networks
 	}
+
 }
