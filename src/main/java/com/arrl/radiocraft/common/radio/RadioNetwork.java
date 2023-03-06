@@ -7,9 +7,9 @@ import java.util.Map;
 
 public class RadioNetwork {
 
-	private final Map<BlockPos, RadioData> radios = new HashMap<>();
+	private final Map<BlockPos, Radio> radios = new HashMap<>();
 
-	public void putRadio(BlockPos pos, RadioData data) {
+	public void putRadio(BlockPos pos, Radio data) {
 		radios.put(pos, data);
 	}
 
@@ -17,10 +17,13 @@ public class RadioNetwork {
 		radios.remove(pos);
 	}
 
-	public RadioData getRadioData(BlockPos pos) {
+	public Radio getRadioData(BlockPos pos) {
 		return radios.get(pos);
 	}
 
+	public Map<BlockPos, Radio> allRadios() {
+		return radios;
+	}
 
 
 }

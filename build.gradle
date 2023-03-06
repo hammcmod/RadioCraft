@@ -26,6 +26,8 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'radiocraft'
 
+            args '--username', 'Dev####'
+
             mods {
                 radiocraft {
                     source sourceSets.main

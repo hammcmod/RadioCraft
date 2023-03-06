@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
-import com.arrl.radiocraft.common.radio.RadioData;
+import com.arrl.radiocraft.common.radio.Radio;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -12,8 +12,8 @@ public class HFRadio10mBlockEntity extends AbstractRadioBlockEntity {
 	}
 
 	@Override
-	public RadioData createRadioData() {
-		return new RadioData();
+	public Radio createRadio() {
+		return new Radio();
 	}
 
 }
