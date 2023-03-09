@@ -11,6 +11,8 @@ import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.Map;
 
@@ -40,8 +42,10 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 
 			for(BlockPos pos : radios.keySet()) { // All radios in range of the sender will receive the packet
 				if(pos.distToCenterSqr(player.position()) < sqrRange) {
-					if(player.getLevel().getBlockEntity(pos) instanceof AbstractRadioBlockEntity be)
-						be.acceptVoicePacket(event.getPacket());
+					BlockEntity blockEntity = player.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
+					if(blockEntity instanceof AbstractRadioBlockEntity be) {
+						be.acceptVoicePacket(voiceApi, sender.getServerLevel(), event.getPacket());
+					}
 				}
 			}
 		}
