@@ -3,6 +3,7 @@ package com.arrl.radiocraft;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
+import com.arrl.radiocraft.common.init.RadiocraftSoundEvents;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
 import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataProvider.Factory;
@@ -33,6 +34,7 @@ public class Radiocraft {
         RadiocraftBlocks.BLOCKS.register(modEventBus);
         RadiocraftItems.ITEMS.register(modEventBus);
         RadiocraftBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
+        RadiocraftSoundEvents.SOUND_EVENTS.register(modEventBus);
 
         modEventBus.addListener(Radiocraft::gatherData);
     }

@@ -15,10 +15,16 @@ public class Radio {
 	private final Map<BlockPos, Integer> connections = new HashMap<>();
 	private LocationalAudioChannel receiveChannel = null;
 
-	private boolean isTransmitting = true;
-	private boolean isReceiving = true;
+	private boolean isTransmitting;
+	private boolean isReceiving;
 
 	public Radio() {
+		this(false, false);
+	}
+
+	public Radio(boolean isReceiving, boolean isTransmitting) {
+		this.isTransmitting = isTransmitting;
+		this.isReceiving = isReceiving;
 	}
 
 	public void openChannel(VoicechatServerApi api, ServerLevel level, int x, int y, int z) {

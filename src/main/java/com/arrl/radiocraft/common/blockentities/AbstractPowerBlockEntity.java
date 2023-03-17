@@ -82,4 +82,28 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 			network.removeConnection(this); // Remove self from networks
 	}
 
+	/**
+	 * Pulls power from all available sources, returns false if there is not enough.
+	 */
+	public boolean tryConsumePower(int amount, boolean simulate) {
+		int energyRequired = amount - energyStorage.getEnergyStored();
+
+		if(energyRequired > 0) {
+			if(!simulate)
+				energyStorage.setEnergy(0);
+
+			for(PowerNetwork network : getNetworks().values()) {
+				energyRequired -= network.pullPower(energyRequired, simulate);
+				if(energyRequired <= 0)
+					return true; // If enough additional power is pulled, return true
+			}
+			return false;
+		}
+		else {
+			energyStorage.extractEnergy(amount, simulate); // If already has enough power, just pull from self.
+		}
+
+		return true;
+	}
+
 }
