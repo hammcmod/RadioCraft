@@ -1,17 +1,22 @@
 package com.arrl.radiocraft.common.blockentities;
 
+import com.arrl.radiocraft.client.blockentity.AbstractRadioBlockEntityClientHandler;
 import com.arrl.radiocraft.common.radio.Radio;
 import com.arrl.radiocraft.common.radio.RadioManager;
 import com.arrl.radiocraft.common.radio.RadioNetwork;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.packets.MicrophonePacket;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Map;
 
@@ -21,9 +26,11 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private final int receiveUsePower;
 	private final int transmitUsePower;
 
+	public boolean isReceiving = false; // This is only read clientside to determine the static sounds.
+
 
 	public AbstractRadioBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int receiveUsePower, int transmitUsePower) {
-		super(type, pos, state, receiveUsePower, receiveUsePower);
+		super(type, pos, state, transmitUsePower, transmitUsePower);
 		this.receiveUsePower = receiveUsePower;
 		this.transmitUsePower = transmitUsePower;
 	}
@@ -39,19 +46,18 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		return level != null ? RadioManager.getNetwork(level) : null;
 	}
 
-	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
+	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(!level.isClientSide) {
 			if(t instanceof AbstractRadioBlockEntity be) {
 				Radio radio = be.getRadio();
 
 				// Radio tick logic doesn't need anything special, all the voice communications are handled outside the tick loop.
 				if(radio.isTransmitting()) {
-					if(!be.tryConsumePower(be.getTransmitUsePower(), false)) // If can't pull enough power for transmission.
+					if(!be.tryConsumePower(be.getTransmitUsePower(), false)) // Turns off if it can't pull enough power for transmission.
 						be.powerOff();
 				}
-
-				if(radio.isReceiving()) {
-					if(!be.tryConsumePower(be.getReceiveUsePower(), false)) // If can't pull enough power for receiving.
+				else if(radio.isReceiving()) {
+					if(!be.tryConsumePower(be.getReceiveUsePower(), false)) // Turns off if it can't pull enough power for receiving.
 						be.powerOff();
 				}
 			}
@@ -62,18 +68,16 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 * Called when radio is turned on via the UI
 	 */
 	public void powerOn() {
-		Radio radio = getRadio();
-		radio.setReceiving(true);
-		radio.setTransmitting(false);
+		setReceiving(true);
+		setTransmitting(false);
 	}
 
 	/**
 	 * Called when the radio is turned off via the UI or has insufficient power
 	 */
 	public void powerOff() {
-		Radio radio = getRadio();
-		radio.setReceiving(false);
-		radio.setTransmitting(false);
+		setReceiving(false);
+		setTransmitting(false);
 	}
 
 	/**
@@ -83,6 +87,18 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		Radio radio = getRadio();
 		radio.setTransmitting(!radio.isTransmitting());
 		radio.setReceiving(!radio.isTransmitting());
+	}
+
+	public void setTransmitting(boolean value) {
+		getRadio().setTransmitting(value);
+	}
+
+	public void setReceiving(boolean value) {
+		getRadio().setReceiving(value);
+		if(isReceiving != value) {
+			isReceiving = value;
+			updateBlock();
+		}
 	}
 
 	public int getReceiveUsePower() {
@@ -98,12 +114,46 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		super.onLoad();
 		if(!level.isClientSide())
 			getRadioNetwork().putRadio(worldPosition, getRadio());
+		else
+			AbstractRadioBlockEntityClientHandler.startRadioStatic(this);
 	}
 
 	@Override
-	public void onChunkUnloaded() {
-		super.onChunkUnloaded();
-		getRadioNetwork().removeRadio(worldPosition);
+	public void setRemoved() {
+		super.setRemoved();
+		if(!level.isClientSide())
+			getRadioNetwork().removeRadio(worldPosition);
+	}
+
+	@Nullable
+	@Override
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
+	}
+
+	@Override
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+		CompoundTag nbt = pkt.getTag();
+		handleUpdateTag(nbt);
+	}
+
+	@Override
+	public CompoundTag getUpdateTag() {
+		CompoundTag nbt = new CompoundTag();
+		nbt.putBoolean("isReceiving", isReceiving);
+		return nbt;
+	}
+
+	@Override
+	public void handleUpdateTag(CompoundTag nbt) {
+		isReceiving = nbt.getBoolean("isReceiving");
+	}
+
+	private void updateBlock() {
+		if(level != null && !level.isClientSide) {
+			BlockState state = level.getBlockState(worldPosition);
+			level.sendBlockUpdated(worldPosition, state, state, 2);
+		}
 	}
 
 	/**

@@ -70,14 +70,13 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 	public void onLoad() {
 		super.onLoad();
 		BlockState state = level.getBlockState(getBlockPos()); // Create/add to networks when loaded
-		if(state.getBlock() instanceof AbstractPowerNetworkBlock block) {
+		if(state.getBlock() instanceof AbstractPowerNetworkBlock block)
 			block.onPlace(state, level, getBlockPos(), Blocks.AIR.defaultBlockState(), false);
-		}
 	}
 
 	@Override
-	public void onChunkUnloaded() {
-		super.onChunkUnloaded();
+	public void setRemoved() {
+		super.setRemoved();
 		for(PowerNetwork network : getNetworks().values())
 			network.removeConnection(this); // Remove self from networks
 	}

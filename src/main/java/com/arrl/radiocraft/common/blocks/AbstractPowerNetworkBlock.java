@@ -27,7 +27,9 @@ public abstract class AbstractPowerNetworkBlock extends BaseEntityBlock {
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if(!level.isClientSide) {
-			level.getBlockEntity(pos).getCapability(ForgeCapabilities.ENERGY).ifPresent(cap -> Radiocraft.LOGGER.info(cap.getEnergyStored() + "/" + cap.getMaxEnergyStored()));
+			if(hand == InteractionHand.MAIN_HAND) {
+				level.getBlockEntity(pos).getCapability(ForgeCapabilities.ENERGY).ifPresent(cap -> Radiocraft.LOGGER.info(cap.getEnergyStored() + "/" + cap.getMaxEnergyStored()));
+			}
 		}
 
 		return super.use(state, level, pos, player, hand, hit);
