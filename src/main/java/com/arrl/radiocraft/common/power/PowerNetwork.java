@@ -26,6 +26,10 @@ public class PowerNetwork {
 			this.connections = entries;
 	}
 
+	public PowerNetwork() {
+		this(null);
+	}
+
 	/**
 	 * Attempts to pull power from the network.
 	 * @param simulate If true, do not actually extract energy from providers
@@ -124,7 +128,7 @@ public class PowerNetwork {
 	 * Merges an array of power networks and replaces their entries on all connected devices with the new merged network.
 	 */
 	public static PowerNetwork merge(PowerNetwork... networks) {
-		PowerNetwork newNetwork = new PowerNetwork(null);
+		PowerNetwork newNetwork = new PowerNetwork();
 		List<PowerNetworkEntry> newEntries = newNetwork.getConnections();
 
 		for(PowerNetwork oldNetwork : networks) {
@@ -140,7 +144,7 @@ public class PowerNetwork {
 	 * Splits the network associated with a wire block, returns a new network with the entries passed in.
 	 */
 	public void split(Collection<IPowerNetworkItem> itemsToSplit) {
-		PowerNetwork newNetwork = new PowerNetwork(null);
+		PowerNetwork newNetwork = new PowerNetwork();
 
 		for(IPowerNetworkItem item : itemsToSplit) {
 			PowerNetworkEntry entry = getConnectionByItem(item);

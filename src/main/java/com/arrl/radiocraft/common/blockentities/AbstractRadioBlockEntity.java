@@ -68,8 +68,10 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 * Called when radio is turned on via the UI
 	 */
 	public void powerOn() {
-		setReceiving(true);
-		setTransmitting(false);
+		if(tryConsumePower(getReceiveUsePower(), true)) {
+			setReceiving(true);
+			setTransmitting(false);
+		}
 	}
 
 	/**

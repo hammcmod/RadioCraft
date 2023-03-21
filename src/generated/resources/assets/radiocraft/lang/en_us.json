@@ -4,6 +4,7 @@
   "block.radiocraft.antenna_pole": "Antenna Pole",
   "block.radiocraft.antenna_tuner": "Antenna Tuner",
   "block.radiocraft.antenna_wire": "Antenna Wire",
+  "block.radiocraft.charge_controller": "Charge Controller",
   "block.radiocraft.coax_wire": "Coaxial Wire",
   "block.radiocraft.digital_interface": "Digital Interface (TNC)",
   "block.radiocraft.duplexer": "Duplexer",

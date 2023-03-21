@@ -22,6 +22,7 @@ public class RadiocraftBlocks {
 
 	// Copy common properties here to avoid using copy method a ton.
 	private static final Properties PROPERTIES_STONE = Properties.copy(Blocks.STONE);
+	private static final Properties PROPERTIES_RADIO = Properties.copy(Blocks.STONE).noOcclusion();
 	private static final Properties PROPERTIES_IRON_BARS = Properties.copy(Blocks.IRON_BARS);
 	private static final Properties PROPERTIES_WIRES = Properties.of(Material.STONE, MaterialColor.COLOR_LIGHT_GRAY).instabreak().noCollission().noOcclusion();
 
@@ -37,7 +38,7 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> VHF_RECEIVER = simpleBlock("vhf_receiver", PROPERTIES_STONE);
 	public static final RegistryObject<Block> VHF_REPEATER = simpleBlock("vhf_repeater", PROPERTIES_STONE);
 
-	public static final RegistryObject<Block> HF_RADIO_10M = BLOCKS.register("hf_radio_10m", () -> new HFRadio10mBlock(PROPERTIES_STONE));
+	public static final RegistryObject<Block> HF_RADIO_10M = BLOCKS.register("hf_radio_10m", () -> new HFRadio10mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> HF_RADIO_20M = simpleBlock("hf_radio_20m", PROPERTIES_STONE);
 	public static final RegistryObject<Block> HF_RADIO_40M = simpleBlock("hf_radio_40m", PROPERTIES_STONE);
 	public static final RegistryObject<Block> HF_RADIO_80M = simpleBlock("hf_radio_80m", PROPERTIES_STONE);

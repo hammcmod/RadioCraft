@@ -95,7 +95,7 @@ dependencies {
     minecraft 'net.minecraftforge:forge:1.19.3-44.1.16'
 
     implementation "de.maxhenkel.voicechat:voicechat-api:2.3.3"
-    runtimeOnly fg.deobf("curse.maven:simplevoicechat-416089:4372224")
+    runtimeOnly fg.deobf("curse.maven:simplevoicechat-416089:4372224") // Comment this out every single time datagen is required.
 }
 
 jar {

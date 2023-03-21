@@ -65,7 +65,12 @@ public class PowerUtils {
 		for(Direction direction : Direction.values()) {
 			BlockPos startPos = pos.relative(direction);
 
-			Map<IPowerNetworkItem, Direction> connections = getConnections(level, startPos, new HashMap<>(), positionsChecked);
+			Map<IPowerNetworkItem, Direction> connectionsMap = new HashMap<>();
+
+			if(level.getBlockEntity(startPos) instanceof IPowerNetworkItem networkItem)
+				connectionsMap.put(networkItem, direction.getOpposite()); // If already at endpoint, add item
+
+			Map<IPowerNetworkItem, Direction> connections = getConnections(level, startPos, connectionsMap, positionsChecked);
 			connections.keySet().stream().findFirst().ifPresent(item -> {
 				PowerNetwork network = item.getNetwork(connections.get(item));
 				if(network != null)

@@ -25,10 +25,3 @@ description='''
     versionRange="[1.19.3,1.20)"
     ordering="NONE"
     side="BOTH"
-
-[[dependencies.radiocraft]]
-    modId="voicechat"
-    mandatory=true
-    versionRange="[1.19.3-2.3.3,)"
-    ordering="AFTER"
-    side="BOTH"
