@@ -1,3 +1,7 @@
-// 1.19.3	2023-03-21T23:13:19.5318119	Block States: radiocraft
+// 1.19.3	2023-03-22T22:53:04.3467689	Block States: radiocraft
 ad56717089a51339abe3f82264df19d41e292230 assets/radiocraft/blockstates/hf_radio_10m.json
+bd56d405e540eed2389283944448ab7cc8bbb21a assets/radiocraft/blockstates/large_battery.json
+e803424a55ef2247349c6eef819b1ab87653fc49 assets/radiocraft/blockstates/solar_panel.json
 d3e8e37da4471f8087236fcdba4b4e8212018456 assets/radiocraft/models/item/hf_radio_10m.json
+011da4dc8ed31915d568721d62f3622804e0c4d9 assets/radiocraft/models/item/large_battery.json
+6b0d20c0c92ed5c6eb8baa219375e36a8f45cc37 assets/radiocraft/models/item/solar_panel.json

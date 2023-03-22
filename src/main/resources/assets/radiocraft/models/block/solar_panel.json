@@ -1,0 +1,56 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"texture_size": [32, 32],
+	"textures": {
+		"1": "radiocraft:block/solar_panel_top",
+		"2": "radiocraft:block/solar_panel_bottom",
+		"3": "radiocraft:block/solar_panel_stand"
+	},
+	"elements": [
+		{
+			"name": "panel",
+			"from": [-5.5, 9, -5.5],
+			"to": [21.5, 10, 21.5],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 9, 8]},
+			"faces": {
+				"north": {"uv": [1, 1, 14.5, 1.5], "texture": "#2"},
+				"east": {"uv": [1.5, 14.5, 1, 1], "texture": "#2"},
+				"south": {"uv": [1, 14, 14.5, 14.5], "texture": "#2"},
+				"west": {"uv": [14, 1, 14.5, 14.5], "texture": "#2"},
+				"up": {"uv": [1, 1, 14.5, 14.5], "texture": "#1"},
+				"down": {"uv": [14.5, 1, 1, 14.5], "texture": "#2"}
+			}
+		},
+		{
+			"name": "stands",
+			"from": [6.5, -1.34676, 10.76677],
+			"to": [9.5, 8.65324, 10.76677],
+			"rotation": {"angle": -22.5, "axis": "x", "origin": [8, 2.3097, 7.97683]},
+			"faces": {
+				"north": {"uv": [1.5, 0, 3, 4.5], "texture": "#3"},
+				"south": {"uv": [1.5, 0, 3, 4.5], "texture": "#3"}
+			}
+		},
+		{
+			"name": "standn",
+			"from": [6.5, -1.34605, 5.1866],
+			"to": [9.5, 8.65395, 5.1866],
+			"rotation": {"angle": 22.5, "axis": "x", "origin": [8, 2.3097, 7.97683]},
+			"faces": {
+				"north": {"uv": [0, 0, 1.5, 4.5], "texture": "#3"},
+				"south": {"uv": [0, 0, 1.5, 4.5], "texture": "#3"}
+			}
+		},
+		{
+			"name": "standb",
+			"from": [6.5, 0, 4],
+			"to": [9.5, 0, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 2.3097, 7.97683]},
+			"faces": {
+				"up": {"uv": [3, 0, 4.5, 4.5], "texture": "#3"},
+				"down": {"uv": [3, 0, 4.5, 4.5], "texture": "#3"}
+			}
+		}
+	]
+}

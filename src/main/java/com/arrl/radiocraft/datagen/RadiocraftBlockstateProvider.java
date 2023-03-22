@@ -19,6 +19,8 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 	@Override
 	protected void registerStatesAndModels() {
 		complexHorizontalBlockWithItem(RadiocraftBlocks.HF_RADIO_10M.get());
+		complexHorizontalBlockWithItem(RadiocraftBlocks.LARGE_BATTERY.get());
+		complexBlockWithItem(RadiocraftBlocks.SOLAR_PANEL.get());
 	}
 
 	private void simpleBlockWithItem(Block block) {
