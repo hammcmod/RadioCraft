@@ -70,7 +70,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	public void powerOn() {
 		if(tryConsumePower(getReceiveUsePower(), true)) {
 			setReceiving(true);
-			setTransmitting(false);
+			setTransmitting(true);
 		}
 	}
 
