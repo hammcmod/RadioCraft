@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blockentities;
 
+import com.arrl.radiocraft.RadiocraftConfig;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.power.PowerNetwork;
 import net.minecraft.core.BlockPos;
@@ -12,7 +13,7 @@ import java.util.Collection;
 public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity {
 
 	public ChargeControllerBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.CHARGE_CONTROLLER.get(), pos, state, 75, 75);
+		super(RadiocraftBlockEntities.CHARGE_CONTROLLER.get(), pos, state, RadiocraftConfig.CHARGE_CONTROLLER_TICK.get(), RadiocraftConfig.CHARGE_CONTROLLER_TICK.get());
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
