@@ -24,4 +24,12 @@ public class BasicEnergyStorage extends EnergyStorage {
 		this.energy = Math.max(0 , Math.min(capacity, energy));
 	}
 
+	public int getMaxReceive() {
+		return this.maxReceive;
+	}
+
+	public int getMaxExtract() {
+		return this.maxExtract;
+	}
+
 }

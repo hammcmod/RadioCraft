@@ -2,8 +2,10 @@ package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.common.blocks.AbstractPowerNetworkBlock;
 import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
+import com.arrl.radiocraft.common.power.ConnectionType;
 import com.arrl.radiocraft.common.power.IPowerNetworkItem;
 import com.arrl.radiocraft.common.power.PowerNetwork;
+import com.arrl.radiocraft.common.power.PowerNetwork.PowerNetworkEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -18,8 +20,7 @@ import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public abstract class AbstractPowerBlockEntity extends BlockEntity implements IPowerNetworkItem {
 
@@ -70,15 +71,64 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 	public void onLoad() {
 		super.onLoad();
 		BlockState state = level.getBlockState(getBlockPos()); // Create/add to networks when loaded
-		if(state.getBlock() instanceof AbstractPowerNetworkBlock block) {
+		if(state.getBlock() instanceof AbstractPowerNetworkBlock block)
 			block.onPlace(state, level, getBlockPos(), Blocks.AIR.defaultBlockState(), false);
-		}
 	}
 
 	@Override
-	public void onChunkUnloaded() {
-		super.onChunkUnloaded();
+	public void setRemoved() {
+		super.setRemoved();
 		for(PowerNetwork network : getNetworks().values())
 			network.removeConnection(this); // Remove self from networks
 	}
+
+	/**
+	 * Attempt to consume power from self, return false if there isn't enough
+	 */
+	public boolean tryConsumePower(int amount, boolean simulate) {
+		return energyStorage.extractEnergy(amount, simulate) == amount;
+	}
+
+	public void pushToAll(int amount, boolean includeChargeControllers) {
+		List<ChargeControllerBlockEntity> chargeControllers = new ArrayList<>();
+		List<BlockEntity> otherItems = new ArrayList<>();
+
+		for(PowerNetwork network : getNetworks().values()) {
+			for(PowerNetworkEntry item : network.getConnections()) {
+				if(item.getNetworkItem().getConnectionType() == ConnectionType.PULL) {
+					if(includeChargeControllers && item.getNetworkItem() instanceof ChargeControllerBlockEntity be) {
+						chargeControllers.add(be);
+						continue;
+					}
+					otherItems.add((BlockEntity)item.getNetworkItem());
+				}
+			}
+		}
+
+		if(!chargeControllers.isEmpty()) {
+			for(ChargeControllerBlockEntity be : chargeControllers) {
+				amount -= tryPushPowerTo(be, amount);
+				if(amount <= 0)
+					return;
+			}
+		}
+
+		for(BlockEntity be : otherItems) {
+			amount -= tryPushPowerTo(be, amount);
+			if(amount <= 0)
+				return;
+		}
+	}
+
+	public int tryPushPowerTo(BlockEntity be, int amount) {
+		if(be != null) {
+			LazyOptional<IEnergyStorage> energyCap = be.getCapability(ForgeCapabilities.ENERGY);
+			if(energyCap.isPresent()) { // This is horrendous code but java doesn't like lambdas and vars.
+				IEnergyStorage storage = energyCap.orElse(null);
+				return storage.receiveEnergy(amount, false);
+			}
+		}
+		return 0;
+	}
+
 }

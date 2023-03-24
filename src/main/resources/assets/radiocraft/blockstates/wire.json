@@ -2,102 +2,60 @@
   "multipart": [
     {
       "apply": {
-        "model": "minecraft:block/redstone_dust_dot"
-      },
-      "when": {
-        "OR": [
-          {
-            "east": "none",
-            "north": "none",
-            "south": "none",
-            "west": "none"
-          },
-          {
-            "east": "side|up",
-            "north": "side|up"
-          },
-          {
-            "east": "side|up",
-            "south": "side|up"
-          },
-          {
-            "south": "side|up",
-            "west": "side|up"
-          },
-          {
-            "north": "side|up",
-            "west": "side|up"
-          }
-        ]
+        "model": "radiocraft:block/wire_middle"
       }
     },
     {
       "apply": {
-        "model": "minecraft:block/redstone_dust_side0"
+        "model": "radiocraft:block/wire"
       },
       "when": {
-        "north": "side|up"
+        "north": "true"
       }
     },
     {
       "apply": {
-        "model": "minecraft:block/redstone_dust_side_alt0"
-      },
-      "when": {
-        "south": "side|up"
-      }
-    },
-    {
-      "apply": {
-        "model": "minecraft:block/redstone_dust_side_alt1",
-        "y": 270
-      },
-      "when": {
-        "east": "side|up"
-      }
-    },
-    {
-      "apply": {
-        "model": "minecraft:block/redstone_dust_side1",
-        "y": 270
-      },
-      "when": {
-        "west": "side|up"
-      }
-    },
-    {
-      "apply": {
-        "model": "minecraft:block/redstone_dust_up"
-      },
-      "when": {
-        "north": "up"
-      }
-    },
-    {
-      "apply": {
-        "model": "minecraft:block/redstone_dust_up",
+        "model": "radiocraft:block/wire",
         "y": 90
       },
       "when": {
-        "east": "up"
+        "east": "true"
       }
     },
     {
       "apply": {
-        "model": "minecraft:block/redstone_dust_up",
+        "model": "radiocraft:block/wire",
         "y": 180
       },
       "when": {
-        "south": "up"
+        "south": "true"
       }
     },
     {
       "apply": {
-        "model": "minecraft:block/redstone_dust_up",
+        "model": "radiocraft:block/wire",
         "y": 270
       },
       "when": {
-        "west": "up"
+        "west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire",
+        "x": 270
+      },
+      "when": {
+        "up": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire",
+        "x": 90
+      },
+      "when": {
+        "down": "true"
       }
     }
   ]

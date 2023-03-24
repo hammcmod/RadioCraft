@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
+import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.HFRadio10mBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -15,18 +16,24 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import org.jetbrains.annotations.Nullable;
 
-public class LargeBatteryBlock extends AbstractPowerNetworkBlock {
+public class HFRadio10mBlock extends AbstractRadioBlock {
 
 	public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-	public LargeBatteryBlock(Properties properties) {
+	public HFRadio10mBlock(Properties properties) {
 		super(properties);
 	}
 
 	@Nullable
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new LargeBatteryBlockEntity(pos, state);
+		return new HFRadio10mBlockEntity(pos, state);
+	}
+
+	@Nullable
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+		return type == RadiocraftBlockEntities.HF_RADIO_10M.get() ? AbstractRadioBlockEntity::tick : null;
 	}
 
 	@Override
@@ -38,12 +45,6 @@ public class LargeBatteryBlock extends AbstractPowerNetworkBlock {
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		return defaultBlockState().setValue(HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite());
-	}
-
-	@Nullable
-	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> be) {
-		return be == RadiocraftBlockEntities.LARGE_BATTERY.get() ? LargeBatteryBlockEntity::tick : null;
 	}
 
 }
