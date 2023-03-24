@@ -50,7 +50,7 @@ public class PowerUtils {
 			nullItems.forEach(networkItem -> { // Shouldn't have any nulls but just in case
 				Direction direction = connections.get(networkItem);
 				networkItem.setNetwork(direction, newNetwork);
-				newNetwork.addConnection(networkItem, networkItem.getDefaultConnectionType(), direction);
+				newNetwork.addConnection(networkItem);
 			});
 		}
 	}

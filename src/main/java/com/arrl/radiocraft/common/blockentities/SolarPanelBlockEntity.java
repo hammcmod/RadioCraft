@@ -10,12 +10,10 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class SolarPanelBlockEntity extends AbstractPowerBlockEntity {
 
-	public final int powerPerTick;
 	public final double rainMultiplier;
 
 	public SolarPanelBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state, 200, 15);
-		powerPerTick = RadiocraftConfig.SOLAR_PANEL_MAX_OUTPUT.get();
+		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state, RadiocraftConfig.SOLAR_PANEL_MAX_OUTPUT.get(), RadiocraftConfig.SOLAR_PANEL_MAX_OUTPUT.get());
 		rainMultiplier = RadiocraftConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get();
 	}
 
@@ -23,15 +21,16 @@ public class SolarPanelBlockEntity extends AbstractPowerBlockEntity {
 		if(t instanceof SolarPanelBlockEntity be) {
 			if(!level.isClientSide) { // Serverside only
 				if(level.isDay()) { // Time is day
-					int powerGenerated = level.isRaining() ? (int)Math.round(be.powerPerTick * be.rainMultiplier) : be.powerPerTick;
-					be.energyStorage.receiveEnergy(powerGenerated, false); // Do not push, only charge controller pushes to batteries, everything else will pull from this.
+					int powerGenerated = level.isRaining() ? (int)Math.round(be.energyStorage.getMaxReceive() * be.rainMultiplier) : be.energyStorage.getMaxReceive();
+					be.energyStorage.receiveEnergy(powerGenerated, false); // Generate power
 				}
+				be.pushToAll(be.energyStorage.getMaxExtract(), true); // Push to connected networks
 			}
 		}
 	}
 
 	@Override
-	public ConnectionType getDefaultConnectionType() {
+	public ConnectionType getConnectionType() {
 		return ConnectionType.PUSH;
 	}
 }

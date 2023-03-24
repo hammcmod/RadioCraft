@@ -20,7 +20,7 @@ public class RadiocraftConfig {
 	static {
 		BUILDER.push("Power Options ( * = Restart game to take effect)");
 		LARGE_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of large batteries. #default 1500000 integer").define("large_battery_capacity", 1500000);
-		LARGE_BATTERY_OUTPUT = BUILDER.comment("*Max output per tick for a large battery. #default 625").define("large_battery_output", 625);
+		LARGE_BATTERY_OUTPUT = BUILDER.comment("*Max output per tick for a large battery. #default 625").define("large_battery_output", 1250);
 		CHARGE_CONTROLLER_TICK = BUILDER.comment("*Amount of power a charge controller can process each tick. #default 625 integer").define("charge_controller_tick", 625);
 		SOLAR_PANEL_MAX_OUTPUT = BUILDER.comment("*Maximum output of a solar power per tick. #default 125").define("solar_panel_max_output integer", 125);
 		SOLAR_PANEL_RAIN_MULTIPLIER = BUILDER.comment("*Multiplier for solar panel output while raining #default 0.5").define("solar_panel_rain_multiplier double", 0.5D);

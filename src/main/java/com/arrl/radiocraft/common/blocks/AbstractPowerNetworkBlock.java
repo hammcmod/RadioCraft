@@ -45,7 +45,7 @@ public abstract class AbstractPowerNetworkBlock extends BaseEntityBlock {
 					for(Direction direction : Direction.values()) {
 						if(networks.isEmpty() || !networks.keySet().contains(direction)) {
 							PowerNetwork newNetwork = new PowerNetwork();
-							newNetwork.addConnection(networkItem, networkItem.getDefaultConnectionType(), direction);
+							newNetwork.addConnection(networkItem);
 							networkItem.setNetwork(direction, newNetwork); // Fill with empty networks
 						}
 					}

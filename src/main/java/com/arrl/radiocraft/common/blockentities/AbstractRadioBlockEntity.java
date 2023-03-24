@@ -82,6 +82,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		setTransmitting(false);
 	}
 
+
 	/**
 	 * Toggle the transmit capability, override if making a repeater
 	 */

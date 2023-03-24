@@ -9,7 +9,7 @@ public interface IPowerNetworkItem {
 
 	 default void setNetworks(Map<Direction, PowerNetwork> network) {}
 
-	 default ConnectionType getDefaultConnectionType() {
+	 default ConnectionType getConnectionType() {
 		 return ConnectionType.PULL;
 	 }
 

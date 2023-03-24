@@ -5,7 +5,8 @@
 	"textures": {
 		"1": "radiocraft:block/solar_panel_top",
 		"2": "radiocraft:block/solar_panel_bottom",
-		"3": "radiocraft:block/solar_panel_stand"
+		"3": "radiocraft:block/solar_panel_stand",
+		"particle": "radiocraft:block/solar_panel_top"
 	},
 	"elements": [
 		{
@@ -44,8 +45,8 @@
 		},
 		{
 			"name": "standb",
-			"from": [6.5, 0, 4],
-			"to": [9.5, 0, 12],
+			"from": [6.5, 0.01, 4],
+			"to": [9.5, 0.01, 12],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 2.3097, 7.97683]},
 			"faces": {
 				"up": {"uv": [3, 0, 4.5, 4.5], "texture": "#3"},

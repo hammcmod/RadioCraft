@@ -1,7 +1,5 @@
 package com.arrl.radiocraft.common.power;
 
-import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
-import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -40,7 +38,7 @@ public class PowerNetwork {
 
 		cleanConnections();
 		for(PowerNetworkEntry entry : connections) {
-			if(entry.getConnectionType() == ConnectionType.PUSH) {
+			if(entry.getNetworkItem().getConnectionType() == ConnectionType.PUSH) {
 				BlockEntity be = (BlockEntity) entry.getNetworkItem();
 				if(be != null) {
 
@@ -60,31 +58,6 @@ public class PowerNetwork {
 		return pulled;
 	}
 
-	/**
-	 * Attempts to push power into batteries on network.
-	 * @param simulate If true, do not actually push energy to providers
-	 * @return Amount pushed into batteries
-	 */
-	public int pushBatteries(int amount, boolean simulate) {
-		int pushed = 0;
-
-		for(PowerNetworkEntry entry : connections) {
-			if(entry.getNetworkItem() instanceof LargeBatteryBlockEntity be) {
-				LazyOptional<IEnergyStorage> energyCap = be.getCapability(ForgeCapabilities.ENERGY);
-
-				if(energyCap.isPresent()) { // This is horrendous code but java doesn't like lambdas and vars.
-					IEnergyStorage storage = energyCap.orElse(null);
-					int amountPushed = storage.receiveEnergy(amount - pushed, simulate);
-					pushed += amountPushed;
-
-					if(pushed >= amount) // Stop checking if required amount is reached
-						return pushed;
-				}
-			}
-		}
-		return pushed;
-	}
-
 	public List<PowerNetworkEntry> getConnections() {
 		cleanConnections();
 		return connections;
@@ -97,8 +70,8 @@ public class PowerNetwork {
 		return null;
 	}
 
-	public void addConnection(IPowerNetworkItem networkItem, ConnectionType type, Direction direction) {
-		addConnection(new PowerNetworkEntry(networkItem, type, direction));
+	public void addConnection(IPowerNetworkItem networkItem) {
+		addConnection(new PowerNetworkEntry(networkItem));
 	}
 
 	public void addConnection(PowerNetworkEntry entry) {
@@ -164,22 +137,16 @@ public class PowerNetwork {
 	/**
 	 * Represents a power consumer or provider within a network
 	 */
-	private static class PowerNetworkEntry {
+	public static class PowerNetworkEntry {
 
 		private final WeakReference<IPowerNetworkItem> networkItem; // Use weak reference so network items don't stay loaded if chunk unloads.
-		private final ConnectionType connectionType;
 
-		public PowerNetworkEntry(IPowerNetworkItem networkItem, ConnectionType connectionType, Direction direction) {
+		public PowerNetworkEntry(IPowerNetworkItem networkItem) {
 			this.networkItem = new WeakReference<>(networkItem);
-			this.connectionType = connectionType;
 		}
 
 		public IPowerNetworkItem getNetworkItem() {
 			return networkItem.get();
-		}
-
-		public ConnectionType getConnectionType() {
-			return connectionType;
 		}
 
 	}

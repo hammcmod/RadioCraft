@@ -2,13 +2,19 @@ package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.RadiocraftConfig;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
+import com.arrl.radiocraft.common.power.ConnectionType;
 import com.arrl.radiocraft.common.power.PowerNetwork;
+import com.arrl.radiocraft.common.power.PowerNetwork.PowerNetworkEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.energy.IEnergyStorage;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity {
 
@@ -19,23 +25,26 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity {
 	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
 		if(t instanceof ChargeControllerBlockEntity be) {
 			if(!level.isClientSide) { // Serverside only
-				Collection<PowerNetwork> networks = be.getNetworks().values();
-
-				for(PowerNetwork network : networks) { // Pull power from every network if possible
-					if(be.energyStorage.getEnergyStored() == be.energyStorage.getMaxEnergyStored())
-						break; // Stop if full
-					int powerAvailable = network.pullPower(75, true);
-					int powerUsed = be.energyStorage.receiveEnergy(powerAvailable, false);
-					network.pullPower(powerUsed, false); // Actually pull the power out now
-				}
-
-
 				int energyToPush = be.energyStorage.extractEnergy(be.energyStorage.getEnergyStored(), true); // Do not actually pull out power yet.
 
-				for(PowerNetwork network : networks) {
-					energyToPush -= network.pushBatteries(energyToPush, false); // Push as much as possible into batteries
-					if(energyToPush <= 0)
-						break;
+				List<LargeBatteryBlockEntity> batteries = new ArrayList<>(); // Specifically grab batteries to avoid having to use another sorted list.
+				for(PowerNetwork network : be.getNetworks().values()) {
+					for(PowerNetworkEntry item : network.getConnections()) {
+						if(item.getNetworkItem().getConnectionType() == ConnectionType.PUSH) // Double check here is faster as instanceof can be quite slow.
+							if(item.getNetworkItem() instanceof LargeBatteryBlockEntity battery)
+								batteries.add(battery);
+					}
+				}
+
+				for(LargeBatteryBlockEntity battery : batteries) {
+					LazyOptional<IEnergyStorage> energyCap = battery.getCapability(ForgeCapabilities.ENERGY);
+					if(energyCap.isPresent()) { // This is horrendous code but java doesn't like lambdas and vars.
+						IEnergyStorage storage = energyCap.orElse(null);
+						energyToPush -= storage.receiveEnergy(energyToPush, false);
+
+						if(energyToPush <= 0)
+							break;
+					}
 				}
 				be.energyStorage.setEnergy(energyToPush); // Set energy to the remainder after pushing.
 			}

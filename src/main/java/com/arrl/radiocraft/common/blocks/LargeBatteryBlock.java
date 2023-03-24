@@ -1,10 +1,14 @@
 package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
+import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -34,6 +38,12 @@ public class LargeBatteryBlock extends AbstractPowerNetworkBlock {
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		return defaultBlockState().setValue(HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite());
+	}
+
+	@Nullable
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> be) {
+		return be == RadiocraftBlockEntities.LARGE_BATTERY.get() ? LargeBatteryBlockEntity::tick : null;
 	}
 
 }
