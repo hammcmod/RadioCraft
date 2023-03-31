@@ -1,9 +1,6 @@
 package com.arrl.radiocraft;
 
-import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
-import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.init.RadiocraftItems;
-import com.arrl.radiocraft.common.init.RadiocraftSoundEvents;
+import com.arrl.radiocraft.common.init.*;
 import com.arrl.radiocraft.datagen.RadiocraftBlockstateProvider;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
 import com.mojang.logging.LogUtils;
@@ -20,11 +17,14 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
+import java.util.Random;
+
 @Mod(Radiocraft.MOD_ID)
 public class Radiocraft {
 
     public static final String MOD_ID = "radiocraft";
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static final Random RANDOM = new Random();
 
     public Radiocraft() {
         registerRegistries();
@@ -41,6 +41,7 @@ public class Radiocraft {
         RadiocraftItems.ITEMS.register(modEventBus);
         RadiocraftBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
         RadiocraftSoundEvents.SOUND_EVENTS.register(modEventBus);
+        RadiocraftPackets.registerPackets();
 
         modEventBus.addListener(Radiocraft::gatherData);
     }

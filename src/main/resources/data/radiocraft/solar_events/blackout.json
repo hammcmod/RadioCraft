@@ -1,0 +1,6 @@
+{
+  "weight": 5,
+  "noise": 1.0,
+  "minDuration": 24000,
+  "maxDuration": 72000
+}
