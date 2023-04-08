@@ -11,6 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -23,10 +24,35 @@ import java.util.Map;
 public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity {
 
 	private Radio radioData; // Radio acts as a container for connection info/voip channels
-	private final int receiveUsePower;
-	private final int transmitUsePower;
+	private int receiveUsePower;
+	private int transmitUsePower;
 
 	public boolean isReceiving = false; // This is only read clientside to determine the static sounds.
+
+	protected final ContainerData fields = new ContainerData() {
+
+		@Override
+		public int get(int index) {
+			if(index == 0)
+				return receiveUsePower;
+			else if(index == 1)
+				return transmitUsePower;
+			return 0;
+		}
+
+		@Override
+		public void set(int index, int value) {
+			if(index == 0)
+				receiveUsePower = value;
+			else if(index == 1)
+				transmitUsePower = value;
+		}
+
+		@Override
+		public int getCount() {
+			return 2;
+		}
+	};
 
 
 	public AbstractRadioBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int receiveUsePower, int transmitUsePower) {

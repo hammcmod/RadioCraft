@@ -40,6 +40,7 @@ public class Radiocraft {
         RadiocraftBlocks.BLOCKS.register(modEventBus);
         RadiocraftItems.ITEMS.register(modEventBus);
         RadiocraftBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
+        RadiocraftMenuTypes.MENU_TYPES.register(modEventBus);
         RadiocraftSoundEvents.SOUND_EVENTS.register(modEventBus);
         RadiocraftPackets.registerPackets();
 

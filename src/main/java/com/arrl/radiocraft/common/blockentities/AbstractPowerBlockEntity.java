@@ -9,6 +9,7 @@ import com.arrl.radiocraft.common.power.PowerNetwork.PowerNetworkEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -22,7 +23,7 @@ import org.jetbrains.annotations.NotNull;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public abstract class AbstractPowerBlockEntity extends BlockEntity implements IPowerNetworkItem {
+public abstract class AbstractPowerBlockEntity extends BlockEntity implements IPowerNetworkItem, MenuProvider {
 
 	protected final BasicEnergyStorage energyStorage;
 	protected final LazyOptional<IEnergyStorage> energy;
@@ -96,8 +97,9 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 		for(PowerNetwork network : getNetworks().values()) {
 			for(PowerNetworkEntry item : network.getConnections()) {
 				if(item.getNetworkItem().getConnectionType() == ConnectionType.PULL) {
-					if(includeChargeControllers && item.getNetworkItem() instanceof ChargeControllerBlockEntity be) {
-						chargeControllers.add(be);
+					if(item.getNetworkItem() instanceof ChargeControllerBlockEntity be) {
+						if(includeChargeControllers)
+							chargeControllers.add(be);
 						continue;
 					}
 					otherItems.add((BlockEntity)item.getNetworkItem());

@@ -1,20 +1,22 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.power.IPowerNetworkItem;
 import com.arrl.radiocraft.common.power.PowerNetwork;
 import com.arrl.radiocraft.common.power.PowerUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.network.NetworkHooks;
 
 import java.util.Map;
 
@@ -28,7 +30,8 @@ public abstract class AbstractPowerNetworkBlock extends BaseEntityBlock {
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if(!level.isClientSide) {
 			if(hand == InteractionHand.MAIN_HAND) {
-				level.getBlockEntity(pos).getCapability(ForgeCapabilities.ENERGY).ifPresent(cap -> Radiocraft.LOGGER.info(cap.getEnergyStored() + "/" + cap.getMaxEnergyStored()));
+				BlockEntity be = level.getBlockEntity(pos);
+				NetworkHooks.openScreen((ServerPlayer)player, (MenuProvider)be, pos);
 			}
 		}
 
