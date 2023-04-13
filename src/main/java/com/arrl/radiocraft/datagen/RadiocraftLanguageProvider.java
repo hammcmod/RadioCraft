@@ -24,6 +24,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 		// Add translation sets here.
 		TRANSLATION_PROVIDERS.put("en_us", (provider) -> {
 			provider.add(Radiocraft.translationKey("tabs", "main_tab"), "RadioCraft");
+
 			provider.addItem(RadiocraftItems.RADIO_CRYSTAL, "Radio Crystal");
 			provider.addItem(RadiocraftItems.RADIO_SPEAKER, "Radio Speaker");
 			provider.addItem(RadiocraftItems.MICROPHONE, "Microphone");
@@ -59,6 +60,15 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
 			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");
 			provider.addBlock(RadiocraftBlocks.CHARGE_CONTROLLER, "Charge Controller");
+
+			provider.add(Radiocraft.translationKey("commands", "callsign.get.success"), "%s's callsign is %s.");
+			provider.add(Radiocraft.translationKey("commands", "callsign.get.failure"), "%s does not have a callsign.");
+			provider.add(Radiocraft.translationKey("commands", "callsign.get.failure.multiple"), "Cannot get the callsign of multiple targets at once.");
+			provider.add(Radiocraft.translationKey("commands", "callsign.reset.success"), "%s's callsign has been reset.");
+			provider.add(Radiocraft.translationKey("commands", "callsign.reset.failure.multiple"), "Cannot reset the callsign of multiple targets at once.");
+			provider.add(Radiocraft.translationKey("commands", "callsign.set.success"), "%s's callsign has been set to %s.");
+			provider.add(Radiocraft.translationKey("commands", "callsign.set.failure.multiple"), "Cannot reset the callsign of multiple targets at once.");
+
 		});
 	}
 
