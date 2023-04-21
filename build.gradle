@@ -9,12 +9,11 @@ version = '0.1.1'
 group = 'com.arrl.radiocraft'
 archivesBaseName = 'radiocraft'
 
-// Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 println "Java: ${System.getProperty 'java.version'}, JVM: ${System.getProperty 'java.vm.version'} (${System.getProperty 'java.vendor'}), Arch: ${System.getProperty 'os.arch'}"
 minecraft {
-    mappings channel: 'parchment', version: '2023.02.05-1.19.3'
+    mappings channel: 'parchment', version: '2023.03.12-1.19.3'
 
     // accessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg') // Currently, this location cannot be changed from the default.
 
@@ -92,7 +91,7 @@ repositories {
 }
 
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.19.3-44.1.16'
+    minecraft 'net.minecraftforge:forge:1.19.3-44.1.23'
 
     implementation "de.maxhenkel.voicechat:voicechat-api:2.3.3"
     runtimeOnly fg.deobf("curse.maven:simplevoicechat-416089:4372224") // Comment this out every single time datagen is required.

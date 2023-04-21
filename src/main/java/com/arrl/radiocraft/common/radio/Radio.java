@@ -35,7 +35,7 @@ public class Radio {
 		return receiveChannel;
 	}
 
-	public void receive(MicrophonePacket packet, int quality) {
+	public void receive(MicrophonePacket packet, int strength) {
 		receiveChannel.send(packet);
 	}
 

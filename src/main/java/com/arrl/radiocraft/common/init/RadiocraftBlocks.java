@@ -2,8 +2,6 @@ package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blocks.*;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
@@ -51,19 +49,15 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> DIGITAL_INTERFACE = simpleBlock("digital_interface", PROPERTIES_STONE);
 
 	// Antenna blocks
-	public static final RegistryObject<Block> ANTENNA_POLE = simpleBlock("antenna_pole", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> DUPLEXER = simpleBlock("duplexer", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> ANTENNA_TUNER = simpleBlock("antenna_tuner", PROPERTIES_STONE);
+	public static final RegistryObject<Block> COAX_WIRE = simpleBlock("coax_wire", PROPERTIES_WIRES);
+	public static final RegistryObject<Block> ANTENNA_POLE = simpleBlock("antenna_pole", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> ANTENNA_WIRE = simpleBlock("antenna_wire", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> ANTENNA_CONNECTOR = simpleBlock("antenna_connector", PROPERTIES_IRON_BARS);
-	public static final RegistryObject<Block> COAX_WIRE = simpleBlock("coax_wire", PROPERTIES_WIRES);
+	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = simpleBlock("balun_one_to_one", PROPERTIES_STONE);
 
 	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = simpleBlock("solar_weather_station", PROPERTIES_STONE);
-
-	public static void initRender() {
-		ItemBlockRenderTypes.setRenderLayer(WIRE.get(), RenderType.cutout()); // Temporary, will use model later for this but it currently uses redstone models.
-	}
-
 
 	public static RegistryObject<Block> simpleBlock(String name, Properties properties) {
 		return BLOCKS.register(name, () -> new Block(properties));
