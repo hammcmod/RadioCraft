@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.items.AntennaPoleItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
@@ -53,7 +54,7 @@ public class RadiocraftItems {
 
 	public static final RegistryObject<BlockItem> DIGITAL_INTERFACE = simpleBlockItem("digital_interface", RadiocraftBlocks.DIGITAL_INTERFACE);
 
-	public static final RegistryObject<BlockItem> ANTENNA_POLE = simpleBlockItem("antenna_pole", RadiocraftBlocks.ANTENNA_POLE);
+	public static final RegistryObject<BlockItem> ANTENNA_POLE = ITEMS.register("antenna_pole", () -> new AntennaPoleItem(RadiocraftBlocks.ANTENNA_POLE.get(), new Item.Properties()));
 	public static final RegistryObject<BlockItem> DUPLEXER = simpleBlockItem("duplexer", RadiocraftBlocks.DUPLEXER);
 	public static final RegistryObject<BlockItem> ANTENNA_TUNER = simpleBlockItem("antenna_tuner", RadiocraftBlocks.ANTENNA_TUNER);
 	public static final RegistryObject<BlockItem> ANTENNA_WIRE = simpleBlockItem("antenna_wire", RadiocraftBlocks.ANTENNA_WIRE);

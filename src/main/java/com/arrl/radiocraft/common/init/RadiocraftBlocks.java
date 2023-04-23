@@ -52,7 +52,7 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> DUPLEXER = simpleBlock("duplexer", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> ANTENNA_TUNER = simpleBlock("antenna_tuner", PROPERTIES_STONE);
 	public static final RegistryObject<Block> COAX_WIRE = simpleBlock("coax_wire", PROPERTIES_WIRES);
-	public static final RegistryObject<Block> ANTENNA_POLE = simpleBlock("antenna_pole", PROPERTIES_IRON_BARS);
+	public static final RegistryObject<Block> ANTENNA_POLE = BLOCKS.register("antenna_pole", () -> new AntennaPoleBlock(PROPERTIES_IRON_BARS));
 	public static final RegistryObject<Block> ANTENNA_WIRE = simpleBlock("antenna_wire", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> ANTENNA_CONNECTOR = simpleBlock("antenna_connector", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = simpleBlock("balun_one_to_one", PROPERTIES_STONE);
