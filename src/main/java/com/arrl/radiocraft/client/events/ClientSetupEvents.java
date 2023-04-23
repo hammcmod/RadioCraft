@@ -20,8 +20,6 @@ public class ClientSetupEvents {
 		MenuScreens.register(RadiocraftMenuTypes.SOLAR_PANEL.get(), SolarPanelScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.CHARGE_CONTROLLER.get(), ChargeControllerScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_10M.get(), HfRadio10mScreen::new);
-
-		RadiocraftBlocks.initRender();
 	}
 
 }
