@@ -38,16 +38,16 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 	public Antenna<DipoleAntennaData> match(Level level, BlockPos pos) {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_ONE_TO_ONE.get()) // Do not allow wires above or below, ensure center block is a 1:1 balun
 			return null;
-		if(level.getBlockState(pos.above()).getBlock() == RadiocraftBlocks.ANTENNA_WIRE.get())
+		if(level.getBlockState(pos.above()).getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get())
 			return null;
-		if(level.getBlockState(pos.below()).getBlock() == RadiocraftBlocks.ANTENNA_WIRE.get())
+		if(level.getBlockState(pos.below()).getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get())
 			return null;
 
 		for(Direction dir : Plane.HORIZONTAL) { // Check for arms
 			BlockPos checkPos = pos.relative(dir);
 			Block checkBlock = level.getBlockState(checkPos).getBlock();
 
-			if(checkBlock == RadiocraftBlocks.ANTENNA_WIRE.get()) { // If wire is found in a horizontal direction.
+			if(checkBlock == RadiocraftBlocks.ANTENNA_CONNECTOR.get()) { // If wire is found in a horizontal direction.
 				if(!checkSurroundingBlocks(level, pos, dir.getAxis())) // Make sure no other non-axis dir is connected;
 					return null;
 
@@ -78,7 +78,7 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 
 		while(!stop) {
 			BlockPos checkPos = pos.relative(dir, length + 1);
-			if(level.getBlockState(checkPos).getBlock() == RadiocraftBlocks.ANTENNA_WIRE.get()) { // Next block is an antenna
+			if(level.getBlockState(checkPos).getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get()) { // Next block is an antenna
 				if(!checkSurroundingBlocks(level, checkPos, dir.getAxis()))
 					return -1; // Return -1 if block is not valid
 				else

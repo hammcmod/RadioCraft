@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.init;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
 import com.arrl.radiocraft.common.network.packets.ClientboundNoisePacket;
+import com.arrl.radiocraft.common.network.packets.ClientboundWireHolderPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkRegistry;
@@ -22,6 +23,7 @@ public class RadiocraftPackets {
 	public static void registerPackets() {
 		int id = 0;
 		INSTANCE.registerMessage(id++, ClientboundNoisePacket.class, ClientboundNoisePacket::encode, ClientboundNoisePacket::decode, ClientboundNoisePacket::handle);
+		INSTANCE.registerMessage(id++, ClientboundWireHolderPacket.class, ClientboundWireHolderPacket::encode, ClientboundWireHolderPacket::decode, ClientboundWireHolderPacket::handle);
 	}
 
 	public static void sendToPlayer(RadiocraftPacket packet, ServerPlayer player) {

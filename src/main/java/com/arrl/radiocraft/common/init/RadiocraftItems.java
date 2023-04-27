@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.items.AntennaPoleItem;
+import com.arrl.radiocraft.common.items.AntennaWireItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
@@ -30,6 +31,7 @@ public class RadiocraftItems {
 	public static final RegistryObject<Item> COAXIAL_CORE = simpleItem("coaxial_core");
 	public static final RegistryObject<Item> ANTENNA_ANALYZER = simpleItem("antenna_analyzer");
 	public static final RegistryObject<Item> VHF_HANDHELD = simpleItem("vhf_handheld");
+	public static final RegistryObject<Item> ANTENNA_WIRE = ITEMS.register("antenna_wire", () -> new AntennaWireItem(new Properties()));
 
 	// Block Items
 	public static final RegistryObject<BlockItem> WIRE = simpleBlockItem("wire", RadiocraftBlocks.WIRE);
@@ -57,7 +59,6 @@ public class RadiocraftItems {
 	public static final RegistryObject<BlockItem> ANTENNA_POLE = ITEMS.register("antenna_pole", () -> new AntennaPoleItem(RadiocraftBlocks.ANTENNA_POLE.get(), new Item.Properties()));
 	public static final RegistryObject<BlockItem> DUPLEXER = simpleBlockItem("duplexer", RadiocraftBlocks.DUPLEXER);
 	public static final RegistryObject<BlockItem> ANTENNA_TUNER = simpleBlockItem("antenna_tuner", RadiocraftBlocks.ANTENNA_TUNER);
-	public static final RegistryObject<BlockItem> ANTENNA_WIRE = simpleBlockItem("antenna_wire", RadiocraftBlocks.ANTENNA_WIRE);
 	public static final RegistryObject<BlockItem> ANTENNA_CONNECTOR = simpleBlockItem("antenna_connector", RadiocraftBlocks.ANTENNA_CONNECTOR);
 	public static final RegistryObject<BlockItem> BALUN_ONE_TO_ONE = simpleBlockItem("balun_one_to_one", RadiocraftBlocks.BALUN_ONE_TO_ONE);
 	public static final RegistryObject<BlockItem> COAX_WIRE = simpleBlockItem("coax_wire", RadiocraftBlocks.COAX_WIRE);

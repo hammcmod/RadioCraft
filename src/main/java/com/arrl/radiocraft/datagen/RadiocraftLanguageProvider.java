@@ -34,6 +34,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addItem(RadiocraftItems.FERRITE_CORE, "Ferrite Core");
 			provider.addItem(RadiocraftItems.COAXIAL_CORE, "Coaxial Core");
 			provider.addItem(RadiocraftItems.ANTENNA_ANALYZER, "Antenna Analyzer");
+			provider.addItem(RadiocraftItems.ANTENNA_WIRE, "Antenna Wire");
 			provider.addItem(RadiocraftItems.VHF_HANDHELD, "VHF Handheld Radio");
 
 			provider.addBlock(RadiocraftBlocks.WIRE, "Wire");
@@ -55,7 +56,6 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.ANTENNA_POLE, "Antenna Pole");
 			provider.addBlock(RadiocraftBlocks.DUPLEXER, "Duplexer");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_TUNER, "Antenna Tuner");
-			provider.addBlock(RadiocraftBlocks.ANTENNA_WIRE, "Antenna Wire");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_CONNECTOR, "Antenna Connector");
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
 			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");

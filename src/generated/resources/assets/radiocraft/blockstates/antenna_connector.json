@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "radiocraft:block/antenna_connector"
+    }
+  }
+}
