@@ -1,18 +1,18 @@
 package com.arrl.radiocraft.common.radio;
 
+import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.radio.voice.AntennaNetworkPacket;
+import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
-import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
-import de.maxhenkel.voicechat.api.packets.MicrophonePacket;
-import net.minecraft.core.BlockPos;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
+/**
+ * Represents a radio block entity
+ */
 public class Radio {
 
-	private final Map<BlockPos, Integer> connections = new HashMap<>();
 	private LocationalAudioChannel receiveChannel = null;
 
 	private boolean isTransmitting;
@@ -27,16 +27,24 @@ public class Radio {
 		this.isReceiving = isReceiving;
 	}
 
-	public void openChannel(VoicechatServerApi api, ServerLevel level, int x, int y, int z) {
-		receiveChannel = api.createLocationalAudioChannel(UUID.randomUUID(), level, api.createPosition(x, y, z));
+	public void openChannel(ServerLevel level, int x, int y, int z) {
+		if(RadiocraftVoicePlugin.api == null)
+			Radiocraft.LOGGER.error("Radiocraft VoiceChatServerApi is null.");
+		receiveChannel = RadiocraftVoicePlugin.api.createLocationalAudioChannel(UUID.randomUUID(), level, RadiocraftVoicePlugin.api.createPosition(x, y, z));
 	}
 
 	public LocationalAudioChannel getReceiveChannel() {
 		return receiveChannel;
 	}
 
-	public void receive(MicrophonePacket packet, int strength) {
-		receiveChannel.send(packet);
+	public void receive(AntennaNetworkPacket antennaPacket) {
+		if(RadiocraftVoicePlugin.encoder == null)
+			Radiocraft.LOGGER.error("Radiocraft encoder is null.");
+		else {
+			RadiocraftVoicePlugin.encoder.resetState();
+			byte[] opusAudio = RadiocraftVoicePlugin.encoder.encode(antennaPacket.getRawAudio());
+			receiveChannel.send(opusAudio);
+		}
 	}
 
 	public boolean isTransmitting() {
@@ -53,10 +61,6 @@ public class Radio {
 
 	public void setReceiving(boolean value) {
 		isReceiving = value;
-	}
-
-	public Map<BlockPos, Integer> getConnections() {
-		return connections;
 	}
 
 }

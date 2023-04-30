@@ -1,29 +1,27 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.client.blockentity.AbstractRadioBlockEntityClientHandler;
+import com.arrl.radiocraft.common.init.RadiocraftAntennaTypes;
+import com.arrl.radiocraft.common.radio.AntennaManager;
+import com.arrl.radiocraft.common.radio.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.Radio;
-import com.arrl.radiocraft.common.radio.RadioManager;
-import com.arrl.radiocraft.common.radio.RadioNetwork;
-import de.maxhenkel.voicechat.api.VoicechatServerApi;
-import de.maxhenkel.voicechat.api.packets.MicrophonePacket;
+import com.arrl.radiocraft.common.radio.antenna.Antenna;
+import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType.DipoleAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.Map;
 
 public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity {
 
-	private Radio radioData; // Radio acts as a container for connection info/voip channels
+	private Radio radioData; // Acts as a container for voip channel info
+	private Antenna<?> antenna; // Multiple antennas will be possible later-- temporarily gives itself a dipole for testing purposes.
 	private int receiveUsePower;
 	private int transmitUsePower;
 
@@ -68,14 +66,17 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		return radioData;
 	}
 
-	public RadioNetwork getRadioNetwork() {
-		return level != null ? RadioManager.getNetwork(level) : null;
-	}
-
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(!level.isClientSide) {
 			if(t instanceof AbstractRadioBlockEntity be) {
 				Radio radio = be.getRadio();
+
+				if(be.antenna == null) { // For debug purposes all antennas will use a 5 length dipole
+					be.antenna = new Antenna<>(RadiocraftAntennaTypes.DIPOLE, pos, new DipoleAntennaData(5, 5));
+					AntennaNetwork network = AntennaManager.getNetwork(level);
+					network.addAntenna(pos, be.antenna);
+					be.antenna.setNetwork(network);
+				}
 
 				// Radio tick logic doesn't need anything special, all the voice communications are handled outside the tick loop.
 				if(radio.isTransmitting()) {
@@ -141,17 +142,13 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	@Override
 	public void onLoad() {
 		super.onLoad();
-		if(!level.isClientSide())
-			getRadioNetwork().putRadio(worldPosition, getRadio());
-		else
+		if(level.isClientSide())
 			AbstractRadioBlockEntityClientHandler.startRadioStatic(this);
 	}
 
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		if(!level.isClientSide())
-			getRadioNetwork().removeRadio(worldPosition);
 	}
 
 	@Nullable
@@ -187,23 +184,12 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 	/**
 	 * Process voice packet to broadcast to other radios
-	 * @param packet
 	 */
-	public void acceptVoicePacket(VoicechatServerApi api, de.maxhenkel.voicechat.api.ServerLevel level, MicrophonePacket packet) {
+	public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio) {
 		Radio radio = getRadio();
 		if(radio.isTransmitting()) {
-			Map<BlockPos, Integer> connections = radio.getConnections();
-			for(BlockPos pos : connections.keySet()) {
-				if(((ServerLevel)level.getServerLevel()).getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof AbstractRadioBlockEntity be) {
-					Radio targetRadio = be.getRadio();
-
-					if(targetRadio.isReceiving()) {
-						if(targetRadio.getReceiveChannel() == null)
-							targetRadio.openChannel(api, level, pos.getX(), pos.getY(), pos.getZ());
-						targetRadio.receive(packet, 1);
-					}
-				}
-			}
+			if(antenna != null)
+				antenna.transmitAudioPacket(rawAudio, 10, 1000);
 		}
 	}
 

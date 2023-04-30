@@ -5,12 +5,14 @@ import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
+import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType.DipoleAntennaData;
 import com.arrl.radiocraft.common.radio.voice.AntennaNetworkPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.core.Direction.Plane;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -25,12 +27,12 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 	}
 
 	@Override
-	public void applyTransmitStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos pos, BlockPos destination) {
+	public void applyTransmitStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos destination) {
 
 	}
 
 	@Override
-	public void applyReceiveStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos pos, BlockPos source) {
+	public void applyReceiveStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos pos) {
 
 	}
 
@@ -51,15 +53,15 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 				if(!checkSurroundingBlocks(level, pos, dir.getAxis())) // Make sure no other non-axis dir is connected;
 					return null;
 
-				int length1 = checkArmLength(level, checkPos, dir);
+				int length1 = checkArmLength(level, pos, dir);
 				if(length1 == -1) // Arm1 turned out to be invalid
 					return null;
 				else {
-					int length2 = checkArmLength(level, checkPos, dir.getOpposite());
+					int length2 = checkArmLength(level, pos, dir.getOpposite());
 					if(length2 == -1) // Arm2 turned out to be invalid
 						return null;
 					else
-						return new Antenna<>(this, level, pos, new DipoleAntennaData(length1, length2));
+						return new Antenna<>(this, pos, new DipoleAntennaData(length1, length2));
 				}
 
 			}
@@ -101,6 +103,43 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 		return true;
 	}
 
+	@Override
+	public DipoleAntennaData getDefaultData() {
+		return new DipoleAntennaData(0, 0);
+	}
 
-	public record DipoleAntennaData(int armLength1, int armLength2) {}
+
+	public static class DipoleAntennaData extends AntennaData {
+
+		private int armLength1;
+		private int armLength2;
+
+		public DipoleAntennaData(int armLength1, int armLength2) {
+			this.armLength1 = armLength1;
+			this.armLength2 = armLength2;
+		}
+
+		public int getArmLength1() {
+			return armLength1;
+		}
+
+		public int getArmLength2() {
+			return armLength2;
+		}
+
+		@Override
+		public CompoundTag serializeNBT() {
+			CompoundTag nbt = new CompoundTag();
+			nbt.putInt("armLength1", armLength1);
+			nbt.putInt("armLength2", armLength2);
+			return nbt;
+		}
+
+		@Override
+		public void deserializeNBT(CompoundTag nbt) {
+			armLength1 = nbt.getInt("armLength1");
+			armLength2 = nbt.getInt("armLength2");
+		}
+
+	}
 }

@@ -1,8 +1,10 @@
 package com.arrl.radiocraft.client.events;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.client.screens.*;
-import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.client.screens.ChargeControllerScreen;
+import com.arrl.radiocraft.client.screens.HfRadio10mScreen;
+import com.arrl.radiocraft.client.screens.LargeBatteryScreen;
+import com.arrl.radiocraft.client.screens.SolarPanelScreen;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
@@ -20,8 +22,6 @@ public class ClientSetupEvents {
 		MenuScreens.register(RadiocraftMenuTypes.SOLAR_PANEL.get(), SolarPanelScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.CHARGE_CONTROLLER.get(), ChargeControllerScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_10M.get(), HfRadio10mScreen::new);
-
-		RadiocraftBlocks.initRender();
 	}
 
 }
