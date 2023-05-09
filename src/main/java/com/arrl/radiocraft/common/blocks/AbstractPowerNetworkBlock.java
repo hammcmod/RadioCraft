@@ -1,8 +1,10 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.power.IPowerNetworkItem;
+import com.arrl.radiocraft.api.benetworks.IBENetworkItem;
+import com.arrl.radiocraft.common.benetworks.BENetwork;
+import com.arrl.radiocraft.common.init.RadiocraftTags;
 import com.arrl.radiocraft.common.power.PowerNetwork;
-import com.arrl.radiocraft.common.power.PowerUtils;
+import com.arrl.radiocraft.common.power.WireUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,7 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.network.NetworkHooks;
 
-import java.util.Map;
+import java.util.Set;
 
 public abstract class AbstractPowerNetworkBlock extends BaseEntityBlock {
 
@@ -40,43 +42,36 @@ public abstract class AbstractPowerNetworkBlock extends BaseEntityBlock {
 
 	@Override
 	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-		super.onPlace(state, level, pos, oldState, isMoving);
 		if(!level.isClientSide) {
 			if(oldState.getBlock() != this) {
-				if(level.getBlockEntity(pos) instanceof IPowerNetworkItem networkItem) {
-					Map<Direction, PowerNetwork> networks = networkItem.getNetworks();
-					for(Direction direction : Direction.values()) {
-						if(networks.isEmpty() || !networks.keySet().contains(direction)) {
-							PowerNetwork newNetwork = new PowerNetwork();
-							newNetwork.addConnection(networkItem);
-							networkItem.setNetwork(direction, newNetwork); // Fill with empty networks
-						}
-					}
-
-					for(Direction direction : Direction.values()) {
-						BlockPos checkPos = pos.relative(direction);
-						BlockState checkState = level.getBlockState(checkPos);
-
-						if(WireBlock.isWire(checkState))
-							PowerUtils.mergeWireNetworks(level, checkPos); // Merge self with other networks if wire is found
-					}
+				for(Direction direction : Direction.values()) {
+					WireUtils.mergeWireNetworks(level, pos.relative(direction),
+							wire -> RadiocraftTags.isPowerWire(wire.getBlock()),
+							connection -> RadiocraftTags.isPowerBlock(connection.getBlock()),
+							network -> network instanceof PowerNetwork,
+							PowerNetwork::new);
 				}
 			}
 		}
 	}
 
+
+
 	@Override
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		super.onRemove(state, level, pos, newState, isMoving);
 		if(!level.isClientSide) {
 			if(newState.getBlock() != this) {
-				if(level.getBlockEntity(pos) instanceof IPowerNetworkItem networkItem) {
-					for(PowerNetwork network : networkItem.getNetworks().values())
-						network.removeConnection(networkItem); // Remove self from networks.
-					networkItem.getNetworks().clear();
+				if(level.getBlockEntity(pos) instanceof IBENetworkItem networkItem) {
+					for(Set<BENetwork> side : networkItem.getNetworkMap().values()) {
+						for(BENetwork network : side) {
+							network.removeConnection(networkItem);
+						}
+						side.clear();
+					}
 				}
 			}
 		}
+		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	@Override

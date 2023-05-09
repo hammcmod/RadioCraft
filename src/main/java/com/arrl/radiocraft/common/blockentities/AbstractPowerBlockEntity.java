@@ -1,11 +1,12 @@
 package com.arrl.radiocraft.common.blockentities;
 
+import com.arrl.radiocraft.common.benetworks.BENetwork;
+import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.blocks.AbstractPowerNetworkBlock;
 import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
 import com.arrl.radiocraft.common.power.ConnectionType;
-import com.arrl.radiocraft.common.power.IPowerNetworkItem;
+import com.arrl.radiocraft.api.benetworks.IPowerNetworkItem;
 import com.arrl.radiocraft.common.power.PowerNetwork;
-import com.arrl.radiocraft.common.power.PowerNetwork.PowerNetworkEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -27,7 +28,7 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 
 	protected final BasicEnergyStorage energyStorage;
 	protected final LazyOptional<IEnergyStorage> energy;
-	private Map<Direction, PowerNetwork> networks = new HashMap<>();
+	private final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
 
 	public AbstractPowerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, int maxTransfer) {
 		super(type, pos, state);
@@ -47,13 +48,13 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 	}
 
 	@Override
-	public Map<Direction, PowerNetwork> getNetworks() {
+	public Map<Direction, Set<BENetwork>> getNetworkMap() {
 		return networks;
 	}
 
 	@Override
-	public void setNetworks(Map<Direction, PowerNetwork> networks) {
-		this.networks = networks;
+	public void setNetworks(Direction side, Set<BENetwork> networks) {
+		this.networks.put(side, networks);
 	}
 
 	@Override
@@ -79,8 +80,9 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		for(PowerNetwork network : getNetworks().values())
-			network.removeConnection(this); // Remove self from networks
+		for(Set<BENetwork> side : getNetworkMap().values())
+			for(BENetwork network : side)
+				network.removeConnection(this); // Remove self from networks
 	}
 
 	/**
@@ -94,15 +96,23 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 		List<ChargeControllerBlockEntity> chargeControllers = new ArrayList<>();
 		List<BlockEntity> otherItems = new ArrayList<>();
 
-		for(PowerNetwork network : getNetworks().values()) {
-			for(PowerNetworkEntry item : network.getConnections()) {
-				if(item.getNetworkItem().getConnectionType() == ConnectionType.PULL) {
-					if(item.getNetworkItem() instanceof ChargeControllerBlockEntity be) {
-						if(includeChargeControllers)
-							chargeControllers.add(be);
-						continue;
+		for(Set<BENetwork> side : getNetworkMap().values()) {
+			for(BENetwork network : side) {
+				if(network instanceof PowerNetwork) {
+					for(BENetworkEntry i : network.getConnections()) {
+						IPowerNetworkItem item = (IPowerNetworkItem)i.getNetworkItem(); // This cast is safe because the PowerNetwork errors if a non-IPowerNetworkItem is added
+						if(item.getConnectionType() == ConnectionType.PULL) {
+							if(item instanceof ChargeControllerBlockEntity be) {
+								if(includeChargeControllers)
+									chargeControllers.add(be);
+								continue;
+							}
+							otherItems.add((BlockEntity)item); // This cast is also safe as long as no other mod dev abuses networks-- want to crash if they do anyway
+						}
 					}
-					otherItems.add((BlockEntity)item.getNetworkItem());
+				}
+				else {
+					break; // Break if network is not a power network.
 				}
 			}
 		}

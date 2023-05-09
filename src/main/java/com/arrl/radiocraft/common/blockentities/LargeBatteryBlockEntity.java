@@ -18,7 +18,6 @@ import org.jetbrains.annotations.Nullable;
 public class LargeBatteryBlockEntity extends AbstractPowerBlockEntity {
 
 	private final ContainerData fields = new ContainerData() {
-
 		@Override
 		public int get(int index) {
 			if(index == 0)

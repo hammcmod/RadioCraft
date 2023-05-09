@@ -22,7 +22,6 @@ public class SolarPanelBlockEntity extends AbstractPowerBlockEntity {
 
 	// Using a ContainerData for one value is awkward, but it changes constantly and needs to be synchronised.
 	private final ContainerData fields = new ContainerData() {
-
 		@Override
 		public int get(int index) {
 			if(index == 0)

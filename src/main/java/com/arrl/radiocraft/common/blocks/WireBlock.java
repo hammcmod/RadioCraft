@@ -1,6 +1,9 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.power.PowerUtils;
+import com.arrl.radiocraft.common.benetworks.BENetwork;
+import com.arrl.radiocraft.common.init.RadiocraftTags;
+import com.arrl.radiocraft.common.power.PowerNetwork;
+import com.arrl.radiocraft.common.power.WireUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
@@ -21,6 +24,8 @@ import java.util.Map;
 
 public class WireBlock extends Block {
 
+	public final boolean isPower;
+
 	public static final BooleanProperty NORTH = BooleanProperty.create("north");
 	public static final BooleanProperty EAST = BooleanProperty.create("east");
 	public static final BooleanProperty SOUTH = BooleanProperty.create("south");
@@ -29,26 +34,12 @@ public class WireBlock extends Block {
 	public static final BooleanProperty DOWN = BooleanProperty.create("down");
 	public static final BooleanProperty ON_GROUND = BooleanProperty.create("on_ground");
 
-	public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = Maps.newEnumMap(
-			ImmutableMap.of(
-					Direction.NORTH, NORTH,
-					Direction.EAST, EAST,
-					Direction.SOUTH, SOUTH,
-					Direction.WEST, WEST,
-					Direction.UP, UP,
-					Direction.DOWN, DOWN));
+	public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST, Direction.UP, UP, Direction.DOWN, DOWN));
 
-	public WireBlock(Properties properties) {
+	public WireBlock(Properties properties, boolean isPower) {
 		super(properties);
-		registerDefaultState(defaultBlockState()
-				.setValue(NORTH, false)
-				.setValue(EAST, false)
-				.setValue(SOUTH, false)
-				.setValue(WEST, false)
-				.setValue(UP, false)
-				.setValue(DOWN, false)
-				.setValue(ON_GROUND, false)
-		);
+		registerDefaultState(defaultBlockState().setValue(NORTH, false).setValue(EAST, false).setValue(SOUTH, false).setValue(WEST, false).setValue(UP, false).setValue(DOWN, false).setValue(ON_GROUND, false));
+		this.isPower = isPower;
 	}
 
 	@Override
@@ -70,7 +61,7 @@ public class WireBlock extends Block {
 
 		state = state.setValue(ON_GROUND, isSturdyTop(level, pos.below()));
 		for(Direction direction : Direction.values())
-			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(level.getBlockState(pos.relative(direction))));
+			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(level.getBlockState(pos.relative(direction)), isPower));
 
 		return state;
 	}
@@ -78,11 +69,11 @@ public class WireBlock extends Block {
 	/**
 	 * Get direction for all connections
 	 */
-	public static List<Direction> getConnections(BlockGetter level, BlockPos pos) {
+	public List<Direction> getConnections(BlockGetter level, BlockPos pos) {
 		List<Direction> out = new ArrayList<>();
 
 		for(Direction direction : Direction.values())
-			if(canConnectTo(level.getBlockState(pos.relative(direction))))
+			if(canConnectTo(level.getBlockState(pos.relative(direction)), isPower))
 				out.add(direction);
 
 		return out;
@@ -95,36 +86,60 @@ public class WireBlock extends Block {
 		if(oldState.is(this))
 			return;
 
-		PowerUtils.mergeWireNetworks(level, pos);
+		if(isPower)
+			WireUtils.mergeWireNetworks(level, pos,
+					wire -> RadiocraftTags.isPowerWire(wire.getBlock()),
+					connection -> RadiocraftTags.isPowerBlock(connection.getBlock()),
+					network -> network instanceof PowerNetwork,
+					PowerNetwork::new);
+		else
+			WireUtils.mergeWireNetworks(level, pos,
+					wire -> RadiocraftTags.isCoaxWire(wire.getBlock()),
+					connection -> RadiocraftTags.isCoaxBlock(connection.getBlock()),
+					network -> !(network instanceof PowerNetwork),
+					BENetwork::new);
 	}
 
 	@Override
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		if(!newState.is(this))
-			PowerUtils.splitWireNetwork(level, pos);
+		if(!newState.is(this) && !level.isClientSide) {
+			if(isPower)
+				WireUtils.splitWireNetwork(level, pos,
+						wire -> RadiocraftTags.isPowerWire(wire.getBlock()),
+						connection -> RadiocraftTags.isPowerBlock(connection.getBlock()),
+						network -> network instanceof PowerNetwork);
+			else
+				WireUtils.splitWireNetwork(level, pos,
+						wire -> RadiocraftTags.isCoaxWire(wire.getBlock()),
+						connection -> RadiocraftTags.isCoaxBlock(connection.getBlock()),
+						network -> !(network instanceof PowerNetwork));
+		}
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-		return state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(neighborState));
+		return state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(neighborState, isPower));
 	}
 
-
-	private static boolean isSturdyTop(BlockGetter level, BlockPos pos) {
+	private boolean isSturdyTop(BlockGetter level, BlockPos pos) {
 		return level.getBlockState(pos).isFaceSturdy(level, pos, Direction.UP);
 	}
 
-	private static boolean canConnectTo(BlockState state) {
-		return isWire(state) || isNetworkItem(state);
+	private static boolean canConnectTo(BlockState state, boolean isPower) {
+		return isWire(state, isPower) || isNetworkItem(state, isPower);
 	}
 
-	public static boolean isNetworkItem(BlockState state) {
-		return state.getBlock() instanceof AbstractPowerNetworkBlock;
+	public static boolean isNetworkItem(BlockState state, boolean isPower) {
+		if(isPower)
+			return RadiocraftTags.isPowerBlock(state.getBlock());
+		return RadiocraftTags.isCoaxBlock(state.getBlock());
 	}
 
-	public static boolean isWire(BlockState state) {
-		return state.getBlock() instanceof WireBlock;
+	public static boolean isWire(BlockState state, boolean isPower) {
+		if(isPower)
+			return RadiocraftTags.isPowerWire(state.getBlock());
+		return RadiocraftTags.isCoaxWire(state.getBlock());
 	}
 
 }

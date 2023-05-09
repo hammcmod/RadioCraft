@@ -1,11 +1,13 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.RadiocraftConfig;
+import com.arrl.radiocraft.api.benetworks.IPowerNetworkItem;
+import com.arrl.radiocraft.common.benetworks.BENetwork;
+import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
 import com.arrl.radiocraft.common.power.ConnectionType;
 import com.arrl.radiocraft.common.power.PowerNetwork;
-import com.arrl.radiocraft.common.power.PowerNetwork.PowerNetworkEntry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,6 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity {
 
@@ -60,11 +63,16 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity {
 				be.lastPowerTick = energyToPush;
 
 				List<LargeBatteryBlockEntity> batteries = new ArrayList<>(); // Specifically grab batteries to avoid having to use another sorted list.
-				for(PowerNetwork network : be.getNetworks().values()) {
-					for(PowerNetworkEntry item : network.getConnections()) {
-						if(item.getNetworkItem().getConnectionType() == ConnectionType.PUSH) // Double check here is faster as instanceof can be quite slow.
-							if(item.getNetworkItem() instanceof LargeBatteryBlockEntity battery)
-								batteries.add(battery);
+				for(Set<BENetwork> side : be.getNetworkMap().values()) {
+					for(BENetwork network : side) {
+						if(network instanceof PowerNetwork) {
+							for(BENetworkEntry entry : network.getConnections()) {
+								IPowerNetworkItem item = (IPowerNetworkItem)entry.getNetworkItem(); // This cast is safe because the PowerNetwork errors if a non-IPowerNetworkItem is added
+								if(item.getConnectionType() == ConnectionType.PUSH) // Double check here is faster as instanceof can be quite slow.
+									if(item instanceof LargeBatteryBlockEntity battery)
+										batteries.add(battery);
+							}
+						}
 					}
 				}
 
