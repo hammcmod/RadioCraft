@@ -84,4 +84,9 @@ public interface IBENetworkItem {
 		}
 	}
 
+	/**
+	 * Called whenever a change is made to this network.
+	 */
+	default void networkUpdated(BENetwork network) {}
+
 }

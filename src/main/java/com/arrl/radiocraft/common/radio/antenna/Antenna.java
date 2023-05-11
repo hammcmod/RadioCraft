@@ -30,7 +30,8 @@ public class Antenna<T extends AntennaData> implements INBTSerializable<Compound
 	}
 
 	private AntennaNetworkPacket getTransmitAudioPacket(short[] rawAudio, int wavelength, int frequency, BlockPos destination) {
-		AntennaNetworkPacket networkPacket = new AntennaNetworkPacket(rawAudio, wavelength, frequency, 1.0F, pos);
+		short[] rawAudioCopy = rawAudio.clone(); // Use a copy as every antenna modifies this differently.
+		AntennaNetworkPacket networkPacket = new AntennaNetworkPacket(rawAudioCopy, wavelength, frequency, 1.0F, pos);
 		type.applyTransmitStrength(networkPacket, data, destination);
 		return networkPacket;
 	}

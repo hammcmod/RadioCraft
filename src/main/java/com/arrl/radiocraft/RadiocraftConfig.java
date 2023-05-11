@@ -17,6 +17,9 @@ public class RadiocraftConfig {
 	public static final ConfigValue<Integer> HF_RADIO_10M_RECEIVE_TICK;
 	public static final ConfigValue<Integer> HF_RADIO_10M_TRANSMIT_TICK;
 
+	public static final ConfigValue<Integer> ANTENNA_UPDATE_DELAY;
+	public static final ConfigValue<Integer> ANTENNA_MAX_RADIUS;
+
 	static {
 		BUILDER.push("Power Options ( * = Restart game to take effect)");
 		LARGE_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of large batteries. #default 1500000 integer").define("large_battery_capacity", 1500000);
@@ -29,6 +32,11 @@ public class RadiocraftConfig {
 		BUILDER.push("Radio Options ( * = Restart game to take effect)");
 		HF_RADIO_10M_RECEIVE_TICK = BUILDER.comment("*HF Radio (10m) power consumption per tick (while receiving) #default 125").define("hf_radio_10m_receive", 125);
 		HF_RADIO_10M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (10m) power consumption per tick (while transmitting) #default 375").define("hf_radio_10m_transmit", 375);
+		BUILDER.pop();
+
+		BUILDER.push("Antenna Options ( * = Restart game to take effect)");
+		ANTENNA_UPDATE_DELAY = BUILDER.comment("Delay in seconds of an antenna to recalculate it's state after being changed #default 10").define("antenna_update_delay", 10);
+		ANTENNA_MAX_RADIUS = BUILDER.comment("Maximum radius in blocks for an antenna #default 20").define("antenna_max_radius", 20);
 		BUILDER.pop();
 
 		SPEC = BUILDER.build();

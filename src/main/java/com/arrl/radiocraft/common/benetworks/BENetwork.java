@@ -44,17 +44,27 @@ public class BENetwork {
 
 	public void addConnection(BENetworkEntry entry) {
 		connections.add(entry);
+		updateConnections();
 	}
-
 
 	public void removeConnection(IBENetworkItem networkItem) {
 		clean();
 		connections.removeIf(entry -> entry.getNetworkItem() == networkItem);
+		updateConnections();
 	}
 
 	public void removeConnection(BENetworkEntry entry) {
 		clean();
 		connections.remove(entry);
+		updateConnections();
+	}
+
+	private void updateConnections() {
+		for(BENetworkEntry connection : connections) {
+			IBENetworkItem item = connection.getNetworkItem();
+			if(item != null)
+				item.networkUpdated(this);
+		}
 	}
 
 	/**
