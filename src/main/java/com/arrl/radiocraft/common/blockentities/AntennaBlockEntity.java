@@ -9,8 +9,9 @@ import com.arrl.radiocraft.common.power.PowerNetwork;
 import com.arrl.radiocraft.common.radio.AntennaManager;
 import com.arrl.radiocraft.common.radio.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
+import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaTypes;
-import com.arrl.radiocraft.common.radio.voice.AntennaNetworkPacket;
+import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -20,10 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Shared BlockEntity for all blocks which act as an antenna-- used for processing packets/sending them to the network, receiving packets from the network & scheduling antenna update checks.
@@ -34,19 +32,23 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	private Antenna<?> antenna = null;
 
 	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage. Keep BENetworkEntry to ensure that it uses weak refs.
-	private final Set<BENetworkEntry> radios = new HashSet<>();
+	private final List<BENetworkEntry> radios = new ArrayList<>();
 	private int antennaCheckCooldown = -1;
 
 	public AntennaBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
 
-	public void transmitAudioPacket(short[] rawAudio, int wavelength, int frequency) {
-		antenna.transmitAudioPacket(rawAudio, wavelength, frequency);
+	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency) {
+		antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency);
 	}
 
 	public void receiveAudioPacket(AntennaNetworkPacket packet) {
-
+		if(radios.size() == 1)
+			((AbstractRadioBlockEntity)radios.get(0).getNetworkItem()).getRadio().receive(packet);
+		else if(radios.size() > 1) {
+			((AbstractRadioBlockEntity)radios.get(0).getNetworkItem()).overdraw();
+		}
 	}
 
 	/**
@@ -70,7 +72,8 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 				if(!(network instanceof PowerNetwork)) {
 					for(BENetworkEntry entry : network.getConnections()) {
 						if(entry.getNetworkItem() instanceof AbstractRadioBlockEntity)
-							radios.add(entry);
+							if(!radios.contains(entry))
+								radios.add(entry);
 					}
 				}
 			}
@@ -121,6 +124,20 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 			network.addAntenna(worldPosition, antenna);
 			antenna.setNetwork(network);
 		}
+	}
+
+	@Override
+	public void setRemoved() {
+		if(!level.isClientSide)
+			AntennaManager.getNetwork(level).removeAntenna(worldPosition);
+		super.setRemoved();
+	}
+
+	@Override
+	public void onChunkUnloaded() {
+		if(!level.isClientSide)
+			AntennaManager.getNetwork(level).removeAntenna(worldPosition);
+		super.onChunkUnloaded();
 	}
 
 	@Override

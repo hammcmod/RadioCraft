@@ -7,7 +7,7 @@ import com.arrl.radiocraft.common.init.RadiocraftTags;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType.DipoleAntennaData;
-import com.arrl.radiocraft.common.radio.voice.AntennaNetworkPacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;

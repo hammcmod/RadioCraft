@@ -1,12 +1,11 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.client.blockentity.AbstractRadioBlockEntityClientHandler;
-import com.arrl.radiocraft.common.init.RadiocraftAntennaTypes;
-import com.arrl.radiocraft.common.radio.AntennaManager;
-import com.arrl.radiocraft.common.radio.AntennaNetwork;
+import com.arrl.radiocraft.common.benetworks.BENetwork;
+import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
+import com.arrl.radiocraft.common.power.PowerNetwork;
 import com.arrl.radiocraft.common.radio.Radio;
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
-import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType.DipoleAntennaData;
+import com.arrl.radiocraft.common.radio.antenna.RadioManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -18,12 +17,17 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+
 public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity {
 
-	private Radio radioData; // Acts as a container for voip channel info
-	private Antenna<?> antenna; // Multiple antennas will be possible later-- temporarily gives itself a dipole for testing purposes.
+	private Radio radio; // Acts as a container for voip channel info
+	private final List<BENetworkEntry> antennas = new ArrayList<>();
 	private int receiveUsePower;
 	private int transmitUsePower;
+	private boolean shouldOverDraw = false; // Use this for overdraws as voice thread will be the one calling it and game logic should run on server thread.
 
 	public boolean isReceiving = false; // This is only read clientside to determine the static sounds.
 
@@ -60,10 +64,10 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	}
 
 	public Radio getRadio() {
-		if(radioData == null)
-			radioData = createRadio();
+		if(radio == null)
+			radio = createRadio();
 
-		return radioData;
+		return radio;
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
@@ -71,11 +75,9 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 			if(t instanceof AbstractRadioBlockEntity be) {
 				Radio radio = be.getRadio();
 
-				if(be.antenna == null) { // For debug purposes all antennas will use a 5 length dipole
-					be.antenna = new Antenna<>(RadiocraftAntennaTypes.DIPOLE, pos, new DipoleAntennaData(5, 5));
-					AntennaNetwork network = AntennaManager.getNetwork(level);
-					network.addAntenna(pos, be.antenna);
-					be.antenna.setNetwork(network);
+				if(be.shouldOverDraw) {
+					// Overdraw logic here (not being done yet)
+					be.shouldOverDraw = false;
 				}
 
 				// Radio tick logic doesn't need anything special, all the voice communications are handled outside the tick loop.
@@ -144,11 +146,23 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		super.onLoad();
 		if(level.isClientSide())
 			AbstractRadioBlockEntityClientHandler.startRadioStatic(this);
+		else {
+			RadioManager.addRadio(level, this);
+		}
 	}
 
 	@Override
 	public void setRemoved() {
+		if(!level.isClientSide)
+			RadioManager.removeRadio(level, this);
 		super.setRemoved();
+	}
+
+	@Override
+	public void onChunkUnloaded() {
+		if(!level.isClientSide)
+			RadioManager.removeRadio(level, this);
+		super.onChunkUnloaded();
 	}
 
 	@Nullable
@@ -182,17 +196,45 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		}
 	}
 
+	public abstract Radio createRadio();
+
+	@Override
+	public void networkUpdated(BENetwork network) {
+		super.networkUpdated(network);
+	}
+
+	private void updateConnectedAntennas() {
+		antennas.clear();
+		for(Set<BENetwork> side : networks.values()) {
+			for(BENetwork network : side) {
+				if(!(network instanceof PowerNetwork)) {
+					for(BENetworkEntry entry : network.getConnections()) {
+						if(entry.getNetworkItem() instanceof AntennaBlockEntity)
+							antennas.add(entry);
+					}
+				}
+			}
+		}
+	}
+
 	/**
-	 * Process voice packet to broadcast to other radios
+	 * Mark radio to overdraw in the next tick.
+	 */
+	public void overdraw() {
+		shouldOverDraw = true;
+	}
+
+	/**
+	 * Process voice packet to broadcast to other radios. Called from voice thread.
 	 */
 	public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio) {
 		Radio radio = getRadio();
 		if(radio.isTransmitting()) {
-			if(antenna != null)
-				antenna.transmitAudioPacket(rawAudio, 10, 1000);
+			if(antennas.size() == 1)
+				((AntennaBlockEntity)antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, 10, 1000);
+			else if(antennas.size() > 1)
+				overdraw();
 		}
 	}
-
-	public abstract Radio createRadio();
 
 }

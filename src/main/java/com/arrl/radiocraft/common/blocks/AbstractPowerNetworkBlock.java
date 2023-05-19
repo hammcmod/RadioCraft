@@ -55,8 +55,6 @@ public abstract class AbstractPowerNetworkBlock extends BaseEntityBlock {
 		}
 	}
 
-
-
 	@Override
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
 		if(!level.isClientSide) {

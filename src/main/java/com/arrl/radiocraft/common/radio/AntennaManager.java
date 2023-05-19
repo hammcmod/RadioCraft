@@ -11,7 +11,7 @@ public class AntennaManager {
 
 	public static AntennaNetwork getNetwork(Level level) {
 		if(!NETWORKS.containsKey(level))
-			setNetwork(level, new AntennaNetwork());
+			setNetwork(level, new AntennaNetwork(level));
 		return NETWORKS.get(level);
 	}
 

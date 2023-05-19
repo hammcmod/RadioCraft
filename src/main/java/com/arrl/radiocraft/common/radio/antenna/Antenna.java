@@ -1,8 +1,9 @@
 package com.arrl.radiocraft.common.radio.antenna;
 
 import com.arrl.radiocraft.api.antenna.IAntennaType;
+import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.radio.AntennaNetwork;
-import com.arrl.radiocraft.common.radio.voice.AntennaNetworkPacket;
+import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -29,15 +30,18 @@ public class Antenna<T extends AntennaData> implements INBTSerializable<Compound
 		this.pos = pos;
 	}
 
-	private AntennaNetworkPacket getTransmitAudioPacket(short[] rawAudio, int wavelength, int frequency, BlockPos destination) {
+	private AntennaNetworkPacket getTransmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, BlockPos destination) {
 		short[] rawAudioCopy = rawAudio.clone(); // Use a copy as every antenna modifies this differently.
-		AntennaNetworkPacket networkPacket = new AntennaNetworkPacket(rawAudioCopy, wavelength, frequency, 1.0F, pos);
+		AntennaNetworkPacket networkPacket = new AntennaNetworkPacket(level, rawAudioCopy, wavelength, frequency, 1.0F, pos);
 		type.applyTransmitStrength(networkPacket, data, destination);
 		return networkPacket;
 	}
 
 	public void processReceiveAudioPacket(AntennaNetworkPacket packet) {
-		type.applyReceiveStrength(packet, data, pos);
+		if(network.getLevel().getBlockEntity(pos) instanceof AntennaBlockEntity be) {
+			type.applyReceiveStrength(packet, data, pos);
+			be.receiveAudioPacket(packet);
+		}
 	}
 
 	public void setNetwork(AntennaNetwork network) {
@@ -47,11 +51,11 @@ public class Antenna<T extends AntennaData> implements INBTSerializable<Compound
 		this.network = network;
 	}
 
-	public void transmitAudioPacket(short[] rawAudio, int wavelength, int frequency) {
+	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency) {
 		if(network != null) {
 			Map<BlockPos, Antenna<?>> antennas = network.allAntennas();
 			for(BlockPos targetPos : antennas.keySet()) {
-				AntennaNetworkPacket antennaPacket = getTransmitAudioPacket(rawAudio, wavelength, frequency, pos);
+				AntennaNetworkPacket antennaPacket = getTransmitAudioPacket(level, rawAudio, wavelength, frequency, pos);
 				if(antennaPacket.getStrength() > 0.02F) // Cutoff at 0.02 strength for performance.
 					antennas.get(targetPos).processReceiveAudioPacket(antennaPacket);
 			}

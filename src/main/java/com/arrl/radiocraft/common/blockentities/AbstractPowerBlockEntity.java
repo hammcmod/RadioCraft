@@ -28,7 +28,7 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 
 	protected final BasicEnergyStorage energyStorage;
 	protected final LazyOptional<IEnergyStorage> energy;
-	private final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
+	protected final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
 
 	public AbstractPowerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, int maxTransfer) {
 		super(type, pos, state);

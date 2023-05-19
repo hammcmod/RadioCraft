@@ -20,7 +20,7 @@ public class HFRadio10mBlockEntity extends AbstractRadioBlockEntity {
 
 	@Override
 	public Radio createRadio() {
-		return new Radio();
+		return new Radio(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ());
 	}
 
 	@Override
