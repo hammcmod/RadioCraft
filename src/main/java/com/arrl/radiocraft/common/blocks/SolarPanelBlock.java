@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class SolarPanelBlock extends AbstractPowerNetworkBlock {
 
 	public SolarPanelBlock(Properties properties) {
-		super(properties);
+		super(properties, false);
 	}
 
 	@Nullable

@@ -12,7 +12,7 @@ import net.minecraft.world.phys.BlockHitResult;
 public abstract class AbstractRadioBlock extends AbstractPowerNetworkBlock {
 
 	public AbstractRadioBlock(Properties properties) {
-		super(properties);
+		super(properties, true);
 	}
 
 	@Override
@@ -21,9 +21,9 @@ public abstract class AbstractRadioBlock extends AbstractPowerNetworkBlock {
 			if(hand == InteractionHand.MAIN_HAND) {
 				if(level.getBlockEntity(pos) instanceof AbstractRadioBlockEntity radio) {
 					if(radio.getRadio().isReceiving())
-						radio.powerOff();
-					else
 						radio.powerOn();
+					else
+						radio.powerOff();
 				}
 			}
 		}

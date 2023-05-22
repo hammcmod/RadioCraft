@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 public class ChargeControllerBlock extends AbstractPowerNetworkBlock {
 
 	public ChargeControllerBlock(Properties properties) {
-		super(properties);
+		super(properties, false);
 	}
 
 	@Nullable

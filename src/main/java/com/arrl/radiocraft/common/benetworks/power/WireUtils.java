@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.power;
+package com.arrl.radiocraft.common.benetworks.power;
 
 import com.arrl.radiocraft.api.benetworks.IBENetworkItem;
 import com.arrl.radiocraft.common.benetworks.BENetwork;

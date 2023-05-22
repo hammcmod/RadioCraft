@@ -6,6 +6,7 @@ import com.arrl.radiocraft.common.radio.AntennaNetwork;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.Map;
@@ -38,7 +39,8 @@ public class Antenna<T extends AntennaData> implements INBTSerializable<Compound
 	}
 
 	public void processReceiveAudioPacket(AntennaNetworkPacket packet) {
-		if(network.getLevel().getBlockEntity(pos) instanceof AntennaBlockEntity be) {
+		// level#getBlockEntity is thread sensitive for some unknown reason.
+		if(network.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof AntennaBlockEntity be) {
 			type.applyReceiveStrength(packet, data, pos);
 			be.receiveAudioPacket(packet);
 		}
@@ -55,9 +57,11 @@ public class Antenna<T extends AntennaData> implements INBTSerializable<Compound
 		if(network != null) {
 			Map<BlockPos, Antenna<?>> antennas = network.allAntennas();
 			for(BlockPos targetPos : antennas.keySet()) {
-				AntennaNetworkPacket antennaPacket = getTransmitAudioPacket(level, rawAudio, wavelength, frequency, pos);
-				if(antennaPacket.getStrength() > 0.02F) // Cutoff at 0.02 strength for performance.
-					antennas.get(targetPos).processReceiveAudioPacket(antennaPacket);
+				if(!targetPos.equals(pos)) {
+					AntennaNetworkPacket antennaPacket = getTransmitAudioPacket(level, rawAudio, wavelength, frequency, pos);
+					if(antennaPacket.getStrength() > 0.02F) // Cutoff at 0.02 strength for performance.
+						antennas.get(targetPos).processReceiveAudioPacket(antennaPacket);
+				}
 			}
 		}
 	}

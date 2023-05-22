@@ -3,7 +3,7 @@ package com.arrl.radiocraft.common.blockentities;
 import com.arrl.radiocraft.RadiocraftConfig;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.LargeBatteryMenu;
-import com.arrl.radiocraft.common.power.ConnectionType;
+import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;

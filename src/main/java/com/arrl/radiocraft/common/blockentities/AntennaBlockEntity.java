@@ -5,7 +5,8 @@ import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.benetworks.IBENetworkItem;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
-import com.arrl.radiocraft.common.power.PowerNetwork;
+import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
+import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.AntennaManager;
 import com.arrl.radiocraft.common.radio.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
@@ -18,7 +19,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.*;
@@ -35,8 +35,8 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	private final List<BENetworkEntry> radios = new ArrayList<>();
 	private int antennaCheckCooldown = -1;
 
-	public AntennaBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-		super(type, pos, state);
+	public AntennaBlockEntity(BlockPos pos, BlockState state) {
+		super(RadiocraftBlockEntities.ANTENNA.get(), pos, state);
 	}
 
 	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency) {
@@ -90,6 +90,9 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
 		if(t instanceof AntennaBlockEntity be) {
 			if(!level.isClientSide) { // Serverside only
+				if(be.antenna == null) {
+					be.updateAntenna();
+				}
 				if(be.antennaCheckCooldown-- == 0)
 					be.updateAntenna();
 			}

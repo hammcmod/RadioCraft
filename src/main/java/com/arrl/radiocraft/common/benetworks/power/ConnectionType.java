@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.power;
+package com.arrl.radiocraft.common.benetworks.power;
 
 public enum ConnectionType {
 	PULL,

@@ -1,11 +1,18 @@
 package com.arrl.radiocraft.common.benetworks;
 
 import com.arrl.radiocraft.api.benetworks.IBENetworkItem;
+import com.arrl.radiocraft.common.benetworks.power.WireUtils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 /**
@@ -121,6 +128,27 @@ public class BENetwork {
 	 */
 	public BENetwork createNetwork() {
 		return new BENetwork();
+	}
+
+	/**
+	 * Attempts to merge a IBENetworkItem at level, pos onto surrounding networks.
+	 */
+	public static void tryConnectToNetworks(Level level, BlockPos pos, Predicate<BlockState> validWire, Predicate<BlockState> validConnection, Predicate<BENetwork> validNetwork, Supplier<BENetwork> fallbackSupplier) {
+		for(Direction direction : Direction.values())
+			WireUtils.mergeWireNetworks(level, pos.relative(direction), validWire, validConnection, validNetwork, fallbackSupplier);
+	}
+
+	/**
+	 * Attempt to disconnect the BE at level, pos from all of it's networks.
+	 */
+	public static void tryRemoveFromNetworks(Level level, BlockPos pos) {
+		if(level.getBlockEntity(pos) instanceof IBENetworkItem networkItem) {
+			for(Set<BENetwork> side : networkItem.getNetworkMap().values()) {
+				for(BENetwork network : side)
+					network.removeConnection(networkItem);
+				side.clear();
+			}
+		}
 	}
 
 	/**

@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.api.benetworks;
 
-import com.arrl.radiocraft.common.power.ConnectionType;
+import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
 
 /**
  * Any BlockEntity which is intended to connect to a power network should implement this. Power consumption is managed by capabilities.

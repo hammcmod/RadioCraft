@@ -20,7 +20,7 @@ public class LargeBatteryBlock extends AbstractPowerNetworkBlock {
 	public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
 
 	public LargeBatteryBlock(Properties properties) {
-		super(properties);
+		super(properties, false);
 	}
 
 	@Nullable

@@ -5,6 +5,10 @@ import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType;
 
 public class RadiocraftAntennaTypes {
 
-	public static final DipoleAntennaType DIPOLE = AntennaTypes.registerType(new DipoleAntennaType());
+	public static DipoleAntennaType DIPOLE;
+
+	public static void register() {
+		DIPOLE = AntennaTypes.registerType(new DipoleAntennaType());
+	}
 
 }

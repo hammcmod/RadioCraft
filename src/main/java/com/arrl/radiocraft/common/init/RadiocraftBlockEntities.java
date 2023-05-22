@@ -1,10 +1,7 @@
 package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.blockentities.ChargeControllerBlockEntity;
-import com.arrl.radiocraft.common.blockentities.HFRadio10mBlockEntity;
-import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
-import com.arrl.radiocraft.common.blockentities.SolarPanelBlockEntity;
+import com.arrl.radiocraft.common.blockentities.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -28,5 +25,8 @@ public class RadiocraftBlockEntities {
 
 	public static final RegistryObject<BlockEntityType<?>> HF_RADIO_10M = BLOCK_ENTITY_TYPES.register("hf_radio_10m",
 			() -> BlockEntityType.Builder.of(HFRadio10mBlockEntity::new, RadiocraftBlocks.HF_RADIO_10M.get()).build(null));
+
+	public static final RegistryObject<BlockEntityType<?>> ANTENNA = BLOCK_ENTITY_TYPES.register("antenna",
+			() -> BlockEntityType.Builder.of(AntennaBlockEntity::new, RadiocraftBlocks.BALUN_ONE_TO_ONE.get()).build(null));
 
 }

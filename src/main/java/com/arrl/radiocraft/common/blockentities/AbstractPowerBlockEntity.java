@@ -4,9 +4,9 @@ import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.blocks.AbstractPowerNetworkBlock;
 import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
-import com.arrl.radiocraft.common.power.ConnectionType;
+import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
 import com.arrl.radiocraft.api.benetworks.IPowerNetworkItem;
-import com.arrl.radiocraft.common.power.PowerNetwork;
+import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -80,9 +80,6 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		for(Set<BENetwork> side : getNetworkMap().values())
-			for(BENetwork network : side)
-				network.removeConnection(this); // Remove self from networks
 	}
 
 	/**

@@ -12,6 +12,7 @@
     "radiocraft:qrp_radio_20m",
     "radiocraft:qrp_radio_40m",
     "radiocraft:qrp_radio_20m",
-    "radiocraft:digital_interface"
+    "radiocraft:digital_interface",
+    "radiocraft:balun_one_to_one"
   ]
 }

@@ -2,8 +2,8 @@ package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
-import com.arrl.radiocraft.common.power.PowerNetwork;
-import com.arrl.radiocraft.common.power.WireUtils;
+import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
+import com.arrl.radiocraft.common.benetworks.power.WireUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;

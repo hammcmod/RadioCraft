@@ -3,7 +3,7 @@ package com.arrl.radiocraft.common.blockentities;
 import com.arrl.radiocraft.client.blockentity.AbstractRadioBlockEntityClientHandler;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
-import com.arrl.radiocraft.common.power.PowerNetwork;
+import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.radio.Radio;
 import com.arrl.radiocraft.common.radio.antenna.RadioManager;
 import net.minecraft.core.BlockPos;
@@ -98,7 +98,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 */
 	public void powerOn() {
 		if(tryConsumePower(getReceiveUsePower(), true)) {
-			setReceiving(true);
+			setReceiving(false);
 			setTransmitting(true);
 		}
 	}
@@ -107,7 +107,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 * Called when the radio is turned off via the UI or has insufficient power
 	 */
 	public void powerOff() {
-		setReceiving(false);
+		setReceiving(true);
 		setTransmitting(false);
 	}
 
@@ -201,6 +201,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	@Override
 	public void networkUpdated(BENetwork network) {
 		super.networkUpdated(network);
+		updateConnectedAntennas();
 	}
 
 	private void updateConnectedAntennas() {
