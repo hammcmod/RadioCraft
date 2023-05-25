@@ -23,6 +23,7 @@ public class RadiocraftPackets {
 		int id = 0;
 		INSTANCE.registerMessage(id++, ClientboundNoisePacket.class, ClientboundNoisePacket::encode, ClientboundNoisePacket::decode, ClientboundNoisePacket::handle);
 		INSTANCE.registerMessage(id++, ServerboundTogglePacket.class, ServerboundTogglePacket::encode, ServerboundTogglePacket::decode, ServerboundTogglePacket::handle);
+		INSTANCE.registerMessage(id++, ClientboundWireHolderPacket.class, ClientboundWireHolderPacket::encode, ClientboundWireHolderPacket::decode, ClientboundWireHolderPacket::handle);
 	}
 
 	public static void sendToPlayer(RadiocraftPacket packet, ServerPlayer player) {

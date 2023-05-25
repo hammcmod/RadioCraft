@@ -1,0 +1,57 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"0": "radiocraft:block/antenna_connector",
+		"particle": "radiocraft:block/antenna_connector"
+	},
+	"elements": [
+		{
+			"from": [6, 3, 6],
+			"to": [10, 5, 10],
+			"faces": {
+				"north": {"uv": [4, 4, 8, 6], "texture": "#0"},
+				"east": {"uv": [4, 6, 8, 8], "texture": "#0"},
+				"south": {"uv": [0, 8, 4, 10], "texture": "#0"},
+				"west": {"uv": [8, 0, 12, 2], "texture": "#0"},
+				"up": {"uv": [4, 8, 0, 4], "texture": "#0"},
+				"down": {"uv": [8, 0, 4, 4], "texture": "#0"}
+			}
+		},
+		{
+			"from": [6, 0, 6],
+			"to": [10, 2, 10],
+			"faces": {
+				"north": {"uv": [4, 4, 8, 6], "texture": "#0"},
+				"east": {"uv": [4, 6, 8, 8], "texture": "#0"},
+				"south": {"uv": [0, 8, 4, 10], "texture": "#0"},
+				"west": {"uv": [8, 0, 12, 2], "texture": "#0"},
+				"up": {"uv": [4, 8, 0, 4], "texture": "#0"},
+				"down": {"uv": [8, 0, 4, 4], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7, 5, 7],
+			"to": [9, 6, 9],
+			"faces": {
+				"north": {"uv": [2, 0, 4, 1], "texture": "#0"},
+				"east": {"uv": [2, 1, 4, 2], "texture": "#0"},
+				"south": {"uv": [2, 2, 4, 3], "texture": "#0"},
+				"west": {"uv": [2, 3, 4, 4], "texture": "#0"},
+				"up": {"uv": [2, 2, 0, 0], "texture": "#0"},
+				"down": {"uv": [2, 2, 0, 4], "texture": "#0"}
+			}
+		},
+		{
+			"from": [7, 2, 7],
+			"to": [9, 3, 9],
+			"faces": {
+				"north": {"uv": [6, 4, 8, 5], "texture": "#0"},
+				"east": {"uv": [6, 5, 8, 6], "texture": "#0"},
+				"south": {"uv": [6, 6, 8, 7], "texture": "#0"},
+				"west": {"uv": [6, 7, 8, 8], "texture": "#0"},
+				"up": {"uv": [6, 6, 4, 4], "texture": "#0"},
+				"down": {"uv": [6, 6, 4, 8], "texture": "#0"}
+			}
+		}
+	]
+}

@@ -51,10 +51,11 @@ public class RadiocraftBlocks {
 	// Antenna blocks
 	public static final RegistryObject<Block> DUPLEXER = simpleBlock("duplexer", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> ANTENNA_TUNER = simpleBlock("antenna_tuner", PROPERTIES_STONE);
+
 	public static final RegistryObject<Block> COAX_WIRE = BLOCKS.register("coax_wire", () -> new WireBlock(PROPERTIES_WIRES, false));
-	public static final RegistryObject<Block> ANTENNA_POLE = simpleBlock("antenna_pole", PROPERTIES_IRON_BARS);
+	public static final RegistryObject<Block> ANTENNA_POLE = BLOCKS.register("antenna_pole", () -> new AntennaPoleBlock(PROPERTIES_IRON_BARS));
 	public static final RegistryObject<Block> ANTENNA_WIRE = simpleBlock("antenna_wire", PROPERTIES_IRON_BARS);
-	public static final RegistryObject<Block> ANTENNA_CONNECTOR = simpleBlock("antenna_connector", PROPERTIES_IRON_BARS);
+	public static final RegistryObject<Block> ANTENNA_CONNECTOR = BLOCKS.register("antenna_connector", () -> new AntennaConnectorBlock(PROPERTIES_IRON_BARS));
 	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = BLOCKS.register("balun_one_to_one", () -> new AntennaCenterBlock(PROPERTIES_STONE));
 
 	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = simpleBlock("solar_weather_station", PROPERTIES_STONE);
