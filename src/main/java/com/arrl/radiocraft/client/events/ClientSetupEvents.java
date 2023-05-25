@@ -8,7 +8,7 @@ import com.arrl.radiocraft.client.screens.HFRadio10mScreen;
 import com.arrl.radiocraft.client.screens.LargeBatteryScreen;
 import com.arrl.radiocraft.client.screens.SolarPanelScreen;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
-import com.arrl.radiocraft.entity.RadiocraftEntityTypes;
+import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;

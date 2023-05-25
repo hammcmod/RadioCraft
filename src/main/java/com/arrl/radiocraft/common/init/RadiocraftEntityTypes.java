@@ -1,6 +1,7 @@
-package com.arrl.radiocraft.entity;
+package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.entity.AntennaWireEntity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraftforge.registries.DeferredRegister;

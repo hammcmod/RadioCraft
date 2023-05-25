@@ -2,6 +2,7 @@ package com.arrl.radiocraft.entity;
 
 import com.arrl.radiocraft.common.blocks.AntennaConnectorBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.network.packets.ClientboundWireHolderPacket;
@@ -29,15 +30,32 @@ import javax.annotation.Nullable;
  */
 public class AntennaWireEntity extends HangingEntity {
 
+
+    private BlockPos tetherPos1;
+    private BlockPos tetherPos2;
+
+
+
+
     private BlockPos targetPos;
 
-    protected AntennaWireEntity(EntityType<? extends HangingEntity> pEntityType, Level pLevel) {
-        super(pEntityType, pLevel);
+    public AntennaWireEntity(EntityType<AntennaWireEntity> type, Level level) {
+        super(type, level);
     }
 
-    public AntennaWireEntity(Level pLevel, BlockPos pPos) {
-        super(RadiocraftEntityTypes.ANTENNA_WIRE.get(), pLevel, pPos);
-        this.setPos(pPos.getX(), pPos.getY(), pPos.getZ());
+    public AntennaWireEntity(Level level, BlockPos pos) {
+        super(RadiocraftEntityTypes.ANTENNA_WIRE.get(), level, pos);
+        this.setPos(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+
+    public Entity getWireHolder() {
+        if(targetPos == null && level.isClientSide) {
+            return Minecraft.getInstance().player;
+        } else if (targetPos == null) {
+            return null;
+        }
+        return getWire(level, targetPos);
     }
 
     /**
@@ -57,16 +75,16 @@ public class AntennaWireEntity extends HangingEntity {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag pCompound) {
-        super.addAdditionalSaveData(pCompound);
-        pCompound.putLong("wireHolder", targetPos.asLong());
+    public void addAdditionalSaveData(CompoundTag nbt) {
+        super.addAdditionalSaveData(nbt);
+        nbt.putLong("wireHolder", targetPos.asLong());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag pCompound) {
-        super.readAdditionalSaveData(pCompound);
-        if(pCompound.contains("wireHolder"))
-            targetPos = BlockPos.of(pCompound.getLong("wireHolder"));
+    public void readAdditionalSaveData(CompoundTag nbt) {
+        super.readAdditionalSaveData(nbt);
+        if(nbt.contains("wireHolder"))
+            targetPos = BlockPos.of(nbt.getLong("wireHolder"));
     }
 
     /**
@@ -89,7 +107,7 @@ public class AntennaWireEntity extends HangingEntity {
     }
 
     @Override
-    protected float getEyeHeight(Pose pPose, EntityDimensions pSize) {
+    protected float getEyeHeight(Pose pose, EntityDimensions size) {
         return 0.0625F;
     }
 
@@ -97,25 +115,16 @@ public class AntennaWireEntity extends HangingEntity {
      * Checks if the entity is in range to render.
      */
     @Override
-    public boolean shouldRenderAtSqrDistance(double pDistance) {
-        return pDistance < 1024.0D;
+    public boolean shouldRenderAtSqrDistance(double distance) {
+        return distance < 1024.0D;
     }
 
     /**
      * Called when this entity is broken. Entity parameter may be null.
      */
     @Override
-    public void dropItem(@Nullable Entity pBrokenEntity) {
+    public void dropItem(@Nullable Entity entity) {
         this.playSound(SoundEvents.LEASH_KNOT_BREAK, 1.0F, 1.0F);
-    }
-
-    public Entity getWireHolder() {
-        if(targetPos == null && level.isClientSide) {
-            return Minecraft.getInstance().player;
-        } else if (targetPos == null) {
-            return null;
-        }
-        return getWire(level, targetPos);
     }
 
     /**
@@ -134,19 +143,19 @@ public class AntennaWireEntity extends HangingEntity {
     /**
      * Gets or creates the wire entity at the specified position.
      */
-    public static AntennaWireEntity getOrCreateWire(Level pLevel, BlockPos pPos) {
-        if (!(pLevel.getBlockState(pPos).getBlock() instanceof AntennaConnectorBlock)){
+    public static AntennaWireEntity getOrCreateWire(Level level, BlockPos pos) {
+        if (!(level.getBlockState(pos).getBlock() instanceof AntennaConnectorBlock)){
             return null;
         }
 
-        AntennaWireEntity wire = getWire(pLevel, pPos);
+        AntennaWireEntity wire = getWire(level, pos);
 
         if(wire != null) {
             return wire;
         }
 
-        AntennaWireEntity antennaWireEntity1 = new AntennaWireEntity(pLevel, pPos);
-        pLevel.addFreshEntity(antennaWireEntity1);
+        AntennaWireEntity antennaWireEntity1 = new AntennaWireEntity(level, pos);
+        level.addFreshEntity(antennaWireEntity1);
         return antennaWireEntity1;
     }
 
@@ -154,13 +163,13 @@ public class AntennaWireEntity extends HangingEntity {
     /**
      * Gets the wire entity at the specified position or returns null.
      */
-    public static AntennaWireEntity getWire(Level pLevel, BlockPos pPos) {
-        int posX = pPos.getX();
-        int posY = pPos.getY();
-        int posZ = pPos.getZ();
+    public static AntennaWireEntity getWire(Level level, BlockPos pos) {
+        int posX = pos.getX();
+        int posY = pos.getY();
+        int posZ = pos.getZ();
 
-        for(AntennaWireEntity antennaWireEntity : pLevel.getEntitiesOfClass(AntennaWireEntity.class, new AABB((double)posX - 1.0D, (double)posY - 1.0D, (double)posZ - 1.0D, (double)posX + 1.0D, (double)posY + 1.0D, (double)posZ + 1.0D))) {
-            if (antennaWireEntity.getPos().equals(pPos)) {
+        for(AntennaWireEntity antennaWireEntity : level.getEntitiesOfClass(AntennaWireEntity.class, new AABB((double)posX - 1.0D, (double)posY - 1.0D, (double)posZ - 1.0D, (double)posX + 1.0D, (double)posY + 1.0D, (double)posZ + 1.0D))) {
+            if (antennaWireEntity.getPos().equals(pos)) {
                 return antennaWireEntity;
             }
         }
@@ -168,14 +177,12 @@ public class AntennaWireEntity extends HangingEntity {
         return null;
     }
 
-
-
     /**
      * Gets the start position of the antenna wire.
      */
     @Override
-    public Vec3 getRopeHoldPosition(float pPartialTicks) {
-        return this.getPosition(pPartialTicks).add(getLeashOffset());
+    public Vec3 getRopeHoldPosition(float partialTicks) {
+        return this.getPosition(partialTicks).add(getLeashOffset());
     }
 
     @Override
@@ -190,4 +197,5 @@ public class AntennaWireEntity extends HangingEntity {
     public ItemStack getPickResult() {
         return new ItemStack(RadiocraftItems.ANTENNA_WIRE.get());
     }
+
 }

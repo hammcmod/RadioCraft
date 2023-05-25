@@ -23,11 +23,10 @@ public class ClientboundWireHolderPacket implements RadiocraftPacket {
     @Override
     public void encode(FriendlyByteBuf buffer) {
         buffer.writeVarInt(wireId);
-        if(targetPos == null) {
+        if(targetPos == null)
             buffer.writeLong(0);
-        }else {
+        else
             buffer.writeLong(targetPos.asLong());
-        }
     }
 
     public static ClientboundWireHolderPacket decode(FriendlyByteBuf buffer) {
@@ -41,9 +40,8 @@ public class ClientboundWireHolderPacket implements RadiocraftPacket {
     public void handle(Supplier<NetworkEvent.Context> ctx) {
         ctx.get().enqueueWork(() -> {
             Entity entity = Minecraft.getInstance().level.getEntity(wireId);
-            if (entity instanceof AntennaWireEntity wireEntity) {
+            if(entity instanceof AntennaWireEntity wireEntity)
                 wireEntity.setWireHolder(targetPos);
-            }
         });
         ctx.get().setPacketHandled(true);
     }

@@ -3,7 +3,7 @@ package com.arrl.radiocraft;
 import com.arrl.radiocraft.common.init.*;
 import com.arrl.radiocraft.datagen.RadiocraftBlockstateProvider;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
-import com.arrl.radiocraft.entity.RadiocraftEntityTypes;
+import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider.Factory;

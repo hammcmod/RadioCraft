@@ -25,27 +25,28 @@ import org.joml.Matrix4f;
     @see net.minecraft.client.renderer.entity.MobRenderer (renderLeash)
  */
 public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWireEntity> {
+
     public static final int WIRE_RENDER_STEPS = 24;
     public AntennaWireEntityRenderer(EntityRendererProvider.Context pContext) {
         super(pContext);
     }
 
     @Override
-    public boolean shouldRender(@NotNull AntennaWireEntity targetAntennaCoupler, @NotNull Frustum pCamera, double pCamX, double pCamY, double pCamZ) {
-        if (super.shouldRender(targetAntennaCoupler, pCamera, pCamX, pCamY, pCamZ)) {
+    public boolean shouldRender(@NotNull AntennaWireEntity targetAntennaCoupler, @NotNull Frustum camera, double camX, double camY, double camZ) {
+        if (super.shouldRender(targetAntennaCoupler, camera, camX, camY, camZ)) {
             return true;
         } else {
             Entity sourceAntennaCoupler = targetAntennaCoupler.getWireHolder();
-            return sourceAntennaCoupler != null && pCamera.isVisible(sourceAntennaCoupler.getBoundingBoxForCulling());
+            return sourceAntennaCoupler != null && camera.isVisible(sourceAntennaCoupler.getBoundingBoxForCulling());
         }
     }
 
     @Override
-    public void render(@NotNull AntennaWireEntity targetAntennaCoupler, float pEntityYaw, float pPartialTick, @NotNull PoseStack pPoseStack, @NotNull MultiBufferSource pBuffer, int pPackedLight) {
-        super.render(targetAntennaCoupler, pEntityYaw, pPartialTick, pPoseStack, pBuffer, pPackedLight);
+    public void render(@NotNull AntennaWireEntity targetAntennaCoupler, float yaw, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight) {
+        super.render(targetAntennaCoupler, yaw, partialTick, poseStack, buffer, packedLight);
         Entity sourceAntennaCoupler = targetAntennaCoupler.getWireHolder();
         if (sourceAntennaCoupler != null) {
-            this.renderAntennaWire(targetAntennaCoupler, pPartialTick, pPoseStack, pBuffer, sourceAntennaCoupler);
+            this.renderAntennaWire(targetAntennaCoupler, partialTick, poseStack, buffer, sourceAntennaCoupler);
         }
     }
 
