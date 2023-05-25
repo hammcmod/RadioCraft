@@ -2,7 +2,7 @@ package com.arrl.radiocraft.client.events;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.ChargeControllerScreen;
-import com.arrl.radiocraft.client.screens.HfRadio10mScreen;
+import com.arrl.radiocraft.client.screens.HFRadio10mScreen;
 import com.arrl.radiocraft.client.screens.LargeBatteryScreen;
 import com.arrl.radiocraft.client.screens.SolarPanelScreen;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
@@ -21,7 +21,7 @@ public class ClientSetupEvents {
 		MenuScreens.register(RadiocraftMenuTypes.LARGE_BATTERY.get(), LargeBatteryScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.SOLAR_PANEL.get(), SolarPanelScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.CHARGE_CONTROLLER.get(), ChargeControllerScreen::new);
-		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_10M.get(), HfRadio10mScreen::new);
+		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_10M.get(), HFRadio10mScreen::new);
 	}
 
 }

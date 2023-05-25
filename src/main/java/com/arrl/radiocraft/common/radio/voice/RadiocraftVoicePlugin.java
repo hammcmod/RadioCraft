@@ -56,7 +56,6 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 				if(pos.distToCenterSqr(player.position()) < sqrRange) {
 					BlockEntity blockEntity = player.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
 					if(blockEntity instanceof AbstractRadioBlockEntity be) {
-						decoder.resetState();
 						be.acceptVoicePacket(sender.getServerLevel(), decoder.decode(event.getPacket().getOpusEncodedData()));
 					}
 				}

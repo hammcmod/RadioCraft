@@ -4,12 +4,15 @@ import com.arrl.radiocraft.RadiocraftConfig;
 import com.arrl.radiocraft.api.benetworks.IPowerNetworkItem;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
-import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
-import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
 import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
+import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
+import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -26,9 +29,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity {
+public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE {
 
 	private int lastPowerTick = 0;
+	private boolean poweredOn = false;
 
 	// Using a ContainerData for one value is awkward, but it changes constantly and needs to be synchronised.
 	private final ContainerData fields = new ContainerData() {
@@ -91,6 +95,61 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity {
 		}
 	}
 
+	public void toggle() {
+		if(!level.isClientSide) {
+			poweredOn = !poweredOn;
+			updateBlock();
+		}
+	}
+
+	private void updateBlock() {
+		if(!level.isClientSide) {
+			BlockState state = level.getBlockState(worldPosition);
+			level.sendBlockUpdated(worldPosition, state, state, 2);
+		}
+	}
+
+	public boolean getPoweredOn() {
+		return poweredOn;
+	}
+
+	@Nullable
+	@Override
+	public ClientboundBlockEntityDataPacket getUpdatePacket() {
+		return ClientboundBlockEntityDataPacket.create(this);
+	}
+
+	@Override
+	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+		CompoundTag nbt = pkt.getTag();
+		if(nbt != null)
+			handleUpdateTag(pkt.getTag());
+	}
+
+	@Override
+	public CompoundTag getUpdateTag() {
+		CompoundTag nbt = new CompoundTag();
+		nbt.putBoolean("poweredOn", poweredOn);
+		return nbt;
+	}
+
+	@Override
+	public void handleUpdateTag(CompoundTag nbt) {
+		poweredOn = nbt.getBoolean("poweredOn");
+	}
+
+	@Override
+	public void load(CompoundTag nbt) {
+		super.load(nbt);
+		poweredOn = nbt.getBoolean("poweredOn");
+	}
+
+	@Override
+	protected void saveAdditional(CompoundTag nbt) {
+		nbt.putBoolean("poweredOn", poweredOn);
+		super.saveAdditional(nbt);
+	}
+
 	@Override
 	public Component getDisplayName() {
 		return Component.translatable("container.charge_controller");
@@ -101,5 +160,6 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity {
 	public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
 		return new ChargeControllerMenu(id, this, fields);
 	}
+
 }
 

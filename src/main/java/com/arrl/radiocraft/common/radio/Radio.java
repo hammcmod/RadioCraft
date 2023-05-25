@@ -47,7 +47,6 @@ public class Radio {
 				if(receiveChannel == null)
 					openChannel(antennaPacket.getLevel());
 
-				RadiocraftVoicePlugin.encoder.resetState();
 				byte[] opusAudio = RadiocraftVoicePlugin.encoder.encode(antennaPacket.getRawAudio());
 				receiveChannel.send(opusAudio);
 			}

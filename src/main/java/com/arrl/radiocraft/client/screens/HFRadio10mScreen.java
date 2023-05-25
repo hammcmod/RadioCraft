@@ -11,12 +11,12 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class HfRadio10mScreen extends AbstractContainerScreen<HFRadio10mMenu> {
+public class HFRadio10mScreen extends AbstractContainerScreen<HFRadio10mMenu> {
 
 	private static final ResourceLocation TEXTURE = Radiocraft.location("textures/gui/temp_power.png");
 	private final HFRadio10mMenu container;
 
-	public HfRadio10mScreen(HFRadio10mMenu container, Inventory playerInventory, Component title) {
+	public HFRadio10mScreen(HFRadio10mMenu container, Inventory playerInventory, Component title) {
 		super(container, playerInventory, title);
 		this.container = container;
 
