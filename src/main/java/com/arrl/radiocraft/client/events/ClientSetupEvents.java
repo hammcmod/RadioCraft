@@ -2,7 +2,7 @@ package com.arrl.radiocraft.client.events;
 
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.client.render.AntennaWireEntityRenderer;
+import com.arrl.radiocraft.client.entity.AntennaWireEntityRenderer;
 import com.arrl.radiocraft.client.screens.ChargeControllerScreen;
 import com.arrl.radiocraft.client.screens.HFRadio10mScreen;
 import com.arrl.radiocraft.client.screens.LargeBatteryScreen;

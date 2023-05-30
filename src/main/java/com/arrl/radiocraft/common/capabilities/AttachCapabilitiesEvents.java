@@ -13,7 +13,7 @@ import javax.annotation.Nonnull;
 public class AttachCapabilitiesEvents {
 
 	@SubscribeEvent
-	public static void onAttachCapabilities(@Nonnull final AttachCapabilitiesEvent<Level> event) {
+	public static void onAttachCapabilitiesLevel(@Nonnull final AttachCapabilitiesEvent<Level> event) {
 		Level level = event.getObject();
 
 		if(!level.isClientSide && level.dimension() == Level.OVERWORLD) {

@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.common.items;
 
+import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.entity.AntennaWireEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
@@ -14,36 +14,40 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 
 public class AntennaWireItem extends Item {
-    public AntennaWireItem(Item.Properties pProperties) {
-        super(pProperties);
+
+    public AntennaWireItem(Properties properties) {
+        super(properties);
     }
 
     /**
      * Called when this item is used when targeting a Block
      */
-    public InteractionResult useOn(UseOnContext pContext) {
-        Level level = pContext.getLevel();
-        BlockPos blockpos = pContext.getClickedPos();
-        BlockState blockstate = level.getBlockState(blockpos);
-        ItemStack itemInHand = pContext.getItemInHand();
-        if (blockstate.is(RadiocraftBlocks.ANTENNA_CONNECTOR.get())) {
-            Player player = pContext.getPlayer();
-            if (!level.isClientSide() && player != null) {
-                AntennaWireEntity wireEntity = AntennaWireEntity.getOrCreateWire(level, blockpos);
-                level.gameEvent(GameEvent.BLOCK_ATTACH, blockpos, GameEvent.Context.of(player));
-                if(itemInHand.hasTag() && itemInHand.getTag().contains("start")) {
-                    BlockPos start = BlockPos.of(itemInHand.getTag().getLong("start"));
-                    AntennaWireEntity oldWireEntity = AntennaWireEntity.getOrCreateWire(level, start);
-                    oldWireEntity.setWireHolder(blockpos);
-                    wireEntity.setWireHolder(blockpos);
-                    itemInHand.getTag().remove("start");
-                }else{
-                    CompoundTag tag = new CompoundTag();
-                    tag.putLong("start",  blockpos.asLong());
-                    itemInHand.setTag(tag);
-                    wireEntity.setWireHolder(null);
-                    return InteractionResult.PASS;
+    public InteractionResult useOn(UseOnContext context) {
+        Level level = context.getLevel();
+        BlockPos pos = context.getClickedPos();
+        BlockState state = level.getBlockState(pos);
+        ItemStack stack = context.getItemInHand();
+
+        if(state.getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get()) {
+            Player player = context.getPlayer();
+            level.gameEvent(GameEvent.BLOCK_ATTACH, pos, GameEvent.Context.of(player));
+
+            if (!level.isClientSide && player != null) {
+                if(stack.hasTag() && stack.getTag().contains("startPos")) {
+                    CompoundTag tag = stack.getTag();
+                    AntennaWire entity = AntennaWire.getFirstUnconnectedWire(level, BlockPos.of(tag.getLong("startPos")));
+
+                    if(entity != null) {
+                        entity.setEndPos(pos); // Set end pos of wire
+                        entity.setHolder(null); // Set holder to null -- allows wire to be saved & render towards it's end part rather than holder
+                    }
+                    tag.remove("startPos");
                 }
+                else {
+                    AntennaWire.createWire(level, pos, player);
+                    stack.getOrCreateTag().putLong("startPos", pos.asLong());
+                }
+                return InteractionResult.SUCCESS;
             }
             return InteractionResult.sidedSuccess(level.isClientSide);
         } else {
