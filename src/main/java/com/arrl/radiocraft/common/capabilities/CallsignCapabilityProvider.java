@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class CallsignCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
 
-	private final ICallsignCapability backend = new CallsignCapabilityImpl();
+	private final ICallsignCapability backend = new CallsignCapability();
 	private final LazyOptional<ICallsignCapability> optionalData = LazyOptional.of(() -> backend);
 
 	@Override

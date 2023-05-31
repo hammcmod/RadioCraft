@@ -1,9 +1,11 @@
 package com.arrl.radiocraft.common.entities;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.PartEntity;
 
 public class AntennaWirePart extends PartEntity<AntennaWire> {
@@ -46,4 +48,20 @@ public class AntennaWirePart extends PartEntity<AntennaWire> {
 		return parent.getPickResult();
 	}
 
+	@Override
+	public Vec3 getRopeHoldPosition(float partialTicks) {
+		return position();
+	}
+
+	@Override
+	public Vec3 getLeashOffset(float partialTicks) {
+		return parent.getLeashOffset(partialTicks);
+	}
+
+	@Override
+	public Vec3 position() {
+		BlockPos pos = parent.getEndPos();
+		setPos(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
+		return super.position();
+	}
 }

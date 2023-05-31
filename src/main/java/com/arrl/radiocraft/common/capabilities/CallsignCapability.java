@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-public class CallsignCapabilityImpl implements ICallsignCapability {
+public class CallsignCapability implements ICallsignCapability {
 
 	private final Map<UUID, String> callsigns = new HashMap<>();
 

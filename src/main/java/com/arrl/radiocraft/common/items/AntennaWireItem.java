@@ -1,17 +1,20 @@
 package com.arrl.radiocraft.common.items;
 
+import com.arrl.radiocraft.api.capabilities.IAntennaWireHolderCapability;
+import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraftforge.common.util.LazyOptional;
 
 public class AntennaWireItem extends Item {
 
@@ -26,29 +29,41 @@ public class AntennaWireItem extends Item {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
-        ItemStack stack = context.getItemInHand();
 
         if(state.getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get()) {
             Player player = context.getPlayer();
             level.gameEvent(GameEvent.BLOCK_ATTACH, pos, GameEvent.Context.of(player));
 
             if (!level.isClientSide && player != null) {
-                if(stack.hasTag() && stack.getTag().contains("startPos")) {
-                    CompoundTag tag = stack.getTag();
-                    AntennaWire entity = AntennaWire.getFirstUnconnectedWire(level, BlockPos.of(tag.getLong("startPos")));
 
-                    if(entity != null) {
-                        entity.setEndPos(pos); // Set end pos of wire
-                        entity.setHolder(null); // Set holder to null -- allows wire to be saved & render towards it's end part rather than holder
+                LazyOptional<IAntennaWireHolderCapability> capOptional = player.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS);
+
+                capOptional.ifPresent((cap) -> {
+                    BlockPos heldPos = cap.getHeldPos();
+
+                    if(heldPos == null) {
+                        AntennaWire entity = AntennaWire.createWire(level, pos, player);
+                        entity.playSound(SoundEvents.LEASH_KNOT_PLACE, 1.0F, 1.0F);
+                        player.level.playSound(null, entity.blockPosition(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+
+                        cap.setHeldPos(pos);
                     }
-                    tag.remove("startPos");
-                }
-                else {
-                    AntennaWire.createWire(level, pos, player);
-                    stack.getOrCreateTag().putLong("startPos", pos.asLong());
-                }
+                    else {
+                        AntennaWire entity = AntennaWire.getFirstHeldWire(level, heldPos, player);
+
+                        if(entity != null) {
+                            entity.setEndPos(pos);
+                            entity.setHolder(null);
+                            player.level.playSound(null, entity.getEndPos(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                        }
+
+                        cap.setHeldPos(null);
+                    }
+                });
+
                 return InteractionResult.SUCCESS;
             }
+
             return InteractionResult.sidedSuccess(level.isClientSide);
         } else {
             return InteractionResult.PASS;

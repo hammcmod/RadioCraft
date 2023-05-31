@@ -13,5 +13,5 @@ public class RadiocraftEntityTypes {
 
     public static RegistryObject<EntityType<AntennaWire>> ANTENNA_WIRE = ENTITIES.register("antenna_wire", () -> EntityType.Builder.<AntennaWire>of(AntennaWire::new, MobCategory.MISC)
             .clientTrackingRange(10).updateInterval(Integer.MAX_VALUE).setShouldReceiveVelocityUpdates(false)
-            .sized(6/16f, 0.5f).canSpawnFarFromPlayer().fireImmune().build("antenna_wire"));
+            .sized(0.2F, 0.2F).canSpawnFarFromPlayer().fireImmune().build("antenna_wire"));
 }

@@ -27,7 +27,6 @@ import org.joml.Matrix4f;
  */
 public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
 
-    public static final int WIRE_RENDER_STEPS = 24;
     public AntennaWireEntityRenderer(EntityRendererProvider.Context pContext) {
         super(pContext);
     }
@@ -36,7 +35,7 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
     public boolean shouldRender(@NotNull AntennaWire wire, @NotNull Frustum camera, double camX, double camY, double camZ) {
         Entity wireHolder = wire.getWireHolder();
 
-        if(!wire.getPos().equals(wire.getEndPos())) // If wire is fully connected, render.
+        if(!wire.blockPosition().equals(wire.getEndPos())) // If wire is fully connected, render.
             return true;
         else // Also render if the wire holder is within the culling frustum.
             return wireHolder != null && camera.isVisible(wireHolder.getBoundingBoxForCulling());
@@ -47,9 +46,9 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         super.render(wire, yaw, partialTick, poseStack, buffer, packedLight);
         Player holder = wire.getWireHolder();
         if(holder != null)
-            renderAntennaWire(wire, poseStack, buffer, holder);
+            renderAntennaWire(wire, partialTick, poseStack, buffer, holder);
         else
-            renderAntennaWire(wire, poseStack, buffer, wire.getEndPart());
+            renderAntennaWire(wire, partialTick, poseStack, buffer, wire.getEndPart());
     }
 
     @Override
@@ -60,14 +59,16 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
     /**
      * This method is used to render the wire between the two antenna couplers
      */
-    private <E extends Entity> void renderAntennaWire(E toEntity, PoseStack poseStack, MultiBufferSource buffer, E fromEntity) {
-        poseStack.pushPose();
+    private <E extends Entity> void renderAntennaWire(E toEntity, float partialTick, PoseStack poseStack, MultiBufferSource buffer, E fromEntity) {
 
-        Vec3 toPos = toEntity.position();
-        BlockPos toBlockPos = toEntity.blockPosition();
-        Vec3 fromPos = fromEntity.position();
-        BlockPos fromBlockPos = fromEntity.blockPosition();
+        double lerpBodyAngle = (Mth.lerp(partialTick, toEntity.yRotO, toEntity.getYRot()) * Mth.DEG_TO_RAD) + Mth.HALF_PI;
+        Vec3 leashOffset = toEntity.getLeashOffset(partialTick);
+        double xAngleOffset = Math.cos(lerpBodyAngle) * leashOffset.z + Math.sin(lerpBodyAngle) * leashOffset.x;
+        double zAngleOffset = Math.sin(lerpBodyAngle) * leashOffset.z - Math.cos(lerpBodyAngle) * leashOffset.x;
 
+        Vec3 toPos = new Vec3(toEntity.getX() + xAngleOffset, toEntity.getY() + leashOffset.y, toEntity.getZ() + zAngleOffset);
+
+        Vec3 fromPos = fromEntity.getRopeHoldPosition(partialTick);
         float xDiff = (float)(fromPos.x - toPos.x);
         float yDiff = (float)(fromPos.y - toPos.y);
         float zDiff = (float)(fromPos.z - toPos.z);
@@ -76,28 +77,36 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         float xOffset = zDiff * offsetMod;
         float zOffset = xDiff * offsetMod;
 
-        int toBlockLight = toEntity.level.getBrightness(LightLayer.BLOCK, toBlockPos);
-        int fromBlockLight = fromEntity.level.getBrightness(LightLayer.BLOCK, fromBlockPos);
-        int toSkyLight = toEntity.level.getBrightness(LightLayer.SKY, toBlockPos);
-        int fromSkyLight = fromEntity.level.getBrightness(LightLayer.SKY, fromBlockPos);
+
+        BlockPos toEyePos = new BlockPos(toEntity.getEyePosition(partialTick));
+        BlockPos fromEyePos = new BlockPos(fromEntity.getEyePosition(partialTick));
+        int toBlockLight = toEntity.level.getBrightness(LightLayer.BLOCK, toEyePos);
+        int fromBlockLight = fromEntity.level.getBrightness(LightLayer.BLOCK, fromEyePos);
+        int toSkyLight = toEntity.level.getBrightness(LightLayer.SKY, toEyePos);
+        int fromSkyLight = fromEntity.level.getBrightness(LightLayer.SKY, fromEyePos);
 
         VertexConsumer consumer = buffer.getBuffer(RenderType.leash());
         Matrix4f posMatrix = poseStack.last().pose();
-        poseStack.translate(0.0D, 0.0D, 0.0D); // Move poseStack to start of the wire
 
-        for(int i = 0; i <= WIRE_RENDER_STEPS; ++i) // Add top vert pairs
-            addVertexPair(consumer, posMatrix, xDiff, yDiff, zDiff, toBlockLight, fromBlockLight, toSkyLight, fromSkyLight, 0.025F, 0.025F, xOffset, zOffset, i, false);
+        double length = new Vec3(xDiff, yDiff, zDiff).length();
+        int stepCount = (int)Math.round(length) * 3;
 
-        for(int i = WIRE_RENDER_STEPS; i >= 0; --i) // Add bottom vert pairs
-            addVertexPair(consumer, posMatrix, xDiff, yDiff, zDiff, toBlockLight, fromBlockLight, toSkyLight, fromSkyLight, 0.025F, 0.0F, xOffset, zOffset, i, true);
+        poseStack.pushPose();
+        poseStack.translate(xAngleOffset, leashOffset.y, zAngleOffset);; // Move poseStack to start of the wire
+
+        for(int i = 0; i <= stepCount; ++i) // Add top vert pairs
+            addVertexPair(consumer, posMatrix, xDiff, yDiff, zDiff, toBlockLight, fromBlockLight, toSkyLight, fromSkyLight, 0.025F, 0.025F, xOffset, zOffset, i, false, stepCount);
+
+        for(int i = stepCount; i >= 0; --i) // Add bottom vert pairs
+            addVertexPair(consumer, posMatrix, xDiff, yDiff, zDiff, toBlockLight, fromBlockLight, toSkyLight, fromSkyLight, 0.025F, 0.0F, xOffset, zOffset, i, true, stepCount);
 
         poseStack.popPose();
     }
 
     private static void addVertexPair(VertexConsumer consumer, Matrix4f matrix, float xDif, float yDif, float zDif,
                                       int toBlockLight, int fromBlockLight, int toSkyLight, int fromSkyLight,
-                                      float width, float yOffset, float xOffset, float zOffset, int distance, boolean isKnot) {
-        float f = (float)distance / WIRE_RENDER_STEPS;
+                                      float width, float yOffset, float xOffset, float zOffset, int distance, boolean isKnot, int stepCount) {
+        float f = (float)distance / stepCount;
         int blockLight = (int)Mth.lerp(f, toBlockLight, fromBlockLight);
         int skyLight = (int)Mth.lerp(f, toSkyLight, fromSkyLight);
         int packedLight = LightTexture.pack(blockLight, skyLight);

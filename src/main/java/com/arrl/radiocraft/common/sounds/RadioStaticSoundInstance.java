@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.sounds;
 
+import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftSoundEvents;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
@@ -27,8 +28,7 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 			stop();
 		else {
 			if(radio.isReceiving)
-				//volume = RadiocraftClientValues.NOISE_VOLUME;
-				volume = 0.0F;
+				volume = RadiocraftClientValues.NOISE_VOLUME;
 			else
 				volume = 0.0F;
 		}
