@@ -90,9 +90,6 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
 		if(t instanceof AntennaBlockEntity be) {
 			if(!level.isClientSide) { // Serverside only
-				if(be.antenna == null) {
-					be.updateAntenna();
-				}
 				if(be.antennaCheckCooldown-- == 0)
 					be.updateAntenna();
 			}
@@ -126,6 +123,9 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 			AntennaNetwork network = AntennaManager.getNetwork(level);
 			network.addAntenna(worldPosition, antenna);
 			antenna.setNetwork(network);
+		}
+		else {
+			updateAntenna();
 		}
 	}
 

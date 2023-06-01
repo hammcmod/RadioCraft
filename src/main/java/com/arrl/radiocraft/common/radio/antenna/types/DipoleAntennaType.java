@@ -2,20 +2,20 @@ package com.arrl.radiocraft.common.radio.antenna.types;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
+import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.init.RadiocraftTags;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaData;
-import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType.DipoleAntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
+import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType.DipoleAntennaData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.core.Direction.Axis;
-import net.minecraft.core.Direction.Plane;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 
@@ -38,69 +38,31 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 
 	@Override
 	public Antenna<DipoleAntennaData> match(Level level, BlockPos pos) {
-		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_ONE_TO_ONE.get()) // Do not allow wires above or below, ensure center block is a 1:1 balun
-			return null;
-		if(level.getBlockState(pos.above()).getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get())
-			return null;
-		if(level.getBlockState(pos.below()).getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get())
-			return null;
+		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
+			return null; // Do not match if center block is not a 1:1 balun.
 
-		for(Direction dir : Plane.HORIZONTAL) { // Check for arms
-			BlockPos checkPos = pos.relative(dir);
-			Block checkBlock = level.getBlockState(checkPos).getBlock();
+		List<BlockPos> endPoints = new ArrayList<>();
 
-			if(checkBlock == RadiocraftBlocks.ANTENNA_CONNECTOR.get()) { // If wire is found in a horizontal direction.
-				if(!checkSurroundingBlocks(level, pos, dir.getAxis())) // Make sure no other non-axis dir is connected;
-					return null;
+		AntennaWire.getAntennaWires(level, pos).forEach(wire -> endPoints.add(wire.getEndPos())); // Grab ends and starts separately to avoid needing to check if each pos is the start or end of the entity.
+		AntennaWire.getAntennaWireParts(level, pos).forEach(part -> endPoints.add(part.parent.blockPosition()));
 
-				int length1 = checkArmLength(level, pos, dir);
-				if(length1 == -1) // Arm1 turned out to be invalid
-					return null;
-				else {
-					int length2 = checkArmLength(level, pos, dir.getOpposite());
-					if(length2 == -1) // Arm2 turned out to be invalid
-						return null;
-					else
-						return new Antenna<>(this, pos, new DipoleAntennaData(length1, length2));
-				}
+		if(endPoints.size() != 2)
+			return null; // Do not match if there are not 2 connections to the center block.
 
-			}
-		}
+		BlockPos arm1 = endPoints.get(0);
+		BlockPos arm2 = endPoints.get(1);
 
+		if(AntennaWire.getWires(level, arm1).size() > 1 || AntennaWire.getWires(level, arm2).size() > 1)
+			return null; // Do not match if either arm continues.
+
+		BlockPos relativeArm1 = arm1.subtract(pos);
+		BlockPos relativeArm2 = arm2.subtract(pos);
+		Vec3 directionArm1 = new Vec3(relativeArm1.getX(), 0.0D, relativeArm1.getZ()).normalize();
+		Vec3 directionArm2 = new Vec3(relativeArm2.getX(), 0.0D, relativeArm2.getZ()).normalize();
+
+		Radiocraft.LOGGER.info(String.valueOf(directionArm1.dot(directionArm2)));
 
 		return null;
-	}
-
-	/**
-	 * Check the length of an arm in a given direction, if an invalid block is found return -1.
-	 */
-	public int checkArmLength(Level level, BlockPos pos, Direction dir) {
-		boolean stop = false;
-		int length = 0;
-
-		while(!stop) {
-			BlockPos checkPos = pos.relative(dir, length + 1);
-			if(level.getBlockState(checkPos).getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get()) { // Next block is an antenna
-				if(!checkSurroundingBlocks(level, checkPos, dir.getAxis()))
-					return -1; // Return -1 if block is not valid
-				else
-					length++;
-			}
-			else {
-				stop = true;
-			}
-		}
-
-		return length;
-	}
-
-	public boolean checkSurroundingBlocks(Level level, BlockPos pos, Axis axis) {
-		for(Direction dir : Direction.values()) {
-			if(!axis.test(dir))
-				if(RadiocraftTags.isAntennaBlock(level.getBlockState(pos.relative(dir)).getBlock()))
-					return false;
-		}
-		return true;
 	}
 
 	@Override
@@ -111,34 +73,34 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 
 	public static class DipoleAntennaData extends AntennaData {
 
-		private int armLength1;
-		private int armLength2;
+		private double armLength1;
+		private double armLength2;
 
 		public DipoleAntennaData(int armLength1, int armLength2) {
 			this.armLength1 = armLength1;
 			this.armLength2 = armLength2;
 		}
 
-		public int getArmLength1() {
+		public double getArmLength1() {
 			return armLength1;
 		}
 
-		public int getArmLength2() {
+		public double getArmLength2() {
 			return armLength2;
 		}
 
 		@Override
 		public CompoundTag serializeNBT() {
 			CompoundTag nbt = new CompoundTag();
-			nbt.putInt("armLength1", armLength1);
-			nbt.putInt("armLength2", armLength2);
+			nbt.putDouble("armLength1", armLength1);
+			nbt.putDouble("armLength2", armLength2);
 			return nbt;
 		}
 
 		@Override
 		public void deserializeNBT(CompoundTag nbt) {
-			armLength1 = nbt.getInt("armLength1");
-			armLength2 = nbt.getInt("armLength2");
+			armLength1 = nbt.getDouble("armLength1");
+			armLength2 = nbt.getDouble("armLength2");
 		}
 
 	}

@@ -88,8 +88,7 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         VertexConsumer consumer = buffer.getBuffer(RenderType.leash());
         Matrix4f posMatrix = poseStack.last().pose();
 
-        double length = new Vec3(xDiff, yDiff, zDiff).length();
-        int stepCount = (int)Math.round(length) * 3;
+        int stepCount = fromEntity instanceof Player ? 24 : (int)Math.round(new Vec3(xDiff, yDiff, zDiff).length()) * 3;
 
         poseStack.pushPose();
         poseStack.translate(xAngleOffset, leashOffset.y, zAngleOffset);; // Move poseStack to start of the wire

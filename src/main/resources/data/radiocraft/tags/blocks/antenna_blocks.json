@@ -2,7 +2,6 @@
   "values": [
     "radiocraft:balun_one_to_one",
     "radiocraft:antenna_connector",
-    "radiocraft:antenna_pole",
-    "radiocraft:antenna_wire"
+    "radiocraft:antenna_pole"
   ]
 }

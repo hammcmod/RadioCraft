@@ -3,7 +3,7 @@ package com.arrl.radiocraft.common.items;
 import com.arrl.radiocraft.api.capabilities.IAntennaWireHolderCapability;
 import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.entities.AntennaWire;
-import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -30,7 +30,7 @@ public class AntennaWireItem extends Item {
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
 
-        if(state.getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get()) {
+        if(RadiocraftTags.isAntennaWireHolder(state.getBlock())) {
             Player player = context.getPlayer();
             level.gameEvent(GameEvent.BLOCK_ATTACH, pos, GameEvent.Context.of(player));
 
@@ -49,15 +49,17 @@ public class AntennaWireItem extends Item {
                         cap.setHeldPos(pos);
                     }
                     else {
-                        AntennaWire entity = AntennaWire.getFirstHeldWire(level, heldPos, player);
+                        if(!pos.equals(cap.getHeldPos())) { // Do not allow wire to be created with identical start and end points.
+                            AntennaWire entity = AntennaWire.getFirstHeldWire(level, heldPos, player);
 
-                        if(entity != null) {
-                            entity.setEndPos(pos);
-                            entity.setHolder(null);
-                            player.level.playSound(null, entity.getEndPos(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                            if(entity != null) {
+                                entity.setEndPos(pos);
+                                entity.setHolder(null);
+                                player.level.playSound(null, entity.getEndPos(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                            }
+
+                            cap.setHeldPos(null);
                         }
-
-                        cap.setHeldPos(null);
                     }
                 });
 

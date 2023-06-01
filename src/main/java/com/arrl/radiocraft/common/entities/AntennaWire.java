@@ -1,9 +1,9 @@
 package com.arrl.radiocraft.common.entities;
 
 import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
-import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
+import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -49,8 +49,11 @@ public class AntennaWire extends Entity {
 
     public AntennaWire(Level level, BlockPos pos) {
         super(RadiocraftEntityTypes.ANTENNA_WIRE.get(), level);
+
         this.endPart = new AntennaWirePart(this, "end");
         this.parts = new AntennaWirePart[] { endPart };
+        endPart.setId(ENTITY_COUNTER.getAndAdd(2) + 1);
+
         this.noPhysics = true;
         this.noCulling = true; // Disable culling in case only one connector is behind a wall.
 
@@ -80,12 +83,8 @@ public class AntennaWire extends Entity {
      * Gets the wire entities at the specified position or returns an empty list.
      */
     public static List<AntennaWire> getWires(Level level, BlockPos pos) {
-        int posX = pos.getX();
-        int posY = pos.getY();
-        int posZ = pos.getZ();
-
-        List<AntennaWire> wires = level.getEntitiesOfClass(AntennaWire.class, new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D));
-        List<AntennaWirePart> parts = level.getEntitiesOfClass(AntennaWirePart.class, new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D));
+        List<AntennaWire> wires = getAntennaWires(level, pos);
+        List<AntennaWirePart> parts = getAntennaWireParts(level, pos);
 
         for(AntennaWirePart part : parts) {
             if(!wires.contains(part.parent))
@@ -93,6 +92,20 @@ public class AntennaWire extends Entity {
         }
 
         return wires;
+    }
+
+    public static List<AntennaWire> getAntennaWires(Level level, BlockPos pos) {
+        int posX = pos.getX();
+        int posY = pos.getY();
+        int posZ = pos.getZ();
+        return level.getEntitiesOfClass(AntennaWire.class, new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D));
+    }
+
+    public static List<AntennaWirePart> getAntennaWireParts(Level level, BlockPos pos) {
+        int posX = pos.getX();
+        int posY = pos.getY();
+        int posZ = pos.getZ();
+        return level.getEntitiesOfClass(AntennaWirePart.class, new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D));
     }
 
     /**
@@ -115,7 +128,9 @@ public class AntennaWire extends Entity {
             if (checkInterval++ == 60) {
                 checkInterval = 0;
                 Player holder = getWireHolder();
-                if (!isRemoved() && !survives() || (holder != null && getWireHolder().isRemoved()) || getEndPos().equals(blockPosition())) {
+                if (!isRemoved() && !survives()) {
+                    if(holder != null)
+                        holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent(cap -> cap.setHeldPos(null)); // Reset held pos.
                     discard();
                     playBreakSound();
                 }
@@ -127,8 +142,13 @@ public class AntennaWire extends Entity {
      * Checks if the block can hold an antenna wire.
      */
     public boolean survives() {
-        if(level.getBlockState(blockPosition()).getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get()) // Survive if both endpoints are valid connectors
-            return level.getBlockState(getEndPos()).getBlock() == RadiocraftBlocks.ANTENNA_CONNECTOR.get();
+        if(RadiocraftTags.isAntennaWireHolder(level.getBlockState(blockPosition()).getBlock())) { // Starts in valid block.
+            Player holder = getWireHolder();
+            if(holder != null)
+                return !holder.isRemoved(); // Survives if has holder and holder is not removed.
+
+            return RadiocraftTags.isAntennaWireHolder(level.getBlockState(getEndPos()).getBlock()); // Also survives if has no holder and end pos is in a valid block.
+        }
         return false;
     }
 
@@ -155,11 +175,11 @@ public class AntennaWire extends Entity {
      * @param endPos
      */
     public void setEndPos(BlockPos endPos) {
-        entityData.set(DATA_END_POS, endPos);
+        endPart.setPos(new Vec3(endPos.getX() + 0.5D, endPos.getY() + 0.5D, endPos.getZ() + 0.5D));
     }
 
     public BlockPos getEndPos() {
-        return entityData.get(DATA_END_POS);
+        return endPart.blockPosition();
     }
 
     public AntennaWirePart getEndPart() {
@@ -250,6 +270,12 @@ public class AntennaWire extends Entity {
 
     public void playBreakSound() {
         playSound(SoundEvents.LEASH_KNOT_BREAK, 1.0F, 1.0F);
+    }
+
+    @Override
+    public void setId(int id) {
+        super.setId(id);
+        endPart.setId(id + 1);
     }
 
 }
