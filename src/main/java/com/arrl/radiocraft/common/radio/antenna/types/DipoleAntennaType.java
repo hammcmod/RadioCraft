@@ -55,14 +55,20 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 		if(AntennaWire.getWires(level, arm1).size() > 1 || AntennaWire.getWires(level, arm2).size() > 1)
 			return null; // Do not match if either arm continues.
 
-		BlockPos relativeArm1 = arm1.subtract(pos);
-		BlockPos relativeArm2 = arm2.subtract(pos);
-		Vec3 directionArm1 = new Vec3(relativeArm1.getX(), 0.0D, relativeArm1.getZ()).normalize();
-		Vec3 directionArm2 = new Vec3(relativeArm2.getX(), 0.0D, relativeArm2.getZ()).normalize();
+		BlockPos relativeArm1BlockPos = arm1.subtract(pos);
+		BlockPos relativeArm2BlockPos = arm2.subtract(pos);
 
-		Radiocraft.LOGGER.info(String.valueOf(directionArm1.dot(directionArm2)));
+		Vec3 relativeArm1 = new Vec3(relativeArm1BlockPos.getX(), relativeArm1BlockPos.getY(), relativeArm1BlockPos.getZ());
+		Vec3 relativeArm2 = new Vec3(relativeArm2BlockPos.getX(), relativeArm2BlockPos.getY(), relativeArm2BlockPos.getZ());
 
-		return null;
+		Vec3 directionArm1 = new Vec3(relativeArm1.x, 0.0D, relativeArm1.z).normalize();
+		Vec3 directionArm2 = new Vec3(relativeArm2.x, 0.0D, relativeArm2.z).normalize();
+		double dot = directionArm1.dot(directionArm2); // 1 = same dir, 0 = perpendicular, -1 = opposite.
+
+		if(dot > -0.833D) // If dot is larger than this value then arms are not "opposite enough" (opposite to within +/- 15 degrees)
+			return null;
+
+		return new Antenna<>(this, pos, new DipoleAntennaData(relativeArm1.length(), relativeArm2.length()));
 	}
 
 	@Override
@@ -76,7 +82,7 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 		private double armLength1;
 		private double armLength2;
 
-		public DipoleAntennaData(int armLength1, int armLength2) {
+		public DipoleAntennaData(double armLength1, double armLength2) {
 			this.armLength1 = armLength1;
 			this.armLength2 = armLength2;
 		}

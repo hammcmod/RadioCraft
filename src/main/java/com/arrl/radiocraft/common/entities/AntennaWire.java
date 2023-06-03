@@ -52,7 +52,7 @@ public class AntennaWire extends Entity {
 
         this.endPart = new AntennaWirePart(this, "end");
         this.parts = new AntennaWirePart[] { endPart };
-        endPart.setId(ENTITY_COUNTER.getAndAdd(2) + 1);
+        setId(ENTITY_COUNTER.getAndAdd(getParts().length + 1) + 1);
 
         this.noPhysics = true;
         this.noCulling = true; // Disable culling in case only one connector is behind a wall.
@@ -275,7 +275,8 @@ public class AntennaWire extends Entity {
     @Override
     public void setId(int id) {
         super.setId(id);
-        endPart.setId(id + 1);
+        for(PartEntity<?> part : getParts())
+            part.setId(++id);
     }
 
 }
