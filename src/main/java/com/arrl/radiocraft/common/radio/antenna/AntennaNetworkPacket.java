@@ -9,11 +9,11 @@ public class AntennaNetworkPacket {
 	private final short[] rawAudio;
 	private final int wavelength;
 	private final int frequency;
-	private float strength;
+	private double strength;
 	private final BlockPos source;
 
 
-	public AntennaNetworkPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, float strength, BlockPos source) {
+	public AntennaNetworkPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, double strength, BlockPos source) {
 		this.level = level;
 		this.rawAudio = rawAudio;
 		this.wavelength = wavelength;
@@ -38,11 +38,11 @@ public class AntennaNetworkPacket {
 		return frequency;
 	}
 
-	public float getStrength() {
+	public double getStrength() {
 		return strength;
 	}
 
-	public void setStrength(float strength) {
+	public void setStrength(double strength) {
 		this.strength = strength;
 	}
 

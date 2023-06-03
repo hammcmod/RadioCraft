@@ -1,0 +1,33 @@
+package com.arrl.radiocraft.common.radio.antenna;
+
+import com.arrl.radiocraft.common.init.RadiocraftData;
+
+/**
+ * Util class for helper methods regarding bands and ranges.
+ */
+public class BandUtils {
+
+	public static double getBaseStrength(int wavelength, double distance, boolean isDay) {
+		Band band = RadiocraftData.BAND_RANGES.getValue(wavelength);
+		if(band == null)
+			return 0.0D;
+
+		int los = band.losRange();
+		if(distance < los)
+			return 1 - (distance / los); // If within LoS scale the strength linearly to 0 as it reaches LoS
+
+		double minSkip = isDay ? band.minSkipDay() : band.minSkipNight();
+		double maxSkip = isDay ? band.maxSkipDay()  : band.maxSkipNight();
+
+		if(distance > minSkip && distance < maxSkip) { // If within skip range
+			double skipRadius = (maxSkip - minSkip) / 2;
+			double skipMid = minSkip + skipRadius;
+			double distFromMid = Math.abs(distance - skipMid);
+
+			return 1 - (distFromMid / skipRadius); // If in skip range, scale strength linearly to 0 as it reaches radius.
+		}
+
+		return 0.0D;
+	}
+
+}

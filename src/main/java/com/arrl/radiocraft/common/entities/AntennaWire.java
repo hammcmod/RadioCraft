@@ -35,7 +35,6 @@ import java.util.UUID;
 public class AntennaWire extends Entity {
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_HOLDER_UUID = SynchedEntityData.defineId(AntennaWire.class, EntityDataSerializers.OPTIONAL_UUID);
-    private static final EntityDataAccessor<BlockPos> DATA_END_POS = SynchedEntityData.defineId(AntennaWire.class, EntityDataSerializers.BLOCK_POS);
 
     private final AntennaWirePart[] parts;
     private final AntennaWirePart endPart;
@@ -170,9 +169,7 @@ public class AntennaWire extends Entity {
     }
 
     /**
-     * Sets the end position.
-     * On server side, it sends a packet to the client to update the wire holder position.
-     * @param endPos
+     * Sets the end part's position.
      */
     public void setEndPos(BlockPos endPos) {
         endPart.setPos(new Vec3(endPos.getX() + 0.5D, endPos.getY() + 0.5D, endPos.getZ() + 0.5D));
@@ -209,7 +206,6 @@ public class AntennaWire extends Entity {
     @Override
     protected void defineSynchedData() {
         this.entityData.define(DATA_HOLDER_UUID, Optional.empty());
-        this.entityData.define(DATA_END_POS, BlockPos.ZERO);
     }
 
     @Override

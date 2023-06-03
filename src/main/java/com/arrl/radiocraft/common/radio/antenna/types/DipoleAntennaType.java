@@ -7,10 +7,12 @@ import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
+import com.arrl.radiocraft.common.radio.antenna.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType.DipoleAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
@@ -24,16 +26,6 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 	@Override
 	public ResourceLocation getId() {
 		return ID;
-	}
-
-	@Override
-	public void applyTransmitStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos destination) {
-
-	}
-
-	@Override
-	public void applyReceiveStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos pos) {
-
 	}
 
 	@Override
@@ -52,6 +44,9 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 		BlockPos arm1 = endPoints.get(0);
 		BlockPos arm2 = endPoints.get(1);
 
+		if(arm1.getY() != pos.getY() || arm2.getY() != pos.getY())
+			return null; // Do not match if either arm goes up or down.
+
 		if(AntennaWire.getWires(level, arm1).size() > 1 || AntennaWire.getWires(level, arm2).size() > 1)
 			return null; // Do not match if either arm continues.
 
@@ -68,7 +63,31 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 		if(dot > -0.833D) // If dot is larger than this value then arms are not "opposite enough" (opposite to within +/- 15 degrees)
 			return null;
 
+
 		return new Antenna<>(this, pos, new DipoleAntennaData(relativeArm1.length(), relativeArm2.length()));
+	}
+
+	@Override
+	public void applyTransmitStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos destination) {
+		double efficiency = getEfficiency(packet, data);
+		double distance = Math.sqrt(packet.getSource().distSqr(destination));
+		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
+
+		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(),distance, level.isDay());
+		packet.setStrength(baseStrength * efficiency);
+	}
+
+	@Override
+	public void applyReceiveStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos pos) {
+		double efficiency = getEfficiency(packet, data);
+		packet.setStrength(packet.getStrength() * efficiency);
+	}
+
+	public double getEfficiency(AntennaNetworkPacket packet, DipoleAntennaData data) {
+		int desiredLength = (int)Math.round(packet.getWavelength() / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to nearest int (for example 10m radio -> 3 blocks)
+		int incorrectBlocks = (int)(Math.abs(desiredLength - data.armLength1) + Math.abs(desiredLength - data.armLength2));
+
+		return incorrectBlocks == 0 ? 1.0D : Math.pow(0.75D, incorrectBlocks);
 	}
 
 	@Override

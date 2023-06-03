@@ -1,0 +1,8 @@
+{
+  "wavelength": 40,
+  "los": 900,
+  "minSkipDay": 1000,
+  "maxSkipDay": 1100,
+  "minSkipNight": 100,
+  "maxSkipNight": 3000
+}
