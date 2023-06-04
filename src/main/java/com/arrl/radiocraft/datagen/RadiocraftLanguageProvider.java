@@ -57,6 +57,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.DUPLEXER, "Duplexer");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_TUNER, "Antenna Tuner");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_CONNECTOR, "Antenna Connector");
+			provider.addBlock(RadiocraftBlocks.BALUN_ONE_TO_ONE, "Balun (1:1)");
+			provider.addBlock(RadiocraftBlocks.BALUN_TWO_TO_ONE, "Balun (2:1)");
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
 			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");
 			provider.addBlock(RadiocraftBlocks.CHARGE_CONTROLLER, "Charge Controller");

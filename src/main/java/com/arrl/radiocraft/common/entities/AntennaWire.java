@@ -23,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.PartEntity;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -32,7 +33,7 @@ import java.util.UUID;
  This class is used to create the antenna wire entity.
  @see net.minecraft.world.entity.decoration.LeashFenceKnotEntity
  */
-public class AntennaWire extends Entity {
+public class AntennaWire extends Entity implements IAntennaWire {
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_HOLDER_UUID = SynchedEntityData.defineId(AntennaWire.class, EntityDataSerializers.OPTIONAL_UUID);
 
@@ -81,37 +82,29 @@ public class AntennaWire extends Entity {
     /**
      * Gets the wire entities at the specified position or returns an empty list.
      */
-    public static List<AntennaWire> getWires(Level level, BlockPos pos) {
-        List<AntennaWire> wires = getAntennaWires(level, pos);
-        List<AntennaWirePart> parts = getAntennaWireParts(level, pos);
-
-        for(AntennaWirePart part : parts) {
-            if(!wires.contains(part.parent))
-                wires.add(part.parent);
-        }
-
-        return wires;
-    }
-
-    public static List<AntennaWire> getAntennaWires(Level level, BlockPos pos) {
+    public static List<IAntennaWire> getWires(Level level, BlockPos pos) {
         int posX = pos.getX();
         int posY = pos.getY();
         int posZ = pos.getZ();
-        return level.getEntitiesOfClass(AntennaWire.class, new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D));
-    }
 
-    public static List<AntennaWirePart> getAntennaWireParts(Level level, BlockPos pos) {
-        int posX = pos.getX();
-        int posY = pos.getY();
-        int posZ = pos.getZ();
-        return level.getEntitiesOfClass(AntennaWirePart.class, new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D));
+        AABB aabb = new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D);
+        List<AntennaWire> wires = level.getEntitiesOfClass(AntennaWire.class, aabb);
+        List<AntennaWirePart> parts = level.getEntitiesOfClass(AntennaWirePart.class, aabb);
+
+        List<IAntennaWire> out = new ArrayList<>();
+        out.addAll(wires);
+        out.addAll(parts);
+        return out;
     }
 
     /**
      * Get the first wire entity at the specified position which is being held by Player
      */
     public static AntennaWire getFirstHeldWire(Level level, BlockPos pos, Player player) {
-        List<AntennaWire> wires = getWires(level, pos);
+        int posX = pos.getX();
+        int posY = pos.getY();
+        int posZ = pos.getZ();
+        List<AntennaWire> wires = level.getEntitiesOfClass(AntennaWire.class, new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D));
 
         for(AntennaWire wire : wires) {
             if(wire.getWireHolder() == player)
@@ -177,6 +170,14 @@ public class AntennaWire extends Entity {
 
     public BlockPos getEndPos() {
         return endPart.blockPosition();
+    }
+
+    public BlockPos getStartPos() {
+        return blockPosition();
+    }
+
+    public boolean isPairedWith(IAntennaWire other) {
+        return other == endPart;
     }
 
     public AntennaWirePart getEndPart() {

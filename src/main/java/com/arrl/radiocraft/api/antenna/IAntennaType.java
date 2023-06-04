@@ -12,6 +12,12 @@ public interface IAntennaType<T extends AntennaData> {
 	ResourceLocation getId();
 
 	/**
+	 * Attempt to match this antenna type at level, pos.
+	 * @return The details of the matching antenna, otherwise null if no match is found.
+	 */
+	Antenna<T> match(Level level, BlockPos pos);
+
+	/**
 	 * Apply the strength multiplier for transmitting to a given destination.
 	 */
 	void applyTransmitStrength(AntennaNetworkPacket packet, T data, BlockPos destination);
@@ -20,12 +26,6 @@ public interface IAntennaType<T extends AntennaData> {
 	 * Apply the strength multiplier for receiving from a given source.
 	 */
 	void applyReceiveStrength(AntennaNetworkPacket packet, T data, BlockPos pos);
-
-	/**
-	 * Attempt to match this antenna type at level, pos.
-	 * @return The details of the matching antenna, otherwise null if no match is found.
-	 */
-	Antenna<T> match(Level level, BlockPos pos);
 
 	/**
 	 * Get a default instance of data class, usually used for loading.

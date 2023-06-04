@@ -3,20 +3,18 @@ package com.arrl.radiocraft.common.radio.antenna.types;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.entities.AntennaWire;
+import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
 import com.arrl.radiocraft.common.radio.antenna.BandUtils;
-import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType.DipoleAntennaData;
+import com.arrl.radiocraft.common.radio.antenna.types.data.DipoleAntennaData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
@@ -33,16 +31,13 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
 			return null; // Do not match if center block is not a 1:1 balun.
 
-		List<BlockPos> endPoints = new ArrayList<>();
+		List<IAntennaWire> connections = AntennaWire.getWires(level, pos);
 
-		AntennaWire.getAntennaWires(level, pos).forEach(wire -> endPoints.add(wire.getEndPos())); // Grab ends and starts separately to avoid needing to check if each pos is the start or end of the entity.
-		AntennaWire.getAntennaWireParts(level, pos).forEach(part -> endPoints.add(part.parent.blockPosition()));
-
-		if(endPoints.size() != 2)
+		if(connections.size() != 2)
 			return null; // Do not match if there are not 2 connections to the center block.
 
-		BlockPos arm1 = endPoints.get(0);
-		BlockPos arm2 = endPoints.get(1);
+		BlockPos arm1 = connections.get(0).getEndPos();
+		BlockPos arm2 = connections.get(1).getEndPos();
 
 		if(arm1.getY() != pos.getY() || arm2.getY() != pos.getY())
 			return null; // Do not match if either arm goes up or down.
@@ -69,23 +64,21 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 
 	@Override
 	public void applyTransmitStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos destination) {
-		double efficiency = getEfficiency(packet, data);
 		double distance = Math.sqrt(packet.getSource().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
-		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(),distance, level.isDay());
-		packet.setStrength(baseStrength * efficiency);
+		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, level.isDay());
+		packet.setStrength(baseStrength * getEfficiency(packet, data));
 	}
 
 	@Override
 	public void applyReceiveStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos pos) {
-		double efficiency = getEfficiency(packet, data);
-		packet.setStrength(packet.getStrength() * efficiency);
+		packet.setStrength(packet.getStrength() * getEfficiency(packet, data));
 	}
 
 	public double getEfficiency(AntennaNetworkPacket packet, DipoleAntennaData data) {
-		int desiredLength = (int)Math.round(packet.getWavelength() / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to nearest int (for example 10m radio -> 3 blocks)
-		int incorrectBlocks = (int)(Math.abs(desiredLength - data.armLength1) + Math.abs(desiredLength - data.armLength2));
+		int desiredLength = (int)Math.round(packet.getWavelength() / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
+		int incorrectBlocks = (int)(Math.abs(desiredLength - data.getArmLength1()) + Math.abs(desiredLength - data.getArmLength2()));
 
 		return incorrectBlocks == 0 ? 1.0D : Math.pow(0.75D, incorrectBlocks);
 	}
@@ -95,38 +88,4 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 		return new DipoleAntennaData(0, 0);
 	}
 
-
-	public static class DipoleAntennaData extends AntennaData {
-
-		private double armLength1;
-		private double armLength2;
-
-		public DipoleAntennaData(double armLength1, double armLength2) {
-			this.armLength1 = armLength1;
-			this.armLength2 = armLength2;
-		}
-
-		public double getArmLength1() {
-			return armLength1;
-		}
-
-		public double getArmLength2() {
-			return armLength2;
-		}
-
-		@Override
-		public CompoundTag serializeNBT() {
-			CompoundTag nbt = new CompoundTag();
-			nbt.putDouble("armLength1", armLength1);
-			nbt.putDouble("armLength2", armLength2);
-			return nbt;
-		}
-
-		@Override
-		public void deserializeNBT(CompoundTag nbt) {
-			armLength1 = nbt.getDouble("armLength1");
-			armLength2 = nbt.getDouble("armLength2");
-		}
-
-	}
 }

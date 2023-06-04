@@ -61,6 +61,7 @@ public class RadiocraftItems {
 	public static final RegistryObject<BlockItem> ANTENNA_TUNER = simpleBlockItem("antenna_tuner", RadiocraftBlocks.ANTENNA_TUNER);
 	public static final RegistryObject<BlockItem> ANTENNA_CONNECTOR = simpleBlockItem("antenna_connector", RadiocraftBlocks.ANTENNA_CONNECTOR);
 	public static final RegistryObject<BlockItem> BALUN_ONE_TO_ONE = simpleBlockItem("balun_one_to_one", RadiocraftBlocks.BALUN_ONE_TO_ONE);
+	public static final RegistryObject<BlockItem> BALUN_TWO_TO_ONE = simpleBlockItem("balun_two_to_one", RadiocraftBlocks.BALUN_TWO_TO_ONE);
 	public static final RegistryObject<BlockItem> COAX_WIRE = simpleBlockItem("coax_wire", RadiocraftBlocks.COAX_WIRE);
 
 	public static final RegistryObject<BlockItem> SOLAR_WEATHER_STATION = simpleBlockItem("solar_weather_station", RadiocraftBlocks.SOLAR_WEATHER_STATION);

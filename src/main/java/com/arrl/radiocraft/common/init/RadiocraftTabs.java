@@ -57,6 +57,8 @@ public class RadiocraftTabs {
 							output.accept(RadiocraftItems.ANTENNA_TUNER.get());
 							output.accept(RadiocraftItems.ANTENNA_WIRE.get());
 							output.accept(RadiocraftItems.ANTENNA_CONNECTOR.get());
+							output.accept(RadiocraftItems.BALUN_ONE_TO_ONE.get());
+							output.accept(RadiocraftItems.BALUN_TWO_TO_ONE.get());
 							output.accept(RadiocraftItems.COAX_WIRE.get());
 							output.accept(RadiocraftItems.DIGITAL_INTERFACE.get());
 						})

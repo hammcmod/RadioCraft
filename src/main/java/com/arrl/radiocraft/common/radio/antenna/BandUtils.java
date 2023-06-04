@@ -7,14 +7,14 @@ import com.arrl.radiocraft.common.init.RadiocraftData;
  */
 public class BandUtils {
 
-	public static double getBaseStrength(int wavelength, double distance, boolean isDay) {
+	public static double getBaseStrength(int wavelength, double distance, double losEfficiency, double skipEfficiency, boolean isDay) {
 		Band band = RadiocraftData.BAND_RANGES.getValue(wavelength);
 		if(band == null)
 			return 0.0D;
 
 		int los = band.losRange();
 		if(distance < los)
-			return 1 - (distance / los); // If within LoS scale the strength linearly to 0 as it reaches LoS
+			return (1 - (distance / los)) * losEfficiency; // If within LoS scale the strength linearly to 0 as it reaches LoS
 
 		double minSkip = isDay ? band.minSkipDay() : band.minSkipNight();
 		double maxSkip = isDay ? band.maxSkipDay()  : band.maxSkipNight();
@@ -24,7 +24,7 @@ public class BandUtils {
 			double skipMid = minSkip + skipRadius;
 			double distFromMid = Math.abs(distance - skipMid);
 
-			return 1 - (distFromMid / skipRadius); // If in skip range, scale strength linearly to 0 as it reaches radius.
+			return (1 - (distFromMid / skipRadius)) * skipEfficiency; // If in skip range, scale strength linearly to 0 as it reaches radius.
 		}
 
 		return 0.0D;

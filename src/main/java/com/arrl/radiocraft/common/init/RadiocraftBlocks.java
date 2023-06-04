@@ -57,6 +57,7 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> ANTENNA_WIRE = simpleBlock("antenna_wire", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> ANTENNA_CONNECTOR = BLOCKS.register("antenna_connector", () -> new AntennaConnectorBlock(PROPERTIES_IRON_BARS));
 	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = BLOCKS.register("balun_one_to_one", () -> new AntennaCenterBlock(PROPERTIES_STONE));
+	public static final RegistryObject<Block> BALUN_TWO_TO_ONE = BLOCKS.register("balun_two_to_one", () -> new AntennaCenterBlock(PROPERTIES_STONE));
 
 	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = simpleBlock("solar_weather_station", PROPERTIES_STONE);
 

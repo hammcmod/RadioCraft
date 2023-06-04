@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.entities;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -9,7 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.PartEntity;
 
-public class AntennaWirePart extends PartEntity<AntennaWire> {
+public class AntennaWirePart extends PartEntity<AntennaWire> implements IAntennaWire {
 
 	public final AntennaWire parent;
 	public final String name;
@@ -62,6 +63,19 @@ public class AntennaWirePart extends PartEntity<AntennaWire> {
 	@Override
 	public EntityDimensions getDimensions(Pose pose) {
 		return parent.getDimensions(pose);
+	}
+
+	@Override
+	public BlockPos getEndPos() {
+		return parent.blockPosition();
+	}
+
+	public BlockPos getStartPos() {
+		return blockPosition();
+	}
+
+	public boolean isPairedWith(IAntennaWire other) {
+		return other == parent;
 	}
 
 }
