@@ -65,7 +65,6 @@ public class AntennaWirePart extends PartEntity<AntennaWire> implements IAntenna
 		return parent.getDimensions(pose);
 	}
 
-	@Override
 	public BlockPos getEndPos() {
 		return parent.blockPosition();
 	}

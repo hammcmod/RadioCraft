@@ -8,18 +8,19 @@ import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
 import com.arrl.radiocraft.common.radio.antenna.BandUtils;
-import com.arrl.radiocraft.common.radio.antenna.types.data.HorizontalQuadLoopAntennaData;
+import com.arrl.radiocraft.common.radio.antenna.types.data.VerticalQuadLoopAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec2;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQuadLoopAntennaData> {
+public class VerticalQuadLoopAntennaType implements IAntennaType<VerticalQuadLoopAntennaData> {
 
-	public static final ResourceLocation ID = Radiocraft.location("horizontal_quad_loop");
+	public static final ResourceLocation ID = Radiocraft.location("vertical_quad_loop");
 
 	@Override
 	public ResourceLocation getId() {
@@ -27,7 +28,7 @@ public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQua
 	}
 
 	@Override
-	public Antenna<HorizontalQuadLoopAntennaData> match(Level level, BlockPos pos) {
+	public Antenna<VerticalQuadLoopAntennaData> match(Level level, BlockPos pos) {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
 			return null; // Do not match if center block is not a 2:1 balun.
 
@@ -42,11 +43,29 @@ public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQua
 		squarePoints.add(pos);
 		squareWires.add(currentWire);
 
+		BlockPos firstCorner = currentWire.getEndPos();
+		boolean xAxis;
+		if(firstCorner.getX() == pos.getX())
+			xAxis = true;
+		else if(firstCorner.getZ() == pos.getZ())
+			xAxis = false;
+		else
+			return null; // Do not match if the first corner is not axis aligned
+
 		for(int i = 0; i < 3; i++) { // Get the "corners" of the quad.
 			BlockPos end = currentWire.getEndPos();
 
-			if(end.getY() != pos.getY())
-				return null; // Do not match if the corner does not have an equal Y value.
+			if(xAxis) {
+				if(end.getX() != pos.getX())
+					return null;
+			}
+			else {
+				if(end.getZ() != pos.getZ())
+					return null; // Do not match if the corner does not have an equal value on whichever axis is being checked.
+			}
+
+			if(end.getY() < pos.getY())
+				return null; // Do not match if not fed from bottom side of square.
 
 			List<IAntennaWire> connections = AntennaWire.getWires(level, end);
 
@@ -65,7 +84,7 @@ public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQua
 			return null; // Return null if the quad is not a square.
 
 		int sideLength = (int)Math.sqrt(Math.round(squarePoints.get(0).distSqr(squarePoints.get(1))));
-		return new Antenna<>(this, pos, new HorizontalQuadLoopAntennaData(sideLength));
+		return new Antenna<>(this, pos, new VerticalQuadLoopAntennaData(sideLength, xAxis));
 	}
 
 	public boolean isSquare(List<BlockPos> points) {
@@ -84,27 +103,37 @@ public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQua
 	}
 
 	@Override
-	public void applyTransmitStrength(AntennaNetworkPacket packet, HorizontalQuadLoopAntennaData data, BlockPos destination) {
+	public void applyTransmitStrength(AntennaNetworkPacket packet, VerticalQuadLoopAntennaData data, BlockPos destination) {
 		double distance = Math.sqrt(packet.getSource().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
-		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 0.25D, 1.25D, level.isDay());
-		packet.setStrength(baseStrength * getEfficiency(packet, data));
+		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.25D, 1.25D, level.isDay());
+		packet.setStrength(baseStrength * getEfficiency(packet, data, packet.getSource(), destination));
 	}
 
 	@Override
-	public void applyReceiveStrength(AntennaNetworkPacket packet, HorizontalQuadLoopAntennaData data, BlockPos pos) {
-		packet.setStrength(packet.getStrength() * getEfficiency(packet, data));
+	public void applyReceiveStrength(AntennaNetworkPacket packet, VerticalQuadLoopAntennaData data, BlockPos pos) {
+		packet.setStrength(packet.getStrength() * getEfficiency(packet, data, pos, packet.getSource()));
 	}
 
-	public double getEfficiency(AntennaNetworkPacket packet, HorizontalQuadLoopAntennaData data) {
+	public double getEfficiency(AntennaNetworkPacket packet, VerticalQuadLoopAntennaData data, BlockPos from, BlockPos to) {
 		int desiredLength = (int)Math.round(packet.getWavelength() / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
-		return desiredLength == data.getSideLength() ? 1.0D : 0.1D;
+		double efficiency = desiredLength == data.getSideLength() ? 1.0D : 0.1D;
+
+		BlockPos offset = to.subtract(from);
+		Vec2 dir = new Vec2(offset.getX(), offset.getZ()).normalized();
+		double f = 1.0D - Math.abs(data.getXAxis() ? Vec2.UNIT_X.dot(dir) : Vec2.UNIT_Y.dot(dir)); // Nears 1 as the offset becomes perpendicular
+
+		if(f > 0.5D)
+			efficiency *= f * 0.75D; // 75% worse peformance on broadsides, scaled linearly with a 0.5 (45 degree) threshold.
+		else
+			efficiency *= 1.25D; // 25% better performance when not on broadside.
+
+		return efficiency;
 	}
 
 	@Override
-	public HorizontalQuadLoopAntennaData getDefaultData() {
-		return new HorizontalQuadLoopAntennaData(0);
+	public VerticalQuadLoopAntennaData getDefaultData() {
+		return new VerticalQuadLoopAntennaData(0, false);
 	}
-
 }

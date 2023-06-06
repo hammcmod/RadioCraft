@@ -3,6 +3,8 @@
   "block.radiocraft.antenna_connector": "Antenna Connector",
   "block.radiocraft.antenna_pole": "Antenna Pole",
   "block.radiocraft.antenna_tuner": "Antenna Tuner",
+  "block.radiocraft.balun_one_to_one": "Balun (1:1)",
+  "block.radiocraft.balun_two_to_one": "Balun (2:1)",
   "block.radiocraft.charge_controller": "Charge Controller",
   "block.radiocraft.coax_wire": "Coaxial Wire",
   "block.radiocraft.digital_interface": "Digital Interface (TNC)",

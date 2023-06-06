@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "radiocraft:block/digital_interface",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "radiocraft:block/digital_interface"
+    },
+    "facing=south": {
+      "model": "radiocraft:block/digital_interface",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/digital_interface",
+      "y": 270
+    }
+  }
+}

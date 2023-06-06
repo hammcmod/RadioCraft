@@ -46,20 +46,19 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> QRP_RADIO_20M = simpleBlock("qrp_radio_20m", PROPERTIES_STONE);
 	public static final RegistryObject<Block> QRP_RADIO_40M = simpleBlock("qrp_radio_40m", PROPERTIES_STONE);
 
-	public static final RegistryObject<Block> DIGITAL_INTERFACE = simpleBlock("digital_interface", PROPERTIES_STONE);
+	public static final RegistryObject<Block> DIGITAL_INTERFACE = BLOCKS.register("digital_interface", () -> new DigitalInterfaceBlock(PROPERTIES_STONE));
 
 	// Antenna blocks
-	public static final RegistryObject<Block> DUPLEXER = simpleBlock("duplexer", PROPERTIES_IRON_BARS);
-	public static final RegistryObject<Block> ANTENNA_TUNER = simpleBlock("antenna_tuner", PROPERTIES_STONE);
+	public static final RegistryObject<Block> DUPLEXER = BLOCKS.register("duplexer", () -> new DuplexerBlock(Properties.copy(Blocks.STONE).noOcclusion()));
+	public static final RegistryObject<Block> ANTENNA_TUNER = BLOCKS.register("antenna_tuner", () -> new AntennaTunerBlock(PROPERTIES_STONE));
 
 	public static final RegistryObject<Block> COAX_WIRE = BLOCKS.register("coax_wire", () -> new WireBlock(PROPERTIES_WIRES, false));
 	public static final RegistryObject<Block> ANTENNA_POLE = BLOCKS.register("antenna_pole", () -> new AntennaPoleBlock(PROPERTIES_IRON_BARS));
-	public static final RegistryObject<Block> ANTENNA_WIRE = simpleBlock("antenna_wire", PROPERTIES_IRON_BARS);
 	public static final RegistryObject<Block> ANTENNA_CONNECTOR = BLOCKS.register("antenna_connector", () -> new AntennaConnectorBlock(PROPERTIES_IRON_BARS));
-	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = BLOCKS.register("balun_one_to_one", () -> new AntennaCenterBlock(PROPERTIES_STONE));
-	public static final RegistryObject<Block> BALUN_TWO_TO_ONE = BLOCKS.register("balun_two_to_one", () -> new AntennaCenterBlock(PROPERTIES_STONE));
+	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = BLOCKS.register("balun_one_to_one", () -> new BalunBlock(PROPERTIES_STONE));
+	public static final RegistryObject<Block> BALUN_TWO_TO_ONE = BLOCKS.register("balun_two_to_one", () -> new BalunBlock(PROPERTIES_STONE));
 
-	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = simpleBlock("solar_weather_station", PROPERTIES_STONE);
+	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = BLOCKS.register("solar_weather_station", () -> new SolarWeatherStationBlock(PROPERTIES_STONE));
 
 	public static RegistryObject<Block> simpleBlock(String name, Properties properties) {
 		return BLOCKS.register(name, () -> new Block(properties));

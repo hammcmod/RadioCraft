@@ -1,16 +1,10 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.blockentities.ChargeControllerBlockEntity;
-import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityTicker;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
@@ -18,25 +12,13 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class ChargeControllerBlock extends AbstractPowerNetworkBlock {
+public class AntennaTunerBlock extends Block {
 
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-	public static final VoxelShape SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 7.0D, 15.0D);
+	public static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 10.0D, 16.0D);
 
-	public ChargeControllerBlock(Properties properties) {
-		super(properties, false);
-	}
-
-	@Nullable
-	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new ChargeControllerBlockEntity(pos, state);
-	}
-
-	@Nullable
-	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> be) {
-		return be == RadiocraftBlockEntities.CHARGE_CONTROLLER.get() ? ChargeControllerBlockEntity::tick : null;
+	public AntennaTunerBlock(Properties properties) {
+		super(properties);
 	}
 
 	@Override

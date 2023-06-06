@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "radiocraft:block/duplexer",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "radiocraft:block/duplexer"
+    },
+    "facing=south": {
+      "model": "radiocraft:block/duplexer",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/duplexer",
+      "y": 270
+    }
+  }
+}

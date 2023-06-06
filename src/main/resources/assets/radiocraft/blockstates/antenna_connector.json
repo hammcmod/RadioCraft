@@ -1,0 +1,29 @@
+{
+  "variants": {
+    "placed_on=east": {
+      "model": "radiocraft:block/antenna_connector",
+      "y": 90,
+      "x": 90
+    },
+    "placed_on=west": {
+      "model": "radiocraft:block/antenna_connector",
+      "y": 270,
+      "x": 90
+    },
+    "placed_on=north": {
+      "model": "radiocraft:block/antenna_connector",
+      "x": 90
+    },
+    "placed_on=south": {
+      "model": "radiocraft:block/antenna_connector",
+      "x": 270
+    },
+    "placed_on=up": {
+      "model": "radiocraft:block/antenna_connector"
+    },
+    "placed_on=down": {
+      "model": "radiocraft:block/antenna_connector",
+      "x": 180
+    }
+  }
+}

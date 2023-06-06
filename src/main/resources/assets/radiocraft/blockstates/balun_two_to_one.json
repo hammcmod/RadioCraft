@@ -1,0 +1,29 @@
+{
+  "variants": {
+    "placed_on=east": {
+      "model": "radiocraft:block/balun_two_to_one",
+      "y": 90,
+      "x": 90
+    },
+    "placed_on=west": {
+      "model": "radiocraft:block/balun_two_to_one",
+      "y": 270,
+      "x": 90
+    },
+    "placed_on=north": {
+      "model": "radiocraft:block/balun_two_to_one",
+      "x": 90
+    },
+    "placed_on=south": {
+      "model": "radiocraft:block/balun_two_to_one",
+      "x": 270
+    },
+    "placed_on=up": {
+      "model": "radiocraft:block/balun_two_to_one"
+    },
+    "placed_on=down": {
+      "model": "radiocraft:block/balun_two_to_one",
+      "x": 180
+    }
+  }
+}

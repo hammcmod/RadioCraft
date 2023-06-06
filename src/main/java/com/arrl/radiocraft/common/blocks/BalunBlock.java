@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
-public class AntennaConnectorBlock extends Block {
+public class BalunBlock extends AntennaCenterBlock {
 
     public static final DirectionProperty PLACED_ON = DirectionProperty.create("placed_on");
     public static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
@@ -28,7 +28,7 @@ public class AntennaConnectorBlock extends Block {
         SHAPES.put(Direction.DOWN, Block.box(6.0D, 8.0D, 6.0D, 10.0D, 16.0D, 10.0D));
     }
 
-    public AntennaConnectorBlock(Properties properties) {
+    public BalunBlock(Properties properties) {
         super(properties);
     }
 

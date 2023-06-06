@@ -3,12 +3,16 @@ package com.arrl.radiocraft.common.entities;
 import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
+import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
+import com.arrl.radiocraft.common.network.packets.ClientboundAntennaWirePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
@@ -20,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.entity.PartEntity;
 
 import javax.annotation.Nullable;
@@ -33,7 +38,7 @@ import java.util.UUID;
  This class is used to create the antenna wire entity.
  @see net.minecraft.world.entity.decoration.LeashFenceKnotEntity
  */
-public class AntennaWire extends Entity implements IAntennaWire {
+public class AntennaWire extends Entity implements IAntennaWire, IEntityAdditionalSpawnData {
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_HOLDER_UUID = SynchedEntityData.defineId(AntennaWire.class, EntityDataSerializers.OPTIONAL_UUID);
 
@@ -58,8 +63,7 @@ public class AntennaWire extends Entity implements IAntennaWire {
         this.noCulling = true; // Disable culling in case only one connector is behind a wall.
 
         this.setPos(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
-        if(!level.isClientSide)
-            setEndPos(pos);
+        endPart.setPos(position());
     }
 
     /**
@@ -162,10 +166,12 @@ public class AntennaWire extends Entity implements IAntennaWire {
     }
 
     /**
-     * Sets the end part's position.
+     * Sets the end part's position. On server, sends an update packet to all clients in the relevant level.
      */
     public void setEndPos(BlockPos endPos) {
         endPart.setPos(new Vec3(endPos.getX() + 0.5D, endPos.getY() + 0.5D, endPos.getZ() + 0.5D));
+        if(!level.isClientSide)
+            RadiocraftPackets.sendToLevel(new ClientboundAntennaWirePacket(getId(), endPos), (ServerLevel)level);
     }
 
     public BlockPos getEndPos() {
@@ -272,8 +278,19 @@ public class AntennaWire extends Entity implements IAntennaWire {
     @Override
     public void setId(int id) {
         super.setId(id);
+        int newId = id + 1;
         for(PartEntity<?> part : getParts())
-            part.setId(++id);
+            part.setId(newId++);
+    }
+
+    @Override
+    public void writeSpawnData(FriendlyByteBuf buffer) {
+        buffer.writeLong(endPart.blockPosition().asLong());
+    }
+
+    @Override
+    public void readSpawnData(FriendlyByteBuf buffer) {
+        setEndPos(BlockPos.of(buffer.readLong()));
     }
 
 }

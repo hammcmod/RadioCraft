@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "radiocraft:block/antenna_tuner",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "radiocraft:block/antenna_tuner"
+    },
+    "facing=south": {
+      "model": "radiocraft:block/antenna_tuner",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/antenna_tuner",
+      "y": 270
+    }
+  }
+}
