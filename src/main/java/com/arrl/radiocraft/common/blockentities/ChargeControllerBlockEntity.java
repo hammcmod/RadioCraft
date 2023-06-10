@@ -6,13 +6,12 @@ import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
+import com.arrl.radiocraft.common.blocks.ChargeControllerBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -20,9 +19,14 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.energy.IEnergyStorage;
+import net.minecraftforge.items.IItemHandlerModifiable;
+import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.wrapper.RecipeWrapper;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -31,8 +35,11 @@ import java.util.Set;
 
 public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE {
 
+	private final ItemStackHandler inventory = new ItemStackHandler(1);
+	private final LazyOptional<IItemHandlerModifiable> inventoryHandler = LazyOptional.of(() -> inventory);
+	public final Container inventoryWrapper = new RecipeWrapper(inventory);
+
 	private int lastPowerTick = 0;
-	private boolean poweredOn = false;
 
 	// Using a ContainerData for one value is awkward, but it changes constantly and needs to be synchronised.
 	private final ContainerData fields = new ContainerData() {
@@ -60,9 +67,9 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity implem
 		super(RadiocraftBlockEntities.CHARGE_CONTROLLER.get(), pos, state, RadiocraftConfig.CHARGE_CONTROLLER_TICK.get(), RadiocraftConfig.CHARGE_CONTROLLER_TICK.get());
 	}
 
-	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
+	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(t instanceof ChargeControllerBlockEntity be) {
-			if(!level.isClientSide && !be.poweredOn) { // Serverside only
+			if(!level.isClientSide && !state.getValue(ChargeControllerBlock.POWERED)) { // Serverside only
 				int energyToPush = be.energyStorage.extractEnergy(be.energyStorage.getEnergyStored(), true); // Do not actually pull out power yet.
 				be.lastPowerTick = energyToPush;
 
@@ -97,57 +104,13 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity implem
 
 	public void toggle() {
 		if(!level.isClientSide) {
-			poweredOn = !poweredOn;
-			updateBlock();
-		}
-	}
-
-	private void updateBlock() {
-		if(!level.isClientSide) {
 			BlockState state = level.getBlockState(worldPosition);
-			level.sendBlockUpdated(worldPosition, state, state, 2);
+			level.setBlockAndUpdate(worldPosition, state.setValue(ChargeControllerBlock.POWERED, !state.getValue(ChargeControllerBlock.POWERED)));
 		}
 	}
 
 	public boolean getPoweredOn() {
-		return poweredOn;
-	}
-
-	@Nullable
-	@Override
-	public ClientboundBlockEntityDataPacket getUpdatePacket() {
-		return ClientboundBlockEntityDataPacket.create(this);
-	}
-
-	@Override
-	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-		CompoundTag nbt = pkt.getTag();
-		if(nbt != null)
-			handleUpdateTag(pkt.getTag());
-	}
-
-	@Override
-	public CompoundTag getUpdateTag() {
-		CompoundTag nbt = new CompoundTag();
-		nbt.putBoolean("poweredOn", poweredOn);
-		return nbt;
-	}
-
-	@Override
-	public void handleUpdateTag(CompoundTag nbt) {
-		poweredOn = nbt.getBoolean("poweredOn");
-	}
-
-	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-		poweredOn = nbt.getBoolean("poweredOn");
-	}
-
-	@Override
-	protected void saveAdditional(CompoundTag nbt) {
-		nbt.putBoolean("poweredOn", poweredOn);
-		super.saveAdditional(nbt);
+		return level != null && level.getBlockState(worldPosition).getValue(ChargeControllerBlock.POWERED);
 	}
 
 	@Override
@@ -159,6 +122,18 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity implem
 	@Override
 	public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
 		return new ChargeControllerMenu(id, this, fields);
+	}
+
+	@Override
+	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
+		return cap == ForgeCapabilities.ITEM_HANDLER ? inventoryHandler.cast() : super.getCapability(cap);
+	}
+
+	@Override
+	public void setRemoved() {
+		if(inventoryHandler != null)
+			inventoryHandler.invalidate();
+		super.setRemoved();
 	}
 
 }

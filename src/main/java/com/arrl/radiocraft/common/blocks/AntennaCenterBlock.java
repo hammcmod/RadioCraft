@@ -5,7 +5,6 @@ import com.arrl.radiocraft.common.blockentities.AbstractNetworkBlock;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -30,7 +29,7 @@ public class AntennaCenterBlock extends AbstractNetworkBlock {
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if(!level.isClientSide && hand == InteractionHand.MAIN_HAND) {
-			Antenna<?> antenna = AntennaTypes.match(level, pos);
+			Antenna<?> antenna = ((AntennaBlockEntity)level.getBlockEntity(pos)).antenna;
 			if(antenna != null)
 				Radiocraft.LOGGER.info(antenna.type.toString());
 			else

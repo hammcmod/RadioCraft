@@ -20,6 +20,7 @@ public class RadiocraftBlocks {
 
 	// Copy common properties here to avoid using copy method a ton.
 	private static final Properties PROPERTIES_STONE = Properties.copy(Blocks.STONE);
+	private static final Properties PROPERTIES_STONE_NO_OCCLUDE = Properties.copy(Blocks.STONE).noCollission();
 	private static final Properties PROPERTIES_RADIO = Properties.copy(Blocks.STONE).noOcclusion();
 	private static final Properties PROPERTIES_IRON_BARS = Properties.copy(Blocks.IRON_BARS);
 	private static final Properties PROPERTIES_WIRES = Properties.of(Material.STONE, MaterialColor.COLOR_LIGHT_GRAY).instabreak().noCollission().noOcclusion();
@@ -49,14 +50,14 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> DIGITAL_INTERFACE = BLOCKS.register("digital_interface", () -> new DigitalInterfaceBlock(PROPERTIES_STONE));
 
 	// Antenna blocks
-	public static final RegistryObject<Block> DUPLEXER = BLOCKS.register("duplexer", () -> new DuplexerBlock(Properties.copy(Blocks.STONE).noOcclusion()));
+	public static final RegistryObject<Block> DUPLEXER = BLOCKS.register("duplexer", () -> new DuplexerBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final RegistryObject<Block> ANTENNA_TUNER = BLOCKS.register("antenna_tuner", () -> new AntennaTunerBlock(PROPERTIES_STONE));
 
 	public static final RegistryObject<Block> COAX_WIRE = BLOCKS.register("coax_wire", () -> new WireBlock(PROPERTIES_WIRES, false));
 	public static final RegistryObject<Block> ANTENNA_POLE = BLOCKS.register("antenna_pole", () -> new AntennaPoleBlock(PROPERTIES_IRON_BARS));
-	public static final RegistryObject<Block> ANTENNA_CONNECTOR = BLOCKS.register("antenna_connector", () -> new AntennaConnectorBlock(PROPERTIES_IRON_BARS));
-	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = BLOCKS.register("balun_one_to_one", () -> new BalunBlock(PROPERTIES_STONE));
-	public static final RegistryObject<Block> BALUN_TWO_TO_ONE = BLOCKS.register("balun_two_to_one", () -> new BalunBlock(PROPERTIES_STONE));
+	public static final RegistryObject<Block> ANTENNA_CONNECTOR = BLOCKS.register("antenna_connector", () -> new AntennaConnectorBlock(PROPERTIES_STONE_NO_OCCLUDE));
+	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = BLOCKS.register("balun_one_to_one", () -> new BalunBlock(PROPERTIES_STONE_NO_OCCLUDE));
+	public static final RegistryObject<Block> BALUN_TWO_TO_ONE = BLOCKS.register("balun_two_to_one", () -> new BalunBlock(PROPERTIES_STONE_NO_OCCLUDE));
 
 	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = BLOCKS.register("solar_weather_station", () -> new SolarWeatherStationBlock(PROPERTIES_STONE));
 

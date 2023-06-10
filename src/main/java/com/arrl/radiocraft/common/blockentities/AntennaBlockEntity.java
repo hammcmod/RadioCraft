@@ -29,7 +29,7 @@ import java.util.*;
 public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 
 	private final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
-	private Antenna<?> antenna = null;
+	public Antenna<?> antenna = null;
 
 	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage. Keep BENetworkEntry to ensure that it uses weak refs.
 	private final List<BENetworkEntry> radios = new ArrayList<>();
@@ -60,6 +60,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		if(antenna != null) {
 			network.addAntenna(worldPosition, antenna);
 			antenna.setNetwork(network);
+			setChanged();
 		}
 		else
 			network.removeAntenna(worldPosition);
@@ -84,7 +85,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	 * Reset the antenna check cooldown-- used every time a block is placed "on" the antenna.
 	 */
 	public void markAntennaChanged() {
-		antennaCheckCooldown = RadiocraftConfig.ANTENNA_UPDATE_DELAY.get();
+		antennaCheckCooldown = RadiocraftConfig.ANTENNA_UPDATE_DELAY.get() * 20;
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
@@ -109,7 +110,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	public void load(CompoundTag nbt) {
 		super.load(nbt);
 		if(nbt.contains("antennaType")) {
-			IAntennaType<?> type = AntennaTypes.getType(new ResourceLocation(nbt.getString("type")));
+			IAntennaType<?> type = AntennaTypes.getType(new ResourceLocation(nbt.getString("antennaType")));
 			if(type != null) {
 				antenna = new Antenna<>(type, worldPosition);
 				antenna.deserializeNBT(nbt.getCompound("antennaData"));

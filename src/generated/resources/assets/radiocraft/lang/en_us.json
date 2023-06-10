@@ -42,5 +42,6 @@
   "item.radiocraft.radio_speaker": "Radio Speaker",
   "item.radiocraft.small_battery": "Small Alkaline Battery",
   "item.radiocraft.vhf_handheld": "VHF Handheld Radio",
+  "screen.radiocraft.chargecontroller.power": "%s FE/s",
   "tabs.radiocraft.main_tab": "RadioCraft"
 }

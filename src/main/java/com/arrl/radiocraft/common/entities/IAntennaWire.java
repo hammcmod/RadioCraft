@@ -7,5 +7,6 @@ public interface IAntennaWire {
 	BlockPos getEndPos();
 	BlockPos getStartPos();
 	boolean isPairedWith(IAntennaWire other);
+	void updateAntennas();
 
 }

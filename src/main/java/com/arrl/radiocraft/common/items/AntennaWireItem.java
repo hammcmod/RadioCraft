@@ -56,6 +56,7 @@ public class AntennaWireItem extends Item {
                                 entity.setEndPos(pos);
                                 entity.setHolder(null);
                                 player.level.playSound(null, entity.getEndPos(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                                entity.updateAntennas();
                             }
 
                             cap.setHeldPos(null);

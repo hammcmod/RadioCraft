@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.entities;
 
+import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.damagesource.DamageSource;
@@ -14,6 +15,8 @@ public class AntennaWirePart extends PartEntity<AntennaWire> implements IAntenna
 
 	public final AntennaWire parent;
 	public final String name;
+
+	private boolean checkEnabled = true;
 
 	public AntennaWirePart(AntennaWire parent, String name) {
 		super(parent);
@@ -75,6 +78,17 @@ public class AntennaWirePart extends PartEntity<AntennaWire> implements IAntenna
 
 	public boolean isPairedWith(IAntennaWire other) {
 		return other == parent;
+	}
+
+	public void updateAntennas() {
+		if(checkEnabled) {
+			checkEnabled = false;
+			if(level.getBlockEntity(blockPosition()) instanceof AntennaBlockEntity be)
+				be.markAntennaChanged();
+
+			parent.updateAntennas();
+			checkEnabled = true;
+		}
 	}
 
 }

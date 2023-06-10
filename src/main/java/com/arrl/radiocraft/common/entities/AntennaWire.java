@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.entities;
 
 import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
+import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
@@ -9,6 +10,8 @@ import com.arrl.radiocraft.common.network.packets.ClientboundAntennaWirePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -26,6 +29,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.entity.IEntityAdditionalSpawnData;
 import net.minecraftforge.entity.PartEntity;
+import net.minecraftforge.network.NetworkHooks;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -47,6 +51,7 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
     private Player holder = null;
 
     private int checkInterval = 0;
+    private boolean checkEnabled = true;
 
     public AntennaWire(EntityType<AntennaWire> type, Level level) {
         this(level, new BlockPos(0, 0, 0));
@@ -92,8 +97,8 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
         int posZ = pos.getZ();
 
         AABB aabb = new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D);
-        List<AntennaWire> wires = level.getEntitiesOfClass(AntennaWire.class, aabb);
-        List<AntennaWirePart> parts = level.getEntitiesOfClass(AntennaWirePart.class, aabb);
+        List<AntennaWire> wires = level.getEntitiesOfClass(AntennaWire.class, aabb, entity -> !entity.isRemoved());
+        List<AntennaWirePart> parts = level.getEntitiesOfClass(AntennaWirePart.class, aabb, entity -> !entity.isRemoved());
 
         List<IAntennaWire> out = new ArrayList<>();
         out.addAll(wires);
@@ -118,6 +123,20 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
         return null;
     }
 
+    public void updateAntennas() {
+        if(checkEnabled) {
+            checkEnabled = false;
+            if(level.getBlockEntity(blockPosition()) instanceof AntennaBlockEntity be)
+                be.markAntennaChanged();
+
+            endPart.updateAntennas();
+            for(IAntennaWire wire : getWires(level, blockPosition()))
+                wire.updateAntennas();
+
+            checkEnabled = true;
+        }
+    }
+
     @Override
     public void tick() {
         if (!level.isClientSide) {
@@ -128,7 +147,9 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
                     if(holder != null)
                         holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent(cap -> cap.setHeldPos(null)); // Reset held pos.
                     discard();
+                    endPart.discard();
                     playBreakSound();
+                    updateAntennas();
                 }
             }
         }
@@ -291,6 +312,11 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
     @Override
     public void readSpawnData(FriendlyByteBuf buffer) {
         setEndPos(BlockPos.of(buffer.readLong()));
+    }
+
+    @Override
+    public Packet<ClientGamePacketListener> getAddEntityPacket() {
+        return NetworkHooks.getEntitySpawningPacket(this);
     }
 
 }

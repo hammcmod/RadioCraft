@@ -18,7 +18,6 @@ public class RadiocraftConfig {
 	public static final ConfigValue<Integer> HF_RADIO_10M_TRANSMIT_TICK;
 
 	public static final ConfigValue<Integer> ANTENNA_UPDATE_DELAY;
-	public static final ConfigValue<Integer> ANTENNA_MAX_RADIUS;
 
 	static {
 		BUILDER.push("Power Options ( * = Restart game to take effect)");
@@ -35,8 +34,7 @@ public class RadiocraftConfig {
 		BUILDER.pop();
 
 		BUILDER.push("Antenna Options ( * = Restart game to take effect)");
-		ANTENNA_UPDATE_DELAY = BUILDER.comment("Delay in seconds of an antenna to recalculate it's state after being changed #default 10").define("antenna_update_delay", 10);
-		ANTENNA_MAX_RADIUS = BUILDER.comment("Maximum radius in blocks for an antenna #default 20").define("antenna_max_radius", 20);
+		ANTENNA_UPDATE_DELAY = BUILDER.comment("Delay in seconds of an antenna to recalculate it's state after being changed #default 5").define("antenna_update_delay", 5);
 		BUILDER.pop();
 
 		SPEC = BUILDER.build();

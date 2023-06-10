@@ -23,7 +23,6 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		complexHorizontalBlockWithItem(RadiocraftBlocks.ANTENNA_TUNER.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.DIGITAL_INTERFACE.get());
-		complexHorizontalBlockWithItem(RadiocraftBlocks.CHARGE_CONTROLLER.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.DUPLEXER.get());
 		complexBlockWithItem(RadiocraftBlocks.SOLAR_PANEL.get());
 		complexBlockWithItem(RadiocraftBlocks.ANTENNA_POLE.get());
