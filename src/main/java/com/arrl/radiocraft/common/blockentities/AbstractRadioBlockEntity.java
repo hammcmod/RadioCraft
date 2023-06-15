@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity {
+public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE {
 
 	private Radio radio; // Acts as a container for voip channel info
 	private final List<BENetworkEntry> antennas = new ArrayList<>();
@@ -29,7 +29,9 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private int transmitUsePower;
 	private boolean shouldOverDraw = false; // Use this for overdraws as voice thread will be the one calling it and game logic should run on server thread.
 
-	public boolean isReceiving = false; // This is only read clientside to determine the static sounds.
+	private boolean isPowered = false; // Only read clientside for the UI
+	private boolean isReceiving = false; // Only read clientside to determine the static sounds.
+	private boolean isTransmitting = false; // Only read clientside for the UI
 
 	protected final ContainerData fields = new ContainerData() {
 
@@ -72,7 +74,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(!level.isClientSide) {
-			if(t instanceof AbstractRadioBlockEntity be) {
+			if(t instanceof AbstractRadioBlockEntity be && be.isPowered) {
 				Radio radio = be.getRadio();
 
 				if(be.shouldOverDraw) {
@@ -111,18 +113,18 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		setTransmitting(false);
 	}
 
-
-	/**
-	 * Toggle the transmit capability, override if making a repeater
-	 */
-	public void toggleTransmitting() {
-		Radio radio = getRadio();
-		radio.setTransmitting(!radio.isTransmitting());
-		radio.setReceiving(!radio.isTransmitting());
+	@Override
+	public void toggle() {
+		isPowered = !isPowered;
+		updateBlock();
 	}
 
 	public void setTransmitting(boolean value) {
 		getRadio().setTransmitting(value);
+		if(isTransmitting != value) {
+			isTransmitting = value;
+			updateBlock();
+		}
 	}
 
 	public void setReceiving(boolean value) {
@@ -141,6 +143,18 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		return transmitUsePower;
 	}
 
+	public boolean isReceiving() {
+		return isReceiving;
+	}
+
+	public boolean isTransmitting() {
+		return isTransmitting;
+	}
+
+	public boolean isPowered() {
+		return isPowered;
+	}
+
 	@Override
 	public void onLoad() {
 		super.onLoad();
@@ -148,7 +162,24 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 			AbstractRadioBlockEntityClientHandler.startRadioStatic(this);
 		else {
 			RadioManager.addRadio(level, this);
+			updateBlock();
 		}
+	}
+
+	@Override
+	protected void saveAdditional(CompoundTag nbt) {
+		super.saveAdditional(nbt);
+		nbt.putBoolean("isPowered", isPowered);
+		nbt.putBoolean("isReceiving", isReceiving);
+		nbt.putBoolean("isTransmitting", isTransmitting);
+	}
+
+	@Override
+	public void load(CompoundTag nbt) {
+		super.load(nbt);
+		isPowered = nbt.getBoolean("isPowered");
+		isReceiving = nbt.getBoolean("isReceiving");
+		isTransmitting = nbt.getBoolean("isTransmitting");
 	}
 
 	@Override
@@ -181,12 +212,16 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	public CompoundTag getUpdateTag() {
 		CompoundTag nbt = new CompoundTag();
 		nbt.putBoolean("isReceiving", isReceiving);
+		nbt.putBoolean("isTransmitting", isTransmitting);
+		nbt.putBoolean("isPowered", isPowered);
 		return nbt;
 	}
 
 	@Override
 	public void handleUpdateTag(CompoundTag nbt) {
 		isReceiving = nbt.getBoolean("isReceiving");
+		isTransmitting = nbt.getBoolean("isTransmitting");
+		isPowered = nbt.getBoolean("isPowered");
 	}
 
 	private void updateBlock() {
@@ -230,7 +265,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 */
 	public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio) {
 		Radio radio = getRadio();
-		if(radio.isTransmitting()) {
+		if(radio.isTransmitting() && isPowered) {
 			if(antennas.size() == 1)
 				((AntennaBlockEntity)antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, 10, 1000);
 			else if(antennas.size() > 1)

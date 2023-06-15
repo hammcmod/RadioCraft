@@ -40,12 +40,16 @@ public class HFRadio10mMenu extends AbstractContainerMenu {
 		throw new IllegalStateException("BlockEntity at " + data.readBlockPos() + " is not correct");
 	}
 
-	public int getReceiveTick() {
-		return data.get(0);
+	public boolean isPowered() {
+		return blockEntity.isPowered();
 	}
 
-	public int getTransmitTick() {
-		return data.get(1);
+	public boolean isTransmitting() {
+		return blockEntity.isTransmitting();
+	}
+
+	public boolean isReceiving() {
+		return blockEntity.isReceiving();
 	}
 
 	@Override

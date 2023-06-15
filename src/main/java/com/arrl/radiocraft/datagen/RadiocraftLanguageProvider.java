@@ -71,6 +71,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("commands", "callsign.set.success"), "%s's callsign has been set to %s.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.set.failure.multiple"), "Cannot reset the callsign of multiple targets at once.");
 			provider.add(Radiocraft.translationKey("screen", "chargecontroller.power"), "%s FE/s");
+			provider.add(Radiocraft.translationKey("screen", "radio.tx"), "Transmitting");
+			provider.add(Radiocraft.translationKey("screen", "radio.rx"), "Receiving");
 
 		});
 	}

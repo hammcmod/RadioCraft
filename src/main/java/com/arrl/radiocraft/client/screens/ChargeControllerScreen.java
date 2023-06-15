@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.client.screens.widgets.ToggleableImageButton;
+import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
 import com.arrl.radiocraft.common.network.packets.ServerboundTogglePacket;
@@ -17,10 +17,6 @@ public class ChargeControllerScreen extends AbstractContainerScreen<ChargeContro
 
 	private static final ResourceLocation TEXTURE = Radiocraft.location("textures/gui/charge_controller.png");
 	private static final ResourceLocation WIDGETS = Radiocraft.location("textures/gui/charge_controller_widgets.png");
-	private static final int SWITCH_X = 93;
-	private static final int SWITCH_Y = 24;
-	private static final int SWITCH_WIDTH = 63;
-	private static final int SWITCH_HEIGHT = 84;
 
 	private static final int GAUGE_X = 20;
 	private static final int GAUGE_Y = 68;
@@ -48,9 +44,9 @@ public class ChargeControllerScreen extends AbstractContainerScreen<ChargeContro
 	@Override
 	protected void init() {
 		super.init();
-		addRenderableWidget(new ToggleableImageButton(container.blockEntity.getPoweredOn(), leftPos + SWITCH_X, topPos + SWITCH_Y, SWITCH_WIDTH, SWITCH_HEIGHT, 0, 0, WIDGETS, 256, 256, (button) -> {
-			RadiocraftPackets.sendToServer(new ServerboundTogglePacket(container.blockEntity.getBlockPos()));
-		}));
+		addRenderableWidget(new ToggleButton(container.blockEntity.getPoweredOn(), leftPos + 93, topPos + 24, 63, 84, 0, 0, WIDGETS, 256, 256,
+				(button) -> RadiocraftPackets.sendToServer(new ServerboundTogglePacket(container.blockEntity.getBlockPos())))
+		);
 	}
 
 	@Override

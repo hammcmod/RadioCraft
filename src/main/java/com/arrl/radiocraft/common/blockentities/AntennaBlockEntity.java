@@ -100,6 +100,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	@Override
 	protected void saveAdditional(CompoundTag nbt) {
 		super.saveAdditional(nbt);
+		nbt.putInt("antennaCheckCooldown", Math.max(antennaCheckCooldown, -1));
 		if(antenna != null) {
 			nbt.putString("antennaType", antenna.type.getId().toString());
 			nbt.put("antennaData", antenna.serializeNBT());
@@ -109,6 +110,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	@Override
 	public void load(CompoundTag nbt) {
 		super.load(nbt);
+		antennaCheckCooldown = nbt.getInt("antennaCheckCooldown");
 		if(nbt.contains("antennaType")) {
 			IAntennaType<?> type = AntennaTypes.getType(new ResourceLocation(nbt.getString("antennaType")));
 			if(type != null) {

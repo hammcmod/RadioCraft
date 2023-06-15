@@ -69,7 +69,7 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity implem
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(t instanceof ChargeControllerBlockEntity be) {
-			if(!level.isClientSide && !state.getValue(ChargeControllerBlock.POWERED)) { // Serverside only
+			if(!level.isClientSide && be.getPoweredOn()) { // Serverside only
 				int energyToPush = be.energyStorage.extractEnergy(be.energyStorage.getEnergyStored(), true); // Do not actually pull out power yet.
 				be.lastPowerTick = energyToPush;
 

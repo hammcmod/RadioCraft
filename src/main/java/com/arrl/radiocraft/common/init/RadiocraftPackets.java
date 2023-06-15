@@ -24,6 +24,7 @@ public class RadiocraftPackets {
 		INSTANCE.registerMessage(id++, ClientboundNoisePacket.class, ClientboundNoisePacket::encode, ClientboundNoisePacket::decode, ClientboundNoisePacket::handle);
 		INSTANCE.registerMessage(id++, ServerboundTogglePacket.class, ServerboundTogglePacket::encode, ServerboundTogglePacket::decode, ServerboundTogglePacket::handle);
 		INSTANCE.registerMessage(id++, ClientboundAntennaWirePacket.class, ClientboundAntennaWirePacket::encode, ClientboundAntennaWirePacket::decode, ClientboundAntennaWirePacket::handle);
+		INSTANCE.registerMessage(id++, ServerboundRadioPacket.class, ServerboundRadioPacket::encode, ServerboundRadioPacket::decode, ServerboundRadioPacket::handle);
 	}
 
 	public static void sendToPlayer(RadiocraftPacket packet, ServerPlayer player) {

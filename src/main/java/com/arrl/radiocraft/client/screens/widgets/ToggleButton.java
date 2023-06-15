@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 
-public class ToggleableImageButton extends Button {
+public class ToggleButton extends Button {
 
 	private final ResourceLocation resourceLocation;
 	private final int u;
@@ -17,7 +17,7 @@ public class ToggleableImageButton extends Button {
 
 	public boolean isToggled;
 
-	public ToggleableImageButton(boolean isToggled, int x, int y, int width, int height, int u, int v, ResourceLocation texLocation, int texWidth, int texHeight, Button.OnPress onPress) {
+	public ToggleButton(boolean isToggled, int x, int y, int width, int height, int u, int v, ResourceLocation texLocation, int texWidth, int texHeight, Button.OnPress onPress) {
 		super(x, y, width, height, CommonComponents.EMPTY, onPress, DEFAULT_NARRATION);
 		this.textureWidth = texWidth;
 		this.textureHeight = texHeight;
