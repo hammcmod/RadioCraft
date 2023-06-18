@@ -41,19 +41,15 @@ public class Radio {
 
 	public void receive(AntennaNetworkPacket antennaPacket) {
 		if(isReceiving) {
-			if(RadiocraftVoicePlugin.encoder == null)
-				Radiocraft.LOGGER.error("Radiocraft encoder is null.");
-			else {
-				if(receiveChannel == null)
-					openChannel(antennaPacket.getLevel());
+			if(receiveChannel == null)
+				openChannel(antennaPacket.getLevel());
 
-				short[] rawAudio = antennaPacket.getRawAudio();
-				for(int i = 0; i < rawAudio.length; i++)
-					rawAudio[i] = (short)Math.round(rawAudio[i] * antennaPacket.getStrength()); // Apply appropriate gain for signal strength
+			short[] rawAudio = antennaPacket.getRawAudio();
+			for(int i = 0; i < rawAudio.length; i++)
+				rawAudio[i] = (short)Math.round(rawAudio[i] * antennaPacket.getStrength()); // Apply appropriate gain for signal strength
 
-				byte[] opusAudio = RadiocraftVoicePlugin.encoder.encode(rawAudio);
-				receiveChannel.send(opusAudio);
-			}
+			byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
+			receiveChannel.send(opusAudio);
 		}
 	}
 

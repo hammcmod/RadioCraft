@@ -20,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE {
 
@@ -263,11 +264,11 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	/**
 	 * Process voice packet to broadcast to other radios. Called from voice thread.
 	 */
-	public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio) {
+	public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
 		Radio radio = getRadio();
 		if(radio.isTransmitting() && isPowered) {
 			if(antennas.size() == 1)
-				((AntennaBlockEntity)antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, 10, 1000);
+				((AntennaBlockEntity)antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, 10, 1000, sourcePlayer);
 			else if(antennas.size() > 1)
 				overdraw();
 		}

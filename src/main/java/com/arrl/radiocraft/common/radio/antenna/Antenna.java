@@ -10,6 +10,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.Map;
+import java.util.UUID;
 
 public class Antenna<T extends AntennaData> implements INBTSerializable<CompoundTag> {
 
@@ -31,9 +32,9 @@ public class Antenna<T extends AntennaData> implements INBTSerializable<Compound
 		this.pos = pos;
 	}
 
-	private AntennaNetworkPacket getTransmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, BlockPos destination) {
+	private AntennaNetworkPacket getTransmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, BlockPos destination, UUID sourcePlayer) {
 		short[] rawAudioCopy = rawAudio.clone(); // Use a copy as every antenna modifies this differently.
-		AntennaNetworkPacket networkPacket = new AntennaNetworkPacket(level, rawAudioCopy, wavelength, frequency, 1.0F, pos);
+		AntennaNetworkPacket networkPacket = new AntennaNetworkPacket(level, rawAudioCopy, wavelength, frequency, 1.0F, pos, sourcePlayer);
 		type.applyTransmitStrength(networkPacket, data, destination);
 		return networkPacket;
 	}
@@ -53,12 +54,12 @@ public class Antenna<T extends AntennaData> implements INBTSerializable<Compound
 		this.network = network;
 	}
 
-	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency) {
+	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
 		if(network != null) {
 			Map<BlockPos, Antenna<?>> antennas = network.allAntennas();
 			for(BlockPos targetPos : antennas.keySet()) {
 				if(!targetPos.equals(pos)) {
-					AntennaNetworkPacket antennaPacket = getTransmitAudioPacket(level, rawAudio, wavelength, frequency, pos);
+					AntennaNetworkPacket antennaPacket = getTransmitAudioPacket(level, rawAudio, wavelength, frequency, pos, sourcePlayer);
 					if(antennaPacket.getStrength() > 0.02F) // Cutoff at 0.02 strength for performance.
 						antennas.get(targetPos).processReceiveAudioPacket(antennaPacket);
 				}

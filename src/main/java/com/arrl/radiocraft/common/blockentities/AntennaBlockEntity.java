@@ -39,8 +39,8 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		super(RadiocraftBlockEntities.ANTENNA.get(), pos, state);
 	}
 
-	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency) {
-		antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency);
+	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
+		antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
 	}
 
 	public void receiveAudioPacket(AntennaNetworkPacket packet) {

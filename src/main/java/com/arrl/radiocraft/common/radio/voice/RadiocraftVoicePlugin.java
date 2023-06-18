@@ -3,13 +3,13 @@ package com.arrl.radiocraft.common.radio.voice;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
 import com.arrl.radiocraft.common.radio.antenna.RadioManager;
+import com.arrl.radiocraft.common.radio.voice.EncodingManager.EncodingData;
 import de.maxhenkel.voicechat.api.ForgeVoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
-import de.maxhenkel.voicechat.api.opus.OpusDecoder;
-import de.maxhenkel.voicechat.api.opus.OpusEncoder;
+import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -21,9 +21,7 @@ import java.util.List;
 public class RadiocraftVoicePlugin implements VoicechatPlugin {
 
 	public static VoicechatServerApi api = null;
-
-	public static OpusDecoder decoder = null;
-	public static OpusEncoder encoder = null;
+	public static EncodingManager encodingManager = new EncodingManager();
 
 	@Override
 	public String getPluginId() {
@@ -33,15 +31,12 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 	@Override
 	public void registerEvents(EventRegistration registration) {
 		registration.registerEvent(MicrophonePacketEvent.class, this::onMicrophonePacket, 0);
+		registration.registerEvent(PlayerDisconnectedEvent.class, this::onPlayerDisconnected, 0);
 	}
 
 	public void onMicrophonePacket(MicrophonePacketEvent event) { // This should only be called serverside
 		if(api == null)
 			api = event.getVoicechat();
-		if(decoder == null)
-			decoder = api.createDecoder();
-		if(encoder == null)
-			encoder = api.createEncoder();
 
 		de.maxhenkel.voicechat.api.ServerPlayer sender = event.getSenderConnection().getPlayer();
 
@@ -56,11 +51,21 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 				if(pos.distToCenterSqr(player.position()) < sqrRange) {
 					BlockEntity blockEntity = player.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
 					if(blockEntity instanceof AbstractRadioBlockEntity be) {
-						be.acceptVoicePacket(sender.getServerLevel(), decoder.decode(event.getPacket().getOpusEncodedData()));
+						EncodingData encodingData = encodingManager.getOrCreate(sender.getUuid());
+
+						byte[] encodedAudio = event.getPacket().getOpusEncodedData();
+						if(encodedAudio.length == 0)
+							encodingData.reset();
+						else
+							be.acceptVoicePacket(sender.getServerLevel(), encodingData.getDecoder().decode(encodedAudio), sender.getUuid());
 					}
 				}
 			}
 		}
+	}
+
+	public void onPlayerDisconnected(PlayerDisconnectedEvent event) {
+		encodingManager.close(event.getPlayerUuid());
 	}
 
 }
