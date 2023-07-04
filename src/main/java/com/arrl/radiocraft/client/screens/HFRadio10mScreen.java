@@ -37,6 +37,8 @@ public class HFRadio10mScreen extends AbstractContainerScreen<HFRadio10mMenu> {
 		addRenderableWidget(new ToggleButton(false, leftPos + 200, topPos + 67, 32, 17, 0, 35, WIDGETS_TEXTURE, 128, 128, (button) -> {})); // CW Button
 		addRenderableWidget(new ToggleButton(container.blockEntity.isTransmitting(), leftPos + 200, topPos + 87, 32, 17, 0, 70, WIDGETS_TEXTURE, 128, 128, (button) -> { // SSB button
 					boolean isTransmitting = container.isTransmitting();
+					container.blockEntity.setReceiving(isTransmitting);
+					container.blockEntity.setTransmitting(!isTransmitting);
 					RadiocraftPackets.sendToServer(new ServerboundRadioPacket(container.blockEntity.getBlockPos(), isTransmitting, !isTransmitting));
 				})
 		);

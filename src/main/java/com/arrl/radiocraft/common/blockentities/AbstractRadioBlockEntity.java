@@ -17,15 +17,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE {
 
 	private Radio radio; // Acts as a container for voip channel info
-	private final List<BENetworkEntry> antennas = new ArrayList<>();
+	private final List<BENetworkEntry> antennas = Collections.synchronizedList(new ArrayList<>());
 	private int receiveUsePower;
 	private int transmitUsePower;
 	private boolean shouldOverDraw = false; // Use this for overdraws as voice thread will be the one calling it and game logic should run on server thread.
@@ -35,7 +32,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private boolean isTransmitting = false; // Only read clientside for the UI
 
 	protected final ContainerData fields = new ContainerData() {
-
 		@Override
 		public int get(int index) {
 			if(index == 0)
@@ -117,7 +113,13 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	@Override
 	public void toggle() {
 		isPowered = !isPowered;
-		updateBlock();
+		if(!level.isClientSide) {
+			if(isPowered)
+				powerOn();
+			else
+				powerOff();
+			updateBlock();
+		}
 	}
 
 	public void setTransmitting(boolean value) {

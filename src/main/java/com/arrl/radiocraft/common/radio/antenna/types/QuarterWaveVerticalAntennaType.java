@@ -54,17 +54,17 @@ public class QuarterWaveVerticalAntennaType implements IAntennaType<QuarterWaveV
 	}
 
 	@Override
-	public void applyTransmitStrength(AntennaNetworkPacket packet, QuarterWaveVerticalAntennaData data, BlockPos destination) {
+	public double getTransmitStrength(AntennaNetworkPacket packet, QuarterWaveVerticalAntennaData data, BlockPos destination) {
 		double distance = Math.sqrt(packet.getSource().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
 		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.2D, 0.7D, level.isDay());
-		packet.setStrength(baseStrength * getEfficiency(packet, data));
+		return baseStrength * getEfficiency(packet, data);
 	}
 
 	@Override
-	public void applyReceiveStrength(AntennaNetworkPacket packet, QuarterWaveVerticalAntennaData data, BlockPos pos) {
-		packet.setStrength(packet.getStrength() * getEfficiency(packet, data));
+	public double getReceiveStrength(AntennaNetworkPacket packet, QuarterWaveVerticalAntennaData data, BlockPos pos) {
+		return packet.getStrength() * getEfficiency(packet, data);
 	}
 
 	public double getEfficiency(AntennaNetworkPacket packet, QuarterWaveVerticalAntennaData data) {

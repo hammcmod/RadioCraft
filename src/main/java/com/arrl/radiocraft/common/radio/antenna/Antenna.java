@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.util.INBTSerializable;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,6 +20,9 @@ public class Antenna<T extends AntennaData> implements INBTSerializable<Compound
 	public final BlockPos pos;
 
 	private AntennaNetwork network = null;
+
+	private final Map<BlockPos, Double> sendCache = new HashMap<>();
+	private final Map<BlockPos, Double> receiveCache = new HashMap<>();
 
 	public Antenna(IAntennaType<T> type, BlockPos pos, T data) {
 		this.type = type;
@@ -33,16 +37,29 @@ public class Antenna<T extends AntennaData> implements INBTSerializable<Compound
 	}
 
 	private AntennaNetworkPacket getTransmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, BlockPos destination, UUID sourcePlayer) {
-		short[] rawAudioCopy = rawAudio.clone(); // Use a copy as every antenna modifies this differently.
-		AntennaNetworkPacket networkPacket = new AntennaNetworkPacket(level, rawAudioCopy, wavelength, frequency, 1.0F, pos, sourcePlayer);
-		type.applyTransmitStrength(networkPacket, data, destination);
+		AntennaNetworkPacket networkPacket = new AntennaNetworkPacket(level, rawAudio.clone(), wavelength, frequency, 1.0F, pos, sourcePlayer);
+
+		if(sendCache.containsKey(destination))
+			networkPacket.setStrength(sendCache.get(destination));
+		else {
+			networkPacket.setStrength(type.getTransmitStrength(networkPacket, data, destination));
+			sendCache.put(destination, networkPacket.getStrength());
+		}
+
 		return networkPacket;
 	}
 
 	public void processReceiveAudioPacket(AntennaNetworkPacket packet) {
 		// level#getBlockEntity is thread sensitive for some unknown reason.
 		if(network.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof AntennaBlockEntity be) {
-			type.applyReceiveStrength(packet, data, pos);
+
+			if(receiveCache.containsKey(packet.getSource()))
+				packet.setStrength(receiveCache.get(packet.getSource()));
+			else {
+				packet.setStrength(type.getReceiveStrength(packet, data, pos));
+				receiveCache.put(packet.getSource(), packet.getStrength());
+			}
+
 			be.receiveAudioPacket(packet);
 		}
 	}

@@ -63,17 +63,17 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 	}
 
 	@Override
-	public void applyTransmitStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos destination) {
+	public double getTransmitStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos destination) {
 		double distance = Math.sqrt(packet.getSource().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
 		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, level.isDay());
-		packet.setStrength(baseStrength * getEfficiency(packet, data));
+		return baseStrength * getEfficiency(packet, data);
 	}
 
 	@Override
-	public void applyReceiveStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos pos) {
-		packet.setStrength(packet.getStrength() * getEfficiency(packet, data));
+	public double getReceiveStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos pos) {
+		return packet.getStrength() * getEfficiency(packet, data);
 	}
 
 	public double getEfficiency(AntennaNetworkPacket packet, DipoleAntennaData data) {

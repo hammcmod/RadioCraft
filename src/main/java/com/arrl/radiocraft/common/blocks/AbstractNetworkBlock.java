@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.blockentities;
+package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;

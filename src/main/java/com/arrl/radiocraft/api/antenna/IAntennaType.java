@@ -20,12 +20,12 @@ public interface IAntennaType<T extends AntennaData> {
 	/**
 	 * Apply the strength multiplier for transmitting to a given destination.
 	 */
-	void applyTransmitStrength(AntennaNetworkPacket packet, T data, BlockPos destination);
+	double getTransmitStrength(AntennaNetworkPacket packet, T data, BlockPos destination);
 
 	/**
 	 * Apply the strength multiplier for receiving from a given source.
 	 */
-	void applyReceiveStrength(AntennaNetworkPacket packet, T data, BlockPos pos);
+	double getReceiveStrength(AntennaNetworkPacket packet, T data, BlockPos pos);
 
 	/**
 	 * Get a default instance of data class, usually used for loading.

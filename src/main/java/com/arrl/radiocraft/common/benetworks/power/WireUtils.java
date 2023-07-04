@@ -131,8 +131,10 @@ public class WireUtils {
 					continue;
 
 				BlockState checkState = level.getBlockState(checkPos);
-				if(validConnection.test(checkState))
-					connections.put((IBENetworkItem)level.getBlockEntity(checkPos), direction.getOpposite()); // Add valid connections to list-- if this crashes it's because a mod or pack dev did something stupid.
+				if(validConnection.test(checkState)) {
+					if(level.getBlockEntity(checkPos) instanceof IBENetworkItem networkItem)
+						connections.put(networkItem, direction.getOpposite()); // Add valid connections to list-- if this crashes it's because a mod or pack dev did something stupid.
+				}
 				else
 					getConnections(level, checkPos, connections, blackList, validWire, validConnection); // Check non-connections as potential wires.
 			}

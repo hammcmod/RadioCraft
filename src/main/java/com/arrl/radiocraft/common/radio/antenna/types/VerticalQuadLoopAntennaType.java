@@ -103,17 +103,17 @@ public class VerticalQuadLoopAntennaType implements IAntennaType<VerticalQuadLoo
 	}
 
 	@Override
-	public void applyTransmitStrength(AntennaNetworkPacket packet, VerticalQuadLoopAntennaData data, BlockPos destination) {
+	public double getTransmitStrength(AntennaNetworkPacket packet, VerticalQuadLoopAntennaData data, BlockPos destination) {
 		double distance = Math.sqrt(packet.getSource().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
 		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.25D, 1.25D, level.isDay());
-		packet.setStrength(baseStrength * getEfficiency(packet, data, packet.getSource(), destination));
+		return baseStrength * getEfficiency(packet, data, packet.getSource(), destination);
 	}
 
 	@Override
-	public void applyReceiveStrength(AntennaNetworkPacket packet, VerticalQuadLoopAntennaData data, BlockPos pos) {
-		packet.setStrength(packet.getStrength() * getEfficiency(packet, data, pos, packet.getSource()));
+	public double getReceiveStrength(AntennaNetworkPacket packet, VerticalQuadLoopAntennaData data, BlockPos pos) {
+		return packet.getStrength() * getEfficiency(packet, data, pos, packet.getSource());
 	}
 
 	public double getEfficiency(AntennaNetworkPacket packet, VerticalQuadLoopAntennaData data, BlockPos from, BlockPos to) {

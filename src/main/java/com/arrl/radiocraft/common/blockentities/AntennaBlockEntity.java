@@ -32,7 +32,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	public Antenna<?> antenna = null;
 
 	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage. Keep BENetworkEntry to ensure that it uses weak refs.
-	private final List<BENetworkEntry> radios = new ArrayList<>();
+	private final List<BENetworkEntry> radios = Collections.synchronizedList(new ArrayList<>());
 	private int antennaCheckCooldown = -1;
 
 	public AntennaBlockEntity(BlockPos pos, BlockState state) {
@@ -43,6 +43,9 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
 	}
 
+	/**
+	 * Called from voice thread.
+	 */
 	public void receiveAudioPacket(AntennaNetworkPacket packet) {
 		if(radios.size() == 1)
 			((AbstractRadioBlockEntity)radios.get(0).getNetworkItem()).getRadio().receive(packet);

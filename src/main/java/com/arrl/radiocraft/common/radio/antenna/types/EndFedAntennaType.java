@@ -51,17 +51,17 @@ public class EndFedAntennaType implements IAntennaType<EndFedAntennaData> {
 	}
 
 	@Override
-	public void applyTransmitStrength(AntennaNetworkPacket packet, EndFedAntennaData data, BlockPos destination) {
+	public double getTransmitStrength(AntennaNetworkPacket packet, EndFedAntennaData data, BlockPos destination) {
 		double distance = Math.sqrt(packet.getSource().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
 		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, level.isDay());
-		packet.setStrength(baseStrength * getEfficiency(packet, data) * 0.75D);
+		return baseStrength * getEfficiency(packet, data) * 0.75D;
 	}
 
 	@Override
-	public void applyReceiveStrength(AntennaNetworkPacket packet, EndFedAntennaData data, BlockPos pos) {
-		packet.setStrength(packet.getStrength() * getEfficiency(packet, data) * 0.75D);
+	public double getReceiveStrength(AntennaNetworkPacket packet, EndFedAntennaData data, BlockPos pos) {
+		return packet.getStrength() * getEfficiency(packet, data) * 0.75D;
 	}
 
 	public double getEfficiency(AntennaNetworkPacket packet, EndFedAntennaData data) {
