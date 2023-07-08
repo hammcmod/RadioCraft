@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.blockentities.HFRadio10mBlockEntity;
+import com.arrl.radiocraft.common.blockentities.HFRadio80mBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -13,25 +13,25 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
-public class HFRadio10mBlock extends AbstractRadioBlock {
+public class HFRadio80mBlock extends AbstractRadioBlock {
 
 	public static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
 
 	static {
-		SHAPES.put(Direction.NORTH, Block.box(0.0D, 0.0D, 5.0D, 16.0D, 10.0D, 16.0D));
-		SHAPES.put(Direction.SOUTH, Block.box(0.0D, 0.0D, 0.0D, 16.0D, 10.0D, 11.0D));
-		SHAPES.put(Direction.EAST, Block.box(0.0D, 0.0D, 0.0D, 11.0D, 10.0D, 16.0D));
-		SHAPES.put(Direction.WEST, Block.box(5.0D, 0.0D, 0.0D, 16.0D, 10.0D, 16.0D));
+		SHAPES.put(Direction.NORTH, Block.box(1.0D, 0.0D, 1.0D, 15.0D, 13.0D, 16.0D));
+		SHAPES.put(Direction.SOUTH, Block.box(1.0D, 0.0D, 0.0D, 15.0D, 13.0D, 15.0D));
+		SHAPES.put(Direction.EAST, Block.box(0.0D, 0.0D, 1.0D, 15.0D, 13.0D, 15.0D));
+		SHAPES.put(Direction.WEST, Block.box(1.0D, 0.0D, 1.0D, 16.0D, 13.0D, 15.0D));
 	}
 
-	public HFRadio10mBlock(Properties properties) {
+	public HFRadio80mBlock(Properties properties) {
 		super(properties);
 	}
 
 	@Nullable
 	@Override
 	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-		return new HFRadio10mBlockEntity(pos, state);
+		return new HFRadio80mBlockEntity(pos, state);
 	}
 
 	@Override

@@ -20,12 +20,12 @@ public class BalunBlock extends AntennaCenterBlock {
     public static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
 
     static {
-        SHAPES.put(Direction.NORTH, Block.box(6.0D, 6.0D, 8.0D, 10.0D, 10.0D, 16.0D));
-        SHAPES.put(Direction.SOUTH, Block.box(6.0D, 6.0D, 0.0D, 10.0D, 10.0D, 8.0D));
-        SHAPES.put(Direction.EAST, Block.box(0.0D, 6.0D, 6.0D, 8.0D, 10.0D, 10.0D));
-        SHAPES.put(Direction.WEST, Block.box(8.0D, 6.0D, 6.0D, 16.0D, 10.0D, 10.0D));
-        SHAPES.put(Direction.UP, Block.box(6.0D, 0.0D, 6.0D, 10.0D, 8.0D, 10.0D));
-        SHAPES.put(Direction.DOWN, Block.box(6.0D, 8.0D, 6.0D, 10.0D, 16.0D, 10.0D));
+        SHAPES.put(Direction.NORTH, Block.box(4.0D, 4.0D, 8.0D, 12.0D, 12.0D, 16.0D));
+        SHAPES.put(Direction.SOUTH, Block.box(4.0D, 4.0D, 0.0D, 12.0D, 12.0D, 8.0D));
+        SHAPES.put(Direction.EAST, Block.box(0.0D, 4.0D, 4.0D, 8.0D, 12.0D, 12.0D));
+        SHAPES.put(Direction.WEST, Block.box(4.0D, 6.0D, 6.0D, 16.0D, 12.0D, 12.0D));
+        SHAPES.put(Direction.UP, Block.box(4.0D, 0.0D, 4.0D, 12.0D, 8.0D, 12.0D));
+        SHAPES.put(Direction.DOWN, Block.box(4.0D, 8.0D, 4.0D, 12.0D, 16.0D, 12.0D));
     }
 
     public BalunBlock(Properties properties) {

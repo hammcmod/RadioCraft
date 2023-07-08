@@ -1,10 +1,11 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -30,9 +31,9 @@ public class AntennaCenterBlock extends AbstractNetworkBlock {
 		if(!level.isClientSide && hand == InteractionHand.MAIN_HAND) {
 			Antenna<?> antenna = ((AntennaBlockEntity)level.getBlockEntity(pos)).antenna;
 			if(antenna != null)
-				Radiocraft.LOGGER.info(antenna.type.toString());
+				player.displayClientMessage(Component.literal(antenna.type.toString()).withStyle(ChatFormatting.GREEN), false);
 			else
-				Radiocraft.LOGGER.info("No antenna found.");
+				player.displayClientMessage(Component.literal("No valid antenna found.").withStyle(ChatFormatting.RED), false);
 		}
 		return super.use(state, level, pos, player, hand, hit);
 	}

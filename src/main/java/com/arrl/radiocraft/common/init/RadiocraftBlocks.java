@@ -38,9 +38,9 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> VHF_REPEATER = simpleBlock("vhf_repeater", PROPERTIES_STONE);
 
 	public static final RegistryObject<Block> HF_RADIO_10M = BLOCKS.register("hf_radio_10m", () -> new HFRadio10mBlock(PROPERTIES_RADIO));
-	public static final RegistryObject<Block> HF_RADIO_20M = simpleBlock("hf_radio_20m", PROPERTIES_STONE);
-	public static final RegistryObject<Block> HF_RADIO_40M = simpleBlock("hf_radio_40m", PROPERTIES_STONE);
-	public static final RegistryObject<Block> HF_RADIO_80M = simpleBlock("hf_radio_80m", PROPERTIES_STONE);
+	public static final RegistryObject<Block> HF_RADIO_20M = BLOCKS.register("hf_radio_20m", () -> new HFRadio20mBlock(PROPERTIES_RADIO));
+	public static final RegistryObject<Block> HF_RADIO_40M = BLOCKS.register("hf_radio_40m", () -> new HFRadio40mBlock(PROPERTIES_RADIO));
+	public static final RegistryObject<Block> HF_RADIO_80M = BLOCKS.register("hf_radio_80m", () -> new HFRadio80mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> HF_RECEIVER = simpleBlock("hf_receiver", PROPERTIES_STONE);
 
 	public static final RegistryObject<Block> ALL_BAND_RADIO = simpleBlock("all_band_radio", PROPERTIES_STONE);

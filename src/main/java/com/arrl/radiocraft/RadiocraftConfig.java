@@ -16,6 +16,12 @@ public class RadiocraftConfig {
 
 	public static final ConfigValue<Integer> HF_RADIO_10M_RECEIVE_TICK;
 	public static final ConfigValue<Integer> HF_RADIO_10M_TRANSMIT_TICK;
+	public static final ConfigValue<Integer> HF_RADIO_20M_RECEIVE_TICK;
+	public static final ConfigValue<Integer> HF_RADIO_20M_TRANSMIT_TICK;
+	public static final ConfigValue<Integer> HF_RADIO_40M_RECEIVE_TICK;
+	public static final ConfigValue<Integer> HF_RADIO_40M_TRANSMIT_TICK;
+	public static final ConfigValue<Integer> HF_RADIO_80M_RECEIVE_TICK;
+	public static final ConfigValue<Integer> HF_RADIO_80M_TRANSMIT_TICK;
 
 	public static final ConfigValue<Integer> ANTENNA_UPDATE_DELAY;
 
@@ -31,6 +37,12 @@ public class RadiocraftConfig {
 		BUILDER.push("Radio Options ( * = Restart game to take effect)");
 		HF_RADIO_10M_RECEIVE_TICK = BUILDER.comment("*HF Radio (10m) power consumption per tick (while receiving) #default 125").define("hf_radio_10m_receive", 125);
 		HF_RADIO_10M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (10m) power consumption per tick (while transmitting) #default 375").define("hf_radio_10m_transmit", 375);
+		HF_RADIO_20M_RECEIVE_TICK = BUILDER.comment("*HF Radio (20m) power consumption per tick (while receiving) #default 125").define("hf_radio_20m_receive", 125);
+		HF_RADIO_20M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (20m) power consumption per tick (while transmitting) #default 375").define("hf_radio_20m_transmit", 375);
+		HF_RADIO_40M_RECEIVE_TICK = BUILDER.comment("*HF Radio (40m) power consumption per tick (while receiving) #default 125").define("hf_radio_40m_receive", 125);
+		HF_RADIO_40M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (40m) power consumption per tick (while transmitting) #default 375").define("hf_radio_40m_transmit", 375);
+		HF_RADIO_80M_RECEIVE_TICK = BUILDER.comment("*HF Radio (80m) power consumption per tick (while receiving) #default 125").define("hf_radio_80m_receive", 125);
+		HF_RADIO_80M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (80m) power consumption per tick (while transmitting) #default 375").define("hf_radio_80m_transmit", 375);
 		BUILDER.pop();
 
 		BUILDER.push("Antenna Options ( * = Restart game to take effect)");

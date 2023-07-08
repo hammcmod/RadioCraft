@@ -3,7 +3,7 @@ package com.arrl.radiocraft.client.screens;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
-import com.arrl.radiocraft.common.menus.HFRadio10mMenu;
+import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
 import com.arrl.radiocraft.common.network.packets.ServerboundRadioPacket;
 import com.arrl.radiocraft.common.network.packets.ServerboundTogglePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -14,13 +14,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class HFRadio10mScreen extends AbstractContainerScreen<HFRadio10mMenu> {
+public class HFRadio10mScreen extends AbstractContainerScreen<AbstractHFRadioMenu> {
 
 	private static final ResourceLocation TEXTURE = Radiocraft.location("textures/gui/hf_radio_10m.png");
 	private static final ResourceLocation WIDGETS_TEXTURE = Radiocraft.location("textures/gui/hf_radio_10m_widgets.png");
-	private final HFRadio10mMenu container;
+	private final AbstractHFRadioMenu container;
 
-	public HFRadio10mScreen(HFRadio10mMenu container, Inventory playerInventory, Component title) {
+	public HFRadio10mScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title) {
 		super(container, playerInventory, title);
 		this.container = container;
 

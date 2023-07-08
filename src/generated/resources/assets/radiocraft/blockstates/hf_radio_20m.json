@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "radiocraft:block/hf_radio_20m",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "radiocraft:block/hf_radio_20m"
+    },
+    "facing=south": {
+      "model": "radiocraft:block/hf_radio_20m",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/hf_radio_20m",
+      "y": 270
+    }
+  }
+}

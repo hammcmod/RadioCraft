@@ -31,6 +31,7 @@
   "commands.radiocraft.callsign.reset.success": "%s's callsign has been reset.",
   "commands.radiocraft.callsign.set.failure.multiple": "Cannot reset the callsign of multiple targets at once.",
   "commands.radiocraft.callsign.set.success": "%s's callsign has been set to %s.",
+  "commands.radiocraft.solarweather.success": "Event: %s\nProgress: %s\nDuration: %s\nNoise Floor: %s",
   "item.radiocraft.antenna_analyzer": "Antenna Analyzer",
   "item.radiocraft.antenna_wire": "Antenna Wire",
   "item.radiocraft.coaxial_core": "Coaxial Core",

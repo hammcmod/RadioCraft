@@ -23,6 +23,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 	private Radio radio; // Acts as a container for voip channel info
 	private final List<BENetworkEntry> antennas = Collections.synchronizedList(new ArrayList<>());
+	private final int wavelength;
 	private int receiveUsePower;
 	private int transmitUsePower;
 	private boolean shouldOverDraw = false; // Use this for overdraws as voice thread will be the one calling it and game logic should run on server thread.
@@ -56,10 +57,11 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	};
 
 
-	public AbstractRadioBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int receiveUsePower, int transmitUsePower) {
+	public AbstractRadioBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int receiveUsePower, int transmitUsePower, int wavelength) {
 		super(type, pos, state, transmitUsePower, transmitUsePower);
 		this.receiveUsePower = receiveUsePower;
 		this.transmitUsePower = transmitUsePower;
+		this.wavelength = wavelength;
 	}
 
 	public Radio getRadio() {
@@ -234,7 +236,9 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		}
 	}
 
-	public abstract Radio createRadio();
+	public Radio createRadio() {
+		return new Radio(worldPosition.getX(), worldPosition.getY(), worldPosition.getZ());
+	}
 
 	@Override
 	public void networkUpdated(BENetwork network) {
@@ -270,7 +274,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		Radio radio = getRadio();
 		if(radio.isTransmitting() && isPowered) {
 			if(antennas.size() == 1)
-				((AntennaBlockEntity)antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, 10, 1000, sourcePlayer);
+				((AntennaBlockEntity)antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, wavelength, 1000, sourcePlayer);
 			else if(antennas.size() > 1)
 				overdraw();
 		}
