@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "radiocraft:block/hf_receiver"
+    }
+  }
+}

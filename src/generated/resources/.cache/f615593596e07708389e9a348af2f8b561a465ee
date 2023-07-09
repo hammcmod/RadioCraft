@@ -1,4 +1,4 @@
-// 1.19.3	2023-07-08T23:05:24.6625588	Block States: radiocraft
+// 1.19.3	2023-07-09T21:32:21.0814757	Block States: radiocraft
 4600d3a8bb3c51dc7d8cd3bd0250c08c97ae823b assets/radiocraft/blockstates/antenna_pole.json
 459d3dc0d3ec7952964380af9aacca8908e5edc9 assets/radiocraft/blockstates/antenna_tuner.json
 78e2a407c89d26ce7b3d0d38580258ca57c41d5f assets/radiocraft/blockstates/digital_interface.json
@@ -7,9 +7,13 @@ ad56717089a51339abe3f82264df19d41e292230 assets/radiocraft/blockstates/hf_radio_
 8000424d8313e258e155a050036ed01ee1f30d9e assets/radiocraft/blockstates/hf_radio_20m.json
 8ef6c56d70372e326f34e570e5260d31066e13fd assets/radiocraft/blockstates/hf_radio_40m.json
 952490d8a03ffd9ad19f9a72a360684b353e8691 assets/radiocraft/blockstates/hf_radio_80m.json
+85005bc1fe01608df9b8397133dda71039a3f9b4 assets/radiocraft/blockstates/hf_receiver.json
 bd56d405e540eed2389283944448ab7cc8bbb21a assets/radiocraft/blockstates/large_battery.json
+32131595ff6088ee7552f7372b3aeb79551393f3 assets/radiocraft/blockstates/qrp_radio_40m.json
 e803424a55ef2247349c6eef819b1ab87653fc49 assets/radiocraft/blockstates/solar_panel.json
 773bd2b55f70841c0bc09e986cebc447326841b4 assets/radiocraft/blockstates/solar_weather_station.json
+8b603b0afc91cb6ec34ba0c41b7ba8cff5d65c06 assets/radiocraft/blockstates/vhf_base_station.json
+57a0f58edacac2d0d1c2cb08e3d7e849615d694c assets/radiocraft/blockstates/vhf_receiver.json
 d3ec1c4e795bfa4069572edc889de673d32f3028 assets/radiocraft/models/item/antenna_pole.json
 14094970163342a7e179c82468c7f52395e0d2ef assets/radiocraft/models/item/antenna_tuner.json
 9b102fbce2b0cdedf28266a35feb27818181cffd assets/radiocraft/models/item/digital_interface.json
@@ -18,6 +22,10 @@ d3e8e37da4471f8087236fcdba4b4e8212018456 assets/radiocraft/models/item/hf_radio_
 fb329b278a0f8e44ec21a3176bdab32a58ce5cd1 assets/radiocraft/models/item/hf_radio_20m.json
 56fec167708bd59398695fc909194274d9bbad7b assets/radiocraft/models/item/hf_radio_40m.json
 da56d6b4992c1f1c7f867b267c59037044625f27 assets/radiocraft/models/item/hf_radio_80m.json
+99a01a26f7492e229cd1ea1e9545f5fe87d294cd assets/radiocraft/models/item/hf_receiver.json
 011da4dc8ed31915d568721d62f3622804e0c4d9 assets/radiocraft/models/item/large_battery.json
+2439e5997bde866a2725dc516b3f58f0ee9ad98c assets/radiocraft/models/item/qrp_radio_40m.json
 6b0d20c0c92ed5c6eb8baa219375e36a8f45cc37 assets/radiocraft/models/item/solar_panel.json
 ef85fd4d3a077bbe52b6041a8ec1599f9cbb3992 assets/radiocraft/models/item/solar_weather_station.json
+0dd01a886e1bef79661fca756bf2b2281887977d assets/radiocraft/models/item/vhf_base_station.json
+5e58f955305a955ddbaf6365c543155477a898cb assets/radiocraft/models/item/vhf_receiver.json
