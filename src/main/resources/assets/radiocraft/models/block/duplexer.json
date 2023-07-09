@@ -3,7 +3,8 @@
 	"parent": "block/block",
 	"texture_size": [32, 32],
 	"textures": {
-		"1": "radiocraft:block/duplexer"
+		"1": "radiocraft:block/duplexer",
+		"particle": "radiocraft:block/duplexer"
 	},
 	"elements": [
 		{

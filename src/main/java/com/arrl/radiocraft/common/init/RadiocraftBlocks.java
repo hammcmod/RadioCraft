@@ -33,19 +33,20 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<ChargeControllerBlock> CHARGE_CONTROLLER = BLOCKS.register("charge_controller", () -> new ChargeControllerBlock(PROPERTIES_STONE));
 
 	// Radios/receivers/repeaters
-	public static final RegistryObject<Block> VHF_BASE_STATION = simpleBlock("vhf_base_station", PROPERTIES_STONE);
-	public static final RegistryObject<Block> VHF_RECEIVER = simpleBlock("vhf_receiver", PROPERTIES_STONE);
+	public static final RegistryObject<Block> VHF_BASE_STATION = BLOCKS.register("vhf_base_station", () -> new VHFBaseStationBlock(PROPERTIES_RADIO));
+	public static final RegistryObject<Block> VHF_RECEIVER = BLOCKS.register("vhf_receiver", () -> new VHFReceiverBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> VHF_REPEATER = simpleBlock("vhf_repeater", PROPERTIES_STONE);
 
 	public static final RegistryObject<Block> HF_RADIO_10M = BLOCKS.register("hf_radio_10m", () -> new HFRadio10mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> HF_RADIO_20M = BLOCKS.register("hf_radio_20m", () -> new HFRadio20mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> HF_RADIO_40M = BLOCKS.register("hf_radio_40m", () -> new HFRadio40mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> HF_RADIO_80M = BLOCKS.register("hf_radio_80m", () -> new HFRadio80mBlock(PROPERTIES_RADIO));
-	public static final RegistryObject<Block> HF_RECEIVER = simpleBlock("hf_receiver", PROPERTIES_STONE);
+	public static final RegistryObject<Block> HF_RECEIVER = BLOCKS.register("hf_receiver", () -> new HFReceiverBlock(PROPERTIES_RADIO));
 
 	public static final RegistryObject<Block> ALL_BAND_RADIO = simpleBlock("all_band_radio", PROPERTIES_STONE);
 	public static final RegistryObject<Block> QRP_RADIO_20M = simpleBlock("qrp_radio_20m", PROPERTIES_STONE);
-	public static final RegistryObject<Block> QRP_RADIO_40M = simpleBlock("qrp_radio_40m", PROPERTIES_STONE);
+	public static final RegistryObject<Block> QRP_RADIO_40M = BLOCKS.register("qrp_radio_40m", () -> new QRPRadio40mBlock(PROPERTIES_RADIO));
+
 
 	public static final RegistryObject<Block> DIGITAL_INTERFACE = BLOCKS.register("digital_interface", () -> new DigitalInterfaceBlock(PROPERTIES_STONE));
 

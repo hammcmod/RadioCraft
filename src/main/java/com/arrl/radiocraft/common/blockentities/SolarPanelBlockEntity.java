@@ -46,10 +46,10 @@ public class SolarPanelBlockEntity extends AbstractPowerBlockEntity {
 		rainMultiplier = RadiocraftConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get();
 	}
 
-	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
+	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(t instanceof SolarPanelBlockEntity be) {
 			if(!level.isClientSide) { // Serverside only
-				if(level.isDay()) { // Time is day
+				if(level.isDay() && level.canSeeSky(pos)) { // Time is day & solar panel has direct skylight
 					int powerGenerated = level.isRaining() ? (int)Math.round(be.energyStorage.getMaxReceive() * be.rainMultiplier) : be.energyStorage.getMaxReceive();
 					be.energyStorage.receiveEnergy(powerGenerated, false); // Generate power
 					be.lastPowerTick = powerGenerated;
