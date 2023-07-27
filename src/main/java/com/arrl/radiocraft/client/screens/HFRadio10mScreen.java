@@ -1,9 +1,13 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.client.RadiocraftClientValues;
+import com.arrl.radiocraft.client.screens.widgets.HoldButton;
+import com.arrl.radiocraft.client.screens.widgets.ImageButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
+import com.arrl.radiocraft.common.network.packets.ServerboundRadioPTTPacket;
 import com.arrl.radiocraft.common.network.packets.ServerboundRadioPacket;
 import com.arrl.radiocraft.common.network.packets.ServerboundTogglePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -24,24 +28,41 @@ public class HFRadio10mScreen extends AbstractContainerScreen<AbstractHFRadioMen
 		super(container, playerInventory, title);
 		this.container = container;
 
-		this.imageWidth = 248;
-		this.imageHeight = 130;
+		this.imageWidth = 250;
+		this.imageHeight = 147;
 	}
 
 	@Override
 	protected void init() {
 		super.init();
-		addRenderableWidget(new ToggleButton(container.isPowered(), leftPos + 14, topPos + 15, 14, 17, 0, 0, WIDGETS_TEXTURE, 128, 128, // Power button
+		addRenderableWidget(new ToggleButton(container.isPowered(), leftPos + 13, topPos + 14, 14, 17, 0, 0, WIDGETS_TEXTURE, 256, 256, // Power button
 			(button) -> RadiocraftPackets.sendToServer(new ServerboundTogglePacket(container.blockEntity.getBlockPos())))
 		);
-		addRenderableWidget(new ToggleButton(false, leftPos + 200, topPos + 67, 32, 17, 0, 35, WIDGETS_TEXTURE, 128, 128, (button) -> {})); // CW Button
-		addRenderableWidget(new ToggleButton(container.blockEntity.isTransmitting(), leftPos + 200, topPos + 87, 32, 17, 0, 70, WIDGETS_TEXTURE, 128, 128, (button) -> { // SSB button
+		addRenderableWidget(new ToggleButton(false, leftPos + 197, topPos + 66, 34, 19, 0, 34, WIDGETS_TEXTURE, 256, 256, (button) -> {})); // CW Button
+		addRenderableWidget(new ToggleButton(container.blockEntity.isTransmitting(), leftPos + 197, topPos + 86, 34, 19, 0, 72, WIDGETS_TEXTURE, 256, 256, (button) -> { // SSB button
 					boolean isTransmitting = container.isTransmitting();
 					container.blockEntity.setReceiving(isTransmitting);
 					container.blockEntity.setTransmitting(!isTransmitting);
 					RadiocraftPackets.sendToServer(new ServerboundRadioPacket(container.blockEntity.getBlockPos(), isTransmitting, !isTransmitting));
 				})
 		);
+		addRenderableWidget(new ImageButton(leftPos + 129, topPos + 93, 25, 17, 0, 148, WIDGETS_TEXTURE, 256, 256, (button) -> {})); // Gain up button
+		addRenderableWidget(new ImageButton(leftPos + 154, topPos + 93, 25, 17, 0, 182, WIDGETS_TEXTURE, 256, 256, (button) -> {})); // Gain down button
+		addRenderableWidget(new HoldButton(leftPos + 128, topPos + 110, 51, 19, 0, 110, WIDGETS_TEXTURE, 256, 256,
+				(button) -> {
+					RadiocraftPackets.sendToServer(new ServerboundRadioPTTPacket(container.blockEntity.getBlockPos(), true));
+					RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
+				},
+				(button) -> {
+					RadiocraftPackets.sendToServer(new ServerboundRadioPTTPacket(container.blockEntity.getBlockPos(), false));
+					RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
+				})); // PTT button
+	}
+
+	@Override
+	public void onClose() {
+		super.onClose();
+		RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
 	}
 
 	@Override
@@ -67,9 +88,9 @@ public class HFRadio10mScreen extends AbstractContainerScreen<AbstractHFRadioMen
 
 		if(container.isPowered()) {
 			if(container.isTransmitting())
-				blit(poseStack, leftPos + 30, topPos + 15, 0, 131, 30, 17);
+				blit(poseStack, leftPos + 30, topPos + 15, 1, 148, 29, 15);
 			if(container.isReceiving())
-				blit(poseStack, leftPos + 60, topPos + 15, 30, 131, 29, 17);
+				blit(poseStack, leftPos + 59, topPos + 15, 30, 148, 29, 15);
 		}
 	}
 

@@ -59,4 +59,12 @@ public abstract class AbstractHFRadioMenu extends AbstractContainerMenu {
 		return null;
 	}
 
+	@Override
+	public void removed(Player player) {
+		super.removed(player);
+		if(blockEntity != null) {
+			blockEntity.setRecordingMic(false);
+		}
+	}
+
 }

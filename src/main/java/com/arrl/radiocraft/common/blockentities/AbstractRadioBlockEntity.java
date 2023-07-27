@@ -32,6 +32,8 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private boolean isReceiving = false; // Only read clientside to determine the static sounds.
 	private boolean isTransmitting = false; // Only read clientside for the UI
 
+	private boolean isRecordingMic = false; // Used by PTT button packets
+
 	protected final ContainerData fields = new ContainerData() {
 		@Override
 		public int get(int index) {
@@ -158,6 +160,14 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 	public boolean isPowered() {
 		return isPowered;
+	}
+
+	public boolean isRecordingMic() {
+		return isRecordingMic;
+	}
+
+	public void setRecordingMic(boolean value) {
+		isRecordingMic = value;
 	}
 
 	@Override
