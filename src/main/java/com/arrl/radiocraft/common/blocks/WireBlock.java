@@ -54,7 +54,7 @@ public class WireBlock extends Block {
 	}
 
 	/**
-	 * Calculate desired blockstate for a wire given it's connections.
+	 * Calculate desired blockstate for a wire given its connections.
 	 */
 	public BlockState getBlockState(BlockGetter level, BlockPos pos) {
 		BlockState state = defaultBlockState();
