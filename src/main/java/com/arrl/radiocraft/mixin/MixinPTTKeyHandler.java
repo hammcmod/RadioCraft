@@ -16,4 +16,10 @@ public class MixinPTTKeyHandler {
 			cir.setReturnValue(true);
 	}
 
+	@Inject(method="isAnyDown", at=@At("HEAD"), cancellable = true, remap = false)
+	private void isAnyDown(CallbackInfoReturnable<Boolean> cir) {
+		if(RadiocraftClientValues.SCREEN_PTT_PRESSED)
+			cir.setReturnValue(true);
+	}
+
 }
