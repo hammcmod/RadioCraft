@@ -21,18 +21,21 @@ import java.util.*;
 
 public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE {
 
-	private Radio radio; // Acts as a container for voip channel info
 	private final List<BENetworkEntry> antennas = Collections.synchronizedList(new ArrayList<>());
+
+	private boolean isPowered = false;
+	private boolean ssbEnabled = false;
+	private boolean cwEnabled = false;
+
+	private Radio radio; // Acts as a container for voip channel info
 	private final int wavelength;
-	private int receiveUsePower;
-	private int transmitUsePower;
+	private final int receiveUsePower;
+	private final int transmitUsePower;
 	private boolean shouldOverDraw = false; // Use this for overdraws as voice thread will be the one calling it and game logic should run on server thread.
 
-	private boolean isPowered = false; // Only read clientside for the UI
-	private boolean isReceiving = false; // Only read clientside to determine the static sounds.
-	private boolean isTransmitting = false; // Only read clientside for the UI
+	private boolean isReceivingVoice = false; // Only gets read clientside to determine the static sounds.
 
-	private boolean isRecordingMic = false; // Used by PTT button packets
+	private boolean isPTTDown = false; // Used by PTT button packets
 
 	protected final ContainerData fields = new ContainerData() {
 		@Override
@@ -46,10 +49,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 		@Override
 		public void set(int index, int value) {
-			if(index == 0)
-				receiveUsePower = value;
-			else if(index == 1)
-				transmitUsePower = value;
 		}
 
 		@Override
@@ -84,14 +83,17 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 				}
 
 				// Radio tick logic doesn't need anything special, all the voice communications are handled outside the tick loop.
-				if(radio.isTransmitting()) {
-					if(!be.tryConsumePower(be.getTransmitUsePower(), false)) // Turns off if it can't pull enough power for transmission.
-						be.powerOff();
+				if(be.ssbEnabled) {
+					if(be.isPTTDown) {
+						if(!be.tryConsumePower(be.getTransmitUsePower(), false)) // Turns off if it can't pull enough power for transmission.
+							be.powerOff();
+					}
+					else if(radio.isReceiving()) {
+						if(!be.tryConsumePower(be.getReceiveUsePower(), false)) // Turns off if it can't pull enough power for receiving.
+							be.powerOff();
+					}
 				}
-				else if(radio.isReceiving()) {
-					if(!be.tryConsumePower(be.getReceiveUsePower(), false)) // Turns off if it can't pull enough power for receiving.
-						be.powerOff();
-				}
+
 			}
 		}
 	}
@@ -101,8 +103,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 */
 	public void powerOn() {
 		if(tryConsumePower(getReceiveUsePower(), true)) {
-			setReceiving(false);
-			setTransmitting(true);
+			setReceivingVoice(ssbEnabled);
 		}
 	}
 
@@ -110,8 +111,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 * Called when the radio is turned off via the UI or has insufficient power
 	 */
 	public void powerOff() {
-		setReceiving(true);
-		setTransmitting(false);
+		setReceivingVoice(false);
 	}
 
 	@Override
@@ -126,20 +126,10 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		}
 	}
 
-	public void setTransmitting(boolean value) {
-		getRadio().setTransmitting(value);
-		if(isTransmitting != value) {
-			isTransmitting = value;
-			updateBlock();
-		}
-	}
 
-	public void setReceiving(boolean value) {
-		getRadio().setReceiving(value);
-		if(isReceiving != value) {
-			isReceiving = value;
-			updateBlock();
-		}
+
+	public boolean isPowered() {
+		return isPowered;
 	}
 
 	public int getReceiveUsePower() {
@@ -150,24 +140,62 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		return transmitUsePower;
 	}
 
-	public boolean isReceiving() {
-		return isReceiving;
+	public boolean isReceivingVoice() {
+		return isReceivingVoice;
 	}
 
-	public boolean isTransmitting() {
-		return isTransmitting;
+	public boolean isPTTDown() {
+		return isPTTDown;
 	}
 
-	public boolean isPowered() {
-		return isPowered;
+	public boolean getSSBEnabled() {
+		return ssbEnabled;
 	}
 
-	public boolean isRecordingMic() {
-		return isRecordingMic;
+	public boolean getCWEnabled() {
+		return cwEnabled;
 	}
 
-	public void setRecordingMic(boolean value) {
-		isRecordingMic = value;
+
+
+	public void setReceivingVoice(boolean value) {
+		getRadio().setReceiving(value);
+		if(isReceivingVoice != value) {
+			isReceivingVoice = value;
+			updateBlock();
+		}
+	}
+
+	public void setPTTDown(boolean value) {
+		if(ssbEnabled)
+			setReceivingVoice(!value); // Do not receive voice while attempting to transmit voice.
+
+		if(isPTTDown != value) {
+			isPTTDown = value;
+			updateBlock();
+		}
+	}
+
+	public void setSSBEnabled(boolean value) {
+		if(value) {
+			if(!isPTTDown)
+				setReceivingVoice(true);
+		}
+		else {
+			setReceivingVoice(false);
+		}
+
+		if(ssbEnabled != value) {
+			ssbEnabled = value;
+			updateBlock();
+		}
+	}
+
+	public void setCWEnabled(boolean value) {
+		if(cwEnabled != value) {
+			cwEnabled = value;
+			updateBlock();
+		};
 	}
 
 	@Override
@@ -179,22 +207,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 			RadioManager.addRadio(level, this);
 			updateBlock();
 		}
-	}
-
-	@Override
-	protected void saveAdditional(CompoundTag nbt) {
-		super.saveAdditional(nbt);
-		nbt.putBoolean("isPowered", isPowered);
-		nbt.putBoolean("isReceiving", isReceiving);
-		nbt.putBoolean("isTransmitting", isTransmitting);
-	}
-
-	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-		isPowered = nbt.getBoolean("isPowered");
-		isReceiving = nbt.getBoolean("isReceiving");
-		isTransmitting = nbt.getBoolean("isTransmitting");
 	}
 
 	@Override
@@ -226,17 +238,21 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	@Override
 	public CompoundTag getUpdateTag() {
 		CompoundTag nbt = new CompoundTag();
-		nbt.putBoolean("isReceiving", isReceiving);
-		nbt.putBoolean("isTransmitting", isTransmitting);
+		nbt.putBoolean("isReceivingVoice", isReceivingVoice);
 		nbt.putBoolean("isPowered", isPowered);
+		nbt.putBoolean("ssbEnabled", ssbEnabled);
+		nbt.putBoolean("cwEnabled", cwEnabled);
+		nbt.putBoolean("isPTTDown", isPTTDown);
 		return nbt;
 	}
 
 	@Override
 	public void handleUpdateTag(CompoundTag nbt) {
-		isReceiving = nbt.getBoolean("isReceiving");
-		isTransmitting = nbt.getBoolean("isTransmitting");
+		isReceivingVoice = nbt.getBoolean("isReceivingVoice");
 		isPowered = nbt.getBoolean("isPowered");
+		ssbEnabled = nbt.getBoolean("ssbEnabled");
+		cwEnabled = nbt.getBoolean("cwEnabled");
+		isPTTDown = nbt.getBoolean("isPTTDown");
 	}
 
 	private void updateBlock() {
@@ -281,12 +297,13 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 * Process voice packet to broadcast to other radios. Called from voice thread.
 	 */
 	public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
-		Radio radio = getRadio();
-		if(radio.isTransmitting() && isPowered) {
-			if(antennas.size() == 1)
-				((AntennaBlockEntity)antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, wavelength, 1000, sourcePlayer);
-			else if(antennas.size() > 1)
-				overdraw();
+		if(ssbEnabled) {
+			if(isPTTDown && isPowered) {
+				if(antennas.size() == 1)
+					((AntennaBlockEntity) antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, wavelength, 1000, sourcePlayer);
+				else if(antennas.size() > 1)
+					overdraw();
+			}
 		}
 	}
 

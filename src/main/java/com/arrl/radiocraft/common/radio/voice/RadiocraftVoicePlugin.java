@@ -50,7 +50,7 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 				BlockPos pos = radio.getBlockPos();
 				if(pos.distToCenterSqr(player.position()) < sqrRange) {
 					BlockEntity blockEntity = player.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
-					if(blockEntity instanceof AbstractRadioBlockEntity be && be.isRecordingMic()) {
+					if(blockEntity instanceof AbstractRadioBlockEntity be && be.isPTTDown()) {
 						EncodingData encodingData = encodingManager.getOrCreate(sender.getUuid());
 
 						byte[] encodedAudio = event.getPacket().getOpusEncodedData();

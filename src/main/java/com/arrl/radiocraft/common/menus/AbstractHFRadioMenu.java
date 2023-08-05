@@ -41,12 +41,20 @@ public abstract class AbstractHFRadioMenu extends AbstractContainerMenu {
 		return blockEntity.isPowered();
 	}
 
-	public boolean isTransmitting() {
-		return blockEntity.isTransmitting();
+	public boolean getSSBEnabled() {
+		return blockEntity.getSSBEnabled();
+	}
+
+	public boolean getCWEnabled() {
+		return blockEntity.getCWEnabled();
 	}
 
 	public boolean isReceiving() {
-		return blockEntity.isReceiving();
+		return blockEntity.isReceivingVoice();
+	}
+
+	public boolean isTransmitting() {
+		return getSSBEnabled() && blockEntity.isPTTDown();
 	}
 
 	@Override
@@ -63,7 +71,7 @@ public abstract class AbstractHFRadioMenu extends AbstractContainerMenu {
 	public void removed(Player player) {
 		super.removed(player);
 		if(blockEntity != null) {
-			blockEntity.setRecordingMic(false);
+			blockEntity.setPTTDown(false);
 		}
 	}
 

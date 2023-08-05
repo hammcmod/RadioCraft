@@ -9,27 +9,24 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 import java.util.function.Supplier;
 
-public class ServerboundRadioPacket implements RadiocraftPacket {
+public class ServerboundRadioCWPacket implements RadiocraftPacket {
 
 	private final BlockPos pos;
-	private final boolean isReceiving;
-	private final boolean isTransmitting;
+	private final boolean value;
 
-	public ServerboundRadioPacket(BlockPos pos, boolean isReceiving, boolean isTransmitting) {
+	public ServerboundRadioCWPacket(BlockPos pos, boolean value) {
 		this.pos = pos;
-		this.isReceiving = isReceiving;
-		this.isTransmitting = isTransmitting;
+		this.value = value;
 	}
 
 	@Override
 	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(pos);
-		buffer.writeBoolean(isReceiving);
-		buffer.writeBoolean(isTransmitting);
+		buffer.writeBoolean(value);
 	}
 
-	public static ServerboundRadioPacket decode(FriendlyByteBuf buffer) {
-		return new ServerboundRadioPacket(buffer.readBlockPos(), buffer.readBoolean(), buffer.readBoolean());
+	public static ServerboundRadioCWPacket decode(FriendlyByteBuf buffer) {
+		return new ServerboundRadioCWPacket(buffer.readBlockPos(), buffer.readBoolean());
 	}
 
 	@Override
@@ -37,11 +34,10 @@ public class ServerboundRadioPacket implements RadiocraftPacket {
 		context.get().enqueueWork(() -> {
 			BlockEntity be = context.get().getSender().getLevel().getBlockEntity(pos);
 
-			if(be instanceof AbstractRadioBlockEntity radio) {
-				radio.setReceiving(isReceiving);
-				radio.setTransmitting(isTransmitting);
-			}
+			if(be instanceof AbstractRadioBlockEntity radio)
+				radio.setCWEnabled(value);
 		});
 		context.get().setPacketHandled(true);
 	}
+
 }

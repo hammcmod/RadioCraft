@@ -18,15 +18,13 @@ public class Radio {
 	private final int y;
 	private final int z;
 
-	private boolean isTransmitting;
 	private boolean isReceiving;
 
 	public Radio(int x, int y, int z) {
-		this(x, y, z, false, false);
+		this(x, y, z, false);
 	}
 
-	public Radio(int x, int y, int z, boolean isReceiving, boolean isTransmitting) {
-		this.isTransmitting = isTransmitting;
+	public Radio(int x, int y, int z, boolean isReceiving) {
 		this.isReceiving = isReceiving;
 		this.x = x;
 		this.y = y;
@@ -53,16 +51,8 @@ public class Radio {
 		}
 	}
 
-	public boolean isTransmitting() {
-		return isTransmitting;
-	}
-
 	public boolean isReceiving() {
 		return isReceiving;
-	}
-
-	public void setTransmitting(boolean value) {
-		isTransmitting = value;
 	}
 
 	public void setReceiving(boolean value) {

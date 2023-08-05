@@ -9,12 +9,12 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 import java.util.function.Supplier;
 
-public class ServerboundRadioPTTPacket implements RadiocraftPacket {
+public class ServerboundRadioSSBPacket implements RadiocraftPacket {
 
 	private final BlockPos pos;
 	private final boolean value;
 
-	public ServerboundRadioPTTPacket(BlockPos pos, boolean value) {
+	public ServerboundRadioSSBPacket(BlockPos pos, boolean value) {
 		this.pos = pos;
 		this.value = value;
 	}
@@ -25,8 +25,8 @@ public class ServerboundRadioPTTPacket implements RadiocraftPacket {
 		buffer.writeBoolean(value);
 	}
 
-	public static ServerboundRadioPTTPacket decode(FriendlyByteBuf buffer) {
-		return new ServerboundRadioPTTPacket(buffer.readBlockPos(), buffer.readBoolean());
+	public static ServerboundRadioSSBPacket decode(FriendlyByteBuf buffer) {
+		return new ServerboundRadioSSBPacket(buffer.readBlockPos(), buffer.readBoolean());
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class ServerboundRadioPTTPacket implements RadiocraftPacket {
 			BlockEntity be = context.get().getSender().getLevel().getBlockEntity(pos);
 
 			if(be instanceof AbstractRadioBlockEntity radio)
-				radio.setPTTDown(value);
+				radio.setSSBEnabled(value);
 		});
 		context.get().setPacketHandled(true);
 	}
