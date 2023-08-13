@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class HFRadio80mBlockEntity extends AbstractRadioBlockEntity {
 
 	public HFRadio80mBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.HF_RADIO_40M.get(), pos, state, RadiocraftConfig.HF_RADIO_80M_RECEIVE_TICK.get(), RadiocraftConfig.HF_RADIO_80M_TRANSMIT_TICK.get(), 80);
+		super(RadiocraftBlockEntities.HF_RADIO_80M.get(), pos, state, RadiocraftConfig.HF_RADIO_80M_RECEIVE_TICK.get(), RadiocraftConfig.HF_RADIO_80M_TRANSMIT_TICK.get(), 80);
 	}
 
 	@Override
