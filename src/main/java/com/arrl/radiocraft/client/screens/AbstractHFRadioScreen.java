@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.client.RadiocraftClientValues;
+import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
@@ -12,6 +13,7 @@ import com.arrl.radiocraft.common.network.packets.ServerboundTogglePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -71,6 +73,20 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	@Override
 	protected void renderLabels(PoseStack poseStack, int x, int y) {}
 
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		boolean value = super.mouseReleased(mouseX, mouseY, button);
+
+		for(GuiEventListener listener : children()) { // Janky fix to make the dials detect a mouse release which isn't over them, forge allows for a mouse to go down but not back up.
+			if(!listener.isMouseOver(mouseX, mouseY)) {
+				if(listener instanceof Dial)
+					listener.mouseReleased(mouseX, mouseY, button);
+			}
+		}
+
+		return value;
+	}
+
 	protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
 		mouseX -= leftPos;
 		mouseY -= topPos;
@@ -121,6 +137,21 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 		boolean cwEnabled = container.getCWEnabled();
 		RadiocraftPackets.sendToServer(new ServerboundRadioCWPacket(container.blockEntity.getBlockPos(), !cwEnabled));
 		container.blockEntity.setSSBEnabled(!cwEnabled);
+	}
+
+	/**
+	 * Callback for raising frequency by one step on the dial.
+	 */
+	protected void onFrequencyUp(Dial dial) {
+		container.setFrequency(container.getFrequency() + 1);
+	}
+
+	/**
+	 * Callback for raising frequency by one step on the dial.
+	 */
+	protected void onFrequencyDown(Dial dial) {
+		container.setFrequency(container.getFrequency() - 1);
+
 	}
 
 }

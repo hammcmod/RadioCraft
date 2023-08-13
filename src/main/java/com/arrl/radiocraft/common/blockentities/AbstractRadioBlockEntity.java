@@ -33,28 +33,35 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private final int transmitUsePower;
 	private boolean shouldOverDraw = false; // Use this for overdraws as voice thread will be the one calling it and game logic should run on server thread.
 
+	private int frequency = 1123; // Frequency the radio is currently using (in kHz)
+
 	private boolean isReceivingVoice = false; // Only gets read clientside to determine the static sounds.
 
 	private boolean isPTTDown = false; // Used by PTT button packets
 
 	protected final ContainerData fields = new ContainerData() {
+
 		@Override
 		public int get(int index) {
-			if(index == 0)
-				return receiveUsePower;
-			else if(index == 1)
-				return transmitUsePower;
-			return 0;
+			return switch(index) {
+				case 0 -> receiveUsePower;
+				case 1 -> transmitUsePower;
+				case 2 -> frequency;
+				default -> 0;
+			};
 		}
 
 		@Override
 		public void set(int index, int value) {
+			if(index == 2)
+				frequency = value;
 		}
 
 		@Override
 		public int getCount() {
-			return 2;
+			return 3;
 		}
+
 	};
 
 

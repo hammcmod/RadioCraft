@@ -14,7 +14,7 @@ public class HFRadioMenu10m extends AbstractHFRadioMenu {
 	}
 
 	public HFRadioMenu10m(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
-		this(id, AbstractHFRadioMenu.getBlockEntity(playerInventory, data), new SimpleContainerData(2));
+		this(id, AbstractHFRadioMenu.getBlockEntity(playerInventory, data), new SimpleContainerData(3));
 	}
 
 }
