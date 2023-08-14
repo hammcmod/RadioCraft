@@ -26,7 +26,9 @@ public class ClientSetupEvents {
 		MenuScreens.register(RadiocraftMenuTypes.LARGE_BATTERY.get(), LargeBatteryScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.SOLAR_PANEL.get(), SolarPanelScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.CHARGE_CONTROLLER.get(), ChargeControllerScreen::new);
-		//MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_10M.get(), HFRadio10mScreen::new);
+		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_10M.get(), HFRadio10mScreen::new);
+		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_20M.get(), HFRadio10mScreen::new); // 20m and 40m placeholders so we don't merge conflict this.
+		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_40M.get(), HFRadio10mScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_80M.get(), HFRadio80mScreen::new);
 	}
 
