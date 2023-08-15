@@ -15,23 +15,23 @@ public class HFRadio80mScreen extends AbstractHFRadioScreen {
     public HFRadio80mScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title) {
         super(container, playerInventory, title, Radiocraft.location("textures/gui/hf_radio_80m.png"), Radiocraft.location("textures/gui/hf_radio_80m_widgets.png"));
 
-        this.imageWidth = 250;
-        this.imageHeight = 147;
+        this.imageWidth = 256;
+        this.imageHeight = 256;
     }
 
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(new ToggleButton(container.isPowered(), leftPos + 13, topPos + 14, 14, 17, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
+        //addRenderableWidget(new ToggleButton(container.isPowered(), leftPos + 13, topPos + 14, 14, 17, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); Power Button
+        addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 113, topPos + 70, 33, 17, 0, 1, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
+        addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 113, topPos + 91, 34, 17, 0, 39, widgetsTexture, 256, 256, this::onPressSSB)); // SSB button
+        addRenderableWidget(new HoldButton(leftPos + 160, topPos + 181, 49, 17, 0, 77, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
 
-        addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 197, topPos + 66, 34, 19, 0, 34, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
-        addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 197, topPos + 86, 34, 19, 0, 72, widgetsTexture, 256, 256, this::onPressSSB)); // SSB button
-        addRenderableWidget(new HoldButton(leftPos + 128, topPos + 110, 51, 19, 0, 110, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
+        /*
         addRenderableWidget(new Dial(leftPos + 134, topPos + 37, 42, 45, 102, 0, widgetsTexture, 256, 256, this::onFrequencyUp, this::onFrequencyDown)); // Frequency dial
-        addRenderableWidget(new ImageButton(leftPos + 129, topPos + 93, 25, 17, 0, 148, widgetsTexture, 256, 256, this::doNothing)); // Frequency up button
-        addRenderableWidget(new ImageButton(leftPos + 154, topPos + 93, 25, 17, 0, 182, widgetsTexture, 256, 256, this::doNothing)); // Frequency down button
         addRenderableWidget(new Dial(leftPos + 209, topPos + 20, 32, 34, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
         addRenderableWidget(new Dial(leftPos + 90, topPos + 86, 32, 34, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
+         */
     }
 
     @Override
