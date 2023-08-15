@@ -3,13 +3,9 @@ package com.arrl.radiocraft.client.events;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.entity.AntennaWireEntityRenderer;
-import com.arrl.radiocraft.client.screens.ChargeControllerScreen;
-import com.arrl.radiocraft.client.screens.HFRadio10mScreen;
-import com.arrl.radiocraft.client.screens.HFRadio80mScreen;
-import com.arrl.radiocraft.client.screens.LargeBatteryScreen;
-import com.arrl.radiocraft.client.screens.SolarPanelScreen;
-import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
+import com.arrl.radiocraft.client.screens.*;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
+import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.EntityRenderersEvent;
@@ -27,8 +23,8 @@ public class ClientSetupEvents {
 		MenuScreens.register(RadiocraftMenuTypes.SOLAR_PANEL.get(), SolarPanelScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.CHARGE_CONTROLLER.get(), ChargeControllerScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_10M.get(), HFRadio10mScreen::new);
-		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_20M.get(), HFRadio10mScreen::new); // 20m and 40m placeholders so we don't merge conflict this.
-		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_40M.get(), HFRadio10mScreen::new);
+		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_20M.get(), HFRadio10mScreen::new); // 20m placeholder so we don't merge conflict this.
+		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_40M.get(), HFRadio40mScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_80M.get(), HFRadio80mScreen::new);
 	}
 
