@@ -15,8 +15,8 @@ public class HFRadio80mScreen extends AbstractHFRadioScreen {
     public HFRadio80mScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title) {
         super(container, playerInventory, title, Radiocraft.location("textures/gui/hf_radio_80m.png"), Radiocraft.location("textures/gui/hf_radio_80m_widgets.png"));
 
-        this.imageWidth = 256;
-        this.imageHeight = 256;
+        this.imageWidth = 245;
+        this.imageHeight = 245;
     }
 
     @Override
