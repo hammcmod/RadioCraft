@@ -3,7 +3,6 @@ package com.arrl.radiocraft.client.screens;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
-import com.arrl.radiocraft.client.screens.widgets.ImageButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -23,8 +22,13 @@ public class HFRadio80mScreen extends AbstractHFRadioScreen {
     protected void init() {
         super.init();
         //addRenderableWidget(new ToggleButton(container.isPowered(), leftPos + 13, topPos + 14, 14, 17, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); Power Button
-        addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 91, topPos + 55, 33, 19, 0, 39, widgetsTexture, 256, 256, this::onPressSSB)); // SSB button
-        addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 91, topPos + 75, 33, 19, 0, 1, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
+
+        addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 91, topPos + 55, 34, 19, 0, 39, widgetsTexture, 256, 256, this::onPressSSB)); // SSB button
+
+        // Size is now 34x19. Starts at (0,0) now not (0,1). Shifted the widget by (-1,-1) on the UI too. Added a 1px border to the texture.
+        addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 90, topPos + 74, 34, 19, 0, 0, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
+//        addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 91, topPos + 75, 33, 19, 0, 1, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
+
         addRenderableWidget(new HoldButton(leftPos + 140, topPos + 164, 51, 19, 0, 77, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
 
 
