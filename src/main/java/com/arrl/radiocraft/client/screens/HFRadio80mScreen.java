@@ -26,7 +26,7 @@ public class HFRadio80mScreen extends AbstractHFRadioScreen {
 
         addRenderableWidget(new HoldButton(leftPos + 139, topPos + 163, 51, 19, 0, 76, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
 
-        addRenderableWidget(new Dial(leftPos + 42, topPos + 156, 28, 33, 144, 0, widgetsTexture, 256, 256, this::onFrequencyUp, this::onFrequencyDown));
+        addRenderableWidget(new Dial(leftPos + 42, topPos + 156, 28, 33, 144, 0, widgetsTexture, 256, 256, this::onFrequencyUp, this::onFrequencyDown)); // Frequency Dial
         addRenderableWidget(new Dial(leftPos + 121, topPos + 186, 17, 17, 94, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic Gain dial
         addRenderableWidget(new Dial(leftPos + 159, topPos + 186, 17, 17, 94, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
     }
