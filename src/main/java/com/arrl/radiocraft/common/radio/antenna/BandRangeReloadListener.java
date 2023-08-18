@@ -34,8 +34,10 @@ public class BandRangeReloadListener extends SimpleJsonResourceReloadListener {
 				int maxSkipDay = jsonObject.get("maxSkipDay").getAsInt();
 				int minSkipNight = jsonObject.get("minSkipNight").getAsInt();
 				int maxSkipNight = jsonObject.get("maxSkipNight").getAsInt();
+				int minFrequency = jsonObject.get("minFrequency").getAsInt();
+				int maxFrequency = jsonObject.get("maxFrequency").getAsInt();
 
-				bands.put(wavelength, new Band(wavelength, losRange, minSkipDay, maxSkipDay, minSkipNight, maxSkipNight));
+				bands.put(wavelength, new Band(wavelength, losRange, minSkipDay, maxSkipDay, minSkipNight, maxSkipNight, minFrequency, maxFrequency));
 
 			} catch (IllegalArgumentException | JsonParseException jsonparseexception) {
 				Radiocraft.LOGGER.error("Parsing error radio band {}: {}", resourceLocation, jsonparseexception.getMessage());
