@@ -21,30 +21,26 @@ public class HFRadio80mScreen extends AbstractHFRadioScreen {
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 90, topPos + 54, 34, 19, 0, 38, widgetsTexture, 256, 256, this::onPressSSB)); // SSB Button
-        addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 90, topPos + 74, 34, 19, 0, 0, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
+        addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 90, topPos + 54, 34, 19, -1, 38, widgetsTexture, 256, 256, this::onPressSSB)); // SSB Button
+        addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 90, topPos + 74, 34, 19, -1, 0, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
 
-        addRenderableWidget(new HoldButton(leftPos + 139, topPos + 163, 51, 19, 0, 76, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
+        addRenderableWidget(new HoldButton(leftPos + 139, topPos + 163, 51, 19, -1, 76, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
 
-        addRenderableWidget(new Dial(leftPos + 42, topPos + 156, 28, 33, 144, 0, widgetsTexture, 256, 256, this::onFrequencyUp, this::onFrequencyDown)); // Frequency Dial
-        addRenderableWidget(new Dial(leftPos + 121, topPos + 186, 17, 17, 94, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic Gain dial
-        addRenderableWidget(new Dial(leftPos + 159, topPos + 186, 17, 17, 94, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
+        addRenderableWidget(new Dial(leftPos + 42, topPos + 156, 28, 33, 143, 0, widgetsTexture, 256, 256, this::onFrequencyUp, this::onFrequencyDown)); // Frequency Dial
+
+
+        addRenderableWidget(new Dial(leftPos + 122, topPos + 186, 15, 17, 94, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic Gain dial
+        addRenderableWidget(new Dial(leftPos + 160, topPos + 186, 15, 17, 94, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
     }
 
-    @Override
-    protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        if(isHovering(33, 18, 25, 11, mouseX, mouseY))
-            renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "radio.tx")), mouseX, mouseY);
-        if(isHovering(62, 18, 25, 11, mouseX, mouseY))
-            renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "radio.rx")), mouseX, mouseY);
 
+    @Override //container.isPowered()
+    protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         if(container.isPowered()) {
             poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
-
-            poseStack.scale(1.5F, 1.5F, 1.5F);
+            poseStack.scale(0.8F, 0.8F, 0.8F);
             float freqMhz = container.getFrequency() / 1000.0F; // Frequency is in kHz, divide by 1000 to get MHz
-            font.draw(poseStack, String.format("%.3f", freqMhz) + "MHz", (leftPos + 24) / 1.5F, (topPos + 50) / 1.5F, 0xFFFFFF); // Divide the positions rendered at by 1.5F as the entire pose was scaled by 1.5F.
-
+            font.draw(poseStack, String.format("%.3f", freqMhz) + "MHz", (leftPos + 19) / 0.8F, (topPos + 22) / 0.8F, 0xFFFFFF); // Divide the positions rendered at by 1.5F as the entire pose was scaled by 1.5F.
             poseStack.popPose(); // Reset pose stack. Will cause a memory leak if you push without popping.
         }
     }
