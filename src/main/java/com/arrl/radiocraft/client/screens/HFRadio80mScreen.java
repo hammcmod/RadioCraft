@@ -36,7 +36,7 @@ public class HFRadio80mScreen extends AbstractHFRadioScreen {
 
     @Override //container.isPowered()
     protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        if(container.isPowered()) {
+        if(true) {
             poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
             poseStack.scale(0.8F, 0.8F, 0.8F);
             float freqMhz = container.getFrequency() / 1000.0F; // Frequency is in kHz, divide by 1000 to get MHz
