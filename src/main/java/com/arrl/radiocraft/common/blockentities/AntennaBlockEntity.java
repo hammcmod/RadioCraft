@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.RadiocraftConfig;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.benetworks.IBENetworkItem;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
@@ -47,10 +47,14 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	 * Called from voice thread.
 	 */
 	public void receiveAudioPacket(AntennaNetworkPacket packet) {
-		if(radios.size() == 1)
-			((AbstractRadioBlockEntity)radios.get(0).getNetworkItem()).getRadio().receive(packet);
+		if(radios.size() == 1) {
+			AbstractRadioBlockEntity radio = (AbstractRadioBlockEntity)radios.get(0).getNetworkItem();
+			if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
+				radio.getRadio().receive(packet);
+		}
 		else if(radios.size() > 1) {
-			((AbstractRadioBlockEntity)radios.get(0).getNetworkItem()).overdraw();
+			for(BENetworkEntry entry : radios)
+				((AbstractRadioBlockEntity)entry.getNetworkItem()).overdraw();
 		}
 	}
 
@@ -88,7 +92,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	 * Reset the antenna check cooldown-- used every time a block is placed "on" the antenna.
 	 */
 	public void markAntennaChanged() {
-		antennaCheckCooldown = RadiocraftConfig.ANTENNA_UPDATE_DELAY.get() * 20;
+		antennaCheckCooldown = RadiocraftServerConfig.ANTENNA_UPDATE_DELAY.get() * 20;
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {

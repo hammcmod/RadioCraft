@@ -27,9 +27,9 @@ public class HFRadio20mScreen extends AbstractHFRadioScreen {
 		addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 74, topPos + 74, 30, 21, 0, 34, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
 		addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 74, topPos + 53, 30, 21, 0, 76, widgetsTexture, 256, 256, this::onPressSSB)); // SSB button
 		addRenderableWidget(new HoldButton(leftPos + 200, topPos + 11, 34, 21, 0, 118, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
-		addRenderableWidget(new Dial(leftPos + 125, topPos + 54, 62, 68, 68, 0, widgetsTexture, 256, 256, this::onFrequencyUp, this::onFrequencyDown)); // Frequency dial
-		addRenderableWidget(new ImageButton(leftPos + 103, topPos + 55, 22, 19, 0, 160, widgetsTexture, 256, 256, this::doNothing)); // Frequency up button
-		addRenderableWidget(new ImageButton(leftPos + 103, topPos + 75, 22, 19, 0, 198, widgetsTexture, 256, 256, this::doNothing)); // Frequency down button
+		addRenderableWidget(new Dial(leftPos + 125, topPos + 54, 62, 68, 68, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
+		addRenderableWidget(new ImageButton(leftPos + 103, topPos + 55, 22, 19, 0, 160, widgetsTexture, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
+		addRenderableWidget(new ImageButton(leftPos + 103, topPos + 75, 22, 19, 0, 198, widgetsTexture, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
 		addRenderableWidget(new Dial(leftPos + 193, topPos + 52, 28, 31, 68, 136, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
 		addRenderableWidget(new Dial(leftPos + 193, topPos + 92, 28, 31, 68, 136, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
 	}

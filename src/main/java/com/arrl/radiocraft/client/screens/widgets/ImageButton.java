@@ -6,6 +6,8 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 
 public class ImageButton extends Button {
 	private final ResourceLocation resourceLocation;
@@ -35,4 +37,10 @@ public class ImageButton extends Button {
 		RenderSystem.enableDepthTest();
 		blit(poseStack, this.getX(), this.getY(), xBlit, v, width, height, textureWidth, textureHeight);
 	}
+
+	@OnlyIn(Dist.CLIENT)
+	public interface OnPress {
+		void onPress(Button pButton);
+	}
+
 }

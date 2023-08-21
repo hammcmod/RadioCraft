@@ -26,7 +26,7 @@ public class HFRadio40mScreen extends AbstractHFRadioScreen {
 		addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 161, topPos + 34, 34, 19, 0, 42, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
 		addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 161, topPos + 15, 34, 19, 0, 80, widgetsTexture, 256, 256, this::onPressSSB)); // SSB button
 		addRenderableWidget(new HoldButton(leftPos + 172, topPos + 99, 51, 19, 0, 118, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
-		addRenderableWidget(new Dial(leftPos + 103, topPos + 63, 42, 45, 102, 0, widgetsTexture, 256, 256, this::onFrequencyUp, this::onFrequencyDown)); // Frequency dial
+		addRenderableWidget(new Dial(leftPos + 103, topPos + 63, 42, 45, 102, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
 		addRenderableWidget(new Dial(leftPos + 56, topPos + 58, 28, 30, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
 		addRenderableWidget(new Dial(leftPos + 200, topPos + 58, 28, 30, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
 	}

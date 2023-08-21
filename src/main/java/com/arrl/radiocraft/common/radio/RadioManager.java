@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.radio.antenna;
+package com.arrl.radiocraft.common.radio;
 
 import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
 import net.minecraft.world.level.Level;

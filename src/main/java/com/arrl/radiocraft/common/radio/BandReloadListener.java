@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.radio.antenna;
+package com.arrl.radiocraft.common.radio;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.google.gson.Gson;
@@ -13,12 +13,12 @@ import net.minecraft.util.profiling.ProfilerFiller;
 import java.util.HashMap;
 import java.util.Map;
 
-public class BandRangeReloadListener extends SimpleJsonResourceReloadListener {
+public class BandReloadListener extends SimpleJsonResourceReloadListener {
 
 	private static final Gson GSON = new Gson();
 	private final Map<Integer, Band> bands = new HashMap<>();
 
-	public BandRangeReloadListener(String directory) {
+	public BandReloadListener(String directory) {
 		super(GSON, directory);
 	}
 

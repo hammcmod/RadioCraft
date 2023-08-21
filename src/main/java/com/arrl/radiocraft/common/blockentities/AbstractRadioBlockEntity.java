@@ -1,15 +1,19 @@
 package com.arrl.radiocraft.common.blockentities;
 
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.client.blockentity.AbstractRadioBlockEntityClientHandler;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
+import com.arrl.radiocraft.common.init.RadiocraftData;
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.Radio;
-import com.arrl.radiocraft.common.radio.antenna.RadioManager;
+import com.arrl.radiocraft.common.radio.RadioManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -33,7 +37,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private final int transmitUsePower;
 	private boolean shouldOverDraw = false; // Use this for overdraws as voice thread will be the one calling it and game logic should run on server thread.
 
-	private int frequency = 1123; // Frequency the radio is currently using (in kHz)
+	private int frequency; // Frequency the radio is currently using (in kHz)
 
 	private boolean isReceivingVoice = false; // Only gets read clientside to determine the static sounds.
 
@@ -70,6 +74,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		this.receiveUsePower = receiveUsePower;
 		this.transmitUsePower = transmitUsePower;
 		this.wavelength = wavelength;
+		this.frequency = RadiocraftData.BANDS.getValue(wavelength).minFrequency();
 	}
 
 	public Radio getRadio() {
@@ -130,6 +135,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 			else
 				powerOff();
 			updateBlock();
+			setChanged();
 		}
 	}
 
@@ -161,6 +167,10 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 	public boolean getCWEnabled() {
 		return cwEnabled;
+	}
+
+	public int getFrequency() {
+		return frequency;
 	}
 
 
@@ -195,6 +205,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		if(ssbEnabled != value) {
 			ssbEnabled = value;
 			updateBlock();
+			setChanged();
 		}
 	}
 
@@ -202,7 +213,41 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		if(cwEnabled != value) {
 			cwEnabled = value;
 			updateBlock();
+			setChanged();
 		};
+	}
+
+	public void updateFrequency(int stepCount) {
+		Band band = RadiocraftData.BANDS.getValue(wavelength);
+		int step = RadiocraftServerConfig.FREQUENCY_STEP.get();
+		int min = band.minFrequency();
+		int max = (band.maxFrequency() - band.minFrequency()) / step * step + min; // This calc looks weird but it's integer division, throws away remainder to ensure the freq doesn't do a "half step" to max.
+
+		frequency = Mth.clamp(frequency + step * stepCount, min, max);
+		setChanged();
+	}
+
+
+	@Override
+	protected void saveAdditional(CompoundTag nbt) {
+		super.saveAdditional(nbt);
+		nbt.putBoolean("isPowered", isPowered);
+		nbt.putBoolean("ssbEnabled", ssbEnabled);
+		nbt.putBoolean("cwEnabled", cwEnabled);
+		nbt.putInt("frequency", frequency);
+	}
+
+	@Override
+	public void load(CompoundTag nbt) {
+		super.load(nbt);
+		isPowered = nbt.getBoolean("isPowered");
+		ssbEnabled = nbt.getBoolean("ssbEnabled");
+		cwEnabled = nbt.getBoolean("cwEnabled");
+		frequency = nbt.getInt("frequency");
+
+		Band band = RadiocraftData.BANDS.getValue(wavelength);
+		if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % RadiocraftServerConfig.FREQUENCY_STEP.get() != 0)
+			frequency = band.minFrequency(); // Reset frequency if the saved one was either out of bands or not aligned to the correct step size.
 	}
 
 	@Override
@@ -307,7 +352,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		if(ssbEnabled) {
 			if(isPTTDown && isPowered) {
 				if(antennas.size() == 1)
-					((AntennaBlockEntity) antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, wavelength, 1000, sourcePlayer);
+					((AntennaBlockEntity) antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
 				else if(antennas.size() > 1)
 					overdraw();
 			}

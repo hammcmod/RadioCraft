@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.RadiocraftConfig;
+import com.arrl.radiocraft.RadiocraftCommonConfig;
 import com.arrl.radiocraft.api.benetworks.IPowerNetworkItem;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
@@ -64,7 +64,7 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity implem
 	};
 
 	public ChargeControllerBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.CHARGE_CONTROLLER.get(), pos, state, RadiocraftConfig.CHARGE_CONTROLLER_TICK.get(), RadiocraftConfig.CHARGE_CONTROLLER_TICK.get());
+		super(RadiocraftBlockEntities.CHARGE_CONTROLLER.get(), pos, state, RadiocraftCommonConfig.CHARGE_CONTROLLER_TICK.get(), RadiocraftCommonConfig.CHARGE_CONTROLLER_TICK.get());
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {

@@ -6,13 +6,11 @@ import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
-import com.arrl.radiocraft.common.network.packets.ServerboundRadioCWPacket;
-import com.arrl.radiocraft.common.network.packets.ServerboundRadioPTTPacket;
-import com.arrl.radiocraft.common.network.packets.ServerboundRadioSSBPacket;
-import com.arrl.radiocraft.common.network.packets.ServerboundTogglePacket;
+import com.arrl.radiocraft.common.network.packets.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -142,16 +140,33 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	/**
 	 * Callback for raising frequency by one step on the dial.
 	 */
-	protected void onFrequencyUp(Dial dial) {
-		container.setFrequency(container.getFrequency() + 1);
+	protected void onFrequencyDialUp(Dial dial) {
+		if(container.isPowered())
+			RadiocraftPackets.sendToServer(new ServerboundFrequencyPacket(container.blockEntity.getBlockPos(), 1));
 	}
 
 	/**
 	 * Callback for raising frequency by one step on the dial.
 	 */
-	protected void onFrequencyDown(Dial dial) {
-		container.setFrequency(container.getFrequency() - 1);
+	protected void onFrequencyDialDown(Dial dial) {
+		if(container.isPowered())
+			RadiocraftPackets.sendToServer(new ServerboundFrequencyPacket(container.blockEntity.getBlockPos(), -1));
+	}
 
+	/**
+	 * Callback for frequency up buttons.
+	 */
+	protected void onFrequencyButtonUp(Button button) {
+		if(container.isPowered())
+			RadiocraftPackets.sendToServer(new ServerboundFrequencyPacket(container.blockEntity.getBlockPos(), 1));
+	}
+
+	/**
+	 * Callback for frequency down buttons.
+	 */
+	protected void onFrequencyButtonDown(Button button) {
+		if(container.isPowered())
+			RadiocraftPackets.sendToServer(new ServerboundFrequencyPacket(container.blockEntity.getBlockPos(), -1));
 	}
 
 }

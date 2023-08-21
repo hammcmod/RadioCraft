@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.radio.antenna;
+package com.arrl.radiocraft.common.radio;
 
 /**
  * Defines the properties of a band. los = Line of Sight.

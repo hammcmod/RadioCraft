@@ -6,7 +6,7 @@ import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
-import com.arrl.radiocraft.common.radio.antenna.BandUtils;
+import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.types.data.QuarterWaveVerticalAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;

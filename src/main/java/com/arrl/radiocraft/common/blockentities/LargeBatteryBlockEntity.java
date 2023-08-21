@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.RadiocraftConfig;
+import com.arrl.radiocraft.RadiocraftCommonConfig;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.LargeBatteryMenu;
 import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
@@ -40,7 +40,7 @@ public class LargeBatteryBlockEntity extends AbstractPowerBlockEntity {
 	};
 
 	public LargeBatteryBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.LARGE_BATTERY.get(), pos, state, RadiocraftConfig.LARGE_BATTERY_CAPACITY.get(), RadiocraftConfig.LARGE_BATTERY_OUTPUT.get());
+		super(RadiocraftBlockEntities.LARGE_BATTERY.get(), pos, state, RadiocraftCommonConfig.LARGE_BATTERY_CAPACITY.get(), RadiocraftCommonConfig.LARGE_BATTERY_OUTPUT.get());
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {

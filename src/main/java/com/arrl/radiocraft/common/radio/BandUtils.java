@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.radio.antenna;
+package com.arrl.radiocraft.common.radio;
 
 import com.arrl.radiocraft.common.init.RadiocraftData;
 
@@ -8,7 +8,7 @@ import com.arrl.radiocraft.common.init.RadiocraftData;
 public class BandUtils {
 
 	public static double getBaseStrength(int wavelength, double distance, double losEfficiency, double skipEfficiency, boolean isDay) {
-		Band band = RadiocraftData.BAND_RANGES.getValue(wavelength);
+		Band band = RadiocraftData.BANDS.getValue(wavelength);
 		if(band == null)
 			return 0.0D;
 

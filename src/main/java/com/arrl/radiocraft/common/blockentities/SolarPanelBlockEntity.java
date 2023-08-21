@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.RadiocraftConfig;
+import com.arrl.radiocraft.RadiocraftCommonConfig;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.SolarPanelMenu;
 import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
@@ -42,8 +42,8 @@ public class SolarPanelBlockEntity extends AbstractPowerBlockEntity {
 	};
 
 	public SolarPanelBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state, RadiocraftConfig.SOLAR_PANEL_MAX_OUTPUT.get(), RadiocraftConfig.SOLAR_PANEL_MAX_OUTPUT.get());
-		rainMultiplier = RadiocraftConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get();
+		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state, RadiocraftCommonConfig.SOLAR_PANEL_MAX_OUTPUT.get(), RadiocraftCommonConfig.SOLAR_PANEL_MAX_OUTPUT.get());
+		rainMultiplier = RadiocraftCommonConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get();
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {

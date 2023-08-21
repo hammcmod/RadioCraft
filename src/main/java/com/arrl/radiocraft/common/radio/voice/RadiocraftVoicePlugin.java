@@ -2,7 +2,7 @@ package com.arrl.radiocraft.common.radio.voice;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
-import com.arrl.radiocraft.common.radio.antenna.RadioManager;
+import com.arrl.radiocraft.common.radio.RadioManager;
 import com.arrl.radiocraft.common.radio.voice.EncodingManager.EncodingData;
 import de.maxhenkel.voicechat.api.ForgeVoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
