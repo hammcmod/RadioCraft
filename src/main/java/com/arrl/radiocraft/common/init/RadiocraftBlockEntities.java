@@ -32,6 +32,10 @@ public class RadiocraftBlockEntities {
 	public static final RegistryObject<BlockEntityType<?>> HF_RADIO_80M = BLOCK_ENTITY_TYPES.register("hf_radio_80m",
 			() -> BlockEntityType.Builder.of(HFRadio80mBlockEntity::new, RadiocraftBlocks.HF_RADIO_80M.get()).build(null));
 
+	public static final RegistryObject<BlockEntityType<?>> QRP_RADIO_20M = BLOCK_ENTITY_TYPES.register("qrp_radio_20m",
+			() -> BlockEntityType.Builder.of(QRPRadio20mBlockEntity::new, RadiocraftBlocks.QRP_RADIO_20M.get()).build(null));
+
+
 	public static final RegistryObject<BlockEntityType<?>> ANTENNA = BLOCK_ENTITY_TYPES.register("antenna",
 			() -> BlockEntityType.Builder.of(AntennaBlockEntity::new, RadiocraftBlocks.BALUN_ONE_TO_ONE.get()).build(null));
 
