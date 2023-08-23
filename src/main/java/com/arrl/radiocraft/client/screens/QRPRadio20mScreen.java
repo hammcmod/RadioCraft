@@ -43,13 +43,13 @@ public class QRPRadio20mScreen extends AbstractHFRadioScreen {
 
     @Override
     protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) {
-        float freqMhz = container.getFrequency() / 1000.0F;
+        float freq = container.getFrequency();
         Band band = RadiocraftData.BANDS.getValue(20);
         int step = RadiocraftServerConfig.FREQUENCY_STEP.get();
-        float min = band.minFrequency() / 1000.0F;
-        float max = min + (((band.maxFrequency() - band.minFrequency()) / (step * step)) / 1000.0F);
+        float min = band.minFrequency();
+        float max = (band.maxFrequency() - band.minFrequency()) / step * step + min;
         if(container.isPowered()) {
-            if(freqMhz >= max || freqMhz <= min) {
+            if(freq >= max || freq <= min) {
                 blit(poseStack, leftPos + 92, topPos + 63, 1, 162, 13, 13);
             }
         }
