@@ -21,25 +21,21 @@ public class QRPRadio20mScreen extends AbstractHFRadioScreen {
 
     @Override
     protected void init() {
-
         super.init();
-
-        addRenderableWidget(new ToggleButton(container.isPowered(), leftPos + 7, topPos + 5, 14, 17, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
-
-        addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 74, topPos + 74, 30, 21, 0, 34, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
-        addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 74, topPos + 53, 30, 21, 0, 76, widgetsTexture, 256, 256, this::onPressSSB)); // SSB button
-        addRenderableWidget(new HoldButton(leftPos + 200, topPos + 11, 34, 21, 0, 118, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
-        addRenderableWidget(new Dial(leftPos + 125, topPos + 54, 62, 68, 68, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
-        addRenderableWidget(new ImageButton(leftPos + 103, topPos + 55, 22, 19, 0, 160, widgetsTexture, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
-        addRenderableWidget(new ImageButton(leftPos + 103, topPos + 75, 22, 19, 0, 198, widgetsTexture, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
-        addRenderableWidget(new Dial(leftPos + 193, topPos + 52, 28, 31, 68, 136, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
-        addRenderableWidget(new Dial(leftPos + 193, topPos + 92, 28, 31, 68, 136, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
+        addRenderableWidget(new ToggleButton(container.isPowered(), leftPos + 16, topPos + 9, 20, 21, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
+        addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 195, topPos + 48, 34, 19, 0, 42, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
+        addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 195, topPos + 68, 34, 19, 0, 80, widgetsTexture, 256, 256, this::onPressSSB)); // SSB button
+        addRenderableWidget(new HoldButton(leftPos + 178, topPos + 97, 51, 19, 0, 118, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
+        addRenderableWidget(new Dial(leftPos + 48, topPos + 47, 42, 42, 121, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
+        addRenderableWidget(new Dial(leftPos + 31, topPos + 36, 15, 15, 121, 85, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
+        addRenderableWidget(new Dial(leftPos + 31, topPos + 62, 15, 15, 121, 85, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
 
     }
 
 
     @Override
     protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+        /*
         if(container.isPowered()) {
             poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
 
@@ -49,16 +45,22 @@ public class QRPRadio20mScreen extends AbstractHFRadioScreen {
 
             poseStack.popPose(); // Reset pose stack. Will cause a memory leak if you push without popping.
         }
+         */
+        {} //placeholder
     }
 
     @Override
     protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) {
+        /*
         if(container.isPowered()) {
             if(container.isTransmitting())
                 blit(poseStack, leftPos + 30, topPos + 15, 1, 148, 29, 15);
             if(container.isReceiving())
                 blit(poseStack, leftPos + 59, topPos + 15, 30, 148, 29, 15);
         }
+         */
+
+        {} //placeholder
     }
 
     @Override

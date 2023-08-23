@@ -44,7 +44,7 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> HF_RECEIVER = BLOCKS.register("hf_receiver", () -> new HFReceiverBlock(PROPERTIES_RADIO));
 
 	public static final RegistryObject<Block> ALL_BAND_RADIO = simpleBlock("all_band_radio", PROPERTIES_STONE);
-	public static final RegistryObject<Block> QRP_RADIO_20M = simpleBlock("qrp_radio_20m", PROPERTIES_STONE);
+	public static final RegistryObject<Block> QRP_RADIO_20M = BLOCKS.register("qrp_radio_20m", () -> new QRPRadio20mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> QRP_RADIO_40M = BLOCKS.register("qrp_radio_40m", () -> new QRPRadio40mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> DIGITAL_INTERFACE = BLOCKS.register("digital_interface", () -> new DigitalInterfaceBlock(PROPERTIES_STONE));
 
