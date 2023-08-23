@@ -1,11 +1,14 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
+import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
+import com.arrl.radiocraft.common.radio.Band;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -35,32 +38,21 @@ public class QRPRadio20mScreen extends AbstractHFRadioScreen {
 
     @Override
     protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        /*
-        if(container.isPowered()) {
-            poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
-
-            poseStack.scale(1.5F, 1.5F, 1.5F);
-            float freqMhz = container.getFrequency() / 1000.0F; // Frequency is in kHz, divide by 1000 to get MHz
-            font.draw(poseStack, String.format("%.3f", freqMhz) + "MHz", (leftPos + 85) / 1.5F, (topPos + 16) / 1.5F, 0xFFFFFF); // Divide the positions rendered at by 1.5F as the entire pose was scaled by 1.5F.
-
-            poseStack.popPose(); // Reset pose stack. Will cause a memory leak if you push without popping.
-        }
-         */
         {} //placeholder
     }
 
     @Override
     protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) {
-        /*
+        float freqMhz = container.getFrequency() / 1000.0F;
+        Band band = RadiocraftData.BANDS.getValue(20);
+        int step = RadiocraftServerConfig.FREQUENCY_STEP.get();
+        float min = band.minFrequency() / 1000.0F;
+        float max = min + (((band.maxFrequency() - band.minFrequency()) / (step * step)) / 1000.0F);
         if(container.isPowered()) {
-            if(container.isTransmitting())
-                blit(poseStack, leftPos + 30, topPos + 15, 1, 148, 29, 15);
-            if(container.isReceiving())
-                blit(poseStack, leftPos + 59, topPos + 15, 30, 148, 29, 15);
+            if(freqMhz >= max || freqMhz <= min) {
+                blit(poseStack, leftPos + 92, topPos + 63, 1, 162, 13, 13);
+            }
         }
-         */
-
-        {} //placeholder
     }
 
     @Override
