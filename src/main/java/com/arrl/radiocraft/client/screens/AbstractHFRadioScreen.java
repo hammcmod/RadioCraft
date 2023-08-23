@@ -4,6 +4,7 @@ import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
+import com.arrl.radiocraft.client.screens.widgets.ValueButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
 import com.arrl.radiocraft.common.network.packets.*;
@@ -122,19 +123,21 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	/**
 	 * Callback for SSB toggle buttons.
 	 */
-	protected void onPressSSB(ToggleButton button) {
+	protected void onPressSSB(ValueButton button) {
 		boolean ssbEnabled = container.getSSBEnabled();
+
 		RadiocraftPackets.sendToServer(new ServerboundRadioSSBPacket(container.blockEntity.getBlockPos(), !ssbEnabled));
-		container.blockEntity.setSSBEnabled(!ssbEnabled);
+		container.blockEntity.setSSBEnabled(!ssbEnabled); // Update instantly for GUI, server will re-sync this value though.
 	}
 
 	/**
 	 * Callback for CW toggle buttons.
 	 */
-	protected void onPressCW(ToggleButton button) {
+	protected void onPressCW(ValueButton button) {
 		boolean cwEnabled = container.getCWEnabled();
+
 		RadiocraftPackets.sendToServer(new ServerboundRadioCWPacket(container.blockEntity.getBlockPos(), !cwEnabled));
-		container.blockEntity.setSSBEnabled(!cwEnabled);
+		container.blockEntity.setCWEnabled(!cwEnabled); // Update instantly for GUI, server will re-sync this value though.
 	}
 
 	/**

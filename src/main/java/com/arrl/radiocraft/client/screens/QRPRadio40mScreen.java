@@ -10,10 +10,10 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-public class QRPRadio20mScreen extends AbstractHFRadioScreen {
+public class QRPRadio40mScreen extends AbstractHFRadioScreen {
 
-    public QRPRadio20mScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title) {
-        super(container, playerInventory, title, Radiocraft.location("textures/gui/qrp_radio_20m.png"), Radiocraft.location("textures/gui/qrp_radio_20m_widgets.png"));
+    public QRPRadio40mScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title) {
+        super(container, playerInventory, title, Radiocraft.location("textures/gui/qrp_radio_40m.png"), Radiocraft.location("textures/gui/qrp_radio_40m_widgets.png"));
 
         this.imageWidth = 252;
         this.imageHeight = 130;

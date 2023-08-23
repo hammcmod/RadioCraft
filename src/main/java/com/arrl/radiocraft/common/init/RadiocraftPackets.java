@@ -5,6 +5,7 @@ import com.arrl.radiocraft.common.network.RadiocraftPacket;
 import com.arrl.radiocraft.common.network.packets.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.network.NetworkRegistry;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
@@ -36,6 +37,10 @@ public class RadiocraftPackets {
 
 	public static void sendToAllPlayers(RadiocraftPacket packet) {
 		INSTANCE.send(PacketDistributor.ALL.noArg(), packet);
+	}
+
+	public static void sendToTrackingChunk(RadiocraftPacket packet, LevelChunk chunk) {
+		INSTANCE.send(PacketDistributor.TRACKING_CHUNK.with(() -> chunk), packet);
 	}
 
 	public static void sendToServer(RadiocraftPacket packet) {

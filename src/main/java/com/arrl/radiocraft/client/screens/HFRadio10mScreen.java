@@ -1,10 +1,7 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.client.screens.widgets.Dial;
-import com.arrl.radiocraft.client.screens.widgets.HoldButton;
-import com.arrl.radiocraft.client.screens.widgets.ImageButton;
-import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
+import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.Component;
@@ -23,9 +20,8 @@ public class HFRadio10mScreen extends AbstractHFRadioScreen {
 	protected void init() {
 		super.init();
 		addRenderableWidget(new ToggleButton(container.isPowered(), leftPos + 13, topPos + 14, 14, 17, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
-
-		addRenderableWidget(new ToggleButton(container.blockEntity.getCWEnabled(), leftPos + 197, topPos + 66, 34, 19, 0, 34, widgetsTexture, 256, 256, this::onPressCW)); // CW Button
-		addRenderableWidget(new ToggleButton(container.blockEntity.getSSBEnabled(), leftPos + 197, topPos + 86, 34, 19, 0, 72, widgetsTexture, 256, 256, this::onPressSSB)); // SSB button
+		addRenderableWidget(new ValueButton(leftPos + 197, topPos + 66, 34, 19, 0, 34, widgetsTexture, 256, 256, container::getCWEnabled, this::onPressCW)); // CW Button
+		addRenderableWidget(new ValueButton(leftPos + 197, topPos + 86, 34, 19, 0, 72, widgetsTexture, 256, 256, container::getSSBEnabled, this::onPressSSB)); // SSB button
 		addRenderableWidget(new HoldButton(leftPos + 128, topPos + 110, 51, 19, 0, 110, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
 		addRenderableWidget(new Dial(leftPos + 134, topPos + 37, 42, 45, 102, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
 		addRenderableWidget(new ImageButton(leftPos + 129, topPos + 93, 25, 17, 0, 148, widgetsTexture, 256, 256, this::onFrequencyButtonUp)); // Frequency up button

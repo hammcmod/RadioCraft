@@ -39,7 +39,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 	private int frequency; // Frequency the radio is currently using (in kHz)
 
-	private boolean isReceivingVoice = false; // Only gets read clientside to determine the static sounds.
+	private boolean isReceiving = false; // Only gets read clientside to determine the static sounds.
 
 	private boolean isPTTDown = false; // Used by PTT button packets
 
@@ -115,7 +115,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 */
 	public void powerOn() {
 		if(tryConsumePower(getReceiveUsePower(), true)) {
-			setReceivingVoice(ssbEnabled);
+			setReceiving(ssbEnabled);
 		}
 	}
 
@@ -123,7 +123,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	 * Called when the radio is turned off via the UI or has insufficient power
 	 */
 	public void powerOff() {
-		setReceivingVoice(false);
+		setReceiving(false);
 	}
 
 	@Override
@@ -153,8 +153,8 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		return transmitUsePower;
 	}
 
-	public boolean isReceivingVoice() {
-		return isReceivingVoice;
+	public boolean isReceiving() {
+		return isReceiving;
 	}
 
 	public boolean isPTTDown() {
@@ -173,19 +173,17 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		return frequency;
 	}
 
-
-
-	public void setReceivingVoice(boolean value) {
+	public void setReceiving(boolean value) {
 		getRadio().setReceiving(value);
-		if(isReceivingVoice != value) {
-			isReceivingVoice = value;
+		if(isReceiving != value) {
+			isReceiving = value;
 			updateBlock();
 		}
 	}
 
 	public void setPTTDown(boolean value) {
 		if(ssbEnabled)
-			setReceivingVoice(!value); // Do not receive voice while attempting to transmit voice.
+			setReceiving(!value); // Do not receive voice while attempting to transmit voice.
 
 		if(isPTTDown != value) {
 			isPTTDown = value;
@@ -196,10 +194,10 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	public void setSSBEnabled(boolean value) {
 		if(value) {
 			if(!isPTTDown)
-				setReceivingVoice(true);
+				setReceiving(true);
 		}
 		else {
-			setReceivingVoice(false);
+			setReceiving(false);
 		}
 
 		if(ssbEnabled != value) {
@@ -290,7 +288,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	@Override
 	public CompoundTag getUpdateTag() {
 		CompoundTag nbt = new CompoundTag();
-		nbt.putBoolean("isReceivingVoice", isReceivingVoice);
+		nbt.putBoolean("isReceiving", isReceiving);
 		nbt.putBoolean("isPowered", isPowered);
 		nbt.putBoolean("ssbEnabled", ssbEnabled);
 		nbt.putBoolean("cwEnabled", cwEnabled);
@@ -300,14 +298,14 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 	@Override
 	public void handleUpdateTag(CompoundTag nbt) {
-		isReceivingVoice = nbt.getBoolean("isReceivingVoice");
+		isReceiving = nbt.getBoolean("isReceiving");
 		isPowered = nbt.getBoolean("isPowered");
 		ssbEnabled = nbt.getBoolean("ssbEnabled");
 		cwEnabled = nbt.getBoolean("cwEnabled");
 		isPTTDown = nbt.getBoolean("isPTTDown");
 	}
 
-	private void updateBlock() {
+	protected void updateBlock() {
 		if(level != null && !level.isClientSide) {
 			BlockState state = level.getBlockState(worldPosition);
 			level.sendBlockUpdated(worldPosition, state, state, 2);

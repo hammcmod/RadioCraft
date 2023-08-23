@@ -51,7 +51,7 @@ public abstract class AbstractHFRadioMenu extends AbstractContainerMenu {
 	}
 
 	public boolean isReceiving() {
-		return blockEntity.isReceivingVoice();
+		return blockEntity.isReceiving();
 	}
 
 	public boolean isTransmitting() {

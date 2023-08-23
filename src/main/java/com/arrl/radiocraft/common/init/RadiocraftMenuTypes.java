@@ -20,6 +20,7 @@ public class RadiocraftMenuTypes {
 	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> HF_RADIO_20M = MENU_TYPES.register("hf_radio_20m", () -> IForgeMenuType.create(HFRadioMenu20m::new));
 	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> HF_RADIO_40M = MENU_TYPES.register("hf_radio_40m", () -> IForgeMenuType.create(HFRadioMenu40m::new));
 	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> HF_RADIO_80M = MENU_TYPES.register("hf_radio_80m", () -> IForgeMenuType.create(HFRadioMenu80m::new));
-
 	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> QRP_RADIO_20M = MENU_TYPES.register("qrp_radio_20m", () -> IForgeMenuType.create(QRPRadioMenu20m::new));
+	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> QRP_RADIO_40M = MENU_TYPES.register("qrp_radio_40m", () -> IForgeMenuType.create(QRPRadioMenu40m::new));
+
 }

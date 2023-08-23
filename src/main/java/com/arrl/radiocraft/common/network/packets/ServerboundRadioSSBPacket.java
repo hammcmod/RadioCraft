@@ -34,9 +34,14 @@ public class ServerboundRadioSSBPacket implements RadiocraftPacket {
 		context.get().enqueueWork(() -> {
 			BlockEntity be = context.get().getSender().getLevel().getBlockEntity(pos);
 
-			if(be instanceof AbstractRadioBlockEntity radio)
+			if(be instanceof AbstractRadioBlockEntity radio) {
 				radio.setSSBEnabled(value);
+
+				if(value && radio.getCWEnabled())
+					radio.setCWEnabled(false);
+			}
 		});
+
 		context.get().setPacketHandled(true);
 	}
 
