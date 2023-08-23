@@ -27,6 +27,7 @@ public class ClientSetupEvents {
 		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_40M.get(), HFRadio40mScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.HF_RADIO_80M.get(), HFRadio80mScreen::new);
 		MenuScreens.register(RadiocraftMenuTypes.QRP_RADIO_20M.get(), QRPRadio20mScreen::new);
+		MenuScreens.register(RadiocraftMenuTypes.QRP_RADIO_40M.get(), QRPRadio40mScreen::new);
 	}
 
 	@SubscribeEvent
