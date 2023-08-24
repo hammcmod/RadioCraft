@@ -22,7 +22,7 @@
       "item": "minecraft:iron_ingot"
     },
     "C": {
-      "tag": "radiocraft:hf_circuit_board"
+      "item": "radiocraft:hf_circuit_board"
     },
     "N": {
       "item": "minecraft:netherite_ingot"
