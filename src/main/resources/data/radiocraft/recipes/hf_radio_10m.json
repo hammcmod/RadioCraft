@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "GGG",
+    "HRS",
+    "#WW"
+  ],
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "R": {
+      "item": "radiocraft:radio_crystal"
+    },
+    "H": {
+      "item": "radiocraft:hand_microphone"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
+    },
+    "W": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "result": {
+    "item": "radiocraft:hf_radio_10m",
+    "count": 1
+  }
+}

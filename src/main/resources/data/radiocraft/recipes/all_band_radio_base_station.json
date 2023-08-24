@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "radiocraft:hf_radio_10m",
+      "item": "radiocraft:hf_radio_20m",
+      "item": "radiocraft:hf_radio_40m",
+      "item": "radiocraft:hf_radio_80m",
+      "item": "radiocraft:vhf_base_station"
+    }
+  ],
+  "result": {
+    "item": "radiocraft:all_band_radio",
+    "count": 1
+  }
+}

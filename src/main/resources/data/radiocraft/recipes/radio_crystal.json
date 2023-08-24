@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "AAA",
+    "ADA",
+    "A#A"
+  ],
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    }
+  },
+  "result": {
+    "item": "radiocraft:radio_crystal",
+    "count": 1
+  }
+}
