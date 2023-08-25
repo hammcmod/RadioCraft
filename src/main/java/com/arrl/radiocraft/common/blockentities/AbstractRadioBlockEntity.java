@@ -109,7 +109,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 				else if(be.cwEnabled) {
 					if(be.isPTTDown()) {
 						if(be.antennas.size() == 1)
-							((AntennaBlockEntity)be.antennas.get(0).getNetworkItem()).transmitMorsePacket((ServerLevel)level, be.wavelength, be.frequency);
+							((AntennaBlockEntity) be.antennas.get(0).getNetworkItem()).transmitMorsePacket((ServerLevel) level, be.wavelength, be.frequency);
 						else if(be.antennas.size() > 1)
 							be.overdraw();
 					}

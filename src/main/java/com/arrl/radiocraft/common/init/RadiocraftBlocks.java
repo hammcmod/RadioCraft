@@ -60,6 +60,8 @@ public class RadiocraftBlocks {
 
 	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = BLOCKS.register("solar_weather_station", () -> new SolarWeatherStationBlock(PROPERTIES_STONE));
 
+	public static final RegistryObject<Block> MICROPHONE = BLOCKS.register("microphone", () -> new MicrophoneBlock(PROPERTIES_STONE));
+
 	public static RegistryObject<Block> simpleBlock(String name, Properties properties) {
 		return BLOCKS.register(name, () -> new Block(properties));
 	}

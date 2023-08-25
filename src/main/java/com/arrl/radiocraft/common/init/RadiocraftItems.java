@@ -23,7 +23,6 @@ public class RadiocraftItems {
 	// Regular Items
 	public static final RegistryObject<Item> RADIO_CRYSTAL = simpleItem("radio_crystal");
 	public static final RegistryObject<Item> RADIO_SPEAKER = simpleItem("radio_speaker");
-	public static final RegistryObject<Item> MICROPHONE = simpleItem("microphone");
 	public static final RegistryObject<Item> HAND_MICROPHONE = simpleItem("hand_microphone");
 	public static final RegistryObject<Item> HF_CIRCUIT_BOARD = simpleItem("hf_circuit_board");
 	public static final RegistryObject<Item> SMALL_BATTERY = simpleItem("small_battery");
@@ -65,6 +64,8 @@ public class RadiocraftItems {
 	public static final RegistryObject<BlockItem> COAX_WIRE = simpleBlockItem("coax_wire", RadiocraftBlocks.COAX_WIRE);
 
 	public static final RegistryObject<BlockItem> SOLAR_WEATHER_STATION = simpleBlockItem("solar_weather_station", RadiocraftBlocks.SOLAR_WEATHER_STATION);
+	public static final RegistryObject<BlockItem> MICROPHONE = simpleBlockItem("microphone", RadiocraftBlocks.MICROPHONE);
+
 
 	// Helper methods to cut down on boilerplate
 	private static RegistryObject<Item> simpleItem(String name) {

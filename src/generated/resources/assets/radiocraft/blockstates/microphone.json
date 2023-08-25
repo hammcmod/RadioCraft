@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "radiocraft:block/microphone",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "radiocraft:block/microphone"
+    },
+    "facing=south": {
+      "model": "radiocraft:block/microphone",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/microphone",
+      "y": 270
+    }
+  }
+}
