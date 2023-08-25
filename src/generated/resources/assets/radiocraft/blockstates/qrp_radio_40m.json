@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "radiocraft:block/qrp_radio_40m",
+      "y": 90
+    },
+    "facing=north": {
       "model": "radiocraft:block/qrp_radio_40m"
+    },
+    "facing=south": {
+      "model": "radiocraft:block/qrp_radio_40m",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/qrp_radio_40m",
+      "y": 270
     }
   }
 }
