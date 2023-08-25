@@ -5,7 +5,7 @@ import net.minecraft.core.BlockPos;
 
 import java.util.UUID;
 
-public class AntennaNetworkPacket {
+public class AntennaVoicePacket implements IAntennaPacket {
 
 	private final ServerLevel level; // This is a voice api ServerLevel not a minecraft one.
 	private final short[] rawAudio;
@@ -16,7 +16,7 @@ public class AntennaNetworkPacket {
 	private final UUID sourcePlayer;
 
 
-	public AntennaNetworkPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, double strength, BlockPos source, UUID sourcePlayer) {
+	public AntennaVoicePacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, double strength, BlockPos source, UUID sourcePlayer) {
 		this.level = level;
 		this.rawAudio = rawAudio;
 		this.wavelength = wavelength;

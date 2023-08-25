@@ -10,7 +10,8 @@ import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.AntennaManager;
 import com.arrl.radiocraft.common.radio.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaTypes;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
@@ -43,14 +44,29 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
 	}
 
+	public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, int wavelength, int frequency) {
+		antenna.transmitMorsePacket(level, wavelength, frequency);
+	}
+
 	/**
 	 * Called from voice thread.
 	 */
-	public void receiveAudioPacket(AntennaNetworkPacket packet) {
+	public void receiveAudioPacket(AntennaVoicePacket packet) {
 		if(radios.size() == 1) {
 			AbstractRadioBlockEntity radio = (AbstractRadioBlockEntity)radios.get(0).getNetworkItem();
 			if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
 				radio.getRadio().receive(packet);
+		}
+		else if(radios.size() > 1) {
+			for(BENetworkEntry entry : radios)
+				((AbstractRadioBlockEntity)entry.getNetworkItem()).overdraw();
+		}
+	}
+
+	public void receiveMorsePacket(AntennaMorsePacket packet) {
+		if(radios.size() == 1) {
+			AbstractRadioBlockEntity radio = (AbstractRadioBlockEntity)radios.get(0).getNetworkItem();
+			radio.setMorseVolume(packet.getStrength());
 		}
 		else if(radios.size() > 1) {
 			for(BENetworkEntry entry : radios)
