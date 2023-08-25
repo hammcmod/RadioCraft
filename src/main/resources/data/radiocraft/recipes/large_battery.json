@@ -7,7 +7,7 @@
   ],
   "key": {
     "L": {
-      "tag": "stripped_logs"
+      "tag": "minecraft:stripped_logs"
     },
     "S": {
       "item": "radiocraft:small_battery"
