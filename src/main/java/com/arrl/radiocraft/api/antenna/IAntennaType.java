@@ -1,8 +1,6 @@
 package com.arrl.radiocraft.api.antenna;
 
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaData;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
+import com.arrl.radiocraft.common.radio.antenna.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -18,14 +16,20 @@ public interface IAntennaType<T extends AntennaData> {
 	Antenna<T> match(Level level, BlockPos pos);
 
 	/**
-	 * Apply the strength multiplier for transmitting to a given destination.
+	 * Apply the strength multiplier for transmitting SSB to a given destination.
 	 */
-	double getTransmitStrength(AntennaNetworkPacket packet, T data, BlockPos destination);
+	double getSSBTransmitStrength(AntennaVoicePacket packet, T data, BlockPos destination);
+
+
+	/**
+	 * Apply the strength multiplier for transmitting CW to a given destination.
+	 */
+	double getCWTransmitStrength(AntennaMorsePacket packet, T data, BlockPos destination);
 
 	/**
 	 * Apply the strength multiplier for receiving from a given source.
 	 */
-	double getReceiveStrength(AntennaNetworkPacket packet, T data, BlockPos pos);
+	double getReceiveStrength(IAntennaPacket packet, T data, BlockPos pos);
 
 	/**
 	 * Get a default instance of data class, usually used for loading.

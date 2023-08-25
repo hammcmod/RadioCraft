@@ -3,5 +3,10 @@
     "sounds": [
       "radiocraft:static"
     ]
+  },
+  "morse": {
+    "sounds": [
+      "radiocraft:morse"
+    ]
   }
 }

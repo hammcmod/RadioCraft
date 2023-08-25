@@ -5,9 +5,11 @@ import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
 import com.arrl.radiocraft.common.radio.BandUtils;
+import com.arrl.radiocraft.common.radio.antenna.Antenna;
+import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
+import com.arrl.radiocraft.common.radio.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.radio.antenna.types.data.EndFedAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -51,21 +53,29 @@ public class EndFedAntennaType implements IAntennaType<EndFedAntennaData> {
 	}
 
 	@Override
-	public double getTransmitStrength(AntennaNetworkPacket packet, EndFedAntennaData data, BlockPos destination) {
+	public double getSSBTransmitStrength(AntennaVoicePacket packet, EndFedAntennaData data, BlockPos destination) {
 		double distance = Math.sqrt(packet.getSource().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
-		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, level.isDay());
-		return baseStrength * getEfficiency(packet, data) * 0.75D;
+		double baseStrength = BandUtils.getSSBBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, level.isDay());
+		return baseStrength * getEfficiency(packet.getWavelength(), data) * 0.75D;
 	}
 
 	@Override
-	public double getReceiveStrength(AntennaNetworkPacket packet, EndFedAntennaData data, BlockPos pos) {
-		return packet.getStrength() * getEfficiency(packet, data) * 0.75D;
+	public double getCWTransmitStrength(AntennaMorsePacket packet, EndFedAntennaData data, BlockPos destination) {
+		double distance = Math.sqrt(packet.getSource().distSqr(destination));
+
+		double baseStrength = BandUtils.getCWBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, packet.getLevel().isDay());
+		return baseStrength * getEfficiency(packet.getWavelength(), data);
 	}
 
-	public double getEfficiency(AntennaNetworkPacket packet, EndFedAntennaData data) {
-		int desiredLength = (int)Math.round(packet.getWavelength() / 2.0D); // The desired length is 1/2 of the wavelength used, round to nearest int.
+	@Override
+	public double getReceiveStrength(IAntennaPacket packet, EndFedAntennaData data, BlockPos pos) {
+		return packet.getStrength() * getEfficiency(packet.getWavelength(), data) * 0.75D;
+	}
+
+	public double getEfficiency(int wavelength, EndFedAntennaData data) {
+		int desiredLength = (int)Math.round(wavelength / 2.0D); // The desired length is 1/2 of the wavelength used, round to nearest int.
 		int incorrectBlocks = (int)Math.abs(desiredLength - data.getLength());
 
 		return incorrectBlocks == 0 ? 1.0D : Math.pow(0.75D, incorrectBlocks);

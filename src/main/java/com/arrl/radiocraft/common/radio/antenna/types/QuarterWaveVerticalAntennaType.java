@@ -4,9 +4,11 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
 import com.arrl.radiocraft.common.radio.BandUtils;
+import com.arrl.radiocraft.common.radio.antenna.Antenna;
+import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
+import com.arrl.radiocraft.common.radio.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.radio.antenna.types.data.QuarterWaveVerticalAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -54,21 +56,29 @@ public class QuarterWaveVerticalAntennaType implements IAntennaType<QuarterWaveV
 	}
 
 	@Override
-	public double getTransmitStrength(AntennaNetworkPacket packet, QuarterWaveVerticalAntennaData data, BlockPos destination) {
+	public double getSSBTransmitStrength(AntennaVoicePacket packet, QuarterWaveVerticalAntennaData data, BlockPos destination) {
 		double distance = Math.sqrt(packet.getSource().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
-		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.2D, 0.7D, level.isDay());
-		return baseStrength * getEfficiency(packet, data);
+		double baseStrength = BandUtils.getSSBBaseStrength(packet.getWavelength(), distance, 1.2D, 0.7D, level.isDay());
+		return baseStrength * getEfficiency(packet.getWavelength(), data);
 	}
 
 	@Override
-	public double getReceiveStrength(AntennaNetworkPacket packet, QuarterWaveVerticalAntennaData data, BlockPos pos) {
-		return packet.getStrength() * getEfficiency(packet, data);
+	public double getCWTransmitStrength(AntennaMorsePacket packet, QuarterWaveVerticalAntennaData data, BlockPos destination) {
+		double distance = Math.sqrt(packet.getSource().distSqr(destination));
+
+		double baseStrength = BandUtils.getCWBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, packet.getLevel().isDay());
+		return baseStrength * getEfficiency(packet.getWavelength(), data);
 	}
 
-	public double getEfficiency(AntennaNetworkPacket packet, QuarterWaveVerticalAntennaData data) {
-		int desiredLength = (int)Math.round(packet.getWavelength() / 4.0D); // The desired length for the pole is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
+	@Override
+	public double getReceiveStrength(IAntennaPacket packet, QuarterWaveVerticalAntennaData data, BlockPos pos) {
+		return packet.getStrength() * getEfficiency(packet.getWavelength(), data);
+	}
+
+	public double getEfficiency(int wavelength, QuarterWaveVerticalAntennaData data) {
+		int desiredLength = (int)Math.round(wavelength / 4.0D); // The desired length for the pole is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
 		int incorrectBlocks = Math.abs(desiredLength - data.getHeight());
 
 		return incorrectBlocks == 0 ? 1.0D : Math.pow(0.75D, incorrectBlocks);

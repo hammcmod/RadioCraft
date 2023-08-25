@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.common.radio;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
@@ -37,7 +37,7 @@ public class Radio {
 		receiveChannel = RadiocraftVoicePlugin.api.createLocationalAudioChannel(UUID.randomUUID(), level, RadiocraftVoicePlugin.api.createPosition(x, y, z));
 	}
 
-	public void receive(AntennaNetworkPacket antennaPacket) {
+	public void receive(AntennaVoicePacket antennaPacket) {
 		if(isReceiving) {
 			if(receiveChannel == null)
 				openChannel(antennaPacket.getLevel());
