@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
+import com.arrl.radiocraft.common.network.packets.CWBufferPacket;
 import com.arrl.radiocraft.common.network.packets.clientbound.CAntennaWirePacket;
 import com.arrl.radiocraft.common.network.packets.clientbound.CNoisePacket;
 import com.arrl.radiocraft.common.network.packets.serverbound.*;
@@ -31,6 +32,7 @@ public class RadiocraftPackets {
 		INSTANCE.registerMessage(id++, SRadioSSBPacket.class, SRadioSSBPacket::encode, SRadioSSBPacket::decode, SRadioSSBPacket::handle);
 		INSTANCE.registerMessage(id++, SRadioCWPacket.class, SRadioCWPacket::encode, SRadioCWPacket::decode, SRadioCWPacket::handle);
 		INSTANCE.registerMessage(id++, SFrequencyPacket.class, SFrequencyPacket::encode, SFrequencyPacket::decode, SFrequencyPacket::handle);
+		INSTANCE.registerMessage(id++, CWBufferPacket.class, CWBufferPacket::encode, CWBufferPacket::decode, CWBufferPacket::handle);
 	}
 
 	public static void sendToPlayer(RadiocraftPacket packet, ServerPlayer player) {
