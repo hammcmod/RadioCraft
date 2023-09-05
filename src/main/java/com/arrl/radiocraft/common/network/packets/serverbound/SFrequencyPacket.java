@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.network.packets;
+package com.arrl.radiocraft.common.network.packets.serverbound;
 
 import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
@@ -9,12 +9,12 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 import java.util.function.Supplier;
 
-public class ServerboundRadioPTTPacket implements RadiocraftPacket {
+public class SFrequencyPacket implements RadiocraftPacket {
 
 	private final BlockPos pos;
-	private final boolean value;
+	private final int value;
 
-	public ServerboundRadioPTTPacket(BlockPos pos, boolean value) {
+	public SFrequencyPacket(BlockPos pos, int value) {
 		this.pos = pos;
 		this.value = value;
 	}
@@ -22,11 +22,11 @@ public class ServerboundRadioPTTPacket implements RadiocraftPacket {
 	@Override
 	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeBlockPos(pos);
-		buffer.writeBoolean(value);
+		buffer.writeInt(value);
 	}
 
-	public static ServerboundRadioPTTPacket decode(FriendlyByteBuf buffer) {
-		return new ServerboundRadioPTTPacket(buffer.readBlockPos(), buffer.readBoolean());
+	public static SFrequencyPacket decode(FriendlyByteBuf buffer) {
+		return new SFrequencyPacket(buffer.readBlockPos(), buffer.readInt());
 	}
 
 	@Override
@@ -35,7 +35,7 @@ public class ServerboundRadioPTTPacket implements RadiocraftPacket {
 			BlockEntity be = context.get().getSender().getLevel().getBlockEntity(pos);
 
 			if(be instanceof AbstractRadioBlockEntity radio)
-				radio.setPTTDown(value);
+				radio.updateFrequency(value);
 		});
 		context.get().setPacketHandled(true);
 	}

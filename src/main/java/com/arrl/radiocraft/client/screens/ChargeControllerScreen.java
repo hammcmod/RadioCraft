@@ -4,7 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
-import com.arrl.radiocraft.common.network.packets.ServerboundTogglePacket;
+import com.arrl.radiocraft.common.network.packets.serverbound.STogglePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -45,7 +45,7 @@ public class ChargeControllerScreen extends AbstractContainerScreen<ChargeContro
 	protected void init() {
 		super.init();
 		addRenderableWidget(new ToggleButton(container.blockEntity.getPoweredOn(), leftPos + 93, topPos + 24, 63, 84, 0, 0, WIDGETS, 256, 256,
-				(button) -> RadiocraftPackets.sendToServer(new ServerboundTogglePacket(container.blockEntity.getBlockPos())))
+				(button) -> RadiocraftPackets.sendToServer(new STogglePacket(container.blockEntity.getBlockPos())))
 		);
 	}
 

@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.network.packets;
+package com.arrl.radiocraft.common.network.packets.clientbound;
 
 import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
@@ -10,11 +10,11 @@ import java.util.function.Supplier;
 /**
  * Packet for updating the solar event state on the client, for use in static volume.
  */
-public class ClientboundNoisePacket implements RadiocraftPacket {
+public class CNoisePacket implements RadiocraftPacket {
 
 	private final float noise;
 
-	public ClientboundNoisePacket(float noise) {
+	public CNoisePacket(float noise) {
 		this.noise = noise;
 	}
 
@@ -23,8 +23,8 @@ public class ClientboundNoisePacket implements RadiocraftPacket {
 		buffer.writeFloat(noise);
 	}
 
-	public static ClientboundNoisePacket decode(FriendlyByteBuf buffer) {
-		return new ClientboundNoisePacket(buffer.readFloat());
+	public static CNoisePacket decode(FriendlyByteBuf buffer) {
+		return new CNoisePacket(buffer.readFloat());
 	}
 
 	@Override

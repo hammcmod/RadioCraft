@@ -3,7 +3,7 @@ package com.arrl.radiocraft.common.radio.solar;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
-import com.arrl.radiocraft.common.network.packets.ClientboundNoisePacket;
+import com.arrl.radiocraft.common.network.packets.clientbound.CNoisePacket;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -50,7 +50,7 @@ public class SolarEventManager {
 				if(solarEvent == null || solarEvent.isFinished()) {
 					solarEvent = RadiocraftData.SOLAR_EVENTS.getWeightedRandom().getInstance(); // Keep picking new event if the current one is finished
 					setEvent(event.level, solarEvent);
-					RadiocraftPackets.sendToLevel(new ClientboundNoisePacket(solarEvent.getEvent().getNoise()), (ServerLevel)event.level); // Update noise value for all players in that level
+					RadiocraftPackets.sendToLevel(new CNoisePacket(solarEvent.getEvent().getNoise()), (ServerLevel)event.level); // Update noise value for all players in that level
 					Radiocraft.LOGGER.info(event.level.dimension() + " " + solarEvent.getEvent().getNoise());
 				}
 
@@ -62,14 +62,14 @@ public class SolarEventManager {
 	@SubscribeEvent
 	public static void playerChangedDimension(PlayerChangedDimensionEvent event) { // Update noise every time player changes dimension
 		if(event.getEntity() instanceof ServerPlayer player) {
-			RadiocraftPackets.sendToPlayer(new ClientboundNoisePacket(getEvent(event.getTo()).getEvent().getNoise()), player);
+			RadiocraftPackets.sendToPlayer(new CNoisePacket(getEvent(event.getTo()).getEvent().getNoise()), player);
 		}
 	}
 
 	@SubscribeEvent
 	public static void playerLoggedIn(PlayerLoggedInEvent event) {
 		if(event.getEntity() instanceof ServerPlayer player) {
-			RadiocraftPackets.sendToPlayer(new ClientboundNoisePacket(getEvent(player.getLevel()).getEvent().getNoise()), player);
+			RadiocraftPackets.sendToPlayer(new CNoisePacket(getEvent(player.getLevel()).getEvent().getNoise()), player);
 		}
 	}
 

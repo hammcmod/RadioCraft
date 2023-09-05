@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.network.packets;
+package com.arrl.radiocraft.common.network.packets.serverbound;
 
 import com.arrl.radiocraft.common.blockentities.ITogglableBE;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
@@ -9,11 +9,11 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 import java.util.function.Supplier;
 
-public class ServerboundTogglePacket implements RadiocraftPacket {
+public class STogglePacket implements RadiocraftPacket {
 
 	private final BlockPos pos;
 
-	public ServerboundTogglePacket(BlockPos pos) {
+	public STogglePacket(BlockPos pos) {
 		this.pos = pos;
 	}
 
@@ -22,8 +22,8 @@ public class ServerboundTogglePacket implements RadiocraftPacket {
 		buffer.writeBlockPos(pos);
 	}
 
-	public static ServerboundTogglePacket decode(FriendlyByteBuf buffer) {
-		return new ServerboundTogglePacket(buffer.readBlockPos());
+	public static STogglePacket decode(FriendlyByteBuf buffer) {
+		return new STogglePacket(buffer.readBlockPos());
 	}
 
 	@Override

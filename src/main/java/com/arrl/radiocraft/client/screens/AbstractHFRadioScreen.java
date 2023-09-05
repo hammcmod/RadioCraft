@@ -7,7 +7,7 @@ import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
-import com.arrl.radiocraft.common.network.packets.*;
+import com.arrl.radiocraft.common.network.packets.serverbound.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -101,7 +101,7 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	 * Callback for pressing a PTT button.
 	 */
 	protected void onPressPTT(HoldButton button) {
-		RadiocraftPackets.sendToServer(new ServerboundRadioPTTPacket(container.blockEntity.getBlockPos(), true));
+		RadiocraftPackets.sendToServer(new SRadioPTTPacket(container.blockEntity.getBlockPos(), true));
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
 	}
 
@@ -109,7 +109,7 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	 * Callback for releasing a PTT button.
 	 */
 	protected void onReleasePTT(HoldButton button) {
-		RadiocraftPackets.sendToServer(new ServerboundRadioPTTPacket(container.blockEntity.getBlockPos(), false));
+		RadiocraftPackets.sendToServer(new SRadioPTTPacket(container.blockEntity.getBlockPos(), false));
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
 	}
 
@@ -117,7 +117,7 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	 * Callback to toggle power on a device.
 	 */
 	protected void onPressPower(ToggleButton button) {
-		RadiocraftPackets.sendToServer(new ServerboundTogglePacket(container.blockEntity.getBlockPos()));
+		RadiocraftPackets.sendToServer(new STogglePacket(container.blockEntity.getBlockPos()));
 	}
 
 	/**
@@ -126,7 +126,7 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	protected void onPressSSB(ValueButton button) {
 		boolean ssbEnabled = container.getSSBEnabled();
 
-		RadiocraftPackets.sendToServer(new ServerboundRadioSSBPacket(container.blockEntity.getBlockPos(), !ssbEnabled));
+		RadiocraftPackets.sendToServer(new SRadioSSBPacket(container.blockEntity.getBlockPos(), !ssbEnabled));
 		container.blockEntity.setSSBEnabled(!ssbEnabled); // Update instantly for GUI, server will re-sync this value though.
 	}
 
@@ -136,7 +136,7 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	protected void onPressCW(ValueButton button) {
 		boolean cwEnabled = container.getCWEnabled();
 
-		RadiocraftPackets.sendToServer(new ServerboundRadioCWPacket(container.blockEntity.getBlockPos(), !cwEnabled));
+		RadiocraftPackets.sendToServer(new SRadioCWPacket(container.blockEntity.getBlockPos(), !cwEnabled));
 		container.blockEntity.setCWEnabled(!cwEnabled); // Update instantly for GUI, server will re-sync this value though.
 	}
 
@@ -145,7 +145,7 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	 */
 	protected void onFrequencyDialUp(Dial dial) {
 		if(container.isPowered())
-			RadiocraftPackets.sendToServer(new ServerboundFrequencyPacket(container.blockEntity.getBlockPos(), 1));
+			RadiocraftPackets.sendToServer(new SFrequencyPacket(container.blockEntity.getBlockPos(), 1));
 	}
 
 	/**
@@ -153,7 +153,7 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	 */
 	protected void onFrequencyDialDown(Dial dial) {
 		if(container.isPowered())
-			RadiocraftPackets.sendToServer(new ServerboundFrequencyPacket(container.blockEntity.getBlockPos(), -1));
+			RadiocraftPackets.sendToServer(new SFrequencyPacket(container.blockEntity.getBlockPos(), -1));
 	}
 
 	/**
@@ -161,7 +161,7 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	 */
 	protected void onFrequencyButtonUp(Button button) {
 		if(container.isPowered())
-			RadiocraftPackets.sendToServer(new ServerboundFrequencyPacket(container.blockEntity.getBlockPos(), 1));
+			RadiocraftPackets.sendToServer(new SFrequencyPacket(container.blockEntity.getBlockPos(), 1));
 	}
 
 	/**
@@ -169,7 +169,7 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	 */
 	protected void onFrequencyButtonDown(Button button) {
 		if(container.isPowered())
-			RadiocraftPackets.sendToServer(new ServerboundFrequencyPacket(container.blockEntity.getBlockPos(), -1));
+			RadiocraftPackets.sendToServer(new SFrequencyPacket(container.blockEntity.getBlockPos(), -1));
 	}
 
 }

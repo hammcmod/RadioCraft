@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.network.packets;
+package com.arrl.radiocraft.common.network.packets.serverbound;
 
 import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
@@ -9,12 +9,12 @@ import net.minecraftforge.network.NetworkEvent.Context;
 
 import java.util.function.Supplier;
 
-public class ServerboundRadioCWPacket implements RadiocraftPacket {
+public class SRadioCWPacket implements RadiocraftPacket {
 
 	private final BlockPos pos;
 	private final boolean value;
 
-	public ServerboundRadioCWPacket(BlockPos pos, boolean value) {
+	public SRadioCWPacket(BlockPos pos, boolean value) {
 		this.pos = pos;
 		this.value = value;
 	}
@@ -25,8 +25,8 @@ public class ServerboundRadioCWPacket implements RadiocraftPacket {
 		buffer.writeBoolean(value);
 	}
 
-	public static ServerboundRadioCWPacket decode(FriendlyByteBuf buffer) {
-		return new ServerboundRadioCWPacket(buffer.readBlockPos(), buffer.readBoolean());
+	public static SRadioCWPacket decode(FriendlyByteBuf buffer) {
+		return new SRadioCWPacket(buffer.readBlockPos(), buffer.readBoolean());
 	}
 
 	@Override

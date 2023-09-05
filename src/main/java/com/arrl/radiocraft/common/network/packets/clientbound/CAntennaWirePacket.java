@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.network.packets;
+package com.arrl.radiocraft.common.network.packets.clientbound;
 
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
@@ -13,12 +13,12 @@ import java.util.function.Supplier;
 /**
  * Packet for updating the solar event state on the client, for use in static volume.
  */
-public class ClientboundAntennaWirePacket implements RadiocraftPacket {
+public class CAntennaWirePacket implements RadiocraftPacket {
 
 	private final int id;
 	private final BlockPos endPos;
 
-	public ClientboundAntennaWirePacket(int id, BlockPos endPos) {
+	public CAntennaWirePacket(int id, BlockPos endPos) {
 		this.id = id;
 		this.endPos = endPos;
 	}
@@ -29,8 +29,8 @@ public class ClientboundAntennaWirePacket implements RadiocraftPacket {
 		buffer.writeLong(endPos.asLong());
 	}
 
-	public static ClientboundAntennaWirePacket decode(FriendlyByteBuf buffer) {
-		return new ClientboundAntennaWirePacket(buffer.readInt(), BlockPos.of(buffer.readLong()));
+	public static CAntennaWirePacket decode(FriendlyByteBuf buffer) {
+		return new CAntennaWirePacket(buffer.readInt(), BlockPos.of(buffer.readLong()));
 	}
 
 	@Override
