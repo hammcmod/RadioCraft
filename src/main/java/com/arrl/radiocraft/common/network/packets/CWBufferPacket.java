@@ -1,12 +1,19 @@
 package com.arrl.radiocraft.common.network.packets;
 
+import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
 import com.arrl.radiocraft.common.radio.morse.CWInputBuffer;
+import com.arrl.radiocraft.common.radio.morse.CWRadioBuffer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -14,38 +21,56 @@ import java.util.function.Supplier;
  */
 public class CWBufferPacket implements RadiocraftPacket {
 
-	private final BlockPos radio;
-	private final CWInputBuffer buffer;
+	private final BlockPos pos;
+	private final Collection<CWInputBuffer> buffers;
 
-	public CWBufferPacket(BlockPos radio, CWInputBuffer buffer) {
-		this.radio = radio;
-		this.buffer = buffer;
+	public CWBufferPacket(BlockPos pos, Collection<CWInputBuffer> buffers) {
+		this.pos = pos;
+		this.buffers = buffers;
 	}
 
 	@Override
 	public void encode(FriendlyByteBuf buffer) {
-		buffer.writeLong(radio.asLong());
-		buffer.writeInt(this.buffer.getId());
-		for(boolean b : this.buffer.getInputs())
-			buffer.writeBoolean(b);
+		buffer.writeLong(pos.asLong());
+		buffer.writeInt(buffers.size());
+
+		for(CWInputBuffer inputBuffer : buffers) {
+			buffer.writeInt(inputBuffer.getId());
+			for(boolean b : inputBuffer.getInputs())
+				buffer.writeBoolean(b);
+		}
 	}
 
 	public static CWBufferPacket decode(FriendlyByteBuf buffer) {
 		BlockPos radioPos = BlockPos.of(buffer.readLong());
-		int id = buffer.readInt();
+		int bufferCount = buffer.readInt();
 
-		boolean[] values = new boolean[20];
-		for(int i = 0; i < 20; i++)
-			values[i] = buffer.readBoolean();
+		List<CWInputBuffer> buffers = new ArrayList<>();
+		for(int z = 0; z < bufferCount; z++) {
+			int id = buffer.readInt();
 
-		return new CWBufferPacket(radioPos, new CWInputBuffer(id, values));
+			boolean[] values = new boolean[20];
+			for(int i = 0; i < 20; i++) {
+				values[i] = buffer.readBoolean();
+			}
+
+			buffers.add(new CWInputBuffer(id, values));
+		}
+
+		return new CWBufferPacket(radioPos, buffers);
 	}
 
 	@Override
 	public void handle(Supplier<Context> context) {
 		context.get().enqueueWork(() -> {
 			if(context.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
-
+				BlockEntity be = Minecraft.getInstance().level.getBlockEntity(pos); // Client receiving these packets will just forward them all to the BE and let them get re-ordered in there.
+				if(be instanceof AbstractRadioBlockEntity radio) {
+					CWRadioBuffer radioBuffer = radio.getCWBuffer();
+					for(CWInputBuffer buffer : buffers) {
+						radioBuffer.addToBuffer(buffer);
+					}
+				}
 			}
 			else {
 
