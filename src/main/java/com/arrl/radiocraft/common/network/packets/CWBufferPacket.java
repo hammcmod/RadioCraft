@@ -7,6 +7,9 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkEvent.Context;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -15,30 +18,42 @@ import java.util.function.Supplier;
 public class CWBufferPacket implements RadiocraftPacket {
 
 	private final BlockPos radio;
-	private final CWInputBuffer buffer;
+	private final Collection<CWInputBuffer> buffers;
 
-	public CWBufferPacket(BlockPos radio, CWInputBuffer buffer) {
+	public CWBufferPacket(BlockPos radio, Collection<CWInputBuffer> buffers) {
 		this.radio = radio;
-		this.buffer = buffer;
+		this.buffers = buffers;
 	}
 
 	@Override
 	public void encode(FriendlyByteBuf buffer) {
 		buffer.writeLong(radio.asLong());
-		buffer.writeInt(this.buffer.getId());
-		for(boolean b : this.buffer.getInputs())
-			buffer.writeBoolean(b);
+		buffer.writeInt(buffers.size());
+
+		for(CWInputBuffer inputBuffer : buffers) {
+			buffer.writeInt(inputBuffer.getId());
+			for(boolean b : inputBuffer.getInputs())
+				buffer.writeBoolean(b);
+		}
 	}
 
 	public static CWBufferPacket decode(FriendlyByteBuf buffer) {
 		BlockPos radioPos = BlockPos.of(buffer.readLong());
-		int id = buffer.readInt();
+		int bufferCount = buffer.readInt();
 
-		boolean[] values = new boolean[20];
-		for(int i = 0; i < 20; i++)
-			values[i] = buffer.readBoolean();
+		List<CWInputBuffer> buffers = new ArrayList<>();
+		for(int z = 0; z < bufferCount; z++) {
+			int id = buffer.readInt();
 
-		return new CWBufferPacket(radioPos, new CWInputBuffer(id, values));
+			boolean[] values = new boolean[20];
+			for(int i = 0; i < 20; i++) {
+				values[i] = buffer.readBoolean();
+			}
+
+			buffers.add(new CWInputBuffer(id, values));
+		}
+
+		return new CWBufferPacket(radioPos, buffers);
 	}
 
 	@Override
