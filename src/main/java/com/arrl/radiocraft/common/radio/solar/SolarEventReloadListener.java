@@ -38,6 +38,7 @@ public class SolarEventReloadListener extends SimpleJsonResourceReloadListener {
 
 				events.put(resourceLocation, new Pair<>(new SolarEvent(noise, minDuration, maxDuration), weight));
 				totalWeight += weight;
+
 			} catch (IllegalArgumentException | JsonParseException jsonparseexception) {
 				Radiocraft.LOGGER.error("Parsing error loading solar event {}: {}", resourceLocation, jsonparseexception.getMessage());
 			}

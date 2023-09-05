@@ -9,6 +9,7 @@ import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.Radio;
 import com.arrl.radiocraft.common.radio.RadioManager;
+import com.arrl.radiocraft.common.radio.morse.CWRadioBuffer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -32,8 +33,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private boolean ssbEnabled = false;
 	private boolean cwEnabled = false;
 
-	private double morseVolume = 0.0F; // Temporary cw impl for the expo
-
 	private Radio radio; // Acts as a container for voip channel info
 	private final int wavelength;
 	private final int receiveUsePower;
@@ -43,6 +42,8 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private int frequency; // Frequency the radio is currently using (in kHz)
 	private boolean isReceiving = false; // Only gets read clientside to determine the static sounds.
 	private boolean isPTTDown = false; // Used by PTT button packets
+
+	private CWRadioBuffer cwBuffer; // This is only instantiated clientside, used to receive CW sounds.
 
 	protected final ContainerData fields = new ContainerData() {
 
@@ -78,13 +79,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		this.frequency = RadiocraftData.BANDS.getValue(wavelength).minFrequency();
 	}
 
-	public Radio getRadio() {
-		if(radio == null)
-			radio = createRadio();
-
-		return radio;
-	}
-
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(!level.isClientSide) {
 			if(t instanceof AbstractRadioBlockEntity be && be.isPowered) {
@@ -117,6 +111,17 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 			}
 		}
+	}
+
+	public Radio getRadio() {
+		if(radio == null)
+			radio = createRadio();
+
+		return radio;
+	}
+
+	public CWRadioBuffer getCWBuffer() {
+		return cwBuffer;
 	}
 
 	/**
@@ -182,10 +187,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		return frequency;
 	}
 
-	public double getMorseVolume() {
-		return morseVolume;
-	}
-
 	public void setReceiving(boolean value) {
 		getRadio().setReceiving(value);
 		if(isReceiving != value) {
@@ -232,11 +233,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 			updateBlock();
 			setChanged();
 		};
-	}
-
-	public void setMorseVolume(double value) {
-		morseVolume = value;
-		updateBlock();
 	}
 
 	public void updateFrequency(int stepCount) {
@@ -317,7 +313,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		nbt.putBoolean("ssbEnabled", ssbEnabled);
 		nbt.putBoolean("cwEnabled", cwEnabled);
 		nbt.putBoolean("isPTTDown", isPTTDown);
-		nbt.putDouble("receivingMorse", morseVolume);
 		return nbt;
 	}
 
@@ -328,7 +323,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		ssbEnabled = nbt.getBoolean("ssbEnabled");
 		cwEnabled = nbt.getBoolean("cwEnabled");
 		isPTTDown = nbt.getBoolean("isPTTDown");
-		morseVolume = nbt.getDouble("receivingMorse");
 	}
 
 	protected void updateBlock() {

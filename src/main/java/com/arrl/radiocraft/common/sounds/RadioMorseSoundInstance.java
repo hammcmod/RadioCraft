@@ -26,14 +26,7 @@ public class RadioMorseSoundInstance extends AbstractTickableSoundInstance {
 		if(radio.isRemoved())
 			stop();
 		else {
-			if((radio.getMorseVolume() > 0.01F) && radio.isPowered() && radio.getCWEnabled())
-				volume = (float)(radio.getMorseVolume() * 0.25D);
-			else if(radio.isPTTDown() && radio.isPowered() && radio.getCWEnabled())
-				volume = 0.25F;
-			else
-				volume = 0.0F;
-
-			radio.setMorseVolume(0.0F);
+			volume = 0.0F;
 		}
 	}
 
