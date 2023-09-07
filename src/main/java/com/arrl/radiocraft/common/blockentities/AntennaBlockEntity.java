@@ -66,7 +66,6 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	public void receiveMorsePacket(AntennaMorsePacket packet) {
 		if(radios.size() == 1) {
 			AbstractRadioBlockEntity radio = (AbstractRadioBlockEntity)radios.get(0).getNetworkItem();
-			radio.setMorseVolume(packet.getStrength());
 		}
 		else if(radios.size() > 1) {
 			for(BENetworkEntry entry : radios)

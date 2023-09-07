@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.network.packets;
 
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
 import com.arrl.radiocraft.common.radio.morse.CWInputBuffer;
@@ -49,8 +50,8 @@ public class CWBufferPacket implements RadiocraftPacket {
 		for(int z = 0; z < bufferCount; z++) {
 			int id = buffer.readInt();
 
-			boolean[] values = new boolean[20];
-			for(int i = 0; i < 20; i++) {
+			boolean[] values = new boolean[CWInputBuffer.BUFFER_LENGTH];
+			for(int i = 0; i < CWInputBuffer.BUFFER_LENGTH; i++) {
 				values[i] = buffer.readBoolean();
 			}
 
@@ -73,7 +74,7 @@ public class CWBufferPacket implements RadiocraftPacket {
 				}
 			}
 			else {
-
+				Radiocraft.LOGGER.info("CW Input Buffer Received" + buffers.size());
 			}
 		});
 	}

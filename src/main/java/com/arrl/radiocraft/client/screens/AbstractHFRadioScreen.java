@@ -36,6 +36,8 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 	public void onClose() {
 		super.onClose();
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
+		RadiocraftClientValues.SCREEN_SSB_ENABLED = false;
+		RadiocraftClientValues.SCREEN_CW_ENABLED = false;
 	}
 
 	@Override
@@ -44,6 +46,14 @@ public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<Abst
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 
 		renderAdditionalTooltips(poseStack, mouseX, mouseY, partialTicks);
+
+		if(container.getCWEnabled()) {
+			if(RadiocraftClientValues.SCREEN_PTT_PRESSED) {
+				container.blockEntity.accumulateCWInput();
+			}
+		}
+		RadiocraftClientValues.SCREEN_SSB_ENABLED = container.getSSBEnabled();
+		RadiocraftClientValues.SCREEN_CW_ENABLED = container.getCWEnabled();
 	}
 
 	/**

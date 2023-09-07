@@ -10,6 +10,7 @@ import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.Radio;
 import com.arrl.radiocraft.common.radio.RadioManager;
 import com.arrl.radiocraft.common.radio.morse.CWRadioBuffer;
+import com.arrl.radiocraft.common.radio.morse.CWSendBuffer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
@@ -44,6 +45,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private boolean isPTTDown = false; // Used by PTT button packets
 
 	private CWRadioBuffer cwBuffer; // This is only instantiated clientside, used to receive CW sounds.
+	private final CWSendBuffer cwSendBuffer;
 
 	protected final ContainerData fields = new ContainerData() {
 
@@ -77,11 +79,13 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		this.transmitUsePower = transmitUsePower;
 		this.wavelength = wavelength;
 		this.frequency = RadiocraftData.BANDS.getValue(wavelength).minFrequency();
+		this.cwSendBuffer = new CWSendBuffer(pos);
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
-		if(!level.isClientSide) {
-			if(t instanceof AbstractRadioBlockEntity be && be.isPowered) {
+		if(t instanceof AbstractRadioBlockEntity be && be.isPowered) {
+			if(!level.isClientSide) {
+
 				Radio radio = be.getRadio();
 
 				if(be.shouldOverDraw) {
@@ -110,6 +114,9 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 				}
 
 			}
+			else {
+				be.cwSendBuffer.tick(); // Tick the send buffer here, it polls inputs every tick to see if it should send
+			}
 		}
 	}
 
@@ -118,6 +125,10 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 			radio = createRadio();
 
 		return radio;
+	}
+
+	public void accumulateCWInput() {
+		this.cwSendBuffer.setShouldAccumulate();
 	}
 
 	public CWRadioBuffer getCWBuffer() {

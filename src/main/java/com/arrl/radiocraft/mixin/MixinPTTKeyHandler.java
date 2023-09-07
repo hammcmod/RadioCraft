@@ -12,13 +12,13 @@ public class MixinPTTKeyHandler {
 
 	@Inject(method="isPTTDown", at=@At("HEAD"), cancellable = true, remap = false)
 	private void isPTTDown(CallbackInfoReturnable<Boolean> cir) {
-		if(RadiocraftClientValues.SCREEN_PTT_PRESSED)
+		if(RadiocraftClientValues.SCREEN_PTT_PRESSED && RadiocraftClientValues.SCREEN_SSB_ENABLED)
 			cir.setReturnValue(true);
 	}
 
 	@Inject(method="isAnyDown", at=@At("HEAD"), cancellable = true, remap = false)
 	private void isAnyDown(CallbackInfoReturnable<Boolean> cir) {
-		if(RadiocraftClientValues.SCREEN_PTT_PRESSED)
+		if(RadiocraftClientValues.SCREEN_PTT_PRESSED && RadiocraftClientValues.SCREEN_SSB_ENABLED)
 			cir.setReturnValue(true);
 	}
 
