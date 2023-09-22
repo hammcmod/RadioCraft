@@ -1,35 +1,47 @@
 package com.arrl.radiocraft.api.benetworks;
 
 import com.arrl.radiocraft.common.benetworks.BENetwork;
+import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Any BlockEntity which is intended to connect to a coax network should implement this. Power networks are a different type and should implement IPowerNetworkItem.
+ * Represents a {@link BlockEntity} which connects to a coax network (See: {@link BENetwork}). Blocks which connect to a
+ * {@link PowerNetwork} are a different type and should implement {@link IPowerNetworkItem}.
  */
 public interface IBENetworkItem {
 
 	Map<Direction, Set<BENetwork>> getNetworkMap();
 
 	/**
-	 * Get all networks associated with a side.
+	 * @param side The {@link Direction} of the connected networks required.
+	 *
+	 * @return Every {@link BENetwork} this {@link IBENetworkItem} is connected to on the specified side.
 	 */
 	default Set<BENetwork> getNetworks(Direction side) {
 		return getNetworkMap().get(side);
 	}
 
 	/**
-	 * Replace side's network list.
+	 * Replace the {@link Set<BENetwork>} associated with a {@link Direction} with the provided set.
+	 *
+	 * @param side The {@link Direction} of the block the networks are connected to.
+	 * @param networks The {@link Set<BENetwork>} to be used as a replacement.
 	 */
 	default void setNetworks(Direction side, Set<BENetwork> networks) {
 		getNetworkMap().put(side, networks);
 	}
 
 	/**
-	 * Add network to side.
+	 * Connect this {@link BlockEntity} to a {@link BENetwork}/Add that {@link BENetwork} to the connections on the
+	 * specified side.
+	 *
+	 * @param side The {@link Direction} of the connected {@link BENetwork}.
+	 * @param network The {@link BENetwork} this {@link BlockEntity} is connecting to.
 	 */
 	default void addNetwork(Direction side, BENetwork network) {
 		Set<BENetwork> networks = getNetworks(side);

@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.radio.antenna;
 
+import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 

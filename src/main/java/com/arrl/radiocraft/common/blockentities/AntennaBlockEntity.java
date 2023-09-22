@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.RadiocraftServerConfig;
+import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.benetworks.IBENetworkItem;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
@@ -12,7 +13,6 @@ import com.arrl.radiocraft.common.radio.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.Antenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
-import com.arrl.radiocraft.common.radio.antenna.AntennaTypes;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.radio.antenna;
 
+import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 

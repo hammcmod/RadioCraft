@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.init;
 
-import com.arrl.radiocraft.common.radio.antenna.AntennaTypes;
+import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.common.radio.antenna.types.*;
 
 public class RadiocraftAntennaTypes {
