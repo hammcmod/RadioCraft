@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.api.antenna;
 
-import com.arrl.radiocraft.common.radio.AntennaNetwork;
+import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import de.maxhenkel.voicechat.api.ServerLevel;

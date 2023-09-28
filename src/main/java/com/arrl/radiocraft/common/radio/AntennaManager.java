@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.radio;
 
+import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import net.minecraft.world.level.Level;
 
 import java.util.HashMap;

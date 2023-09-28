@@ -3,7 +3,7 @@ package com.arrl.radiocraft.api.antenna;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
 import net.minecraft.world.level.Level;
 
-import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a network of compatible antennas which can share signals with each other. By default, there is a network
@@ -34,7 +34,7 @@ public interface IAntennaNetwork {
 	/**
 	 * @return A list of all {@link BEAntenna}s present on the network.
 	 */
-	List<IAntenna> allAntennas();
+	Set<IAntenna> allAntennas();
 
 	/**
 	 * @return The {@link Level} this network is contained within.

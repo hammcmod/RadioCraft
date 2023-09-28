@@ -3,17 +3,13 @@ package com.arrl.radiocraft.common.radio.antenna;
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
-import com.arrl.radiocraft.common.radio.AntennaNetwork;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.util.INBTSerializable;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializable<CompoundTag> {
 
@@ -43,7 +39,7 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 
 	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
 		if(network != null) {
-			List<IAntenna> antennas = network.allAntennas();
+			Set<IAntenna> antennas = network.allAntennas();
 
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
@@ -83,7 +79,7 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 
 	public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, int wavelength, int frequency) {
 		if(network != null) {
-			List<IAntenna> antennas = network.allAntennas();
+			Set<IAntenna> antennas = network.allAntennas();
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
 					AntennaMorsePacket packet = new AntennaMorsePacket(level, wavelength, frequency, 1.0F, this);

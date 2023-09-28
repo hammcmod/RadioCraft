@@ -10,7 +10,7 @@ import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.AntennaManager;
-import com.arrl.radiocraft.common.radio.AntennaNetwork;
+import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;

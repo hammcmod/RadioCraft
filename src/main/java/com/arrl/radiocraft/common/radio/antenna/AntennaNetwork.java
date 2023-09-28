@@ -1,16 +1,16 @@
-package com.arrl.radiocraft.common.radio;
+package com.arrl.radiocraft.common.radio.antenna;
 
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaNetwork;
 import net.minecraft.world.level.Level;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class AntennaNetwork implements IAntennaNetwork {
 
-	private final List<IAntenna> antennas = Collections.synchronizedList(new ArrayList<>()); // Synchronized list as it is read by the VoiP thread
+	private final Set<IAntenna> antennas = Collections.synchronizedSet(new HashSet<>()); // Synchronized list as it is read by the VoiP thread
 	private final Level level;
 
 	public AntennaNetwork(Level level) {
@@ -29,7 +29,7 @@ public class AntennaNetwork implements IAntennaNetwork {
 	}
 
 	@Override
-	public List<IAntenna> allAntennas() {
+	public Set<IAntenna> allAntennas() {
 		return antennas;
 	}
 
