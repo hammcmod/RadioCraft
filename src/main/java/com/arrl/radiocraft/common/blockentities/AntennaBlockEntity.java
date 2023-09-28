@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.AntennaTypes;
+import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.benetworks.IBENetworkItem;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
@@ -10,9 +11,9 @@ import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.AntennaManager;
 import com.arrl.radiocraft.common.radio.AntennaNetwork;
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
+import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,12 +26,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.*;
 
 /**
- * Shared BlockEntity for all blocks which act as an antenna-- used for processing packets/sending them to the network, receiving packets from the network & scheduling antenna update checks.
+ * Shared {@link BlockEntity} for all blocks which act as an antenna-- used for processing packets/sending them to the
+ * network, receiving packets from the network & scheduling antenna update checks.
  */
 public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 
 	private final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
-	public Antenna<?> antenna = null;
+	public BEAntenna<?> antenna = null;
 
 	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage. Keep BENetworkEntry to ensure that it uses weak refs.
 	private final List<BENetworkEntry> radios = Collections.synchronizedList(new ArrayList<>());
@@ -78,14 +80,16 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	 */
 	private void updateAntenna() {
 		AntennaNetwork network = AntennaManager.getNetwork(level);
-		antenna = AntennaTypes.match(level, worldPosition);
-		if(antenna != null) {
-			network.addAntenna(worldPosition, antenna);
+		IAntenna a = AntennaTypes.match(level, worldPosition);
+		if(a instanceof BEAntenna<?> newAntenna) {
+			if(antenna != null)
+				network.removeAntenna(antenna);
+
+			antenna = newAntenna;
+			network.addAntenna(antenna);
 			antenna.setNetwork(network);
 			setChanged();
 		}
-		else
-			network.removeAntenna(worldPosition);
 	}
 
 	private void updateConnectedRadios() {
@@ -136,7 +140,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		if(nbt.contains("antennaType")) {
 			IAntennaType<?> type = AntennaTypes.getType(new ResourceLocation(nbt.getString("antennaType")));
 			if(type != null) {
-				antenna = new Antenna<>(type, worldPosition);
+				antenna = new BEAntenna<>(type, worldPosition);
 				antenna.deserializeNBT(nbt.getCompound("antennaData"));
 			}
 		}
@@ -146,7 +150,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	public void onLoad() {
 		if(antenna != null) { // Handle network set here where level is not null
 			AntennaNetwork network = AntennaManager.getNetwork(level);
-			network.addAntenna(worldPosition, antenna);
+			network.addAntenna(antenna);
 			antenna.setNetwork(network);
 		}
 		else {
@@ -156,15 +160,15 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 
 	@Override
 	public void setRemoved() {
-		if(!level.isClientSide)
-			AntennaManager.getNetwork(level).removeAntenna(worldPosition);
+		if(!level.isClientSide && antenna != null)
+			AntennaManager.getNetwork(level).removeAntenna(antenna);
 		super.setRemoved();
 	}
 
 	@Override
 	public void onChunkUnloaded() {
-		if(!level.isClientSide)
-			AntennaManager.getNetwork(level).removeAntenna(worldPosition);
+		if(!level.isClientSide && antenna != null)
+			AntennaManager.getNetwork(level).removeAntenna(antenna);
 		super.onChunkUnloaded();
 	}
 

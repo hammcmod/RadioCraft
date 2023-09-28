@@ -6,7 +6,7 @@ import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.BandUtils;
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
+import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
@@ -29,7 +29,7 @@ public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQua
 	}
 
 	@Override
-	public Antenna<HorizontalQuadLoopAntennaData> match(Level level, BlockPos pos) {
+	public BEAntenna<HorizontalQuadLoopAntennaData> match(Level level, BlockPos pos) {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
 			return null; // Do not match if center block is not a 2:1 balun.
 
@@ -67,7 +67,7 @@ public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQua
 			return null; // Return null if the quad is not a square.
 
 		int sideLength = (int)Math.sqrt(Math.round(squarePoints.get(0).distSqr(squarePoints.get(1))));
-		return new Antenna<>(this, pos, new HorizontalQuadLoopAntennaData(sideLength));
+		return new BEAntenna<>(this, pos, new HorizontalQuadLoopAntennaData(sideLength));
 	}
 
 	public boolean isSquare(List<BlockPos> points) {
@@ -87,7 +87,7 @@ public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQua
 
 	@Override
 	public double getSSBTransmitStrength(AntennaVoicePacket packet, HorizontalQuadLoopAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().distSqr(destination));
+		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
 		double baseStrength = BandUtils.getSSBBaseStrength(packet.getWavelength(), distance, 0.25D, 1.25D, level.isDay());
@@ -96,7 +96,7 @@ public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQua
 
 	@Override
 	public double getCWTransmitStrength(AntennaMorsePacket packet, HorizontalQuadLoopAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().distSqr(destination));
+		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
 
 		double baseStrength = BandUtils.getCWBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, packet.getLevel().isDay());
 		return baseStrength * getEfficiency(packet.getWavelength(), data);

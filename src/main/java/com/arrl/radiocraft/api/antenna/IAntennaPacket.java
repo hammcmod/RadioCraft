@@ -1,11 +1,10 @@
 package com.arrl.radiocraft.api.antenna;
 
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
-import net.minecraft.core.BlockPos;
+import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
 
 /**
- * An object representing data being sent between two {@link Antenna}s.
+ * An object representing data being sent between two {@link BEAntenna}s.
  *
  * <p>See {@link AntennaMorsePacket} for an example implementation of {@link IAntennaPacket}</p>
  */
@@ -27,8 +26,8 @@ public interface IAntennaPacket {
 	double getStrength();
 
 	/**
-	 * @return The {@link BlockPos} the signal originated from.
+	 * @return The {@link IAntenna} the signal originated from.
 	 */
-	BlockPos getSource();
+	IAntenna getSource();
 
 }

@@ -1,43 +1,39 @@
 package com.arrl.radiocraft.common.radio;
 
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
-import net.minecraft.core.BlockPos;
+import com.arrl.radiocraft.api.antenna.IAntenna;
+import com.arrl.radiocraft.api.antenna.IAntennaNetwork;
 import net.minecraft.world.level.Level;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
-public class AntennaNetwork  {
+public class AntennaNetwork implements IAntennaNetwork {
 
-	private final Map<BlockPos, Antenna<?>> antennas = new ConcurrentHashMap<>(); // Concurrent map as it is read by the VoiP thread
+	private final List<IAntenna> antennas = Collections.synchronizedList(new ArrayList<>()); // Synchronized list as it is read by the VoiP thread
 	private final Level level;
 
 	public AntennaNetwork(Level level) {
 		this.level = level;
 	}
 
-	/**
-	 * Do not call this from the VoiP thread
-	 */
-	public void addAntenna(BlockPos pos, Antenna<?> antenna) {
-		antennas.put(pos, antenna);
+	@Override
+	public IAntenna addAntenna(IAntenna antenna) {
+		antennas.add(antenna);
+		return antenna;
 	}
 
-	/**
-	 * Do not call this from the VoiP thread
-	 */
-	public void removeAntenna(BlockPos pos) {
-		antennas.remove(pos);
+	@Override
+	public void removeAntenna(IAntenna antenna) {
+		antennas.remove(antenna);
 	}
 
-	public Antenna<?> getAntenna(BlockPos pos) {
-		return antennas.get(pos);
-	}
-
-	public Map<BlockPos, Antenna<?>> allAntennas() {
+	@Override
+	public List<IAntenna> allAntennas() {
 		return antennas;
 	}
 
+	@Override
 	public Level getLevel() {
 		return level;
 	}

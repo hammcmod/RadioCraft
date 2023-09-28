@@ -6,7 +6,7 @@ import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.BandUtils;
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
+import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
@@ -29,7 +29,7 @@ public class EndFedAntennaType implements IAntennaType<EndFedAntennaData> {
 	}
 
 	@Override
-	public Antenna<EndFedAntennaData> match(Level level, BlockPos pos) {
+	public BEAntenna<EndFedAntennaData> match(Level level, BlockPos pos) {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
 			return null; // Do not match if center block is not a 1:1 balun.
 
@@ -49,12 +49,12 @@ public class EndFedAntennaType implements IAntennaType<EndFedAntennaData> {
 		BlockPos relativeBlockPos = end.subtract(pos);
 		Vec3 relative = new Vec3(relativeBlockPos.getX(), relativeBlockPos.getY(), relativeBlockPos.getZ());
 
-		return new Antenna<>(this, pos, new EndFedAntennaData(relative.length()));
+		return new BEAntenna<>(this, pos, new EndFedAntennaData(relative.length()));
 	}
 
 	@Override
 	public double getSSBTransmitStrength(AntennaVoicePacket packet, EndFedAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().distSqr(destination));
+		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
 		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
 
 		double baseStrength = BandUtils.getSSBBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, level.isDay());
@@ -63,7 +63,7 @@ public class EndFedAntennaType implements IAntennaType<EndFedAntennaData> {
 
 	@Override
 	public double getCWTransmitStrength(AntennaMorsePacket packet, EndFedAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().distSqr(destination));
+		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
 
 		double baseStrength = BandUtils.getCWBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, packet.getLevel().isDay());
 		return baseStrength * getEfficiency(packet.getWavelength(), data);

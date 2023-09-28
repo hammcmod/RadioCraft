@@ -1,8 +1,8 @@
 package com.arrl.radiocraft.common.radio.antenna;
 
+import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import de.maxhenkel.voicechat.api.ServerLevel;
-import net.minecraft.core.BlockPos;
 
 import java.util.UUID;
 
@@ -13,11 +13,11 @@ public class AntennaVoicePacket implements IAntennaPacket {
 	private final int wavelength;
 	private final int frequency;
 	private double strength;
-	private final BlockPos source;
+	private final IAntenna source;
 	private final UUID sourcePlayer;
 
 
-	public AntennaVoicePacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, double strength, BlockPos source, UUID sourcePlayer) {
+	public AntennaVoicePacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, double strength, IAntenna source, UUID sourcePlayer) {
 		this.level = level;
 		this.rawAudio = rawAudio;
 		this.wavelength = wavelength;
@@ -25,6 +25,26 @@ public class AntennaVoicePacket implements IAntennaPacket {
 		this.strength = strength;
 		this.source = source;
 		this.sourcePlayer = sourcePlayer;
+	}
+
+	@Override
+	public int getWavelength() {
+		return wavelength;
+	}
+
+	@Override
+	public int getFrequency() {
+		return frequency;
+	}
+
+	@Override
+	public double getStrength() {
+		return strength;
+	}
+
+	@Override
+	public IAntenna getSource() {
+		return source;
 	}
 
 	public ServerLevel getLevel() {
@@ -35,24 +55,8 @@ public class AntennaVoicePacket implements IAntennaPacket {
 		return rawAudio;
 	}
 
-	public int getWavelength() {
-		return wavelength;
-	}
-
-	public int getFrequency() {
-		return frequency;
-	}
-
-	public double getStrength() {
-		return strength;
-	}
-
 	public void setStrength(double strength) {
 		this.strength = strength;
-	}
-
-	public BlockPos getSource() {
-		return source;
 	}
 
 	public UUID getSourcePlayer() {

@@ -36,7 +36,7 @@ public interface IAntennaType<T extends AntennaData> {
 	 *
 	 * @return The matching antenna, otherwise null if no match is found.
 	 */
-	Antenna<T> match(Level level, BlockPos pos);
+	BEAntenna<T> match(Level level, BlockPos pos);
 
 	/**
 	 * Get the strength multiplier for transmitting an SSB voice packet to a given destination.
