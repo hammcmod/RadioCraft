@@ -9,7 +9,7 @@ import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import java.util.UUID;
 
 /**
- * Represents a radio block entity
+ * Representation of a Radio which receives voice transmissions.
  */
 public class Radio {
 

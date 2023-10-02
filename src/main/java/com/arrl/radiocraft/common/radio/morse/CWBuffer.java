@@ -1,12 +1,12 @@
 package com.arrl.radiocraft.common.radio.morse;
 
-public class CWInputBuffer {
+public class CWBuffer {
 
 	public static final int BUFFER_LENGTH = 20;
 	private final int id;
 	private final boolean[] inputs;
 
-	public CWInputBuffer(int id, boolean[] inputs) {
+	public CWBuffer(int id, boolean[] inputs) {
 		this.id = id;
 
 		if(inputs.length == BUFFER_LENGTH)

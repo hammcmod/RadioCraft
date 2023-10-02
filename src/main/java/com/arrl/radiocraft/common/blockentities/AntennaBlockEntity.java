@@ -10,10 +10,11 @@ import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.AntennaManager;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,8 +47,8 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
 	}
 
-	public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, int wavelength, int frequency) {
-		antenna.transmitMorsePacket(level, wavelength, frequency);
+	public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
+		antenna.transmitMorsePacket(level, buffers, wavelength, frequency);
 	}
 
 	/**
@@ -68,6 +69,8 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	public void receiveMorsePacket(AntennaMorsePacket packet) {
 		if(radios.size() == 1) {
 			AbstractRadioBlockEntity radio = (AbstractRadioBlockEntity)radios.get(0).getNetworkItem();
+			if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
+				radio.receiveMorse(packet);
 		}
 		else if(radios.size() > 1) {
 			for(BENetworkEntry entry : radios)
@@ -150,6 +153,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	public void onLoad() {
 		if(antenna != null) { // Handle network set here where level is not null
 			AntennaNetwork network = AntennaManager.getNetwork(level);
+			network.removeAntenna(antenna); // Just in case the antenna obj was somehow re-created.
 			network.addAntenna(antenna);
 			antenna.setNetwork(network);
 		}

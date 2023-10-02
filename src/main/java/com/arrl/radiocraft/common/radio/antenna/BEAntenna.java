@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.radio.antenna;
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
+import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -37,6 +38,7 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 		this.pos = pos;
 	}
 
+	@Override
 	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
@@ -76,13 +78,13 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 		}
 	}
 
-
-	public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, int wavelength, int frequency) {
+	@Override
+	public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
-					AntennaMorsePacket packet = new AntennaMorsePacket(level, wavelength, frequency, 1.0F, this);
+					AntennaMorsePacket packet = new AntennaMorsePacket(level, buffers, wavelength, frequency, 1.0F, this);
 
 					// Calculate the strength this packet should be sent at.
 					BlockPos destination = antenna.getPos();

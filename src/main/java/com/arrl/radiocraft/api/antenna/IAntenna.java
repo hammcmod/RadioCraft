@@ -1,13 +1,15 @@
 package com.arrl.radiocraft.api.antenna;
 
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
+import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.Collection;
 import java.util.UUID;
 
 /**
@@ -41,7 +43,7 @@ public interface IAntenna {
 	 * @param wavelength The wavelength of the transmission.
 	 * @param frequency The frequency of the transmission.
 	 */
-	void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, int wavelength, int frequency);
+	void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency);
 
 	/**
 	 * Handle receiving a morse packet from another {@link IAntenna} on the network.

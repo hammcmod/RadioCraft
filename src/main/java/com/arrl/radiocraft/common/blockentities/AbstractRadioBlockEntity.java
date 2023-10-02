@@ -6,10 +6,14 @@ import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftData;
+import com.arrl.radiocraft.common.init.RadiocraftPackets;
+import com.arrl.radiocraft.common.network.packets.CWBufferPacket;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.Radio;
 import com.arrl.radiocraft.common.radio.RadioManager;
-import com.arrl.radiocraft.common.radio.morse.CWRadioBuffer;
+import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.morse.CWBuffer;
+import com.arrl.radiocraft.common.radio.morse.CWReceiveBuffer;
 import com.arrl.radiocraft.common.radio.morse.CWSendBuffer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -41,11 +45,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	private boolean shouldOverDraw = false; // Use this for overdraws as voice thread will be the one calling it and game logic should run on server thread.
 
 	private int frequency; // Frequency the radio is currently using (in kHz)
-	private boolean isReceiving = false; // Only gets read clientside to determine the static sounds.
 	private boolean isPTTDown = false; // Used by PTT button packets
-
-	private CWRadioBuffer cwBuffer; // This is only instantiated clientside, used to receive CW sounds.
-	private final CWSendBuffer cwSendBuffer;
 
 	protected final ContainerData fields = new ContainerData() {
 
@@ -72,6 +72,13 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 	};
 
+	/**
+	 * The following fields are only used client-side.
+	 */
+	private CWReceiveBuffer cwReceiveBuffer; // For receiving CW sounds, gets read by RadioMorseSoundInstance.
+	private CWSendBuffer cwSendBuffer; // For sending CW buffers to the server, which handles them via transmitMorse.
+	private boolean isReceiving = false; // To determine if static sound plays or not.
+
 
 	public AbstractRadioBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int receiveUsePower, int transmitUsePower, int wavelength) {
 		super(type, pos, state, transmitUsePower, transmitUsePower);
@@ -79,7 +86,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		this.transmitUsePower = transmitUsePower;
 		this.wavelength = wavelength;
 		this.frequency = RadiocraftData.BANDS.getValue(wavelength).minFrequency();
-		this.cwSendBuffer = new CWSendBuffer(pos);
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
@@ -94,7 +100,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 				}
 
 				// Radio tick logic doesn't need anything special, all the voice communications are handled outside the tick loop.
-				if(be.ssbEnabled) {
+				if(be.getSSBEnabled() || be.getCWEnabled()) {
 					if(be.isPTTDown) {
 						if(!be.tryConsumePower(be.getTransmitUsePower(), false)) // Turns off if it can't pull enough power for transmission.
 							be.powerOff();
@@ -104,18 +110,10 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 							be.powerOff();
 					}
 				}
-				else if(be.cwEnabled) {
-					if(be.isPTTDown()) {
-						if(be.antennas.size() == 1)
-							((AntennaBlockEntity) be.antennas.get(0).getNetworkItem()).transmitMorsePacket((ServerLevel) level, be.wavelength, be.frequency);
-						else if(be.antennas.size() > 1)
-							be.overdraw();
-					}
-				}
 
 			}
 			else {
-				be.cwSendBuffer.tick(); // Tick the send buffer here, it polls inputs every tick to see if it should send
+				be.getCWSendBuffer().tick(); // Tick the CW send buffer here, it polls inputs every tick to see if it should send.
 			}
 		}
 	}
@@ -128,11 +126,20 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	}
 
 	public void accumulateCWInput() {
-		this.cwSendBuffer.setShouldAccumulate();
+		this.getCWSendBuffer().setShouldAccumulate();
 	}
 
-	public CWRadioBuffer getCWBuffer() {
-		return cwBuffer;
+	public CWReceiveBuffer getCWReceiveBuffer() {
+		if(cwReceiveBuffer == null)
+			cwReceiveBuffer = new CWReceiveBuffer();
+		return cwReceiveBuffer;
+	}
+
+
+	public CWSendBuffer getCWSendBuffer() {
+		if(cwSendBuffer == null)
+			cwSendBuffer = new CWSendBuffer(level.dimension(), worldPosition);
+		return cwSendBuffer;
 	}
 
 	/**
@@ -163,8 +170,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 			setChanged();
 		}
 	}
-
-
 
 	public boolean isPowered() {
 		return isPowered;
@@ -255,7 +260,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		frequency = Mth.clamp(frequency + step * stepCount, min, max);
 		setChanged();
 	}
-
 
 	@Override
 	protected void saveAdditional(CompoundTag nbt) {
@@ -374,6 +378,8 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		shouldOverDraw = true;
 	}
 
+
+
 	/**
 	 * Process voice packet to broadcast to other radios. Called from voice thread.
 	 */
@@ -384,6 +390,39 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 					((AntennaBlockEntity) antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
 				else if(antennas.size() > 1)
 					overdraw();
+			}
+		}
+	}
+
+	/**
+	 * Attempts to broadcast a set of CW buffers to other radios.
+	 */
+	public void transmitMorse(Collection<CWBuffer> buffers) {
+		if(cwEnabled) {
+			if(isPowered) {
+				if(level instanceof ServerLevel serverLevel) {
+					if(antennas.size() == 1)
+						((AntennaBlockEntity) antennas.get(0).getNetworkItem()).transmitMorsePacket(serverLevel, buffers, wavelength, frequency);
+					else if(antennas.size() > 1)
+						overdraw();
+				}
+			}
+		}
+	}
+
+	/**
+	 * Handles the (server-side) receiving of a morse packet from a connected antenna.
+	 */
+	public void receiveMorse(AntennaMorsePacket packet) {
+		if(cwEnabled) {
+			if(isPowered) {
+				if(!level.isClientSide) {
+					if(antennas.size() == 1)
+						// Send necessary buffers to clients tracking this BE, these will get re-ordered and then played back on the client.
+						RadiocraftPackets.sendToTrackingChunk(new CWBufferPacket(level.dimension(), worldPosition, packet.getBuffers(), (float)packet.getStrength()), level.getChunkAt(worldPosition));
+					else if(antennas.size() > 1)
+						overdraw();
+				}
 			}
 		}
 	}
