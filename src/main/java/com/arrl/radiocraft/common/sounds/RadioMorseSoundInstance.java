@@ -18,7 +18,7 @@ public class RadioMorseSoundInstance extends AbstractTickableSoundInstance {
 		this.x = radio.getBlockPos().getX() + 0.5D;
 		this.y = radio.getBlockPos().getY() + 0.5D;
 		this.z = radio.getBlockPos().getZ() + 0.5D;
-		this.volume = 1.0F;
+		this.volume = 0.0F;
 	}
 
 	@Override
@@ -26,7 +26,7 @@ public class RadioMorseSoundInstance extends AbstractTickableSoundInstance {
 		if(radio.isRemoved())
 			stop();
 		else {
-			volume = 0.0F;
+			volume = radio.getCWReceiveBuffer().getNextStrength();
 		}
 	}
 
