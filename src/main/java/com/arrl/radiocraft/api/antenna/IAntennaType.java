@@ -24,7 +24,7 @@ public interface IAntennaType<T extends AntennaData> {
 
 	/**
 	 * @return The {@link ResourceLocation} used to identify this {@link IAntennaType} within the registry, as well as
-	 * save/load it's data.
+	 * save/load its data.
 	 */
 	ResourceLocation getId();
 
@@ -47,7 +47,9 @@ public interface IAntennaType<T extends AntennaData> {
 	 *
 	 * @return The strength multiplier to be applied to the given {@link AntennaVoicePacket}.
 	 */
-	double getSSBTransmitStrength(AntennaVoicePacket packet, T data, BlockPos destination);
+	default double getSSBTransmitStrength(AntennaVoicePacket packet, T data, BlockPos destination) {
+		return 0.0D;
+	}
 
 
 	/**
@@ -59,7 +61,9 @@ public interface IAntennaType<T extends AntennaData> {
 	 *
 	 * @return The strength multiplier to be applied to the given {@link AntennaMorsePacket}.
 	 */
-	double getCWTransmitStrength(AntennaMorsePacket packet, T data, BlockPos destination);
+	default double getCWTransmitStrength(AntennaMorsePacket packet, T data, BlockPos destination) {
+		return 0.0D;
+	}
 
 	/**
 	 * Calculate the strength multiplier for receiving a packet from a given position.
@@ -70,7 +74,9 @@ public interface IAntennaType<T extends AntennaData> {
 	 *
 	 * @return The strength multiplier to be applied to the given {@link IAntennaPacket}.
 	 */
-	double getReceiveStrength(IAntennaPacket packet, T data, BlockPos pos);
+	default double getReceiveStrength(IAntennaPacket packet, T data, BlockPos pos) {
+		return 0.0D;
+	}
 
 	/**
 	 * Get an {@link AntennaData} instance which represents the default starting values for this {@link IAntennaType}.

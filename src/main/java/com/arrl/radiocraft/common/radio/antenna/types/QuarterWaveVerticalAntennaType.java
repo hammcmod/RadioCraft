@@ -30,7 +30,7 @@ public class QuarterWaveVerticalAntennaType implements IAntennaType<QuarterWaveV
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
 			return null; // Do not match if center block is not a 1:1 balun.
 
-		if(AntennaWire.getWires(level, pos).size() > 0)
+		if(!AntennaWire.getWires(level, pos).isEmpty())
 			return null; // Do not match if there are any wires connected to center block.
 
 		int height = getHeight(level, pos);
