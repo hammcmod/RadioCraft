@@ -9,7 +9,7 @@ import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
-import com.arrl.radiocraft.common.radio.AntennaManager;
+import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
@@ -34,6 +34,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 
 	private final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
 	public BEAntenna<?> antenna = null;
+	private final ResourceLocation networkId;
 
 	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage. Keep BENetworkEntry to ensure that it uses weak refs.
 	private final List<BENetworkEntry> radios = Collections.synchronizedList(new ArrayList<>());
@@ -41,6 +42,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 
 	public AntennaBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.ANTENNA.get(), pos, state);
+		this.networkId = AntennaNetworkManager.HF_ID;
 	}
 
 	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
@@ -82,7 +84,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	 * Updates the antenna at this position in the world
 	 */
 	private void updateAntenna() {
-		AntennaNetwork network = AntennaManager.getNetwork(level);
+		AntennaNetwork network = AntennaNetworkManager.getNetwork(level, networkId);
 		IAntenna a = AntennaTypes.match(level, worldPosition);
 		if(a instanceof BEAntenna<?> newAntenna) {
 			if(antenna != null)
@@ -152,7 +154,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	@Override
 	public void onLoad() {
 		if(antenna != null) { // Handle network set here where level is not null
-			AntennaNetwork network = AntennaManager.getNetwork(level);
+			AntennaNetwork network = AntennaNetworkManager.getNetwork(level, networkId);
 			network.removeAntenna(antenna); // Just in case the antenna obj was somehow re-created.
 			network.addAntenna(antenna);
 			antenna.setNetwork(network);
@@ -165,14 +167,14 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	@Override
 	public void setRemoved() {
 		if(!level.isClientSide && antenna != null)
-			AntennaManager.getNetwork(level).removeAntenna(antenna);
+			AntennaNetworkManager.getNetwork(level, networkId).removeAntenna(antenna);
 		super.setRemoved();
 	}
 
 	@Override
 	public void onChunkUnloaded() {
 		if(!level.isClientSide && antenna != null)
-			AntennaManager.getNetwork(level).removeAntenna(antenna);
+			AntennaNetworkManager.getNetwork(level, networkId).removeAntenna(antenna);
 		super.onChunkUnloaded();
 	}
 

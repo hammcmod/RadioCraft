@@ -20,6 +20,8 @@ public class AttachCapabilitiesEvents {
 
 		if(!level.isClientSide && level.dimension() == Level.OVERWORLD)
 			event.addCapability(Radiocraft.location("callsigns"), new CallsignCapabilityProvider());
+
+		event.addCapability(Radiocraft.location("antenna_networks"), new AntennaNetworkCapabilityProvider());
 	}
 
 	@SubscribeEvent
