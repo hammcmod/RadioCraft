@@ -4,12 +4,14 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
+import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 
 import java.util.UUID;
 
 /**
- * Representation of a Radio which receives voice transmissions.
+ * {@link Radio} is used for interacting with the Simple Voice Chat API to send sound packets being received by a Radio.
+ * PCM audio gets re-encoded here and sent on an {@link AudioChannel}.
  */
 public class Radio {
 

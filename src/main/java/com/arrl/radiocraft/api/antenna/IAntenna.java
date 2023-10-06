@@ -1,11 +1,11 @@
 package com.arrl.radiocraft.api.antenna;
 
-import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
+import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
+import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
-import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -16,7 +16,7 @@ import java.util.UUID;
  * {@link IAntenna} is an intermediary object acting as a link between the packets being sent around an
  * {@link IAntennaNetwork} and the {@link Level} the antennas are in.
  *
- * <p>See {@link AntennaNetwork} for an example implementation of this, where {@link IAntenna}s interact with
+ * <p>See {@link BEAntenna} for an example implementation of this, where {@link IAntenna}s interact with
  * {@link BlockEntity}s. Caching the values from transmit and receive strengths is highly recommended.</p>
  */
 public interface IAntenna {
@@ -29,7 +29,7 @@ public interface IAntenna {
 	 * @param frequency The frequency of the transmission.
 	 * @param sourcePlayer The {@link UUID} of the player who sent the audio. Used for opus encoding/decoding.
 	 */
-	void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer);
+	void transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer);
 
 	/**
 	 * Handle receiving an audio packet from another {@link IAntenna} on the network.
@@ -38,18 +38,19 @@ public interface IAntenna {
 	void receiveAudioPacket(AntennaVoicePacket packet);
 
 	/**
-	 * Transmit a morse packet to other {@link IAntenna}s on the network.
-	 * @param level The {@link ServerLevel} object (SVC API) for this {@link IAntenna}'s {@link Level}.
+	 * Transmit a CW/morse packet to other {@link IAntenna}s on the network.
+	 * @param level The {@link ServerLevel} object for this {@link IAntenna}.
+	 * @param buffers The {@link CWBuffer}s being sent, may not be in order.
 	 * @param wavelength The wavelength of the transmission.
 	 * @param frequency The frequency of the transmission.
 	 */
-	void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency);
+	void transmitCWPacket(ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency);
 
 	/**
-	 * Handle receiving a morse packet from another {@link IAntenna} on the network.
-	 * @param packet The {@link AntennaMorsePacket} being received.
+	 * Handle receiving a CW/morse packet from another {@link IAntenna} on the network.
+	 * @param packet The {@link AntennaCWPacket} being received.
 	 */
-	void receiveMorsePacket(AntennaMorsePacket packet);
+	void receiveCWPacket(AntennaCWPacket packet);
 
 	/**
 	 * @return The {@link BlockPos} containing this {@link IAntenna}. Used for calculating signal strengths.

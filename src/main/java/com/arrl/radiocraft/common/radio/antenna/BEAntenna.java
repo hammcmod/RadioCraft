@@ -79,12 +79,12 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 	}
 
 	@Override
-	public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
+	public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
-					AntennaMorsePacket packet = new AntennaMorsePacket(level, buffers, wavelength, frequency, 1.0F, this);
+					AntennaCWPacket packet = new AntennaCWPacket(level, buffers, wavelength, frequency, 1.0F, this);
 
 					// Calculate the strength this packet should be sent at.
 					BlockPos destination = antenna.getPos();
@@ -95,14 +95,14 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 						cwSendCache.put(destination, packet.getStrength());
 					}
 
-					antenna.receiveMorsePacket(packet);
+					antenna.receiveCWPacket(packet);
 				}
 			}
 		}
 	}
 
 	@Override
-	public void receiveMorsePacket(AntennaMorsePacket packet) {
+	public void receiveCWPacket(AntennaCWPacket packet) {
 		if(network.getLevel().getBlockEntity(pos) instanceof AntennaBlockEntity be) {
 
 			BlockPos source = packet.getSource().getPos();

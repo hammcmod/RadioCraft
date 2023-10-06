@@ -40,6 +40,7 @@ public class Radiocraft {
     private static void registerRegistries() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
+        RadiocraftAntennaTypes.register();
         RadiocraftBlocks.BLOCKS.register(modEventBus);
         RadiocraftItems.ITEMS.register(modEventBus);
         RadiocraftBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);

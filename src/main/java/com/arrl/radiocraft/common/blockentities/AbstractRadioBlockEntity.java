@@ -11,7 +11,7 @@ import com.arrl.radiocraft.common.network.packets.CWBufferPacket;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.Radio;
 import com.arrl.radiocraft.common.radio.RadioManager;
-import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.morse.CWReceiveBuffer;
 import com.arrl.radiocraft.common.radio.morse.CWSendBuffer;
@@ -413,7 +413,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	/**
 	 * Handles the (server-side) receiving of a morse packet from a connected antenna.
 	 */
-	public void receiveMorse(AntennaMorsePacket packet) {
+	public void receiveMorse(AntennaCWPacket packet) {
 		if(cwEnabled) {
 			if(isPowered) {
 				if(!level.isClientSide) {

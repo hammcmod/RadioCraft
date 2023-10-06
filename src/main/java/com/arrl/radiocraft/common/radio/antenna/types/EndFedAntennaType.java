@@ -7,7 +7,7 @@ import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.radio.antenna.types.data.EndFedAntennaData;
@@ -62,7 +62,7 @@ public class EndFedAntennaType implements IAntennaType<EndFedAntennaData> {
 	}
 
 	@Override
-	public double getCWTransmitStrength(AntennaMorsePacket packet, EndFedAntennaData data, BlockPos destination) {
+	public double getCWTransmitStrength(AntennaCWPacket packet, EndFedAntennaData data, BlockPos destination) {
 		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
 
 		double baseStrength = BandUtils.getCWBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, packet.getLevel().isDay());

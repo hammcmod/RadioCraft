@@ -55,13 +55,13 @@ public interface IAntennaType<T extends AntennaData> {
 	/**
 	 * Get the strength multiplier for transmitting an CW voice packet to a given destination.
 	 *
-	 * @param packet The {@link AntennaMorsePacket} to be sent.
+	 * @param packet The {@link AntennaCWPacket} to be sent.
 	 * @param data The {@link AntennaData} of the sending antenna.
-	 * @param destination The position the {@link AntennaMorsePacket} is being sent to.
+	 * @param destination The position the {@link AntennaCWPacket} is being sent to.
 	 *
-	 * @return The strength multiplier to be applied to the given {@link AntennaMorsePacket}.
+	 * @return The strength multiplier to be applied to the given {@link AntennaCWPacket}.
 	 */
-	default double getCWTransmitStrength(AntennaMorsePacket packet, T data, BlockPos destination) {
+	default double getCWTransmitStrength(AntennaCWPacket packet, T data, BlockPos destination) {
 		return 0.0D;
 	}
 

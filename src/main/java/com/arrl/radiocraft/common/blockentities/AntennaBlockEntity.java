@@ -10,7 +10,7 @@ import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
-import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
@@ -50,7 +50,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	}
 
 	public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
-		antenna.transmitMorsePacket(level, buffers, wavelength, frequency);
+		antenna.transmitCWPacket(level, buffers, wavelength, frequency);
 	}
 
 	/**
@@ -68,7 +68,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		}
 	}
 
-	public void receiveMorsePacket(AntennaMorsePacket packet) {
+	public void receiveMorsePacket(AntennaCWPacket packet) {
 		if(radios.size() == 1) {
 			AbstractRadioBlockEntity radio = (AbstractRadioBlockEntity)radios.get(0).getNetworkItem();
 			if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.

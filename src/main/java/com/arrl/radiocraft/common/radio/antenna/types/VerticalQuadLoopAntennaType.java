@@ -7,7 +7,7 @@ import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaMorsePacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.radio.antenna.types.data.VerticalQuadLoopAntennaData;
@@ -114,7 +114,7 @@ public class VerticalQuadLoopAntennaType implements IAntennaType<VerticalQuadLoo
 	}
 
 	@Override
-	public double getCWTransmitStrength(AntennaMorsePacket packet, VerticalQuadLoopAntennaData data, BlockPos destination) {
+	public double getCWTransmitStrength(AntennaCWPacket packet, VerticalQuadLoopAntennaData data, BlockPos destination) {
 		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
 
 		double baseStrength = BandUtils.getCWBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, packet.getLevel().isDay());

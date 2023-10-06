@@ -7,7 +7,7 @@ import net.minecraft.server.level.ServerLevel;
 
 import java.util.Collection;
 
-public class AntennaMorsePacket implements IAntennaPacket {
+public class AntennaCWPacket implements IAntennaPacket {
 
 	private final ServerLevel level;
 	private final Collection<CWBuffer> buffers;
@@ -16,7 +16,7 @@ public class AntennaMorsePacket implements IAntennaPacket {
 	private double strength;
 	private final IAntenna source;
 
-	public AntennaMorsePacket(ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency, double strength, IAntenna source) {
+	public AntennaCWPacket(ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency, double strength, IAntenna source) {
 		this.level = level;
 		this.buffers = buffers;
 		this.wavelength = wavelength;
