@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class HFRadio40mBlockEntity extends AbstractRadioBlockEntity {
+public class HFRadio40mBlockEntity extends HFRadioBlockEntity {
 
 	public HFRadio40mBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.HF_RADIO_40M.get(), pos, state, RadiocraftCommonConfig.HF_RADIO_40M_RECEIVE_TICK.get(), RadiocraftCommonConfig.HF_RADIO_40M_TRANSMIT_TICK.get(), 40);

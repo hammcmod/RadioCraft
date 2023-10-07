@@ -17,7 +17,7 @@ public interface ICWReceiver {
 	 * @return The {@link CWReceiveBuffer} for this receiver, which is what receives and sorts {@link CWBuffer}s from
 	 * {@link CWBufferPacket}s on the client.
 	 */
-	CWReceiveBuffer getReceiveBuffer();
+	CWReceiveBuffer getCWReceiveBuffer();
 
 	/**
 	 * @return True if this receiver is currently open to receive CW/morse. Checks for if CW mode is enabled, power is

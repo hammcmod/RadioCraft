@@ -6,7 +6,6 @@ import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
-import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
 import com.arrl.radiocraft.common.network.packets.serverbound.*;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -19,13 +18,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public abstract class AbstractHFRadioScreen extends AbstractContainerScreen<AbstractHFRadioMenu> {
+public abstract class AbstractRadioScreen extends AbstractContainerScreen<AbstractHFRadioMenu> {
 
 	protected final ResourceLocation texture;
 	protected final ResourceLocation widgetsTexture;
 	protected final AbstractHFRadioMenu container;
 
-	public AbstractHFRadioScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title, ResourceLocation texture, ResourceLocation widgetsTexture) {
+	public AbstractRadioScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title, ResourceLocation texture, ResourceLocation widgetsTexture) {
 		super(container, playerInventory, title);
 		this.container = container;
 		this.texture = texture;

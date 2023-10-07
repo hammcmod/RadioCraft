@@ -3,18 +3,22 @@ package com.arrl.radiocraft.common.blockentities;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceReceiver;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
-import com.arrl.radiocraft.client.blockentity.AbstractRadioBlockEntityClientHandler;
+import com.arrl.radiocraft.client.blockentity.RadioBlockEntityClientHandler;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.Radio;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
+import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
@@ -24,19 +28,46 @@ import java.util.*;
 
 public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE, IVoiceTransmitter, IVoiceReceiver {
 
-    private final List<BENetwork.BENetworkEntry> antennas = Collections.synchronizedList(new ArrayList<>());
+    protected final List<BENetwork.BENetworkEntry> antennas = Collections.synchronizedList(new ArrayList<>());
 
-    private boolean isPowered = false;
-    private boolean ssbEnabled = false;
-    private boolean isPTTDown = false; // Used by PTT button packets
+    protected boolean isPowered = false;
+    protected boolean ssbEnabled = false;
+    protected boolean isPTTDown = false; // Used by PTT button packets
 
-    private int wavelength; // Wavelength the frequency is currently on, usually not changed.
-    private int frequency; // Frequency the radio is currently using (in kHz)
+    protected int wavelength; // Wavelength the frequency is currently on, usually not changed.
+    protected int frequency; // Frequency the radio is currently using (in kHz)
 
+    protected final Radio radio; // Acts as a container for voip channel info
+    protected final int receiveUsePower;
+    protected final int transmitUsePower;
 
-    private Radio radio; // Acts as a container for voip channel info
-    private final int receiveUsePower;
-    private final int transmitUsePower;
+    protected final ContainerData fields = new ContainerData() {
+
+        @Override
+        public int get(int index) {
+			return switch(index) {
+				case 0 -> frequency;
+				case 1 -> wavelength;
+				default -> 0;
+			};
+        }
+
+        @Override
+        public void set(int index, int value) {
+            switch(index) {
+                case 0:
+                    frequency = value;
+                case 1:
+                    wavelength = value;
+            }
+        }
+
+        @Override
+        public int getCount() {
+            return 2;
+        }
+
+    };
 
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, int receiveUsePower, int transmitUsePower, int wavelength) {
         super(type, pos, state, transmitUsePower, transmitUsePower);
@@ -45,6 +76,21 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         this.wavelength = wavelength;
         this.frequency = RadiocraftData.BANDS.getValue(wavelength).minFrequency();
         this.radio = new Radio(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
+        if(t instanceof RadioBlockEntity be && be.isPowered) {
+            if(!level.isClientSide) {
+                if(!be.tryConsumePower(be.getPowerConsumption(), false)) // Turns off if it can't pull enough power for receiving.
+                    be.powerOff();
+            }
+            be.additionalTick();
+        }
+    }
+
+    // Override this for any additional ticks needed like CWSendBuffers
+    protected void additionalTick() {
+
     }
 
     // -------------------- POWER IMPLEMENTATION --------------------
@@ -91,6 +137,17 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         return transmitUsePower;
     }
 
+    /**
+     * @return The power which needs to be consumed in this tick.
+     */
+    public int getPowerConsumption() {
+        return ssbEnabled ? getTransmitUsePower() : getReceiveUsePower();
+    }
+
+    public void overdraw() {
+
+    }
+
     // -------------------- VOICE/RADIO IMPLEMENTATION --------------------
 
     @Override
@@ -103,13 +160,6 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
     }
 
     public void setSSBEnabled(boolean value) {
-        if(value) {
-            if(!isPTTDown)
-                setReceiving(true);
-        }
-        else
-            setReceiving(false);
-
         if(ssbEnabled != value) {
             ssbEnabled = value;
             updateBlock();
@@ -119,6 +169,17 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
 
     public int getFrequency() {
         return frequency;
+    }
+
+    public boolean isPTTDown() {
+        return isPTTDown;
+    }
+
+    public void setPTTDown(boolean value) {
+        if(isPTTDown != value) {
+            isPTTDown = value;
+            updateBlock();
+        }
     }
 
     /**
@@ -175,6 +236,63 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
 
     // -------------------- BE & SYNC IMPLEMENTATION --------------------
 
+    /**
+     * Use this to save data on radios instead of {@link BlockEntity#saveAdditional(CompoundTag)} as this will also
+     * be called by {@link BlockEntity#getUpdateTag()} and don't want to save caps on block updates.
+     */
+    protected void setupSaveTag(CompoundTag nbt) {
+        nbt.putBoolean("isPowered", isPowered);
+        nbt.putBoolean("ssbEnabled", ssbEnabled);
+        nbt.putInt("wavelength", wavelength);
+        nbt.putInt("frequency", frequency);
+    }
+
+    /**
+     * Use this to read data on radios instead of {@link BlockEntity#load(CompoundTag)} as this will also
+     * be called by {@link BlockEntity#handleUpdateTag(CompoundTag)} and don't want to write two load methods.
+     */
+    protected void readSaveTag(CompoundTag nbt) {
+        isPowered = nbt.getBoolean("isPowered");
+        ssbEnabled = nbt.getBoolean("ssbEnabled");
+        wavelength = nbt.getInt("wavelength");
+        frequency = nbt.getInt("frequency");
+    }
+
+    /**
+     * Override this method if you need other sound instances-- for example {@link RadioMorseSoundInstance}. Only called
+     * clientside.
+     */
+    protected void setupSoundInstances() {
+        RadioBlockEntityClientHandler.startStaticSoundInstance(this);
+    }
+
+    @Override
+    protected void saveAdditional(CompoundTag nbt) {
+        super.saveAdditional(nbt);
+        setupSaveTag(nbt);
+    }
+
+    @Override
+    public void load(CompoundTag nbt) {
+        super.load(nbt);
+        readSaveTag(nbt);
+        Band band = RadiocraftData.BANDS.getValue(wavelength);
+        if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % RadiocraftServerConfig.FREQUENCY_STEP.get() != 0)
+            frequency = band.minFrequency(); // Reset frequency if the saved one was either out of bands or not aligned to the correct step size.
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if(level.isClientSide())
+            setupSoundInstances();
+        else {
+            // If on server, register self to listen for voice packets & notify client of loaded data.
+            VoiceTransmitters.addListener(level, this);
+            updateBlock();
+        }
+    }
+
     @Override
     public void setRemoved() {
         if(!level.isClientSide)
@@ -204,17 +322,13 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
     @Override
     public CompoundTag getUpdateTag() {
         CompoundTag nbt = new CompoundTag();
-        nbt.putBoolean("isPowered", isPowered);
-        nbt.putBoolean("ssbEnabled", ssbEnabled);
-        nbt.putBoolean("isPTTDown", isPTTDown);
+        setupSaveTag(nbt);
         return nbt;
     }
 
     @Override
     public void handleUpdateTag(CompoundTag nbt) {
-        isPowered = nbt.getBoolean("isPowered");
-        ssbEnabled = nbt.getBoolean("ssbEnabled");
-        isPTTDown = nbt.getBoolean("isPTTDown");
+        readSaveTag(nbt);
     }
 
     protected void updateBlock() {
@@ -222,40 +336,6 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
             BlockState state = level.getBlockState(worldPosition);
             // Flag of 2 (0010) causes update to be sent to client, but no actual block updates.
             level.sendBlockUpdated(worldPosition, state, state, 2);
-        }
-    }
-
-    @Override
-    protected void saveAdditional(CompoundTag nbt) {
-        super.saveAdditional(nbt);
-        nbt.putBoolean("isPowered", isPowered);
-        nbt.putBoolean("ssbEnabled", ssbEnabled);
-        nbt.putInt("wavelength", wavelength);
-        nbt.putInt("frequency", frequency);
-    }
-
-    @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
-        isPowered = nbt.getBoolean("isPowered");
-        ssbEnabled = nbt.getBoolean("ssbEnabled");
-        wavelength = nbt.getInt("wavelength");
-        frequency = nbt.getInt("frequency");
-
-        Band band = RadiocraftData.BANDS.getValue(wavelength);
-        if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % RadiocraftServerConfig.FREQUENCY_STEP.get() != 0)
-            frequency = band.minFrequency(); // Reset frequency if the saved one was either out of bands or not aligned to the correct step size.
-    }
-
-    @Override
-    public void onLoad() {
-        super.onLoad();
-        if(level.isClientSide())
-            AbstractRadioBlockEntityClientHandler.startSoundInstances(this);
-        else {
-            // If on server, register self to listen for voice packets & notify client of loaded data.
-            VoiceTransmitters.addListener(level, this);
-            updateBlock();
         }
     }
 

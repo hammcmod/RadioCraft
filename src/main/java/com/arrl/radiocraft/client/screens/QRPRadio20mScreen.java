@@ -7,13 +7,12 @@ import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
 import com.arrl.radiocraft.common.init.RadiocraftData;
-import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
 import com.arrl.radiocraft.common.radio.Band;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-public class QRPRadio20mScreen extends AbstractHFRadioScreen {
+public class QRPRadio20mScreen extends AbstractRadioScreen {
 
     public QRPRadio20mScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title) {
         super(container, playerInventory, title, Radiocraft.location("textures/gui/qrp_radio_20m.png"), Radiocraft.location("textures/gui/qrp_radio_20m_widgets.png"));

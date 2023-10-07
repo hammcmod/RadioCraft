@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.common.sounds;
 
 import com.arrl.radiocraft.client.RadiocraftClientValues;
-import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.RadioBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftSoundEvents;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;
@@ -9,9 +9,9 @@ import net.minecraft.sounds.SoundSource;
 
 public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 
-	private final AbstractRadioBlockEntity radio;
+	private final RadioBlockEntity radio;
 
-	public RadioStaticSoundInstance(AbstractRadioBlockEntity radio) {
+	public RadioStaticSoundInstance(RadioBlockEntity radio) {
 		super(RadiocraftSoundEvents.STATIC.get(), SoundSource.VOICE, SoundInstance.createUnseededRandom());
 		this.radio = radio;
 		this.looping = true;
@@ -27,7 +27,7 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 		if(radio.isRemoved())
 			stop();
 		else {
-			if(radio.isReceiving() && radio.isPowered())
+			if(radio.isPowered())
 				volume = RadiocraftClientValues.NOISE_VOLUME;
 			else
 				volume = 0.0F;

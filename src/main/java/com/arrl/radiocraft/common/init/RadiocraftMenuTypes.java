@@ -16,11 +16,11 @@ public class RadiocraftMenuTypes {
 	public static final RegistryObject<MenuType<SolarPanelMenu>> SOLAR_PANEL = MENU_TYPES.register("solar_panel", () -> IForgeMenuType.create(SolarPanelMenu::new));
 	public static final RegistryObject<MenuType<ChargeControllerMenu>> CHARGE_CONTROLLER = MENU_TYPES.register("charge_controller", () -> IForgeMenuType.create(ChargeControllerMenu::new));
 
-	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> HF_RADIO_10M = MENU_TYPES.register("hf_radio_10m", () -> IForgeMenuType.create(HFRadioMenu10m::new));
-	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> HF_RADIO_20M = MENU_TYPES.register("hf_radio_20m", () -> IForgeMenuType.create(HFRadioMenu20m::new));
-	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> HF_RADIO_40M = MENU_TYPES.register("hf_radio_40m", () -> IForgeMenuType.create(HFRadioMenu40m::new));
-	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> HF_RADIO_80M = MENU_TYPES.register("hf_radio_80m", () -> IForgeMenuType.create(HFRadioMenu80m::new));
-	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> QRP_RADIO_20M = MENU_TYPES.register("qrp_radio_20m", () -> IForgeMenuType.create(QRPRadioMenu20m::new));
-	public static final RegistryObject<MenuType<AbstractHFRadioMenu>> QRP_RADIO_40M = MENU_TYPES.register("qrp_radio_40m", () -> IForgeMenuType.create(QRPRadioMenu40m::new));
+	public static final RegistryObject<MenuType<HFRadioMenu10m>> HF_RADIO_10M = MENU_TYPES.register("hf_radio_10m", () -> IForgeMenuType.create(HFRadioMenu10m::new));
+	public static final RegistryObject<MenuType<HFRadioMenu20m>> HF_RADIO_20M = MENU_TYPES.register("hf_radio_20m", () -> IForgeMenuType.create(HFRadioMenu20m::new));
+	public static final RegistryObject<MenuType<HFRadioMenu40m>> HF_RADIO_40M = MENU_TYPES.register("hf_radio_40m", () -> IForgeMenuType.create(HFRadioMenu40m::new));
+	public static final RegistryObject<MenuType<HFRadioMenu80m>> HF_RADIO_80M = MENU_TYPES.register("hf_radio_80m", () -> IForgeMenuType.create(HFRadioMenu80m::new));
+	public static final RegistryObject<MenuType<QRPRadioMenu20m>> QRP_RADIO_20M = MENU_TYPES.register("qrp_radio_20m", () -> IForgeMenuType.create(QRPRadioMenu20m::new));
+	public static final RegistryObject<MenuType<QRPRadioMenu40m>> QRP_RADIO_40M = MENU_TYPES.register("qrp_radio_40m", () -> IForgeMenuType.create(QRPRadioMenu40m::new));
 
 }

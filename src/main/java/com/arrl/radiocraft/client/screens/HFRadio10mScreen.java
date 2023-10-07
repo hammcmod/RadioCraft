@@ -2,12 +2,11 @@ package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.*;
-import com.arrl.radiocraft.common.menus.AbstractHFRadioMenu;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-public class HFRadio10mScreen extends AbstractHFRadioScreen {
+public class HFRadio10mScreen extends AbstractRadioScreen {
 
 	public HFRadio10mScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title) {
 		super(container, playerInventory, title, Radiocraft.location("textures/gui/hf_radio_10m.png"), Radiocraft.location("textures/gui/hf_radio_10m_widgets.png"));

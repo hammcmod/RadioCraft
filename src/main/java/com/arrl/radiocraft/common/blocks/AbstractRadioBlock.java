@@ -1,6 +1,5 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;

@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class QRPRadio20mBlockEntity extends AbstractRadioBlockEntity {
+public class QRPRadio20mBlockEntity extends HFRadioBlockEntity {
 
     public QRPRadio20mBlockEntity(BlockPos pos, BlockState state) {
         super(RadiocraftBlockEntities.QRP_RADIO_20M.get(), pos, state, RadiocraftCommonConfig.QRP_RADIO_20M_RECEIVE_TICK.get(), RadiocraftCommonConfig.QRP_RADIO_20M_TRANSMIT_TICK.get(), 20);
@@ -27,4 +27,5 @@ public class QRPRadio20mBlockEntity extends AbstractRadioBlockEntity {
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
         return new QRPRadioMenu20m(id, this, fields);
     }
+
 }
