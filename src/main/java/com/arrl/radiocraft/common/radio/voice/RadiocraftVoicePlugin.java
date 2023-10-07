@@ -1,8 +1,8 @@
 package com.arrl.radiocraft.common.radio.voice;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
-import com.arrl.radiocraft.common.radio.RadioManager;
+import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
+import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.radio.voice.EncodingManager.EncodingData;
 import de.maxhenkel.voicechat.api.ForgeVoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
@@ -10,10 +10,8 @@ import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -44,22 +42,24 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 			double sqrRange = api.getBroadcastRange();
 			sqrRange *= sqrRange;
 
-			List<AbstractRadioBlockEntity> radios = RadioManager.RADIOS.get(player.getLevel());
+			List<IVoiceTransmitter> listeners = VoiceTransmitters.LISTENERS.get(player.getLevel());
 
-			for(AbstractRadioBlockEntity radio : radios) { // All radios in range of the sender will receive the packet
-				BlockPos pos = radio.getBlockPos();
-				if(pos.distToCenterSqr(player.position()) < sqrRange) {
-					BlockEntity blockEntity = player.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
-					if(blockEntity instanceof AbstractRadioBlockEntity be && be.isPTTDown()) {
-						EncodingData encodingData = encodingManager.getOrCreate(sender.getUuid());
+			for(IVoiceTransmitter listener : listeners) { // All radios in range of the sender will receive the packet
+				Vec3 pos = listener.getPos();
 
-						byte[] encodedAudio = event.getPacket().getOpusEncodedData();
-						if(encodedAudio.length == 0)
-							encodingData.reset();
-						else
-							be.acceptVoicePacket(sender.getServerLevel(), encodingData.getDecoder().decode(encodedAudio), sender.getUuid());
-					}
-				}
+				if(pos.distanceToSqr(player.position()) > sqrRange)
+					return; // Do not transmit if out of range.
+
+				if(!listener.canTransmitVoice())
+					return; // Do not transmit if listener is not accepting packets.
+
+				// Decode and send voice packet through radios system.
+				EncodingData encodingData = encodingManager.getOrCreate(sender.getUuid());
+				byte[] encodedAudio = event.getPacket().getOpusEncodedData();
+				if(encodedAudio.length == 0)
+					encodingData.reset();
+				else
+					listener.acceptVoicePacket(sender.getServerLevel(), encodingData.getDecoder().decode(encodedAudio), sender.getUuid());
 			}
 		}
 	}

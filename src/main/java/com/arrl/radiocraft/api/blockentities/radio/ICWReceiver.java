@@ -9,9 +9,9 @@ import com.arrl.radiocraft.common.radio.morse.CWReceiveBuffer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
- * Any {@link BlockEntity} which receives and plays back CW/morse should implement {@link IMorseReceiver}.
+ * Any {@link BlockEntity} which receives and plays back CW/morse should implement {@link ICWReceiver}.
  */
-public interface IMorseReceiver {
+public interface ICWReceiver {
 
 	/**
 	 * @return The {@link CWReceiveBuffer} for this receiver, which is what receives and sorts {@link CWBuffer}s from

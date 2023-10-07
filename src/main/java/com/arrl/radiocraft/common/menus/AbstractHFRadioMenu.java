@@ -26,7 +26,7 @@ public abstract class AbstractHFRadioMenu extends AbstractContainerMenu {
 	}
 
 	public AbstractHFRadioMenu(MenuType<?> type, final int id, final Inventory playerInventory, final FriendlyByteBuf data, Block validBlock) {
-		this(type, id, getBlockEntity(playerInventory, data), new SimpleContainerData(3), validBlock);
+		this(type, id, getBlockEntity(playerInventory, data), new SimpleContainerData(1), validBlock);
 	}
 
 	protected static AbstractRadioBlockEntity getBlockEntity(final Inventory playerInventory, final FriendlyByteBuf data) {
@@ -59,11 +59,11 @@ public abstract class AbstractHFRadioMenu extends AbstractContainerMenu {
 	}
 
 	public int getFrequency() {
-		return data.get(2);
+		return data.get(0);
 	}
 
 	public void setFrequency(int value) {
-		data.set(2, value);
+		data.set(0, value);
 	}
 
 	@Override

@@ -9,9 +9,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import java.util.Collection;
 
 /**
- * Any {@link BlockEntity} which sends CW/morse to an {@link AntennaNetwork} should implement {@link IMorseTransmitter}.
+ * Any {@link BlockEntity} which sends CW/morse to an {@link AntennaNetwork} should implement {@link ICWTransmitter}.
  */
-public interface IMorseTransmitter {
+public interface ICWTransmitter {
 
 	/**
 	 * @return The {@link CWSendBuffer} for this transmitter, which is what constructs {@link CWBuffer}s and sends

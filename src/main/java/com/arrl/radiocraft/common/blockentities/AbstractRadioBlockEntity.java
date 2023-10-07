@@ -10,7 +10,7 @@ import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.network.packets.CWBufferPacket;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.Radio;
-import com.arrl.radiocraft.common.radio.RadioManager;
+import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.morse.CWReceiveBuffer;
@@ -51,23 +51,17 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 
 		@Override
 		public int get(int index) {
-			return switch(index) {
-				case 0 -> receiveUsePower;
-				case 1 -> transmitUsePower;
-				case 2 -> frequency;
-				default -> 0;
-			};
+			return frequency;
 		}
 
 		@Override
 		public void set(int index, int value) {
-			if(index == 2)
-				frequency = value;
+			frequency = value;
 		}
 
 		@Override
 		public int getCount() {
-			return 3;
+			return 1;
 		}
 
 	};
@@ -289,7 +283,7 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 		if(level.isClientSide())
 			AbstractRadioBlockEntityClientHandler.startSoundInstances(this);
 		else {
-			RadioManager.addRadio(level, this);
+			VoiceTransmitters.addListener(level, this);
 			updateBlock();
 		}
 	}
@@ -297,14 +291,14 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	@Override
 	public void setRemoved() {
 		if(!level.isClientSide)
-			RadioManager.removeRadio(level, this);
+			VoiceTransmitters.removeListener(level, this);
 		super.setRemoved();
 	}
 
 	@Override
 	public void onChunkUnloaded() {
 		if(!level.isClientSide)
-			RadioManager.removeRadio(level, this);
+			VoiceTransmitters.removeListener(level, this);
 		super.onChunkUnloaded();
 	}
 
@@ -377,8 +371,6 @@ public abstract class AbstractRadioBlockEntity extends AbstractPowerBlockEntity 
 	public void overdraw() {
 		shouldOverDraw = true;
 	}
-
-
 
 	/**
 	 * Process voice packet to broadcast to other radios. Called from voice thread.
