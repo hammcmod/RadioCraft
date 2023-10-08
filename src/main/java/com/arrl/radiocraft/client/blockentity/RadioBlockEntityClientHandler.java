@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.client.blockentity;
 
+import com.arrl.radiocraft.common.blockentities.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.RadioBlockEntity;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import com.arrl.radiocraft.common.sounds.RadioStaticSoundInstance;
@@ -11,7 +12,7 @@ public class RadioBlockEntityClientHandler {
 		Minecraft.getInstance().getSoundManager().play(new RadioStaticSoundInstance(radio));
 	}
 
-	public static void startMorseSoundInstance(RadioBlockEntity radio) {
+	public static void startMorseSoundInstance(HFRadioBlockEntity radio) {
 		Minecraft.getInstance().getSoundManager().play(new RadioMorseSoundInstance(radio));
 	}
 

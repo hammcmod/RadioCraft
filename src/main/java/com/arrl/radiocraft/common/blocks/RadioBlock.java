@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
+import com.arrl.radiocraft.common.blockentities.RadioBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -18,11 +19,11 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
-public abstract class AbstractRadioBlock extends AbstractPowerNetworkBlock {
+public abstract class RadioBlock extends AbstractPowerNetworkBlock {
 
 	public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
 
-	public AbstractRadioBlock(Properties properties) {
+	public RadioBlock(Properties properties) {
 		super(properties, true);
 	}
 
@@ -34,7 +35,7 @@ public abstract class AbstractRadioBlock extends AbstractPowerNetworkBlock {
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		return AbstractRadioBlockEntity::tick;
+		return RadioBlockEntity::tick;
 	}
 
 	@Override

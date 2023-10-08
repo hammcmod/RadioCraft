@@ -10,7 +10,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class ChargeControllerMenu extends AbstractContainerMenu {
 
@@ -29,16 +28,7 @@ public class ChargeControllerMenu extends AbstractContainerMenu {
 	}
 
 	public ChargeControllerMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
-		this(id, getBlockEntity(playerInventory, data), new SimpleContainerData(1));
-	}
-
-	private static ChargeControllerBlockEntity getBlockEntity(final Inventory playerInventory, final FriendlyByteBuf data) {
-		final BlockEntity blockEntity = playerInventory.player.level.getBlockEntity(data.readBlockPos());
-
-		if(blockEntity instanceof ChargeControllerBlockEntity)
-			return (ChargeControllerBlockEntity)blockEntity;
-
-		throw new IllegalStateException("BlockEntity at " + data.readBlockPos() + " is not correct");
+		this(id, MenuUtils.getBlockEntity(playerInventory, data, ChargeControllerBlockEntity.class), new SimpleContainerData(1));
 	}
 
 	public int getPowerTick() {

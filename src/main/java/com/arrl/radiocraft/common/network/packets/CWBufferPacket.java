@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.network.packets;
 
+import com.arrl.radiocraft.common.blockentities.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.morse.CWReceiveBuffer;
@@ -73,7 +74,7 @@ public class CWBufferPacket implements RadiocraftPacket {
 	public void handle(Supplier<Context> context) {
 		context.get().enqueueWork(() -> {
 			if(context.get().getDirection() == NetworkDirection.PLAY_TO_CLIENT) {
-				if(Minecraft.getInstance().level.getBlockEntity(pos) instanceof AbstractRadioBlockEntity be) {
+				if(Minecraft.getInstance().level.getBlockEntity(pos) instanceof HFRadioBlockEntity be) {
 					// Client receiving these packets will just forward them all to the BE and let them get re-ordered in there.
 					CWReceiveBuffer radioBuffer = be.getCWReceiveBuffer();
 					for(CWBuffer buffer : buffers) {
@@ -84,8 +85,8 @@ public class CWBufferPacket implements RadiocraftPacket {
 			else {
 				Level level = context.get().getSender().getServer().getLevel(dimension);
 				if(level != null) {
-					if(level.getBlockEntity(pos) instanceof AbstractRadioBlockEntity radio && radio.getCWEnabled()) {
-						// When packet is received by server it calculates all the receiving strengths etc and sends to other clients who need the info.
+					if(level.getBlockEntity(pos) instanceof HFRadioBlockEntity radio && radio.getCWEnabled()) {
+						// When packet is received by server it calculates all the receiving strengths etc. and sends to other clients who need the info.
 						radio.transmitMorse(buffers);
 					}
 				}

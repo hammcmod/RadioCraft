@@ -48,10 +48,10 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 				Vec3 pos = listener.getPos();
 
 				if(pos.distanceToSqr(player.position()) > sqrRange)
-					return; // Do not transmit if out of range.
+					continue; // Do not transmit if out of range.
 
 				if(!listener.canTransmitVoice())
-					return; // Do not transmit if listener is not accepting packets.
+					continue; // Do not transmit if listener is not accepting packets.
 
 				// Decode and send voice packet through radios system.
 				EncodingData encodingData = encodingManager.getOrCreate(sender.getUuid());

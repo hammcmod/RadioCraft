@@ -28,12 +28,12 @@ public class VHFBaseStationBlock extends Block {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-		return SHAPES.get(state.getValue(AbstractRadioBlock.HORIZONTAL_FACING));
+		return SHAPES.get(state.getValue(RadioBlock.HORIZONTAL_FACING));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-		builder.add(AbstractRadioBlock.HORIZONTAL_FACING);
+		builder.add(RadioBlock.HORIZONTAL_FACING);
 	}
 
 }

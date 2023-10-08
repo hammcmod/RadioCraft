@@ -68,7 +68,7 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 		if(network.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof AntennaBlockEntity be) {
 			BlockPos source = packet.getSource().getPos();
 			if(ssbReceiveCache.containsKey(source))
-				packet.setStrength(ssbReceiveCache.get(source));
+				packet.setStrength(packet.getStrength() * ssbReceiveCache.get(source));
 			else {
 				packet.setStrength(type.getReceiveStrength(packet, data, pos));
 				ssbReceiveCache.put(source, packet.getStrength());

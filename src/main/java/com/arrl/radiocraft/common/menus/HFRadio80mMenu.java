@@ -8,15 +8,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 
-public class HFRadioMenu80m extends RadioMenu<HFRadio80mBlockEntity> {
+public class HFRadio80mMenu extends RadioMenu<HFRadio80mBlockEntity> {
 
-	public HFRadioMenu80m(int id, HFRadio80mBlockEntity blockEntity, ContainerData data) {
+	public HFRadio80mMenu(int id, HFRadio80mBlockEntity blockEntity, ContainerData data) {
 		super(RadiocraftMenuTypes.HF_RADIO_80M.get(), id, blockEntity, data, RadiocraftBlocks.HF_RADIO_80M.get());
 	}
 
-	public HFRadioMenu80m(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
-		this(id, null, new SimpleContainerData(2));
-		blockEntity = getBlockEntity(playerInventory, data, HFRadio80mBlockEntity.class);
+	public HFRadio80mMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
+		this(id, MenuUtils.getBlockEntity(playerInventory, data, HFRadio80mBlockEntity.class), new SimpleContainerData(2));
 	}
 
 }

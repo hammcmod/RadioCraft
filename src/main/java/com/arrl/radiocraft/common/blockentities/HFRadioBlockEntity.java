@@ -65,11 +65,20 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	}
 
 	public void setCWEnabled(boolean value) {
+		if(value && ssbEnabled)
+			ssbEnabled = false; // Disable SSB if it as enabled here, don't need to sync here as it's done in super method.
 		if(cwEnabled != value) {
 			cwEnabled = value;
 			updateBlock();
 			setChanged();
 		}
+	}
+
+	@Override
+	public void setSSBEnabled(boolean value) {
+		if(value && cwEnabled)
+			cwEnabled = false; // Disable CW if it as enabled here, don't need to sync here as it's done in super method.
+		super.setSSBEnabled(value);
 	}
 
 	@Override
@@ -84,7 +93,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 
 	@Override
 	protected void additionalTick() {
-		if(!level.isClientSide)
+		if(level.isClientSide)
 			getCWSendBuffer().tick();
 	}
 
@@ -99,7 +108,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	@Override
 	protected void readSaveTag(CompoundTag nbt) {
 		super.readSaveTag(nbt);
-		nbt.getBoolean("cwEnabled");
+		cwEnabled = nbt.getBoolean("cwEnabled");
 	}
 
 	@Override

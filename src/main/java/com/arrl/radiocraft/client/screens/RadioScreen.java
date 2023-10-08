@@ -6,7 +6,11 @@ import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
-import com.arrl.radiocraft.common.network.packets.serverbound.*;
+import com.arrl.radiocraft.common.menus.RadioMenu;
+import com.arrl.radiocraft.common.network.packets.serverbound.SFrequencyPacket;
+import com.arrl.radiocraft.common.network.packets.serverbound.SRadioPTTPacket;
+import com.arrl.radiocraft.common.network.packets.serverbound.SRadioSSBPacket;
+import com.arrl.radiocraft.common.network.packets.serverbound.STogglePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -18,15 +22,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public abstract class AbstractRadioScreen extends AbstractContainerScreen<AbstractHFRadioMenu> {
+public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContainerScreen<T> {
 
 	protected final ResourceLocation texture;
 	protected final ResourceLocation widgetsTexture;
-	protected final AbstractHFRadioMenu container;
+	protected final T menu;
 
-	public AbstractRadioScreen(AbstractHFRadioMenu container, Inventory playerInventory, Component title, ResourceLocation texture, ResourceLocation widgetsTexture) {
-		super(container, playerInventory, title);
-		this.container = container;
+	public RadioScreen(T menu, Inventory inventory, Component title, ResourceLocation texture, ResourceLocation widgetsTexture) {
+		super(menu, inventory, title);
+		this.menu = menu;
 		this.texture = texture;
 		this.widgetsTexture = widgetsTexture;
 	}
@@ -46,13 +50,7 @@ public abstract class AbstractRadioScreen extends AbstractContainerScreen<Abstra
 
 		renderAdditionalTooltips(poseStack, mouseX, mouseY, partialTicks);
 
-		if(container.getCWEnabled()) {
-			if(RadiocraftClientValues.SCREEN_PTT_PRESSED) {
-				container.blockEntity.accumulateCWInput();
-			}
-		}
-		RadiocraftClientValues.SCREEN_SSB_ENABLED = container.getSSBEnabled();
-		RadiocraftClientValues.SCREEN_CW_ENABLED = container.getCWEnabled();
+		RadiocraftClientValues.SCREEN_SSB_ENABLED = menu.blockEntity.getSSBEnabled();
 	}
 
 	/**
@@ -110,7 +108,7 @@ public abstract class AbstractRadioScreen extends AbstractContainerScreen<Abstra
 	 * Callback for pressing a PTT button.
 	 */
 	protected void onPressPTT(HoldButton button) {
-		RadiocraftPackets.sendToServer(new SRadioPTTPacket(container.blockEntity.getBlockPos(), true));
+		RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), true));
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
 	}
 
@@ -118,7 +116,7 @@ public abstract class AbstractRadioScreen extends AbstractContainerScreen<Abstra
 	 * Callback for releasing a PTT button.
 	 */
 	protected void onReleasePTT(HoldButton button) {
-		RadiocraftPackets.sendToServer(new SRadioPTTPacket(container.blockEntity.getBlockPos(), false));
+		RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), false));
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
 	}
 
@@ -126,59 +124,49 @@ public abstract class AbstractRadioScreen extends AbstractContainerScreen<Abstra
 	 * Callback to toggle power on a device.
 	 */
 	protected void onPressPower(ToggleButton button) {
-		RadiocraftPackets.sendToServer(new STogglePacket(container.blockEntity.getBlockPos()));
+		RadiocraftPackets.sendToServer(new STogglePacket(menu.blockEntity.getBlockPos()));
 	}
 
 	/**
 	 * Callback for SSB toggle buttons.
 	 */
 	protected void onPressSSB(ValueButton button) {
-		boolean ssbEnabled = container.getSSBEnabled();
+		boolean ssbEnabled = menu.blockEntity.getSSBEnabled();
 
-		RadiocraftPackets.sendToServer(new SRadioSSBPacket(container.blockEntity.getBlockPos(), !ssbEnabled));
-		container.blockEntity.setSSBEnabled(!ssbEnabled); // Update instantly for GUI, server will re-sync this value though.
-	}
-
-	/**
-	 * Callback for CW toggle buttons.
-	 */
-	protected void onPressCW(ValueButton button) {
-		boolean cwEnabled = container.getCWEnabled();
-
-		RadiocraftPackets.sendToServer(new SRadioCWPacket(container.blockEntity.getBlockPos(), !cwEnabled));
-		container.blockEntity.setCWEnabled(!cwEnabled); // Update instantly for GUI, server will re-sync this value though.
+		RadiocraftPackets.sendToServer(new SRadioSSBPacket(menu.blockEntity.getBlockPos(), !ssbEnabled));
+		menu.blockEntity.setSSBEnabled(!ssbEnabled); // Update instantly for GUI, server will re-sync this value though.
 	}
 
 	/**
 	 * Callback for raising frequency by one step on the dial.
 	 */
 	protected void onFrequencyDialUp(Dial dial) {
-		if(container.isPowered())
-			RadiocraftPackets.sendToServer(new SFrequencyPacket(container.blockEntity.getBlockPos(), 1));
+		if(menu.blockEntity.isPowered())
+			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
 	}
 
 	/**
 	 * Callback for raising frequency by one step on the dial.
 	 */
 	protected void onFrequencyDialDown(Dial dial) {
-		if(container.isPowered())
-			RadiocraftPackets.sendToServer(new SFrequencyPacket(container.blockEntity.getBlockPos(), -1));
+		if(menu.blockEntity.isPowered())
+			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
 	}
 
 	/**
 	 * Callback for frequency up buttons.
 	 */
 	protected void onFrequencyButtonUp(Button button) {
-		if(container.isPowered())
-			RadiocraftPackets.sendToServer(new SFrequencyPacket(container.blockEntity.getBlockPos(), 1));
+		if(menu.blockEntity.isPowered())
+			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
 	}
 
 	/**
 	 * Callback for frequency down buttons.
 	 */
 	protected void onFrequencyButtonDown(Button button) {
-		if(container.isPowered())
-			RadiocraftPackets.sendToServer(new SFrequencyPacket(container.blockEntity.getBlockPos(), -1));
+		if(menu.blockEntity.isPowered())
+			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
 	}
 
 }

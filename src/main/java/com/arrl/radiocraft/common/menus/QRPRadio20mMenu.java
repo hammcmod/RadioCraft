@@ -8,15 +8,14 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 
-public class QRPRadioMenu20m extends RadioMenu<QRPRadio20mBlockEntity> {
+public class QRPRadio20mMenu extends RadioMenu<QRPRadio20mBlockEntity> {
 
-    public QRPRadioMenu20m(int id, QRPRadio20mBlockEntity blockEntity, ContainerData data) {
+    public QRPRadio20mMenu(int id, QRPRadio20mBlockEntity blockEntity, ContainerData data) {
         super(RadiocraftMenuTypes.QRP_RADIO_20M.get(), id, blockEntity, data, RadiocraftBlocks.QRP_RADIO_20M.get());
     }
 
-    public QRPRadioMenu20m(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
-        this(id, null, new SimpleContainerData(2));
-        blockEntity = getBlockEntity(playerInventory, data, QRPRadio20mBlockEntity.class);
+    public QRPRadio20mMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
+        this(id, MenuUtils.getBlockEntity(playerInventory, data, QRPRadio20mBlockEntity.class), new SimpleContainerData(2));
     }
 
 }

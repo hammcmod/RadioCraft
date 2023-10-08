@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
-public class HFRadio10mBlock extends AbstractRadioBlock {
+public class HFRadio10mBlock extends RadioBlock {
 
 	public static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
 
@@ -36,7 +36,7 @@ public class HFRadio10mBlock extends AbstractRadioBlock {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-		return SHAPES.get(state.getValue(AbstractRadioBlock.HORIZONTAL_FACING));
+		return SHAPES.get(state.getValue(RadioBlock.HORIZONTAL_FACING));
 	}
 
 }

@@ -2,7 +2,7 @@ package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.RadiocraftCommonConfig;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
-import com.arrl.radiocraft.common.menus.HFRadioMenu80m;
+import com.arrl.radiocraft.common.menus.HFRadio80mMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -25,6 +25,6 @@ public class HFRadio80mBlockEntity extends HFRadioBlockEntity {
 	@Nullable
 	@Override
 	public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-		return new HFRadioMenu80m(id, this, fields);
+		return new HFRadio80mMenu(id, this, fields);
 	}
 }

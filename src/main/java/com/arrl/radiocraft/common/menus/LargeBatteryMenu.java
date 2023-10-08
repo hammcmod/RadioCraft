@@ -11,7 +11,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class LargeBatteryMenu extends AbstractContainerMenu {
 
@@ -28,16 +27,7 @@ public class LargeBatteryMenu extends AbstractContainerMenu {
 	}
 
 	public LargeBatteryMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
-		this(id, getBlockEntity(playerInventory, data), new SimpleContainerData(2));
-	}
-
-	private static LargeBatteryBlockEntity getBlockEntity(final Inventory playerInventory, final FriendlyByteBuf data) {
-		final BlockEntity blockEntity = playerInventory.player.level.getBlockEntity(data.readBlockPos());
-
-		if(blockEntity instanceof LargeBatteryBlockEntity) {
-			return (LargeBatteryBlockEntity)blockEntity;
-		}
-		throw new IllegalStateException("BlockEntity at " + data.readBlockPos() + " is not correct");
+		this(id, MenuUtils.getBlockEntity(playerInventory, data, LargeBatteryBlockEntity.class), new SimpleContainerData(2));
 	}
 
 	public int getCurrentPower() {

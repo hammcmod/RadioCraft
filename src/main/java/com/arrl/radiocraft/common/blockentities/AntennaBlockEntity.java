@@ -58,25 +58,25 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	 */
 	public void receiveAudioPacket(AntennaVoicePacket packet) {
 		if(radios.size() == 1) {
-			AbstractRadioBlockEntity radio = (AbstractRadioBlockEntity)radios.get(0).getNetworkItem();
+			RadioBlockEntity radio = (RadioBlockEntity)radios.get(0).getNetworkItem();
 			if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
 				radio.getRadio().receive(packet);
 		}
 		else if(radios.size() > 1) {
 			for(BENetworkEntry entry : radios)
-				((AbstractRadioBlockEntity)entry.getNetworkItem()).overdraw();
+				((RadioBlockEntity)entry.getNetworkItem()).overdraw();
 		}
 	}
 
 	public void receiveMorsePacket(AntennaCWPacket packet) {
 		if(radios.size() == 1) {
-			AbstractRadioBlockEntity radio = (AbstractRadioBlockEntity)radios.get(0).getNetworkItem();
+			HFRadioBlockEntity radio = (HFRadioBlockEntity)radios.get(0).getNetworkItem();
 			if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
-				radio.receiveMorse(packet);
+				radio.receiveCW(packet);
 		}
 		else if(radios.size() > 1) {
 			for(BENetworkEntry entry : radios)
-				((AbstractRadioBlockEntity)entry.getNetworkItem()).overdraw();
+				((RadioBlockEntity)entry.getNetworkItem()).overdraw();
 		}
 	}
 
@@ -103,7 +103,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 			for(BENetwork network : side) {
 				if(!(network instanceof PowerNetwork)) {
 					for(BENetworkEntry entry : network.getConnections()) {
-						if(entry.getNetworkItem() instanceof AbstractRadioBlockEntity)
+						if(entry.getNetworkItem() instanceof RadioBlockEntity)
 							if(!radios.contains(entry))
 								radios.add(entry);
 					}

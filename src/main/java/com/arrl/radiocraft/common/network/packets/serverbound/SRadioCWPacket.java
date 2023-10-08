@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.network.packets.serverbound;
 
+import com.arrl.radiocraft.common.blockentities.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
@@ -33,7 +34,7 @@ public class SRadioCWPacket implements RadiocraftPacket {
 		context.get().enqueueWork(() -> {
 			BlockEntity be = context.get().getSender().getLevel().getBlockEntity(pos);
 
-			if(be instanceof AbstractRadioBlockEntity radio) {
+			if(be instanceof HFRadioBlockEntity radio) {
 				radio.setCWEnabled(value);
 
 				if(value && radio.getSSBEnabled())
