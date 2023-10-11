@@ -39,31 +39,16 @@ public interface IAntennaType<T extends AntennaData> {
 	BEAntenna<T> match(Level level, BlockPos pos);
 
 	/**
-	 * Get the strength multiplier for transmitting an SSB voice packet to a given destination.
+	 * Get the strength multiplier for transmitting an {@link IAntennaPacket} to a given destination.
 	 *
 	 * @param packet The voice packet to be sent.
 	 * @param data The {@link AntennaData} of the sending antenna.
-	 * @param destination The position the {@link AntennaVoicePacket} is being sent to.
+	 * @param destination The position the {@link IAntennaPacket} is being sent to.
+	 * @param isCW True if the packet is a CW packet (50% more range on most antennas), otherwise false.
 	 *
-	 * @return The strength multiplier to be applied to the given {@link AntennaVoicePacket}.
+	 * @return The strength multiplier to be applied to the given {@link IAntennaPacket}.
 	 */
-	default double getSSBTransmitStrength(AntennaVoicePacket packet, T data, BlockPos destination) {
-		return 0.0D;
-	}
-
-
-	/**
-	 * Get the strength multiplier for transmitting an CW voice packet to a given destination.
-	 *
-	 * @param packet The {@link AntennaCWPacket} to be sent.
-	 * @param data The {@link AntennaData} of the sending antenna.
-	 * @param destination The position the {@link AntennaCWPacket} is being sent to.
-	 *
-	 * @return The strength multiplier to be applied to the given {@link AntennaCWPacket}.
-	 */
-	default double getCWTransmitStrength(AntennaCWPacket packet, T data, BlockPos destination) {
-		return 0.0D;
-	}
+	double getTransmitEfficiency(IAntennaPacket packet, T data, BlockPos destination, boolean isCW);
 
 	/**
 	 * Calculate the strength multiplier for receiving a packet from a given position.
@@ -74,9 +59,20 @@ public interface IAntennaType<T extends AntennaData> {
 	 *
 	 * @return The strength multiplier to be applied to the given {@link IAntennaPacket}.
 	 */
-	default double getReceiveStrength(IAntennaPacket packet, T data, BlockPos pos) {
+	default double getReceiveEfficiency(IAntennaPacket packet, T data, BlockPos pos) {
 		return 0.0D;
 	}
+
+	/**
+	 * Calculates the SWR of an antenna for a given wavelength based on it's properties. This has an
+	 * impact on the efficiency of the antenna.
+	 *
+	 * @param data {@link AntennaData} object belonging to this antenna.
+	 * @param wavelength The wavelength to be used for checking SWR.
+	 *
+	 * @return The SWR of the antenna while using the specified wavelength.
+	 */
+	double getSWR(T data, int wavelength);
 
 	/**
 	 * Get an {@link AntennaData} instance which represents the default starting values for this {@link IAntennaType}.

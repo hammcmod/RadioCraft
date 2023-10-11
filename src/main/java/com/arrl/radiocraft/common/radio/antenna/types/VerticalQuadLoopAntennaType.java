@@ -1,34 +1,23 @@
 package com.arrl.radiocraft.common.radio.antenna.types;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
-import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
-import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.radio.antenna.types.data.VerticalQuadLoopAntennaData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec2;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VerticalQuadLoopAntennaType implements IAntennaType<VerticalQuadLoopAntennaData> {
+public class VerticalQuadLoopAntennaType extends DirectionalAntennaType<VerticalQuadLoopAntennaData> {
 
-	public static final ResourceLocation ID = Radiocraft.location("vertical_quad_loop");
-
-	@Override
-	public ResourceLocation getId() {
-		return ID;
+	public VerticalQuadLoopAntennaType() {
+		super(Radiocraft.location("vertical_quad_loop"), 1.0D, 1.0D, 1.25D, 1.25D);
 	}
-
 	@Override
 	public BEAntenna<VerticalQuadLoopAntennaData> match(Level level, BlockPos pos) {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
@@ -105,45 +94,26 @@ public class VerticalQuadLoopAntennaType implements IAntennaType<VerticalQuadLoo
 	}
 
 	@Override
-	public double getSSBTransmitStrength(AntennaVoicePacket packet, VerticalQuadLoopAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
-		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
-
-		double baseStrength = BandUtils.getSSBBaseStrength(packet.getWavelength(), distance, 1.25D, 1.25D, level.isDay());
-		return baseStrength * getEfficiency(packet.getWavelength(), data, packet.getSource().getPos(), destination);
+	public double getSWR(VerticalQuadLoopAntennaData data, int wavelength) {
+		int desiredLength = (int)Math.round(wavelength / 4.0D);
+		return desiredLength == data.getSideLength() ? 1.0D : 10.0D;
 	}
 
 	@Override
-	public double getCWTransmitStrength(AntennaCWPacket packet, VerticalQuadLoopAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
-
-		double baseStrength = BandUtils.getCWBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, packet.getLevel().isDay());
-		return baseStrength * getEfficiency(packet.getWavelength(), data, packet.getSource().getPos(), destination);
-	}
-
-	@Override
-	public double getReceiveStrength(IAntennaPacket packet, VerticalQuadLoopAntennaData data, BlockPos pos) {
-		return packet.getStrength() * getEfficiency(packet.getWavelength(), data, pos, packet.getSource().getPos());
-	}
-
-	public double getEfficiency(int wavelength, VerticalQuadLoopAntennaData data, BlockPos from, BlockPos to) {
-		int desiredLength = (int)Math.round(wavelength / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
-		double efficiency = desiredLength == data.getSideLength() ? 1.0D : 0.1D;
-
+	public double getDirectionalEfficiency(VerticalQuadLoopAntennaData data, BlockPos from, BlockPos to) {
 		BlockPos offset = to.subtract(from);
 		Vec2 dir = new Vec2(offset.getX(), offset.getZ()).normalized();
 		double f = 1.0D - Math.abs(data.getXAxis() ? Vec2.UNIT_X.dot(dir) : Vec2.UNIT_Y.dot(dir)); // Nears 1 as the offset becomes perpendicular
 
 		if(f > 0.5D)
-			efficiency *= f * 0.75D; // 75% worse peformance on broadsides, scaled linearly with a 0.5 (45 degree) threshold.
+			return f * 0.75D; // 75% worse peformance on broadsides, scaled linearly with a 0.5 (45 degree) threshold.
 		else
-			efficiency *= 1.25D; // 25% better performance when not on broadside.
-
-		return efficiency;
+			return f * 1.25D; // 25% better performance when not on broadside.
 	}
 
 	@Override
 	public VerticalQuadLoopAntennaData getDefaultData() {
 		return new VerticalQuadLoopAntennaData(0, false);
 	}
+
 }

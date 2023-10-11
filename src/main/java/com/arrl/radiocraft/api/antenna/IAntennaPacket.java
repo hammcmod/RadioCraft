@@ -2,6 +2,7 @@ package com.arrl.radiocraft.api.antenna;
 
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import net.minecraft.server.level.ServerLevel;
 
 /**
  * An object representing data being sent between two {@link BEAntenna}s.
@@ -29,5 +30,10 @@ public interface IAntennaPacket {
 	 * @return The {@link IAntenna} the signal originated from.
 	 */
 	IAntenna getSource();
+
+	/**
+	 * @return The {@link ServerLevel} this packet is being sent within.
+	 */
+	ServerLevel getLevel();
 
 }

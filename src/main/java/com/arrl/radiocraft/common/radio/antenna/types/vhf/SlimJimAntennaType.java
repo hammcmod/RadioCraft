@@ -4,7 +4,6 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.radio.BandUtils;
-import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.EmptyAntennaData;
 import net.minecraft.core.BlockPos;
@@ -14,11 +13,11 @@ import net.minecraft.world.level.Level;
 
 public class SlimJimAntennaType implements IAntennaType<EmptyAntennaData> {
 
-    public static final ResourceLocation ID = Radiocraft.location("slim_jim");
+    private final ResourceLocation id = Radiocraft.location("slim_jim");
 
     @Override
     public ResourceLocation getId() {
-        return ID;
+        return id;
     }
 
     @Override
@@ -27,19 +26,23 @@ public class SlimJimAntennaType implements IAntennaType<EmptyAntennaData> {
     }
 
     @Override
-    public double getSSBTransmitStrength(AntennaVoicePacket packet, EmptyAntennaData data, BlockPos destination) {
-        ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
-
+    public double getTransmitEfficiency(IAntennaPacket packet, EmptyAntennaData data, BlockPos destination, boolean isCW) {
+        ServerLevel level = packet.getLevel();
         if(level.isThundering())
             return 0.0D;
 
-        double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
-        return BandUtils.getSSBBaseStrength(packet.getWavelength(), distance / 1.2D, 1.0F, 0.0F, level.isDay());
+        double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination)) / 1.2D;
+        return BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, 1.0F, 0.0F, level.isDay());
     }
 
     @Override
-    public double getReceiveStrength(IAntennaPacket packet, EmptyAntennaData data, BlockPos pos) {
-        return 0;
+    public double getReceiveEfficiency(IAntennaPacket packet, EmptyAntennaData data, BlockPos pos) {
+        return packet.getLevel().isThundering() ? 0.0D : 1.0D;
+    }
+
+    @Override
+    public double getSWR(EmptyAntennaData data, int wavelength) {
+        return 1.0D;
     }
 
     @Override

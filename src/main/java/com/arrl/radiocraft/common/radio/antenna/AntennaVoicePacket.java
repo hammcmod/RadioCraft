@@ -2,13 +2,13 @@ package com.arrl.radiocraft.common.radio.antenna;
 
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
-import de.maxhenkel.voicechat.api.ServerLevel;
+import net.minecraft.server.level.ServerLevel;
 
 import java.util.UUID;
 
 public class AntennaVoicePacket implements IAntennaPacket {
 
-	private final ServerLevel level; // This is a voice api ServerLevel not a minecraft one.
+	private final de.maxhenkel.voicechat.api.ServerLevel level; // This is a voice api ServerLevel not a minecraft one.
 	private final short[] rawAudio;
 	private final int wavelength;
 	private final int frequency;
@@ -17,7 +17,7 @@ public class AntennaVoicePacket implements IAntennaPacket {
 	private final UUID sourcePlayer;
 
 
-	public AntennaVoicePacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, double strength, IAntenna source, UUID sourcePlayer) {
+	public AntennaVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, int wavelength, int frequency, double strength, IAntenna source, UUID sourcePlayer) {
 		this.level = level;
 		this.rawAudio = rawAudio;
 		this.wavelength = wavelength;
@@ -48,7 +48,7 @@ public class AntennaVoicePacket implements IAntennaPacket {
 	}
 
 	public ServerLevel getLevel() {
-		return level;
+		return (ServerLevel)level.getServerLevel();
 	}
 
 	public short[] getRawAudio() {

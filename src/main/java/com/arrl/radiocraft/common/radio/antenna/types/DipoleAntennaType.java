@@ -1,31 +1,21 @@
 package com.arrl.radiocraft.common.radio.antenna.types;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
-import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
-import com.arrl.radiocraft.common.radio.BandUtils;
-import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.radio.antenna.types.data.DipoleAntennaData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
+public class DipoleAntennaType extends NonDirectionalAntennaType<DipoleAntennaData> {
 
-	public static final ResourceLocation ID = Radiocraft.location("dipole");
-
-	@Override
-	public ResourceLocation getId() {
-		return ID;
+	public DipoleAntennaType() {
+		super(Radiocraft.location("dipole"), 1.0D, 1.0D, 1.0D, 1.0D);
 	}
 
 	@Override
@@ -65,32 +55,11 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 	}
 
 	@Override
-	public double getSSBTransmitStrength(AntennaVoicePacket packet, DipoleAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
-		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
-
-		double baseStrength = BandUtils.getSSBBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, level.isDay());
-		return baseStrength * getEfficiency(packet.getWavelength(), data);
-	}
-
-	@Override
-	public double getCWTransmitStrength(AntennaCWPacket packet, DipoleAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
-
-		double baseStrength = BandUtils.getCWBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, packet.getLevel().isDay());
-		return baseStrength * getEfficiency(packet.getWavelength(), data);
-	}
-
-	@Override
-	public double getReceiveStrength(IAntennaPacket packet, DipoleAntennaData data, BlockPos pos) {
-		return packet.getStrength() * getEfficiency(packet.getWavelength(), data);
-	}
-
-	public double getEfficiency(int wavelength, DipoleAntennaData data) {
+	public double getSWR(DipoleAntennaData data, int wavelength) {
 		int desiredLength = (int)Math.round(wavelength / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
-		int incorrectBlocks = (int)(Math.abs(desiredLength - data.getArmLength1()) + Math.abs(desiredLength - data.getArmLength2()));
+		double incorrectBlocks = Math.abs(desiredLength - data.getArmLength1()) + Math.abs(desiredLength - data.getArmLength2());
 
-		return incorrectBlocks == 0 ? 1.0D : Math.pow(0.75D, incorrectBlocks);
+		return 1.0D + (0.5D * incorrectBlocks);
 	}
 
 	@Override

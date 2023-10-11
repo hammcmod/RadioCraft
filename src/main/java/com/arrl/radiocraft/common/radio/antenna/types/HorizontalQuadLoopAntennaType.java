@@ -1,31 +1,21 @@
 package com.arrl.radiocraft.common.radio.antenna.types;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
-import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
-import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.radio.antenna.types.data.HorizontalQuadLoopAntennaData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQuadLoopAntennaData> {
+public class HorizontalQuadLoopAntennaType extends NonDirectionalAntennaType<HorizontalQuadLoopAntennaData> {
 
-	public static final ResourceLocation ID = Radiocraft.location("horizontal_quad_loop");
-
-	@Override
-	public ResourceLocation getId() {
-		return ID;
+	public HorizontalQuadLoopAntennaType() {
+		super(Radiocraft.location("horizontal_quad_loop"), 1.0D, 1.0D, 0.25D, 1.25D);
 	}
 
 	@Override
@@ -86,30 +76,9 @@ public class HorizontalQuadLoopAntennaType implements IAntennaType<HorizontalQua
 	}
 
 	@Override
-	public double getSSBTransmitStrength(AntennaVoicePacket packet, HorizontalQuadLoopAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
-		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
-
-		double baseStrength = BandUtils.getSSBBaseStrength(packet.getWavelength(), distance, 0.25D, 1.25D, level.isDay());
-		return baseStrength * getEfficiency(packet.getWavelength(), data);
-	}
-
-	@Override
-	public double getCWTransmitStrength(AntennaCWPacket packet, HorizontalQuadLoopAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
-
-		double baseStrength = BandUtils.getCWBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, packet.getLevel().isDay());
-		return baseStrength * getEfficiency(packet.getWavelength(), data);
-	}
-
-	@Override
-	public double getReceiveStrength(IAntennaPacket packet, HorizontalQuadLoopAntennaData data, BlockPos pos) {
-		return packet.getStrength() * getEfficiency(packet.getWavelength(), data);
-	}
-
-	public double getEfficiency(int wavelength, HorizontalQuadLoopAntennaData data) {
-		int desiredLength = (int)Math.round(wavelength / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
-		return desiredLength == data.getSideLength() ? 1.0D : 0.1D;
+	public double getSWR(HorizontalQuadLoopAntennaData data, int wavelength) {
+		int desiredLength = (int)Math.round(wavelength / 4.0D);
+		return desiredLength == data.getSideLength() ? 1.0D : 10.0D;
 	}
 
 	@Override
