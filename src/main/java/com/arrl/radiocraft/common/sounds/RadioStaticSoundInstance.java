@@ -28,7 +28,7 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 			stop();
 		else {
 			if(radio.isPowered())
-				volume = RadiocraftClientValues.NOISE_VOLUME;
+				volume = RadiocraftClientValues.NOISE_VOLUME * radio;
 			else
 				volume = 0.0F;
 		}

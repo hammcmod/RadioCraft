@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 
 public class JPoleAntennaType implements IAntennaType<EmptyAntennaData> {
 
-    private final ResourceLocation id = Radiocraft.location("slim_jim");
+    private final ResourceLocation id = Radiocraft.location("j_pole");
 
     @Override
     public ResourceLocation getId() {

@@ -52,7 +52,7 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 					if(ssbSendCache.containsKey(antenna.getPos())) // Recalculate if value wasn't already present.
 						packet.setStrength(ssbSendCache.get(destination));
 					else {
-						packet.setStrength(type.getSSBTransmitEfficiency(packet, data, destination));
+						packet.setStrength(type.getTransmitEfficiency(packet, data, destination, false));
 						ssbSendCache.put(destination, packet.getStrength());
 					}
 
@@ -91,7 +91,7 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 					if(cwSendCache.containsKey(destination))
 						packet.setStrength(cwSendCache.get(destination));
 					else {
-						packet.setStrength(type.getCWTransmitEfficiency(packet, data, destination));
+						packet.setStrength(type.getTransmitEfficiency(packet, data, destination, true));
 						cwSendCache.put(destination, packet.getStrength());
 					}
 
@@ -137,6 +137,10 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 			this.network.removeAntenna(this);
 		network.addAntenna(this);
 		this.network = network;
+	}
+
+	public double getSWR(int wavelength) {
+		return type.getSWR(data, wavelength);
 	}
 
 }

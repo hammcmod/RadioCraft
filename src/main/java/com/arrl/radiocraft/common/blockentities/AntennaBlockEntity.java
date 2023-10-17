@@ -93,6 +93,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 			antenna = newAntenna;
 			network.addAntenna(antenna);
 			antenna.setNetwork(network);
+			updateConnectedRadios();
 			setChanged();
 		}
 	}
@@ -187,4 +188,11 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	public void networkUpdated(BENetwork network) {
 		updateConnectedRadios();
 	}
+
+	public double getSWR(int wavelength) {
+		if(radios.size() > 1)
+			return 10.0D;
+		return antenna == null ? 0 : antenna.getSWR(wavelength);
+	}
+
 }

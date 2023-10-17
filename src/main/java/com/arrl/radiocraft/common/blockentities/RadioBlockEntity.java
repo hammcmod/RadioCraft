@@ -40,6 +40,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
     protected final Radio radio; // Acts as a container for voip channel info
     protected final int receiveUsePower;
     protected final int transmitUsePower;
+    protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
 
     protected final ContainerData fields = new ContainerData() {
 
@@ -83,15 +84,22 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
             if(!level.isClientSide) {
                 if(!be.tryConsumePower(be.getPowerConsumption(), false)) // Turns off if it can't pull enough power for receiving.
                     be.powerOff();
+
+                double newSWR = 0.0D;
+                if(be.antennas.size() == 1)
+                    newSWR = ((AntennaBlockEntity)be.antennas.get(0).getNetworkItem()).getSWR(be.wavelength);
+                else if(be.antennas.size() > 1)
+                    newSWR = 10.0D;
+
+                if(newSWR != be.antennaSWR)
+                    be.updateBlock(); // If SWR has changed, notify the client about it.
             }
             be.additionalTick();
         }
     }
 
     // Override this for any additional ticks needed like CWSendBuffers
-    protected void additionalTick() {
-
-    }
+    protected void additionalTick() {}
 
     // -------------------- POWER IMPLEMENTATION --------------------
 
@@ -144,9 +152,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         return ssbEnabled ? getTransmitUsePower() : getReceiveUsePower();
     }
 
-    public void overdraw() {
-
-    }
+    public void overdraw() {}
 
     // -------------------- VOICE/RADIO IMPLEMENTATION --------------------
 
@@ -215,6 +221,14 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         return getBlockPos().getCenter();
     }
 
+    public double getStaticVolume() {
+        if(antennaSWR <= 0.02D)
+            return 0.0D;
+        else {
+            return 1.0D -
+        }
+    }
+
     // -------------------- BE NETWORKS IMPLEMENTATION --------------------
 
     @Override
@@ -245,6 +259,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         nbt.putBoolean("ssbEnabled", ssbEnabled);
         nbt.putInt("wavelength", wavelength);
         nbt.putInt("frequency", frequency);
+        nbt.putDouble("antennaSWR", antennaSWR);
     }
 
     /**
@@ -256,6 +271,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         ssbEnabled = nbt.getBoolean("ssbEnabled");
         wavelength = nbt.getInt("wavelength");
         frequency = nbt.getInt("frequency");
+        antennaSWR = nbt.getDouble("antennaSWR");
     }
 
     /**

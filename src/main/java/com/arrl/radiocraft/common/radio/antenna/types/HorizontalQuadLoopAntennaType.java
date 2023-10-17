@@ -78,7 +78,8 @@ public class HorizontalQuadLoopAntennaType extends NonDirectionalAntennaType<Hor
 	@Override
 	public double getSWR(HorizontalQuadLoopAntennaData data, int wavelength) {
 		int desiredLength = (int)Math.round(wavelength / 4.0D);
-		return desiredLength == data.getSideLength() ? 1.0D : 10.0D;
+		int incorrectBlocks = Math.abs(desiredLength - data.getSideLength());
+		return 1.0D + (0.5D * incorrectBlocks);
 	}
 
 	@Override
