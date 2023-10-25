@@ -4,6 +4,7 @@ package com.arrl.radiocraft.client.events;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.entity.AntennaWireEntityRenderer;
 import com.arrl.radiocraft.client.screens.*;
+import com.arrl.radiocraft.client.screens.radios.*;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.minecraft.client.gui.screens.MenuScreens;

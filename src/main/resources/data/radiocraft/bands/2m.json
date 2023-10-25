@@ -1,0 +1,10 @@
+{
+  "wavelength": 2,
+  "los": 500,
+  "minSkipDay": 0,
+  "maxSkipDay": 0,
+  "minSkipNight": 0,
+  "maxSkipNight": 0,
+  "minFrequency": 144000,
+  "maxFrequency": 146000
+}

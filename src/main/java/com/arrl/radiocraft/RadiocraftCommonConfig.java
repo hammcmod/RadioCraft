@@ -22,6 +22,8 @@ public class RadiocraftCommonConfig {
 	public static final ConfigValue<Integer> HF_RADIO_40M_TRANSMIT_TICK;
 	public static final ConfigValue<Integer> HF_RADIO_80M_RECEIVE_TICK;
 	public static final ConfigValue<Integer> HF_RADIO_80M_TRANSMIT_TICK;
+	public static final ConfigValue<Integer> VHF_BASE_STATION_RECEIVE_TICK;
+	public static final ConfigValue<Integer> VHF_BASE_STATION_TRANSMIT_TICK;
 	public static final ConfigValue<Integer> QRP_RADIO_20M_RECEIVE_TICK;
 	public static final ConfigValue<Integer> QRP_RADIO_20M_TRANSMIT_TICK;
 	public static final ConfigValue<Integer> QRP_RADIO_40M_RECEIVE_TICK;
@@ -48,10 +50,13 @@ public class RadiocraftCommonConfig {
 		HF_RADIO_40M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (40m) power consumption per tick (while transmitting) #default 375").define("hf_radio_40m_transmit", 375);
 		HF_RADIO_80M_RECEIVE_TICK = BUILDER.comment("*HF Radio (80m) power consumption per tick (while receiving) #default 125").define("hf_radio_80m_receive", 125);
 		HF_RADIO_80M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (80m) power consumption per tick (while transmitting) #default 375").define("hf_radio_80m_transmit", 375);
-		QRP_RADIO_20M_RECEIVE_TICK = BUILDER.comment("*QRP Radio (20m) power consumption per tick (while receiving) #default 125").define("qrp_radio_20m_receive", 63);
-		QRP_RADIO_20M_TRANSMIT_TICK = BUILDER.comment("*QRP Radio (20m) power consumption per tick (while transmitting) #default 375").define("qrp_radio_20m_transmit", 188);
-		QRP_RADIO_40M_RECEIVE_TICK = BUILDER.comment("*QRP Radio (40m) power consumption per tick (while receiving) #default 125").define("qrp_radio_40m_receive", 63);
-		QRP_RADIO_40M_TRANSMIT_TICK = BUILDER.comment("*QRP Radio (40m) power consumption per tick (while transmitting) #default 375").define("qrp_radio_40m_transmit", 188);
+		QRP_RADIO_20M_RECEIVE_TICK = BUILDER.comment("*QRP Radio (20m) power consumption per tick (while receiving) #default 63").define("qrp_radio_20m_receive", 63);
+		QRP_RADIO_20M_TRANSMIT_TICK = BUILDER.comment("*QRP Radio (20m) power consumption per tick (while transmitting) #default 188").define("qrp_radio_20m_transmit", 188);
+		QRP_RADIO_40M_RECEIVE_TICK = BUILDER.comment("*QRP Radio (40m) power consumption per tick (while receiving) #default 63").define("qrp_radio_40m_receive", 63);
+		QRP_RADIO_40M_TRANSMIT_TICK = BUILDER.comment("*QRP Radio (40m) power consumption per tick (while transmitting) #default 188").define("qrp_radio_40m_transmit", 188);
+		VHF_BASE_STATION_RECEIVE_TICK = BUILDER.comment("*VHF Base Station power consumption per tick (while receiving) #default 63").define("vhf_base_station_receive", 63);
+		VHF_BASE_STATION_TRANSMIT_TICK = BUILDER.comment("*VHF Base Station power consumption per tick (while transmitting) #default 188").define("vhf_base_station_transmit", 188);
+
 
 		BUILDER.pop();
 

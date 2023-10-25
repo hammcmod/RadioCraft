@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.client.screens;
+package com.arrl.radiocraft.client.screens.radios;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.RadiocraftServerConfig;
@@ -46,7 +46,7 @@ public class QRPRadio40mScreen extends HFRadioScreen<QRPRadio40mMenu> {
         int freq = menu.getFrequency();
 
         Band band = RadiocraftData.BANDS.getValue(menu.getWavelength());
-        int step = RadiocraftServerConfig.FREQUENCY_STEP.get();
+        int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
         int min = band.minFrequency();
         int max = (band.maxFrequency() - band.minFrequency()) / step * step + min;
 

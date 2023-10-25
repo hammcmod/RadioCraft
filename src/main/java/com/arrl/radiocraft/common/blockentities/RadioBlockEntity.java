@@ -196,7 +196,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
      */
     public void updateFrequency(int stepCount) {
         Band band = RadiocraftData.BANDS.getValue(wavelength);
-        int step = RadiocraftServerConfig.FREQUENCY_STEP.get();
+        int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
         int min = band.minFrequency();
         int max = (band.maxFrequency() - band.minFrequency()) / step * step + min; // This calc looks weird, but it's integer division, throws away remainder to ensure the freq doesn't do a "half step" to max.
 
@@ -223,7 +223,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
     }
 
     public double getStaticVolume() {
-        if(antennaSWR <= 0.02D)
+        if(antennaSWR <= 0.01D)
             return 0.0D;
         else {
             return SWRHelper.getLossMultiplier(antennaSWR);
@@ -294,7 +294,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         super.load(nbt);
         readSaveTag(nbt);
         Band band = RadiocraftData.BANDS.getValue(wavelength);
-        if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % RadiocraftServerConfig.FREQUENCY_STEP.get() != 0)
+        if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % RadiocraftServerConfig.HF_FREQUENCY_STEP.get() != 0)
             frequency = band.minFrequency(); // Reset frequency if the saved one was either out of bands or not aligned to the correct step size.
     }
 
