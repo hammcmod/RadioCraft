@@ -42,7 +42,7 @@ public class Radio {
 	public void receive(AntennaVoicePacket antennaPacket) {
 		if(isReceiving) {
 			if(receiveChannel == null)
-				openChannel(antennaPacket.getLevel());
+				openChannel(RadiocraftVoicePlugin.api.fromServerLevel(antennaPacket.getLevel()));
 
 			short[] rawAudio = antennaPacket.getRawAudio();
 			for(int i = 0; i < rawAudio.length; i++)

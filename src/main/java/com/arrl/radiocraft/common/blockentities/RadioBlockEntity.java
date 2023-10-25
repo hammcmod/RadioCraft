@@ -9,6 +9,7 @@ import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.Radio;
+import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
@@ -225,7 +226,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         if(antennaSWR <= 0.02D)
             return 0.0D;
         else {
-            return 1.0D -
+            return SWRHelper.getLossMultiplier(antennaSWR);
         }
     }
 

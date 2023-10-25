@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.radio.antenna;
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
+import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
@@ -52,7 +53,7 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 					if(ssbSendCache.containsKey(antenna.getPos())) // Recalculate if value wasn't already present.
 						packet.setStrength(ssbSendCache.get(destination));
 					else {
-						packet.setStrength(type.getTransmitEfficiency(packet, data, destination, false));
+						packet.setStrength(type.getTransmitEfficiency(packet, data, destination, false) * SWRHelper.getEfficiencyMultiplier(getSWR(wavelength)));
 						ssbSendCache.put(destination, packet.getStrength());
 					}
 
