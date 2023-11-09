@@ -3,8 +3,9 @@ package com.arrl.radiocraft.common.radio.antenna.types.vhf;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
+import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.BandUtils;
-import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.EmptyAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -21,8 +22,8 @@ public class SlimJimAntennaType implements IAntennaType<EmptyAntennaData> {
     }
 
     @Override
-    public BEAntenna<EmptyAntennaData> match(Level level, BlockPos pos) {
-        return null;
+    public StaticAntenna<EmptyAntennaData> match(Level level, BlockPos pos) {
+        return level.getBlockState(pos).is(RadiocraftBlocks.SLIM_JIM_ANTENNA.get()) ? new StaticAntenna<>(this, pos) : null;
     }
 
     @Override
@@ -42,7 +43,7 @@ public class SlimJimAntennaType implements IAntennaType<EmptyAntennaData> {
 
     @Override
     public double getSWR(EmptyAntennaData data, int wavelength) {
-        return 1.0D;
+        return wavelength == 2 ? 1.0D : 10.0D;
     }
 
     @Override

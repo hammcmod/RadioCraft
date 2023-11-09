@@ -2,7 +2,7 @@ package com.arrl.radiocraft.api.antenna;
 
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
-import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -16,7 +16,7 @@ import java.util.UUID;
  * {@link IAntenna} is an intermediary object acting as a link between the packets being sent around an
  * {@link IAntennaNetwork} and the {@link Level} the antennas are in.
  *
- * <p>See {@link BEAntenna} for an example implementation of this, where {@link IAntenna}s interact with
+ * <p>See {@link StaticAntenna} for an example implementation of this, where {@link IAntenna}s interact with
  * {@link BlockEntity}s. Caching the values from transmit and receive strengths is highly recommended.</p>
  */
 public interface IAntenna {

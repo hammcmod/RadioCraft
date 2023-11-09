@@ -13,7 +13,7 @@ import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
-import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
@@ -33,7 +33,7 @@ import java.util.*;
 public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 
 	private final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
-	public BEAntenna<?> antenna = null;
+	public StaticAntenna<?> antenna = null;
 	private final ResourceLocation networkId;
 
 	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage. Keep BENetworkEntry to ensure that it uses weak refs.
@@ -86,7 +86,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 	private void updateAntenna() {
 		AntennaNetwork network = AntennaNetworkManager.getNetwork(level, networkId);
 		IAntenna a = AntennaTypes.match(level, worldPosition);
-		if(a instanceof BEAntenna<?> newAntenna) {
+		if(a instanceof StaticAntenna<?> newAntenna) {
 			if(antenna != null)
 				network.removeAntenna(antenna);
 
@@ -146,7 +146,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		if(nbt.contains("antennaType")) {
 			IAntennaType<?> type = AntennaTypes.getType(new ResourceLocation(nbt.getString("antennaType")));
 			if(type != null) {
-				antenna = new BEAntenna<>(type, worldPosition);
+				antenna = new StaticAntenna<>(type, worldPosition);
 				antenna.deserializeNBT(nbt.getCompound("antennaData"));
 			}
 		}

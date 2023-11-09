@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.api.antenna;
 
-import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import net.minecraft.world.level.Level;
 
 import java.util.Set;
@@ -14,25 +14,25 @@ public interface IAntennaNetwork {
 	/**
 	 * IMPORTANT: Do not call this from the VoiP thread
 	 *
-	 * <p>Adds an {@link BEAntenna} to the network.</p>
+	 * <p>Adds an {@link StaticAntenna} to the network.</p>
 	 *
-	 * @param antenna The {@link BEAntenna} to be added.
+	 * @param antenna The {@link StaticAntenna} to be added.
 	 *
-	 * @returns The {@link BEAntenna} which was added.
+	 * @returns The {@link StaticAntenna} which was added.
 	 */
 	IAntenna addAntenna(IAntenna antenna);
 
 	/**
 	 * IMPORTANT: Do not call this from the VoiP thread
 	 *
-	 * <p>Removes an {@link BEAntenna} from the network.</p>
+	 * <p>Removes an {@link StaticAntenna} from the network.</p>
 	 *
-	 * @param antenna The {@link BEAntenna} to be removed.
+	 * @param antenna The {@link StaticAntenna} to be removed.
 	 */
 	void removeAntenna(IAntenna antenna);
 
 	/**
-	 * @return A list of all {@link BEAntenna}s present on the network.
+	 * @return A list of all {@link StaticAntenna}s present on the network.
 	 */
 	Set<IAntenna> allAntennas();
 

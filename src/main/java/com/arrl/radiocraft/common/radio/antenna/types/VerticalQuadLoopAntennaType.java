@@ -4,7 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.VerticalQuadLoopAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -19,7 +19,7 @@ public class VerticalQuadLoopAntennaType extends DirectionalAntennaType<Vertical
 		super(Radiocraft.location("vertical_quad_loop"), 1.0D, 1.0D, 1.25D, 1.25D);
 	}
 	@Override
-	public BEAntenna<VerticalQuadLoopAntennaData> match(Level level, BlockPos pos) {
+	public StaticAntenna<VerticalQuadLoopAntennaData> match(Level level, BlockPos pos) {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
 			return null; // Do not match if center block is not a 2:1 balun.
 
@@ -75,7 +75,7 @@ public class VerticalQuadLoopAntennaType extends DirectionalAntennaType<Vertical
 			return null; // Return null if the quad is not a square.
 
 		int sideLength = (int)Math.sqrt(Math.round(squarePoints.get(0).distSqr(squarePoints.get(1))));
-		return new BEAntenna<>(this, pos, new VerticalQuadLoopAntennaData(sideLength, xAxis));
+		return new StaticAntenna<>(this, pos, new VerticalQuadLoopAntennaData(sideLength, xAxis));
 	}
 
 	public boolean isSquare(List<BlockPos> points) {

@@ -13,7 +13,11 @@ import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.*;
 
-public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializable<CompoundTag> {
+/**
+ * {@link StaticAntenna} represents an Antenna which never moves, meaning the receiving and sending values can always be
+ * cached.
+ */
+public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSerializable<CompoundTag> {
 
 	public final IAntennaType<T> type;
 	public final T data;
@@ -27,13 +31,13 @@ public class BEAntenna<T extends AntennaData> implements IAntenna, INBTSerializa
 	private final Map<BlockPos, Double> cwSendCache = new HashMap<>();
 	private final Map<BlockPos, Double> cwReceiveCache = new HashMap<>();
 
-	public BEAntenna(IAntennaType<T> type, BlockPos pos, T data) {
+	public StaticAntenna(IAntennaType<T> type, BlockPos pos, T data) {
 		this.type = type;
 		this.data = data;
 		this.pos = pos;
 	}
 
-	public BEAntenna(IAntennaType<T> type, BlockPos pos) {
+	public StaticAntenna(IAntennaType<T> type, BlockPos pos) {
 		this.type = type;
 		this.data = type.getDefaultData();
 		this.pos = pos;

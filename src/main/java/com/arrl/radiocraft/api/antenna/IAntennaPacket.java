@@ -1,11 +1,11 @@
 package com.arrl.radiocraft.api.antenna;
 
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
-import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import net.minecraft.server.level.ServerLevel;
 
 /**
- * An object representing data being sent between two {@link BEAntenna}s.
+ * An object representing data being sent between two {@link StaticAntenna}s.
  *
  * <p>See {@link AntennaCWPacket} for an example implementation of {@link IAntennaPacket}</p>
  */

@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.api.antenna;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -42,14 +42,14 @@ public class AntennaTypes {
 	}
 
 	/**
-	 * Attempt to check for a valid {@link BEAntenna} at the provided location.
+	 * Attempt to check for a valid {@link StaticAntenna} at the provided location.
 	 * @param level The {@link Level} to check.
 	 * @param pos The {@link BlockPos} the antenna is located at.
-	 * @return An {@link BEAntenna} of the first matching type, otherwise null if there was no valid antenna.
+	 * @return An {@link StaticAntenna} of the first matching type, otherwise null if there was no valid antenna.
 	 */
-	public static BEAntenna<?> match(Level level, BlockPos pos) {
+	public static StaticAntenna<?> match(Level level, BlockPos pos) {
 		for(IAntennaType<?> type : REGISTRY.values()) {
-			BEAntenna<?> antenna = type.match(level, pos);
+			StaticAntenna<?> antenna = type.match(level, pos);
 			if(antenna != null)
 				return antenna;
 		}

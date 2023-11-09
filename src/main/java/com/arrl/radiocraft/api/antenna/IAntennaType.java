@@ -36,7 +36,7 @@ public interface IAntennaType<T extends AntennaData> {
 	 *
 	 * @return The matching antenna, otherwise null if no match is found.
 	 */
-	BEAntenna<T> match(Level level, BlockPos pos);
+	StaticAntenna<T> match(Level level, BlockPos pos);
 
 	/**
 	 * Get the strength multiplier for transmitting an {@link IAntennaPacket} to a given destination.

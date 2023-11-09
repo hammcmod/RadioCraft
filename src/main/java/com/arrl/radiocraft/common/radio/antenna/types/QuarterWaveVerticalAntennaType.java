@@ -3,7 +3,7 @@ package com.arrl.radiocraft.common.radio.antenna.types;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.QuarterWaveVerticalAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -16,7 +16,7 @@ public class QuarterWaveVerticalAntennaType extends NonDirectionalAntennaType<Qu
 	}
 
 	@Override
-	public BEAntenna<QuarterWaveVerticalAntennaData> match(Level level, BlockPos pos) {
+	public StaticAntenna<QuarterWaveVerticalAntennaData> match(Level level, BlockPos pos) {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
 			return null; // Do not match if center block is not a 1:1 balun.
 
@@ -27,7 +27,7 @@ public class QuarterWaveVerticalAntennaType extends NonDirectionalAntennaType<Qu
 		if(height == 0)
 			return null; // Do not match if there is no pole.
 
-		return new BEAntenna<>(this, pos, new QuarterWaveVerticalAntennaData(height));
+		return new StaticAntenna<>(this, pos, new QuarterWaveVerticalAntennaData(height));
 	}
 
 	public int getHeight(Level level, BlockPos pos) {

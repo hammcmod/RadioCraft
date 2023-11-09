@@ -4,7 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.radio.antenna.BEAntenna;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.EndFedAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -19,7 +19,7 @@ public class EndFedAntennaType extends  NonDirectionalAntennaType<EndFedAntennaD
 	}
 
 	@Override
-	public BEAntenna<EndFedAntennaData> match(Level level, BlockPos pos) {
+	public StaticAntenna<EndFedAntennaData> match(Level level, BlockPos pos) {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
 			return null; // Do not match if center block is not a 1:1 balun.
 
@@ -39,7 +39,7 @@ public class EndFedAntennaType extends  NonDirectionalAntennaType<EndFedAntennaD
 		BlockPos relativeBlockPos = end.subtract(pos);
 		Vec3 relative = new Vec3(relativeBlockPos.getX(), relativeBlockPos.getY(), relativeBlockPos.getZ());
 
-		return new BEAntenna<>(this, pos, new EndFedAntennaData(relative.length()));
+		return new StaticAntenna<>(this, pos, new EndFedAntennaData(relative.length()));
 	}
 
 	@Override
