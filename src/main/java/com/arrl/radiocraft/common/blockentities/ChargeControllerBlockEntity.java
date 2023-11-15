@@ -97,6 +97,7 @@ public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity implem
 							break;
 					}
 				}
+				be.lastPowerTick -= energyToPush; // Set lastPowerTick to the amount which was actually pushed.
 				be.energyStorage.setEnergy(energyToPush); // Set energy to the remainder after pushing.
 			}
 		}
