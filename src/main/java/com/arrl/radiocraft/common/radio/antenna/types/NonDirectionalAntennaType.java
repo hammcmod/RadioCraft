@@ -31,7 +31,7 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
     @Override
     public double getTransmitEfficiency(IAntennaPacket packet, T data, BlockPos destination, boolean isCW) {
         double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination));
-        return transmit * BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, 1.0D, 1.0D, packet.getLevel().isDay());
+        return transmit * BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, los, skip, packet.getLevel().isDay());
     }
 
     @Override

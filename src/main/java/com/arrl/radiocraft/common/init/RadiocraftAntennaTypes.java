@@ -4,6 +4,7 @@ import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.common.radio.antenna.types.*;
 import com.arrl.radiocraft.common.radio.antenna.types.vhf.JPoleAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.vhf.SlimJimAntennaType;
+import com.arrl.radiocraft.common.radio.antenna.types.vhf.YagiAntennaType;
 
 public class RadiocraftAntennaTypes {
 
@@ -17,6 +18,7 @@ public class RadiocraftAntennaTypes {
 	// VHF Antennas
 	public static JPoleAntennaType J_POLE;
 	public static SlimJimAntennaType SLIM_JIM;
+	public static YagiAntennaType YAGI;
 
 	public static void register() {
 		DIPOLE = AntennaTypes.registerType(new DipoleAntennaType());
@@ -27,6 +29,7 @@ public class RadiocraftAntennaTypes {
 
 		J_POLE = AntennaTypes.registerType(new JPoleAntennaType());
 		SLIM_JIM = AntennaTypes.registerType(new SlimJimAntennaType());
+		YAGI = AntennaTypes.registerType(new YagiAntennaType());
 	}
 
 }

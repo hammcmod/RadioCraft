@@ -2,22 +2,18 @@ package com.arrl.radiocraft.common.radio.antenna.types.vhf;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
-import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
+import com.arrl.radiocraft.common.radio.antenna.types.NonDirectionalAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.data.EmptyAntennaData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
-public class JPoleAntennaType implements IAntennaType<EmptyAntennaData> {
+public class JPoleAntennaType extends NonDirectionalAntennaType<EmptyAntennaData> {
 
-    private final ResourceLocation id = Radiocraft.location("j_pole");
-
-    @Override
-    public ResourceLocation getId() {
-        return id;
+    public JPoleAntennaType() {
+        super(Radiocraft.location("j_pole"), 1.0D, 1.0D, 1.0D, 0.0D);
     }
 
     @Override
@@ -29,11 +25,6 @@ public class JPoleAntennaType implements IAntennaType<EmptyAntennaData> {
     public double getTransmitEfficiency(IAntennaPacket packet, EmptyAntennaData data, BlockPos destination, boolean isCW) {
         double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination)) / 1.3D;
         return BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, 1.0F, 0.0F, packet.getLevel().isDay());
-    }
-
-    @Override
-    public double getReceiveEfficiency(IAntennaPacket packet, EmptyAntennaData data, BlockPos pos) {
-        return 1.0D;
     }
 
     @Override

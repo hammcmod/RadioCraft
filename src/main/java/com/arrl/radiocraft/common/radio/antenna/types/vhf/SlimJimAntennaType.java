@@ -2,23 +2,19 @@ package com.arrl.radiocraft.common.radio.antenna.types.vhf;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
-import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
+import com.arrl.radiocraft.common.radio.antenna.types.NonDirectionalAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.data.EmptyAntennaData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 
-public class SlimJimAntennaType implements IAntennaType<EmptyAntennaData> {
+public class SlimJimAntennaType extends NonDirectionalAntennaType<EmptyAntennaData> {
 
-    private final ResourceLocation id = Radiocraft.location("slim_jim");
-
-    @Override
-    public ResourceLocation getId() {
-        return id;
+    public SlimJimAntennaType() {
+        super(Radiocraft.location("slim_jim"), 1.0D, 1.0D, 1.0D, 0.0D);
     }
 
     @Override
