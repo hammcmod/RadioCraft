@@ -32,9 +32,10 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		complexBlockWithItem(RadiocraftBlocks.ANTENNA_POLE.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.QRP_RADIO_40M.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.QRP_RADIO_20M.get());
-		complexBlockWithItem(RadiocraftBlocks.VHF_BASE_STATION.get());
-		complexBlockWithItem(RadiocraftBlocks.VHF_RECEIVER.get());
-		complexBlockWithItem(RadiocraftBlocks.HF_RECEIVER.get());
+		complexHorizontalBlockWithItem(RadiocraftBlocks.VHF_BASE_STATION.get());
+		complexHorizontalBlockWithItem(RadiocraftBlocks.VHF_RECEIVER.get());
+		complexHorizontalBlockWithItem(RadiocraftBlocks.HF_RECEIVER.get());
+		complexHorizontalBlockWithItem(RadiocraftBlocks.VHF_REPEATER.get());
 	}
 
 	private void simpleBlockWithItem(Block block) {

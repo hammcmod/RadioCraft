@@ -35,7 +35,7 @@ public class RadiocraftBlocks {
 	// Radios/receivers/repeaters
 	public static final RegistryObject<Block> VHF_BASE_STATION = BLOCKS.register("vhf_base_station", () -> new VHFBaseStationBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> VHF_RECEIVER = BLOCKS.register("vhf_receiver", () -> new VHFReceiverBlock(PROPERTIES_RADIO));
-	public static final RegistryObject<Block> VHF_REPEATER = simpleBlock("vhf_repeater", PROPERTIES_STONE);
+	public static final RegistryObject<Block> VHF_REPEATER = BLOCKS.register("vhf_repeater", () -> new VHFRepeaterBlock(PROPERTIES_RADIO));
 
 	public static final RegistryObject<Block> HF_RADIO_10M = BLOCKS.register("hf_radio_10m", () -> new HFRadio10mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> HF_RADIO_20M = BLOCKS.register("hf_radio_20m", () -> new HFRadio20mBlock(PROPERTIES_RADIO));

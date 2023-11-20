@@ -9,6 +9,7 @@ public class MenuUtils {
 	/**
 	 * Helper method to grab a {@link BlockEntity} for use in screens.
 	 */
+	@SuppressWarnings("unchecked")
 	public static <C extends BlockEntity> C getBlockEntity(Inventory playerInventory, FriendlyByteBuf data, Class<C> clazz) {
 		BlockEntity be = playerInventory.player.level.getBlockEntity(data.readBlockPos());
 
