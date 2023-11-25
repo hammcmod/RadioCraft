@@ -41,7 +41,6 @@ public class RadiocraftTabs {
 							output.accept(RadiocraftItems.CHARGE_CONTROLLER.get());
 							output.accept(RadiocraftItems.SOLAR_WEATHER_STATION.get());
 							output.accept(RadiocraftItems.VHF_BASE_STATION.get());
-							output.accept(RadiocraftItems.VHF_BASE_STATION.get());
 							output.accept(RadiocraftItems.VHF_RECEIVER.get());
 							output.accept(RadiocraftItems.VHF_REPEATER.get());
 							output.accept(RadiocraftItems.HF_RADIO_10M.get());
@@ -61,6 +60,9 @@ public class RadiocraftTabs {
 							output.accept(RadiocraftItems.BALUN_TWO_TO_ONE.get());
 							output.accept(RadiocraftItems.COAX_WIRE.get());
 							output.accept(RadiocraftItems.DIGITAL_INTERFACE.get());
+							output.accept(RadiocraftItems.YAGI_ANTENNA.get());
+							output.accept(RadiocraftItems.J_POLE_ANTENNA.get());
+							output.accept(RadiocraftItems.SLIM_JIM_ANTENNA.get());
 						})
 		);
 	}
