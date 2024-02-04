@@ -23,6 +23,9 @@ public class RadiocraftMenuTypes {
 	public static final RegistryObject<MenuType<HFReceiverMenu>> HF_RECEIVER = MENU_TYPES.register("hf_receiver", () -> IForgeMenuType.create(HFReceiverMenu::new));
 	public static final RegistryObject<MenuType<QRPRadio20mMenu>> QRP_RADIO_20M = MENU_TYPES.register("qrp_radio_20m", () -> IForgeMenuType.create(QRPRadio20mMenu::new));
 	public static final RegistryObject<MenuType<QRPRadio40mMenu>> QRP_RADIO_40M = MENU_TYPES.register("qrp_radio_40m", () -> IForgeMenuType.create(QRPRadio40mMenu::new));
+
 	public static final RegistryObject<MenuType<VHFBaseStationMenu>> VHF_BASE_STATION = MENU_TYPES.register("vhf_base_station", () -> IForgeMenuType.create(VHFBaseStationMenu::new));
+
+	public static final RegistryObject<MenuType<VHFReceiverMenu>> VHF_RECEIVER = MENU_TYPES.register("vhf_receiver", () -> IForgeMenuType.create(VHFReceiverMenu::new));
 
 }
