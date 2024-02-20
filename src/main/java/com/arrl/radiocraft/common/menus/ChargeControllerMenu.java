@@ -5,11 +5,12 @@ import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.items.ItemStackHandler;
+import net.minecraftforge.items.SlotItemHandler;
 
 public class ChargeControllerMenu extends AbstractContainerMenu {
 
@@ -17,18 +18,28 @@ public class ChargeControllerMenu extends AbstractContainerMenu {
 	private final ContainerLevelAccess canInteractWithCallable;
 	private final ContainerData data;
 
-	public ChargeControllerMenu(final int id, final ChargeControllerBlockEntity be, ContainerData data) {
+	public ChargeControllerMenu(final int id, Inventory playerInventory, final ChargeControllerBlockEntity be, ContainerData data) {
 		super(RadiocraftMenuTypes.CHARGE_CONTROLLER.get(), id);
 		this.blockEntity = be;
 		this.canInteractWithCallable = ContainerLevelAccess.create(be.getLevel(), be.getBlockPos());
 		this.data = data;
 		addDataSlots(this.data);
 
-		addSlot(new BatterySlot(be.inventoryWrapper, 0, 172, 178));
+		addSlot(new BatterySlot(be.inventory, 0, 66, 41));
+
+		for (int y = 0; y < 3; y++) { // Main Inventory
+			for (int x = 0; x < 9; x++) {
+				addSlot(new Slot(playerInventory, x + (y * 9) + 9, 8 + (x * 18), 131 + (y * 18)));
+			}
+		}
+		for (int x = 0; x < 9; x++) { // Hotbar
+			addSlot(new Slot(playerInventory, x, 8 + (18 * x), 189));
+		}
+
 	}
 
 	public ChargeControllerMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
-		this(id, MenuUtils.getBlockEntity(playerInventory, data, ChargeControllerBlockEntity.class), new SimpleContainerData(1));
+		this(id, playerInventory, MenuUtils.getBlockEntity(playerInventory, data, ChargeControllerBlockEntity.class), new SimpleContainerData(1));
 	}
 
 	public int getPowerTick() {
@@ -45,10 +56,10 @@ public class ChargeControllerMenu extends AbstractContainerMenu {
 		return ItemStack.EMPTY;
 	}
 
-	public static class BatterySlot extends Slot {
+	public static class BatterySlot extends SlotItemHandler {
 
-		public BatterySlot(Container container, int index, int x, int y) {
-			super(container, index, x, y);
+		public BatterySlot(ItemStackHandler inventory, int index, int x, int y) {
+			super(inventory, index, x, y);
 		}
 
 		@Override

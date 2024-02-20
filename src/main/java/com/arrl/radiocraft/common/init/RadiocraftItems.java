@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.init;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.items.AntennaPoleItem;
 import com.arrl.radiocraft.common.items.AntennaWireItem;
+import com.arrl.radiocraft.common.items.SmallBatteryItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
@@ -25,7 +26,7 @@ public class RadiocraftItems {
 	public static final RegistryObject<Item> RADIO_SPEAKER = simpleItem("radio_speaker");
 	public static final RegistryObject<Item> HAND_MICROPHONE = simpleItem("hand_microphone");
 	public static final RegistryObject<Item> HF_CIRCUIT_BOARD = simpleItem("hf_circuit_board");
-	public static final RegistryObject<Item> SMALL_BATTERY = simpleItem("small_battery");
+	public static final RegistryObject<Item> SMALL_BATTERY = ITEMS.register("small_battery", () -> new SmallBatteryItem(new Properties().stacksTo(1)));
 	public static final RegistryObject<Item> FERRITE_CORE = simpleItem("ferrite_core");
 	public static final RegistryObject<Item> COAXIAL_CORE = simpleItem("coaxial_core");
 	public static final RegistryObject<Item> ANTENNA_ANALYZER = simpleItem("antenna_analyzer");

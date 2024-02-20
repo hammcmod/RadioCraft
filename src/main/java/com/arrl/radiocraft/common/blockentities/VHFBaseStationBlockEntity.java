@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.RadiocraftCommonConfig;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
+import com.arrl.radiocraft.common.menus.VHFBaseStationMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -23,7 +24,7 @@ public class VHFBaseStationBlockEntity extends RadioBlockEntity {
 
     @Nullable
     @Override
-    public AbstractContainerMenu createMenu(int pContainerId, Inventory pPlayerInventory, Player pPlayer) {
-        return null;
+    public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
+        return new VHFBaseStationMenu(id, this, fields);
     }
 }

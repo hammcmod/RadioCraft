@@ -10,7 +10,9 @@ public class RadiocraftCommonConfig {
 
 	public static final ConfigValue<Integer> LARGE_BATTERY_CAPACITY;
 	public static final ConfigValue<Integer> LARGE_BATTERY_OUTPUT;
+	public static final ConfigValue<Integer> SMALL_BATTERY_CAPACITY;
 	public static final ConfigValue<Integer> CHARGE_CONTROLLER_TICK;
+	public static final ConfigValue<Integer> CHARGE_CONTROLLER_BATTERY_CHARGE;
 	public static final ConfigValue<Integer> SOLAR_PANEL_MAX_OUTPUT;
 	public static final ConfigValue<Double> SOLAR_PANEL_RAIN_MULTIPLIER;
 
@@ -38,7 +40,9 @@ public class RadiocraftCommonConfig {
 		BUILDER.push("Power Options ( * = Restart game to take effect)");
 		LARGE_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of large batteries. #default 1500000 integer").define("large_battery_capacity", 1500000);
 		LARGE_BATTERY_OUTPUT = BUILDER.comment("*Max output per tick for a large battery. #default 1250").define("large_battery_output", 1250);
+		SMALL_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of small batteries. #default 125000 integer").define("small_battery_capacity", 125000);
 		CHARGE_CONTROLLER_TICK = BUILDER.comment("*Amount of power a charge controller can process each tick. #default 625 integer").define("charge_controller_tick", 625);
+		CHARGE_CONTROLLER_BATTERY_CHARGE = BUILDER.comment("*Amount of power a charge controller can transfer to a small battery each tick. #default 10 integer").define("charge_controller_battery_charge", 10);
 		SOLAR_PANEL_MAX_OUTPUT = BUILDER.comment("*Maximum output of a solar power per tick. #default 125").define("solar_panel_max_output integer", 125);
 		SOLAR_PANEL_RAIN_MULTIPLIER = BUILDER.comment("*Multiplier for solar panel output while raining #default 0.5").define("solar_panel_rain_multiplier double", 0.5D);
 		BUILDER.pop();
