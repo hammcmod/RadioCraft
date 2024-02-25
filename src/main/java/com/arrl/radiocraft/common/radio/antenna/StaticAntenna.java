@@ -53,8 +53,8 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 					AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequency, 1.0F, this, sourcePlayer);
 
 					// Calculate the strength this packet should be sent at.
-					BlockPos destination = antenna.getPos();
-					if(ssbSendCache.containsKey(antenna.getPos())) // Recalculate if value wasn't already present.
+					BlockPos destination = antenna.getBlockPos();
+					if(ssbSendCache.containsKey(antenna.getBlockPos())) // Recalculate if value wasn't already present.
 						packet.setStrength(ssbSendCache.get(destination));
 					else {
 						packet.setStrength(type.getTransmitEfficiency(packet, data, destination, false) * SWRHelper.getEfficiencyMultiplier(getSWR(wavelength)));
@@ -71,7 +71,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	public void receiveAudioPacket(AntennaVoicePacket packet) {
 		// level#getBlockEntity is thread sensitive for some unknown reason.
 		if(network.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof AntennaBlockEntity be) {
-			BlockPos source = packet.getSource().getPos();
+			BlockPos source = packet.getSource().getBlockPos();
 			if(ssbReceiveCache.containsKey(source))
 				packet.setStrength(packet.getStrength() * ssbReceiveCache.get(source));
 			else {
@@ -92,7 +92,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 					AntennaCWPacket packet = new AntennaCWPacket(level, buffers, wavelength, frequency, 1.0F, this);
 
 					// Calculate the strength this packet should be sent at.
-					BlockPos destination = antenna.getPos();
+					BlockPos destination = antenna.getBlockPos();
 					if(cwSendCache.containsKey(destination))
 						packet.setStrength(cwSendCache.get(destination));
 					else {
@@ -110,7 +110,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	public void receiveCWPacket(AntennaCWPacket packet) {
 		if(network.getLevel().getBlockEntity(pos) instanceof AntennaBlockEntity be) {
 
-			BlockPos source = packet.getSource().getPos();
+			BlockPos source = packet.getSource().getBlockPos();
 			if(cwReceiveCache.containsKey(source))
 				packet.setStrength(cwReceiveCache.get(source));
 			else {
@@ -123,7 +123,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	}
 
 	@Override
-	public BlockPos getPos() {
+	public BlockPos getBlockPos() {
 		return pos;
 	}
 

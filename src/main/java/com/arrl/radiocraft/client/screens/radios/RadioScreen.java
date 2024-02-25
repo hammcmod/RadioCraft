@@ -49,8 +49,6 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 
 		renderAdditionalTooltips(poseStack, mouseX, mouseY, partialTicks);
-
-		RadiocraftClientValues.SCREEN_SSB_ENABLED = menu.blockEntity.getSSBEnabled();
 	}
 
 	/**

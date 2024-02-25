@@ -34,15 +34,19 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 
 	private final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
 	public StaticAntenna<?> antenna = null;
-	private final ResourceLocation networkId;
+	protected ResourceLocation networkId;
 
 	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage. Keep BENetworkEntry to ensure that it uses weak refs.
 	private final List<BENetworkEntry> radios = Collections.synchronizedList(new ArrayList<>());
 	private int antennaCheckCooldown = -1;
 
 	public AntennaBlockEntity(BlockPos pos, BlockState state) {
+		this(pos, state, AntennaNetworkManager.HF_ID);
+	}
+
+	public AntennaBlockEntity(BlockPos pos, BlockState state, ResourceLocation networkId) {
 		super(RadiocraftBlockEntities.ANTENNA.get(), pos, state);
-		this.networkId = AntennaNetworkManager.HF_ID;
+		this.networkId = networkId;
 	}
 
 	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
@@ -136,6 +140,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		if(antenna != null) {
 			nbt.putString("antennaType", antenna.type.getId().toString());
 			nbt.put("antennaData", antenna.serializeNBT());
+			nbt.putString("networkId", networkId.toString());
 		}
 	}
 
@@ -150,6 +155,7 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 				antenna.deserializeNBT(nbt.getCompound("antennaData"));
 			}
 		}
+		networkId = new ResourceLocation(nbt.getString("networkId"));
 	}
 
 	@Override

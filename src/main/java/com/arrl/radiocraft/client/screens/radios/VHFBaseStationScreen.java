@@ -7,7 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
-public class VHFBaseStationScreen extends RadioScreen<VHFBaseStationMenu> {
+public class VHFBaseStationScreen extends VHFRadioScreen<VHFBaseStationMenu> {
 
 	public VHFBaseStationScreen(VHFBaseStationMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title, Radiocraft.location("textures/gui/vhf_base_station.png"), Radiocraft.location("textures/gui/vhf_base_station_widgets.png"));

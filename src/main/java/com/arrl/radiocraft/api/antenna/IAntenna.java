@@ -55,6 +55,6 @@ public interface IAntenna {
 	/**
 	 * @return The {@link BlockPos} containing this {@link IAntenna}. Used for calculating signal strengths.
 	 */
-	BlockPos getPos();
+	BlockPos getBlockPos();
 
 }

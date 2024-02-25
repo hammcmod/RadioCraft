@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.items.AntennaPoleItem;
 import com.arrl.radiocraft.common.items.AntennaWireItem;
 import com.arrl.radiocraft.common.items.SmallBatteryItem;
+import com.arrl.radiocraft.common.items.VHFHandheldItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
@@ -30,7 +31,7 @@ public class RadiocraftItems {
 	public static final RegistryObject<Item> FERRITE_CORE = simpleItem("ferrite_core");
 	public static final RegistryObject<Item> COAXIAL_CORE = simpleItem("coaxial_core");
 	public static final RegistryObject<Item> ANTENNA_ANALYZER = simpleItem("antenna_analyzer");
-	public static final RegistryObject<Item> VHF_HANDHELD = simpleItem("vhf_handheld");
+	public static final RegistryObject<Item> VHF_HANDHELD = ITEMS.register("vhf_handheld", () -> new VHFHandheldItem(new Properties().stacksTo(1)));
 	public static final RegistryObject<Item> ANTENNA_WIRE = ITEMS.register("antenna_wire", () -> new AntennaWireItem(new Properties()));
 
 	// Block Items

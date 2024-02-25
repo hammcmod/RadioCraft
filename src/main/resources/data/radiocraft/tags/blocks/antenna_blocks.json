@@ -1,7 +1,11 @@
 {
   "values": [
     "radiocraft:balun_one_to_one",
+    "radiocraft:balun_two_to_one",
     "radiocraft:antenna_connector",
-    "radiocraft:antenna_pole"
+    "radiocraft:antenna_pole",
+    "radiocraft:j_pole_antenna",
+    "radiocraft:slim_jim_antenna",
+    "radiocraft:yagi_antenna"
   ]
 }

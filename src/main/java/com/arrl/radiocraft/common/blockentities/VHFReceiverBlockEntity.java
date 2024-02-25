@@ -11,7 +11,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class VHFReceiverBlockEntity extends RadioBlockEntity {
+public class VHFReceiverBlockEntity extends VHFRadioBlockEntity {
 
     public VHFReceiverBlockEntity(BlockPos pos, BlockState state) {
         super(RadiocraftBlockEntities.VHF_RECEIVER.get(), pos, state, RadiocraftCommonConfig.VHF_RECEIVER_TICK.get(), 0, 2);

@@ -1,14 +1,13 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.RadiocraftServerConfig;
-import com.arrl.radiocraft.api.blockentities.radio.IVoiceReceiver;
+import com.arrl.radiocraft.api.blockentities.radio.IBEVoiceReceiver;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
-import com.arrl.radiocraft.client.blockentity.RadioBlockEntityClientHandler;
 import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftData;
+import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
 import com.arrl.radiocraft.common.radio.Band;
-import com.arrl.radiocraft.common.radio.Radio;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
@@ -27,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE, IVoiceTransmitter, IVoiceReceiver {
+public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE, IVoiceTransmitter, IBEVoiceReceiver {
 
     protected final List<BENetwork.BENetworkEntry> antennas = Collections.synchronizedList(new ArrayList<>());
 
@@ -38,7 +37,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
     protected int wavelength; // Wavelength the frequency is currently on, usually not changed.
     protected int frequency; // Frequency the radio is currently using (in kHz)
 
-    protected final Radio radio; // Acts as a container for voip channel info
+    protected final BEVoiceReceiver radio; // Acts as a container for voip channel info
     protected final int receiveUsePower;
     protected final int transmitUsePower;
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
@@ -76,8 +75,9 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         this.receiveUsePower = receiveUsePower;
         this.transmitUsePower = transmitUsePower;
         this.wavelength = wavelength;
-        this.frequency = RadiocraftData.BANDS.getValue(wavelength).minFrequency();
-        this.radio = new Radio(pos.getX(), pos.getY(), pos.getZ());
+        Band band = RadiocraftData.BANDS.getValue(wavelength);
+        this.frequency = band == null ? 0 : band.minFrequency();
+        this.radio = new BEVoiceReceiver(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
@@ -92,8 +92,10 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
                 else if(be.antennas.size() > 1)
                     newSWR = 10.0D;
 
-                if(newSWR != be.antennaSWR)
+                if(newSWR != be.antennaSWR) {
+                    be.antennaSWR = newSWR;
                     be.updateBlock(); // If SWR has changed, notify the client about it.
+                }
             }
             be.additionalTick();
         }
@@ -158,7 +160,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
     // -------------------- VOICE/RADIO IMPLEMENTATION --------------------
 
     @Override
-    public Radio getRadio() {
+    public BEVoiceReceiver getRadio() {
         return radio;
     }
 
@@ -226,7 +228,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         if(antennaSWR <= 0.01D)
             return 0.0D;
         else {
-            return SWRHelper.getLossMultiplier(antennaSWR);
+            return SWRHelper.getEfficiencyMultiplier(antennaSWR);
         }
     }
 
@@ -234,8 +236,6 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
 
     @Override
     public void networkUpdated(BENetwork network) {
-        super.networkUpdated(network);
-
         antennas.clear(); // Recalculate ALL antennas because unable to tell if one was added or removed.
         for(Set<BENetwork> side : networks.values()) {
             for(BENetwork _network : side) {
@@ -279,9 +279,7 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
      * Override this method if you need other sound instances-- for example {@link RadioMorseSoundInstance}. Only called
      * clientside.
      */
-    protected void setupSoundInstances() {
-        RadioBlockEntityClientHandler.startStaticSoundInstance(this);
-    }
+    protected void setupSoundInstances() {}
 
     @Override
     protected void saveAdditional(CompoundTag nbt) {
@@ -354,6 +352,10 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
             // Flag of 2 (0010) causes update to be sent to client, but no actual block updates.
             level.sendBlockUpdated(worldPosition, state, state, 2);
         }
+    }
+
+    public boolean shouldPlayStatic() {
+        return getSSBEnabled();
     }
 
 }

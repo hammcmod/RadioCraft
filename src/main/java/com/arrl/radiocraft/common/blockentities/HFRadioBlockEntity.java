@@ -51,7 +51,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 
 	@Override
 	public void receiveCW(AntennaCWPacket packet) {
-		if(!level.isClientSide) {
+		if(!level.isClientSide && getCWEnabled()) {
 			if(antennas.size() == 1)
 				// Send necessary buffers to clients tracking this BE, these will get re-ordered and then played back on the client.
 				RadiocraftPackets.sendToTrackingChunk(new CWBufferPacket(level.dimension(), worldPosition, packet.getBuffers(), (float)packet.getStrength()), level.getChunkAt(worldPosition));
@@ -115,6 +115,11 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	protected void setupSoundInstances() {
 		super.setupSoundInstances();
 		RadioBlockEntityClientHandler.startMorseSoundInstance(this);
+		RadioBlockEntityClientHandler.startStaticSoundInstance(this);
 	}
 
+	@Override
+	public boolean shouldPlayStatic() {
+		return getSSBEnabled() || getCWEnabled();
+	}
 }

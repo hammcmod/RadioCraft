@@ -50,12 +50,12 @@ public class HFRadio10mScreen extends HFRadioScreen<HFRadio10mMenu> {
 
 	@Override
 	protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) {
-//		if(menu.blockEntity.isPowered()) {
+		if(menu.blockEntity.isPowered()) {
 //			if(menu.blockEntity.isTransmitting())
 //				blit(poseStack, leftPos + 30, topPos + 15, 1, 148, 29, 15);
 //			if(menu.blockEntity.isReceiving())
 //				blit(poseStack, leftPos + 59, topPos + 15, 30, 148, 29, 15);
-//		}
+		}
 	}
 
 	@Override

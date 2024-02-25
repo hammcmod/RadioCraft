@@ -28,7 +28,7 @@ public class SlimJimAntennaType extends NonDirectionalAntennaType<EmptyAntennaDa
         if(level.isThundering())
             return 0.0D;
 
-        double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination)) / 1.2D;
+        double distance = Math.sqrt(packet.getSource().getBlockPos().distSqr(destination)) / 1.2D;
         return BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, 1.0F, 0.0F, level.isDay());
     }
 

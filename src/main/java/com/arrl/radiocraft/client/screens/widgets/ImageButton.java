@@ -35,7 +35,7 @@ public class ImageButton extends Button {
 //		int yBlit = !isActive() ? v : v + height;
 
 		RenderSystem.enableDepthTest();
-		blit(poseStack, this.getX(), this.getY(), xBlit, v, width, height, textureWidth, textureHeight);
+		blit(poseStack, getX(), getY(), xBlit, v, width, height, textureWidth, textureHeight);
 	}
 
 	@OnlyIn(Dist.CLIENT)

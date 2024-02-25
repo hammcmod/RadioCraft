@@ -3,46 +3,42 @@ package com.arrl.radiocraft.common.radio;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
-import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
-import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
+import net.minecraft.world.entity.Entity;
 
 import java.util.UUID;
 
 /**
- * {@link Radio} is used for interacting with the Simple Voice Chat API to send sound packets being received by a Radio.
+ * {@link HandheldVoiceReceiver} is used for interacting with the Simple Voice Chat API to send sound packets being received by a Radio.
  * PCM audio gets re-encoded here and sent on an {@link AudioChannel}.
  */
-public class Radio {
+public class HandheldVoiceReceiver implements IVoiceReceiver {
 
-	private LocationalAudioChannel receiveChannel = null;
-	private final int x;
-	private final int y;
-	private final int z;
+	private EntityAudioChannel receiveChannel = null;
+	private final Entity entity;
 
 	private boolean isReceiving;
 
-	public Radio(int x, int y, int z) {
-		this(x, y, z, false);
+	public HandheldVoiceReceiver(Entity entity) {
+		this(entity, false);
 	}
 
-	public Radio(int x, int y, int z, boolean isReceiving) {
+	public HandheldVoiceReceiver(Entity entity, boolean isReceiving) {
 		this.isReceiving = isReceiving;
-		this.x = x;
-		this.y = y;
-		this.z = z;
+		this.entity = entity;
 	}
 
-	public void openChannel(ServerLevel level) {
+	public void openChannel() {
 		if(RadiocraftVoicePlugin.api == null)
 			Radiocraft.LOGGER.error("Radiocraft VoiceChatServerApi is null.");
-		receiveChannel = RadiocraftVoicePlugin.api.createLocationalAudioChannel(UUID.randomUUID(), level, RadiocraftVoicePlugin.api.createPosition(x, y, z));
+		receiveChannel = RadiocraftVoicePlugin.api.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.api.fromEntity(entity));
 	}
 
 	public void receive(AntennaVoicePacket antennaPacket) {
 		if(isReceiving) {
 			if(receiveChannel == null)
-				openChannel(RadiocraftVoicePlugin.api.fromServerLevel(antennaPacket.getLevel()));
+				openChannel();
 
 			short[] rawAudio = antennaPacket.getRawAudio();
 			for(int i = 0; i < rawAudio.length; i++)

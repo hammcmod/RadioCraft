@@ -3,8 +3,7 @@ package com.arrl.radiocraft.common.init;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
 import com.arrl.radiocraft.common.network.packets.CWBufferPacket;
-import com.arrl.radiocraft.common.network.packets.clientbound.CAntennaWirePacket;
-import com.arrl.radiocraft.common.network.packets.clientbound.CNoisePacket;
+import com.arrl.radiocraft.common.network.packets.clientbound.*;
 import com.arrl.radiocraft.common.network.packets.serverbound.*;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,14 +24,19 @@ public class RadiocraftPackets {
 
 	public static void registerPackets() {
 		int id = 0;
-		INSTANCE.registerMessage(id++, CNoisePacket.class, CNoisePacket::encode, CNoisePacket::decode, CNoisePacket::handle);
-		INSTANCE.registerMessage(id++, STogglePacket.class, STogglePacket::encode, STogglePacket::decode, STogglePacket::handle);
-		INSTANCE.registerMessage(id++, CAntennaWirePacket.class, CAntennaWirePacket::encode, CAntennaWirePacket::decode, CAntennaWirePacket::handle);
-		INSTANCE.registerMessage(id++, SRadioPTTPacket.class, SRadioPTTPacket::encode, SRadioPTTPacket::decode, SRadioPTTPacket::handle);
-		INSTANCE.registerMessage(id++, SRadioSSBPacket.class, SRadioSSBPacket::encode, SRadioSSBPacket::decode, SRadioSSBPacket::handle);
-		INSTANCE.registerMessage(id++, SRadioCWPacket.class, SRadioCWPacket::encode, SRadioCWPacket::decode, SRadioCWPacket::handle);
-		INSTANCE.registerMessage(id++, SFrequencyPacket.class, SFrequencyPacket::encode, SFrequencyPacket::decode, SFrequencyPacket::handle);
-		INSTANCE.registerMessage(id++, CWBufferPacket.class, CWBufferPacket::encode, CWBufferPacket::decode, CWBufferPacket::handle);
+		INSTANCE.registerMessage(++id, CNoisePacket.class, CNoisePacket::encode, CNoisePacket::decode, CNoisePacket::handle);
+		INSTANCE.registerMessage(++id, STogglePacket.class, STogglePacket::encode, STogglePacket::decode, STogglePacket::handle);
+		INSTANCE.registerMessage(++id, CAntennaWirePacket.class, CAntennaWirePacket::encode, CAntennaWirePacket::decode, CAntennaWirePacket::handle);
+		INSTANCE.registerMessage(++id, SRadioPTTPacket.class, SRadioPTTPacket::encode, SRadioPTTPacket::decode, SRadioPTTPacket::handle);
+		INSTANCE.registerMessage(++id, SRadioSSBPacket.class, SRadioSSBPacket::encode, SRadioSSBPacket::decode, SRadioSSBPacket::handle);
+		INSTANCE.registerMessage(++id, SRadioCWPacket.class, SRadioCWPacket::encode, SRadioCWPacket::decode, SRadioCWPacket::handle);
+		INSTANCE.registerMessage(++id, SFrequencyPacket.class, SFrequencyPacket::encode, SFrequencyPacket::decode, SFrequencyPacket::handle);
+		INSTANCE.registerMessage(++id, CWBufferPacket.class, CWBufferPacket::encode, CWBufferPacket::decode, CWBufferPacket::handle);
+		INSTANCE.registerMessage(++id, SHandheldFrequencyPacket.class, SHandheldFrequencyPacket::encode, SHandheldFrequencyPacket::decode, SHandheldFrequencyPacket::handle);
+		INSTANCE.registerMessage(++id, SHandheldPowerPacket.class, SHandheldPowerPacket::encode, SHandheldPowerPacket::decode, SHandheldPowerPacket::handle);
+		INSTANCE.registerMessage(++id, SHandheldPTTPacket.class, SHandheldPTTPacket::encode, SHandheldPTTPacket::decode, SHandheldPTTPacket::handle);
+		INSTANCE.registerMessage(++id, CHandheldFrequencyPacket.class, CHandheldFrequencyPacket::encode, CHandheldFrequencyPacket::decode, CHandheldFrequencyPacket::handle);
+		INSTANCE.registerMessage(++id, CHandheldPowerPacket.class, CHandheldPowerPacket::encode, CHandheldPowerPacket::decode, CHandheldPowerPacket::handle);
 	}
 
 	public static void sendToPlayer(RadiocraftPacket packet, ServerPlayer player) {

@@ -27,7 +27,7 @@ public class YagiAntennaType extends DirectionalAntennaType<YagiAntennaData> {
 
     @Override
     public double getTransmitEfficiency(IAntennaPacket packet, YagiAntennaData data, BlockPos destination, boolean isCW) {
-        double distance = Math.sqrt(packet.getSource().getPos().distSqr(destination)) / 2.0D;
+        double distance = Math.sqrt(packet.getSource().getBlockPos().distSqr(destination)) / 2.0D;
         return BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, 1.0F, 0.0F, packet.getLevel().isDay());
     }
 

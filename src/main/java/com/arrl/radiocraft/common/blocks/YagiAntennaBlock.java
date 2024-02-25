@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
+import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -24,7 +25,7 @@ import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
 
-public class YagiAntennaBlock extends AntennaCenterBlock {
+public class YagiAntennaBlock extends VHFAntennaCenterBlock {
 
     public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
@@ -107,6 +108,6 @@ public class YagiAntennaBlock extends AntennaCenterBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.LOWER ? new AntennaBlockEntity(pos, state) : null;
+        return state.getValue(HALF) == DoubleBlockHalf.LOWER ? new AntennaBlockEntity(pos, state, AntennaNetworkManager.VHF_ID) : null;
     }
 }
