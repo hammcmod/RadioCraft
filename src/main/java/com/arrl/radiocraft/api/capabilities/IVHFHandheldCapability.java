@@ -1,10 +1,6 @@
 package com.arrl.radiocraft.api.capabilities;
 
-import com.arrl.radiocraft.api.antenna.IAntenna;
-import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
-import com.arrl.radiocraft.common.radio.IVoiceReceiver;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -13,7 +9,7 @@ import net.minecraftforge.common.util.INBTSerializable;
  * Represents the inventory within a handheld radio.
  */
 @AutoRegisterCapability
-public interface IVHFHandheldCapability extends INBTSerializable<CompoundTag>, IVoiceTransmitter, IVoiceReceiver, IAntenna {
+public interface IVHFHandheldCapability extends INBTSerializable<CompoundTag> {
 
     /**
      * @return The item (battery) held by this handheld radio.
@@ -33,12 +29,5 @@ public interface IVHFHandheldCapability extends INBTSerializable<CompoundTag>, I
     boolean isPTTDown();
 
     void setPTTDown(boolean value);
-
-    /**
-     * @return The player holding this item (also the target for the VoiP channel)
-     */
-    Player getPlayer();
-
-    void setPlayer(Player player);
 
 }

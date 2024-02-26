@@ -3,10 +3,10 @@ package com.arrl.radiocraft.common.radio.voice;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
-import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
-import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.radio.voice.EncodingManager.EncodingData;
+import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio;
+import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadioManager;
 import de.maxhenkel.voicechat.api.ForgeVoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
@@ -14,7 +14,6 @@ import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.util.LazyOptional;
 
@@ -52,14 +51,12 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 			if(encodedAudio.length == 0)
 				encodingData.reset();
 			else {
-				LazyOptional<IVHFHandheldCapability> optional = getHandheldCapability(player);
+				LazyOptional<IVHFHandheldCapability> optional = PlayerRadio.getHandheldCap(player);
 
 				optional.ifPresent(cap -> {
-					if(cap.getPlayer() != player) // If another player picked up the radio, or they changed dimension.
-						cap.setPlayer(player);
-
-					if(cap.canTransmitVoice())
-						cap.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
+					PlayerRadio playerRadio = PlayerRadioManager.get(player.getUUID());
+					if(playerRadio.canTransmitVoice())
+						playerRadio.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
 				});
 
 				double sqrRange = api.getBroadcastRange();
@@ -80,31 +77,6 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 				}
 			}
 		}
-	}
-
-	public boolean isTransmittingHandheld(ItemStack item) {
-		if(item.getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
-			IVHFHandheldCapability cap = item.getCapability(RadiocraftCapabilities.VHF_HANDHELDS).orElse(null);
-			if(cap != null) { // IntelliJ is lying, this can be false.
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Attempt to find a valid VHF handheld on the given player.
-	 * @param player The player to be checked.
-	 * @return A {@link LazyOptional} containing the {@link IVHFHandheldCapability} of the found radio, or empty if none
-	 * were found.
-	 */
-	public LazyOptional<IVHFHandheldCapability> getHandheldCapability(ServerPlayer player) {
-		if(isTransmittingHandheld(player.getMainHandItem()))
-			return player.getMainHandItem().getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
-		else if(isTransmittingHandheld(player.getOffhandItem()))
-			return player.getOffhandItem().getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
-
-		return LazyOptional.empty();
 	}
 
 	public void onPlayerDisconnected(PlayerDisconnectedEvent event) {
