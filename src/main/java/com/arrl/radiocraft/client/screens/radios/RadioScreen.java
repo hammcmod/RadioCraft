@@ -39,7 +39,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	public void onClose() {
 		super.onClose();
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
-		RadiocraftClientValues.SCREEN_SSB_ENABLED = false;
+		RadiocraftClientValues.SCREEN_VOICE_ENABLED = false;
 		RadiocraftClientValues.SCREEN_CW_ENABLED = false;
 	}
 

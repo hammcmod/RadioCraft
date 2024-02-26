@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class HFReceiverBlockEntity extends HFRadioBlockEntity {
 
     public HFReceiverBlockEntity(BlockPos pos, BlockState state) {
-        super(RadiocraftBlockEntities.HF_RECEIVER.get(), pos, state, RadiocraftCommonConfig.HF_RECEIVER_TICK.get(), 0, 10);
+        super(RadiocraftBlockEntities.HF_RECEIVER.get(), pos, state, RadiocraftCommonConfig.HF_RECEIVER_TICK.get(), RadiocraftCommonConfig.HF_RECEIVER_TICK.get(), 10);
     }
 
     @Override

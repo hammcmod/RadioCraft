@@ -18,12 +18,6 @@ public abstract class HFRadioScreen<T extends RadioMenu<? extends HFRadioBlockEn
 	}
 
 	@Override
-	public void onClose() {
-		super.onClose();
-		RadiocraftClientValues.SCREEN_CW_ENABLED = false;
-	}
-
-	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 
@@ -33,6 +27,7 @@ public abstract class HFRadioScreen<T extends RadioMenu<? extends HFRadioBlockEn
 			}
 		}
 		RadiocraftClientValues.SCREEN_CW_ENABLED = menu.blockEntity.getCWEnabled();
+		RadiocraftClientValues.SCREEN_VOICE_ENABLED = menu.blockEntity.getSSBEnabled();
 	}
 
 	/**

@@ -57,9 +57,9 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> ANTENNA_CONNECTOR = BLOCKS.register("antenna_connector", () -> new AntennaConnectorBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = BLOCKS.register("balun_one_to_one", () -> new BalunBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final RegistryObject<Block> BALUN_TWO_TO_ONE = BLOCKS.register("balun_two_to_one", () -> new BalunBlock(PROPERTIES_STONE_NO_OCCLUDE));
-	public static final RegistryObject<Block> J_POLE_ANTENNA = BLOCKS.register("j_pole_antenna", () -> new VHFAntennaCenterBlock(PROPERTIES_STONE_NO_OCCLUDE));
+	public static final RegistryObject<Block> J_POLE_ANTENNA = BLOCKS.register("j_pole_antenna", () -> new DoubleVHFAntennaBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final RegistryObject<Block> SLIM_JIM_ANTENNA = BLOCKS.register("slim_jim_antenna", () -> new VHFAntennaCenterBlock(PROPERTIES_STONE_NO_OCCLUDE));
-	public static final RegistryObject<Block> YAGI_ANTENNA = BLOCKS.register("yagi_antenna", () -> new YagiAntennaBlock(PROPERTIES_STONE_NO_OCCLUDE));
+	public static final RegistryObject<Block> YAGI_ANTENNA = BLOCKS.register("yagi_antenna", () -> new DoubleVHFAntennaBlock(PROPERTIES_STONE_NO_OCCLUDE));
 
 	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = BLOCKS.register("solar_weather_station", () -> new SolarWeatherStationBlock(PROPERTIES_STONE));
 

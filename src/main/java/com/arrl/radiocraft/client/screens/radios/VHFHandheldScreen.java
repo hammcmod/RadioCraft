@@ -47,7 +47,7 @@ public class VHFHandheldScreen extends Screen {
         if(this.cap == null) // IntelliJ is lying, this is not always true.
             onClose();
 
-        RadiocraftClientValues.SCREEN_SSB_ENABLED = true;
+        RadiocraftClientValues.SCREEN_VOICE_ENABLED = true;
     }
 
     @Override
@@ -117,7 +117,7 @@ public class VHFHandheldScreen extends Screen {
     public void onClose() {
         super.onClose();
         RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
-        RadiocraftClientValues.SCREEN_SSB_ENABLED = false;
+        RadiocraftClientValues.SCREEN_VOICE_ENABLED = false;
         RadiocraftClientValues.SCREEN_CW_ENABLED = false;
     }
 
