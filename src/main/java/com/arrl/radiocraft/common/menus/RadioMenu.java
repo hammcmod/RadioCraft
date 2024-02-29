@@ -3,8 +3,8 @@ package com.arrl.radiocraft.common.menus;
 import com.arrl.radiocraft.common.blockentities.RadioBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
@@ -14,33 +14,65 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
 	public T blockEntity;
 	private final Block validBlock;
 	private final ContainerLevelAccess canInteractWithCallable;
-	private final ContainerData data;
 
-	public RadioMenu(MenuType<?> type, final int id, final T blockEntity, ContainerData data, Block validBlock) {
+	public RadioMenu(MenuType<?> type, final int id, final T blockEntity, Block validBlock) {
 		super(type, id);
 		this.blockEntity = blockEntity;
 		this.canInteractWithCallable = ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos());
 		this.validBlock = validBlock;
-		this.data = data;
-		addDataSlots(this.data);
+
+		addDataSlot(new DataSlot() {
+			@Override
+			public int get() {
+				return getWavelength();
+			}
+
+			@Override
+			public void set(int value) {
+				setWavelength(value);
+			}
+		});
+
+		addDataSlot(new DataSlot() {
+			@Override
+			public int get() {
+				return getFrequency() & 0xffff;
+			}
+
+			@Override
+			public void set(int value) {
+				int frequency = getFrequency() & 0xffff0000;
+				setFrequency(frequency + (value & 0xffff));
+			}
+		});
+		addDataSlot(new DataSlot() {
+			@Override
+			public int get() {
+				return (getFrequency() << 16) & 0x0000ffff;
+			}
+
+			@Override
+			public void set(int value) {
+				int frequency = getFrequency() & 0x0000ffff;
+				setFrequency(frequency + (value << 16));
+			}
+		});
 	}
 
-
-
 	public int getFrequency() {
-		return data.get(0);
+		return blockEntity.getFrequency();
 	}
 
 	public void setFrequency(int value) {
-		data.set(0, value);
+		blockEntity.setFrequency(value);
 	}
 
 	public int getWavelength() {
-		return data.get(1);
+		return blockEntity.getWavelength();
 	}
 
 	public void setWavelength(int value) {
-		data.set(1, value);
+		blockEntity.setWavelength(value);
 	}
 
 	@Override

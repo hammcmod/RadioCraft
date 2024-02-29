@@ -25,7 +25,7 @@ public class VHFReceiverBlockEntity extends VHFRadioBlockEntity {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
-        return new VHFReceiverMenu(id, this, fields);
+        return new VHFReceiverMenu(id, this);
     }
 
     @Override

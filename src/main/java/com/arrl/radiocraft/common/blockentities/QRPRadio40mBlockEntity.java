@@ -25,6 +25,6 @@ public class QRPRadio40mBlockEntity extends HFRadioBlockEntity {
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-        return new QRPRadio40mMenu(id, this, fields);
+        return new QRPRadio40mMenu(id, this);
     }
 }

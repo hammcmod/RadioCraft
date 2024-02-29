@@ -41,6 +41,10 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 		return cap == ForgeCapabilities.ENERGY ? energy.cast() : super.getCapability(cap, side);
 	}
 
+	public BasicEnergyStorage getEnergy() {
+		return energyStorage;
+	}
+
 	@Override
 	public void invalidateCaps() {
 		super.invalidateCaps();

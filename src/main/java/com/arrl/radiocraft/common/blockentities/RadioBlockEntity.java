@@ -16,7 +16,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
-import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -41,34 +40,6 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
     protected final int receiveUsePower;
     protected final int transmitUsePower;
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
-
-    protected final ContainerData fields = new ContainerData() {
-
-        @Override
-        public int get(int index) {
-			return switch(index) {
-				case 0 -> frequency;
-				case 1 -> wavelength;
-				default -> 0;
-			};
-        }
-
-        @Override
-        public void set(int index, int value) {
-            switch(index) {
-                case 0:
-                    frequency = value;
-                case 1:
-                    wavelength = value;
-            }
-        }
-
-        @Override
-        public int getCount() {
-            return 2;
-        }
-
-    };
 
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, int receiveUsePower, int transmitUsePower, int wavelength) {
         super(type, pos, state, transmitUsePower, transmitUsePower);
@@ -180,6 +151,18 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         return frequency;
     }
 
+    public void setFrequency(int frequency) {
+        this.frequency = frequency;
+    }
+
+    public int getWavelength() {
+        return wavelength;
+    }
+
+    public void setWavelength(int wavelength) {
+        this.wavelength = wavelength;
+    }
+
     public boolean isPTTDown() {
         return isPTTDown;
     }
@@ -230,6 +213,10 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
         else {
             return SWRHelper.getEfficiencyMultiplier(antennaSWR);
         }
+    }
+
+    public boolean shouldPlayStatic() {
+        return getSSBEnabled();
     }
 
     // -------------------- BE NETWORKS IMPLEMENTATION --------------------
@@ -352,10 +339,6 @@ public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implemen
             // Flag of 2 (0010) causes update to be sent to client, but no actual block updates.
             level.sendBlockUpdated(worldPosition, state, state, 2);
         }
-    }
-
-    public boolean shouldPlayStatic() {
-        return getSSBEnabled();
     }
 
 }

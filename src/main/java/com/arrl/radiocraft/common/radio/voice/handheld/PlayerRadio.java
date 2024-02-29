@@ -139,7 +139,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
     public void openChannel() {
         if(RadiocraftVoicePlugin.api == null)
-            Radiocraft.LOGGER.error("Radiocraft VoiceChatServerApi is null.");
+            Radiocraft.LOGGER.error("VoiceChatServerApi has.");
         receiveChannel = RadiocraftVoicePlugin.api.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.api.fromEntity(getPlayer()));
     }
 
