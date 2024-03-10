@@ -8,8 +8,8 @@
 	"elements": [
 		{
 			"name": "wire",
-			"from": [7, 7, 7],
-			"to": [9, 9, 9],
+			"from": [7, 0, 7],
+			"to": [9, 2, 9],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
 			"faces": {
 				"north": {"uv": [12, 4, 14, 6], "texture": "#0"},
@@ -20,6 +20,5 @@
 				"down": {"uv": [14, 0, 16, 2], "texture": "#0"}
 			}
 		}
-	],
-	"display": {}
+	]
 }
