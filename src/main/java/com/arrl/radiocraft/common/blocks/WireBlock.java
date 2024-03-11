@@ -13,16 +13,24 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WireBlock extends Block {
+public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	public final boolean isPower;
 
@@ -34,17 +42,38 @@ public class WireBlock extends Block {
 	public static final BooleanProperty DOWN = BooleanProperty.create("down");
 	public static final BooleanProperty ON_GROUND = BooleanProperty.create("on_ground");
 
-	public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.of(Direction.NORTH, NORTH, Direction.EAST, EAST, Direction.SOUTH, SOUTH, Direction.WEST, WEST, Direction.UP, UP, Direction.DOWN, DOWN));
+	public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.of(
+			Direction.NORTH, NORTH, Direction.EAST, EAST,
+			Direction.SOUTH, SOUTH, Direction.WEST, WEST,
+			Direction.UP, UP, Direction.DOWN, DOWN));
+
+	private static final double SHAPE_PADDING = 3.0D;
+	private static final VoxelShape MIDDLE_SHAPE =
+			makePaddedBox(7.0D, 0.0D, 7.0D, 9.0D, 2.0D, 9.0D);
+	private static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
+
+	static {
+		SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 7.0D));
+		SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 9.0D, 9.0D, 2.0D, 16.0D));
+		SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 7.0D, 2.0D, 9.0D));
+		SHAPES.put(Direction.EAST, makePaddedBox(9.0D, 0.0D, 7.0D, 16.0D, 2.0D, 9.0D));
+		SHAPES.put(Direction.UP, makePaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D));
+	}
 
 	public WireBlock(Properties properties, boolean isPower) {
 		super(properties);
-		registerDefaultState(defaultBlockState().setValue(NORTH, false).setValue(EAST, false).setValue(SOUTH, false).setValue(WEST, false).setValue(UP, false).setValue(DOWN, false).setValue(ON_GROUND, false));
+		registerDefaultState(defaultBlockState()
+				.setValue(BlockStateProperties.WATERLOGGED, false)
+				.setValue(NORTH, false).setValue(EAST, false)
+				.setValue(SOUTH, false).setValue(WEST, false)
+				.setValue(UP, false).setValue(DOWN, false)
+				.setValue(ON_GROUND, false));
 		this.isPower = isPower;
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, ON_GROUND);
+		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, ON_GROUND, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Nullable
@@ -54,14 +83,17 @@ public class WireBlock extends Block {
 	}
 
 	/**
-	 * Calculate desired blockstate for a wire given its connections.
+	 * Calculate desired blockstate for a wire given its connections and the fluid at its location.
 	 */
 	public BlockState getBlockState(BlockGetter level, BlockPos pos) {
-		BlockState state = defaultBlockState();
+		BlockState state = defaultBlockState()
+				.setValue(BlockStateProperties.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER)
+				.setValue(ON_GROUND, isSturdyTop(level, pos.below()));
 
-		state = state.setValue(ON_GROUND, isSturdyTop(level, pos.below()));
-		for(Direction direction : Direction.values())
-			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(level.getBlockState(pos.relative(direction)), isPower));
+		for (Direction direction : Direction.values()) {
+			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction),
+					canConnectTo(level.getBlockState(pos.relative(direction)), isPower));
+		}
 
 		return state;
 	}
@@ -77,6 +109,12 @@ public class WireBlock extends Block {
 				out.add(direction);
 
 		return out;
+	}
+
+	@Override
+	public FluidState getFluidState(BlockState state) {
+		return state.getValue(BlockStateProperties.WATERLOGGED) ?
+				Fluids.WATER.getSource(false) : super.getFluidState(state);
 	}
 
 	@Override
@@ -118,8 +156,26 @@ public class WireBlock extends Block {
 	}
 
 	@Override
-	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
+								  LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
+		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
+			level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+		}
 		return state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(neighborState, isPower));
+	}
+
+	@Override
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		VoxelShape result = MIDDLE_SHAPE;
+
+		for (Map.Entry<Direction, VoxelShape> entry : SHAPES.entrySet()) {
+			BooleanProperty property = PROPERTY_BY_DIRECTION.get(entry.getKey());
+			if (state.getValue(property)) {
+				result = Shapes.or(result, SHAPES.get(entry.getKey()));
+			}
+		}
+
+		return result;
 	}
 
 	private boolean isSturdyTop(BlockGetter level, BlockPos pos) {
@@ -128,6 +184,18 @@ public class WireBlock extends Block {
 
 	private static boolean canConnectTo(BlockState state, boolean isPower) {
 		return isWire(state, isPower) || isNetworkItem(state, isPower);
+	}
+
+	private static VoxelShape makePaddedBox(double pX1, double pY1, double pZ1,
+											double pX2, double pY2, double pZ2) {
+		return Block.box(
+				Math.max(pX1 - SHAPE_PADDING, 0D),
+				Math.max(pY1 - SHAPE_PADDING, 0D),
+				Math.max(pZ1 - SHAPE_PADDING, 0D),
+				Math.min(pX2 + SHAPE_PADDING, 16D),
+				Math.min(pY2 + SHAPE_PADDING, 16D),
+				Math.min(pZ2 + SHAPE_PADDING, 16D)
+		);
 	}
 
 	public static boolean isNetworkItem(BlockState state, boolean isPower) {

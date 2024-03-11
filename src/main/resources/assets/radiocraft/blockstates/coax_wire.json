@@ -7,7 +7,7 @@
     },
     {
       "apply": {
-        "model": "radiocraft:block/wire"
+        "model": "radiocraft:block/wire_horizontal"
       },
       "when": {
         "north": "true"
@@ -15,7 +15,7 @@
     },
     {
       "apply": {
-        "model": "radiocraft:block/wire",
+        "model": "radiocraft:block/wire_horizontal",
         "y": 90
       },
       "when": {
@@ -24,7 +24,7 @@
     },
     {
       "apply": {
-        "model": "radiocraft:block/wire",
+        "model": "radiocraft:block/wire_horizontal",
         "y": 180
       },
       "when": {
@@ -33,7 +33,7 @@
     },
     {
       "apply": {
-        "model": "radiocraft:block/wire",
+        "model": "radiocraft:block/wire_horizontal",
         "y": 270
       },
       "when": {
@@ -42,20 +42,10 @@
     },
     {
       "apply": {
-        "model": "radiocraft:block/wire",
-        "x": 270
+        "model": "radiocraft:block/wire_vertical"
       },
       "when": {
         "up": "true"
-      }
-    },
-    {
-      "apply": {
-        "model": "radiocraft:block/wire",
-        "x": 90
-      },
-      "when": {
-        "down": "true"
       }
     }
   ]
