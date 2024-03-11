@@ -47,17 +47,17 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			Direction.SOUTH, SOUTH, Direction.WEST, WEST,
 			Direction.UP, UP, Direction.DOWN, DOWN));
 
-	private static final double HORIZONTAL_SHAPE_PADDING = 3.0D;
+	private static final double SHAPE_PADDING = 3.0D;
 	private static final VoxelShape MIDDLE_SHAPE =
-			makeHorizontalPaddedBox(7.0D, 0.0D, 7.0D, 9.0D, 2.0D, 9.0D);
+			makePaddedBox(7.0D, 0.0D, 7.0D, 9.0D, 2.0D, 9.0D);
 	private static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
 
 	static {
-		SHAPES.put(Direction.NORTH, makeHorizontalPaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 7.0D));
-		SHAPES.put(Direction.SOUTH, makeHorizontalPaddedBox(7.0D, 0.0D, 9.0D, 9.0D, 2.0D, 16.0D));
-		SHAPES.put(Direction.WEST, makeHorizontalPaddedBox(0.0D, 0.0D, 7.0D, 7.0D, 2.0D, 9.0D));
-		SHAPES.put(Direction.EAST, makeHorizontalPaddedBox(9.0D, 0.0D, 7.0D, 16.0D, 2.0D, 9.0D));
-		SHAPES.put(Direction.UP, makeHorizontalPaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D));
+		SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 7.0D));
+		SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 9.0D, 9.0D, 2.0D, 16.0D));
+		SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 7.0D, 2.0D, 9.0D));
+		SHAPES.put(Direction.EAST, makePaddedBox(9.0D, 0.0D, 7.0D, 16.0D, 2.0D, 9.0D));
+		SHAPES.put(Direction.UP, makePaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D));
 	}
 
 	public WireBlock(Properties properties, boolean isPower) {
@@ -186,13 +186,15 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return isWire(state, isPower) || isNetworkItem(state, isPower);
 	}
 
-	private static VoxelShape makeHorizontalPaddedBox(double pX1, double pY1, double pZ1,
-													  double pX2, double pY2, double pZ2) {
+	private static VoxelShape makePaddedBox(double pX1, double pY1, double pZ1,
+											double pX2, double pY2, double pZ2) {
 		return Block.box(
-				Math.max(pX1 - HORIZONTAL_SHAPE_PADDING, 0D), pY1,
-				Math.max(pZ1 - HORIZONTAL_SHAPE_PADDING, 0D),
-				Math.min(pX2 + HORIZONTAL_SHAPE_PADDING, 16D), pY2,
-				Math.min(pZ2 + HORIZONTAL_SHAPE_PADDING, 16D)
+				Math.max(pX1 - SHAPE_PADDING, 0D),
+				Math.max(pY1 - SHAPE_PADDING, 0D),
+				Math.max(pZ1 - SHAPE_PADDING, 0D),
+				Math.min(pX2 + SHAPE_PADDING, 16D),
+				Math.min(pY2 + SHAPE_PADDING, 16D),
+				Math.min(pZ2 + SHAPE_PADDING, 16D)
 		);
 	}
 
