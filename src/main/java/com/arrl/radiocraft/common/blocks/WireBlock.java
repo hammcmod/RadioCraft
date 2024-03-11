@@ -16,9 +16,13 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -120,6 +124,32 @@ public class WireBlock extends Block {
 	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
 		return state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(neighborState, isPower));
+	}
+
+	public static final VoxelShape MIDDLE_SHAPE = Block.box(7.0D, 0.0D, 7.0D, 9.0D, 2.0D, 9.0D);
+
+	public static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
+
+	static {
+		SHAPES.put(Direction.NORTH, Block.box(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 7.0D));
+		SHAPES.put(Direction.SOUTH, Block.box(7.0D, 0.0D, 9.0D, 9.0D, 2.0D, 16.0D));
+		SHAPES.put(Direction.WEST, Block.box(0.0D, 0.0D, 7.0D, 7.0D, 2.0D, 9.0D));
+		SHAPES.put(Direction.EAST, Block.box(9.0D, 0.0D, 7.0D, 16.0D, 2.0D, 9.0D));
+		SHAPES.put(Direction.UP, Block.box(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D));
+	}
+
+	@Override
+	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+		VoxelShape result = MIDDLE_SHAPE;
+
+		for (Map.Entry<Direction, VoxelShape> entry : SHAPES.entrySet()) {
+			BooleanProperty property = PROPERTY_BY_DIRECTION.get(entry.getKey());
+			if (state.getValue(property)) {
+				result = Shapes.or(result, SHAPES.get(entry.getKey()));
+			}
+		}
+
+		return result;
 	}
 
 	private boolean isSturdyTop(BlockGetter level, BlockPos pos) {
