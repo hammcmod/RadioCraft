@@ -1,17 +1,20 @@
 package com.arrl.radiocraft.common.blocks;
 
+import com.arrl.radiocraft.common.blockentities.VHFBaseStationBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
 
-public class VHFBaseStationBlock extends Block {
+public class VHFBaseStationBlock extends RadioBlock {
 
 	public static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
 
@@ -28,12 +31,17 @@ public class VHFBaseStationBlock extends Block {
 
 	@Override
 	public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-		return SHAPES.get(state.getValue(AbstractRadioBlock.HORIZONTAL_FACING));
+		return SHAPES.get(state.getValue(RadioBlock.HORIZONTAL_FACING));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-		builder.add(AbstractRadioBlock.HORIZONTAL_FACING);
+		builder.add(RadioBlock.HORIZONTAL_FACING);
 	}
 
+	@Nullable
+	@Override
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new VHFBaseStationBlockEntity(pos, state);
+	}
 }

@@ -27,7 +27,6 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 
 			provider.addItem(RadiocraftItems.RADIO_CRYSTAL, "Radio Crystal");
 			provider.addItem(RadiocraftItems.RADIO_SPEAKER, "Radio Speaker");
-			provider.addItem(RadiocraftItems.MICROPHONE, "Microphone");
 			provider.addItem(RadiocraftItems.HAND_MICROPHONE, "Hand Microphone");
 			provider.addItem(RadiocraftItems.HF_CIRCUIT_BOARD, "HF Circuit Board");
 			provider.addItem(RadiocraftItems.SMALL_BATTERY, "Small Alkaline Battery");
@@ -62,6 +61,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
 			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");
 			provider.addBlock(RadiocraftBlocks.CHARGE_CONTROLLER, "Charge Controller");
+			provider.addBlock(RadiocraftBlocks.MICROPHONE, "Microphone");
 
 			provider.add(Radiocraft.translationKey("commands", "callsign.get.success"), "%s's callsign is %s.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.get.failure"), "%s does not have a callsign.");

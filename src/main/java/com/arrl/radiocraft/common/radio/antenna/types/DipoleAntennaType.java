@@ -1,33 +1,25 @@
 package com.arrl.radiocraft.common.radio.antenna.types;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.radio.antenna.Antenna;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetworkPacket;
-import com.arrl.radiocraft.common.radio.antenna.BandUtils;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.DipoleAntennaData;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
-public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
+public class DipoleAntennaType extends NonDirectionalAntennaType<DipoleAntennaData> {
 
-	public static final ResourceLocation ID = Radiocraft.location("dipole");
-
-	@Override
-	public ResourceLocation getId() {
-		return ID;
+	public DipoleAntennaType() {
+		super(Radiocraft.location("dipole"), 1.0D, 1.0D, 1.0D, 1.0D);
 	}
 
 	@Override
-	public Antenna<DipoleAntennaData> match(Level level, BlockPos pos) {
+	public StaticAntenna<DipoleAntennaData> match(Level level, BlockPos pos) {
 		if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
 			return null; // Do not match if center block is not a 1:1 balun.
 
@@ -59,28 +51,15 @@ public class DipoleAntennaType implements IAntennaType<DipoleAntennaData> {
 			return null;
 
 
-		return new Antenna<>(this, pos, new DipoleAntennaData(relativeArm1.length(), relativeArm2.length()));
+		return new StaticAntenna<>(this, pos, new DipoleAntennaData(relativeArm1.length(), relativeArm2.length()));
 	}
 
 	@Override
-	public double getTransmitStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos destination) {
-		double distance = Math.sqrt(packet.getSource().distSqr(destination));
-		ServerLevel level = (ServerLevel)packet.getLevel().getServerLevel();
+	public double getSWR(DipoleAntennaData data, int wavelength) {
+		int desiredLength = (int)Math.round(wavelength / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
+		double incorrectBlocks = Math.abs(desiredLength - data.getArmLength1()) + Math.abs(desiredLength - data.getArmLength2());
 
-		double baseStrength = BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0D, 1.0D, level.isDay());
-		return baseStrength * getEfficiency(packet, data);
-	}
-
-	@Override
-	public double getReceiveStrength(AntennaNetworkPacket packet, DipoleAntennaData data, BlockPos pos) {
-		return packet.getStrength() * getEfficiency(packet, data);
-	}
-
-	public double getEfficiency(AntennaNetworkPacket packet, DipoleAntennaData data) {
-		int desiredLength = (int)Math.round(packet.getWavelength() / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
-		int incorrectBlocks = (int)(Math.abs(desiredLength - data.getArmLength1()) + Math.abs(desiredLength - data.getArmLength2()));
-
-		return incorrectBlocks == 0 ? 1.0D : Math.pow(0.75D, incorrectBlocks);
+		return 1.0D + (0.5D * incorrectBlocks);
 	}
 
 	@Override

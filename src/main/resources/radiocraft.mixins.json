@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.arrl.radiocraft.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "refmap": "radiocraft.refmap.json",
+  "mixins": [
+    "MixinPTTKeyHandler"
+  ],
+  "client": [
+  ],
+  "minVersion": "0.8"
+}

@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "KKK",
+    "###"
+  ],
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "K": {
+      "item": "minecraft:dried_kelp"
+    }
+  },
+  "result": {
+    "item": "radiocraft:waterproof_wire",
+    "count": 3
+  }
+}

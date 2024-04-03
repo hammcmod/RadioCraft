@@ -26,7 +26,7 @@ public class BENetwork {
 		if(entries == null)
 			connections = new ArrayList<>();
 		else
-			this.connections = entries;
+			connections = entries;
 	}
 
 	public BENetwork() {
@@ -87,7 +87,7 @@ public class BENetwork {
 	 * Merges an array of networks and replaces their entries on all connected devices with the new merged network.
 	 */
 	public static BENetwork merge(List<BENetwork> networks, Supplier<BENetwork> fallbackSupplier) {
-		if(networks.size() > 0) {
+		if(!networks.isEmpty()) {
 			BENetwork newNetwork = networks.get(0).createNetwork(); // Network type is taken from first instance, callers of this method are responsible for ensuring that the inputs are all the same type.
 			for(BENetwork oldNetwork : networks) {
 				for(BENetworkEntry connection : oldNetwork.getConnections()) {

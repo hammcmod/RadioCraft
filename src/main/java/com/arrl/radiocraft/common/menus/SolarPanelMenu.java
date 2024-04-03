@@ -11,7 +11,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class SolarPanelMenu extends AbstractContainerMenu {
 
@@ -28,16 +27,7 @@ public class SolarPanelMenu extends AbstractContainerMenu {
 	}
 
 	public SolarPanelMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
-		this(id, getBlockEntity(playerInventory, data), new SimpleContainerData(1));
-	}
-
-	private static SolarPanelBlockEntity getBlockEntity(final Inventory playerInventory, final FriendlyByteBuf data) {
-		final BlockEntity blockEntity = playerInventory.player.level.getBlockEntity(data.readBlockPos());
-
-		if(blockEntity instanceof SolarPanelBlockEntity) {
-			return (SolarPanelBlockEntity)blockEntity;
-		}
-		throw new IllegalStateException("BlockEntity at " + data.readBlockPos() + " is not correct");
+		this(id, MenuUtils.getBlockEntity(playerInventory, data, SolarPanelBlockEntity.class), new SimpleContainerData(1));
 	}
 
 	public int getPowerTick() {

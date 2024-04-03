@@ -33,7 +33,7 @@ public class WireUtils {
 	public static void mergeWireNetworks(BlockGetter level, BlockPos pos, Predicate<BlockState> validWire, Predicate<BlockState> validConnection, Predicate<BENetwork> validNetwork, Supplier<BENetwork> fallbackSupplier) {
 		Map<IBENetworkItem, Direction> connections = findWireNetworkConnections(level, pos, validWire, validConnection);
 
-		if(connections.size() > 0) {
+		if(!connections.isEmpty()) {
 			List<BENetwork> existingNetworks = new ArrayList<>();
 			Set<IBENetworkItem> nullItems = new HashSet<>(); // These network items don't already have a network.
 

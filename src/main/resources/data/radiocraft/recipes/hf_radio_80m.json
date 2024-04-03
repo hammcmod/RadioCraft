@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "NNN",
+    "#RT",
+    "ICI"
+  ],
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "R": {
+      "item": "radiocraft:radio_crystal"
+    },
+    "T": {
+      "item": "minecraft:tinted_glass"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "radiocraft:hf_circuit_board"
+    }
+  },
+  "result": {
+    "item": "radiocraft:hf_radio_80m",
+    "count": 1
+  }
+}

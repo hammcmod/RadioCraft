@@ -1,7 +1,19 @@
 {
   "variants": {
-    "": {
+    "facing=east": {
+      "model": "radiocraft:block/vhf_base_station",
+      "y": 90
+    },
+    "facing=north": {
       "model": "radiocraft:block/vhf_base_station"
+    },
+    "facing=south": {
+      "model": "radiocraft:block/vhf_base_station",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/vhf_base_station",
+      "y": 270
     }
   }
 }

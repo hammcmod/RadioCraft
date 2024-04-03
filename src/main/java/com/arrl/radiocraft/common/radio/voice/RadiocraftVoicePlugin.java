@@ -1,19 +1,21 @@
 package com.arrl.radiocraft.common.radio.voice;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.blockentities.AbstractRadioBlockEntity;
-import com.arrl.radiocraft.common.radio.antenna.RadioManager;
+import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
+import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
+import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.radio.voice.EncodingManager.EncodingData;
+import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio;
+import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadioManager;
 import de.maxhenkel.voicechat.api.ForgeVoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatPlugin;
 import de.maxhenkel.voicechat.api.VoicechatServerApi;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
-import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.List;
 
@@ -41,24 +43,37 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 		de.maxhenkel.voicechat.api.ServerPlayer sender = event.getSenderConnection().getPlayer();
 
 		if(sender.getPlayer() instanceof ServerPlayer player) {
-			double sqrRange = api.getBroadcastRange();
-			sqrRange *= sqrRange;
 
-			List<AbstractRadioBlockEntity> radios = RadioManager.RADIOS.get(player.getLevel());
+			// Decode voice packet
+			EncodingData encodingData = encodingManager.getOrCreate(sender.getUuid());
+			byte[] encodedAudio = event.getPacket().getOpusEncodedData();
+			short[] decodedAudio = encodingData.getDecoder().decode(encodedAudio);
+			if(encodedAudio.length == 0)
+				encodingData.reset();
+			else {
+				LazyOptional<IVHFHandheldCapability> optional = PlayerRadio.getHandheldCap(player);
 
-			for(AbstractRadioBlockEntity radio : radios) { // All radios in range of the sender will receive the packet
-				BlockPos pos = radio.getBlockPos();
-				if(pos.distToCenterSqr(player.position()) < sqrRange) {
-					BlockEntity blockEntity = player.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE);
-					if(blockEntity instanceof AbstractRadioBlockEntity be) {
-						EncodingData encodingData = encodingManager.getOrCreate(sender.getUuid());
+				optional.ifPresent(cap -> {
+					PlayerRadio playerRadio = PlayerRadioManager.get(player.getUUID());
+					if(playerRadio.canTransmitVoice())
+						playerRadio.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
+				});
 
-						byte[] encodedAudio = event.getPacket().getOpusEncodedData();
-						if(encodedAudio.length == 0)
-							encodingData.reset();
-						else
-							be.acceptVoicePacket(sender.getServerLevel(), encodingData.getDecoder().decode(encodedAudio), sender.getUuid());
-					}
+				double sqrRange = api.getBroadcastRange();
+				sqrRange *= sqrRange;
+
+				List<IVoiceTransmitter> listeners = VoiceTransmitters.LISTENERS.get(player.getLevel());
+
+				for (IVoiceTransmitter listener : listeners) { // All radios in range of the sender will receive the packet
+					Vec3 pos = listener.getPos();
+
+					if (pos.distanceToSqr(player.position()) > sqrRange)
+						continue; // Do not transmit if out of range.
+
+					if (!listener.canTransmitVoice())
+						continue; // Do not transmit if listener is not accepting packets.
+
+					listener.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
 				}
 			}
 		}

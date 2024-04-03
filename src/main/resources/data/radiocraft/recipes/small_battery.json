@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "IGI",
+    "WGW",
+    "#G#"
+  ],
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "W": {
+      "type":"forge:nbt",
+      "item": "minecraft:potion",
+      "nbt": "{Potion:'minecraft:water'}"
+    }
+  },
+  "result": {
+    "item": "radiocraft:small_battery",
+    "count": 1
+  }
+}

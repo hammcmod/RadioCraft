@@ -6,7 +6,7 @@ import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
-import com.arrl.radiocraft.common.network.packets.ClientboundAntennaWirePacket;
+import com.arrl.radiocraft.common.network.packets.clientbound.CAntennaWirePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -192,7 +192,7 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
     public void setEndPos(BlockPos endPos) {
         endPart.setPos(new Vec3(endPos.getX() + 0.5D, endPos.getY() + 0.5D, endPos.getZ() + 0.5D));
         if(!level.isClientSide)
-            RadiocraftPackets.sendToLevel(new ClientboundAntennaWirePacket(getId(), endPos), (ServerLevel)level);
+            RadiocraftPackets.sendToLevel(new CAntennaWirePacket(getId(), endPos), (ServerLevel)level);
     }
 
     public BlockPos getEndPos() {

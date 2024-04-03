@@ -35,7 +35,7 @@ public class RadiocraftBlocks {
 	// Radios/receivers/repeaters
 	public static final RegistryObject<Block> VHF_BASE_STATION = BLOCKS.register("vhf_base_station", () -> new VHFBaseStationBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> VHF_RECEIVER = BLOCKS.register("vhf_receiver", () -> new VHFReceiverBlock(PROPERTIES_RADIO));
-	public static final RegistryObject<Block> VHF_REPEATER = simpleBlock("vhf_repeater", PROPERTIES_STONE);
+	public static final RegistryObject<Block> VHF_REPEATER = BLOCKS.register("vhf_repeater", () -> new VHFRepeaterBlock(PROPERTIES_RADIO));
 
 	public static final RegistryObject<Block> HF_RADIO_10M = BLOCKS.register("hf_radio_10m", () -> new HFRadio10mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> HF_RADIO_20M = BLOCKS.register("hf_radio_20m", () -> new HFRadio20mBlock(PROPERTIES_RADIO));
@@ -44,10 +44,8 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> HF_RECEIVER = BLOCKS.register("hf_receiver", () -> new HFReceiverBlock(PROPERTIES_RADIO));
 
 	public static final RegistryObject<Block> ALL_BAND_RADIO = simpleBlock("all_band_radio", PROPERTIES_STONE);
-	public static final RegistryObject<Block> QRP_RADIO_20M = simpleBlock("qrp_radio_20m", PROPERTIES_STONE);
+	public static final RegistryObject<Block> QRP_RADIO_20M = BLOCKS.register("qrp_radio_20m", () -> new QRPRadio20mBlock(PROPERTIES_RADIO));
 	public static final RegistryObject<Block> QRP_RADIO_40M = BLOCKS.register("qrp_radio_40m", () -> new QRPRadio40mBlock(PROPERTIES_RADIO));
-
-
 	public static final RegistryObject<Block> DIGITAL_INTERFACE = BLOCKS.register("digital_interface", () -> new DigitalInterfaceBlock(PROPERTIES_STONE));
 
 	// Antenna blocks
@@ -59,8 +57,13 @@ public class RadiocraftBlocks {
 	public static final RegistryObject<Block> ANTENNA_CONNECTOR = BLOCKS.register("antenna_connector", () -> new AntennaConnectorBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final RegistryObject<Block> BALUN_ONE_TO_ONE = BLOCKS.register("balun_one_to_one", () -> new BalunBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final RegistryObject<Block> BALUN_TWO_TO_ONE = BLOCKS.register("balun_two_to_one", () -> new BalunBlock(PROPERTIES_STONE_NO_OCCLUDE));
+	public static final RegistryObject<Block> J_POLE_ANTENNA = BLOCKS.register("j_pole_antenna", () -> new DoubleVHFAntennaBlock(PROPERTIES_STONE_NO_OCCLUDE));
+	public static final RegistryObject<Block> SLIM_JIM_ANTENNA = BLOCKS.register("slim_jim_antenna", () -> new VHFAntennaCenterBlock(PROPERTIES_STONE_NO_OCCLUDE));
+	public static final RegistryObject<Block> YAGI_ANTENNA = BLOCKS.register("yagi_antenna", () -> new YagiAntennaBlock(PROPERTIES_STONE_NO_OCCLUDE));
 
 	public static final RegistryObject<Block> SOLAR_WEATHER_STATION = BLOCKS.register("solar_weather_station", () -> new SolarWeatherStationBlock(PROPERTIES_STONE));
+
+	public static final RegistryObject<Block> MICROPHONE = BLOCKS.register("microphone", () -> new MicrophoneBlock(PROPERTIES_STONE));
 
 	public static RegistryObject<Block> simpleBlock(String name, Properties properties) {
 		return BLOCKS.register(name, () -> new Block(properties));

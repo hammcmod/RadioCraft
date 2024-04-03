@@ -15,6 +15,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.config.ModConfig.Type;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
@@ -30,7 +31,8 @@ public class Radiocraft {
     public Radiocraft() {
         registerRegistries();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, RadiocraftConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, RadiocraftCommonConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
+        ModLoadingContext.get().registerConfig(Type.SERVER, RadiocraftServerConfig.SPEC, Radiocraft.MOD_ID + "-server.toml");
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -39,7 +41,6 @@ public class Radiocraft {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
         RadiocraftAntennaTypes.register();
-
         RadiocraftBlocks.BLOCKS.register(modEventBus);
         RadiocraftItems.ITEMS.register(modEventBus);
         RadiocraftBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);

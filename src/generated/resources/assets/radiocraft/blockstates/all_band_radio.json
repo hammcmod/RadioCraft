@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "radiocraft:block/all_band_radio"
+    }
+  }
+}

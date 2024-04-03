@@ -1,0 +1,32 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "ATT",
+    "AR#",
+    "L#I"
+  ],
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "radiocraft:radio_crystal"
+    },
+    "A": {
+      "item": "radiocraft:antenna_pole"
+    },
+    "L": {
+      "item": "minecraft:lightning_rod"
+    },
+    "T": {
+      "item": "minecraft:tinted_glass"
+    }
+  },
+  "result": {
+    "item": "radiocraft:solar_weather_station",
+    "count": 1
+  }
+}

@@ -4,7 +4,6 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.menus.LargeBatteryMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -13,15 +12,15 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class LargeBatteryScreen extends AbstractContainerScreen<LargeBatteryMenu> {
 
-	private static final ResourceLocation TEXTURE = Radiocraft.location("textures/gui/temp_power.png");
+	private static final ResourceLocation TEXTURE = Radiocraft.location("textures/gui/large_battery.png");
 	private final LargeBatteryMenu container;
 
 	public LargeBatteryScreen(LargeBatteryMenu container, Inventory playerInventory, Component title) {
 		super(container, playerInventory, title);
 		this.container = container;
 
-		this.imageWidth = 176;
-		this.imageHeight = 88;
+		this.imageWidth = 186;
+		this.imageHeight = 122;
 	}
 
 	@Override
@@ -42,11 +41,19 @@ public class LargeBatteryScreen extends AbstractContainerScreen<LargeBatteryMenu
 	}
 
 	@Override
-	protected void renderLabels(PoseStack matrixStack, int pX, int pY) {
-		String powerString = String.format("%s/%s FE", container.getCurrentPower(), container.getMaxPower());
-		int xOffset = this.font.width(powerString) / 2;
-		int yOffset = this.font.lineHeight / 2;
-		this.font.draw(matrixStack, powerString, (float)this.imageWidth / 2 - xOffset, (float)this.imageHeight / 2 - yOffset, ChatFormatting.DARK_GRAY.getColor());
+	protected void renderLabels(PoseStack poseStack, int pX, int pY) {
+		String powerString = (int)Math.round(container.getCurrentPower() / (double)container.getMaxPower() * 100) + "%";
+
+		float scale = 2.0F;
+		poseStack.pushPose();
+		poseStack.scale(scale, scale, scale);
+
+		int xPos = 95 - (font.width(powerString) / 2);
+		int yPos = 37 - (font.lineHeight / 2);
+
+		this.font.draw(poseStack, powerString, xPos / scale, yPos / scale, 0xFFFFFF);
+
+		poseStack.popPose();
 	}
 
 }

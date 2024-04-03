@@ -1,0 +1,12 @@
+1.) Separate the SWR and efficiency calculations. SWR starts at 1 and goes up by 0.5 per incorrect block length.
+2.) SWR of connected antennas should impact static volume.
+3.) Remove de-click from PTT button-- hard to keep morse rhythm.
+4.) Implement VHF antenna blocks.
+5.) Implement VHF radio BEs and UIs.
+6.) Implement VHF audio transmission (should already be mostly functional, just need to hook into it).
+7.) Fix charge controllers always outputting max power.
+8.) Add per-band multiplier for propagation events.
+9.) Add wide band receive antenna.
+10.) Stop radios from receiving and transmitting CW at the same time.
+11.) Fix the GUI desync on radios when they first load in.
+12.) Implement repeaters.

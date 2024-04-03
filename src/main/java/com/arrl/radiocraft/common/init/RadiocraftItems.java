@@ -3,6 +3,8 @@ package com.arrl.radiocraft.common.init;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.items.AntennaPoleItem;
 import com.arrl.radiocraft.common.items.AntennaWireItem;
+import com.arrl.radiocraft.common.items.SmallBatteryItem;
+import com.arrl.radiocraft.common.items.VHFHandheldItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
@@ -23,14 +25,13 @@ public class RadiocraftItems {
 	// Regular Items
 	public static final RegistryObject<Item> RADIO_CRYSTAL = simpleItem("radio_crystal");
 	public static final RegistryObject<Item> RADIO_SPEAKER = simpleItem("radio_speaker");
-	public static final RegistryObject<Item> MICROPHONE = simpleItem("microphone");
 	public static final RegistryObject<Item> HAND_MICROPHONE = simpleItem("hand_microphone");
 	public static final RegistryObject<Item> HF_CIRCUIT_BOARD = simpleItem("hf_circuit_board");
-	public static final RegistryObject<Item> SMALL_BATTERY = simpleItem("small_battery");
+	public static final RegistryObject<Item> SMALL_BATTERY = ITEMS.register("small_battery", () -> new SmallBatteryItem(new Properties().stacksTo(1)));
 	public static final RegistryObject<Item> FERRITE_CORE = simpleItem("ferrite_core");
 	public static final RegistryObject<Item> COAXIAL_CORE = simpleItem("coaxial_core");
 	public static final RegistryObject<Item> ANTENNA_ANALYZER = simpleItem("antenna_analyzer");
-	public static final RegistryObject<Item> VHF_HANDHELD = simpleItem("vhf_handheld");
+	public static final RegistryObject<Item> VHF_HANDHELD = ITEMS.register("vhf_handheld", () -> new VHFHandheldItem(new Properties().stacksTo(1)));
 	public static final RegistryObject<Item> ANTENNA_WIRE = ITEMS.register("antenna_wire", () -> new AntennaWireItem(new Properties()));
 
 	// Block Items
@@ -63,8 +64,13 @@ public class RadiocraftItems {
 	public static final RegistryObject<BlockItem> BALUN_ONE_TO_ONE = simpleBlockItem("balun_one_to_one", RadiocraftBlocks.BALUN_ONE_TO_ONE);
 	public static final RegistryObject<BlockItem> BALUN_TWO_TO_ONE = simpleBlockItem("balun_two_to_one", RadiocraftBlocks.BALUN_TWO_TO_ONE);
 	public static final RegistryObject<BlockItem> COAX_WIRE = simpleBlockItem("coax_wire", RadiocraftBlocks.COAX_WIRE);
+	public static final RegistryObject<BlockItem> YAGI_ANTENNA = simpleBlockItem("yagi_antenna", RadiocraftBlocks.YAGI_ANTENNA);
+	public static final RegistryObject<BlockItem> J_POLE_ANTENNA = simpleBlockItem("j_pole_antenna", RadiocraftBlocks.J_POLE_ANTENNA);
+	public static final RegistryObject<BlockItem> SLIM_JIM_ANTENNA = simpleBlockItem("slim_jim_antenna", RadiocraftBlocks.SLIM_JIM_ANTENNA);
 
 	public static final RegistryObject<BlockItem> SOLAR_WEATHER_STATION = simpleBlockItem("solar_weather_station", RadiocraftBlocks.SOLAR_WEATHER_STATION);
+	public static final RegistryObject<BlockItem> MICROPHONE = simpleBlockItem("microphone", RadiocraftBlocks.MICROPHONE);
+
 
 	// Helper methods to cut down on boilerplate
 	private static RegistryObject<Item> simpleItem(String name) {

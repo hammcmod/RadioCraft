@@ -3,9 +3,10 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '5.1.+'
     id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'org.spongepowered.mixin' version '0.7.+'
 }
 
-version = '0.2.1'
+version = '1.0.0'
 group = 'com.arrl.radiocraft'
 archivesBaseName = 'radiocraft'
 
@@ -93,8 +94,18 @@ repositories {
 dependencies {
     minecraft 'net.minecraftforge:forge:1.19.3-44.1.23'
 
-    implementation "de.maxhenkel.voicechat:voicechat-api:2.3.3"
-    runtimeOnly fg.deobf("curse.maven:simplevoicechat-416089:4372224") // Comment this out every single time datagen is required.
+    compileOnly "de.maxhenkel.voicechat:voicechat-api:2.3.3"
+    implementation fg.deobf("curse.maven:simplevoicechat-416089:4372224")
+
+    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+}
+
+mixin {
+    add sourceSets.main, 'radiocraft.refmap.json'
+    config 'radiocraft.mixins.json'
+
+    debug.verbose = true
+    debug.export = true
 }
 
 jar {

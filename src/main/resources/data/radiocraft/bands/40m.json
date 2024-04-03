@@ -4,5 +4,7 @@
   "minSkipDay": 1000,
   "maxSkipDay": 1100,
   "minSkipNight": 100,
-  "maxSkipNight": 3000
+  "maxSkipNight": 3000,
+  "minFrequency": 7300,
+  "maxFrequency": 9000
 }
