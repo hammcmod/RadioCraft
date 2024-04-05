@@ -1,6 +1,5 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.benetworks.BENetwork;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.BlockPos;

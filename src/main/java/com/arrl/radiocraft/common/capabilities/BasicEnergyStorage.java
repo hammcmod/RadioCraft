@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.capabilities;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraftforge.energy.EnergyStorage;
 
 public class BasicEnergyStorage extends EnergyStorage {
@@ -42,6 +43,13 @@ public class BasicEnergyStorage extends EnergyStorage {
 
 	public int getMaxExtract() {
 		return this.maxExtract;
+	}
+
+	public void saveAdditional(CompoundTag nbt) {
+		nbt.putInt("capacity", capacity);
+		nbt.putInt("maxReceive", maxReceive);
+		nbt.putInt("maxExtract", maxExtract);
+		nbt.putInt("energy", energy);
 	}
 
 }

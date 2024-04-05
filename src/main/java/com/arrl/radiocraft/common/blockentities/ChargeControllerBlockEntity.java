@@ -1,9 +1,6 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.RadiocraftCommonConfig;
-import com.arrl.radiocraft.api.benetworks.IPowerNetworkItem;
-import com.arrl.radiocraft.common.benetworks.BENetwork;
-import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
 import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import com.arrl.radiocraft.common.blocks.ChargeControllerBlock;

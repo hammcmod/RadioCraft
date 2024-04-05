@@ -1,12 +1,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.common.benetworks.BENetwork;
-import com.arrl.radiocraft.common.benetworks.BENetwork.BENetworkEntry;
 import com.arrl.radiocraft.common.blocks.AbstractPowerNetworkBlock;
 import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
-import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
-import com.arrl.radiocraft.api.benetworks.IPowerNetworkItem;
-import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -22,13 +17,11 @@ import net.minecraftforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
-import java.util.*;
 
-public abstract class AbstractPowerBlockEntity extends BlockEntity implements IPowerNetworkItem, MenuProvider {
+public abstract class AbstractPowerBlockEntity extends BlockEntity implements MenuProvider {
 
 	protected final BasicEnergyStorage energyStorage;
 	protected final LazyOptional<IEnergyStorage> energy;
-	protected final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
 
 	public AbstractPowerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, int capacity, int maxTransfer) {
 		super(type, pos, state);
@@ -49,16 +42,6 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 	public void invalidateCaps() {
 		super.invalidateCaps();
 		energy.invalidate();
-	}
-
-	@Override
-	public Map<Direction, Set<BENetwork>> getNetworkMap() {
-		return networks;
-	}
-
-	@Override
-	public void setNetworks(Direction side, Set<BENetwork> networks) {
-		this.networks.put(side, networks);
 	}
 
 	@Override
@@ -93,57 +76,6 @@ public abstract class AbstractPowerBlockEntity extends BlockEntity implements IP
 	 */
 	public boolean tryConsumePower(int amount, boolean simulate) {
 		return energyStorage.extractEnergy(amount, simulate) == amount;
-	}
-
-	public void pushToAll(int amount, boolean includeChargeControllers) {
-		List<ChargeControllerBlockEntity> chargeControllers = new ArrayList<>();
-		List<BlockEntity> otherItems = new ArrayList<>();
-
-		for(Set<BENetwork> side : getNetworkMap().values()) {
-			for(BENetwork network : side) {
-				if(network instanceof PowerNetwork) {
-					for(BENetworkEntry i : network.getConnections()) {
-						IPowerNetworkItem item = (IPowerNetworkItem)i.getNetworkItem(); // This cast is safe because the PowerNetwork errors if a non-IPowerNetworkItem is added
-						if(item.getConnectionType() == ConnectionType.PULL) {
-							if(item instanceof ChargeControllerBlockEntity be) {
-								if(includeChargeControllers)
-									chargeControllers.add(be);
-								continue;
-							}
-							otherItems.add((BlockEntity)item); // This cast is also safe as long as no other mod dev abuses networks-- want to crash if they do anyway
-						}
-					}
-				}
-				else {
-					break; // Break if network is not a power network.
-				}
-			}
-		}
-
-		if(!chargeControllers.isEmpty()) {
-			for(ChargeControllerBlockEntity be : chargeControllers) {
-				amount -= tryPushPowerTo(be, amount);
-				if(amount <= 0)
-					return;
-			}
-		}
-
-		for(BlockEntity be : otherItems) {
-			amount -= tryPushPowerTo(be, amount);
-			if(amount <= 0)
-				return;
-		}
-	}
-
-	public int tryPushPowerTo(BlockEntity be, int amount) {
-		if(be != null) {
-			LazyOptional<IEnergyStorage> energyCap = be.getCapability(ForgeCapabilities.ENERGY);
-			if(energyCap.isPresent()) { // This is horrendous code but java doesn't like lambdas and vars.
-				IEnergyStorage storage = energyCap.orElse(null);
-				return storage.receiveEnergy(amount, false);
-			}
-		}
-		return 0;
 	}
 
 }
