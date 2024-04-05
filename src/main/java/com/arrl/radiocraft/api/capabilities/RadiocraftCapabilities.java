@@ -13,5 +13,6 @@ public class RadiocraftCapabilities {
 	public static Capability<IAntennaWireHolderCapability> ANTENNA_WIRE_HOLDERS = CapabilityManager.get(new CapabilityToken<>(){});
 	public static Capability<IAntennaNetworkCapability> ANTENNA_NETWORKS = CapabilityManager.get(new CapabilityToken<>(){});
 	public static Capability<IVHFHandheldCapability> VHF_HANDHELDS = CapabilityManager.get(new CapabilityToken<>(){});
+	public static Capability<IBENetworks> ENERGY_STORAGES = CapabilityManager.get(new CapabilityToken<>(){});
 
 }
