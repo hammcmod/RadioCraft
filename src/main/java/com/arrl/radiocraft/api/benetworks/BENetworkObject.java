@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.api.benetworks;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -9,6 +10,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.UUID;
 
 /**
  * Represents the presence of a {@link BlockEntity} within a {@link BENetwork}.
@@ -37,9 +40,19 @@ public class BENetworkObject {
     }
 
     public void save(CompoundTag nbt) {
-        nbt.putString("type", getType().toString());
+        CompoundTag networksTag = new CompoundTag();
+        for(Entry<Direction, BENetwork> entry : networks.entrySet())
+            networksTag.putUUID(entry.getKey().getName(), entry.getValue().getUUID());
+        nbt.put("networks", networksTag);
     }
 
-    public void load(CompoundTag nbt) {}
+    public void load(IBENetworks cap, CompoundTag nbt) {
+        CompoundTag tag = nbt.getCompound("networks");
+        for(String key : tag.getAllKeys()) {
+            BENetwork network = cap.getNetwork(UUID.fromString(key));
+            network.add(this);
+            networks.put(Direction.byName(key), network);
+        }
+    }
 
 }

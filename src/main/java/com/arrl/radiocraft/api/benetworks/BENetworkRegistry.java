@@ -24,4 +24,12 @@ public class BENetworkRegistry {
         objectTypes.put(id, networkSupplier);
     }
 
+    public static BENetwork createNetwork(ResourceLocation id, UUID uuid) {
+        return networkTypes.get(id).apply(uuid);
+    }
+
+    public static BENetworkObject createObject(ResourceLocation id) {
+        return objectTypes.get(id).get();
+    }
+
 }

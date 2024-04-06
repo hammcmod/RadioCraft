@@ -5,6 +5,7 @@ import com.arrl.radiocraft.RadiocraftCommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.power.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.power.PowerNetworkObject;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -66,8 +67,8 @@ public class SolarPanelNetworkObject extends PowerNetworkObject {
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    public void load(IBENetworks cap, CompoundTag nbt) {
+        super.load(cap, nbt);
         canSeeSky = nbt.getBoolean("canSeeSky");
     }
 

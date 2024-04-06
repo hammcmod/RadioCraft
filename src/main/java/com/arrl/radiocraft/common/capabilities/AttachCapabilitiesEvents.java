@@ -8,20 +8,23 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 
-@Mod.EventBusSubscriber(modid=Radiocraft.MOD_ID, bus=Bus.FORGE)
+@EventBusSubscriber(modid=Radiocraft.MOD_ID, bus=Bus.FORGE)
 public class AttachCapabilitiesEvents {
 
 	@SubscribeEvent
 	public static void onAttachCapabilitiesLevel(AttachCapabilitiesEvent<Level> event) {
 		Level level = event.getObject();
 
-		if(!level.isClientSide && level.dimension() == Level.OVERWORLD)
-			event.addCapability(Radiocraft.location("callsigns"), new CallsignCapabilityProvider());
+		if(!level.isClientSide) {
+			if(level.dimension() == Level.OVERWORLD)
+				event.addCapability(Radiocraft.location("callsigns"), new CallsignCapabilityProvider());
 
-		event.addCapability(Radiocraft.location("antenna_networks"), new AntennaNetworkCapabilityProvider());
+			event.addCapability(Radiocraft.location("antenna_networks"), new AntennaNetworkCapabilityProvider());
+			event.addCapability(Radiocraft.location("be_networks"), new BENetworksCapabilityProvider());
+		}
 	}
 
 	@SubscribeEvent

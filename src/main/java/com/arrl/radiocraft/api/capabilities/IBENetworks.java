@@ -3,8 +3,10 @@ package com.arrl.radiocraft.api.capabilities;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
+import net.minecraftforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -14,7 +16,7 @@ import java.util.UUID;
  * that {@link Level}.
  */
 @AutoRegisterCapability
-public interface IBENetworks {
+public interface IBENetworks extends INBTSerializable<CompoundTag> {
 
     /**
      * Grab a {@link BENetworkObject} by its {@link BlockPos}.
@@ -48,5 +50,12 @@ public interface IBENetworks {
      * @return The first {@link BENetwork} with a matching {@link UUID}, or null if none were found.
      */
     BENetwork getNetwork(UUID uuid);
+
+    /**
+     * Add a new {@link BENetwork} to the level.
+     *
+     * @param network The {@link BENetwork} to add.
+     */
+    void addNetwork(BENetwork network);
 
 }

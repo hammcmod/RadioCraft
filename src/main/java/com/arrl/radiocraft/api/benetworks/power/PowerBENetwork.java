@@ -3,10 +3,14 @@ package com.arrl.radiocraft.api.benetworks.power;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.common.benetworks.power.BatteryNetworkObject;
+import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
 public class PowerBENetwork extends BENetwork {
+
+    public static final ResourceLocation TYPE = Radiocraft.location("power");
 
     public PowerBENetwork(UUID uuid) {
         super(uuid);
@@ -43,11 +47,13 @@ public class PowerBENetwork extends BENetwork {
 
         for(BENetworkObject o : networkObjects) {
             PowerNetworkObject obj = (PowerNetworkObject)o;
-            if(!direct && obj.isIndirectConsumer() || (direct && obj.isDirectConsumer())) {
-                pushed += obj.getStorage().receiveEnergy(amount - pushed, simulate);
+            if(!(direct && obj instanceof BatteryNetworkObject)) { // Prevents batteries from looping each other and not ever giving power to actual consumers.
+                if(!direct && obj.isIndirectConsumer() || (direct && obj.isDirectConsumer())) {
+                    pushed += obj.getStorage().receiveEnergy(amount - pushed, simulate);
 
-                if(pushed >= amount) // Stop checking if required amount is reached
-                    return pushed;
+                    if(pushed >= amount) // Stop checking if required amount is reached
+                        return pushed;
+                }
             }
         }
         return pushed;
