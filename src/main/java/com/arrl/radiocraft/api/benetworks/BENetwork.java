@@ -26,7 +26,7 @@ public class BENetwork {
         networkObjects.remove(networkObject);
     }
 
-    public UUID getUuid() {
+    public UUID getUUID() {
         return uuid;
     }
 

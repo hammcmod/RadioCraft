@@ -1,13 +1,11 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
-import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.common.benetworks.power.SolarPanelNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.SolarPanelMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -17,7 +15,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class SolarPanelBlockEntity extends BlockEntity implements MenuProvider, INetworkObjectProvider {
+public class SolarPanelBlockEntity extends PowerBlockEntity {
 
 
 	private final DataSlot data = new DataSlot() {
