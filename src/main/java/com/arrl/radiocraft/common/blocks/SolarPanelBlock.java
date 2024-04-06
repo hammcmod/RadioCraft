@@ -1,7 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.common.blockentities.SolarPanelBlockEntity;
-import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -31,7 +30,7 @@ public class SolarPanelBlock extends AbstractPowerNetworkBlock {
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> be) {
-		return be == RadiocraftBlockEntities.SOLAR_PANEL.get() ? SolarPanelBlockEntity::tick : null;
+		return !level.isClientSide ? SolarPanelBlockEntity::tick : null;
 	}
 
 	@Override

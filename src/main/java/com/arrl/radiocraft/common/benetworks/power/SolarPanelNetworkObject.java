@@ -1,9 +1,10 @@
-package com.arrl.radiocraft.api.benetworks.power;
+package com.arrl.radiocraft.common.benetworks.power;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.RadiocraftCommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
-import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
+import com.arrl.radiocraft.api.benetworks.power.PowerBENetwork;
+import com.arrl.radiocraft.api.benetworks.power.PowerNetworkObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -14,9 +15,10 @@ public class SolarPanelNetworkObject extends PowerNetworkObject {
     public static final ResourceLocation TYPE = Radiocraft.location("solar_panel");
 
     private boolean canSeeSky = false;
+    public int lastPowerTick = 0;
 
-    public SolarPanelNetworkObject(BasicEnergyStorage storage) {
-        super(storage);
+    public SolarPanelNetworkObject() {
+        super(0, 0, 0);
     }
 
     @Override
@@ -26,11 +28,15 @@ public class SolarPanelNetworkObject extends PowerNetworkObject {
 
     @Override
     public boolean isDirectConsumer() {
-        return true;
+        return false;
     }
 
     public void setCanSeeSky(boolean value) {
         this.canSeeSky = value;
+    }
+
+    public int getLastPowerTick() {
+        return lastPowerTick;
     }
 
     @Override
@@ -38,9 +44,11 @@ public class SolarPanelNetworkObject extends PowerNetworkObject {
         if(level.isDay() && level.canSeeSky(pos)) {
             int powerGenerated = energyStorage.getMaxReceive();
             if(level.isRaining())
-                powerGenerated = (int)Math.round(powerGenerated * RadiocraftCommonConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get());
+                powerGenerated = (int)(powerGenerated * RadiocraftCommonConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get());
 
-            for(BENetwork<?> n : networks.values()) {
+            lastPowerTick = powerGenerated;
+
+            for(BENetwork n : networks.values()) {
                 if(n instanceof PowerBENetwork network) {
                     powerGenerated -= network.pushPower(powerGenerated, true, false);
 

@@ -9,10 +9,10 @@ import java.util.function.Supplier;
 
 public class BENetworkRegistry {
 
-    private static Map<ResourceLocation, Function<UUID, BENetwork<?>>> networkTypes;
+    private static Map<ResourceLocation, Function<UUID, BENetwork>> networkTypes;
     private static Map<ResourceLocation, Supplier<BENetworkObject>> objectTypes;
 
-    public static void registerNetwork(ResourceLocation id, Function<UUID, BENetwork<?>> networkSupplier) {
+    public static void registerNetwork(ResourceLocation id, Function<UUID, BENetwork> networkSupplier) {
         if(networkTypes.containsKey(id))
             throw new IllegalArgumentException("Tried to register a duplicate network type.");
         networkTypes.put(id, networkSupplier);

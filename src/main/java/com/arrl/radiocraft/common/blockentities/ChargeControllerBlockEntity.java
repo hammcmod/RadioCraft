@@ -10,6 +10,7 @@ import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class ChargeControllerBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE {
+public class ChargeControllerBlockEntity extends BlockEntity implements ITogglableBE, MenuProvider {
 
 	public final ItemStackHandler inventory = new ItemStackHandler(1);
 	private final LazyOptional<IItemHandlerModifiable> inventoryHandler = LazyOptional.of(() -> inventory);
