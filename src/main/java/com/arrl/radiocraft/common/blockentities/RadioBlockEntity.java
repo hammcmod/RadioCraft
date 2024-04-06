@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -24,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-public abstract class RadioBlockEntity extends AbstractPowerBlockEntity implements ITogglableBE, IVoiceTransmitter, IBEVoiceReceiver {
+public abstract class RadioBlockEntity extends BlockEntity implements ITogglableBE, IVoiceTransmitter, IBEVoiceReceiver, MenuProvider {
 
     protected final List<BENetwork.BENetworkEntry> antennas = Collections.synchronizedList(new ArrayList<>());
 

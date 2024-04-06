@@ -1,70 +1,44 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.RadiocraftCommonConfig;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
+import com.arrl.radiocraft.common.benetworks.power.SolarPanelNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.SolarPanelMenu;
-import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-public class SolarPanelBlockEntity extends AbstractPowerBlockEntity {
+public class SolarPanelBlockEntity extends BlockEntity implements MenuProvider, INetworkObjectProvider {
 
-	public final double rainMultiplier;
-	private int lastPowerTick = 0;
 
-	// Using a ContainerData for one value is awkward, but it changes constantly and needs to be synchronised.
-	private final ContainerData fields = new ContainerData() {
+	private final DataSlot data = new DataSlot() {
+
 		@Override
-		public int get(int index) {
-			if(index == 0)
-				return lastPowerTick;
-			return 0;
+		public int get() {
+			return ((SolarPanelNetworkObject)getNetworkObject(level, worldPosition)).getLastPowerTick();
 		}
 
 		@Override
-		public void set(int index, int value) {
-			if(index == 0)
-				lastPowerTick = value;
-		}
+		public void set(int value) {} // Empty set because the client isn't allowed to set this value.
 
-		@Override
-		public int getCount() {
-			return 1;
-		}
 	};
 
 	public SolarPanelBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state, RadiocraftCommonConfig.SOLAR_PANEL_MAX_OUTPUT.get(), RadiocraftCommonConfig.SOLAR_PANEL_MAX_OUTPUT.get());
-		rainMultiplier = RadiocraftCommonConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get();
+		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state);
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
-		if(t instanceof SolarPanelBlockEntity be) {
-			if(!level.isClientSide) { // Serverside only
-				if(level.isDay() && level.canSeeSky(pos)) { // Time is day & solar panel has direct skylight
-					int powerGenerated = level.isRaining() ? (int)Math.round(be.energyStorage.getMaxReceive() * be.rainMultiplier) : be.energyStorage.getMaxReceive();
-					be.energyStorage.receiveEnergy(powerGenerated, false); // Generate power
-					be.lastPowerTick = powerGenerated;
-				}
-				else {
-					be.lastPowerTick = 0;
-				}
-				be.pushToAll(be.energyStorage.getMaxExtract(), true); // Push to connected networks
-			}
-		}
-	}
-
-	@Override
-	public ConnectionType getConnectionType() {
-		return ConnectionType.PUSH;
+		if(t instanceof SolarPanelBlockEntity be)
+			((SolarPanelNetworkObject)be.getNetworkObject(level, pos)).setCanSeeSky(level.canSeeSky(pos)); // Just update the power gen value in tick.
 	}
 
 	@Override
@@ -75,6 +49,12 @@ public class SolarPanelBlockEntity extends AbstractPowerBlockEntity {
 	@Nullable
 	@Override
 	public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
-		return new SolarPanelMenu(id, this, fields);
+		return new SolarPanelMenu(id, this, data);
 	}
+
+	@Override
+	public BENetworkObject createNetworkObject() {
+		return new SolarPanelNetworkObject();
+	}
+
 }

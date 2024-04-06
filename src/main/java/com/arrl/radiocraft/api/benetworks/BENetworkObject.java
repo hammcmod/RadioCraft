@@ -16,14 +16,20 @@ import java.util.Map;
 public class BENetworkObject {
 
     public static final ResourceLocation DEFAULT_TYPE = Radiocraft.location("default");
-    protected final Map<Direction, BENetwork<?>> networks = new HashMap<>();
+    protected final Map<Direction, BENetwork> networks = new HashMap<>();
 
-    public BENetwork<?> getNetwork(@NotNull Direction side) {
+    public BENetwork getNetwork(@NotNull Direction side) {
         return networks.get(side);
     }
 
-    public void setNetwork(@NotNull Direction side, BENetwork<?> network) {
+    public void setNetwork(@NotNull Direction side, BENetwork network) {
         networks.put(side, network);
+    }
+
+    public void clearNetworks() {
+        for(BENetwork network : networks.values()) {
+            network.remove(this);
+        }
     }
 
     public ResourceLocation getType() {

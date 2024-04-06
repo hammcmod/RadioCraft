@@ -1,10 +1,12 @@
 package com.arrl.radiocraft.api.benetworks.power;
 
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 
 import java.util.UUID;
 
-public class PowerBENetwork extends BENetwork<PowerNetworkObject> {
+public class PowerBENetwork extends BENetwork {
 
     public PowerBENetwork(UUID uuid) {
         super(uuid);
@@ -20,8 +22,8 @@ public class PowerBENetwork extends BENetwork<PowerNetworkObject> {
     public int pullPower(int amount, boolean simulate) {
         int pulled = 0;
 
-        for(PowerNetworkObject obj : networkObjects) {
-            pulled += obj.getStorage().extractEnergy(amount - pulled, simulate);
+        for(BENetworkObject obj : networkObjects) {
+            pulled += ((PowerNetworkObject)obj).getStorage().extractEnergy(amount - pulled, simulate);
 
             if(pulled >= amount) // Stop checking if required amount is reached
                 return pulled;
@@ -39,7 +41,8 @@ public class PowerBENetwork extends BENetwork<PowerNetworkObject> {
     public int pushPower(int amount, boolean direct, boolean simulate) {
         int pushed = 0;
 
-        for(PowerNetworkObject obj : networkObjects) {
+        for(BENetworkObject o : networkObjects) {
+            PowerNetworkObject obj = (PowerNetworkObject)o;
             if(!direct && obj.isIndirectConsumer() || (direct && obj.isDirectConsumer())) {
                 pushed += obj.getStorage().receiveEnergy(amount - pushed, simulate);
 
@@ -48,6 +51,14 @@ public class PowerBENetwork extends BENetwork<PowerNetworkObject> {
             }
         }
         return pushed;
+    }
+
+    @Override
+    public void add(BENetworkObject networkObject) {
+        if(networkObject instanceof PowerNetworkObject)
+            networkObjects.add(networkObject);
+        else
+            Radiocraft.LOGGER.warn("Tried to add a non PowerNetworkObject to a PowerBENetwork.");
     }
 
 }

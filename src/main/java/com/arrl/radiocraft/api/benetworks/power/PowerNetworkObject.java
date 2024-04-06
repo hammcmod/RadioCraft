@@ -14,8 +14,8 @@ public abstract class PowerNetworkObject extends BENetworkObject {
 
     protected BasicEnergyStorage energyStorage;
 
-    public PowerNetworkObject(BasicEnergyStorage storage) {
-        this.energyStorage = storage;
+    public PowerNetworkObject(int capacity, int maxReceive, int maxExtract) {
+        this.energyStorage = new BasicEnergyStorage(capacity, maxReceive, maxExtract);
     }
 
     public BasicEnergyStorage getStorage() {
