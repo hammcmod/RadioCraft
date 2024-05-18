@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
+import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -24,13 +24,13 @@ public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 		if(!level.isClientSide) {
 			if(oldState.getBlock() != this) {
 				if(usePowerNetworks)
-					BENetwork.tryConnectToNetworks(level, pos,
+					BENetwork.tryConnect(level, pos,
 							wire -> RadiocraftTags.isPowerWire(wire.getBlock()),
 							connection -> RadiocraftTags.isPowerBlock(connection.getBlock()),
 							network -> network instanceof PowerNetwork,
 							PowerNetwork::new);
 				if(useCoaxNetworks)
-					BENetwork.tryConnectToNetworks(level, pos,
+					BENetwork.tryConnect(level, pos,
 							wire -> RadiocraftTags.isCoaxWire(wire.getBlock()),
 							connection -> RadiocraftTags.isCoaxBlock(connection.getBlock()),
 							network -> !(network instanceof PowerNetwork),

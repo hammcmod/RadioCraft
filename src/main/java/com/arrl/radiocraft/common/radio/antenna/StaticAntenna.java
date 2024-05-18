@@ -2,13 +2,13 @@ package com.arrl.radiocraft.common.radio.antenna;
 
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
-import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.benetworks.power.AntennaNetworkObject;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraftforge.common.util.INBTSerializable;
 
 import java.util.*;
@@ -69,8 +69,8 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 
 	@Override
 	public void receiveAudioPacket(AntennaVoicePacket packet) {
-		// level#getBlockEntity is thread sensitive for some unknown reason.
-		if(network.getLevel().getChunkAt(pos).getBlockEntity(pos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof AntennaBlockEntity be) {
+		AntennaNetworkObject obj = getNetworkObj();
+		if(obj != null) {
 			BlockPos source = packet.getSource().getBlockPos();
 			if(ssbReceiveCache.containsKey(source))
 				packet.setStrength(packet.getStrength() * ssbReceiveCache.get(source));
@@ -79,7 +79,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 				ssbReceiveCache.put(source, packet.getStrength());
 			}
 
-			be.receiveAudioPacket(packet);
+			obj.receiveAudioPacket(packet);
 		}
 	}
 
@@ -108,8 +108,9 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 
 	@Override
 	public void receiveCWPacket(AntennaCWPacket packet) {
-		if(network.getLevel().getBlockEntity(pos) instanceof AntennaBlockEntity be) {
+		AntennaNetworkObject obj = getNetworkObj();
 
+		if(obj != null) {
 			BlockPos source = packet.getSource().getBlockPos();
 			if(cwReceiveCache.containsKey(source))
 				packet.setStrength(cwReceiveCache.get(source));
@@ -118,8 +119,12 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 				cwReceiveCache.put(source, packet.getStrength());
 			}
 
-			be.receiveMorsePacket(packet);
+			obj.receiveCWPacket(packet);
 		}
+	}
+
+	public AntennaNetworkObject getNetworkObj() {
+		return (AntennaNetworkObject)IBENetworks.getObject(network.getLevel(), pos);
 	}
 
 	@Override

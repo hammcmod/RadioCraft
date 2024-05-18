@@ -51,7 +51,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     public void setPlayer(Player player) {
         playerRef = new WeakReference<>(player);
         if(receiveChannel != null)
-            receiveChannel.updateEntity(RadiocraftVoicePlugin.api.fromEntity(player));
+            receiveChannel.updateEntity(RadiocraftVoicePlugin.API.fromEntity(player));
 
         if(player != null)
             setNetwork(AntennaNetworkManager.getNetwork(player.getLevel(), AntennaNetworkManager.VHF_ID)); // Always swap to a new network in case it was a dimension change.
@@ -138,9 +138,9 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     }
 
     public void openChannel() {
-        if(RadiocraftVoicePlugin.api == null)
+        if(RadiocraftVoicePlugin.API == null)
             Radiocraft.LOGGER.error("VoiceChatServerApi has.");
-        receiveChannel = RadiocraftVoicePlugin.api.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.api.fromEntity(getPlayer()));
+        receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromEntity(getPlayer()));
     }
 
     @Override

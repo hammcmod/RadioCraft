@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.menus;
 
-import com.arrl.radiocraft.common.blockentities.HFReceiverBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.HFReceiverBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;

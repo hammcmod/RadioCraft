@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.items;
 
-import com.arrl.radiocraft.RadiocraftCommonConfig;
+import com.arrl.radiocraft.CommonConfig;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
@@ -22,14 +22,14 @@ public class SmallBatteryItem extends Item {
         CompoundTag nbt = stack.getOrCreateTag();
         int charge = nbt.contains("charge") ? nbt.getInt("charge") : 0;
 
-        return Math.round(charge * 13.0F / RadiocraftCommonConfig.SMALL_BATTERY_CAPACITY.get());
+        return Math.round(charge * 13.0F / CommonConfig.SMALL_BATTERY_CAPACITY.get());
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
         CompoundTag nbt = stack.getOrCreateTag();
         int charge = nbt.contains("charge") ? nbt.getInt("charge") : 0;
-        float capacity = RadiocraftCommonConfig.SMALL_BATTERY_CAPACITY.get();
+        float capacity = CommonConfig.SMALL_BATTERY_CAPACITY.get();
 
         float f = Math.max(0.0F, charge / capacity);
         return Mth.hsvToRgb(f / 3.0F, 1.0F, 1.0F);

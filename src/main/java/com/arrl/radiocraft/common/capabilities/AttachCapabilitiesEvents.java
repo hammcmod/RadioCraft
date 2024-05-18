@@ -23,7 +23,7 @@ public class AttachCapabilitiesEvents {
 				event.addCapability(Radiocraft.location("callsigns"), new CallsignCapabilityProvider());
 
 			event.addCapability(Radiocraft.location("antenna_networks"), new AntennaNetworkCapabilityProvider());
-			event.addCapability(Radiocraft.location("be_networks"), new BENetworksCapabilityProvider());
+			event.addCapability(Radiocraft.location("be_networks"), new BENetworksCapabilityProvider(level));
 		}
 	}
 

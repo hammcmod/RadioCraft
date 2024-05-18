@@ -1,6 +1,8 @@
-package com.arrl.radiocraft.common.blockentities;
+package com.arrl.radiocraft.common.blockentities.radio;
 
-import com.arrl.radiocraft.RadiocraftCommonConfig;
+import com.arrl.radiocraft.CommonConfig;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.common.benetworks.power.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.VHFReceiverMenu;
 import net.minecraft.core.BlockPos;
@@ -14,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class VHFReceiverBlockEntity extends VHFRadioBlockEntity {
 
     public VHFReceiverBlockEntity(BlockPos pos, BlockState state) {
-        super(RadiocraftBlockEntities.VHF_RECEIVER.get(), pos, state, RadiocraftCommonConfig.VHF_RECEIVER_TICK.get(), 0, 2);
+        super(RadiocraftBlockEntities.VHF_RECEIVER.get(), pos, state, 2);
     }
 
     @Override
@@ -31,6 +33,11 @@ public class VHFReceiverBlockEntity extends VHFRadioBlockEntity {
     @Override
     public boolean canTransmitVoice() {
         return false;
+    }
+
+    @Override
+    public BENetworkObject createNetworkObject() {
+        return new RadioNetworkObject(level, worldPosition, CommonConfig.VHF_RECEIVER_TICK.get(), CommonConfig.VHF_RECEIVER_TICK.get());
     }
 
 }

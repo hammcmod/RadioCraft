@@ -3,38 +3,29 @@ package com.arrl.radiocraft.common.blockentities;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.antenna.IAntenna;
-import com.arrl.radiocraft.api.antenna.IAntennaType;
-import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.benetworks.power.AntennaNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
-import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
-import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
-import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
-import com.arrl.radiocraft.common.radio.morse.CWBuffer;
-import de.maxhenkel.voicechat.api.ServerLevel;
+import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
-import java.util.*;
-
 /**
  * Shared {@link BlockEntity} for all blocks which act as an antenna-- used for processing packets/sending them to the
  * network, receiving packets from the network & scheduling antenna update checks.
  */
-public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
+public class AntennaBlockEntity extends BlockEntity implements INetworkObjectProvider {
 
-	private final Map<Direction, Set<BENetwork>> networks = new HashMap<>();
-	public StaticAntenna<?> antenna = null;
 	protected ResourceLocation networkId;
 
-	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage. Keep BENetworkEntry to ensure that it uses weak refs.
-	private final List<BENetworkEntry> radios = Collections.synchronizedList(new ArrayList<>());
+	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage.
 	private int antennaCheckCooldown = -1;
 
 	public AntennaBlockEntity(BlockPos pos, BlockState state) {
@@ -45,73 +36,13 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		super(RadiocraftBlockEntities.ANTENNA.get(), pos, state);
 		this.networkId = networkId;
 	}
-
-	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
-		antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
-	}
-
-	public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
-		antenna.transmitCWPacket(level, buffers, wavelength, frequency);
-	}
-
-	/**
-	 * Called from voice thread.
-	 */
-	public void receiveAudioPacket(AntennaVoicePacket packet) {
-		if(radios.size() == 1) {
-			RadioBlockEntity radio = (RadioBlockEntity)radios.get(0).getNetworkItem();
-			if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
-				radio.getRadio().receive(packet);
-		}
-		else if(radios.size() > 1) {
-			for(BENetworkEntry entry : radios)
-				((RadioBlockEntity)entry.getNetworkItem()).overdraw();
-		}
-	}
-
-	public void receiveMorsePacket(AntennaCWPacket packet) {
-		if(radios.size() == 1) {
-			HFRadioBlockEntity radio = (HFRadioBlockEntity)radios.get(0).getNetworkItem();
-			if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
-				radio.receiveCW(packet);
-		}
-		else if(radios.size() > 1) {
-			for(BENetworkEntry entry : radios)
-				((RadioBlockEntity)entry.getNetworkItem()).overdraw();
-		}
-	}
-
 	/**
 	 * Updates the antenna at this position in the world
 	 */
 	private void updateAntenna() {
-		AntennaNetwork network = AntennaNetworkManager.getNetwork(level, networkId);
 		IAntenna a = AntennaTypes.match(level, worldPosition);
-		if(a instanceof StaticAntenna<?> newAntenna) {
-			if(antenna != null)
-				network.removeAntenna(antenna);
-
-			antenna = newAntenna;
-			network.addAntenna(antenna);
-			antenna.setNetwork(network);
-			updateConnectedRadios();
-			setChanged();
-		}
-	}
-
-	private void updateConnectedRadios() {
-		radios.clear();
-		for(Set<BENetwork> side : networks.values()) {
-			for(BENetwork network : side) {
-				if(!(network instanceof PowerNetwork)) {
-					for(BENetworkEntry entry : network.getConnections()) {
-						if(entry.getNetworkItem() instanceof RadioBlockEntity)
-							if(!radios.contains(entry))
-								radios.add(entry);
-					}
-				}
-			}
-		}
+		if(a instanceof StaticAntenna<?> newAntenna)
+			((AntennaNetworkObject)IBENetworks.getObject(level, worldPosition)).setAntenna(newAntenna);
 	}
 
 	/**
@@ -121,81 +52,42 @@ public class AntennaBlockEntity extends BlockEntity implements IBENetworkItem {
 		antennaCheckCooldown = RadiocraftServerConfig.ANTENNA_UPDATE_DELAY.get() * 20;
 	}
 
-	public static <T extends BlockEntity> void tick(Level level, BlockPos blockPos, BlockState blockState, T t) {
+	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(t instanceof AntennaBlockEntity be) {
-			if(!level.isClientSide) { // Serverside only
-				if(be.antennaCheckCooldown-- == 0)
-					be.updateAntenna();
-			}
+			if(be.antennaCheckCooldown-- == 0)
+				be.updateAntenna();
 		}
 	}
 
 	@Override
 	protected void saveAdditional(CompoundTag nbt) {
 		super.saveAdditional(nbt);
-		nbt.putInt("antennaCheckCooldown", Math.max(antennaCheckCooldown, -1));
-		if(antenna != null) {
-			nbt.putString("antennaType", antenna.type.getId().toString());
-			nbt.put("antennaData", antenna.serializeNBT());
-			nbt.putString("networkId", networkId.toString());
-		}
+		nbt.putInt("checkCooldown", Math.max(antennaCheckCooldown, -1));
 	}
 
 	@Override
 	public void load(CompoundTag nbt) {
 		super.load(nbt);
-		antennaCheckCooldown = nbt.getInt("antennaCheckCooldown");
-		if(nbt.contains("antennaType")) {
-			IAntennaType<?> type = AntennaTypes.getType(new ResourceLocation(nbt.getString("antennaType")));
-			if(type != null) {
-				antenna = new StaticAntenna<>(type, worldPosition);
-				antenna.deserializeNBT(nbt.getCompound("antennaData"));
-			}
-		}
-		networkId = new ResourceLocation(nbt.getString("networkId"));
+		antennaCheckCooldown = nbt.getInt("checkCooldown");
 	}
 
 	@Override
 	public void onLoad() {
-		if(antenna != null) { // Handle network set here where level is not null
-			AntennaNetwork network = AntennaNetworkManager.getNetwork(level, networkId);
-			network.removeAntenna(antenna); // Just in case the antenna obj was somehow re-created.
-			network.addAntenna(antenna);
-			antenna.setNetwork(network);
-		}
-		else {
-			updateAntenna();
-		}
+		super.onLoad();
+		if(!level.isClientSide())
+			getNetworkObject(level, worldPosition); // This forces the network object to get initialised.
 	}
 
 	@Override
 	public void setRemoved() {
-		if(!level.isClientSide && antenna != null)
-			AntennaNetworkManager.getNetwork(level, networkId).removeAntenna(antenna);
 		super.setRemoved();
+		if(!level.isClientSide())
+			IBENetworks.removeObject(level, worldPosition);
 	}
 
 	@Override
-	public void onChunkUnloaded() {
-		if(!level.isClientSide && antenna != null)
-			AntennaNetworkManager.getNetwork(level, networkId).removeAntenna(antenna);
-		super.onChunkUnloaded();
-	}
-
-	@Override
-	public Map<Direction, Set<BENetwork>> getNetworkMap() {
-		return networks;
-	}
-
-	@Override
-	public void networkUpdated(BENetwork network) {
-		updateConnectedRadios();
-	}
-
-	public double getSWR(int wavelength) {
-		if(radios.size() > 1)
-			return 10.0D;
-		return antenna == null ? 0 : antenna.getSWR(wavelength);
+	public BENetworkObject createNetworkObject() {
+		return new AntennaNetworkObject(level, worldPosition, networkId);
 	}
 
 }

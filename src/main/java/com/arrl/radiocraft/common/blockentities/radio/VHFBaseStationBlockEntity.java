@@ -1,6 +1,8 @@
-package com.arrl.radiocraft.common.blockentities;
+package com.arrl.radiocraft.common.blockentities.radio;
 
-import com.arrl.radiocraft.RadiocraftCommonConfig;
+import com.arrl.radiocraft.CommonConfig;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.common.benetworks.power.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.VHFBaseStationMenu;
 import net.minecraft.core.BlockPos;
@@ -14,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class VHFBaseStationBlockEntity extends VHFRadioBlockEntity {
 
     public VHFBaseStationBlockEntity(BlockPos pos, BlockState state) {
-        super(RadiocraftBlockEntities.VHF_BASE_STATION.get(), pos, state, RadiocraftCommonConfig.VHF_BASE_STATION_RECEIVE_TICK.get(), RadiocraftCommonConfig.VHF_BASE_STATION_TRANSMIT_TICK.get(), 2);
+        super(RadiocraftBlockEntities.VHF_BASE_STATION.get(), pos, state, 2);
     }
 
     @Override
@@ -27,4 +29,10 @@ public class VHFBaseStationBlockEntity extends VHFRadioBlockEntity {
     public AbstractContainerMenu createMenu(int id, Inventory inventory, Player player) {
         return new VHFBaseStationMenu(id, this);
     }
+
+    @Override
+    public BENetworkObject createNetworkObject() {
+        return new RadioNetworkObject(level, worldPosition, CommonConfig.VHF_BASE_STATION_RECEIVE_TICK.get(), CommonConfig.VHF_BASE_STATION_TRANSMIT_TICK.get());
+    }
+
 }

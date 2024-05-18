@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.menus;
 
-import com.arrl.radiocraft.common.blockentities.QRPRadio40mBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.QRPRadio40mBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;

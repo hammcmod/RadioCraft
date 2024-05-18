@@ -58,4 +58,90 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
      */
     void addNetwork(BENetwork network);
 
+    /**
+     * Removes a {@link BENetwork} from the level.
+     * @param network The {@link BENetwork} to remove.
+     */
+    void removeNetwork(BENetwork network);
+
+
+    /**
+     * Grab a {@link BENetworkObject} by its {@link BlockPos}.
+     *
+     * @param level The {@link Level} to grab {@link IBENetworks} from.
+     * @param pos The {link BlockPos} to check
+     *
+     * @return {@link BENetworkObject} if an object is present, otherwise false.
+     */
+    static BENetworkObject getObject(@NotNull Level level, @NotNull BlockPos pos) {
+        IBENetworks cap = get(level);
+        return cap != null ? cap.getObject(pos) : null;
+    }
+
+    /**
+     * Set the {@link BENetworkObject} present at a given {@link BlockPos}.
+     *
+     * @param level The {@link Level} to grab {@link IBENetworks} from.
+     * @param pos The {@link BlockPos} to set.
+     * @param object The {@link BENetworkObject} to place in that position.
+     */
+    static void setObject(@NotNull Level level, @NotNull BlockPos pos, @NotNull BENetworkObject object) {
+        IBENetworks cap = get(level);
+        if(cap != null)
+            cap.setObject(pos, object);
+    }
+
+    /**
+     * Remove a {@link BENetworkObject} from this level and remove it from all of it's {@link BENetwork}s.
+     *
+     * @param level The {@link Level} to grab {@link IBENetworks} from.
+     * @param pos The {@link BlockPos} of the {@link BENetworkObject} being removed.
+     */
+    static void removeObject(@NotNull Level level, @NotNull BlockPos pos) {
+        IBENetworks cap = get(level);
+        if(cap != null)
+            cap.removeObject(pos);
+    }
+
+    /**
+     * Grab a {@link BENetwork} by its {@link UUID}.
+     *
+     * @param level The {@link Level} to grab {@link IBENetworks} from.
+     * @param uuid The {@link UUID} of the desired network.
+     *
+     * @return The first {@link BENetwork} with a matching {@link UUID}, or null if none were found.
+     */
+    static BENetwork getNetwork(@NotNull Level level, UUID uuid) {
+        IBENetworks cap = get(level);
+        return cap != null ? cap.getNetwork(uuid) : null;
+    }
+
+    /**
+     * Add a new {@link BENetwork} to the level.
+     *
+     * @param level The {@link Level} to grab {@link IBENetworks} from.
+     * @param network The {@link BENetwork} to add.
+     */
+    static void addNetwork(@NotNull Level level, BENetwork network) {
+        IBENetworks cap = get(level);
+        if(cap != null)
+            cap.addNetwork(network);
+    }
+
+    /**
+     * Removes a {@link BENetwork} from the level.
+     *
+     * @param level The {@link Level} to grab {@link IBENetworks} from.
+     * @param network The {@link BENetwork} to remove.
+     */
+    static void removeNetwork(@NotNull Level level, BENetwork network) {
+        IBENetworks cap = get(level);
+        if(cap != null)
+            cap.removeNetwork(network);
+    }
+
+    static IBENetworks get(@NotNull Level level) {
+        return level.getCapability(RadiocraftCapabilities.BE_NETWORKS).orElse(null);
+    }
+
 }

@@ -1,8 +1,14 @@
 package com.arrl.radiocraft.common.blocks;
 
+import com.arrl.radiocraft.api.benetworks.BENetwork;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
+import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.benetworks.WireUtils;
+import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
+import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
-import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
-import com.arrl.radiocraft.common.benetworks.power.WireUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
@@ -24,10 +30,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
@@ -98,14 +101,15 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	/**
-	 * Get direction for all connections
+	 * Get a {@link List} of {@link Direction}s this block is connected to.
 	 */
-	public List<Direction> getConnections(BlockGetter level, BlockPos pos) {
-		List<Direction> out = new ArrayList<>();
+	public Set<Direction> getConnections(BlockGetter level, BlockPos pos) {
+		Set<Direction> out = new HashSet<>();
 
-		for(Direction direction : Direction.values())
-			if(canConnectTo(level.getBlockState(pos.relative(direction)), isPower))
-				out.add(direction);
+		BlockState state = level.getBlockState(pos);
+		for(Direction dir : Direction.values())
+			if(state.getValue(PROPERTY_BY_DIRECTION.get(dir)))
+				out.add(dir);
 
 		return out;
 	}
@@ -116,6 +120,27 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				Fluids.WATER.getSource(false) : super.getFluidState(state);
 	}
 
+	/**
+	 * Checks if multiple {@link Block}s surrounding a given position are compatible connections.
+	 *
+	 * @param level The {@link Level} to check.
+	 * @param pos The {@link BlockPos} to check around.
+	 *
+	 * @return True if multiple sides are connected, otherwise false.
+	 */
+	public boolean checkMultipleSides(Level level, BlockPos pos) {
+		int count = 0;
+		for(Direction dir : Direction.values()) {
+			BlockPos checkPos = pos.relative(dir);
+			Block block = level.getBlockState(checkPos).getBlock();
+			if((block instanceof WireBlock wireBlock && wireBlock.isPower == isPower) || (isPower && IBENetworks.getObject(level, checkPos) instanceof PowerNetworkObject)) {
+				if(++count >= 2)
+					return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
 		if(level.isClientSide)
@@ -123,34 +148,29 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		if(oldState.is(this))
 			return;
 
-		if(isPower)
-			WireUtils.mergeWireNetworks(level, pos,
-					wire -> RadiocraftTags.isPowerWire(wire.getBlock()),
-					connection -> RadiocraftTags.isPowerBlock(connection.getBlock()),
-					network -> network instanceof PowerNetwork,
-					PowerNetwork::new);
-		else
-			WireUtils.mergeWireNetworks(level, pos,
-					wire -> RadiocraftTags.isCoaxWire(wire.getBlock()),
-					connection -> RadiocraftTags.isCoaxBlock(connection.getBlock()),
-					network -> !(network instanceof PowerNetwork),
-					BENetwork::new);
+		if(checkMultipleSides(level, pos)) { // Only bother running merge if this wire is actually connecting things.
+			if(isPower)
+				WireUtils.mergeNetworks(level, pos, no -> no instanceof PowerNetworkObject, PowerBENetwork::new);
+			else
+				WireUtils.mergeNetworks(level, pos, no -> true, BENetwork::new);
+		}
 	}
 
 	@Override
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-		if(!newState.is(this) && !level.isClientSide) {
+		if(newState.is(this))
+			return;
+
+		if(!level.isClientSide)
+			return;
+
+		if(checkMultipleSides(level, pos)) { // Only bother running split if this wire is actually connecting things.
 			if(isPower)
-				WireUtils.splitWireNetwork(level, pos,
-						wire -> RadiocraftTags.isPowerWire(wire.getBlock()),
-						connection -> RadiocraftTags.isPowerBlock(connection.getBlock()),
-						network -> network instanceof PowerNetwork);
+				WireUtils.splitNetworks(level, pos, no -> no instanceof PowerNetworkObject, RadiocraftBlocks.WIRE.get());
 			else
-				WireUtils.splitWireNetwork(level, pos,
-						wire -> RadiocraftTags.isCoaxWire(wire.getBlock()),
-						connection -> RadiocraftTags.isCoaxBlock(connection.getBlock()),
-						network -> !(network instanceof PowerNetwork));
+				WireUtils.splitNetworks(level, pos, no -> true, RadiocraftBlocks.COAX_WIRE.get());
 		}
+
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
 

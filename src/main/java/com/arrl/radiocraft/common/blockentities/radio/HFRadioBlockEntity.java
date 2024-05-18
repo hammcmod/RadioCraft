@@ -1,8 +1,11 @@
-package com.arrl.radiocraft.common.blockentities;
+package com.arrl.radiocraft.common.blockentities.radio;
 
 import com.arrl.radiocraft.api.blockentities.radio.ICWReceiver;
 import com.arrl.radiocraft.api.blockentities.radio.ICWTransmitter;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.client.blockentity.RadioBlockEntityClientHandler;
+import com.arrl.radiocraft.common.benetworks.power.AntennaNetworkObject;
+import com.arrl.radiocraft.common.benetworks.power.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.network.packets.CWBufferPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
@@ -16,6 +19,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Collection;
+import java.util.List;
 
 public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICWReceiver, ICWTransmitter {
 
@@ -24,8 +28,8 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	protected CWReceiveBuffer cwReceiveBuffer;
 	protected CWSendBuffer cwSendBuffer;
 
-	public HFRadioBlockEntity(BlockEntityType<? extends HFRadioBlockEntity> type, BlockPos pos, BlockState state, int receiveUsePower, int transmitUsePower, int wavelength) {
-		super(type, pos, state, receiveUsePower, transmitUsePower, wavelength);
+	public HFRadioBlockEntity(BlockEntityType<? extends HFRadioBlockEntity> type, BlockPos pos, BlockState state, int wavelength) {
+		super(type, pos, state, wavelength);
 	}
 
 	// -------------------- CW/MORSE IMPLEMENTATION --------------------
@@ -52,6 +56,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	@Override
 	public void receiveCW(AntennaCWPacket packet) {
 		if(!level.isClientSide && getCWEnabled()) {
+			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
 			if(antennas.size() == 1)
 				// Send necessary buffers to clients tracking this BE, these will get re-ordered and then played back on the client.
 				RadiocraftPackets.sendToTrackingChunk(new CWBufferPacket(level.dimension(), worldPosition, packet.getBuffers(), (float)packet.getStrength()), level.getChunkAt(worldPosition));
@@ -84,8 +89,9 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	@Override
 	public void transmitMorse(Collection<CWBuffer> buffers) {
 		if(level instanceof ServerLevel serverLevel) {
+			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
 			if(antennas.size() == 1)
-				((AntennaBlockEntity)antennas.get(0).getNetworkItem()).transmitMorsePacket(serverLevel, buffers, wavelength, frequency);
+				antennas.get(0).transmitCWPacket(serverLevel, buffers, wavelength, frequency);
 			else if(antennas.size() > 1)
 				overdraw();
 		}

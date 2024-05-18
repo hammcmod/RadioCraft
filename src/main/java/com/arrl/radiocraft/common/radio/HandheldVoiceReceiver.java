@@ -30,9 +30,9 @@ public class HandheldVoiceReceiver implements IVoiceReceiver {
 	}
 
 	public void openChannel() {
-		if(RadiocraftVoicePlugin.api == null)
+		if(RadiocraftVoicePlugin.API == null)
 			Radiocraft.LOGGER.error("Radiocraft VoiceChatServerApi is null.");
-		receiveChannel = RadiocraftVoicePlugin.api.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.api.fromEntity(entity));
+		receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromEntity(entity));
 	}
 
 	public void receive(AntennaVoicePacket antennaPacket) {
