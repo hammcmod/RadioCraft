@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.blockentities.RadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -35,7 +35,7 @@ public abstract class RadioBlock extends AbstractPowerNetworkBlock {
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		return RadioBlockEntity::tick;
+		return !level.isClientSide ? RadioBlockEntity::tick : null;
 	}
 
 	@Override

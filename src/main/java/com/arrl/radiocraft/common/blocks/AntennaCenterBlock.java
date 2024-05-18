@@ -1,7 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
-import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import net.minecraft.ChatFormatting;
@@ -42,7 +41,7 @@ public class AntennaCenterBlock extends AbstractNetworkBlock {
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-		return type == RadiocraftBlockEntities.ANTENNA.get() ? AntennaBlockEntity::tick : super.getTicker(level, state, type);
+		return !level.isClientSide ? AntennaBlockEntity::tick : super.getTicker(level, state, type);
 	}
 
 	@Nullable

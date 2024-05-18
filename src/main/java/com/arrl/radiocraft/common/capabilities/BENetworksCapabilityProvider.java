@@ -4,6 +4,7 @@ import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -14,8 +15,13 @@ import javax.annotation.Nullable;
 
 public class BENetworksCapabilityProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
 
-	private final IBENetworks backend = new BENetworksCapability();
-	private final LazyOptional<IBENetworks> optionalData = LazyOptional.of(() -> backend);
+	private final IBENetworks backend;
+	private final LazyOptional<IBENetworks> optionalData;
+
+	public BENetworksCapabilityProvider(Level level) {
+		backend = new BENetworksCapability(level);
+		optionalData = LazyOptional.of(() -> backend);
+	}
 
 	@Override
 	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {

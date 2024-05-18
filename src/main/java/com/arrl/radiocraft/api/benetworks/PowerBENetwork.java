@@ -1,8 +1,6 @@
-package com.arrl.radiocraft.api.benetworks.power;
+package com.arrl.radiocraft.api.benetworks;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.api.benetworks.BENetwork;
-import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.common.benetworks.power.BatteryNetworkObject;
 import net.minecraft.resources.ResourceLocation;
 
@@ -14,6 +12,10 @@ public class PowerBENetwork extends BENetwork {
 
     public PowerBENetwork(UUID uuid) {
         super(uuid);
+    }
+
+    public PowerBENetwork() {
+        super(UUID.randomUUID());
     }
 
     /**
@@ -39,16 +41,17 @@ public class PowerBENetwork extends BENetwork {
      * Attempts to push power to {@link PowerNetworkObject}s on the network.
      *
      * @param simulate If true, do not actually push energy to providers
+     * @param forBatteries If true, only push power to batteries. Otherwise, only push power to non-batteries.
      *
      * @return Amount pushed to network.
      */
-    public int pushPower(int amount, boolean direct, boolean simulate) {
+    public int pushPower(int amount, boolean direct, boolean forBatteries, boolean simulate) {
         int pushed = 0;
 
         for(BENetworkObject o : networkObjects) {
             PowerNetworkObject obj = (PowerNetworkObject)o;
-            if(!(direct && obj instanceof BatteryNetworkObject)) { // Prevents batteries from looping each other and not ever giving power to actual consumers.
-                if(!direct && obj.isIndirectConsumer() || (direct && obj.isDirectConsumer())) {
+            if((!forBatteries && (!(obj instanceof BatteryNetworkObject))) || (forBatteries && (obj instanceof BatteryNetworkObject))) {
+                if((!direct && obj.isIndirectConsumer()) || (direct && obj.isDirectConsumer())) {
                     pushed += obj.getStorage().receiveEnergy(amount - pushed, simulate);
 
                     if(pushed >= amount) // Stop checking if required amount is reached
@@ -62,7 +65,7 @@ public class PowerBENetwork extends BENetwork {
     @Override
     public void add(BENetworkObject networkObject) {
         if(networkObject instanceof PowerNetworkObject)
-            networkObjects.add(networkObject);
+            super.add(networkObject);
         else
             Radiocraft.LOGGER.warn("Tried to add a non PowerNetworkObject to a PowerBENetwork.");
     }

@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -20,6 +21,11 @@ public class BENetworksCapability implements IBENetworks {
 
     private final Map<BlockPos, BENetworkObject> networkObjects = new HashMap<>();
     private final Map<UUID, BENetwork> networks = new HashMap<>();
+    private final Level level; // This is terrible code with a circular ref, but it shouldn't matter.
+
+    public BENetworksCapability(Level level) {
+        this.level = level;
+    }
 
     @Override
     public BENetworkObject getObject(@NotNull BlockPos pos) {
@@ -33,6 +39,9 @@ public class BENetworksCapability implements IBENetworks {
 
     @Override
     public void removeObject(@NotNull BlockPos pos) {
+        BENetworkObject obj = getObject(pos);
+        if(obj != null)
+            obj.discard();
         networkObjects.remove(pos);
     }
 
@@ -79,8 +88,8 @@ public class BENetworksCapability implements IBENetworks {
         ListTag objectsTag = nbt.getList("networkObjects", ListTag.TAG_COMPOUND);
         for(Tag t : objectsTag) {
             CompoundTag obj = (CompoundTag)t;
-            BENetworkObject networkObject = BENetworkRegistry.createObject(new ResourceLocation(obj.getString("type")));
-            networkObjects.put(BlockPos.of(obj.getLong("pos")), networkObject);
+            BENetworkObject networkObject = BENetworkRegistry.createObject(new ResourceLocation(obj.getString("type")), level, BlockPos.of(obj.getLong("pos")));
+            networkObjects.put(networkObject.getPos(), networkObject);
             networkObject.load(this, obj);
         }
     }

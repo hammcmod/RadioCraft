@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.client.blockentity;
 
-import com.arrl.radiocraft.common.blockentities.HFRadioBlockEntity;
-import com.arrl.radiocraft.common.blockentities.RadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import com.arrl.radiocraft.common.sounds.RadioStaticSoundInstance;
 import net.minecraft.client.Minecraft;

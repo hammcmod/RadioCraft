@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.blockentities.HFRadio80mBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.HFRadio80mBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;

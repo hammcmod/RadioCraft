@@ -3,7 +3,7 @@ package com.arrl.radiocraft;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
 
-public class RadiocraftCommonConfig {
+public class CommonConfig {
 
 	public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 	public static final ForgeConfigSpec SPEC;

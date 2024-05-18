@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.blockentities.VHFBaseStationBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.VHFBaseStationBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;

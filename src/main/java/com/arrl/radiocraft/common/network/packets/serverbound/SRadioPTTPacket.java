@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.network.packets.serverbound;
 
-import com.arrl.radiocraft.common.blockentities.RadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;

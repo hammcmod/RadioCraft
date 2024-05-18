@@ -30,11 +30,11 @@ public class EncodingManager {
 		private final OpusDecoder decoder;
 
 		public EncodingData() {
-			if(RadiocraftVoicePlugin.api == null)
+			if(RadiocraftVoicePlugin.API == null)
 				throw new IllegalStateException("Tried to create EncodingData object without a valid API");
 
-			encoder = RadiocraftVoicePlugin.api.createEncoder();
-			decoder = RadiocraftVoicePlugin.api.createDecoder();
+			encoder = RadiocraftVoicePlugin.API.createEncoder();
+			decoder = RadiocraftVoicePlugin.API.createDecoder();
 		}
 
 		public OpusEncoder getEncoder() {

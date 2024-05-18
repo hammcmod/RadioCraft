@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.*;
+import com.arrl.radiocraft.common.blockentities.radio.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;

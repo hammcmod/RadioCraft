@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.network.packets;
 
-import com.arrl.radiocraft.common.blockentities.HFRadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.network.RadiocraftPacket;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.morse.CWReceiveBuffer;

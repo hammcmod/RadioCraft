@@ -1,6 +1,6 @@
-package com.arrl.radiocraft.common.blockentities;
+package com.arrl.radiocraft.common.blockentities.radio;
 
-import com.arrl.radiocraft.RadiocraftCommonConfig;
+import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.HFReceiverMenu;
 import net.minecraft.core.BlockPos;
@@ -14,7 +14,7 @@ import org.jetbrains.annotations.Nullable;
 public class HFReceiverBlockEntity extends HFRadioBlockEntity {
 
     public HFReceiverBlockEntity(BlockPos pos, BlockState state) {
-        super(RadiocraftBlockEntities.HF_RECEIVER.get(), pos, state, RadiocraftCommonConfig.HF_RECEIVER_TICK.get(), RadiocraftCommonConfig.HF_RECEIVER_TICK.get(), 10);
+        super(RadiocraftBlockEntities.HF_RECEIVER.get(), pos, state, CommonConfig.HF_RECEIVER_TICK.get(), CommonConfig.HF_RECEIVER_TICK.get(), 10);
     }
 
     @Override

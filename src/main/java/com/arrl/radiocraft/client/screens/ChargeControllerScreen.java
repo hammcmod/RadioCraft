@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.RadiocraftCommonConfig;
+import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
@@ -95,7 +95,7 @@ public class ChargeControllerScreen extends AbstractContainerScreen<ChargeContro
 			ItemStack stack = menu.getItems().get(0);
 			if(stack.getItem() == RadiocraftItems.SMALL_BATTERY.get()) {
 				CompoundTag nbt = stack.getOrCreateTag();
-				float f = nbt.contains("charge") ? (float)nbt.getInt("charge") / RadiocraftCommonConfig.SMALL_BATTERY_CAPACITY.get() : 0.0F;
+				float f = nbt.contains("charge") ? (float)nbt.getInt("charge") / CommonConfig.SMALL_BATTERY_CAPACITY.get() : 0.0F;
 
 				int v = 57;
 				if(f < 0.66F)

@@ -1,7 +1,8 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.RadiocraftCommonConfig;
+import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.benetworks.power.BatteryNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.LargeBatteryMenu;
@@ -41,10 +42,10 @@ public class LargeBatteryBlockEntity extends PowerBlockEntity {
 
 	@Override
 	public BENetworkObject createNetworkObject() {
-		return new BatteryNetworkObject(
-				RadiocraftCommonConfig.LARGE_BATTERY_CAPACITY.get(),
-				RadiocraftCommonConfig.LARGE_BATTERY_OUTPUT.get(),
-				RadiocraftCommonConfig.LARGE_BATTERY_OUTPUT.get()
+		return new BatteryNetworkObject(level, worldPosition,
+				CommonConfig.LARGE_BATTERY_CAPACITY.get(),
+				CommonConfig.LARGE_BATTERY_OUTPUT.get(),
+				CommonConfig.LARGE_BATTERY_OUTPUT.get()
 		);
 	}
 

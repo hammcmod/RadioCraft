@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.menus;
 
-import com.arrl.radiocraft.common.blockentities.RadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;

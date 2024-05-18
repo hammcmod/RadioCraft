@@ -2,7 +2,7 @@ package com.arrl.radiocraft.client.screens.radios;
 
 import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
-import com.arrl.radiocraft.common.blockentities.HFRadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.menus.RadioMenu;
 import com.arrl.radiocraft.common.network.packets.serverbound.SRadioCWPacket;

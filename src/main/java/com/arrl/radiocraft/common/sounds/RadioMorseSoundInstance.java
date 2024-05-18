@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.sounds;
 
-import com.arrl.radiocraft.common.blockentities.HFRadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftSoundEvents;
 import net.minecraft.client.resources.sounds.AbstractTickableSoundInstance;
 import net.minecraft.client.resources.sounds.SoundInstance;

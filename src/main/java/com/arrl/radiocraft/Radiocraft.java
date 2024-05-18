@@ -31,7 +31,7 @@ public class Radiocraft {
     public Radiocraft() {
         registerRegistries();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, RadiocraftCommonConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
+        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
         ModLoadingContext.get().registerConfig(Type.SERVER, RadiocraftServerConfig.SPEC, Radiocraft.MOD_ID + "-server.toml");
         MinecraftForge.EVENT_BUS.register(this);
     }

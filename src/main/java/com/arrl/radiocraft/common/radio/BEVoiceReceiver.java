@@ -34,15 +34,15 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 	}
 
 	public void openChannel(ServerLevel level) {
-		if(RadiocraftVoicePlugin.api == null)
+		if(RadiocraftVoicePlugin.API == null)
 			Radiocraft.LOGGER.error("Radiocraft VoiceChatServerApi is null.");
-		receiveChannel = RadiocraftVoicePlugin.api.createLocationalAudioChannel(UUID.randomUUID(), level, RadiocraftVoicePlugin.api.createPosition(x, y, z));
+		receiveChannel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), level, RadiocraftVoicePlugin.API.createPosition(x, y, z));
 	}
 
 	public void receive(AntennaVoicePacket antennaPacket) {
 		if(isReceiving) {
 			if(receiveChannel == null)
-				openChannel(RadiocraftVoicePlugin.api.fromServerLevel(antennaPacket.getLevel()));
+				openChannel(RadiocraftVoicePlugin.API.fromServerLevel(antennaPacket.getLevel()));
 
 			short[] rawAudio = antennaPacket.getRawAudio();
 			for(int i = 0; i < rawAudio.length; i++)

@@ -1,8 +1,11 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.RadiocraftCommonConfig;
-import com.arrl.radiocraft.common.benetworks.power.ConnectionType;
-import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
+import com.arrl.radiocraft.CommonConfig;
+import com.arrl.radiocraft.api.benetworks.BENetwork;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.benetworks.power.ChargeControllerNetworkObject;
 import com.arrl.radiocraft.common.blocks.ChargeControllerBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
@@ -30,29 +33,24 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
-public class ChargeControllerBlockEntity extends BlockEntity implements ITogglableBE, MenuProvider {
+public class ChargeControllerBlockEntity extends BlockEntity implements ITogglableBE, INetworkObjectProvider, MenuProvider {
 
 	public final ItemStackHandler inventory = new ItemStackHandler(1);
 	private final LazyOptional<IItemHandlerModifiable> inventoryHandler = LazyOptional.of(() -> inventory);
 
-	private int lastPowerTick = 0;
-
 	// Using a ContainerData for one value is awkward, but it changes constantly and needs to be synchronised.
 	private final ContainerData fields = new ContainerData() {
-
 		@Override
 		public int get(int index) {
 			if(index == 0)
-				return lastPowerTick;
+				return ((ChargeControllerNetworkObject)getNetworkObject(level, worldPosition)).getLastPowerTick();
 			return 0;
 		}
 
 		@Override
 		public void set(int index, int value) {
-			if(index == 0)
-				lastPowerTick = 0;
+			// No set behaviour, because the client is never able to change this value anyway. Send a packet instead.
 		}
 
 		@Override
@@ -62,15 +60,12 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 	};
 
 	public ChargeControllerBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.CHARGE_CONTROLLER.get(), pos, state, RadiocraftCommonConfig.CHARGE_CONTROLLER_TICK.get(), RadiocraftCommonConfig.CHARGE_CONTROLLER_TICK.get());
+		super(RadiocraftBlockEntities.CHARGE_CONTROLLER.get(), pos, state);
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(t instanceof ChargeControllerBlockEntity be) {
 			if(!level.isClientSide && be.getPoweredOn()) { // Serverside only
-				int energyToPush = be.energyStorage.extractEnergy(be.energyStorage.getEnergyStored(), true); // Do not actually pull out power yet.
-				be.lastPowerTick = energyToPush;
-
 				if(be.inventory.getStackInSlot(0).getItem() == RadiocraftItems.SMALL_BATTERY.get()) {
 					ItemStack battery = be.inventory.getStackInSlot(0);
 					CompoundTag nbt = battery.getOrCreateTag();
@@ -79,48 +74,27 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 						nbt.putInt("charge", 0);
 
 					int charge = nbt.getInt("charge");
-					if(charge < RadiocraftCommonConfig.SMALL_BATTERY_CAPACITY.get()) {
-						int toPush = Math.min(Math.min(energyToPush, RadiocraftCommonConfig.SMALL_BATTERY_CAPACITY.get() - charge), RadiocraftCommonConfig.CHARGE_CONTROLLER_BATTERY_CHARGE.get());
+					if(charge < CommonConfig.SMALL_BATTERY_CAPACITY.get() && be.getNetworkObject(level, pos) instanceof ChargeControllerNetworkObject networkObject) {
+						int toPush = Math.min(CommonConfig.CHARGE_CONTROLLER_BATTERY_CHARGE.get(), Math.min(networkObject.getStorage().getEnergyStored(), CommonConfig.SMALL_BATTERY_CAPACITY.get() - charge));
 						nbt.putInt("charge", charge + toPush);
-						energyToPush -= toPush;
 					}
-				}
-
-				List<LargeBatteryBlockEntity> batteries = new ArrayList<>(); // Specifically grab batteries to avoid having to use another sorted list.
-				for(Set<BENetwork> side : be.getNetworkMap().values()) {
-					for(BENetwork network : side) {
-						if(network instanceof PowerNetwork) {
-							for(BENetworkEntry entry : network.getConnections()) {
-								IPowerNetworkItem item = (IPowerNetworkItem)entry.getNetworkItem(); // This cast is safe because the PowerNetwork errors if a non-IPowerNetworkItem is added
-								if(item.getConnectionType() == ConnectionType.PUSH) // Double check here is faster as instanceof can be quite slow.
-									if(item instanceof LargeBatteryBlockEntity battery)
-										batteries.add(battery);
-							}
-						}
-					}
-				}
-
-				for(LargeBatteryBlockEntity battery : batteries) {
-					LazyOptional<IEnergyStorage> energyCap = battery.getCapability(ForgeCapabilities.ENERGY);
-					if(energyCap.isPresent()) { // This is horrendous code but java doesn't like lambdas and vars.
-						IEnergyStorage storage = energyCap.orElse(null);
-						energyToPush -= storage.receiveEnergy(energyToPush, false);
-
-						if(energyToPush <= 0)
-							break;
-					}
-				}
-
-				be.lastPowerTick -= energyToPush; // Set lastPowerTick to the amount which was actually pushed.
-				be.energyStorage.setEnergy(energyToPush); // Set energy to the remainder after pushing.
+				} // Battery charging is handled here as the ItemStack doesn't exist when the BE isn't loaded.
 			}
 		}
 	}
 
+	@Override
 	public void toggle() {
 		if(!level.isClientSide) {
+			// Unlike other power BEs, the charge controller is the one in control of power as it never gets turned
+			// off automatically.
 			BlockState state = level.getBlockState(worldPosition);
-			level.setBlockAndUpdate(worldPosition, state.setValue(ChargeControllerBlock.POWERED, !state.getValue(ChargeControllerBlock.POWERED)));
+			boolean isEnabled = state.getValue(ChargeControllerBlock.POWERED);
+
+			if(getNetworkObject(level, worldPosition) instanceof ChargeControllerNetworkObject networkObject)
+				networkObject.isEnabled = !isEnabled;
+
+			level.setBlockAndUpdate(worldPosition, state.setValue(ChargeControllerBlock.POWERED, !isEnabled));
 		}
 	}
 
@@ -161,6 +135,11 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 		if(inventoryHandler != null)
 			inventoryHandler.invalidate();
 		super.setRemoved();
+	}
+
+	@Override
+	public BENetworkObject createNetworkObject() {
+		return new ChargeControllerNetworkObject(level, worldPosition, level.getBlockState(worldPosition).getValue(ChargeControllerBlock.POWERED));
 	}
 
 }

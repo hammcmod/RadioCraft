@@ -1,6 +1,5 @@
-package com.arrl.radiocraft.api.benetworks.power;
+package com.arrl.radiocraft.api.benetworks;
 
-import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
 import net.minecraft.core.BlockPos;
@@ -18,7 +17,8 @@ public abstract class PowerNetworkObject extends BENetworkObject {
     protected BasicEnergyStorage energyStorage;
     protected LazyOptional<IEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
 
-    public PowerNetworkObject(int capacity, int maxReceive, int maxExtract) {
+    public PowerNetworkObject(Level level, BlockPos pos, int capacity, int maxReceive, int maxExtract) {
+        super(level, pos);
         this.energyStorage = new BasicEnergyStorage(capacity, maxReceive, maxExtract);
     }
 
@@ -56,6 +56,10 @@ public abstract class PowerNetworkObject extends BENetworkObject {
      * @param pos The {@link BlockPos} this {@link PowerNetworkObject} is on.
      */
     public void consume(Level level, BlockPos pos) {};
+
+    protected boolean tryConsumeEnergy(int amount, boolean simulate) {
+        return energyStorage.extractEnergy(amount, simulate) == amount;
+    }
 
     @Override
     public void save(CompoundTag nbt) {

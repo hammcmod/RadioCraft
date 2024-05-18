@@ -1,9 +1,13 @@
-package com.arrl.radiocraft.common.blockentities;
+package com.arrl.radiocraft.common.blockentities.radio;
 
 import com.arrl.radiocraft.RadiocraftServerConfig;
+import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.api.blockentities.radio.IBEVoiceReceiver;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
-import com.arrl.radiocraft.common.benetworks.power.PowerNetwork;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.benetworks.power.AntennaNetworkObject;
+import com.arrl.radiocraft.common.benetworks.power.RadioNetworkObject;
+import com.arrl.radiocraft.common.blockentities.ITogglableBE;
 import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
 import com.arrl.radiocraft.common.radio.Band;
@@ -17,50 +21,45 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.List;
+import java.util.UUID;
 
-public abstract class RadioBlockEntity extends BlockEntity implements ITogglableBE, IVoiceTransmitter, IBEVoiceReceiver, MenuProvider {
+public abstract class RadioBlockEntity extends BlockEntity implements ITogglableBE, IVoiceTransmitter, IBEVoiceReceiver, INetworkObjectProvider, MenuProvider {
 
-    protected final List<BENetwork.BENetworkEntry> antennas = Collections.synchronizedList(new ArrayList<>());
-
-    protected boolean isPowered = false;
     protected boolean ssbEnabled = false;
     protected boolean isPTTDown = false; // Used by PTT button packets
 
     protected int wavelength; // Wavelength the frequency is currently on, usually not changed.
     protected int frequency; // Frequency the radio is currently using (in kHz)
 
-    protected final BEVoiceReceiver radio; // Acts as a container for voip channel info
-    protected final int receiveUsePower;
-    protected final int transmitUsePower;
+    protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
 
-    public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, int receiveUsePower, int transmitUsePower, int wavelength) {
-        super(type, pos, state, transmitUsePower, transmitUsePower);
-        this.receiveUsePower = receiveUsePower;
-        this.transmitUsePower = transmitUsePower;
+    public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, int wavelength) {
+        super(type, pos, state);
         this.wavelength = wavelength;
         Band band = RadiocraftData.BANDS.getValue(wavelength);
         this.frequency = band == null ? 0 : band.minFrequency();
-        this.radio = new BEVoiceReceiver(pos.getX(), pos.getY(), pos.getZ());
+        this.voiceReceiver = new BEVoiceReceiver(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
-        if(t instanceof RadioBlockEntity be && be.isPowered) {
-            if(!level.isClientSide) {
-                if(!be.tryConsumePower(be.getPowerConsumption(), false)) // Turns off if it can't pull enough power for receiving.
-                    be.powerOff();
+        if(t instanceof RadioBlockEntity be) {
+            RadioNetworkObject networkObject = (RadioNetworkObject)be.getNetworkObject(level, pos);
+            if(networkObject != null && networkObject.isPowered) {
+                List<AntennaNetworkObject> antennas = networkObject.getAntennas();
 
                 double newSWR = 0.0D;
-                if(be.antennas.size() == 1)
-                    newSWR = ((AntennaBlockEntity)be.antennas.get(0).getNetworkItem()).getSWR(be.wavelength);
-                else if(be.antennas.size() > 1)
+                if(antennas.size() == 1)
+                    newSWR = antennas.get(0).getSWR(be.wavelength);
+                else if(antennas.size() > 1)
                     newSWR = 10.0D;
 
                 if(newSWR != be.antennaSWR) {
@@ -77,53 +76,20 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     // -------------------- POWER IMPLEMENTATION --------------------
 
-    /**
-     * Called when radio is turned on via the UI
-     */
-    public void powerOn() {
-        if(tryConsumePower(getReceiveUsePower(), true)) {
-            if(ssbEnabled)
-                getRadio().setReceiving(true);
-        }
-    }
-
-    /**
-     * Called when the radio is turned off via the UI or has insufficient power
-     */
-    public void powerOff() {
-        getRadio().setReceiving(false);
-    }
-
     @Override
     public void toggle() {
-        isPowered = !isPowered;
-        if(!level.isClientSide) {
-            if(isPowered)
-                powerOn();
-            else
-                powerOff();
-            updateBlock();
-            setChanged();
+        if(!level.isClientSide()) {
+            if(getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject) {
+                if(networkObject.isPowered) {
+                    getVoiceReceiver().setReceiving(false);
+                    networkObject.isPowered = false;
+                }
+                else if(networkObject.canPowerOn()) {
+                    getVoiceReceiver().setReceiving(ssbEnabled);
+                    networkObject.isPowered = true;
+                }
+            }
         }
-    }
-
-    public boolean isPowered() {
-        return isPowered;
-    }
-
-    public int getReceiveUsePower() {
-        return receiveUsePower;
-    }
-
-    public int getTransmitUsePower() {
-        return transmitUsePower;
-    }
-
-    /**
-     * @return The power which needs to be consumed in this tick.
-     */
-    public int getPowerConsumption() {
-        return ssbEnabled ? getTransmitUsePower() : getReceiveUsePower();
     }
 
     public void overdraw() {}
@@ -131,8 +97,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     // -------------------- VOICE/RADIO IMPLEMENTATION --------------------
 
     @Override
-    public BEVoiceReceiver getRadio() {
-        return radio;
+    public BEVoiceReceiver getVoiceReceiver() {
+        return voiceReceiver;
     }
 
     public boolean getSSBEnabled() {
@@ -191,15 +157,19 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
+        List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
         if(antennas.size() == 1)
-            ((AntennaBlockEntity)antennas.get(0).getNetworkItem()).transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
+            antennas.get(0).transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
         else if(antennas.size() > 1)
             overdraw();
     }
 
     @Override
     public boolean canTransmitVoice() {
-        return ssbEnabled && isPowered && isPTTDown;
+        if(getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject) {
+            return ssbEnabled && networkObject.isPowered && isPTTDown;
+        }
+        return false;
     }
 
     @Override
@@ -219,23 +189,6 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return getSSBEnabled();
     }
 
-    // -------------------- BE NETWORKS IMPLEMENTATION --------------------
-
-    @Override
-    public void networkUpdated(BENetwork network) {
-        antennas.clear(); // Recalculate ALL antennas because unable to tell if one was added or removed.
-        for(Set<BENetwork> side : networks.values()) {
-            for(BENetwork _network : side) {
-                if(!(_network instanceof PowerNetwork)) {
-                    for(BENetwork.BENetworkEntry entry : _network.getConnections()) {
-                        if(entry.getNetworkItem() instanceof AntennaBlockEntity)
-                            antennas.add(entry);
-                    }
-                }
-            }
-        }
-    }
-
     // -------------------- BE & SYNC IMPLEMENTATION --------------------
 
     /**
@@ -243,7 +196,6 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * be called by {@link BlockEntity#getUpdateTag()} and don't want to save caps on block updates.
      */
     protected void setupSaveTag(CompoundTag nbt) {
-        nbt.putBoolean("isPowered", isPowered);
         nbt.putBoolean("ssbEnabled", ssbEnabled);
         nbt.putInt("wavelength", wavelength);
         nbt.putInt("frequency", frequency);
@@ -255,7 +207,6 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * be called by {@link BlockEntity#handleUpdateTag(CompoundTag)} and don't want to write two load methods.
      */
     protected void readSaveTag(CompoundTag nbt) {
-        isPowered = nbt.getBoolean("isPowered");
         ssbEnabled = nbt.getBoolean("ssbEnabled");
         wavelength = nbt.getInt("wavelength");
         frequency = nbt.getInt("frequency");
@@ -291,14 +242,17 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         else {
             // If on server, register self to listen for voice packets & notify client of loaded data.
             VoiceTransmitters.addListener(level, this);
+            getNetworkObject(level, worldPosition); // This forces the network object to get initialised.
             updateBlock();
         }
     }
 
     @Override
     public void setRemoved() {
-        if(!level.isClientSide)
+        if(!level.isClientSide) {
             VoiceTransmitters.removeListener(level, this); // Stop listening when removed.
+            IBENetworks.removeObject(level, worldPosition);
+        }
         super.setRemoved();
     }
 
@@ -336,8 +290,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected void updateBlock() {
         if(level != null && !level.isClientSide) {
             BlockState state = level.getBlockState(worldPosition);
-            // Flag of 2 (0010) causes update to be sent to client, but no actual block updates.
-            level.sendBlockUpdated(worldPosition, state, state, 2);
+            level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
         }
     }
 

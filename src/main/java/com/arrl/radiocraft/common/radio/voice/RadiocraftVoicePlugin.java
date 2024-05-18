@@ -22,7 +22,7 @@ import java.util.List;
 @ForgeVoicechatPlugin
 public class RadiocraftVoicePlugin implements VoicechatPlugin {
 
-	public static VoicechatServerApi api = null;
+	public static VoicechatServerApi API = null;
 	public static EncodingManager encodingManager = new EncodingManager();
 
 	@Override
@@ -37,8 +37,8 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 	}
 
 	public void onMicrophonePacket(MicrophonePacketEvent event) { // This should only be called serverside
-		if(api == null)
-			api = event.getVoicechat();
+		if(API == null)
+			API = event.getVoicechat();
 
 		de.maxhenkel.voicechat.api.ServerPlayer sender = event.getSenderConnection().getPlayer();
 
@@ -59,7 +59,7 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 						playerRadio.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
 				});
 
-				double sqrRange = api.getBroadcastRange();
+				double sqrRange = API.getBroadcastRange();
 				sqrRange *= sqrRange;
 
 				List<IVoiceTransmitter> listeners = VoiceTransmitters.LISTENERS.get(player.getLevel());

@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.benetworks.power.SolarPanelNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.SolarPanelMenu;
@@ -16,7 +17,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 public class SolarPanelBlockEntity extends PowerBlockEntity {
-
 
 	private final DataSlot data = new DataSlot() {
 
@@ -52,7 +52,7 @@ public class SolarPanelBlockEntity extends PowerBlockEntity {
 
 	@Override
 	public BENetworkObject createNetworkObject() {
-		return new SolarPanelNetworkObject();
+		return new SolarPanelNetworkObject(level, worldPosition);
 	}
 
 }
