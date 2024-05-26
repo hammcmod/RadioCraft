@@ -1,5 +1,7 @@
 package com.arrl.radiocraft.common.blocks;
 
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
@@ -23,17 +25,19 @@ import org.jetbrains.annotations.Nullable;
 public class AntennaCenterBlock extends AbstractNetworkBlock {
 
 	public AntennaCenterBlock(Properties properties) {
-		super(properties, false, true);
+		super(properties);
 	}
 
 	@Override
 	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
 		if(!level.isClientSide && hand == InteractionHand.MAIN_HAND) {
-			StaticAntenna<?> antenna = ((AntennaBlockEntity)level.getBlockEntity(pos)).antenna;
-			if(antenna != null)
-				player.displayClientMessage(Component.literal(antenna.type.toString()).withStyle(ChatFormatting.GREEN), false);
-			else
-				player.displayClientMessage(Component.literal("No valid antenna found.").withStyle(ChatFormatting.RED), false);
+			if(IBENetworks.getObject(level, pos) instanceof AntennaNetworkObject networkObject) {
+				StaticAntenna<?> antenna = networkObject.getAntenna();
+				if(antenna != null)
+					player.displayClientMessage(Component.literal(antenna.type.toString()).withStyle(ChatFormatting.GREEN), false);
+				else
+					player.displayClientMessage(Component.literal("No valid antenna found.").withStyle(ChatFormatting.RED), false);
+			}
 		}
 		return super.use(state, level, pos, player, hand, hit);
 	}

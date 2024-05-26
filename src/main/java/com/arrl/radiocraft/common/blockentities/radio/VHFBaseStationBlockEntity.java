@@ -2,7 +2,7 @@ package com.arrl.radiocraft.common.blockentities.radio;
 
 import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
-import com.arrl.radiocraft.common.benetworks.power.RadioNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.VHFBaseStationMenu;
 import net.minecraft.core.BlockPos;

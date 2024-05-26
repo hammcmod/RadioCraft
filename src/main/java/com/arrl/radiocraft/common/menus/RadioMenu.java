@@ -2,10 +2,7 @@ package com.arrl.radiocraft.common.menus;
 
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.DataSlot;
-import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 
@@ -15,11 +12,14 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
 	private final Block validBlock;
 	private final ContainerLevelAccess canInteractWithCallable;
 
-	public RadioMenu(MenuType<?> type, final int id, final T blockEntity, Block validBlock) {
+	private final ContainerData data;
+
+	public RadioMenu(MenuType<?> type, int id, T blockEntity, Block validBlock) {
 		super(type, id);
 		this.blockEntity = blockEntity;
 		this.canInteractWithCallable = ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos());
 		this.validBlock = validBlock;
+		this.data = blockEntity.getDataSlots();
 
 		addDataSlot(new DataSlot() {
 			@Override
@@ -36,27 +36,28 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
 		addDataSlot(new DataSlot() {
 			@Override
 			public int get() {
-				return getFrequency() & 0xffff;
+				return getFrequency() & 0xFFFF;
 			}
 
 			@Override
 			public void set(int value) {
-				int frequency = getFrequency() & 0xffff0000;
-				setFrequency(frequency + (value & 0xffff));
+				int frequency = getFrequency() & 0xFFFF0000;
+				setFrequency(frequency + (value & 0xFFFF));
 			}
 		});
 		addDataSlot(new DataSlot() {
 			@Override
 			public int get() {
-				return (getFrequency() << 16) & 0x0000ffff;
+				return (getFrequency() << 16) & 0x0000FFFF;
 			}
 
 			@Override
 			public void set(int value) {
-				int frequency = getFrequency() & 0x0000ffff;
+				int frequency = getFrequency() & 0x0000FFFF;
 				setFrequency(frequency + (value << 16));
 			}
 		});
+		addDataSlots(data);
 	}
 
 	public int getFrequency() {
@@ -75,6 +76,10 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
 		blockEntity.setWavelength(value);
 	}
 
+	public boolean isPowered() {
+		return data.get(0) == 1;
+	}
+
 	@Override
 	public boolean stillValid(Player player) {
 		return stillValid(canInteractWithCallable, player, validBlock);
@@ -88,9 +93,8 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
 	@Override
 	public void removed(Player player) {
 		super.removed(player);
-		if(blockEntity != null) {
+		if(blockEntity != null)
 			blockEntity.setPTTDown(false);
-		}
 	}
 
 }

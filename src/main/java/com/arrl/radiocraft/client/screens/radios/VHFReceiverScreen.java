@@ -19,7 +19,7 @@ public class VHFReceiverScreen extends VHFRadioScreen<VHFReceiverMenu> {
 	@Override
 	protected void init() {
 		super.init();
-		addRenderableWidget(new ToggleButton(menu.blockEntity.isPowered(), leftPos + 10, topPos + 11, 14, 19, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
+		addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 10, topPos + 11, 14, 19, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
 		addRenderableWidget(new Dial(leftPos + 29, topPos + 11, 28, 31, 28, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
 		addRenderableWidget(new Dial(leftPos + 187, topPos + 11, 28, 31, 28, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
 	}

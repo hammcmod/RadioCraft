@@ -1,15 +1,16 @@
-package com.arrl.radiocraft.common.benetworks;
+package com.arrl.radiocraft.common.be_networks;
 
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.BENetworkRegistry;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.blocks.WireBlock;
-import com.ibm.icu.impl.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.*;
 import java.util.function.Predicate;
@@ -58,8 +59,8 @@ public class WireUtils {
 	public static void splitNetworks(Level level, BlockPos pos, Predicate<BENetworkObject> connection, WireBlock... wires) {
 		Map<Direction, Map<BENetworkObject, Direction>> connectionsPerSide = new HashMap<>();
 		Set<WireBlock> wireSet = Set.of(wires);
-		Set<BlockPos> posBlacklist = new HashSet<>(); // Sharing a set means sides connected to each other actually won't get double processed.
-		posBlacklist.add(pos);
+		Set<BlockPos> blacklist = new HashSet<>(); // Sharing a set means sides connected to each other actually won't get double processed.
+		blacklist.add(pos);
 
 		for(Direction dir : Direction.values()) {
 			BlockPos checkPos = pos.relative(dir);
@@ -68,7 +69,7 @@ public class WireUtils {
 			if(networkObject != null && connection.test(networkObject))
 				connectionsPerSide.put(dir, Map.of(networkObject, dir.getOpposite()));
 			else if(wireSet.contains(level.getBlockState(checkPos).getBlock()))
-				connectionsPerSide.put(dir, getConnections(level, checkPos, connection, wires));
+				connectionsPerSide.put(dir, getConnections(new HashMap<>(), blacklist, level, checkPos, connection, wireSet));
 		}
 
 		for(Direction dir : connectionsPerSide.keySet()) {
@@ -96,6 +97,44 @@ public class WireUtils {
 			}
 		}
 	}
+
+	/**
+	 * Attempts to connect a {@link BENetworkObject} to all valid networks around it.
+	 *
+	 * @param level The {@link Level} to check in.
+	 * @param pos The {@link BlockPos} to check around.
+	 * @param networkObject The {@link BENetworkObject} to connect to other networks.
+	 * @param connection A {@link Predicate} determining if a {@link BENetworkObject} is a valid connection.
+	 * @param wires A list of valid {@link WireBlock}s.
+	 */
+	public static void tryConnect(Level level, BlockPos pos, Predicate<BENetworkObject> validConnection, WireBlock... wires) {
+		BENetworkObject networkObject = IBENetworks.getObject(level, pos);
+
+		if(networkObject == null)
+			return;
+
+		Set<WireBlock> wireSet = Set.of(wires);
+		for(Direction dir : Direction.values()) {
+			BlockPos checkPos = pos.relative(dir);
+			if(!wireSet.contains(level.getBlockState(pos).getBlock()))
+				continue;
+
+			Pair<BENetworkObject, Direction> connection = getFirstConnection(level, checkPos, validConnection, wires);
+			if(connection == null)
+				return;
+
+			BENetwork network = connection.getKey().getNetwork(connection.getValue());
+
+			if(network == null) { // It shouldn't be possible for network to be null here, but check anyway.
+				Radiocraft.LOGGER.error("Network Object at " + pos.toShortString() + " could not connect: Invalid Network");
+				continue;
+			}
+
+			networkObject.setNetwork(dir, network);
+			network.add(networkObject);
+		}
+	}
+
 
 	/**
 	 * Get all connections found on a set of wires.

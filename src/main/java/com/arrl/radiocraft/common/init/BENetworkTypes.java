@@ -4,7 +4,7 @@ import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.BENetworkRegistry;
 import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
-import com.arrl.radiocraft.common.benetworks.power.*;
+import com.arrl.radiocraft.common.be_networks.network_objects.*;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 
 public class BENetworkTypes {

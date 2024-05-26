@@ -1,10 +1,11 @@
-package com.arrl.radiocraft.common.benetworks.power;
+package com.arrl.radiocraft.common.be_networks.network_objects;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -12,12 +13,13 @@ import net.minecraft.world.level.Level;
 
 import java.util.*;
 
-public class RadioNetworkObject extends PowerNetworkObject {
+public class RadioNetworkObject extends PowerNetworkObject implements ICoaxNetworkObject {
 
     public static final ResourceLocation TYPE = Radiocraft.location("radio");
 
-    protected final List<AntennaNetworkObject> antennas = Collections.synchronizedList(new ArrayList<>());
     public boolean isPowered = false;
+
+    protected final List<AntennaNetworkObject> antennas = Collections.synchronizedList(new ArrayList<>());
     protected boolean isTransmitting = false;
     protected int transmitUse;
     protected int receiveUse;
@@ -39,10 +41,9 @@ public class RadioNetworkObject extends PowerNetworkObject {
     }
 
     @Override
-    public void consume(Level level, BlockPos pos) {
-        if(isPowered) {
+    public void tick(Level level, BlockPos pos) {
+        if(isPowered)
             isPowered = tryConsumeEnergy(isTransmitting ? transmitUse : receiveUse, false);
-        }
     }
 
     @Override
@@ -64,7 +65,7 @@ public class RadioNetworkObject extends PowerNetworkObject {
     }
 
     public void setTransmitting(boolean value) {
-        this.isTransmitting = false;
+        this.isTransmitting = value;
     }
 
     public boolean canPowerOn() {

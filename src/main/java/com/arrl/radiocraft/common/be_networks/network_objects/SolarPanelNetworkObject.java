@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.benetworks.power;
+package com.arrl.radiocraft.common.be_networks.network_objects;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.CommonConfig;
@@ -19,7 +19,7 @@ public class SolarPanelNetworkObject extends PowerNetworkObject {
     public int lastPowerTick = 0;
 
     public SolarPanelNetworkObject(Level level, BlockPos pos) {
-        super(level, pos, 0, 0, 0);
+        super(level, pos, CommonConfig.SOLAR_PANEL_MAX_OUTPUT.get(), CommonConfig.SOLAR_PANEL_MAX_OUTPUT.get(), CommonConfig.SOLAR_PANEL_MAX_OUTPUT.get());
     }
 
     @Override
@@ -41,7 +41,7 @@ public class SolarPanelNetworkObject extends PowerNetworkObject {
     }
 
     @Override
-    public void generate(Level level, BlockPos pos) {
+    public void tick(Level level, BlockPos pos) {
         if(level.isDay() && level.canSeeSky(pos)) {
             int powerGenerated = energyStorage.getMaxReceive();
             if(level.isRaining())

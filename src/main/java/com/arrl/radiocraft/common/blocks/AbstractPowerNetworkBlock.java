@@ -14,8 +14,8 @@ import net.minecraftforge.network.NetworkHooks;
 
 public abstract class AbstractPowerNetworkBlock extends AbstractNetworkBlock {
 
-	protected AbstractPowerNetworkBlock(Properties properties, boolean useCoaxNetworks) {
-		super(properties, true, useCoaxNetworks);
+	protected AbstractPowerNetworkBlock(Properties properties) {
+		super(properties);
 	}
 
 	@Override

@@ -3,7 +3,7 @@ package com.arrl.radiocraft.common.radio.antenna;
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import com.arrl.radiocraft.common.benetworks.power.AntennaNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;

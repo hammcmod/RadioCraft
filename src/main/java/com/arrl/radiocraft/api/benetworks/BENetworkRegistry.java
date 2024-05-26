@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.BiFunction;
@@ -11,8 +12,8 @@ import java.util.function.Function;
 
 public class BENetworkRegistry {
 
-    private static Map<ResourceLocation, Function<UUID, BENetwork>> networkTypes;
-    private static Map<ResourceLocation, BiFunction<Level, BlockPos, BENetworkObject>> objectTypes;
+    private static final Map<ResourceLocation, Function<UUID, BENetwork>> networkTypes = new HashMap<>();
+    private static final Map<ResourceLocation, BiFunction<Level, BlockPos, BENetworkObject>> objectTypes = new HashMap<>();
 
     public static void registerNetwork(ResourceLocation id, Function<UUID, BENetwork> networkSupplier) {
         if(networkTypes.containsKey(id))

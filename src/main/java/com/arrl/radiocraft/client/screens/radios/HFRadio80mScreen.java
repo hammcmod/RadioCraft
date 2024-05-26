@@ -22,7 +22,7 @@ public class HFRadio80mScreen extends HFRadioScreen<HFRadio80mMenu> {
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(new ToggleButton(menu.blockEntity.isPowered(), leftPos + 10, topPos + 188, 14, 17, 0, 203, widgetsTexture, 256, 256, this::onPressPower)); // Power button (temporary)
+        addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 10, topPos + 188, 14, 17, 0, 203, widgetsTexture, 256, 256, this::onPressPower)); // Power button (temporary)
         addRenderableWidget(new ValueButton(leftPos + 90, topPos + 74, 34, 19, -1, 0, widgetsTexture, 256, 256, () -> menu.blockEntity.getCWEnabled(), this::onPressCW)); // CW Button
         addRenderableWidget(new ValueButton(leftPos + 90, topPos + 54, 34, 19, -1, 38, widgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB)); // SSB Button
         addRenderableWidget(new HoldButton(leftPos + 139, topPos + 163, 51, 19, -1, 76, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
@@ -34,7 +34,7 @@ public class HFRadio80mScreen extends HFRadioScreen<HFRadio80mMenu> {
 
     @Override
     protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        if(menu.blockEntity.isPowered()) {
+        if(menu.isPowered()) {
             poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
             poseStack.scale(0.8F, 0.8F, 0.8F);
             float freqMhz = menu.getFrequency() / 1000.0F; // Frequency is in kHz, divide by 1000 to get MHz

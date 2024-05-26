@@ -19,7 +19,7 @@ public class VHFBaseStationScreen extends VHFRadioScreen<VHFBaseStationMenu> {
 	@Override
 	protected void init() {
 		super.init();
-		addRenderableWidget(new ToggleButton(menu.blockEntity.isPowered(), leftPos + 7, topPos + 6, 20, 21, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
+		addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 7, topPos + 6, 20, 21, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
 		addRenderableWidget(new HoldButton(leftPos + 6, topPos + 27, 22, 22, 0, 66, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
 		addRenderableWidget(new Dial(leftPos + 48, topPos + 59, 42, 42, 44, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
 		addRenderableWidget(new ImageButton(leftPos + 93, topPos + 65, 18, 12, 0, 42, widgetsTexture, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
@@ -30,7 +30,7 @@ public class VHFBaseStationScreen extends VHFRadioScreen<VHFBaseStationMenu> {
 
 	@Override
 	protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-		if(menu.blockEntity.isPowered()) {
+		if(menu.isPowered()) {
 			poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
 
 			float freqMhz = menu.getFrequency() / 1000.0F; // Frequency is in kHz, divide by 1000 to get MHz

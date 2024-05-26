@@ -1,11 +1,9 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.CommonConfig;
-import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
-import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import com.arrl.radiocraft.common.benetworks.power.ChargeControllerNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.ChargeControllerNetworkObject;
 import com.arrl.radiocraft.common.blocks.ChargeControllerBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
@@ -25,14 +23,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemStackHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class ChargeControllerBlockEntity extends BlockEntity implements ITogglableBE, INetworkObjectProvider, MenuProvider {
 

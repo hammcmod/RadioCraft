@@ -2,8 +2,7 @@ package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
-import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import com.arrl.radiocraft.common.benetworks.power.BatteryNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.BatteryNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.LargeBatteryMenu;
 import com.arrl.radiocraft.common.menus.slots.IntRefSplitDataSlot;

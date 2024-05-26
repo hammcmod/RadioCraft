@@ -3,7 +3,7 @@ package com.arrl.radiocraft.common.items;
 import com.arrl.radiocraft.api.capabilities.IAntennaWireHolderCapability;
 import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.entities.AntennaWire;
-import com.arrl.radiocraft.common.init.RadiocraftTags;
+import com.arrl.radiocraft.common.init.RadiocraftTags.Blocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -30,7 +30,7 @@ public class AntennaWireItem extends Item {
         BlockPos pos = context.getClickedPos();
         BlockState state = level.getBlockState(pos);
 
-        if(RadiocraftTags.isAntennaWireHolder(state.getBlock())) {
+        if(state.is(Blocks.ANTENNA_WIRE_HOLDERS)) {
             Player player = context.getPlayer();
             level.gameEvent(GameEvent.BLOCK_ATTACH, pos, GameEvent.Context.of(player));
 

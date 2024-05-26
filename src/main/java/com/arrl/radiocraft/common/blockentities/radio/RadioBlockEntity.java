@@ -5,8 +5,8 @@ import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.api.blockentities.radio.IBEVoiceReceiver;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import com.arrl.radiocraft.common.benetworks.power.AntennaNetworkObject;
-import com.arrl.radiocraft.common.benetworks.power.RadioNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.ITogglableBE;
 import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
@@ -20,6 +20,8 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.inventory.ContainerData;
+import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -41,6 +43,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
+    protected boolean wasPowered; // Used for rendering clientside. The NetworkObject is the one actually controlling this.
 
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, int wavelength) {
         super(type, pos, state);
@@ -54,6 +57,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(t instanceof RadioBlockEntity be) {
             RadioNetworkObject networkObject = (RadioNetworkObject)be.getNetworkObject(level, pos);
             if(networkObject != null && networkObject.isPowered) {
+                boolean shouldUpdate = false;
+
+                if(be.wasPowered != networkObject.isPowered) {
+                    be.wasPowered = networkObject.isPowered;
+                    shouldUpdate = true;
+                }
+
                 List<AntennaNetworkObject> antennas = networkObject.getAntennas();
 
                 double newSWR = 0.0D;
@@ -64,8 +74,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
                 if(newSWR != be.antennaSWR) {
                     be.antennaSWR = newSWR;
-                    be.updateBlock(); // If SWR has changed, notify the client about it.
+                    shouldUpdate = true; // If SWR has changed, notify the client about it.
                 }
+
+                if(shouldUpdate)
+                    be.updateBlock();
             }
             be.additionalTick();
         }
@@ -88,6 +101,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                     getVoiceReceiver().setReceiving(ssbEnabled);
                     networkObject.isPowered = true;
                 }
+
+                networkObject.setTransmitting(canTransmitVoice());
             }
         }
     }
@@ -110,6 +125,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             ssbEnabled = value;
             updateBlock();
             setChanged();
+            if(!level.isClientSide() && getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject)
+                networkObject.setTransmitting(canTransmitVoice());
         }
     }
 
@@ -137,6 +154,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(isPTTDown != value) {
             isPTTDown = value;
             updateBlock();
+            if(!level.isClientSide() && getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject)
+                networkObject.setTransmitting(canTransmitVoice());
         }
     }
 
@@ -166,9 +185,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public boolean canTransmitVoice() {
-        if(getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject) {
+        if(getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject)
             return ssbEnabled && networkObject.isPowered && isPTTDown;
-        }
         return false;
     }
 
@@ -200,6 +218,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putInt("wavelength", wavelength);
         nbt.putInt("frequency", frequency);
         nbt.putDouble("antennaSWR", antennaSWR);
+        nbt.putBoolean("wasPowered", wasPowered);
     }
 
     /**
@@ -211,6 +230,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         wavelength = nbt.getInt("wavelength");
         frequency = nbt.getInt("frequency");
         antennaSWR = nbt.getDouble("antennaSWR");
+        wasPowered = nbt.getBoolean("wasPowered");
     }
 
     /**
@@ -249,7 +269,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public void setRemoved() {
-        if(!level.isClientSide) {
+        if(!level.isClientSide()) {
             VoiceTransmitters.removeListener(level, this); // Stop listening when removed.
             IBENetworks.removeObject(level, worldPosition);
         }
@@ -258,7 +278,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public void onChunkUnloaded() {
-        if(!level.isClientSide)
+        if(!level.isClientSide())
             VoiceTransmitters.removeListener(level, this); // Stop listening when chunk unloads.
         super.onChunkUnloaded();
     }
@@ -285,6 +305,31 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     @Override
     public void handleUpdateTag(CompoundTag nbt) {
         readSaveTag(nbt);
+    }
+
+    public ContainerData getDataSlots() {
+        if(level.isClientSide)
+            return new SimpleContainerData(1);
+
+        RadioNetworkObject networkObject = (RadioNetworkObject)IBENetworks.getObject(level, worldPosition);
+        return networkObject == null ? null : new ContainerData() {
+            @Override
+            public int get(int index) {
+                return 0;
+            }
+
+            @Override
+            public void set(int index, int value) {} // This doesn't need a setter-- use packets instead. NetworkObject isn't on client.
+
+            @Override
+            public int getCount() {
+                return 1;
+            }
+        };
+    }
+
+    public boolean wasPowered() {
+        return wasPowered;
     }
 
     protected void updateBlock() {

@@ -159,12 +159,12 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
      * Checks if the block can hold an antenna wire.
      */
     public boolean survives() {
-        if(RadiocraftTags.isAntennaWireHolder(level.getBlockState(blockPosition()).getBlock())) { // Starts in valid block.
+        if(level.getBlockState(blockPosition()).is(RadiocraftTags.Blocks.ANTENNA_WIRE_HOLDERS)) { // Starts in valid block.
             Player holder = getWireHolder();
             if(holder != null)
                 return !holder.isRemoved(); // Survives if has holder and holder is not removed.
 
-            return RadiocraftTags.isAntennaWireHolder(level.getBlockState(getEndPos()).getBlock()); // Also survives if has no holder and end pos is in a valid block.
+            return level.getBlockState(getEndPos()).is(RadiocraftTags.Blocks.ANTENNA_WIRE_HOLDERS); // Also survives if has no holder and end pos is in a valid block.
         }
         return false;
     }

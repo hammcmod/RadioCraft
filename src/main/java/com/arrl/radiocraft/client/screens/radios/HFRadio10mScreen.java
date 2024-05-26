@@ -19,7 +19,7 @@ public class HFRadio10mScreen extends HFRadioScreen<HFRadio10mMenu> {
 	@Override
 	protected void init() {
 		super.init();
-		addRenderableWidget(new ToggleButton(menu.blockEntity.isPowered(), leftPos + 13, topPos + 14, 14, 17, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
+		addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 13, topPos + 14, 14, 17, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
 		addRenderableWidget(new ValueButton(leftPos + 197, topPos + 66, 34, 19, 0, 34, widgetsTexture, 256, 256, () -> menu.blockEntity.getCWEnabled(), this::onPressCW)); // CW Button
 		addRenderableWidget(new ValueButton(leftPos + 197, topPos + 86, 34, 19, 0, 72, widgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB)); // SSB button
 		addRenderableWidget(new HoldButton(leftPos + 128, topPos + 110, 51, 19, 0, 110, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
@@ -37,7 +37,7 @@ public class HFRadio10mScreen extends HFRadioScreen<HFRadio10mMenu> {
 		if(isHovering(62, 18, 25, 11, mouseX, mouseY))
 			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "radio.rx")), mouseX, mouseY);
 
-		if(menu.blockEntity.isPowered()) {
+		if(menu.isPowered()) {
 			poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
 
 			poseStack.scale(1.5F, 1.5F, 1.5F);
@@ -50,7 +50,7 @@ public class HFRadio10mScreen extends HFRadioScreen<HFRadio10mMenu> {
 
 	@Override
 	protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) {
-		if(menu.blockEntity.isPowered()) {
+		if(menu.isPowered()) {
 //			if(menu.blockEntity.isTransmitting())
 //				blit(poseStack, leftPos + 30, topPos + 15, 1, 148, 29, 15);
 //			if(menu.blockEntity.isReceiving())

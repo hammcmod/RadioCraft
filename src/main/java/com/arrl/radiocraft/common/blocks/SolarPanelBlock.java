@@ -18,7 +18,7 @@ public class SolarPanelBlock extends AbstractPowerNetworkBlock {
 	private static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D);
 
 	public SolarPanelBlock(Properties properties) {
-		super(properties, false);
+		super(properties);
 	}
 
 	@Nullable

@@ -1,6 +1,8 @@
 package com.arrl.radiocraft.common.blockentities.radio;
 
 import com.arrl.radiocraft.CommonConfig;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.HFReceiverMenu;
 import net.minecraft.core.BlockPos;
@@ -14,7 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public class HFReceiverBlockEntity extends HFRadioBlockEntity {
 
     public HFReceiverBlockEntity(BlockPos pos, BlockState state) {
-        super(RadiocraftBlockEntities.HF_RECEIVER.get(), pos, state, CommonConfig.HF_RECEIVER_TICK.get(), CommonConfig.HF_RECEIVER_TICK.get(), 10);
+        super(RadiocraftBlockEntities.HF_RECEIVER.get(), pos, state, 10);
     }
 
     @Override
@@ -31,6 +33,11 @@ public class HFReceiverBlockEntity extends HFRadioBlockEntity {
     @Override
     public boolean canTransmitVoice() {
         return false;
+    }
+
+    @Override
+    public BENetworkObject createNetworkObject() {
+        return new RadioNetworkObject(level, worldPosition, CommonConfig.HF_RADIO_10M_TRANSMIT_TICK.get(), CommonConfig.HF_RADIO_10M_RECEIVE_TICK.get());
     }
 
 }
