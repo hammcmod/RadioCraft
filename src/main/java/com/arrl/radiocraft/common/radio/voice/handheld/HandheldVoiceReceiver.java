@@ -1,6 +1,7 @@
-package com.arrl.radiocraft.common.radio;
+package com.arrl.radiocraft.common.radio.voice.handheld;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.radio.IVoiceReceiver;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;

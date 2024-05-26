@@ -1,8 +1,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
-import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import com.arrl.radiocraft.common.benetworks.power.SolarPanelNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.SolarPanelNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.SolarPanelMenu;
 import net.minecraft.core.BlockPos;

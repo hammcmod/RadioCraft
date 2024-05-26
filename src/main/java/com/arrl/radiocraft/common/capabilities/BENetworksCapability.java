@@ -55,6 +55,16 @@ public class BENetworksCapability implements IBENetworks {
         networks.put(network.getUUID(), network);
     }
 
+    @Override
+    public void removeNetwork(BENetwork network) {
+        networks.remove(network.getUUID());
+    }
+
+    @Override
+    public void tickNetworkObjects(Level level) {
+        for(Entry<BlockPos, BENetworkObject> entry : networkObjects.entrySet())
+            entry.getValue().tick(level, entry.getKey());
+    }
 
     @Override
     public CompoundTag serializeNBT() {

@@ -12,7 +12,7 @@ public class HFRadio80mMenu extends RadioMenu<HFRadio80mBlockEntity> {
 		super(RadiocraftMenuTypes.HF_RADIO_80M.get(), id, blockEntity, RadiocraftBlocks.HF_RADIO_80M.get());
 	}
 
-	public HFRadio80mMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
+	public HFRadio80mMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) { // Clientside constructor doesn't need a RadioNetworkObject
 		this(id, MenuUtils.getBlockEntity(playerInventory, data, HFRadio80mBlockEntity.class));
 	}
 

@@ -6,7 +6,7 @@ import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import com.arrl.radiocraft.common.benetworks.power.AntennaNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;

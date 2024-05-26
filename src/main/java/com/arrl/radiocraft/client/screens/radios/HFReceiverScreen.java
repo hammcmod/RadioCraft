@@ -21,7 +21,7 @@ public class HFReceiverScreen extends HFRadioScreen<HFReceiverMenu> {
 	@Override
 	protected void init() {
 		super.init();
-		addRenderableWidget(new ToggleButton(menu.blockEntity.isPowered(), leftPos + 5, topPos + 5, 20, 21, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
+		addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 5, topPos + 5, 20, 21, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
 		addRenderableWidget(new ValueButton(leftPos + 10, topPos + 78, 34, 21, 0, 84, widgetsTexture, 256, 256, () -> menu.blockEntity.getCWEnabled(), this::onPressCW)); // CW Button
 		addRenderableWidget(new ValueButton(leftPos + 10, topPos + 58, 34, 21, 0, 42, widgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB)); // SSB button
 		addRenderableWidget(new Dial(leftPos + 103, topPos + 63, 42, 45, 68, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
@@ -30,7 +30,7 @@ public class HFReceiverScreen extends HFRadioScreen<HFReceiverMenu> {
 
 	@Override
 	protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-		if(menu.blockEntity.isPowered()) {
+		if(menu.isPowered()) {
 			poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
 
 			poseStack.scale(0.55F, 0.55F, 0.55F);

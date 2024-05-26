@@ -26,7 +26,7 @@ public class ChargeControllerBlock extends AbstractPowerNetworkBlock {
 	public static final BooleanProperty POWERED = BooleanProperty.create("powered");
 
 	public ChargeControllerBlock(Properties properties) {
-		super(properties, false);
+		super(properties);
 	}
 
 	@Nullable

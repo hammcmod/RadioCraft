@@ -22,9 +22,8 @@ public abstract class HFRadioScreen<T extends RadioMenu<? extends HFRadioBlockEn
 		super.render(poseStack, mouseX, mouseY, partialTicks);
 
 		if(menu.blockEntity.getCWEnabled()) {
-			if(RadiocraftClientValues.SCREEN_PTT_PRESSED) {
+			if(RadiocraftClientValues.SCREEN_PTT_PRESSED)
 				menu.blockEntity.getCWSendBuffer().setShouldAccumulate();
-			}
 		}
 		RadiocraftClientValues.SCREEN_CW_ENABLED = menu.blockEntity.getCWEnabled();
 		RadiocraftClientValues.SCREEN_VOICE_ENABLED = menu.blockEntity.getSSBEnabled();

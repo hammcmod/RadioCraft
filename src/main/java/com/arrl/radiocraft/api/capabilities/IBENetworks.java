@@ -64,6 +64,10 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
      */
     void removeNetwork(BENetwork network);
 
+    /**
+     * Tick all {@link BENetworkObject}s.
+     */
+    void tickNetworkObjects(Level level);
 
     /**
      * Grab a {@link BENetworkObject} by its {@link BlockPos}.

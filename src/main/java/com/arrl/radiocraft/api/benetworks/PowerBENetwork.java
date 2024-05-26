@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.api.benetworks;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.benetworks.power.BatteryNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.BatteryNetworkObject;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
@@ -70,4 +70,8 @@ public class PowerBENetwork extends BENetwork {
             Radiocraft.LOGGER.warn("Tried to add a non PowerNetworkObject to a PowerBENetwork.");
     }
 
+    @Override
+    public ResourceLocation getType() {
+        return TYPE;
+    }
 }

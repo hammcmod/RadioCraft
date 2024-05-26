@@ -1,12 +1,11 @@
 package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.api.benetworks.BENetwork;
-import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import com.arrl.radiocraft.common.benetworks.WireUtils;
-import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
+import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
+import com.arrl.radiocraft.common.be_networks.WireUtils;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import com.google.common.collect.ImmutableMap;
@@ -150,9 +149,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 		if(checkMultipleSides(level, pos)) { // Only bother running merge if this wire is actually connecting things.
 			if(isPower)
-				WireUtils.mergeNetworks(level, pos, no -> no instanceof PowerNetworkObject, PowerBENetwork::new);
+				WireUtils.mergeNetworks(level, pos, no -> no instanceof PowerNetworkObject, PowerBENetwork::new, RadiocraftBlocks.WIRE.get());
 			else
-				WireUtils.mergeNetworks(level, pos, no -> true, BENetwork::new);
+				WireUtils.mergeNetworks(level, pos, no -> no instanceof ICoaxNetworkObject, BENetwork::new, RadiocraftBlocks.COAX_WIRE.get());
 		}
 	}
 
@@ -160,7 +159,6 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
 		if(newState.is(this))
 			return;
-
 		if(!level.isClientSide)
 			return;
 
@@ -168,18 +166,16 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			if(isPower)
 				WireUtils.splitNetworks(level, pos, no -> no instanceof PowerNetworkObject, RadiocraftBlocks.WIRE.get());
 			else
-				WireUtils.splitNetworks(level, pos, no -> true, RadiocraftBlocks.COAX_WIRE.get());
+				WireUtils.splitNetworks(level, pos, no -> no instanceof ICoaxNetworkObject, RadiocraftBlocks.COAX_WIRE.get());
 		}
-
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	@Override
 	public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState,
 								  LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-		if (state.getValue(BlockStateProperties.WATERLOGGED)) {
+		if (state.getValue(BlockStateProperties.WATERLOGGED))
 			level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
-		}
 		return state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(neighborState, isPower));
 	}
 
@@ -189,9 +185,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 		for (Map.Entry<Direction, VoxelShape> entry : SHAPES.entrySet()) {
 			BooleanProperty property = PROPERTY_BY_DIRECTION.get(entry.getKey());
-			if (state.getValue(property)) {
+			if (state.getValue(property))
 				result = Shapes.or(result, SHAPES.get(entry.getKey()));
-			}
 		}
 
 		return result;
@@ -202,31 +197,24 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	private static boolean canConnectTo(BlockState state, boolean isPower) {
-		return isWire(state, isPower) || isNetworkItem(state, isPower);
+		if(state.getBlock() instanceof WireBlock wire)
+			return wire.isPower == isPower; // If identical wire, OR if valid connection
+		return isValidConnection(state, isPower);
 	}
 
-	private static VoxelShape makePaddedBox(double pX1, double pY1, double pZ1,
-											double pX2, double pY2, double pZ2) {
+	private static VoxelShape makePaddedBox(double x, double y, double z, double x2, double y2, double z2) {
 		return Block.box(
-				Math.max(pX1 - SHAPE_PADDING, 0D),
-				Math.max(pY1 - SHAPE_PADDING, 0D),
-				Math.max(pZ1 - SHAPE_PADDING, 0D),
-				Math.min(pX2 + SHAPE_PADDING, 16D),
-				Math.min(pY2 + SHAPE_PADDING, 16D),
-				Math.min(pZ2 + SHAPE_PADDING, 16D)
+				Math.max(x - SHAPE_PADDING, 0D),
+				Math.max(y - SHAPE_PADDING, 0D),
+				Math.max(z - SHAPE_PADDING, 0D),
+				Math.min(x2 + SHAPE_PADDING, 16D),
+				Math.min(y2 + SHAPE_PADDING, 16D),
+				Math.min(z2 + SHAPE_PADDING, 16D)
 		);
 	}
 
-	public static boolean isNetworkItem(BlockState state, boolean isPower) {
-		if(isPower)
-			return RadiocraftTags.isPowerBlock(state.getBlock());
-		return RadiocraftTags.isCoaxBlock(state.getBlock());
-	}
-
-	public static boolean isWire(BlockState state, boolean isPower) {
-		if(isPower)
-			return RadiocraftTags.isPowerWire(state.getBlock());
-		return RadiocraftTags.isCoaxWire(state.getBlock());
+	public static boolean isValidConnection(BlockState state, boolean isPower) {
+		return isPower ? state.is(RadiocraftTags.Blocks.POWER_BLOCKS) : state.is(RadiocraftTags.Blocks.COAX_BLOCKS);
 	}
 
 }

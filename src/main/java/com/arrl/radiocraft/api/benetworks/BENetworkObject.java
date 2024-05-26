@@ -30,6 +30,8 @@ public class BENetworkObject {
         this.pos = pos;
     }
 
+    public void tick(Level level, BlockPos pos) {}
+
     public BENetwork getNetwork(@NotNull Direction side) {
         return networks.get(side);
     }

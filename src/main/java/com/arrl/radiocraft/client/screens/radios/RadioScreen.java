@@ -139,7 +139,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for raising frequency by one step on the dial.
 	 */
 	protected void onFrequencyDialUp(Dial dial) {
-		if(menu.blockEntity.isPowered())
+		if(menu.isPowered())
 			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
 	}
 
@@ -147,7 +147,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for raising frequency by one step on the dial.
 	 */
 	protected void onFrequencyDialDown(Dial dial) {
-		if(menu.blockEntity.isPowered())
+		if(menu.isPowered())
 			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
 	}
 
@@ -155,7 +155,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for frequency up buttons.
 	 */
 	protected void onFrequencyButtonUp(Button button) {
-		if(menu.blockEntity.isPowered())
+		if(menu.isPowered())
 			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
 	}
 
@@ -163,7 +163,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for frequency down buttons.
 	 */
 	protected void onFrequencyButtonDown(Button button) {
-		if(menu.blockEntity.isPowered())
+		if(menu.isPowered())
 			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
 	}
 

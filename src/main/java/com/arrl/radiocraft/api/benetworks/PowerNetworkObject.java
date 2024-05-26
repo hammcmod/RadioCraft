@@ -41,22 +41,6 @@ public abstract class PowerNetworkObject extends BENetworkObject {
      */
     public abstract boolean isDirectConsumer();
 
-    /**
-     * Tick function to handle energy generation within this {@link PowerNetworkObject}.
-     *
-     * @param level The {@link Level} this {@link PowerNetworkObject} is in.
-     * @param pos The {@link BlockPos} this {@link PowerNetworkObject} is on.
-     */
-    public void generate(Level level, BlockPos pos) {};
-
-    /**
-     * Tick function to handle energy consumption for this {@link PowerNetworkObject}
-     *
-     * @param level The {@link Level} this {@link PowerNetworkObject} is in.
-     * @param pos The {@link BlockPos} this {@link PowerNetworkObject} is on.
-     */
-    public void consume(Level level, BlockPos pos) {};
-
     protected boolean tryConsumeEnergy(int amount, boolean simulate) {
         return energyStorage.extractEnergy(amount, simulate) == amount;
     }

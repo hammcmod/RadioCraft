@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.benetworks.power;
+package com.arrl.radiocraft.common.be_networks.network_objects;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.AntennaTypes;
@@ -6,6 +6,7 @@ import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
@@ -23,7 +24,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 
 import java.util.*;
 
-public class AntennaNetworkObject extends BENetworkObject {
+public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetworkObject {
 
     public static final ResourceLocation TYPE = Radiocraft.location("antenna");
 
@@ -38,10 +39,6 @@ public class AntennaNetworkObject extends BENetworkObject {
 
     public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
         antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
-    }
-
-    public void transmitMorsePacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
-        antenna.transmitCWPacket(level, buffers, wavelength, frequency);
     }
 
     public void receiveAudioPacket(AntennaVoicePacket packet) {

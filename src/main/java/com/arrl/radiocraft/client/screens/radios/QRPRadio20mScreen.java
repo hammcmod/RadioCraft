@@ -25,7 +25,7 @@ public class QRPRadio20mScreen extends HFRadioScreen<QRPRadio20mMenu> {
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(new ToggleButton(menu.blockEntity.isPowered(), leftPos + 16, topPos + 9, 20, 21, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
+        addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 16, topPos + 9, 20, 21, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
         addRenderableWidget(new ValueButton(leftPos + 195, topPos + 48, 34, 19, 0, 42, widgetsTexture, 256, 256, () -> menu.blockEntity.getCWEnabled(), this::onPressCW)); // CW Button
         addRenderableWidget(new ValueButton(leftPos + 195, topPos + 68, 34, 19, 0, 80, widgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB)); // SSB button
         addRenderableWidget(new HoldButton(leftPos + 178, topPos + 97, 51, 19, 0, 118, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
@@ -50,7 +50,7 @@ public class QRPRadio20mScreen extends HFRadioScreen<QRPRadio20mMenu> {
         int min = band.minFrequency();
         int max = (band.maxFrequency() - band.minFrequency()) / step * step + min;
 
-        if(menu.blockEntity.isPowered()) {
+        if(menu.isPowered()) {
             if(freq >= max || freq <= min) {
                 blit(poseStack, leftPos + 92, topPos + 63, 1, 162, 13, 13);
             }

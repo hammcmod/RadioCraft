@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.benetworks.power;
+package com.arrl.radiocraft.common.be_networks.network_objects;
 
 import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.Radiocraft;
@@ -43,7 +43,7 @@ public class ChargeControllerNetworkObject extends PowerNetworkObject {
     }
 
     @Override
-    public void generate(Level level, BlockPos pos) {
+    public void tick(Level level, BlockPos pos) {
         int toPush = Math.min(energyStorage.getMaxExtract(), energyStorage.getEnergyStored());
         int pushed = 0;
 

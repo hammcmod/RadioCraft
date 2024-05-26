@@ -24,7 +24,7 @@ public abstract class RadioBlock extends AbstractPowerNetworkBlock {
 	public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
 
 	public RadioBlock(Properties properties) {
-		super(properties, true);
+		super(properties);
 	}
 
 	@Override
