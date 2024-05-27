@@ -21,6 +21,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 
 import java.util.*;
 
@@ -43,9 +44,9 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
 
     public void receiveAudioPacket(AntennaVoicePacket packet) {
         if(radios.size() == 1) {
-            if(level.isLoaded(pos)) {
-                BlockEntity be = level.getBlockEntity(radios.get(0).getPos());
-                if(be instanceof RadioBlockEntity radio) {
+            BlockPos checkPos = radios.get(0).getPos();
+            if(level.isLoaded(checkPos)) {
+                if(level.getChunkAt(checkPos).getBlockEntity(checkPos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof RadioBlockEntity radio) {
                     if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
                         radio.getVoiceReceiver().receive(packet);
                 }
@@ -157,6 +158,11 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
             }
         }
         networkId = new ResourceLocation(nbt.getString("networkId"));
+    }
+
+    @Override
+    public ResourceLocation getType() {
+        return TYPE;
     }
 
 }

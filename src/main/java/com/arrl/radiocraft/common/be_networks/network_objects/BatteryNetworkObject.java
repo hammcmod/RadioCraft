@@ -44,4 +44,8 @@ public class BatteryNetworkObject extends PowerNetworkObject {
         energyStorage.setEnergy(energyStorage.getEnergyStored() - pushed);
     }
 
+    @Override
+    public ResourceLocation getType() {
+        return TYPE;
+    }
 }

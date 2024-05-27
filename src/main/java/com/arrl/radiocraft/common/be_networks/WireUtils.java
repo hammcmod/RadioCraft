@@ -1,6 +1,5 @@
 package com.arrl.radiocraft.common.be_networks;
 
-import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.BENetworkRegistry;
@@ -107,7 +106,7 @@ public class WireUtils {
 	 * @param connection A {@link Predicate} determining if a {@link BENetworkObject} is a valid connection.
 	 * @param wires A list of valid {@link WireBlock}s.
 	 */
-	public static void tryConnect(Level level, BlockPos pos, Predicate<BENetworkObject> validConnection, WireBlock... wires) {
+	public static void tryConnect(Level level, BlockPos pos, Predicate<BENetworkObject> validConnection, Supplier<BENetwork> fallbackSupplier, WireBlock... wires) {
 		BENetworkObject networkObject = IBENetworks.getObject(level, pos);
 
 		if(networkObject == null)
@@ -116,7 +115,7 @@ public class WireUtils {
 		Set<WireBlock> wireSet = Set.of(wires);
 		for(Direction dir : Direction.values()) {
 			BlockPos checkPos = pos.relative(dir);
-			if(!wireSet.contains(level.getBlockState(pos).getBlock()))
+			if(!wireSet.contains(level.getBlockState(checkPos).getBlock()))
 				continue;
 
 			Pair<BENetworkObject, Direction> connection = getFirstConnection(level, checkPos, validConnection, wires);
@@ -126,8 +125,9 @@ public class WireUtils {
 			BENetwork network = connection.getKey().getNetwork(connection.getValue());
 
 			if(network == null) { // It shouldn't be possible for network to be null here, but check anyway.
-				Radiocraft.LOGGER.error("Network Object at " + pos.toShortString() + " could not connect: Invalid Network");
-				continue;
+				network = fallbackSupplier.get();
+				connection.getKey().setNetwork(connection.getValue(), network);
+				network.add(connection.getKey());
 			}
 
 			networkObject.setNetwork(dir, network);

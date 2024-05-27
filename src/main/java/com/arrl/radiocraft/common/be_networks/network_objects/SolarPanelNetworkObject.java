@@ -19,7 +19,7 @@ public class SolarPanelNetworkObject extends PowerNetworkObject {
     public int lastPowerTick = 0;
 
     public SolarPanelNetworkObject(Level level, BlockPos pos) {
-        super(level, pos, CommonConfig.SOLAR_PANEL_MAX_OUTPUT.get(), CommonConfig.SOLAR_PANEL_MAX_OUTPUT.get(), CommonConfig.SOLAR_PANEL_MAX_OUTPUT.get());
+        super(level, pos, 0, 0, 0);
     }
 
     @Override
@@ -43,7 +43,7 @@ public class SolarPanelNetworkObject extends PowerNetworkObject {
     @Override
     public void tick(Level level, BlockPos pos) {
         if(level.isDay() && level.canSeeSky(pos)) {
-            int powerGenerated = energyStorage.getMaxReceive();
+            int powerGenerated = CommonConfig.SOLAR_PANEL_MAX_OUTPUT.get();
             if(level.isRaining())
                 powerGenerated = (int)(powerGenerated * CommonConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get());
 
@@ -72,4 +72,8 @@ public class SolarPanelNetworkObject extends PowerNetworkObject {
         canSeeSky = nbt.getBoolean("canSeeSky");
     }
 
+    @Override
+    public ResourceLocation getType() {
+        return TYPE;
+    }
 }

@@ -93,16 +93,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void toggle() {
         if(!level.isClientSide()) {
             if(getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject) {
-                if(networkObject.isPowered) {
-                    getVoiceReceiver().setReceiving(false);
+                if(networkObject.isPowered)
                     networkObject.isPowered = false;
-                }
-                else if(networkObject.canPowerOn()) {
-                    getVoiceReceiver().setReceiving(ssbEnabled);
+                else if(networkObject.canPowerOn())
                     networkObject.isPowered = true;
-                }
 
-                networkObject.setTransmitting(canTransmitVoice());
+                updateIsReceiving();
+                updateBlock();
             }
         }
     }
@@ -123,10 +120,23 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void setSSBEnabled(boolean value) {
         if(ssbEnabled != value) {
             ssbEnabled = value;
+            updateIsReceiving();
             updateBlock();
             setChanged();
-            if(!level.isClientSide() && getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject)
-                networkObject.setTransmitting(canTransmitVoice());
+        }
+    }
+
+    public void updateIsReceiving() {
+        if(!level.isClientSide() && getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject) {
+            if(canTransmitVoice()) {
+                networkObject.setTransmitting(true);
+                getVoiceReceiver().setReceiving(false);
+            }
+            else {
+                networkObject.setTransmitting(false);
+                if(ssbEnabled)
+                    getVoiceReceiver().setReceiving(true);
+            }
         }
     }
 
@@ -144,6 +154,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     public void setWavelength(int wavelength) {
         this.wavelength = wavelength;
+        updateIsReceiving();
+        updateBlock();
     }
 
     public boolean isPTTDown() {
@@ -153,9 +165,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void setPTTDown(boolean value) {
         if(isPTTDown != value) {
             isPTTDown = value;
+            updateIsReceiving();
             updateBlock();
-            if(!level.isClientSide() && getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject)
-                networkObject.setTransmitting(canTransmitVoice());
         }
     }
 
