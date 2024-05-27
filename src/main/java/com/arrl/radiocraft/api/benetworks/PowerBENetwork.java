@@ -50,7 +50,7 @@ public class PowerBENetwork extends BENetwork {
 
         for(BENetworkObject o : networkObjects) {
             PowerNetworkObject obj = (PowerNetworkObject)o;
-            if((!forBatteries && (!(obj instanceof BatteryNetworkObject))) || (forBatteries && (obj instanceof BatteryNetworkObject))) {
+            if((forBatteries && obj instanceof BatteryNetworkObject) || (!forBatteries && !(obj instanceof BatteryNetworkObject))) {
                 if((!direct && obj.isIndirectConsumer()) || (direct && obj.isDirectConsumer())) {
                     pushed += obj.getStorage().receiveEnergy(amount - pushed, simulate);
 

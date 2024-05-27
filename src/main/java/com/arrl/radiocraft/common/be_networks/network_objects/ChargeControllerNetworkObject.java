@@ -76,4 +76,8 @@ public class ChargeControllerNetworkObject extends PowerNetworkObject {
         isEnabled = nbt.getBoolean("isEnabled");
     }
 
+    @Override
+    public ResourceLocation getType() {
+        return TYPE;
+    }
 }

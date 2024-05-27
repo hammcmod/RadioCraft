@@ -108,4 +108,8 @@ public class RadioNetworkObject extends PowerNetworkObject implements ICoaxNetwo
         return this.antennas;
     }
 
+    @Override
+    public ResourceLocation getType() {
+        return TYPE;
+    }
 }

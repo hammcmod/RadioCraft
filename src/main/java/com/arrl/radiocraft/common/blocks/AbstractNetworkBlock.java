@@ -1,6 +1,8 @@
 package com.arrl.radiocraft.common.blocks;
 
+import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
@@ -29,12 +31,10 @@ public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 				boolean isCoax = ForgeRegistries.BLOCKS.tags().getTag(RadiocraftTags.Blocks.COAX_BLOCKS).contains(this);
 
 				// This is awkward, but I don't see a good way to do it
-				if(isPower && isCoax)
-					WireUtils.tryConnect(level, pos, no -> no instanceof PowerNetworkObject && no instanceof ICoaxNetworkObject, RadiocraftBlocks.WIRE.get(), RadiocraftBlocks.COAX_WIRE.get());
-				else if(isPower)
-					WireUtils.tryConnect(level, pos, no -> no instanceof PowerNetworkObject, RadiocraftBlocks.WIRE.get());
-				else if(isCoax)
-					WireUtils.tryConnect(level, pos, no -> no instanceof ICoaxNetworkObject, RadiocraftBlocks.COAX_WIRE.get());
+				if(isPower)
+					WireUtils.tryConnect(level, pos, no -> no instanceof PowerNetworkObject, PowerBENetwork::new, RadiocraftBlocks.WIRE.get());
+				if(isCoax)
+					WireUtils.tryConnect(level, pos, no -> no instanceof ICoaxNetworkObject, BENetwork::new, RadiocraftBlocks.COAX_WIRE.get());
 			}
 		}
 	}
