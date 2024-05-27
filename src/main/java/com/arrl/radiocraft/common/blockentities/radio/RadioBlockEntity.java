@@ -326,7 +326,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return networkObject == null ? null : new ContainerData() {
             @Override
             public int get(int index) {
-                return 0;
+                return networkObject.isPowered ? 1 : 0;
             }
 
             @Override
