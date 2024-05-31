@@ -13,8 +13,8 @@ import net.minecraft.world.level.Level;
  */
 public class AntennaNetworkManager {
 
-	public static final ResourceLocation HF_ID = Radiocraft.location("hf");
-	public static final ResourceLocation VHF_ID = Radiocraft.location("vhf");
+	public static final ResourceLocation HF_ID = Radiocraft.id("hf");
+	public static final ResourceLocation VHF_ID = Radiocraft.id("vhf");
 
 	/**
 	 * Attempt to grab an existing {@link AntennaNetwork} from a {@link Level} by ID, or

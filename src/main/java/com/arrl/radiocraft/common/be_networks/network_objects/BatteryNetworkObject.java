@@ -10,7 +10,7 @@ import net.minecraft.world.level.Level;
 
 public class BatteryNetworkObject extends PowerNetworkObject {
 
-    public static final ResourceLocation TYPE = Radiocraft.location("battery");
+    public static final ResourceLocation TYPE = Radiocraft.id("battery");
 
     public BatteryNetworkObject(Level level, BlockPos pos, int capacity, int maxReceive, int maxExtract) {
         super(level, pos, capacity, maxReceive, maxExtract);

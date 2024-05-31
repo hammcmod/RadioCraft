@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 public class WideBandReceiveAntennaType extends NonDirectionalAntennaType<EmptyAntennaData> {
 
     protected WideBandReceiveAntennaType(double receive, double transmit, double los, double skip) {
-        super(Radiocraft.location("wide_band_receive"), receive, transmit, los, skip);
+        super(Radiocraft.id("wide_band_receive"), receive, transmit, los, skip);
     }
 
     @Override

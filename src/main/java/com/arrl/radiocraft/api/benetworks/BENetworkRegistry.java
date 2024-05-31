@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.api.benetworks;
 
+import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -27,12 +28,16 @@ public class BENetworkRegistry {
         objectTypes.put(id, networkSupplier);
     }
 
-    public static BENetwork createNetwork(ResourceLocation id, UUID uuid) {
-        return networkTypes.get(id).apply(uuid);
+    public static BENetwork createNetwork(ResourceLocation id, UUID uuid, Level level) {
+        BENetwork network = networkTypes.get(id).apply(uuid);
+        level.getCapability(RadiocraftCapabilities.BE_NETWORKS).ifPresent(cap -> cap.addNetwork(network));
+        return network;
     }
 
     public static BENetworkObject createObject(ResourceLocation id, Level level, BlockPos pos) {
-        return objectTypes.get(id).apply(level, pos);
+        BENetworkObject object = objectTypes.get(id).apply(level, pos);
+        level.getCapability(RadiocraftCapabilities.BE_NETWORKS).ifPresent(cap -> cap.setObject(pos, object));
+        return object;
     }
 
 }

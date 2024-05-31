@@ -71,8 +71,12 @@ public class BENetworksCapability implements IBENetworks {
         CompoundTag nbt = new CompoundTag();
 
         CompoundTag networks = new CompoundTag();
-        for(Entry<UUID, BENetwork> entry : this.networks.entrySet())
-            networks.putString(entry.getKey().toString(), entry.getValue().getType().toString());
+        for(Entry<UUID, BENetwork> entry : this.networks.entrySet()) {
+            if(!entry.getValue().getNetworkObjects().isEmpty())
+                networks.putString(entry.getKey().toString(), entry.getValue().getType().toString());
+            else
+                this.networks.remove(entry.getKey()); // Just remove empty networks. A bit messy but it does the job.
+        }
 
         ListTag objects = new ListTag();
         for(Entry<BlockPos, BENetworkObject> entry : networkObjects.entrySet()) {
@@ -80,6 +84,7 @@ public class BENetworksCapability implements IBENetworks {
             nbtEntry.putLong("pos", entry.getKey().asLong());
             nbtEntry.putString("type", entry.getValue().getType().toString());
             entry.getValue().save(nbtEntry);
+            objects.add(nbtEntry);
         }
 
         nbt.put("networks", networks);
@@ -92,14 +97,13 @@ public class BENetworksCapability implements IBENetworks {
         CompoundTag networksTag = nbt.getCompound("networks");
         for(String key : networksTag.getAllKeys()) { // Make sure to load the networks themselves first.
             UUID uuid = UUID.fromString(key);
-            networks.put(uuid, BENetworkRegistry.createNetwork(new ResourceLocation(networksTag.getString(key)), uuid));
+            BENetworkRegistry.createNetwork(new ResourceLocation(networksTag.getString(key)), uuid, level);
         }
 
         ListTag objectsTag = nbt.getList("networkObjects", ListTag.TAG_COMPOUND);
         for(Tag t : objectsTag) {
             CompoundTag obj = (CompoundTag)t;
             BENetworkObject networkObject = BENetworkRegistry.createObject(new ResourceLocation(obj.getString("type")), level, BlockPos.of(obj.getLong("pos")));
-            networkObjects.put(networkObject.getPos(), networkObject);
             networkObject.load(this, obj);
         }
     }

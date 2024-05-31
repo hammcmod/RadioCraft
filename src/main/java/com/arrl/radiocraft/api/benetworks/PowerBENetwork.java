@@ -8,7 +8,7 @@ import java.util.UUID;
 
 public class PowerBENetwork extends BENetwork {
 
-    public static final ResourceLocation TYPE = Radiocraft.location("power");
+    public static final ResourceLocation TYPE = Radiocraft.id("power");
 
     public PowerBENetwork(UUID uuid) {
         super(uuid);

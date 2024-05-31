@@ -13,7 +13,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class SolarPanelScreen extends AbstractContainerScreen<SolarPanelMenu> {
 
-	private static final ResourceLocation TEXTURE = Radiocraft.location("textures/gui/temp_power.png");
+	private static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/temp_power.png");
 	private final SolarPanelMenu container;
 
 	public SolarPanelScreen(SolarPanelMenu container, Inventory playerInventory, Component title) {

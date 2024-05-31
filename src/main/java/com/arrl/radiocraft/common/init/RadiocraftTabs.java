@@ -20,7 +20,7 @@ public class RadiocraftTabs {
 	@SubscribeEvent
 	public static void registerCreativeTabs(CreativeModeTabEvent.Register event) {
 		// 1.19.3 switched to using event based initialisation for creative mode tabs
-		TAB = event.registerCreativeModeTab(Radiocraft.location("main_tab"), builder ->
+		TAB = event.registerCreativeModeTab(Radiocraft.id("main_tab"), builder ->
 				builder.icon(() -> new ItemStack(RadiocraftItems.HF_RADIO_10M.get()))
 						.title(Component.translatable(Radiocraft.translationKey("tabs", "main_tab")))
 						.displayItems((featureFlags, output, hasOps) -> {

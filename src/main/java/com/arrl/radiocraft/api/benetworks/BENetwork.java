@@ -2,6 +2,7 @@ package com.arrl.radiocraft.api.benetworks;
 
 import com.arrl.radiocraft.Radiocraft;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -10,7 +11,7 @@ import java.util.function.Supplier;
 
 public class BENetwork {
 
-    public static final ResourceLocation COAXIAL_TYPE = Radiocraft.location("coaxial");
+    public static final ResourceLocation COAXIAL_TYPE = Radiocraft.id("coaxial");
 
     protected final Set<BENetworkObject> networkObjects = new HashSet<>();
     protected final UUID uuid;
@@ -53,9 +54,10 @@ public class BENetwork {
     /**
      * Merges an array of networks and replaces their entries on all connected devices with the new merged network.
      */
-    public static BENetwork merge(Set<BENetwork> networks, Supplier<BENetwork> fallbackSupplier) {
+    public static BENetwork merge(Set<BENetwork> networks, Supplier<BENetwork> fallbackSupplier, Level level) {
         if(!networks.isEmpty()) {
-            BENetwork newNetwork = BENetworkRegistry.createNetwork(networks.stream().findFirst().get().getType(), UUID.randomUUID());
+            BENetwork newNetwork = BENetworkRegistry.createNetwork(networks.stream().findFirst().get().getType(), UUID.randomUUID(), level);
+
             for(BENetwork oldNetwork : networks) {
                 for(BENetworkObject networkObject : oldNetwork.getNetworkObjects()) {
                     newNetwork.add(networkObject); // Add this device to the new network and replace the network entry with the new network

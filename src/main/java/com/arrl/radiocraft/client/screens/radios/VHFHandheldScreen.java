@@ -26,8 +26,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class VHFHandheldScreen extends Screen {
 
-    public static final ResourceLocation TEXTURE = Radiocraft.location("textures/gui/vhf_handheld.png");
-    public static final ResourceLocation WIDGETS_TEXTURE = Radiocraft.location("textures/gui/vhf_handheld_widgets.png");
+    public static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/vhf_handheld.png");
+    public static final ResourceLocation WIDGETS_TEXTURE = Radiocraft.id("textures/gui/vhf_handheld_widgets.png");
 
     protected static final int imageWidth = 157;
     protected static final int imageHeight = 248;

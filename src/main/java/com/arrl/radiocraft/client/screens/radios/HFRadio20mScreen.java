@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Inventory;
 public class HFRadio20mScreen extends HFRadioScreen<HFRadio20mMenu> {
 
 	public HFRadio20mScreen(HFRadio20mMenu menu, Inventory playerInventory, Component title) {
-		super(menu, playerInventory, title, Radiocraft.location("textures/gui/hf_radio_20m.png"), Radiocraft.location("textures/gui/hf_radio_20m_widgets.png"));
+		super(menu, playerInventory, title, Radiocraft.id("textures/gui/hf_radio_20m.png"), Radiocraft.id("textures/gui/hf_radio_20m_widgets.png"));
 
 		this.imageWidth = 249;
 		this.imageHeight = 130;

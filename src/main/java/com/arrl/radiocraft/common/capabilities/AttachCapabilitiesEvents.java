@@ -20,10 +20,10 @@ public class AttachCapabilitiesEvents {
 
 		if(!level.isClientSide) {
 			if(level.dimension() == Level.OVERWORLD)
-				event.addCapability(Radiocraft.location("callsigns"), new CallsignCapabilityProvider());
+				event.addCapability(Radiocraft.id("callsigns"), new CallsignCapabilityProvider());
 
-			event.addCapability(Radiocraft.location("antenna_networks"), new AntennaNetworkCapabilityProvider());
-			event.addCapability(Radiocraft.location("be_networks"), new BENetworksCapabilityProvider(level));
+			event.addCapability(Radiocraft.id("antenna_networks"), new AntennaNetworkCapabilityProvider());
+			event.addCapability(Radiocraft.id("be_networks"), new BENetworksCapabilityProvider(level));
 		}
 	}
 
@@ -32,7 +32,7 @@ public class AttachCapabilitiesEvents {
 		Entity entity = event.getObject();
 
 		if(entity instanceof Player)
-			event.addCapability(Radiocraft.location("wire_holder"), new AntennaWireHolderCapabilityProvider());
+			event.addCapability(Radiocraft.id("wire_holder"), new AntennaWireHolderCapabilityProvider());
 	}
 
 	@SubscribeEvent
@@ -40,7 +40,7 @@ public class AttachCapabilitiesEvents {
 		ItemStack stack = event.getObject();
 
 		if(stack.getItem() == RadiocraftItems.VHF_HANDHELD.get())
-			event.addCapability(Radiocraft.location("vhf_handheld"), new VHFHandheldCapabilityProvider());
+			event.addCapability(Radiocraft.id("vhf_handheld"), new VHFHandheldCapabilityProvider());
 	}
 
 }

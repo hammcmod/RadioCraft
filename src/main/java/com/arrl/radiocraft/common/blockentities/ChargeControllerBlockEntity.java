@@ -3,7 +3,6 @@ package com.arrl.radiocraft.common.blockentities;
 import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
-import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.network_objects.ChargeControllerNetworkObject;
 import com.arrl.radiocraft.common.blocks.ChargeControllerBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
@@ -129,8 +128,6 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 	public void setRemoved() {
 		if(inventoryHandler != null)
 			inventoryHandler.invalidate();
-		if(!level.isClientSide())
-			IBENetworks.removeObject(level, worldPosition);
 		super.setRemoved();
 	}
 

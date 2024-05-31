@@ -39,7 +39,7 @@ public class WireUtils {
 					existingNetworks.add(network);
 			}
 
-			BENetwork newNetwork = BENetwork.merge(existingNetworks, fallbackSupplier);
+			BENetwork newNetwork = BENetwork.merge(existingNetworks, fallbackSupplier, level);
 			for(BENetworkObject networkObject : nullItems) {
 				networkObject.setNetwork(connections.get(networkObject), newNetwork);
 				newNetwork.add(networkObject);
@@ -82,7 +82,7 @@ public class WireUtils {
 			}
 
 			if(networkToReplace != null) {
-				BENetwork newNetwork = BENetworkRegistry.createNetwork(networkToReplace.getType(), UUID.randomUUID());
+				BENetwork newNetwork = BENetworkRegistry.createNetwork(networkToReplace.getType(), UUID.randomUUID(), level);
 
 				for(BENetworkObject networkObject : connections.keySet()) {
 					networkToReplace.remove(networkObject, true);
@@ -102,8 +102,8 @@ public class WireUtils {
 	 *
 	 * @param level The {@link Level} to check in.
 	 * @param pos The {@link BlockPos} to check around.
-	 * @param networkObject The {@link BENetworkObject} to connect to other networks.
-	 * @param connection A {@link Predicate} determining if a {@link BENetworkObject} is a valid connection.
+	 * @param validConnection {@link Predicate} determining if a {@link BENetworkObject} is a valid connection.
+	 * @param fallbackSupplier A {@link Supplier} providing a new instance of {@link BENetwork} if no connections had one.
 	 * @param wires A list of valid {@link WireBlock}s.
 	 */
 	public static void tryConnect(Level level, BlockPos pos, Predicate<BENetworkObject> validConnection, Supplier<BENetwork> fallbackSupplier, WireBlock... wires) {

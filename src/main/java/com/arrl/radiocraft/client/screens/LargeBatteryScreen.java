@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class LargeBatteryScreen extends AbstractContainerScreen<LargeBatteryMenu> {
 
-	private static final ResourceLocation TEXTURE = Radiocraft.location("textures/gui/large_battery.png");
+	private static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/large_battery.png");
 	private final LargeBatteryMenu container;
 
 	public LargeBatteryScreen(LargeBatteryMenu container, Inventory playerInventory, Component title) {

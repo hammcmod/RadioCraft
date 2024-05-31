@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 
 public class SolarPanelNetworkObject extends PowerNetworkObject {
 
-    public static final ResourceLocation TYPE = Radiocraft.location("solar_panel");
+    public static final ResourceLocation TYPE = Radiocraft.id("solar_panel");
 
     private boolean canSeeSky = false;
     public int lastPowerTick = 0;

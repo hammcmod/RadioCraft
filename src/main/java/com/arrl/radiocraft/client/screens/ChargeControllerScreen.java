@@ -19,8 +19,8 @@ import net.minecraft.world.item.ItemStack;
 
 public class ChargeControllerScreen extends AbstractContainerScreen<ChargeControllerMenu> {
 
-	private static final ResourceLocation TEXTURE = Radiocraft.location("textures/gui/charge_controller.png");
-	private static final ResourceLocation WIDGETS = Radiocraft.location("textures/gui/charge_controller_widgets.png");
+	private static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/charge_controller.png");
+	private static final ResourceLocation WIDGETS = Radiocraft.id("textures/gui/charge_controller_widgets.png");
 
 	private static final int COIL_WIDTH = 24;
 	private static final int COIL_HEIGHT = 35;
