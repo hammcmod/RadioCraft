@@ -126,6 +126,7 @@ public class WireUtils {
 
 			if(network == null) { // It shouldn't be possible for network to be null here, but check anyway.
 				network = fallbackSupplier.get();
+				IBENetworks.addNetwork(level, network);
 				connection.getKey().setNetwork(connection.getValue(), network);
 				network.add(connection.getKey());
 			}

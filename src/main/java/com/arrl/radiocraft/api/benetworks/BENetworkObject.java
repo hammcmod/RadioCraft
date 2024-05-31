@@ -51,6 +51,7 @@ public class BENetworkObject {
     public void clearNetworks() {
         for(BENetwork network : networks.values())
             network.remove(this, true);
+        networks.clear();
     }
 
     public ResourceLocation getType() {
