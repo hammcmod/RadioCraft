@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.api.benetworks;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
@@ -37,6 +38,9 @@ public class BENetwork {
             networkObject.onNetworkRemove(this);
         for(BENetworkObject obj : networkObjects)
             obj.onNetworkUpdateRemove(this, networkObject);
+
+        if(getNetworkObjects().isEmpty())
+            IBENetworks.removeNetwork(networkObject.level, this);
     }
 
     public Set<BENetworkObject> getNetworkObjects() {
@@ -54,19 +58,19 @@ public class BENetwork {
     /**
      * Merges an array of networks and replaces their entries on all connected devices with the new merged network.
      */
-    public static BENetwork merge(Set<BENetwork> networks, Supplier<BENetwork> fallbackSupplier, Level level) {
-        if(!networks.isEmpty()) {
-            BENetwork newNetwork = BENetworkRegistry.createNetwork(networks.stream().findFirst().get().getType(), UUID.randomUUID(), level);
+    public static BENetwork merge(Set<BENetwork> networks, Supplier<BENetwork> newSupplier, Level level) {
+        BENetwork newNetwork = newSupplier.get();
 
-            for(BENetwork oldNetwork : networks) {
-                for(BENetworkObject networkObject : oldNetwork.getNetworkObjects()) {
-                    newNetwork.add(networkObject); // Add this device to the new network and replace the network entry with the new network
-                    networkObject.replaceNetwork(oldNetwork, newNetwork);
-                }
+        for(BENetwork oldNetwork : networks) {
+            for(BENetworkObject networkObject : oldNetwork.getNetworkObjects()) {
+                newNetwork.add(networkObject);
+                networkObject.replaceNetwork(oldNetwork, newNetwork);
             }
-            return newNetwork;
+            IBENetworks.removeNetwork(level, oldNetwork);
         }
-        return fallbackSupplier.get();
+
+        IBENetworks.addNetwork(level, newNetwork);
+        return newNetwork;
     }
 
 }

@@ -159,7 +159,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
 		if(newState.is(this))
 			return;
-		if(!level.isClientSide)
+		if(level.isClientSide)
 			return;
 
 		if(checkMultipleSides(level, pos)) { // Only bother running split if this wire is actually connecting things.

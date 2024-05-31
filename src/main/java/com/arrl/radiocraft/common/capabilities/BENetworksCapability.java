@@ -71,11 +71,10 @@ public class BENetworksCapability implements IBENetworks {
         CompoundTag nbt = new CompoundTag();
 
         CompoundTag networks = new CompoundTag();
+
         for(Entry<UUID, BENetwork> entry : this.networks.entrySet()) {
             if(!entry.getValue().getNetworkObjects().isEmpty())
                 networks.putString(entry.getKey().toString(), entry.getValue().getType().toString());
-            else
-                this.networks.remove(entry.getKey()); // Just remove empty networks. A bit messy but it does the job.
         }
 
         ListTag objects = new ListTag();
