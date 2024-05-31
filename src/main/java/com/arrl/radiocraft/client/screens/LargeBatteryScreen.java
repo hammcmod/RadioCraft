@@ -13,11 +13,11 @@ import net.minecraft.world.entity.player.Inventory;
 public class LargeBatteryScreen extends AbstractContainerScreen<LargeBatteryMenu> {
 
 	private static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/large_battery.png");
-	private final LargeBatteryMenu container;
+	private final LargeBatteryMenu menu;
 
-	public LargeBatteryScreen(LargeBatteryMenu container, Inventory playerInventory, Component title) {
-		super(container, playerInventory, title);
-		this.container = container;
+	public LargeBatteryScreen(LargeBatteryMenu menu, Inventory playerInventory, Component title) {
+		super(menu, playerInventory, title);
+		this.menu = menu;
 
 		this.imageWidth = 186;
 		this.imageHeight = 122;
@@ -42,7 +42,7 @@ public class LargeBatteryScreen extends AbstractContainerScreen<LargeBatteryMenu
 
 	@Override
 	protected void renderLabels(PoseStack poseStack, int pX, int pY) {
-		String powerString = (int)Math.round(container.getCurrentPower() / (double)container.getMaxPower() * 100) + "%";
+		String powerString = (int)Math.round(menu.getCurrentPower() / (double)menu.getMaxPower() * 100) + "%";
 
 		float scale = 2.0F;
 		poseStack.pushPose();

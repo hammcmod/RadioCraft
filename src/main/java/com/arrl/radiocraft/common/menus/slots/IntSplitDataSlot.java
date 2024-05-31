@@ -9,22 +9,22 @@ public class IntSplitDataSlot implements ContainerData {
     @Override
     public int get(int index) {
         return switch(index) {
-            case 0 -> value & 0xffff;
-            case 1 -> value & 0x0000ffff;
-            case 3 -> value; // You can call case 3 on IntSplitDataSlot to get the real value, but this isn't actually synchronised by the container as count is 2.
+            case 0 -> value & 0xFFFF0000; // 0 gets the most significant bits
+            case 1 -> value & 0x0000FFFF; // 1 gets the least significant bits
+            case 2 -> value; // 2 gets the real value, this isn't directly synchronised by the container.
             default -> 0;
         };
     }
 
     @Override
     public void set(int index, int value) {
-        if(index == 0) {
-            int frequency = value & 0xffff0000;
-            this.value = frequency + (value & 0xffff);
+        if(index == 0) { // Value is most significant bits
+            int leastSignificant = this.value & 0x0000FFFF;
+            this.value = leastSignificant + value;
         }
-        else if(index == 1) {
-            int frequency = value & 0x0000ffff;
-            this.value = frequency + (value << 16);
+        else if(index == 1) { // Value is least significant bits
+            int mostSignificant = this.value & 0xFFFF0000;
+            this.value = mostSignificant + value;
         }
     }
 
