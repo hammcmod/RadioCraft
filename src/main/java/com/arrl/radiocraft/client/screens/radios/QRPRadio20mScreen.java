@@ -16,7 +16,7 @@ import net.minecraft.world.entity.player.Inventory;
 public class QRPRadio20mScreen extends HFRadioScreen<QRPRadio20mMenu> {
 
     public QRPRadio20mScreen(QRPRadio20mMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title, Radiocraft.location("textures/gui/qrp_radio_20m.png"), Radiocraft.location("textures/gui/qrp_radio_20m_widgets.png"));
+        super(menu, playerInventory, title, Radiocraft.id("textures/gui/qrp_radio_20m.png"), Radiocraft.id("textures/gui/qrp_radio_20m_widgets.png"));
 
         this.imageWidth = 252;
         this.imageHeight = 130;

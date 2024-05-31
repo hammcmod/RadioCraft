@@ -280,10 +280,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public void setRemoved() {
-        if(!level.isClientSide()) {
+        if(!level.isClientSide())
             VoiceTransmitters.removeListener(level, this); // Stop listening when removed.
-            IBENetworks.removeObject(level, worldPosition);
-        }
         super.setRemoved();
     }
 

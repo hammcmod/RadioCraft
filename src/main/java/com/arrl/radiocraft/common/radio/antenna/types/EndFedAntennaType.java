@@ -15,7 +15,7 @@ import java.util.List;
 public class EndFedAntennaType extends  NonDirectionalAntennaType<EndFedAntennaData> {
 
 	public EndFedAntennaType() {
-		super(Radiocraft.location("end_fed"), 0.75D, 0.75D, 1.0D, 1.0D);
+		super(Radiocraft.id("end_fed"), 0.75D, 0.75D, 1.0D, 1.0D);
 	}
 
 	@Override

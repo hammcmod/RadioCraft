@@ -17,7 +17,7 @@ import net.minecraft.world.phys.Vec2;
 public class YagiAntennaType extends DirectionalAntennaType<YagiAntennaData> {
 
     public YagiAntennaType() {
-        super(Radiocraft.location("yagi"), 1.0D, 1.0D, 1.0D, 0.0D);
+        super(Radiocraft.id("yagi"), 1.0D, 1.0D, 1.0D, 0.0D);
     }
 
     @Override

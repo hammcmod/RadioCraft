@@ -16,7 +16,7 @@ public class RadiocraftPackets {
 
 	private static final String PROTOCOL_VERSION = "1";
 	public static final SimpleChannel INSTANCE = NetworkRegistry.newSimpleChannel(
-			Radiocraft.location("main"),
+			Radiocraft.id("main"),
 			() -> PROTOCOL_VERSION,
 			PROTOCOL_VERSION::equals,
 			PROTOCOL_VERSION::equals

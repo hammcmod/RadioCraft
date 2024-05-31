@@ -15,7 +15,7 @@ import java.util.List;
 public class DipoleAntennaType extends NonDirectionalAntennaType<DipoleAntennaData> {
 
 	public DipoleAntennaType() {
-		super(Radiocraft.location("dipole"), 1.0D, 1.0D, 1.0D, 1.0D);
+		super(Radiocraft.id("dipole"), 1.0D, 1.0D, 1.0D, 1.0D);
 	}
 
 	@Override

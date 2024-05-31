@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 public class SlimJimAntennaType extends NonDirectionalAntennaType<EmptyAntennaData> {
 
     public SlimJimAntennaType() {
-        super(Radiocraft.location("slim_jim"), 1.0D, 1.0D, 1.0D, 0.0D);
+        super(Radiocraft.id("slim_jim"), 1.0D, 1.0D, 1.0D, 0.0D);
     }
 
     @Override

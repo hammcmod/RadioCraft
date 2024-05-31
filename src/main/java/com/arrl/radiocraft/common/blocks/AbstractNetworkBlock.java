@@ -46,6 +46,7 @@ public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 				BENetworkObject networkObject = IBENetworks.getObject(level, pos);
 				if(networkObject != null)
 					networkObject.clearNetworks();
+				IBENetworks.removeObject(level, pos);
 			}
 		}
 		super.onRemove(state, level, pos, newState, isMoving);

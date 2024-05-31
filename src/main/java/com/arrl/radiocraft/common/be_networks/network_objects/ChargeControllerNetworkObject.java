@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 
 public class ChargeControllerNetworkObject extends PowerNetworkObject {
 
-    public static final ResourceLocation TYPE = Radiocraft.location("charge_controller");
+    public static final ResourceLocation TYPE = Radiocraft.id("charge_controller");
 
     public boolean isEnabled;
     private int lastPowerTick = 0;

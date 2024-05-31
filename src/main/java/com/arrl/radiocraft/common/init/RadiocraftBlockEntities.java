@@ -17,13 +17,10 @@ public class RadiocraftBlockEntities {
 
 	public static final RegistryObject<BlockEntityType<?>> LARGE_BATTERY = BLOCK_ENTITY_TYPES.register("large_battery",
 			() -> BlockEntityType.Builder.of(LargeBatteryBlockEntity::new, RadiocraftBlocks.LARGE_BATTERY.get()).build(null));
-
 	public static final RegistryObject<BlockEntityType<?>> SOLAR_PANEL = BLOCK_ENTITY_TYPES.register("solar_panel",
 			() -> BlockEntityType.Builder.of(SolarPanelBlockEntity::new, RadiocraftBlocks.SOLAR_PANEL.get()).build(null));
-
 	public static final RegistryObject<BlockEntityType<?>> CHARGE_CONTROLLER = BLOCK_ENTITY_TYPES.register("charge_controller",
 			() -> BlockEntityType.Builder.of(ChargeControllerBlockEntity::new, RadiocraftBlocks.CHARGE_CONTROLLER.get()).build(null));
-
 	public static final RegistryObject<BlockEntityType<HFRadio10mBlockEntity>> HF_RADIO_10M = BLOCK_ENTITY_TYPES.register("hf_radio_10m",
 			() -> BlockEntityType.Builder.of(HFRadio10mBlockEntity::new, RadiocraftBlocks.HF_RADIO_10M.get()).build(null));
 	public static final RegistryObject<BlockEntityType<HFRadio20mBlockEntity>> HF_RADIO_20M = BLOCK_ENTITY_TYPES.register("hf_radio_20m",
@@ -42,7 +39,6 @@ public class RadiocraftBlockEntities {
 			() -> BlockEntityType.Builder.of(VHFBaseStationBlockEntity::new, RadiocraftBlocks.VHF_BASE_STATION.get()).build(null));
 	public static final RegistryObject<BlockEntityType<VHFReceiverBlockEntity>> VHF_RECEIVER = BLOCK_ENTITY_TYPES.register("vhf_receiver",
 			() -> BlockEntityType.Builder.of(VHFReceiverBlockEntity::new, RadiocraftBlocks.VHF_RECEIVER.get()).build(null));
-
 
 	public static final RegistryObject<BlockEntityType<?>> ANTENNA = BLOCK_ENTITY_TYPES.register("antenna",
 			() -> BlockEntityType.Builder.of(AntennaBlockEntity::new,

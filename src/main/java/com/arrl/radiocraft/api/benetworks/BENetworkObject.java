@@ -13,14 +13,13 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.UUID;
 
 /**
  * Represents the presence of a {@link BlockEntity} within a {@link BENetwork}.
  */
 public class BENetworkObject {
 
-    public static final ResourceLocation DEFAULT_TYPE = Radiocraft.location("default");
+    public static final ResourceLocation DEFAULT_TYPE = Radiocraft.id("default");
     protected final Map<Direction, BENetwork> networks = new HashMap<>();
     protected final Level level;
     protected final BlockPos pos;
@@ -104,9 +103,9 @@ public class BENetworkObject {
     }
 
     public void load(IBENetworks cap, CompoundTag nbt) {
-        CompoundTag tag = nbt.getCompound("networks");
-        for(String key : tag.getAllKeys()) {
-            BENetwork network = cap.getNetwork(UUID.fromString(key));
+        CompoundTag networksTag = nbt.getCompound("networks");
+        for(String key : networksTag.getAllKeys()) {
+            BENetwork network = cap.getNetwork(networksTag.getUUID(key));
             network.add(this);
             networks.put(Direction.byName(key), network);
         }

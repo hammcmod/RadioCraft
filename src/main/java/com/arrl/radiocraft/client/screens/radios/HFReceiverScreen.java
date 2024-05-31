@@ -12,7 +12,7 @@ import net.minecraft.world.entity.player.Inventory;
 public class HFReceiverScreen extends HFRadioScreen<HFReceiverMenu> {
 
 	public HFReceiverScreen(HFReceiverMenu menu, Inventory playerInventory, Component title) {
-		super(menu, playerInventory, title, Radiocraft.location("textures/gui/hf_receiver.png"), Radiocraft.location("textures/gui/hf_receiver_widgets.png"));
+		super(menu, playerInventory, title, Radiocraft.id("textures/gui/hf_receiver.png"), Radiocraft.id("textures/gui/hf_receiver_widgets.png"));
 
 		this.imageWidth = 250;
 		this.imageHeight = 130;

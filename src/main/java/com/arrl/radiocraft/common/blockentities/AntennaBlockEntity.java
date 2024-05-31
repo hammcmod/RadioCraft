@@ -79,13 +79,6 @@ public class AntennaBlockEntity extends BlockEntity implements INetworkObjectPro
 	}
 
 	@Override
-	public void setRemoved() {
-		super.setRemoved();
-		if(!level.isClientSide())
-			IBENetworks.removeObject(level, worldPosition);
-	}
-
-	@Override
 	public BENetworkObject createNetworkObject() {
 		return new AntennaNetworkObject(level, worldPosition, networkId);
 	}

@@ -62,7 +62,7 @@ public class Radiocraft {
         gen.addProvider(event.includeClient(), (Factory<RadiocraftBlockstateProvider>) output -> new RadiocraftBlockstateProvider(output, existingFileHelper));
     }
 
-    public static ResourceLocation location(String path) {
+    public static ResourceLocation id(String path) {
         return new ResourceLocation(MOD_ID, path);
     }
 

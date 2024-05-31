@@ -27,7 +27,7 @@ import java.util.*;
 
 public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetworkObject {
 
-    public static final ResourceLocation TYPE = Radiocraft.location("antenna");
+    public static final ResourceLocation TYPE = Radiocraft.id("antenna");
 
     protected final List<RadioNetworkObject> radios = Collections.synchronizedList(new ArrayList<>());
     protected StaticAntenna<?> antenna = null;

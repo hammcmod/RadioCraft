@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 public class JPoleAntennaType extends NonDirectionalAntennaType<EmptyAntennaData> {
 
     public JPoleAntennaType() {
-        super(Radiocraft.location("j_pole"), 1.0D, 1.0D, 1.0D, 0.0D);
+        super(Radiocraft.id("j_pole"), 1.0D, 1.0D, 1.0D, 0.0D);
     }
 
     @Override

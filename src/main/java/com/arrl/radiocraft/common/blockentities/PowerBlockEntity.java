@@ -2,7 +2,6 @@ package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
-import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.MenuProvider;
@@ -33,13 +32,6 @@ public abstract class PowerBlockEntity extends BlockEntity implements MenuProvid
         super.onLoad();
         if(!level.isClientSide())
             getNetworkObject(level, worldPosition); // This forces the network object to get initialised.
-    }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if(!level.isClientSide())
-            IBENetworks.removeObject(level, worldPosition);
     }
 
 }

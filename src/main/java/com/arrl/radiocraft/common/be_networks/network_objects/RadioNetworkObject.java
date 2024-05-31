@@ -15,7 +15,7 @@ import java.util.*;
 
 public class RadioNetworkObject extends PowerNetworkObject implements ICoaxNetworkObject {
 
-    public static final ResourceLocation TYPE = Radiocraft.location("radio");
+    public static final ResourceLocation TYPE = Radiocraft.id("radio");
 
     public boolean isPowered = false;
 
