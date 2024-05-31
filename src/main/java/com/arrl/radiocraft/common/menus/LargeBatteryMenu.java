@@ -36,11 +36,11 @@ public class LargeBatteryMenu extends AbstractContainerMenu {
 	}
 
 	public int getCurrentPower() {
-		return dataEnergy.get(3);
+		return dataEnergy.get(2);
 	}
 
 	public int getMaxPower() {
-		return dataMaxEnergy.get(3);
+		return dataMaxEnergy.get(2);
 	}
 
 	@Override

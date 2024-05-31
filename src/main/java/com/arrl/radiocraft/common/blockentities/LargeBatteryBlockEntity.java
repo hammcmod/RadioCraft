@@ -30,12 +30,12 @@ public class LargeBatteryBlockEntity extends PowerBlockEntity {
 	public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
 		return new LargeBatteryMenu(id, this,
 				new IntRefSplitDataSlot(
-						value -> ((BatteryNetworkObject)getNetworkObject(level, worldPosition)).getStorage().setEnergy(value),
-						() -> ((BatteryNetworkObject)getNetworkObject(level, worldPosition)).getStorage().getEnergyStored()
+						value -> {}, // Client can never set this anyway.
+						((BatteryNetworkObject)getNetworkObject(level, worldPosition)).getStorage()::getEnergyStored
 				),
 				new IntRefSplitDataSlot(
-						value -> ((BatteryNetworkObject)getNetworkObject(level, worldPosition)).getStorage().setMaxEnergy(value),
-						() -> ((BatteryNetworkObject)getNetworkObject(level, worldPosition)).getStorage().getMaxEnergyStored()
+						value -> {}, // Client can never set this anyway.
+						((BatteryNetworkObject)getNetworkObject(level, worldPosition)).getStorage()::getMaxEnergyStored
 				));
 	}
 
