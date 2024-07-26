@@ -47,6 +47,9 @@
   "item.radiocraft.small_battery": "Small Alkaline Battery",
   "item.radiocraft.vhf_handheld": "VHF Handheld Radio",
   "screen.radiocraft.chargecontroller.power": "%s FE/s",
+  "screen.radiocraft.chargecontroller.no_output": "No output",
+  "screen.radiocraft.chargecontroller.charging": "Charging",
+  "screen.radiocraft.chargecontroller.output": "Output",
   "screen.radiocraft.radio.rx": "Receiving",
   "screen.radiocraft.radio.tx": "Transmitting",
   "tabs.radiocraft.main_tab": "RadioCraft"
