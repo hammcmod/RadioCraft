@@ -38,6 +38,9 @@ public class VHFHandheldScreen extends Screen {
     protected final ItemStack item;
     protected final IVHFHandheldCapability cap;
 
+    // This stores the entered digits on the keypad for frequency selection, confirmed by pressing Enter.
+    protected String enterBuffer = "";
+
     public VHFHandheldScreen(int index) {
         super(Component.translatable(Radiocraft.translationKey("screen", "vhf_handheld")));
         this.index = index;
@@ -62,6 +65,19 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Gain
         addRenderableWidget(new ImageButton(leftPos + 106, topPos + 168, 18, 14, 76, 84, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
         addRenderableWidget(new ImageButton(leftPos + 126, topPos + 168, 18, 14, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
+        addRenderableWidget(new ImageButton(leftPos + 31, topPos + 169, 18, 12, 172, 5, WIDGETS_TEXTURE, 256, 256, this::onPressOne)); // 1
+        addRenderableWidget(new ImageButton(leftPos + 56, topPos + 169, 18, 12, 172, 75, WIDGETS_TEXTURE, 256, 256, this::onPressTwo)); // 2
+        addRenderableWidget(new ImageButton(leftPos + 80, topPos + 169, 18, 12, 171, 146, WIDGETS_TEXTURE, 256, 256, this::onPressThree)); // 3
+        addRenderableWidget(new ImageButton(leftPos + 31, topPos + 188, 18, 12, 172, 24, WIDGETS_TEXTURE, 256, 256, this::onPressFour)); // 4
+        addRenderableWidget(new ImageButton(leftPos + 56, topPos + 188, 18, 12, 172, 94, WIDGETS_TEXTURE, 256, 256, this::onPressFive)); // 5
+        addRenderableWidget(new ImageButton(leftPos + 80, topPos + 188, 18, 12, 221, 106, WIDGETS_TEXTURE, 256, 256, this::onPressSix)); // 6
+        addRenderableWidget(new ImageButton(leftPos + 31, topPos + 207, 18, 12, 172, 43, WIDGETS_TEXTURE, 256, 256, this::onPressSeven)); // 7
+        addRenderableWidget(new ImageButton(leftPos + 56, topPos + 207, 18, 12, 172, 113, WIDGETS_TEXTURE, 256, 256, this::onPressEight)); // 8
+        addRenderableWidget(new ImageButton(leftPos + 80, topPos + 207, 18, 12, 221, 125, WIDGETS_TEXTURE, 256, 256, this::onPressNine)); // 9
+        addRenderableWidget(new ImageButton(leftPos + 31, topPos + 226, 18, 12, 172, 62, WIDGETS_TEXTURE, 256, 256, this::onPressStar)); // *
+        addRenderableWidget(new ImageButton(leftPos + 56, topPos + 226, 18, 12, 172, 132, WIDGETS_TEXTURE, 256, 256, this::onPressZero)); // 0
+        addRenderableWidget(new ImageButton(leftPos + 80, topPos + 226, 18, 12, 221, 144, WIDGETS_TEXTURE, 256, 256, this::onPressPound)); // #
+        addRenderableWidget(new ImageButton(leftPos + 104, topPos + 224, 40, 12, 193, 64, WIDGETS_TEXTURE, 256, 256, this::onPressEnter)); // Enter
     }
 
     @Override
@@ -80,6 +96,21 @@ public class VHFHandheldScreen extends Screen {
             blit(poseStack, leftPos + 32, topPos + 107, 157, 0, 10, 13, 256, 256); // Render power light.
             if (cap.isPTTDown())
                 blit(poseStack, leftPos + 44, topPos + 107, 167, 0, 10, 13, 256, 256); // Render power light.
+
+            if (enterBuffer.isEmpty()) {
+                float freqMhz = cap.getFrequency() / 1000.0F; // Frequency is in kHz, divide by 1000 to get MHz
+                font.draw(poseStack, String.format("%.3f", freqMhz), (leftPos + 82), (topPos + 125), 0xFFFFFF);
+            } else {
+                int strlen = Math.min(enterBuffer.length(), 7);
+                String buffer = enterBuffer.substring(0, strlen);
+                if (buffer.length() < 7) {
+                    buffer += "_";
+                } else {
+                    // Indicate end-of-entry, instead of showing what would be shown immediately after pressing the Enter button. Should prevent some confusion.
+                    buffer += "#";
+                }
+                font.draw(poseStack, buffer, (leftPos + 82), (topPos + 125), 0xFFFFFF);
+            }
         }
 
         super.render(poseStack, mouseX, mouseY, partialTicks);
@@ -166,6 +197,89 @@ public class VHFHandheldScreen extends Screen {
     protected void onPressPower(ToggleButton button) {
         RadiocraftPackets.sendToServer(new SHandheldPowerPacket(index, !cap.isPowered()));
         cap.setPowered(!cap.isPowered());
+        enterBuffer = ""; // Clear the enter buffer, in case the user entered numbers before powering up device.
+    }
+
+    protected void onPressOne(Button button) {
+        enterBuffer += "1";
+    }
+    protected void onPressTwo(Button button) {
+        enterBuffer += "2";
+    }
+    protected void onPressThree(Button button) {
+        enterBuffer += "3";
+    }
+    protected void onPressFour(Button button) {
+        enterBuffer += "4";
+    }
+    protected void onPressFive(Button button) {
+        enterBuffer += "5";
+    }
+    protected void onPressSix(Button button) {
+        enterBuffer += "6";
+    }
+    protected void onPressSeven(Button button) {
+        enterBuffer += "7";
+    }
+    protected void onPressEight(Button button) {
+        enterBuffer += "8";
+    }
+    protected void onPressNine(Button button) {
+        enterBuffer += "9";
+    }
+    protected void onPressZero(Button button) {
+        enterBuffer += "0";
+    }
+    protected void onPressStar(Button button) {
+        enterBuffer += ".";
+    }
+    protected void onPressPound(Button button) {
+        enterBuffer += "#";
+    }
+
+    /**
+     * Callback to enter the frequency selection, after pressing 6 digits plus an optional decimal point
+     */
+    protected void onPressEnter(Button button) {
+        // If the device is not powered, do not set a frequency. The buffer is cleared on power up as well.
+        if (!cap.isPowered()) {
+            return;
+        }
+        if (enterBuffer.length() == 6) {
+            boolean hasOnlyDigits = true;
+            for (int x = 0; x < enterBuffer.length(); x++) {
+                if (!Character.isDigit(enterBuffer.charAt(x))) {
+                    hasOnlyDigits = false;
+                }
+            }
+            if (hasOnlyDigits) {
+                String megahertz = enterBuffer.substring(0, 3);
+                String kilohertz = enterBuffer.substring(3, 6);
+                float frequency = Float.parseFloat(megahertz + "." + kilohertz);
+                cap.setFrequency((int)(frequency * 1000)); // Frequency is stored in kHz, convert from MHz.
+            }
+        }
+        if (enterBuffer.length() == 7) {
+            boolean isValidEntry = true;
+            for (int x = 0; x < enterBuffer.length(); x++) {
+                if (x == 3) {
+                    // Check that there's a pound or star (decimal point) contained.
+                    if (!(enterBuffer.charAt(x) == '#' || enterBuffer.charAt(x) == '.')) {
+                        isValidEntry = false;
+                    }
+                } else if (!Character.isDigit(enterBuffer.charAt(x))) {
+                    isValidEntry = false;
+                }
+            }
+            if (isValidEntry) {
+                String megahertz = enterBuffer.substring(0, 3);
+                // Skip 4, this is where the decimal point is
+                String kilohertz = enterBuffer.substring(4, 7);
+                float frequency = Float.parseFloat(megahertz + "." + kilohertz);
+                cap.setFrequency((int)(frequency * 1000));
+            }
+        }
+        enterBuffer = ""; // If the user presses enter, it will clear the screen and put it back.
     }
 
 }
