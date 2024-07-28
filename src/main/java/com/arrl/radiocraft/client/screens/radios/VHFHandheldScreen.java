@@ -4,10 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
-import com.arrl.radiocraft.client.screens.widgets.Dial;
-import com.arrl.radiocraft.client.screens.widgets.HoldButton;
-import com.arrl.radiocraft.client.screens.widgets.ImageButton;
-import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
+import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.network.packets.serverbound.SHandheldFrequencyPacket;
 import com.arrl.radiocraft.common.network.packets.serverbound.SHandheldPTTPacket;
@@ -65,19 +62,19 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Gain
         addRenderableWidget(new ImageButton(leftPos + 106, topPos + 168, 18, 14, 76, 84, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
         addRenderableWidget(new ImageButton(leftPos + 126, topPos + 168, 18, 14, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
-        addRenderableWidget(new ImageButton(leftPos + 31, topPos + 169, 18, 12, 172, 5, WIDGETS_TEXTURE, 256, 256, this::onPressOne)); // 1
-        addRenderableWidget(new ImageButton(leftPos + 56, topPos + 169, 18, 12, 172, 75, WIDGETS_TEXTURE, 256, 256, this::onPressTwo)); // 2
-        addRenderableWidget(new ImageButton(leftPos + 80, topPos + 169, 18, 12, 171, 146, WIDGETS_TEXTURE, 256, 256, this::onPressThree)); // 3
-        addRenderableWidget(new ImageButton(leftPos + 31, topPos + 188, 18, 12, 172, 24, WIDGETS_TEXTURE, 256, 256, this::onPressFour)); // 4
-        addRenderableWidget(new ImageButton(leftPos + 56, topPos + 188, 18, 12, 172, 94, WIDGETS_TEXTURE, 256, 256, this::onPressFive)); // 5
-        addRenderableWidget(new ImageButton(leftPos + 80, topPos + 188, 18, 12, 221, 106, WIDGETS_TEXTURE, 256, 256, this::onPressSix)); // 6
-        addRenderableWidget(new ImageButton(leftPos + 31, topPos + 207, 18, 12, 172, 43, WIDGETS_TEXTURE, 256, 256, this::onPressSeven)); // 7
-        addRenderableWidget(new ImageButton(leftPos + 56, topPos + 207, 18, 12, 172, 113, WIDGETS_TEXTURE, 256, 256, this::onPressEight)); // 8
-        addRenderableWidget(new ImageButton(leftPos + 80, topPos + 207, 18, 12, 221, 125, WIDGETS_TEXTURE, 256, 256, this::onPressNine)); // 9
-        addRenderableWidget(new ImageButton(leftPos + 31, topPos + 226, 18, 12, 172, 62, WIDGETS_TEXTURE, 256, 256, this::onPressStar)); // *
-        addRenderableWidget(new ImageButton(leftPos + 56, topPos + 226, 18, 12, 172, 132, WIDGETS_TEXTURE, 256, 256, this::onPressZero)); // 0
-        addRenderableWidget(new ImageButton(leftPos + 80, topPos + 226, 18, 12, 221, 144, WIDGETS_TEXTURE, 256, 256, this::onPressPound)); // #
-        addRenderableWidget(new ImageButton(leftPos + 104, topPos + 224, 40, 12, 193, 64, WIDGETS_TEXTURE, 256, 256, this::onPressEnter)); // Enter
+        addRenderableWidget(new PressedButton(leftPos + 31, topPos + 169, 18, 12, 172, 5, WIDGETS_TEXTURE, 256, 256, this::onPressOne)); // 1
+        addRenderableWidget(new PressedButton(leftPos + 56, topPos + 169, 18, 12, 172, 75, WIDGETS_TEXTURE, 256, 256, this::onPressTwo)); // 2
+        addRenderableWidget(new PressedButton(leftPos + 80, topPos + 169, 18, 12, 171, 146, WIDGETS_TEXTURE, 256, 256, this::onPressThree)); // 3
+        addRenderableWidget(new PressedButton(leftPos + 31, topPos + 188, 18, 12, 172, 24, WIDGETS_TEXTURE, 256, 256, this::onPressFour)); // 4
+        addRenderableWidget(new PressedButton(leftPos + 56, topPos + 188, 18, 12, 172, 94, WIDGETS_TEXTURE, 256, 256, this::onPressFive)); // 5
+        addRenderableWidget(new PressedButton(leftPos + 80, topPos + 188, 18, 12, 221, 106, WIDGETS_TEXTURE, 256, 256, this::onPressSix)); // 6
+        addRenderableWidget(new PressedButton(leftPos + 31, topPos + 207, 18, 12, 172, 43, WIDGETS_TEXTURE, 256, 256, this::onPressSeven)); // 7
+        addRenderableWidget(new PressedButton(leftPos + 56, topPos + 207, 18, 12, 172, 113, WIDGETS_TEXTURE, 256, 256, this::onPressEight)); // 8
+        addRenderableWidget(new PressedButton(leftPos + 80, topPos + 207, 18, 12, 221, 125, WIDGETS_TEXTURE, 256, 256, this::onPressNine)); // 9
+        addRenderableWidget(new PressedButton(leftPos + 31, topPos + 226, 18, 12, 172, 62, WIDGETS_TEXTURE, 256, 256, this::onPressStar)); // *
+        addRenderableWidget(new PressedButton(leftPos + 56, topPos + 226, 18, 12, 172, 132, WIDGETS_TEXTURE, 256, 256, this::onPressZero)); // 0
+        addRenderableWidget(new PressedButton(leftPos + 80, topPos + 226, 18, 12, 221, 144, WIDGETS_TEXTURE, 256, 256, this::onPressPound)); // #
+        addRenderableWidget(new PressedButton(leftPos + 104, topPos + 224, 40, 12, 193, 64, WIDGETS_TEXTURE, 256, 256, this::onPressEnter)); // Enter
     }
 
     @Override
