@@ -36,7 +36,7 @@ public class SolarEventManager {
 	}
 
 	@SubscribeEvent
-	public static void tick(LevelTickEvent event) {
+	public static void tick(LevelTickEvent.Pre event) {
 		if(!event.getLevel().isClientSide) {
 			//if(event.phase == Phase.START) {
 				SolarEventInstance solarEvent = getEvent(event.getLevel());

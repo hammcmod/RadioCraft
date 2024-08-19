@@ -10,7 +10,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.*;
 
-@EventBusSubscriber(modid=Radiocraft.MOD_ID)
+@EventBusSubscriber(modid=Radiocraft.MOD_ID, bus = EventBusSubscriber.Bus.MOD)
 public class RadiocraftCapabilities {
 
 	public static BlockCapability<ICallsignCapability, Void> CALLSIGNS = BlockCapability.createVoid(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "callsigns"), ICallsignCapability.class);
