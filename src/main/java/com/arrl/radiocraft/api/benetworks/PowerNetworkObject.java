@@ -5,8 +5,7 @@ import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 
 /**
  * Base class representing a {@link BENetworkObject} which consumes power. Each BE should have its own implementation
@@ -15,7 +14,6 @@ import net.minecraftforge.energy.IEnergyStorage;
 public abstract class PowerNetworkObject extends BENetworkObject {
 
     protected BasicEnergyStorage energyStorage;
-    protected LazyOptional<IEnergyStorage> energyHandler = LazyOptional.of(() -> energyStorage);
 
     public PowerNetworkObject(Level level, BlockPos pos, int capacity, int maxReceive, int maxExtract) {
         super(level, pos);
@@ -24,10 +22,6 @@ public abstract class PowerNetworkObject extends BENetworkObject {
 
     public BasicEnergyStorage getStorage() {
         return energyStorage;
-    }
-
-    public LazyOptional<IEnergyStorage> getStorageOptional() {
-        return energyHandler;
     }
 
     /**

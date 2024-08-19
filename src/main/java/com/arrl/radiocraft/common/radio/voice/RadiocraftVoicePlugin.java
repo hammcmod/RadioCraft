@@ -15,7 +15,6 @@ import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.LazyOptional;
 
 import java.util.List;
 
@@ -51,18 +50,19 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 			if(encodedAudio.length == 0)
 				encodingData.reset();
 			else {
-				LazyOptional<IVHFHandheldCapability> optional = PlayerRadio.getHandheldCap(player);
 
-				optional.ifPresent(cap -> {
+				IVHFHandheldCapability cap = PlayerRadio.getHandheldCapOrNull(player);
+
+				if (cap != null) {
 					PlayerRadio playerRadio = PlayerRadioManager.get(player.getUUID());
 					if(playerRadio.canTransmitVoice())
 						playerRadio.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
-				});
+				}
 
 				double sqrRange = API.getBroadcastRange();
 				sqrRange *= sqrRange;
 
-				List<IVoiceTransmitter> listeners = VoiceTransmitters.LISTENERS.get(player.getLevel());
+				List<IVoiceTransmitter> listeners = VoiceTransmitters.LISTENERS.get(player.level());
 
 				for (IVoiceTransmitter listener : listeners) { // All radios in range of the sender will receive the packet
 					Vec3 pos = listener.getPos();

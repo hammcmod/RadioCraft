@@ -59,6 +59,9 @@ public class AntennaBlockEntity extends BlockEntity implements INetworkObjectPro
 		}
 	}
 
+	/*
+	TODO: Hmm.
+
 	@Override
 	protected void saveAdditional(CompoundTag nbt) {
 		super.saveAdditional(nbt);
@@ -70,6 +73,7 @@ public class AntennaBlockEntity extends BlockEntity implements INetworkObjectPro
 		super.load(nbt);
 		antennaCheckCooldown = nbt.getInt("checkCooldown");
 	}
+	*/
 
 	@Override
 	public void onLoad() {

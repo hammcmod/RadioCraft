@@ -1,21 +1,13 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
-import com.arrl.radiocraft.common.init.RadiocraftItems;
-import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
-import com.arrl.radiocraft.common.network.packets.serverbound.STogglePacket;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
 
 public class ChargeControllerScreen extends AbstractContainerScreen<ChargeControllerMenu> {
 
@@ -51,30 +43,31 @@ public class ChargeControllerScreen extends AbstractContainerScreen<ChargeContro
 	protected void init() {
 		super.init();
 		addRenderableWidget(new ToggleButton(menu.blockEntity.getPoweredOn(), leftPos + 138, topPos + 19, 27, 82, 0, 0, WIDGETS, 256, 256,
-				(button) -> RadiocraftPackets.sendToServer(new STogglePacket(menu.blockEntity.getBlockPos())))
+				(button) -> {})//RadiocraftPackets.sendToServer(new STogglePacket(menu.blockEntity.getBlockPos())))
 		);
 	}
 
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-		renderBackground(poseStack);
-		super.render(poseStack, mouseX, mouseY, partialTicks);
+	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
-		if(isHovering(GAUGE_X, GAUGE_Y, GAUGE_WIDTH, GAUGE_HEIGHT, mouseX, mouseY))
-			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.power"), menu.getPowerTick()), mouseX, mouseY);
+		/*
+		if(isHovering(GAUGE_X, GAUGE_Y, GAUGE_WIDTH, GAUGE_HEIGHT, pMouseX, pMouseY))
+			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.power"), menu.getPowerTick()), pMouseX, pMouseY);
 
-		if(isHovering(LIGHT_X, LIGHT_Y[0], LIGHT_SIZE, LIGHT_SIZE, mouseX, mouseY))
-			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.no_output")), mouseX, mouseY);
-		else if(isHovering(LIGHT_X, LIGHT_Y[1], LIGHT_SIZE, LIGHT_SIZE, mouseX, mouseY))
-			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.charging")), mouseX, mouseY);
-		else if(isHovering(LIGHT_X, LIGHT_Y[2], LIGHT_SIZE, LIGHT_SIZE, mouseX, mouseY))
-			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.output")), mouseX, mouseY);
+		if(isHovering(LIGHT_X, LIGHT_Y[0], LIGHT_SIZE, LIGHT_SIZE, pMouseX, pMouseY))
+			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.no_output")), pMouseX, pMouseY);
+		else if(isHovering(LIGHT_X, LIGHT_Y[1], LIGHT_SIZE, LIGHT_SIZE, pMouseX, pMouseY))
+			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.charging")), pMouseX, pMouseY);
+		else if(isHovering(LIGHT_X, LIGHT_Y[2], LIGHT_SIZE, LIGHT_SIZE, pMouseX, pMouseY))
+			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.output")), pMouseX, pMouseY);
 
-		this.renderTooltip(poseStack, mouseX, mouseY);
+		this.renderTooltip(poseStack, pMouseX, pMouseY);*/
 	}
 
 	@Override
-	protected void renderBg(PoseStack poseStack, float partialTicks, int x, int y) {
+	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+		/*
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.setShaderTexture(0, TEXTURE);
@@ -108,18 +101,13 @@ public class ChargeControllerScreen extends AbstractContainerScreen<ChargeContro
 
 				blit(poseStack, leftPos + 95, topPos + 27 + off, 176, v + off, COIL_WIDTH, height);
 			}
-		}
-
+		}*/
 	}
 
 	protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
 		mouseX -= leftPos;
 		mouseY -= topPos;
 		return mouseX >= (x - 1) && mouseX < (x + width + 1) && mouseY >= (y - 1) && mouseY < (y + height + 1);
-	}
-
-	@Override
-	protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY) {
 	}
 
 }

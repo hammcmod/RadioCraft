@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.common.capabilities;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.energy.EnergyStorage;
+import net.neoforged.neoforge.energy.EnergyStorage;
 
 public class BasicEnergyStorage extends EnergyStorage {
 

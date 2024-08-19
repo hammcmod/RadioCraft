@@ -2,7 +2,9 @@ package com.arrl.radiocraft.common.radio.antenna.types.data;
 
 import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import org.jetbrains.annotations.UnknownNullability;
 
 public class YagiAntennaData extends AntennaData {
 
@@ -17,15 +19,14 @@ public class YagiAntennaData extends AntennaData {
 	}
 
 	@Override
-	public CompoundTag serializeNBT() {
+	public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();
 		nbt.putInt("facing", facing.ordinal());
 		return nbt;
 	}
 
 	@Override
-	public void deserializeNBT(CompoundTag nbt) {
+	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
 		facing = Direction.values()[nbt.getInt("facing")];
 	}
-
 }

@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.menus.HFRadio20mMenu;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -31,7 +32,13 @@ public class HFRadio20mScreen extends HFRadioScreen<HFRadio20mMenu> {
 	}
 
 	@Override
-	protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+
+	}
+
+	@Override
+	protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		/*
 		if(menu.isPowered()) {
 			poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
 
@@ -40,11 +47,11 @@ public class HFRadio20mScreen extends HFRadioScreen<HFRadio20mMenu> {
 			font.draw(poseStack, String.format("%.3f", freqMhz) + "MHz", (leftPos + 85) / 1.5F, (topPos + 16) / 1.5F, 0xFFFFFF); // Divide the positions rendered at by 1.5F as the entire pose was scaled by 1.5F.
 
 			poseStack.popPose(); // Reset pose stack. Will cause a memory leak if you push without popping.
-		}
+		}*/
 	}
 
 	@Override
-	protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) {
+	protected void renderAdditionalBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 //		if(menu.blockEntity.isPowered()) {
 //			if(menu.blockEntity.isTransmitting())
 //				blit(poseStack, leftPos + 30, topPos + 15, 1, 148, 29, 15);
@@ -52,9 +59,6 @@ public class HFRadio20mScreen extends HFRadioScreen<HFRadio20mMenu> {
 //				blit(poseStack, leftPos + 59, topPos + 15, 30, 148, 29, 15);
 //		}
 	}
-
-	@Override
-	protected void renderLabels(PoseStack poseStack, int x, int y) {}
 
 	protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
 		mouseX -= leftPos;

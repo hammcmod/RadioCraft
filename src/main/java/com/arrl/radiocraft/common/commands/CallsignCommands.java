@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.common.commands;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
+import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -15,6 +15,16 @@ import net.minecraft.network.chat.ComponentUtils;
 import java.util.Collection;
 
 public class CallsignCommands {
+
+	/*
+
+	TODO: Refactor this to not use the capabilities system for this
+
+	I don't know why we would use a capability on an entity to track the user's callsign.
+	What would make more sense is if we correlated callsigns to player names and stored them in the save file.
+	Doing this with capabilities is more designed around being able to set the capability on a block/item eg. a radio.
+
+
 
 	public static final LiteralArgumentBuilder<CommandSourceStack> BUILDER =
 			Commands.literal("callsign").executes(command -> getCallsign(command.getSource(), null))
@@ -40,6 +50,7 @@ public class CallsignCommands {
 		}
 
 		final GameProfile targetProfile = getTarget(source, gameProfiles);
+
 		source.getLevel().getServer().overworld().getCapability(RadiocraftCapabilities.CALLSIGNS).ifPresent(cap -> {
 			String callsign = cap.getCallsign(targetProfile.getId());
 			if(callsign != null)
@@ -86,5 +97,6 @@ public class CallsignCommands {
 				source.getPlayerOrException().getGameProfile() :
 				gameProfiles.stream().findFirst().get();
 	}
+	 */
 
 }

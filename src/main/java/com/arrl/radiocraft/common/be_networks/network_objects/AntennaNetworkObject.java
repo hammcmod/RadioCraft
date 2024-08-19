@@ -142,7 +142,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         super.save(nbt);
         if(antenna != null) {
             nbt.putString("antennaType", antenna.type.getId().toString());
-            nbt.put("antennaData", antenna.serializeNBT());
+            nbt.put("antennaData", antenna.serializeNBT(null));
         }
         nbt.putString("networkId", networkId.toString());
     }
@@ -151,13 +151,13 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
     public void load(IBENetworks cap, CompoundTag nbt) {
         super.load(cap, nbt);
         if(nbt.contains("antennaType")) {
-            IAntennaType<?> type = AntennaTypes.getType(new ResourceLocation(nbt.getString("antennaType")));
+            IAntennaType<?> type = AntennaTypes.getType(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, nbt.getString("antennaType")));
             if(type != null) {
                 antenna = new StaticAntenna<>(type, pos);
-                antenna.deserializeNBT(nbt.getCompound("antennaData"));
+                antenna.deserializeNBT(null, nbt.getCompound("antennaData"));
             }
         }
-        networkId = new ResourceLocation(nbt.getString("networkId"));
+        networkId = ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, nbt.getString("networkId"));
     }
 
     @Override

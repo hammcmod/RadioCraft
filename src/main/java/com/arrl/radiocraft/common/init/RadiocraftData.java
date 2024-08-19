@@ -3,12 +3,11 @@ package com.arrl.radiocraft.common.init;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.radio.BandReloadListener;
 import com.arrl.radiocraft.common.radio.solar.SolarEventReloadListener;
-import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 
-@Mod.EventBusSubscriber(modid=Radiocraft.MOD_ID, bus=Bus.FORGE)
+@EventBusSubscriber(modid = Radiocraft.MOD_ID)
 public class RadiocraftData {
 
 	public static final SolarEventReloadListener SOLAR_EVENTS = new SolarEventReloadListener("solar_events");

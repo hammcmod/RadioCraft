@@ -1,8 +1,10 @@
 package com.arrl.radiocraft.common.capabilities;
 
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.UnknownNullability;
 
 public class VHFHandheldCapability implements IVHFHandheldCapability {
 
@@ -52,9 +54,9 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 	}
 
 	@Override
-	public CompoundTag serializeNBT() {
+	public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();
-		nbt.put("inventory", heldItem.save(new CompoundTag()));
+		nbt.put("inventory", heldItem.save(provider));
 		nbt.putBoolean("isPowered", isPowered);
 		nbt.putInt("frequency", frequency);
 		nbt.putBoolean("isPTTDown", isPTTDown);
@@ -62,11 +64,10 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 	}
 
 	@Override
-	public void deserializeNBT(CompoundTag nbt) {
-		heldItem = ItemStack.of(nbt.getCompound("inventory"));
+	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+		heldItem = ItemStack.parseOptional(provider, nbt.getCompound("inventory"));
 		isPowered = nbt.getBoolean("isPowered");
 		frequency = nbt.getInt("frequency");
 		isPTTDown = nbt.getBoolean("isPTTDown");
 	}
-
 }

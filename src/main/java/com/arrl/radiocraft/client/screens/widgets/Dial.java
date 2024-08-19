@@ -3,6 +3,7 @@ package com.arrl.radiocraft.client.screens.widgets;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
@@ -38,7 +39,24 @@ public class Dial extends AbstractWidget {
 	}
 
 	@Override
-	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		if(isMouseDown) {
+			double xMouseDiff = pMouseX - xMouseLast;
+
+			if(xMouseDiff > 10) {
+				onValueUp.execute(this);
+				xMouseLast = pMouseX;
+				isRotated = !isRotated;
+				Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HAT, 1.0F));
+			}
+			else if(xMouseDiff < -10) {
+				onValueDown.execute(this);
+				xMouseLast = pMouseX;
+				isRotated = !isRotated;
+				Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HAT, 1.0F));
+			}
+		}
+
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, this.resourceLocation);
 
@@ -46,29 +64,7 @@ public class Dial extends AbstractWidget {
 		int yBlit = !isRotated ? v : v + height;
 
 		RenderSystem.enableDepthTest();
-		blit(poseStack, this.getX(), this.getY(), xBlit, yBlit, width, height, textureWidth, textureHeight);
-	}
-
-	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-		super.render(poseStack, mouseX, mouseY, partialTick);
-
-		if(isMouseDown) {
-			double xMouseDiff = mouseX - xMouseLast;
-
-			if(xMouseDiff > 10) {
-				onValueUp.execute(this);
-				xMouseLast = mouseX;
-				isRotated = !isRotated;
-				Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HAT, 1.0F));
-			}
-			else if(xMouseDiff < -10) {
-				onValueDown.execute(this);
-				xMouseLast = mouseX;
-				isRotated = !isRotated;
-				Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HAT, 1.0F));
-			}
-		}
+		pGuiGraphics.blit(this.resourceLocation, this.getX(), this.getY(), xBlit, yBlit, width, height, textureWidth, textureHeight);
 	}
 
 	@Override

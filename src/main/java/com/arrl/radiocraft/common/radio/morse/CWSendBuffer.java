@@ -1,7 +1,5 @@
 package com.arrl.radiocraft.common.radio.morse;
 
-import com.arrl.radiocraft.common.init.RadiocraftPackets;
-import com.arrl.radiocraft.common.network.packets.CWBufferPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
@@ -32,15 +30,15 @@ public class CWSendBuffer {
 
 			if(currentIndex == partialBuffer.length) {
 				currentIndex = 0;
-				RadiocraftPackets.sendToServer(new CWBufferPacket(dimension, pos, List.of(new CWBuffer(currentId++, partialBuffer)), 1.0F));
+				//RadiocraftPackets.sendToServer(new CWBufferPacket(dimension, pos, List.of(new CWBuffer(currentId++, partialBuffer)), 1.0F));
 			}
 		}
 		else {
 			if(currentIndex != 0) {
-				RadiocraftPackets.sendToServer(new CWBufferPacket(dimension, pos, Arrays.asList(
+				/*RadiocraftPackets.sendToServer(new CWBufferPacket(dimension, pos, Arrays.asList(
 						new CWBuffer(currentId++, partialBuffer),
 						new CWBuffer(currentId++, new boolean[CWBuffer.BUFFER_LENGTH])
-				), 1.0F));
+				), 1.0F));*/
 				currentIndex = 0;
 			}
 		}

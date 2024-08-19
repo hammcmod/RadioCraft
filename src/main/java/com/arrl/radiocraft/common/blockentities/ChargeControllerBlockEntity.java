@@ -1,6 +1,5 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.common.be_networks.network_objects.ChargeControllerNetworkObject;
@@ -9,7 +8,6 @@ import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,18 +18,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandlerModifiable;
-import net.minecraftforge.items.ItemStackHandler;
-import org.jetbrains.annotations.NotNull;
+import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
 public class ChargeControllerBlockEntity extends BlockEntity implements ITogglableBE, INetworkObjectProvider, MenuProvider {
 
 	public final ItemStackHandler inventory = new ItemStackHandler(1);
-	private final LazyOptional<IItemHandlerModifiable> inventoryHandler = LazyOptional.of(() -> inventory);
 
 	// Using a ContainerData for one value is awkward, but it changes constantly and needs to be synchronised.
 	private final ContainerData fields = new ContainerData() {
@@ -62,6 +54,11 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 			if(!level.isClientSide && be.getPoweredOn()) { // Serverside only
 				if(be.inventory.getStackInSlot(0).getItem() == RadiocraftItems.SMALL_BATTERY.get()) {
 					ItemStack battery = be.inventory.getStackInSlot(0);
+
+					/*
+
+					TODO: Fix battery mechanics
+
 					CompoundTag nbt = battery.getOrCreateTag();
 
 					if(!nbt.contains("charge"))
@@ -71,7 +68,7 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 					if(charge < CommonConfig.SMALL_BATTERY_CAPACITY.get() && be.getNetworkObject(level, pos) instanceof ChargeControllerNetworkObject networkObject) {
 						int toPush = Math.min(CommonConfig.CHARGE_CONTROLLER_BATTERY_CHARGE.get(), Math.min(networkObject.getStorage().getEnergyStored(), CommonConfig.SMALL_BATTERY_CAPACITY.get() - charge));
 						nbt.putInt("charge", charge + toPush);
-					}
+					}*/
 				} // Battery charging is handled here as the ItemStack doesn't exist when the BE isn't loaded.
 			}
 		}
@@ -107,6 +104,10 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 		return new ChargeControllerMenu(id, playerInventory, this, fields);
 	}
 
+
+	/*
+	TODO: IDK what this ever did. Review and fix or remove.
+
 	@Override
 	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
 		return cap == ForgeCapabilities.ITEM_HANDLER ? inventoryHandler.cast() : super.getCapability(cap);
@@ -130,6 +131,8 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 			inventoryHandler.invalidate();
 		super.setRemoved();
 	}
+
+	 */
 
 	@Override
 	public BENetworkObject createNetworkObject() {

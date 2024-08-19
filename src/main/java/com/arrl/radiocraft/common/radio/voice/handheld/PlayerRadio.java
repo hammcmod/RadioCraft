@@ -4,7 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
-import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
+import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.IVoiceReceiver;
@@ -19,7 +19,6 @@ import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.LazyOptional;
 
 import java.lang.ref.WeakReference;
 import java.util.Collection;
@@ -54,7 +53,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             receiveChannel.updateEntity(RadiocraftVoicePlugin.API.fromEntity(player));
 
         if(player != null)
-            setNetwork(AntennaNetworkManager.getNetwork(player.getLevel(), AntennaNetworkManager.VHF_ID)); // Always swap to a new network in case it was a dimension change.
+            setNetwork(AntennaNetworkManager.getNetwork(player.level(), AntennaNetworkManager.VHF_ID)); // Always swap to a new network in case it was a dimension change.
         else if(network != null) {
             network.removeAntenna(this);
             network = null;
@@ -64,21 +63,16 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     /**
      * Attempt to find a valid VHF handheld on the given player.
      * @param player The player to be checked.
-     * @return A {@link LazyOptional} containing the {@link IVHFHandheldCapability} of the found radio, or empty if none
+     * @return A {@link IVHFHandheldCapability} of the found radio, or empty if none
      * were found.
      */
-    public static LazyOptional<IVHFHandheldCapability> getHandheldCap(Player player) {
-        if(player.getMainHandItem().getItem() == RadiocraftItems.VHF_HANDHELD.get())
-            return player.getMainHandItem().getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
-        else if(player.getOffhandItem().getItem() == RadiocraftItems.VHF_HANDHELD.get())
-            return player.getOffhandItem().getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
-
-        return LazyOptional.empty();
-    }
-
     public static IVHFHandheldCapability getHandheldCapOrNull(Player player) {
-        LazyOptional<IVHFHandheldCapability> optional = getHandheldCap(player);
-        return optional.orElse(null);
+        if (player.getMainHandItem().getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
+            return RadiocraftCapabilities.VHF_HANDHELDS.getCapability(player.getMainHandItem().copy(), null);
+        } else if (player.getOffhandItem().getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
+            return RadiocraftCapabilities.VHF_HANDHELDS.getCapability(player.getOffhandItem().copy(), null);
+        }
+        return null;
     }
 
     @Override

@@ -1,11 +1,14 @@
 package com.arrl.radiocraft.mixin;
 
 import com.arrl.radiocraft.client.RadiocraftClientValues;
-import de.maxhenkel.voicechat.voice.client.PTTKeyHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+/*
+
+TODO: Not sure why we needed a mixin for this. I think that there may be better ways to handle this.
 
 @Mixin(PTTKeyHandler.class)
 public class MixinPTTKeyHandler {
@@ -23,3 +26,4 @@ public class MixinPTTKeyHandler {
 	}
 
 }
+*/

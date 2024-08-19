@@ -2,24 +2,18 @@ package com.arrl.radiocraft.client.screens.radios;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
-import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ImageButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
-import com.arrl.radiocraft.common.init.RadiocraftPackets;
-import com.arrl.radiocraft.common.network.packets.serverbound.SHandheldFrequencyPacket;
-import com.arrl.radiocraft.common.network.packets.serverbound.SHandheldPTTPacket;
-import com.arrl.radiocraft.common.network.packets.serverbound.SHandheldPowerPacket;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -42,7 +36,7 @@ public class VHFHandheldScreen extends Screen {
         super(Component.translatable(Radiocraft.translationKey("screen", "vhf_handheld")));
         this.index = index;
         this.item = Minecraft.getInstance().player.getInventory().getItem(index);
-        this.cap = item.getCapability(RadiocraftCapabilities.VHF_HANDHELDS).orElse(null);
+        this.cap = item.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
 
         if(this.cap == null) // IntelliJ is lying, this is not always true.
             onClose();
@@ -64,6 +58,7 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(new ImageButton(leftPos + 126, topPos + 168, 18, 14, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
     }
 
+    /*
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
         renderBackground(poseStack);
@@ -83,6 +78,11 @@ public class VHFHandheldScreen extends Screen {
         }
 
         super.render(poseStack, mouseX, mouseY, partialTicks);
+    }*/
+
+    @Override
+    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
     }
 
     public static void open(int index) {
@@ -130,23 +130,23 @@ public class VHFHandheldScreen extends Screen {
      * Callback for frequency up buttons.
      */
     protected void onFrequencyButtonUp(Button button) {
-        if(cap.isPowered())
-            RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, 1)); // Frequency is sync'd back from server as client doesn't know steps.
+        if(cap.isPowered());
+            //RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, 1)); // Frequency is sync'd back from server as client doesn't know steps.
     }
 
     /**
      * Callback for frequency down buttons.
      */
     protected void onFrequencyButtonDown(Button button) {
-        if(cap.isPowered())
-            RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, -1)); // Frequency is sync'd back from server as client doesn't know steps.
+        if(cap.isPowered());
+            //RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, -1)); // Frequency is sync'd back from server as client doesn't know steps.
     }
 
     /**
      * Callback for pressing a PTT button.
      */
     protected void onPressPTT(HoldButton button) {
-        RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, true));
+        //RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, true));
         cap.setPTTDown(true);
         RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
     }
@@ -155,7 +155,7 @@ public class VHFHandheldScreen extends Screen {
      * Callback for releasing a PTT button.
      */
     protected void onReleasePTT(HoldButton button) {
-        RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, false));
+        //RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, false));
         cap.setPTTDown(false);
         RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
     }
@@ -164,7 +164,7 @@ public class VHFHandheldScreen extends Screen {
      * Callback to toggle power on a device.
      */
     protected void onPressPower(ToggleButton button) {
-        RadiocraftPackets.sendToServer(new SHandheldPowerPacket(index, !cap.isPowered()));
+        //RadiocraftPackets.sendToServer(new SHandheldPowerPacket(index, !cap.isPowered()));
         cap.setPowered(!cap.isPowered());
     }
 

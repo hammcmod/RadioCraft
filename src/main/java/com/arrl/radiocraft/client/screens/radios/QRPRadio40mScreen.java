@@ -10,6 +10,7 @@ import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.menus.QRPRadio40mMenu;
 import com.arrl.radiocraft.common.radio.Band;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -35,14 +36,19 @@ public class QRPRadio40mScreen extends HFRadioScreen<QRPRadio40mMenu> {
 
     }
 
+    @Override
+    protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+
+    }
+
 
     @Override
-    protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+    protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 
     }
 
     @Override
-    protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) {
+    protected void renderAdditionalBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         int freq = menu.getFrequency();
 
         Band band = RadiocraftData.BANDS.getValue(menu.getWavelength());
@@ -52,13 +58,11 @@ public class QRPRadio40mScreen extends HFRadioScreen<QRPRadio40mMenu> {
 
         if(menu.isPowered()) {
             if(freq >= max || freq <= min) {
-                blit(poseStack, leftPos + 92, topPos + 63, 1, 162, 13, 13);
+                //blit(poseStack, leftPos + 92, topPos + 63, 1, 162, 13, 13);
             }
         }
     }
 
-    @Override
-    protected void renderLabels(PoseStack poseStack, int x, int y) {}
 
     protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
         mouseX -= leftPos;

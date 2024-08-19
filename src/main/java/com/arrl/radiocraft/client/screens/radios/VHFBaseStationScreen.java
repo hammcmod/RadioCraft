@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.menus.VHFBaseStationMenu;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -29,7 +30,13 @@ public class VHFBaseStationScreen extends VHFRadioScreen<VHFBaseStationMenu> {
 	}
 
 	@Override
-	protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+
+	}
+
+	@Override
+	protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		/*
 		if(menu.isPowered()) {
 			poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
 
@@ -37,15 +44,13 @@ public class VHFBaseStationScreen extends VHFRadioScreen<VHFBaseStationMenu> {
 			font.draw(poseStack, String.format("%.3f", freqMhz) + "MHz", (leftPos + 46), (topPos + 18), 0xFFFFFF); // Divide the positions rendered at by 1.5F as the entire pose was scaled by 1.5F.
 
 			poseStack.popPose(); // Reset pose stack. Will cause a memory leak if you push without popping.
-		}
+		}*/
 	}
 
 	@Override
-	protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) {
+	protected void renderAdditionalBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 	}
 
-	@Override
-	protected void renderLabels(PoseStack poseStack, int x, int y) {}
 
 	protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
 		mouseX -= leftPos;

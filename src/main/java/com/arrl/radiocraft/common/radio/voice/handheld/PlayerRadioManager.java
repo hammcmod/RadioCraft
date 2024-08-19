@@ -2,15 +2,14 @@ package com.arrl.radiocraft.common.radio.voice.handheld;
 
 import com.arrl.radiocraft.Radiocraft;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.entity.player.PlayerEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 
 import java.util.HashMap;
 import java.util.UUID;
 
-@EventBusSubscriber(modid=Radiocraft.MOD_ID, bus=Bus.FORGE)
+@EventBusSubscriber(modid=Radiocraft.MOD_ID)
 public class PlayerRadioManager {
 
     private static final HashMap<UUID, PlayerRadio> playerRadios = new HashMap<>();

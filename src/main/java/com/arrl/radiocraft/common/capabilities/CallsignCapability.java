@@ -1,7 +1,9 @@
 package com.arrl.radiocraft.common.capabilities;
 
 import com.arrl.radiocraft.api.capabilities.ICallsignCapability;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -27,22 +29,21 @@ public class CallsignCapability implements ICallsignCapability {
 	}
 
 	@Override
-	public CompoundTag serializeNBT() {
+	public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();
 
-		for(UUID uuid : callsigns.keySet())
+		for (UUID uuid : callsigns.keySet())
 			nbt.putUUID(callsigns.get(uuid), uuid); // Saving them backwards as NBT can't use UUID as the key.
 
 		return nbt;
 	}
 
 	@Override
-	public void deserializeNBT(CompoundTag nbt) {
+	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
 		callsigns.clear();
 
-		for(String callsign : nbt.getAllKeys()) {
+		for (String callsign: nbt.getAllKeys()) {
 			callsigns.put(nbt.getUUID(callsign), callsign);
 		}
 	}
-
 }

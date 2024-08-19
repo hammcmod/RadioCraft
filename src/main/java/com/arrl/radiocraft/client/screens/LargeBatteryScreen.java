@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.menus.LargeBatteryMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -23,6 +24,12 @@ public class LargeBatteryScreen extends AbstractContainerScreen<LargeBatteryMenu
 		this.imageHeight = 122;
 	}
 
+	@Override
+	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+
+	}
+
+	/*
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
 		renderBackground(poseStack);
@@ -54,6 +61,6 @@ public class LargeBatteryScreen extends AbstractContainerScreen<LargeBatteryMenu
 		this.font.draw(poseStack, powerString, xPos / scale, yPos / scale, 0xFFFFFF);
 
 		poseStack.popPose();
-	}
+	}*/
 
 }

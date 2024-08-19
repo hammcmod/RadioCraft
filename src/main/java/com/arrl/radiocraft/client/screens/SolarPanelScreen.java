@@ -5,6 +5,7 @@ import com.arrl.radiocraft.common.menus.SolarPanelMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -24,6 +25,12 @@ public class SolarPanelScreen extends AbstractContainerScreen<SolarPanelMenu> {
 		this.imageHeight = 88;
 	}
 
+	@Override
+	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+
+	}
+
+	/*
 	@Override
 	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
 		renderBackground(poseStack);
@@ -47,6 +54,6 @@ public class SolarPanelScreen extends AbstractContainerScreen<SolarPanelMenu> {
 		int xOffset = this.font.width(powerString) / 2;
 		int yOffset = this.font.lineHeight / 2;
 		this.font.draw(matrixStack, powerString, (float)this.imageWidth / 2 - xOffset, (float)this.imageHeight / 2 - yOffset, ChatFormatting.DARK_GRAY.getColor());
-	}
+	}*/
 
 }

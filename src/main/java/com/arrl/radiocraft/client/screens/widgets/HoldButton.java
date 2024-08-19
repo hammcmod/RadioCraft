@@ -2,6 +2,7 @@ package com.arrl.radiocraft.client.screens.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.renderer.GameRenderer;
@@ -32,7 +33,12 @@ public class HoldButton extends AbstractWidget {
 	}
 
 	@Override
-	public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		if(isPressed) {
+			if(!clicked(pMouseX, pMouseY))
+				onRelease(pMouseX, pMouseY);
+		}
+
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, this.resourceLocation);
 
@@ -40,16 +46,7 @@ public class HoldButton extends AbstractWidget {
 		int yBlit = !isPressed ? v : v + height;
 
 		RenderSystem.enableDepthTest();
-		blit(poseStack, this.getX(), this.getY(), xBlit, yBlit, width, height, textureWidth, textureHeight);
-	}
-
-	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
-		super.render(poseStack, mouseX, mouseY, partialTick);
-		if(isPressed) {
-			if(!clicked(mouseX, mouseY))
-				onRelease(mouseX, mouseY);
-		}
+		pGuiGraphics.blit(this.resourceLocation, this.getX(), this.getY(), xBlit, yBlit, width, height, textureWidth, textureHeight);
 	}
 
 	@Override

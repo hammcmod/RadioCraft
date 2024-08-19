@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.common.items;
 
 import com.arrl.radiocraft.api.capabilities.IAntennaWireHolderCapability;
-import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
+import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftTags.Blocks;
 import net.minecraft.core.BlockPos;
@@ -14,7 +14,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraftforge.common.util.LazyOptional;
 
 public class AntennaWireItem extends Item {
 
@@ -36,15 +35,15 @@ public class AntennaWireItem extends Item {
 
             if (!level.isClientSide && player != null) {
 
-                LazyOptional<IAntennaWireHolderCapability> capOptional = player.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS);
+                IAntennaWireHolderCapability cap = RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS.getCapability(player, null);
 
-                capOptional.ifPresent((cap) -> {
+                if (cap != null) {
                     BlockPos heldPos = cap.getHeldPos();
 
                     if(heldPos == null) {
                         AntennaWire entity = AntennaWire.createWire(level, pos, player);
                         entity.playSound(SoundEvents.LEASH_KNOT_PLACE, 1.0F, 1.0F);
-                        player.level.playSound(null, entity.blockPosition(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                        player.level().playSound(null, entity.blockPosition(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
 
                         cap.setHeldPos(pos);
                     }
@@ -55,14 +54,14 @@ public class AntennaWireItem extends Item {
                             if(entity != null) {
                                 entity.setEndPos(pos);
                                 entity.setHolder(null);
-                                player.level.playSound(null, entity.getEndPos(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
+                                player.level().playSound(null, entity.getEndPos(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
                                 entity.updateAntennas();
                             }
 
                             cap.setHeldPos(null);
                         }
                     }
-                });
+                }
 
                 return InteractionResult.SUCCESS;
             }

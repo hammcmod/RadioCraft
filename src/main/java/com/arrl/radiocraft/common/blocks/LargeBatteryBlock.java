@@ -1,8 +1,10 @@
 package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -17,6 +19,11 @@ public class LargeBatteryBlock extends AbstractPowerNetworkBlock {
 
 	public LargeBatteryBlock(Properties properties) {
 		super(properties);
+	}
+
+	@Override
+	protected MapCodec<? extends BaseEntityBlock> codec() {
+		return null;
 	}
 
 	@Nullable

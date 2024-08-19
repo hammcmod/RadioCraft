@@ -82,14 +82,14 @@ public class DoubleVHFAntennaBlock extends VHFAntennaCenterBlock {
     }
 
     @Override
-    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (!level.isClientSide) {
             if (player.isCreative())
                 preventCreativeDropFromBottomPart(level, pos, state, player);
             else
                 dropResources(state, level, pos, null, player, player.getMainHandItem());
         }
-        super.playerWillDestroy(level, pos, state, player);
+        return super.playerWillDestroy(level, pos, state, player);
     }
 
     protected static void preventCreativeDropFromBottomPart(Level level, BlockPos pos, BlockState state, Player player) {

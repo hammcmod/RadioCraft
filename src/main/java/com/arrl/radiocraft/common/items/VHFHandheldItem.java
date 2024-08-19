@@ -1,12 +1,9 @@
 package com.arrl.radiocraft.common.items;
 
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
-import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.client.screens.radios.VHFHandheldScreen;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
-import com.arrl.radiocraft.common.init.RadiocraftPackets;
-import com.arrl.radiocraft.common.network.packets.clientbound.CHandheldPowerPacket;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -15,7 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.util.LazyOptional;
+
+import static com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities.VHF_HANDHELDS;
 
 public class VHFHandheldItem extends Item {
 
@@ -36,12 +34,13 @@ public class VHFHandheldItem extends Item {
                 ItemStack mainItem = player.getItemInHand(InteractionHand.MAIN_HAND);
 
                 if(player.isCrouching() && (mainItem.getItem() == RadiocraftItems.SMALL_BATTERY.get() || mainItem.isEmpty())) { // Shift use with battery or air in main hand = swap batteries.
-                    LazyOptional<IVHFHandheldCapability> optional = item.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
 
-                    optional.ifPresent(cap -> {
+                    IVHFHandheldCapability cap = VHF_HANDHELDS.getCapability(item, null);
+
+                    if (cap != null) {
                         player.setItemInHand(InteractionHand.MAIN_HAND, cap.getItem());
                         cap.setItem(mainItem);
-                    });
+                    }
                 }
 
             }
@@ -53,9 +52,24 @@ public class VHFHandheldItem extends Item {
     @Override
     public void inventoryTick(ItemStack item, Level level, Entity entity, int slot, boolean isSelected) {
         if(!level.isClientSide() && entity instanceof ServerPlayer player) {
-            LazyOptional<IVHFHandheldCapability> optional = item.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
-            optional.ifPresent(cap -> {
-                if(cap.isPowered()) {
+
+            IVHFHandheldCapability cap = VHF_HANDHELDS.getCapability(item, null);
+
+            if (cap != null) {
+                if (cap.isPowered()) {
+                    entity.sendSystemMessage(Component.literal("Would consume power for device " + cap.getItem() + " on player " + entity.getDisplayName()));
+                    /*
+                    TODO: Consume power on the item when held.
+
+                    https://neoforged.net/news/20.5release/
+
+                     this needs to use DataComponentType and instead of cap.getItem().getOrCreateTag(); you need to use
+
+                     + DataComponentType<Integer> ENERGY = ...;
+
+                    - int energy = stack.getOrCreateTag().getInt("energy");
+                    + int energy = stack.getOrDefault(ENERGY, 0);
+
                     CompoundTag nbt = cap.getItem().getOrCreateTag();
                     if(!nbt.contains("charge"))
                         nbt.putInt("charge", 0);
@@ -70,8 +84,9 @@ public class VHFHandheldItem extends Item {
                         cap.setPowered(false);
                         RadiocraftPackets.sendToPlayer(new CHandheldPowerPacket(slot, false), player);
                     }
+                     */
                 }
-            });
+            }
         }
     }
 }
