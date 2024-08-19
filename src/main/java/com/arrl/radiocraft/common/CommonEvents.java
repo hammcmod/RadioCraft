@@ -13,7 +13,7 @@ public class CommonEvents {
     public static void onLevelTick(LevelTickEvent.Pre event) {
         if (event.getLevel().isClientSide) {
         //if(!event.level.isClientSide && event.phase == Phase.START) {
-            IBENetworks.get(event.getLevel()).tickNetworkObjects(event.getLevel());
+            //IBENetworks.get(event.getLevel()).tickNetworkObjects(event.getLevel());
         }
     }
 
