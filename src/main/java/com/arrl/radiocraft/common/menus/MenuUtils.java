@@ -11,7 +11,7 @@ public class MenuUtils {
 	 */
 	@SuppressWarnings("unchecked")
 	public static <C extends BlockEntity> C getBlockEntity(Inventory playerInventory, FriendlyByteBuf data, Class<C> clazz) {
-		BlockEntity be = playerInventory.player.level.getBlockEntity(data.readBlockPos());
+		BlockEntity be = playerInventory.player.level().getBlockEntity(data.readBlockPos());
 
 		if(be != null && be.getClass() != clazz)
 			throw new IllegalStateException("BlockEntity at " + data.readBlockPos() + " is not the correct type");

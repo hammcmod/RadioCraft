@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.items;
 
 import com.arrl.radiocraft.CommonConfig;
+import com.arrl.radiocraft.common.DataComponent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
@@ -19,16 +20,15 @@ public class SmallBatteryItem extends Item {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        CompoundTag nbt = stack.getOrCreateTag();
-        int charge = nbt.contains("charge") ? nbt.getInt("charge") : 0;
-
+        DataComponent.EnergyRecord record = (DataComponent.EnergyRecord) stack.getComponents().getOrDefault(DataComponent.ENERGY_DATA_COMPONENT.get(), 0.0);
+        int charge = (int) record.energy();
         return Math.round(charge * 13.0F / CommonConfig.SMALL_BATTERY_CAPACITY.get());
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        CompoundTag nbt = stack.getOrCreateTag();
-        int charge = nbt.contains("charge") ? nbt.getInt("charge") : 0;
+        DataComponent.EnergyRecord record = (DataComponent.EnergyRecord) stack.getComponents().getOrDefault(DataComponent.ENERGY_DATA_COMPONENT.get(), 0.0);
+        int charge = (int) record.energy();
         float capacity = CommonConfig.SMALL_BATTERY_CAPACITY.get();
 
         float f = Math.max(0.0F, charge / capacity);

@@ -250,6 +250,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      */
     protected void setupSoundInstances() {}
 
+    /*
     @Override
     protected void saveAdditional(CompoundTag nbt) {
         super.saveAdditional(nbt);
@@ -264,6 +265,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % RadiocraftServerConfig.HF_FREQUENCY_STEP.get() != 0)
             frequency = band.minFrequency(); // Reset frequency if the saved one was either out of bands or not aligned to the correct step size.
     }
+
+     */
 
     @Override
     public void onLoad() {
@@ -298,6 +301,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    /*
     @Override
     public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
         CompoundTag nbt = pkt.getTag();
@@ -315,7 +319,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void handleUpdateTag(CompoundTag nbt) {
         readSaveTag(nbt);
     }
-
+*/
     public ContainerData getDataSlots() {
         if(level.isClientSide)
             return new SimpleContainerData(1);

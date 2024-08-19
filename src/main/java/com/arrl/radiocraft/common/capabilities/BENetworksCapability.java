@@ -1,16 +1,19 @@
 package com.arrl.radiocraft.common.capabilities;
 
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.BENetworkRegistry;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -21,11 +24,8 @@ public class BENetworksCapability implements IBENetworks {
 
     private final Map<BlockPos, BENetworkObject> networkObjects = new HashMap<>();
     private final Map<UUID, BENetwork> networks = new HashMap<>();
-    private final Level level; // This is terrible code with a circular ref, but it shouldn't matter.
 
-    public BENetworksCapability(Level level) {
-        this.level = level;
-    }
+    public BENetworksCapability() {}
 
     @Override
     public BENetworkObject getObject(@NotNull BlockPos pos) {
@@ -67,7 +67,7 @@ public class BENetworksCapability implements IBENetworks {
     }
 
     @Override
-    public CompoundTag serializeNBT() {
+    public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
         CompoundTag nbt = new CompoundTag();
 
         CompoundTag networks = new CompoundTag();
@@ -92,19 +92,18 @@ public class BENetworksCapability implements IBENetworks {
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) {
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
         CompoundTag networksTag = nbt.getCompound("networks");
         for(String key : networksTag.getAllKeys()) { // Make sure to load the networks themselves first.
             UUID uuid = UUID.fromString(key);
-            BENetworkRegistry.createNetwork(new ResourceLocation(networksTag.getString(key)), uuid, level);
+            //BENetworkRegistry.createNetwork(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, networksTag.getString(key)), uuid, level);
         }
 
         ListTag objectsTag = nbt.getList("networkObjects", ListTag.TAG_COMPOUND);
         for(Tag t : objectsTag) {
             CompoundTag obj = (CompoundTag)t;
-            BENetworkObject networkObject = BENetworkRegistry.createObject(new ResourceLocation(obj.getString("type")), level, BlockPos.of(obj.getLong("pos")));
-            networkObject.load(this, obj);
+            //BENetworkObject networkObject = BENetworkRegistry.createObject(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, obj.getString("type")), level, BlockPos.of(obj.getLong("pos")));
+            //networkObject.load(this, obj);
         }
     }
-
 }

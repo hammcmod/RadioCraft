@@ -5,13 +5,17 @@ import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObje
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
+import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -29,17 +33,37 @@ public class AntennaCenterBlock extends AbstractNetworkBlock {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		if(!level.isClientSide && hand == InteractionHand.MAIN_HAND) {
-			if(IBENetworks.getObject(level, pos) instanceof AntennaNetworkObject networkObject) {
+	protected MapCodec<? extends BaseEntityBlock> codec() {
+		return null;
+	}
+
+	@Override
+	protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+		if(!pLevel.isClientSide) {
+			if(IBENetworks.getObject(pLevel, pPos) instanceof AntennaNetworkObject networkObject) {
 				StaticAntenna<?> antenna = networkObject.getAntenna();
 				if(antenna != null)
-					player.displayClientMessage(Component.literal(antenna.type.toString()).withStyle(ChatFormatting.GREEN), false);
+					pPlayer.displayClientMessage(Component.literal(antenna.type.toString()).withStyle(ChatFormatting.GREEN), false);
 				else
-					player.displayClientMessage(Component.literal("No valid antenna found.").withStyle(ChatFormatting.RED), false);
+					pPlayer.displayClientMessage(Component.literal("No valid antenna found.").withStyle(ChatFormatting.RED), false);
 			}
 		}
-		return super.use(state, level, pos, player, hand, hit);
+		return super.useWithoutItem(pState, pLevel, pPos, pPlayer, pHitResult);
+	}
+
+
+	@Override
+	protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
+		if(!pLevel.isClientSide) {
+			if(IBENetworks.getObject(pLevel, pPos) instanceof AntennaNetworkObject networkObject) {
+				StaticAntenna<?> antenna = networkObject.getAntenna();
+				if(antenna != null)
+					pPlayer.displayClientMessage(Component.literal(antenna.type.toString()).withStyle(ChatFormatting.GREEN), false);
+				else
+					pPlayer.displayClientMessage(Component.literal("No valid antenna found.").withStyle(ChatFormatting.RED), false);
+			}
+		}
+		return super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);
 	}
 
 	@Nullable

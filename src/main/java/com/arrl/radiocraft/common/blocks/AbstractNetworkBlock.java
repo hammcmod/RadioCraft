@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
 
 public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 
@@ -27,8 +26,12 @@ public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 		if(!level.isClientSide) {
 			if(oldState.getBlock() != this) {
 
-				boolean isPower = ForgeRegistries.BLOCKS.tags().getTag(RadiocraftTags.Blocks.POWER_BLOCKS).contains(this);
-				boolean isCoax = ForgeRegistries.BLOCKS.tags().getTag(RadiocraftTags.Blocks.COAX_BLOCKS).contains(this);
+				// TODO: This should be using capabilities.
+				//boolean isPower = ForgeRegistries.BLOCKS.tags().getTag(RadiocraftTags.Blocks.POWER_BLOCKS).contains(this);
+				//boolean isCoax = ForgeRegistries.BLOCKS.tags().getTag(RadiocraftTags.Blocks.COAX_BLOCKS).contains(this);
+
+				boolean isPower = false;
+				boolean isCoax = false;
 
 				// This is awkward, but I don't see a good way to do it
 				if(isPower)

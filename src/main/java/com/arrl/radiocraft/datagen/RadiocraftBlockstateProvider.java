@@ -5,10 +5,11 @@ import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.client.model.generators.BlockStateProvider;
-import net.minecraftforge.client.model.generators.ModelFile;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.registries.ForgeRegistries;
+import net.neoforged.neoforge.client.model.generators.BlockStateProvider;
+import net.neoforged.neoforge.client.model.generators.ModelFile;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 
 public class RadiocraftBlockstateProvider extends BlockStateProvider {
 
@@ -61,7 +62,7 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 	}
 
 	private ResourceLocation key(Block block) {
-		return ForgeRegistries.BLOCKS.getKey(block);
+		return RadiocraftBlocks.BLOCKS.getRegistry().get().getKey(block);
 	}
 
 }

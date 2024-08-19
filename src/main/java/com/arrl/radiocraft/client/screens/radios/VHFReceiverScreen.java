@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.menus.VHFReceiverMenu;
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 
@@ -25,17 +26,20 @@ public class VHFReceiverScreen extends VHFRadioScreen<VHFReceiverMenu> {
 	}
 
 	@Override
-	protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
 
 	}
 
 	@Override
-	protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) {
+	protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 
 	}
 
 	@Override
-	protected void renderLabels(PoseStack poseStack, int x, int y) {}
+	protected void renderAdditionalBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+
+	}
+
 
 	protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
 		mouseX -= leftPos;

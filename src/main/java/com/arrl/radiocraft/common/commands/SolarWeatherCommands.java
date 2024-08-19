@@ -18,7 +18,7 @@ public class SolarWeatherCommands {
 
 	public static int getCallsign(CommandSourceStack source) throws CommandSyntaxException {
 		SolarEventInstance event = SolarEventManager.getEvent(source.getLevel());
-		source.sendSuccess(Component.translatable(Radiocraft.translationKey("commands", "solarweather.success"),
+		source.sendSuccess(() -> Component.translatable(Radiocraft.translationKey("commands", "solarweather.success"),
 				RadiocraftData.SOLAR_EVENTS.getKey(event.getEvent()),
 				event.getTicks(),
 				event.getDuration(),
@@ -26,5 +26,4 @@ public class SolarWeatherCommands {
 				).withStyle(ChatFormatting.GREEN), false);
 		return 1;
 	}
-
 }

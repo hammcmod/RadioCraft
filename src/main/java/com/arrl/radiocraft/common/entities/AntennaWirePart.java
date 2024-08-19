@@ -3,13 +3,14 @@ package com.arrl.radiocraft.common.entities;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.entity.PartEntity;
+import net.neoforged.neoforge.entity.PartEntity;
 
 public class AntennaWirePart extends PartEntity<AntennaWire> implements IAntennaWire {
 
@@ -24,14 +25,15 @@ public class AntennaWirePart extends PartEntity<AntennaWire> implements IAntenna
 		this.name = name;
 	}
 
-	@Override
-	protected void defineSynchedData() {}
 
 	@Override
 	protected void readAdditionalSaveData(CompoundTag nbt) {}
 
 	@Override
 	protected void addAdditionalSaveData(CompoundTag nbt) {}
+
+	@Override
+	protected void defineSynchedData(SynchedEntityData.Builder pBuilder) {}
 
 	@Override
 	public boolean hurt(DamageSource source, float amount) {
@@ -83,7 +85,7 @@ public class AntennaWirePart extends PartEntity<AntennaWire> implements IAntenna
 	public void updateAntennas() {
 		if(checkEnabled) {
 			checkEnabled = false;
-			if(level.getBlockEntity(blockPosition()) instanceof AntennaBlockEntity be)
+			if(level().getBlockEntity(blockPosition()) instanceof AntennaBlockEntity be)
 				be.markAntennaChanged();
 
 			parent.updateAntennas();

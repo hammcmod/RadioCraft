@@ -2,8 +2,7 @@ package com.arrl.radiocraft.api.capabilities;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.AutoRegisterCapability;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.UUID;
 
@@ -11,7 +10,6 @@ import java.util.UUID;
  * Capability attached to {@link Level} containing callsign data for all players. This cap will only be present on the
  * overworld (Key: {@link Level#OVERWORLD}).
  */
-@AutoRegisterCapability
 public interface ICallsignCapability extends INBTSerializable<CompoundTag> {
 
 	/**

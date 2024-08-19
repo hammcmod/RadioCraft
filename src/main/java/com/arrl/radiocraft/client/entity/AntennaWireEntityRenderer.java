@@ -56,6 +56,23 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         return null;
     }
 
+
+    /**
+     * I don't know why this method did not already exist on BlockPos,
+     * but there's no facilities for converting a Vec3 to Vec3i?
+     *
+     * @param vec3 the position
+     * @return the BlockPos
+     */
+    private static BlockPos blockPosFromVec3(Vec3 vec3) {
+        int x = (int) vec3.x;
+        int y = (int) vec3.y;
+        int z = (int) vec3.z;
+
+        return new BlockPos(x, y, z);
+    }
+
+
     /**
      * This method is used to render the wire between the two antenna couplers
      */
@@ -73,17 +90,16 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         float yDiff = (float)(fromPos.y - toPos.y);
         float zDiff = (float)(fromPos.z - toPos.z);
 
-        float offsetMod = Mth.fastInvSqrt(xDiff * xDiff + zDiff * zDiff) * 0.025F / 2.0F;
+        float offsetMod = (float) (Mth.fastInvSqrt(xDiff * xDiff + zDiff * zDiff) * 0.025F / 2.0F);
         float xOffset = zDiff * offsetMod;
         float zOffset = xDiff * offsetMod;
 
-
-        BlockPos toEyePos = new BlockPos(toEntity.getEyePosition(partialTick));
-        BlockPos fromEyePos = new BlockPos(fromEntity.getEyePosition(partialTick));
-        int toBlockLight = toEntity.level.getBrightness(LightLayer.BLOCK, toEyePos);
-        int fromBlockLight = fromEntity.level.getBrightness(LightLayer.BLOCK, fromEyePos);
-        int toSkyLight = toEntity.level.getBrightness(LightLayer.SKY, toEyePos);
-        int fromSkyLight = fromEntity.level.getBrightness(LightLayer.SKY, fromEyePos);
+        BlockPos toEyePos = new BlockPos(AntennaWireEntityRenderer.blockPosFromVec3(toEntity.getEyePosition(partialTick)));
+        BlockPos fromEyePos = new BlockPos(AntennaWireEntityRenderer.blockPosFromVec3(fromEntity.getEyePosition(partialTick)));
+        int toBlockLight = toEntity.level().getBrightness(LightLayer.BLOCK, toEyePos);
+        int fromBlockLight = fromEntity.level().getBrightness(LightLayer.BLOCK, fromEyePos);
+        int toSkyLight = toEntity.level().getBrightness(LightLayer.SKY, toEyePos);
+        int fromSkyLight = fromEntity.level().getBrightness(LightLayer.SKY, fromEyePos);
 
         VertexConsumer consumer = buffer.getBuffer(RenderType.leash());
         Matrix4f posMatrix = poseStack.last().pose();
@@ -116,8 +132,8 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         float x = xDif * f;
         float y = yDif > 0.0F ? yDif * f * f : yDif - yDif * (1.0F - f) * (1.0F - f);
         float z = zDif * f;
-        consumer.vertex(matrix, x - xOffset, y + yOffset, z + zOffset).color(red, green, blue, 1.0F).uv2(packedLight).endVertex();
-        consumer.vertex(matrix, x + xOffset, y + width - yOffset, z - zOffset).color(red, green, blue, 1.0F).uv2(packedLight).endVertex();
+        consumer.addVertex(matrix, x - xOffset, y + yOffset, z + zOffset).setColor(red, green, blue, 1.0F).setUv(packedLight, 0f);
+        consumer.addVertex(matrix, x + xOffset, y + width - yOffset, z - zOffset).setColor(red, green, blue, 1.0F).setUv(packedLight, 0f);
     }
 
 }

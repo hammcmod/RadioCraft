@@ -2,13 +2,11 @@ package com.arrl.radiocraft.api.capabilities;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.AutoRegisterCapability;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 
 /**
  * Represents the inventory within a handheld radio.
  */
-@AutoRegisterCapability
 public interface IVHFHandheldCapability extends INBTSerializable<CompoundTag> {
 
     /**

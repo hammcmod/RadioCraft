@@ -2,25 +2,19 @@ package com.arrl.radiocraft.common.radio.solar;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.init.RadiocraftData;
-import com.arrl.radiocraft.common.init.RadiocraftPackets;
-import com.arrl.radiocraft.common.network.packets.clientbound.CNoisePacket;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.TickEvent.LevelTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerChangedDimensionEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
 import java.util.HashMap;
 import java.util.Map;
 
-@EventBusSubscriber(modid=Radiocraft.MOD_ID, bus=Bus.FORGE)
+@EventBusSubscriber(modid=Radiocraft.MOD_ID)
 public class SolarEventManager {
 
 	private static Map<ResourceKey<Level>, SolarEventInstance> currentEvents = new HashMap<>();
@@ -43,33 +37,33 @@ public class SolarEventManager {
 
 	@SubscribeEvent
 	public static void tick(LevelTickEvent event) {
-		if(!event.level.isClientSide) {
-			if(event.phase == Phase.START) {
-				SolarEventInstance solarEvent = getEvent(event.level);
+		if(!event.getLevel().isClientSide) {
+			//if(event.phase == Phase.START) {
+				SolarEventInstance solarEvent = getEvent(event.getLevel());
 
 				if(solarEvent == null || solarEvent.isFinished()) {
 					solarEvent = RadiocraftData.SOLAR_EVENTS.getWeightedRandom().getInstance(); // Keep picking new event if the current one is finished
-					setEvent(event.level, solarEvent);
-					RadiocraftPackets.sendToLevel(new CNoisePacket(solarEvent.getEvent().getNoise()), (ServerLevel)event.level); // Update noise value for all players in that level
-					Radiocraft.LOGGER.info(event.level.dimension() + " " + solarEvent.getEvent().getNoise());
+					setEvent(event.getLevel(), solarEvent);
+					//RadiocraftPackets.sendToLevel(new CNoisePacket(solarEvent.getEvent().getNoise()), (ServerLevel)event.getLevel()); // Update noise value for all players in that level
+					Radiocraft.LOGGER.info(event.getLevel().dimension() + " " + solarEvent.getEvent().getNoise());
 				}
 
 				solarEvent.tick();
-			}
+			//}
 		}
 	}
 
 	@SubscribeEvent
-	public static void playerChangedDimension(PlayerChangedDimensionEvent event) { // Update noise every time player changes dimension
+	public static void playerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) { // Update noise every time player changes dimension
 		if(event.getEntity() instanceof ServerPlayer player) {
-			RadiocraftPackets.sendToPlayer(new CNoisePacket(getEvent(event.getTo()).getEvent().getNoise()), player);
+			//RadiocraftPackets.sendToPlayer(new CNoisePacket(getEvent(event.getTo()).getEvent().getNoise()), player);
 		}
 	}
 
 	@SubscribeEvent
-	public static void playerLoggedIn(PlayerLoggedInEvent event) {
+	public static void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
 		if(event.getEntity() instanceof ServerPlayer player) {
-			RadiocraftPackets.sendToPlayer(new CNoisePacket(getEvent(player.getLevel()).getEvent().getNoise()), player);
+			//RadiocraftPackets.sendToPlayer(new CNoisePacket(getEvent(player.level()).getEvent().getNoise()), player);
 		}
 	}
 

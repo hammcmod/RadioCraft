@@ -1,37 +1,36 @@
 package com.arrl.radiocraft;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class CommonConfig {
 
-	public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-	public static final ForgeConfigSpec SPEC;
+	public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+	public static final ModConfigSpec SPEC;
 
-	public static final ConfigValue<Integer> LARGE_BATTERY_CAPACITY;
-	public static final ConfigValue<Integer> LARGE_BATTERY_OUTPUT;
-	public static final ConfigValue<Integer> SMALL_BATTERY_CAPACITY;
-	public static final ConfigValue<Integer> CHARGE_CONTROLLER_TICK;
-	public static final ConfigValue<Integer> CHARGE_CONTROLLER_BATTERY_CHARGE;
-	public static final ConfigValue<Integer> SOLAR_PANEL_MAX_OUTPUT;
-	public static final ConfigValue<Double> SOLAR_PANEL_RAIN_MULTIPLIER;
+	public static final ModConfigSpec.ConfigValue<Integer> LARGE_BATTERY_CAPACITY;
+	public static final ModConfigSpec.ConfigValue<Integer> LARGE_BATTERY_OUTPUT;
+	public static final ModConfigSpec.ConfigValue<Integer> SMALL_BATTERY_CAPACITY;
+	public static final ModConfigSpec.ConfigValue<Integer> CHARGE_CONTROLLER_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> CHARGE_CONTROLLER_BATTERY_CHARGE;
+	public static final ModConfigSpec.ConfigValue<Integer> SOLAR_PANEL_MAX_OUTPUT;
+	public static final ModConfigSpec.ConfigValue<Double> SOLAR_PANEL_RAIN_MULTIPLIER;
 
-	public static final ConfigValue<Integer> HF_RADIO_10M_RECEIVE_TICK;
-	public static final ConfigValue<Integer> HF_RADIO_10M_TRANSMIT_TICK;
-	public static final ConfigValue<Integer> HF_RADIO_20M_RECEIVE_TICK;
-	public static final ConfigValue<Integer> HF_RADIO_20M_TRANSMIT_TICK;
-	public static final ConfigValue<Integer> HF_RADIO_40M_RECEIVE_TICK;
-	public static final ConfigValue<Integer> HF_RADIO_40M_TRANSMIT_TICK;
-	public static final ConfigValue<Integer> HF_RADIO_80M_RECEIVE_TICK;
-	public static final ConfigValue<Integer> HF_RADIO_80M_TRANSMIT_TICK;
-	public static final ConfigValue<Integer> HF_RECEIVER_TICK;
-	public static final ConfigValue<Integer> VHF_BASE_STATION_RECEIVE_TICK;
-	public static final ConfigValue<Integer> VHF_BASE_STATION_TRANSMIT_TICK;
-	public static final ConfigValue<Integer> VHF_RECEIVER_TICK;
-	public static final ConfigValue<Integer> QRP_RADIO_20M_RECEIVE_TICK;
-	public static final ConfigValue<Integer> QRP_RADIO_20M_TRANSMIT_TICK;
-	public static final ConfigValue<Integer> QRP_RADIO_40M_RECEIVE_TICK;
-	public static final ConfigValue<Integer> QRP_RADIO_40M_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_10M_RECEIVE_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_10M_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_20M_RECEIVE_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_20M_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_40M_RECEIVE_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_40M_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_80M_RECEIVE_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_80M_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RECEIVER_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> VHF_BASE_STATION_RECEIVE_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> VHF_BASE_STATION_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> VHF_RECEIVER_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_20M_RECEIVE_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_20M_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_40M_RECEIVE_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_40M_TRANSMIT_TICK;
 
 
 

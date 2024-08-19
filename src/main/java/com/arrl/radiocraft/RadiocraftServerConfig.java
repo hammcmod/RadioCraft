@@ -1,16 +1,15 @@
 package com.arrl.radiocraft;
 
-import net.minecraftforge.common.ForgeConfigSpec;
-import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import net.neoforged.neoforge.common.ModConfigSpec;
 
 public class RadiocraftServerConfig {
 
-	public static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
-	public static final ForgeConfigSpec SPEC;
+	public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
+	public static final ModConfigSpec SPEC;
 
-	public static final ConfigValue<Integer> HF_FREQUENCY_STEP;
-	public static final ConfigValue<Integer> VHF_FREQUENCY_STEP;
-	public static final ConfigValue<Integer> ANTENNA_UPDATE_DELAY;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_FREQUENCY_STEP;
+	public static final ModConfigSpec.ConfigValue<Integer> VHF_FREQUENCY_STEP;
+	public static final ModConfigSpec.ConfigValue<Integer> ANTENNA_UPDATE_DELAY;
 
 	static {
 		BUILDER.push("Antenna Options ( * = Restart game to take effect)");

@@ -2,10 +2,11 @@ package com.arrl.radiocraft.common.radio.antenna.networks;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.IAntennaNetworkCapability;
-import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+
+import static com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities.ANTENNA_NETWORKS;
 
 /**
  * Helper class for grabbing antenna networks from a level, as well as creating
@@ -27,7 +28,7 @@ public class AntennaNetworkManager {
 	 * missing {@link IAntennaNetworkCapability} for some reason.
 	 */
 	public static AntennaNetwork getNetwork(Level level, ResourceLocation id) {
-		IAntennaNetworkCapability cap = level.getCapability(RadiocraftCapabilities.ANTENNA_NETWORKS).orElse(null);
+		IAntennaNetworkCapability cap = ANTENNA_NETWORKS.getCapability(level, null, null, null, null);
 		if(cap != null) { // IntelliJ is lying, this is NOT always true.
 			AntennaNetwork network = cap.getNetwork(id);
 			if(network == null)

@@ -8,8 +8,10 @@ import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
+import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.*;
 
@@ -132,16 +134,6 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 		return pos;
 	}
 
-	@Override
-	public CompoundTag serializeNBT() {
-		return data.serializeNBT();
-	}
-
-	@Override
-	public void deserializeNBT(CompoundTag nbt) {
-		data.deserializeNBT(nbt);
-	}
-
 	public void setNetwork(AntennaNetwork network) {
 		if(this.network != null)
 			this.network.removeAntenna(this);
@@ -153,4 +145,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 		return type.getSWR(data, wavelength);
 	}
 
+	@Override
+	public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
+		return data.serializeNBT(provider);
+	}
+
+	@Override
+	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
+		data.deserializeNBT(provider, nbt);
+	}
 }

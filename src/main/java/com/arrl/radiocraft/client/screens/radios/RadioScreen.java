@@ -5,14 +5,9 @@ import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
-import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.menus.RadioMenu;
-import com.arrl.radiocraft.common.network.packets.serverbound.SFrequencyPacket;
-import com.arrl.radiocraft.common.network.packets.serverbound.SRadioPTTPacket;
-import com.arrl.radiocraft.common.network.packets.serverbound.SRadioSSBPacket;
-import com.arrl.radiocraft.common.network.packets.serverbound.STogglePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -44,38 +39,35 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	}
 
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-		renderBackground(poseStack);
-		super.render(poseStack, mouseX, mouseY, partialTicks);
-
-		renderAdditionalTooltips(poseStack, mouseX, mouseY, partialTicks);
+	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+		renderAdditionalTooltips(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 	}
 
 	/**
 	 * Use to render additional tooltips like lights.
 	 */
-	protected void renderAdditionalTooltips(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) { }
+	protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) { }
+
 
 	@Override
-	protected void renderBg(PoseStack poseStack, float partialTicks, int x, int y) {
+	public void renderBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		super.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.setShaderTexture(0, texture);
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		blit(poseStack, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight);
+		pGuiGraphics.blit(this.texture, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight);
 
-		renderAdditionalBg(poseStack, partialTicks, x, y);
+		renderAdditionalBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 	}
 
 	/**
 	 * Use to render additional background elements like lights.
 	 */
-	protected void renderAdditionalBg(PoseStack poseStack, float partialTicks, int x, int y) { }
-
-	@Override
-	protected void renderLabels(PoseStack poseStack, int x, int y) {}
+	protected void renderAdditionalBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) { }
 
 	@Override
 	public boolean mouseReleased(double mouseX, double mouseY, int button) {
@@ -106,7 +98,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for pressing a PTT button.
 	 */
 	protected void onPressPTT(HoldButton button) {
-		RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), true));
+		//RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), true));
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
 	}
 
@@ -114,7 +106,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for releasing a PTT button.
 	 */
 	protected void onReleasePTT(HoldButton button) {
-		RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), false));
+		//RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), false));
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
 	}
 
@@ -122,7 +114,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback to toggle power on a device.
 	 */
 	protected void onPressPower(ToggleButton button) {
-		RadiocraftPackets.sendToServer(new STogglePacket(menu.blockEntity.getBlockPos()));
+		//RadiocraftPackets.sendToServer(new STogglePacket(menu.blockEntity.getBlockPos()));
 	}
 
 	/**
@@ -131,7 +123,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	protected void onPressSSB(ValueButton button) {
 		boolean ssbEnabled = menu.blockEntity.getSSBEnabled();
 
-		RadiocraftPackets.sendToServer(new SRadioSSBPacket(menu.blockEntity.getBlockPos(), !ssbEnabled));
+		//RadiocraftPackets.sendToServer(new SRadioSSBPacket(menu.blockEntity.getBlockPos(), !ssbEnabled));
 		menu.blockEntity.setSSBEnabled(!ssbEnabled); // Update instantly for GUI, server will re-sync this value though.
 	}
 
@@ -139,32 +131,32 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for raising frequency by one step on the dial.
 	 */
 	protected void onFrequencyDialUp(Dial dial) {
-		if(menu.isPowered())
-			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
+		if(menu.isPowered());
+			//RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
 	}
 
 	/**
 	 * Callback for raising frequency by one step on the dial.
 	 */
 	protected void onFrequencyDialDown(Dial dial) {
-		if(menu.isPowered())
-			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
+		if(menu.isPowered());
+			//RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
 	}
 
 	/**
 	 * Callback for frequency up buttons.
 	 */
 	protected void onFrequencyButtonUp(Button button) {
-		if(menu.isPowered())
-			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
+		if(menu.isPowered());
+			//RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
 	}
 
 	/**
 	 * Callback for frequency down buttons.
 	 */
 	protected void onFrequencyButtonDown(Button button) {
-		if(menu.isPowered())
-			RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
+		if(menu.isPowered());
+			//RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
 	}
 
 }

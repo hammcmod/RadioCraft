@@ -1,17 +1,13 @@
 package com.arrl.radiocraft.common.entities;
 
-import com.arrl.radiocraft.api.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
+import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
-import com.arrl.radiocraft.common.init.RadiocraftPackets;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
-import com.arrl.radiocraft.common.network.packets.clientbound.CAntennaWirePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -19,17 +15,14 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.entity.IEntityAdditionalSpawnData;
-import net.minecraftforge.entity.PartEntity;
-import net.minecraftforge.network.NetworkHooks;
+import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
+import net.neoforged.neoforge.entity.PartEntity;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -42,7 +35,7 @@ import java.util.UUID;
  This class is used to create the antenna wire entity.
  @see net.minecraft.world.entity.decoration.LeashFenceKnotEntity
  */
-public class AntennaWire extends Entity implements IAntennaWire, IEntityAdditionalSpawnData {
+public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComplexSpawn {
 
     private static final EntityDataAccessor<Optional<UUID>> DATA_HOLDER_UUID = SynchedEntityData.defineId(AntennaWire.class, EntityDataSerializers.OPTIONAL_UUID);
 
@@ -79,9 +72,11 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
 
         if(holder != null) {
             entity.setHolder(holder);
-            holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent((cap) -> {
+            RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS.getCapability(holder, null).setHeldPos(pos);
+
+            /*holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent((cap) -> {
                 cap.setHeldPos(pos);
-            });
+            });*/
         }
 
         level.addFreshEntity(entity);
@@ -126,11 +121,11 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
     public void updateAntennas() {
         if(checkEnabled) {
             checkEnabled = false;
-            if(level.getBlockEntity(blockPosition()) instanceof AntennaBlockEntity be)
+            if(level().getBlockEntity(blockPosition()) instanceof AntennaBlockEntity be)
                 be.markAntennaChanged();
 
             endPart.updateAntennas();
-            for(IAntennaWire wire : getWires(level, blockPosition()))
+            for(IAntennaWire wire : getWires(level(), blockPosition()))
                 wire.updateAntennas();
 
             checkEnabled = true;
@@ -139,13 +134,14 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
 
     @Override
     public void tick() {
-        if (!level.isClientSide) {
+        if (!level().isClientSide) {
             if (checkInterval++ == 60) {
                 checkInterval = 0;
                 Player holder = getWireHolder();
                 if (!isRemoved() && !survives()) {
                     if(holder != null)
-                        holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent(cap -> cap.setHeldPos(null)); // Reset held pos.
+                        RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS.getCapability(holder, null).setHeldPos(null);
+                        //holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent(cap -> cap.setHeldPos(null)); // Reset held pos.
                     discard();
                     endPart.discard();
                     playBreakSound();
@@ -159,12 +155,12 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
      * Checks if the block can hold an antenna wire.
      */
     public boolean survives() {
-        if(level.getBlockState(blockPosition()).is(RadiocraftTags.Blocks.ANTENNA_WIRE_HOLDERS)) { // Starts in valid block.
+        if(level().getBlockState(blockPosition()).is(RadiocraftTags.Blocks.ANTENNA_WIRE_HOLDERS)) { // Starts in valid block.
             Player holder = getWireHolder();
             if(holder != null)
                 return !holder.isRemoved(); // Survives if has holder and holder is not removed.
 
-            return level.getBlockState(getEndPos()).is(RadiocraftTags.Blocks.ANTENNA_WIRE_HOLDERS); // Also survives if has no holder and end pos is in a valid block.
+            return level().getBlockState(getEndPos()).is(RadiocraftTags.Blocks.ANTENNA_WIRE_HOLDERS); // Also survives if has no holder and end pos is in a valid block.
         }
         return false;
     }
@@ -178,7 +174,7 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
         if(optionalUUID.isPresent()) {
             UUID uuid = optionalUUID.get();
             if(holder == null || !uuid.equals(holder.getUUID()))
-                holder = level.getPlayerByUUID(uuid);
+                holder = level().getPlayerByUUID(uuid);
 
             return holder;
         }
@@ -191,8 +187,8 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
      */
     public void setEndPos(BlockPos endPos) {
         endPart.setPos(new Vec3(endPos.getX() + 0.5D, endPos.getY() + 0.5D, endPos.getZ() + 0.5D));
-        if(!level.isClientSide)
-            RadiocraftPackets.sendToLevel(new CAntennaWirePacket(getId(), endPos), (ServerLevel)level);
+        if(!level().isClientSide);
+            //RadiocraftPackets.sendToLevel(new CAntennaWirePacket(getId(), endPos), (ServerLevel)level());
     }
 
     public BlockPos getEndPos() {
@@ -232,13 +228,8 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
     }
 
     @Override
-    protected void defineSynchedData() {
-        this.entityData.define(DATA_HOLDER_UUID, Optional.empty());
-    }
-
-    @Override
-    protected float getEyeHeight(Pose pose, EntityDimensions size) {
-        return 0.0F;
+    protected void defineSynchedData(SynchedEntityData.Builder pBuilder) {
+        pBuilder.define(DATA_HOLDER_UUID, Optional.empty());
     }
 
     /**
@@ -282,7 +273,7 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
         if (isInvulnerableTo(source)) {
             return false;
         } else {
-            if (!isRemoved() && !level.isClientSide) {
+            if (!isRemoved() && !level().isClientSide) {
                 kill();
                 markHurt();
                 playBreakSound();
@@ -305,18 +296,12 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityAddition
     }
 
     @Override
-    public void writeSpawnData(FriendlyByteBuf buffer) {
+    public void writeSpawnData(RegistryFriendlyByteBuf buffer) {
         buffer.writeLong(endPart.blockPosition().asLong());
     }
 
     @Override
-    public void readSpawnData(FriendlyByteBuf buffer) {
-        setEndPos(BlockPos.of(buffer.readLong()));
+    public void readSpawnData(RegistryFriendlyByteBuf additionalData) {
+        setEndPos(BlockPos.of(additionalData.readLong()));
     }
-
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
 }

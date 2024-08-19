@@ -8,15 +8,13 @@ import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider.Factory;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.data.ExistingFileHelper;
-import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModLoadingContext;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.config.ModConfig.Type;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 import org.slf4j.Logger;
 
 import java.util.Random;
@@ -31,14 +29,16 @@ public class Radiocraft {
     public Radiocraft() {
         registerRegistries();
 
-        ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
-        ModLoadingContext.get().registerConfig(Type.SERVER, RadiocraftServerConfig.SPEC, Radiocraft.MOD_ID + "-server.toml");
-        MinecraftForge.EVENT_BUS.register(this);
+
+        ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
+        ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.SERVER, RadiocraftServerConfig.SPEC, Radiocraft.MOD_ID + "-server.toml");
+        NeoForge.EVENT_BUS.register(this);
     }
 
     // Registering deferred registries to the event bus
     private static void registerRegistries() {
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+
+        IEventBus modEventBus = ModLoadingContext.get().getActiveContainer().getEventBus();
 
         RadiocraftAntennaTypes.register();
         BENetworkTypes.register();
@@ -48,7 +48,7 @@ public class Radiocraft {
         RadiocraftEntityTypes.ENTITIES.register(modEventBus);
         RadiocraftMenuTypes.MENU_TYPES.register(modEventBus);
         RadiocraftSoundEvents.SOUND_EVENTS.register(modEventBus);
-        RadiocraftPackets.registerPackets();
+        //RadiocraftPackets.registerPackets();
 
         modEventBus.addListener(Radiocraft::gatherData);
     }
@@ -63,7 +63,7 @@ public class Radiocraft {
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
     public static String translationKey(String prefix, String suffix) {

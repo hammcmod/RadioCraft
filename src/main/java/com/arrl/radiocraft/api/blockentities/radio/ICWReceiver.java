@@ -1,7 +1,6 @@
 package com.arrl.radiocraft.api.blockentities.radio;
 
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
-import com.arrl.radiocraft.common.network.packets.CWBufferPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;

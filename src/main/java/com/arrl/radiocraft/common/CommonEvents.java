@@ -2,19 +2,18 @@ package com.arrl.radiocraft.common;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import net.minecraftforge.event.TickEvent.LevelTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 
-@EventBusSubscriber(modid = Radiocraft.MOD_ID, bus = Bus.FORGE)
+@EventBusSubscriber(modid = Radiocraft.MOD_ID)
 public class CommonEvents {
 
     @SubscribeEvent
     public static void onLevelTick(LevelTickEvent event) {
-        if(!event.level.isClientSide && event.phase == Phase.START) {
-            IBENetworks.get(event.level).tickNetworkObjects(event.level);
+        if (event.getLevel().isClientSide) {
+        //if(!event.level.isClientSide && event.phase == Phase.START) {
+            IBENetworks.get(event.getLevel()).tickNetworkObjects(event.getLevel());
         }
     }
 

@@ -2,11 +2,11 @@ package com.arrl.radiocraft.api.capabilities;
 
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.capabilities.AutoRegisterCapability;
-import net.minecraftforge.common.util.INBTSerializable;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
@@ -15,7 +15,6 @@ import java.util.UUID;
  * Capability attached to {@link Level} containing every {@link BENetwork} for {@link BENetworkObject}s present within
  * that {@link Level}.
  */
-@AutoRegisterCapability
 public interface IBENetworks extends INBTSerializable<CompoundTag> {
 
     /**
@@ -144,8 +143,13 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
             cap.removeNetwork(network);
     }
 
+
     static IBENetworks get(@NotNull Level level) {
-        return level.getCapability(RadiocraftCapabilities.BE_NETWORKS).orElse(null);
+        return null;// level.getCapability(RadiocraftCapabilities.BE_NETWORKS).orElse(null);
+    }
+
+    static IBENetworks get(@NotNull Level level, @NotNull BlockPos pos) {
+        return RadiocraftCapabilities.BE_NETWORKS.getCapability(level, pos, null, null, null);
     }
 
 }

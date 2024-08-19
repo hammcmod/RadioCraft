@@ -10,7 +10,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.network.NetworkHooks;
 
 public abstract class AbstractPowerNetworkBlock extends AbstractNetworkBlock {
 
@@ -19,16 +18,12 @@ public abstract class AbstractPowerNetworkBlock extends AbstractNetworkBlock {
 	}
 
 	@Override
-	public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
-		if(!level.isClientSide) {
-			if(hand == InteractionHand.MAIN_HAND) {
-				BlockEntity be = level.getBlockEntity(pos);
-				NetworkHooks.openScreen((ServerPlayer)player, (MenuProvider)be, pos);
+	protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+		if(!pLevel.isClientSide) {
+				BlockEntity be = pLevel.getBlockEntity(pPos);
+				pPlayer.openMenu((MenuProvider) be);
 				return InteractionResult.SUCCESS;
-			}
 		}
-
-		return super.use(state, level, pos, player, hand, hit);
+		return super.useWithoutItem(pState, pLevel, pPos, pPlayer, pHitResult);
 	}
-
 }
