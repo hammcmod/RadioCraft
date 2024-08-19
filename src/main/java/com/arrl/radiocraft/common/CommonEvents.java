@@ -10,7 +10,7 @@ import net.neoforged.neoforge.event.tick.LevelTickEvent;
 public class CommonEvents {
 
     @SubscribeEvent
-    public static void onLevelTick(LevelTickEvent event) {
+    public static void onLevelTick(LevelTickEvent.Pre event) {
         if (event.getLevel().isClientSide) {
         //if(!event.level.isClientSide && event.phase == Phase.START) {
             IBENetworks.get(event.getLevel()).tickNetworkObjects(event.getLevel());

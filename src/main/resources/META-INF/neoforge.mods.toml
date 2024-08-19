@@ -11,7 +11,7 @@ loaderVersion="${loader_version_range}" #mandatory
 
 # The license for you mod. This is mandatory metadata and allows for easier comprehension of your redistributive properties.
 # Review your options at https://choosealicense.com/. All rights reserved is the default copyright stance, and is thus the default here.
-license="${mod_license}"
+license="GNU GPLv3"
 
 # A URL to refer people to when problems occur with this mod
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/" #optional

@@ -28,7 +28,7 @@ public class RadiocraftItems {
 	public static final Supplier<Item> HAND_MICROPHONE = simpleItem("hand_microphone");
 	public static final Supplier<Item> HF_CIRCUIT_BOARD = simpleItem("hf_circuit_board");
 
-	public static final DeferredHolder<Item, SmallBatteryItem> SMALL_BATTERY = ITEMS.register("small_battery", () -> new SmallBatteryItem(new Properties().stacksTo(1).component(DataComponent.ENERGY_DATA_COMPONENT, new DataComponent.EnergyRecord(1000.0))));
+	public static final DeferredHolder<Item, SmallBatteryItem> SMALL_BATTERY = ITEMS.register("small_battery", () -> new SmallBatteryItem(new Properties().stacksTo(1))); //.component(DataComponent.ENERGY_DATA_COMPONENT, new DataComponent.EnergyRecord(1000.0))));
 	public static final Supplier<Item> FERRITE_CORE = simpleItem("ferrite_core");
 	public static final Supplier<Item> COAXIAL_CORE = simpleItem("coaxial_core");
 	public static final Supplier<Item> ANTENNA_ANALYZER = simpleItem("antenna_analyzer");
