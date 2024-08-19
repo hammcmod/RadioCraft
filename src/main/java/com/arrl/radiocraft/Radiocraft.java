@@ -49,6 +49,7 @@ public class Radiocraft {
         RadiocraftEntityTypes.ENTITIES.register(modEventBus);
         RadiocraftMenuTypes.MENU_TYPES.register(modEventBus);
         RadiocraftSoundEvents.SOUND_EVENTS.register(modEventBus);
+        RadiocraftTabs.CREATIVE_TABS.register(modEventBus);
         //RadiocraftPackets.registerPackets();
 
         modEventBus.addListener(Radiocraft::gatherData);
