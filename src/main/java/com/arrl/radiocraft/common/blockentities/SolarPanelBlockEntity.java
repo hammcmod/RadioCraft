@@ -34,8 +34,12 @@ public class SolarPanelBlockEntity extends PowerBlockEntity {
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
-		if(t instanceof SolarPanelBlockEntity be)
-			((SolarPanelNetworkObject)be.getNetworkObject(level, pos)).setCanSeeSky(level.canSeeSky(pos)); // Just update the power gen value in tick.
+		if(t instanceof SolarPanelBlockEntity be) {
+			SolarPanelNetworkObject spno = ((SolarPanelNetworkObject)be.getNetworkObject(level, pos));
+			if (spno != null) {
+				spno.setCanSeeSky(level.canSeeSky(pos)); // Just update the power gen value in tick.
+			}
+		}
 	}
 
 	@Override
