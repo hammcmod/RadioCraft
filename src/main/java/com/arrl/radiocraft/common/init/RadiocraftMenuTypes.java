@@ -21,6 +21,7 @@ public class RadiocraftMenuTypes {
 	public static final Supplier<MenuType<HFRadio20mMenu>> HF_RADIO_20M = MENU_TYPES.register("hf_radio_20m", () -> IMenuTypeExtension.create(HFRadio20mMenu::new));
 	public static final Supplier<MenuType<HFRadio40mMenu>> HF_RADIO_40M = MENU_TYPES.register("hf_radio_40m", () -> IMenuTypeExtension.create(HFRadio40mMenu::new));
 	public static final Supplier<MenuType<HFRadio80mMenu>> HF_RADIO_80M = MENU_TYPES.register("hf_radio_80m", () -> IMenuTypeExtension.create(HFRadio80mMenu::new));
+	public static final Supplier<MenuType<HFRadioAllBandMenu>> HF_RADIO_ALL_BAND = MENU_TYPES.register("hf_radio_all_band", () -> IMenuTypeExtension.create(HFRadioAllBandMenu::new));
 	public static final Supplier<MenuType<HFReceiverMenu>> HF_RECEIVER = MENU_TYPES.register("hf_receiver", () -> IMenuTypeExtension.create(HFReceiverMenu::new));
 	public static final Supplier<MenuType<QRPRadio20mMenu>> QRP_RADIO_20M = MENU_TYPES.register("qrp_radio_20m", () -> IMenuTypeExtension.create(QRPRadio20mMenu::new));
 	public static final Supplier<MenuType<QRPRadio40mMenu>> QRP_RADIO_40M = MENU_TYPES.register("qrp_radio_40m", () -> IMenuTypeExtension.create(QRPRadio40mMenu::new));

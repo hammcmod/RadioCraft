@@ -30,6 +30,8 @@ public class RadiocraftBlockEntities {
 			() -> BlockEntityType.Builder.of(HFRadio40mBlockEntity::new, RadiocraftBlocks.HF_RADIO_40M.get()).build(null));
 	public static final Supplier<BlockEntityType<HFRadio80mBlockEntity>> HF_RADIO_80M = BLOCK_ENTITY_TYPES.register("hf_radio_80m",
 			() -> BlockEntityType.Builder.of(HFRadio80mBlockEntity::new, RadiocraftBlocks.HF_RADIO_80M.get()).build(null));
+	public static final Supplier<BlockEntityType<HFRadioAllBandBlockEntity>> HF_RADIO_ALL_BAND = BLOCK_ENTITY_TYPES.register("all_band_radio",
+			() -> BlockEntityType.Builder.of(HFRadioAllBandBlockEntity::new, RadiocraftBlocks.ALL_BAND_RADIO.get()).build(null));
 	public static final Supplier<BlockEntityType<HFReceiverBlockEntity>> HF_RECEIVER = BLOCK_ENTITY_TYPES.register("hf_receiver",
 			() -> BlockEntityType.Builder.of(HFReceiverBlockEntity::new, RadiocraftBlocks.HF_RECEIVER.get()).build(null));
 	public static final Supplier<BlockEntityType<QRPRadio20mBlockEntity>> QRP_RADIO_20M = BLOCK_ENTITY_TYPES.register("qrp_radio_20m",
