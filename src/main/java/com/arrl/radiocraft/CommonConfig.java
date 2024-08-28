@@ -23,6 +23,8 @@ public class CommonConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_40M_TRANSMIT_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_80M_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_80M_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_ALL_BAND_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_ALL_BAND_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RECEIVER_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_BASE_STATION_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_BASE_STATION_TRANSMIT_TICK;
@@ -55,6 +57,8 @@ public class CommonConfig {
 		HF_RADIO_40M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (40m) power consumption per tick (while transmitting) #default 375").define("hf_radio_40m_transmit", 375);
 		HF_RADIO_80M_RECEIVE_TICK = BUILDER.comment("*HF Radio (80m) power consumption per tick (while receiving) #default 125").define("hf_radio_80m_receive", 125);
 		HF_RADIO_80M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (80m) power consumption per tick (while transmitting) #default 375").define("hf_radio_80m_transmit", 375);
+		HF_RADIO_ALL_BAND_RECEIVE_TICK = BUILDER.comment("*HF Radio (all band) power consumption per tick (while receiving) default #125").define("hf_radio_all_band_receive", 125);
+		HF_RADIO_ALL_BAND_TRANSMIT_TICK = BUILDER.comment("*HF Radio (all band) power consumption per tick (while transmitting) #default 375").define("hf_radio_all_band_transmit", 375);
 		HF_RECEIVER_TICK = BUILDER.comment("*HF Receiver power consumption per tick (while receiving) #default 125").define("hf_receiver", 125);
 		QRP_RADIO_20M_RECEIVE_TICK = BUILDER.comment("*QRP Radio (20m) power consumption per tick (while receiving) #default 63").define("qrp_radio_20m_receive", 63);
 		QRP_RADIO_20M_TRANSMIT_TICK = BUILDER.comment("*QRP Radio (20m) power consumption per tick (while transmitting) #default 188").define("qrp_radio_20m_transmit", 188);

@@ -43,7 +43,7 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, HFRadio80mBlock> HF_RADIO_80M = BLOCKS.register("hf_radio_80m", () -> new HFRadio80mBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, HFReceiverBlock> HF_RECEIVER = BLOCKS.register("hf_receiver", () -> new HFReceiverBlock(PROPERTIES_RADIO));
 
-	public static final Supplier<Block> ALL_BAND_RADIO = simpleBlock("all_band_radio", PROPERTIES_STONE);
+	public static final DeferredHolder<Block, HFRadioAllBandBlock> ALL_BAND_RADIO = BLOCKS.register("all_band_radio", () -> new HFRadioAllBandBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, QRPRadio20mBlock> QRP_RADIO_20M = BLOCKS.register("qrp_radio_20m", () -> new QRPRadio20mBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, QRPRadio40mBlock> QRP_RADIO_40M = BLOCKS.register("qrp_radio_40m", () -> new QRPRadio40mBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, DigitalInterfaceBlock> DIGITAL_INTERFACE = BLOCKS.register("digital_interface", () -> new DigitalInterfaceBlock(PROPERTIES_STONE));
