@@ -74,6 +74,7 @@ public class VHFHandheldScreen extends Screen {
             if (cap.isPTTDown()) {
                 pGuiGraphics.blit(TEXTURE, leftPos + 44, topPos + 107, 167, 0, 10, 13, 256, 256);
             }
+            pGuiGraphics.drawString(this.font, cap.getFrequencyKiloHertz() * 1000.0 + " MHz", leftPos + 80,  topPos + 126, 0xFFFFFF);
         }
 
         cap.getFrequencyKiloHertz();
