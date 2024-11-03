@@ -1,14 +1,12 @@
 package com.arrl.radiocraft.client.screens.widgets;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.NotNull;
 
 public class ImageButton extends Button {
 	private final ResourceLocation resourceLocation;
@@ -28,14 +26,9 @@ public class ImageButton extends Button {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	protected void renderWidget(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		super.renderWidget(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, this.resourceLocation);
-
-		int xBlit = !isHoveredOrFocused() ? u : u + width;
-
-		RenderSystem.enableDepthTest();
+		int xBlit = !isHovered() ? u : u + width;
 		pGuiGraphics.blit(this.resourceLocation, getX(), getY(), xBlit, v, width, height, textureWidth, textureHeight);
 	}
 

@@ -1,13 +1,13 @@
 package com.arrl.radiocraft.client.screens.widgets;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import org.jetbrains.annotations.NotNull;
+
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 public class ToggleButton extends AbstractWidget {
 
@@ -32,26 +32,23 @@ public class ToggleButton extends AbstractWidget {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, this.resourceLocation);
-
-		int xBlit = !isHoveredOrFocused() ? u : u + width;
+	protected void renderWidget(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		int xBlit = !isHovered() ? u : u + width;
 		int yBlit = !isToggled ? v : v + height;
-
-		RenderSystem.enableDepthTest();
 		pGuiGraphics.blit(this.resourceLocation, this.getX(), this.getY(), xBlit, yBlit, width, height, textureWidth, textureHeight);
 	}
 
 	@Override
-	public void onClick(double x, double y) {
-		super.onClick(x, y);
-		isToggled = !isToggled;
-		onPress.execute(this);
+	public void onClick(double x, double y, int button) {
+		super.onClick(x, y, button);
+		if (button == GLFW_MOUSE_BUTTON_LEFT) {
+			isToggled = !isToggled;
+			onPress.execute(this);
+		}
 	}
 
 	@Override
-	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
 		this.defaultButtonNarrationText(narrationElementOutput);
 	}
 

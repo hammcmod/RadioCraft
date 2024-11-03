@@ -88,7 +88,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     }
 
     @Override
-    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
+    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequencyKiloHertz) {
         // Handheld doesn't have CW capability.
     }
 
@@ -108,13 +108,13 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     }
 
     @Override
-    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
+    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequencyKiloHertz, UUID sourcePlayer) {
         if(network != null) {
             Set<IAntenna> antennas = network.allAntennas();
 
             for(IAntenna antenna : antennas) {
                 if(antenna != this) {
-                    AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequency, 1.0F, this, sourcePlayer);
+                    AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequencyKiloHertz, 1.0F, this, sourcePlayer);
 
                     double distance = Math.sqrt(packet.getSource().getBlockPos().distSqr( antenna.getBlockPos()));
                     packet.setStrength(BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0F, 0.0F, packet.getLevel().isDay()));
@@ -141,7 +141,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     public void acceptVoicePacket(ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
         IVHFHandheldCapability cap = getHandheldCapOrNull(getPlayer());
         if(cap != null)
-            transmitAudioPacket(level, rawAudio, 2, cap.getFrequency(), sourcePlayer);
+            transmitAudioPacket(level, rawAudio, 2, cap.getFrequencyKiloHertz(), sourcePlayer);
     }
 
     @Override

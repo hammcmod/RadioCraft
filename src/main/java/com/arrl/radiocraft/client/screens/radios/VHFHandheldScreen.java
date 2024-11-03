@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -50,7 +51,7 @@ public class VHFHandheldScreen extends Screen {
         leftPos = (width - imageWidth) / 2;
         topPos = (height - imageHeight) / 2;
 
-        addRenderableWidget(new ToggleButton(cap.isPowered(), leftPos - 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower)); // Power
+        addRenderableWidget(new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower)); // Power
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
         addRenderableWidget(new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Mic gain
         addRenderableWidget(new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Gain
@@ -58,31 +59,28 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(new ImageButton(leftPos + 126, topPos + 168, 18, 14, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
     }
 
-    /*
     @Override
-    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(poseStack);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, TEXTURE);
+    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+        // I removed the .super() call because for some reason it renders the backgrounds before buttons but after the other rendering of the actual menu.
+        // I guess I could just add these items to the renderables list, but then you can't influence the powered state.
+        renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
         int edgeSpacingX = (width - imageWidth) / 2;
         int edgeSpacingY = (height - imageHeight) / 2;
-        blit(poseStack, edgeSpacingX, edgeSpacingY, 0, 0, imageWidth, imageHeight);
+        pGuiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, imageWidth, imageHeight);
 
-
-        if(cap.isPowered()) {
-            blit(poseStack, leftPos + 32, topPos + 107, 157, 0, 10, 13, 256, 256); // Render power light.
-            if (cap.isPTTDown())
-                blit(poseStack, leftPos + 44, topPos + 107, 167, 0, 10, 13, 256, 256); // Render power light.
+        if (cap.isPowered()) {
+            pGuiGraphics.blit(TEXTURE, leftPos + 32, topPos + 107, 157, 0, 10, 13, 256, 256);
+            if (cap.isPTTDown()) {
+                pGuiGraphics.blit(TEXTURE, leftPos + 44, topPos + 107, 167, 0, 10, 13, 256, 256);
+            }
         }
 
-        super.render(poseStack, mouseX, mouseY, partialTicks);
-    }*/
+        cap.getFrequencyKiloHertz();
 
-    @Override
-    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        for (Renderable renderable : this.renderables) {
+            renderable.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        }
     }
 
     public static void open(int index) {

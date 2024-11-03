@@ -26,10 +26,10 @@ public interface IAntenna {
 	 * @param level The {@link ServerLevel} object (SVC API) for this {@link IAntenna}'s {@link Level}.
 	 * @param rawAudio The raw PCM audio being sent in the packet.
 	 * @param wavelength The wavelength of the transmission.
-	 * @param frequency The frequency of the transmission.
+	 * @param frequencyKiloHertz The frequencyKiloHertz of the transmission.
 	 * @param sourcePlayer The {@link UUID} of the player who sent the audio. Used for opus encoding/decoding.
 	 */
-	void transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer);
+	void transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, int wavelength, int frequencyKiloHertz, UUID sourcePlayer);
 
 	/**
 	 * Handle receiving an audio packet from another {@link IAntenna} on the network.
@@ -42,9 +42,9 @@ public interface IAntenna {
 	 * @param level The {@link ServerLevel} object for this {@link IAntenna}.
 	 * @param buffers The {@link CWBuffer}s being sent, may not be in order.
 	 * @param wavelength The wavelength of the transmission.
-	 * @param frequency The frequency of the transmission.
+	 * @param frequencyKiloHertz The frequencyKiloHertz of the transmission.
 	 */
-	void transmitCWPacket(ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency);
+	void transmitCWPacket(ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequencyKiloHertz);
 
 	/**
 	 * Handle receiving a CW/morse packet from another {@link IAntenna} on the network.

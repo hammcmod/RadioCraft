@@ -16,9 +16,9 @@ public interface IVHFHandheldCapability extends INBTSerializable<CompoundTag> {
 
     void setItem(ItemStack item);
 
-    int getFrequency();
+    int getFrequencyKiloHertz();
 
-    void setFrequency(int frequency);
+    void setFrequencyKiloHertz(int frequencyKiloHertz);
 
     boolean isPowered();
 

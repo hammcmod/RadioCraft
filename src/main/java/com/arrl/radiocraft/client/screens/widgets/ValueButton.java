@@ -1,19 +1,19 @@
 package com.arrl.radiocraft.client.screens.widgets;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.function.Supplier;
+
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 /**
  * Very similar to ToggleButton but the "on" state is determined by a value which can be changed elsewhere.
@@ -43,35 +43,30 @@ public class ValueButton extends AbstractWidget {
 
 	@Override
 	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, this.resourceLocation);
-
 		boolean value = valueSupplier.get();
-		int xBlit = !isHoveredOrFocused() ? u : u + width;
+		int xBlit = !isHovered() ? u : u + width;
 		int yBlit = !value ? v : v + height;
-
-		RenderSystem.enableDepthTest();
 		pGuiGraphics.blit(this.resourceLocation, this.getX(), this.getY(), xBlit, yBlit, width, height, textureWidth, textureHeight);
-
 		if(lastState != value)
 			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)); // Will play toggle click by itself when the value changes externally.
-
 		lastState = value;
 	}
 
 	@Override
-	public void onClick(double x, double y) {
-		super.onClick(x, y);
-		onPress.execute(this);
+	public void onClick(double x, double y, int button) {
+		super.onClick(x, y, button);
+		if (button == GLFW_MOUSE_BUTTON_LEFT) {
+			onPress.execute(this);
+		}
 	}
 
 	@Override
-	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
 		this.defaultButtonNarrationText(narrationElementOutput);
 	}
 
 	@Override
-	public void playDownSound(SoundManager handler) {} // Empty override so the sound doesn't get replayed by the auto handling in render.
+	public void playDownSound(@NotNull SoundManager handler) {} // Empty override so the sound doesn't get replayed by the auto handling in render.
 
 	@FunctionalInterface
 	public interface OnInteract {

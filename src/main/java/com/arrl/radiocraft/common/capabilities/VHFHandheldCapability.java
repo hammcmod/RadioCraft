@@ -10,7 +10,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	private ItemStack heldItem = ItemStack.EMPTY;
 	private boolean isPowered = false;
-	private int frequency = 0;
+	private int frequencyKiloHertz = 0;
 	private boolean isPTTDown = false;
 
 	@Override
@@ -24,13 +24,13 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 	}
 
 	@Override
-	public int getFrequency() {
-		return frequency;
+	public int getFrequencyKiloHertz() {
+		return frequencyKiloHertz;
 	}
 
 	@Override
-	public void setFrequency(int frequency) {
-		this.frequency = frequency;
+	public void setFrequencyKiloHertz(int frequencyKiloHertz) {
+		this.frequencyKiloHertz = frequencyKiloHertz;
 	}
 
 	@Override
@@ -58,7 +58,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 		CompoundTag nbt = new CompoundTag();
 		nbt.put("inventory", heldItem.save(provider));
 		nbt.putBoolean("isPowered", isPowered);
-		nbt.putInt("frequency", frequency);
+		nbt.putInt("frequency", frequencyKiloHertz);
 		nbt.putBoolean("isPTTDown", isPTTDown);
 		return nbt;
 	}
@@ -67,7 +67,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
 		heldItem = ItemStack.parseOptional(provider, nbt.getCompound("inventory"));
 		isPowered = nbt.getBoolean("isPowered");
-		frequency = nbt.getInt("frequency");
+		frequencyKiloHertz = nbt.getInt("frequency");
 		isPTTDown = nbt.getBoolean("isPTTDown");
 	}
 }

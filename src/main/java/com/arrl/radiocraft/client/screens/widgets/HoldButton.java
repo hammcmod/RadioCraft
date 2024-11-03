@@ -1,13 +1,17 @@
 package com.arrl.radiocraft.client.screens.widgets;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
+import org.jetbrains.annotations.NotNull;
+
+import static org.lwjgl.glfw.GLFW.GLFW_MOUSE_BUTTON_LEFT;
 
 public class HoldButton extends AbstractWidget {
 
@@ -33,16 +37,13 @@ public class HoldButton extends AbstractWidget {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	protected void renderWidget(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		if(isPressed) {
 			if(!clicked(pMouseX, pMouseY))
 				onRelease(pMouseX, pMouseY);
 		}
 
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderTexture(0, this.resourceLocation);
-
-		int xBlit = !isHoveredOrFocused() ? u : u + width;
+		int xBlit = !isHovered() ? u : u + width;
 		int yBlit = !isPressed ? v : v + height;
 
 		RenderSystem.enableDepthTest();
@@ -50,23 +51,25 @@ public class HoldButton extends AbstractWidget {
 	}
 
 	@Override
-	public void onClick(double x, double y) {
-		isPressed = true;
-		onPress.execute(this);
+	public void onClick(double x, double y, int button) {
+		if (button == GLFW_MOUSE_BUTTON_LEFT) {
+			isPressed = true;
+			onPress.execute(this);
+		}
 	}
 
 
 	@Override
 	public void onRelease(double x, double y) {
 		if(isPressed) {
-//			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.3F));
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.3f));
 			isPressed = false;
 			onRelease.execute(this);
 		}
 	}
 
 	@Override
-	protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
+	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
 		this.defaultButtonNarrationText(narrationElementOutput);
 	}
 
