@@ -11,6 +11,7 @@ import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.items.SlotItemHandler;
+import org.jetbrains.annotations.NotNull;
 
 public class ChargeControllerMenu extends AbstractContainerMenu {
 
@@ -18,7 +19,7 @@ public class ChargeControllerMenu extends AbstractContainerMenu {
 	private final ContainerLevelAccess canInteractWithCallable;
 	private final ContainerData data;
 
-	public ChargeControllerMenu(final int id, Inventory playerInventory, final ChargeControllerBlockEntity be, ContainerData data) {
+	public ChargeControllerMenu(int id, Inventory playerInventory, @NotNull ChargeControllerBlockEntity be, ContainerData data) {
 		super(RadiocraftMenuTypes.CHARGE_CONTROLLER.get(), id);
 		this.blockEntity = be;
 		this.canInteractWithCallable = ContainerLevelAccess.create(be.getLevel(), be.getBlockPos());
@@ -38,7 +39,7 @@ public class ChargeControllerMenu extends AbstractContainerMenu {
 
 	}
 
-	public ChargeControllerMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {
+	public ChargeControllerMenu(int id, Inventory playerInventory, FriendlyByteBuf data) {
 		this(id, playerInventory, MenuUtils.getBlockEntity(playerInventory, data, ChargeControllerBlockEntity.class), new SimpleContainerData(1));
 	}
 
@@ -47,12 +48,12 @@ public class ChargeControllerMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(@NotNull Player player) {
 		return stillValid(canInteractWithCallable, player, RadiocraftBlocks.CHARGE_CONTROLLER.get());
 	}
 
 	@Override
-	public ItemStack quickMoveStack(Player player, int index) {
+	public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
 		return ItemStack.EMPTY;
 	}
 

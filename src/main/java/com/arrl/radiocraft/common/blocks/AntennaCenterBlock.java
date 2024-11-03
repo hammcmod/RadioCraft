@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
@@ -33,12 +34,12 @@ public class AntennaCenterBlock extends AbstractNetworkBlock {
 	}
 
 	@Override
-	protected MapCodec<? extends BaseEntityBlock> codec() {
+	protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
 		return null;
 	}
 
 	@Override
-	protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
+	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState pState, Level pLevel, @NotNull BlockPos pPos, @NotNull Player pPlayer, @NotNull BlockHitResult pHitResult) {
 		if(!pLevel.isClientSide) {
 			if(IBENetworks.getObject(pLevel, pPos) instanceof AntennaNetworkObject networkObject) {
 				StaticAntenna<?> antenna = networkObject.getAntenna();
@@ -53,7 +54,7 @@ public class AntennaCenterBlock extends AbstractNetworkBlock {
 
 
 	@Override
-	protected ItemInteractionResult useItemOn(ItemStack pStack, BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, InteractionHand pHand, BlockHitResult pHitResult) {
+	protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack pStack, @NotNull BlockState pState, Level pLevel, @NotNull BlockPos pPos, @NotNull Player pPlayer, @NotNull InteractionHand pHand, @NotNull BlockHitResult pHitResult) {
 		if(!pLevel.isClientSide) {
 			if(IBENetworks.getObject(pLevel, pPos) instanceof AntennaNetworkObject networkObject) {
 				StaticAntenna<?> antenna = networkObject.getAntenna();
@@ -68,13 +69,13 @@ public class AntennaCenterBlock extends AbstractNetworkBlock {
 
 	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
 		return !level.isClientSide ? AntennaBlockEntity::tick : super.getTicker(level, state, type);
 	}
 
 	@Nullable
 	@Override
-	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
 		return new AntennaBlockEntity(pos, state, AntennaNetworkManager.HF_ID);
 	}
 

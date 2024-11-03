@@ -18,6 +18,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 public class VHFHandheldScreen extends Screen {
 
@@ -60,7 +61,7 @@ public class VHFHandheldScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+    public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         // I removed the .super() call because for some reason it renders the backgrounds before buttons but after the other rendering of the actual menu.
         // I guess I could just add these items to the renderables list, but then you can't influence the powered state.
         renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);

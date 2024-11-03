@@ -8,6 +8,8 @@ import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
@@ -19,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class ChargeControllerBlockEntity extends BlockEntity implements ITogglableBE, INetworkObjectProvider, MenuProvider {
@@ -76,7 +79,8 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 
 	@Override
 	public void toggle() {
-		if(!level.isClientSide) {
+        assert level != null;
+        if(!level.isClientSide) {
 			// Unlike other power BEs, the charge controller is the one in control of power as it never gets turned
 			// off automatically.
 			BlockState state = level.getBlockState(worldPosition);
@@ -94,16 +98,27 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 	}
 
 	@Override
-	public Component getDisplayName() {
+	public @NotNull Component getDisplayName() {
 		return Component.translatable("container.charge_controller");
 	}
 
 	@Nullable
 	@Override
-	public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
+	public AbstractContainerMenu createMenu(int id, @NotNull Inventory playerInventory, @NotNull Player player) {
 		return new ChargeControllerMenu(id, playerInventory, this, fields);
 	}
 
+	@Override
+	protected void loadAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+		super.loadAdditional(pTag, pRegistries);
+		inventory.deserializeNBT(pRegistries, pTag.getCompound("inventory"));
+	}
+
+	@Override
+	protected void saveAdditional(CompoundTag pTag, HolderLookup.Provider pRegistries) {
+		super.saveAdditional(pTag, pRegistries);
+		pTag.put("inventory", inventory.serializeNBT(pRegistries));
+	}
 
 	/*
 	TODO: IDK what this ever did. Review and fix or remove.
@@ -111,18 +126,6 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 	@Override
 	public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
 		return cap == ForgeCapabilities.ITEM_HANDLER ? inventoryHandler.cast() : super.getCapability(cap);
-	}
-
-	@Override
-	protected void saveAdditional(CompoundTag nbt) {
-		super.saveAdditional(nbt);
-		nbt.put("inventory", inventory.serializeNBT());
-	}
-
-	@Override
-	public void load(CompoundTag nbt) {
-		super.load(nbt);
-		inventory.deserializeNBT(nbt.getCompound("inventory"));
 	}
 
 	@Override
@@ -136,13 +139,15 @@ public class ChargeControllerBlockEntity extends BlockEntity implements ITogglab
 
 	@Override
 	public BENetworkObject createNetworkObject() {
-		return new ChargeControllerNetworkObject(level, worldPosition, level.getBlockState(worldPosition).getValue(ChargeControllerBlock.POWERED));
+        assert level != null;
+        return new ChargeControllerNetworkObject(level, worldPosition, level.getBlockState(worldPosition).getValue(ChargeControllerBlock.POWERED));
 	}
 
 	@Override
 	public void onLoad() {
 		super.onLoad();
-		if(!level.isClientSide())
+        assert level != null;
+        if(!level.isClientSide())
 			getNetworkObject(level, worldPosition); // This forces the network object to get initialised.
 	}
 

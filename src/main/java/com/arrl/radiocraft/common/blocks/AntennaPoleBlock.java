@@ -26,6 +26,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * @author MoreThanHidden -- refactored by Favouriteless
@@ -49,17 +50,17 @@ public class AntennaPoleBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public FluidState getFluidState(BlockState state) {
+    public @NotNull FluidState getFluidState(BlockState state) {
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
-    public boolean canBeReplaced(BlockState state, BlockPlaceContext context) {
+    public boolean canBeReplaced(@NotNull BlockState state, BlockPlaceContext context) {
         return context.getItemInHand().is(this.asItem());
     }
 
     @Override
-    public BlockState updateShape(BlockState state, Direction facing, BlockState facingState, LevelAccessor level, BlockPos currentPos, BlockPos facingPos) {
+    public @NotNull BlockState updateShape(BlockState state, @NotNull Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
         if (state.getValue(WATERLOGGED))
             level.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 
@@ -70,17 +71,17 @@ public class AntennaPoleBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
         return SHAPE;
     }
 
     @Override
-    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+    public boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
         return getDistance(level, pos) < 7;
     }
 
     @Override
-    public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+    public void tick(BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
         int i = getDistance(level, pos);
         BlockState blockstate = state.setValue(DISTANCE, i).setValue(BOTTOM, i == 0);
         if (blockstate.getValue(DISTANCE) == STABILITY_MAX_DISTANCE) {
@@ -117,7 +118,7 @@ public class AntennaPoleBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
+    public void onPlace(@NotNull BlockState state, @NotNull Level level, BlockPos pos, @NotNull BlockState oldState, boolean isMoving) {
         MutableBlockPos bottomPos = pos.mutable().move(Direction.DOWN);
         for(int i = 0; i < STABILITY_MAX_DISTANCE; i++) {
             if(level.getBlockState(bottomPos).getBlock() != RadiocraftBlocks.ANTENNA_POLE.get()) {
@@ -130,7 +131,7 @@ public class AntennaPoleBlock extends Block implements SimpleWaterloggedBlock {
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+    public void onRemove(@NotNull BlockState state, @NotNull Level level, BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
         MutableBlockPos bottomPos = pos.mutable().move(Direction.DOWN);
         for(int i = 0; i < STABILITY_MAX_DISTANCE; i++) {
             if(level.getBlockState(bottomPos).getBlock() != RadiocraftBlocks.ANTENNA_POLE.get()) {

@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 public class HFRadio40mScreen extends HFRadioScreen<HFRadio40mMenu> {
 
@@ -33,7 +34,7 @@ public class HFRadio40mScreen extends HFRadioScreen<HFRadio40mMenu> {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+	protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
 
 	}
 
@@ -59,12 +60,6 @@ public class HFRadio40mScreen extends HFRadioScreen<HFRadio40mMenu> {
 //			if(menu.blockEntity.isReceiving())
 //				blit(poseStack, leftPos + 59, topPos + 15, 30, 148, 29, 15);
 //		}
-	}
-
-	protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
-		mouseX -= leftPos;
-		mouseY -= topPos;
-		return mouseX >= (x - 1) && mouseX < (x + width + 1) && mouseY >= (y - 1) && mouseY < (y + height + 1);
 	}
 
 }

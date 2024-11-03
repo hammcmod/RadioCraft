@@ -2,14 +2,14 @@ package com.arrl.radiocraft.common.blocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public abstract class AbstractPowerNetworkBlock extends AbstractNetworkBlock {
 
@@ -18,12 +18,10 @@ public abstract class AbstractPowerNetworkBlock extends AbstractNetworkBlock {
 	}
 
 	@Override
-	protected InteractionResult useWithoutItem(BlockState pState, Level pLevel, BlockPos pPos, Player pPlayer, BlockHitResult pHitResult) {
-		if(!pLevel.isClientSide) {
-				BlockEntity be = pLevel.getBlockEntity(pPos);
-				pPlayer.openMenu((MenuProvider) be);
-				return InteractionResult.SUCCESS;
+	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState pState, Level pLevel, @NotNull BlockPos pPos, @NotNull Player pPlayer, @NotNull BlockHitResult pHitResult) {
+		if (!pLevel.isClientSide && pPlayer instanceof ServerPlayer serverPlayer) {
+			serverPlayer.openMenu(Objects.requireNonNull(pState.getMenuProvider(pLevel, pPos)), pPos);
 		}
-		return super.useWithoutItem(pState, pLevel, pPos, pPlayer, pHitResult);
+		return InteractionResult.sidedSuccess(pLevel.isClientSide);
 	}
 }

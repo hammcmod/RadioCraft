@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContainerScreen<T> {
 
@@ -39,7 +40,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	}
 
 	@Override
-	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		renderAdditionalTooltips(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 	}
@@ -51,7 +52,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 
 
 	@Override
-	public void renderBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	public void renderBackground(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		super.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);

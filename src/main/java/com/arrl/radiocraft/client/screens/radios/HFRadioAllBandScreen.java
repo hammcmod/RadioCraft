@@ -6,6 +6,7 @@ import com.arrl.radiocraft.common.menus.HFRadioAllBandMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 /*
  * TODO This class was copied from the 10m screen and is almost certainly wrong all over.
@@ -34,7 +35,7 @@ public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
     }
 
     @Override
-    protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+    protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
 
     }
 
@@ -65,12 +66,6 @@ public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
 //			if(menu.blockEntity.isReceiving())
 //				blit(poseStack, leftPos + 59, topPos + 15, 30, 148, 29, 15);
         }
-    }
-
-    protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
-        mouseX -= leftPos;
-        mouseY -= topPos;
-        return mouseX >= (x - 1) && mouseX < (x + width + 1) && mouseY >= (y - 1) && mouseY < (y + height + 1);
     }
 
 }

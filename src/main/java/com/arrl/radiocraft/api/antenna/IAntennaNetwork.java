@@ -18,7 +18,7 @@ public interface IAntennaNetwork {
 	 *
 	 * @param antenna The {@link StaticAntenna} to be added.
 	 *
-	 * @returns The {@link StaticAntenna} which was added.
+	 * @return The {@link StaticAntenna} which was added.
 	 */
 	IAntenna addAntenna(IAntenna antenna);
 

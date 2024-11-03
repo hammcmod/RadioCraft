@@ -52,7 +52,7 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(AntennaWire entity) {
+    public @NotNull ResourceLocation getTextureLocation(@NotNull AntennaWire entity) {
         return null;
     }
 

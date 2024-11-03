@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 public abstract class HFRadioScreen<T extends RadioMenu<? extends HFRadioBlockEntity>> extends RadioScreen<T> {
 
@@ -16,7 +17,7 @@ public abstract class HFRadioScreen<T extends RadioMenu<? extends HFRadioBlockEn
 	}
 
 	@Override
-	public void render(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
 		if(menu.blockEntity.getCWEnabled()) {
@@ -28,7 +29,7 @@ public abstract class HFRadioScreen<T extends RadioMenu<? extends HFRadioBlockEn
 	}
 
 	@Override
-	public void renderBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+	public void renderBackground(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		super.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 	}
 

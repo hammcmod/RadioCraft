@@ -10,6 +10,9 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 public class LargeBatteryMenu extends AbstractContainerMenu {
 
@@ -21,7 +24,7 @@ public class LargeBatteryMenu extends AbstractContainerMenu {
 	public LargeBatteryMenu(final int id, final LargeBatteryBlockEntity blockEntity, IntSplitDataSlot dataEnergy, IntSplitDataSlot dataMaxEnergy) {
 		super(RadiocraftMenuTypes.LARGE_BATTERY.get(), id);
 		this.blockEntity = blockEntity;
-		this.canInteractWithCallable = ContainerLevelAccess.create(blockEntity.getLevel(), blockEntity.getBlockPos());
+		this.canInteractWithCallable = ContainerLevelAccess.create(Objects.requireNonNull(blockEntity.getLevel()), blockEntity.getBlockPos());
 		this.dataEnergy = dataEnergy;
 		this.dataMaxEnergy = dataMaxEnergy;
 
@@ -44,12 +47,12 @@ public class LargeBatteryMenu extends AbstractContainerMenu {
 	}
 
 	@Override
-	public boolean stillValid(Player player) {
+	public boolean stillValid(@NotNull Player player) {
 		return stillValid(canInteractWithCallable, player, RadiocraftBlocks.LARGE_BATTERY.get());
 	}
 
 	@Override
-	public ItemStack quickMoveStack(Player player, int index) {
+	public @NotNull ItemStack quickMoveStack(@NotNull Player player, int index) {
 		return null;
 	}
 

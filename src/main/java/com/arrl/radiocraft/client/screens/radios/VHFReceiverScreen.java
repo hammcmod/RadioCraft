@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
+import org.jetbrains.annotations.NotNull;
 
 public class VHFReceiverScreen extends VHFRadioScreen<VHFReceiverMenu> {
 
@@ -26,25 +27,9 @@ public class VHFReceiverScreen extends VHFRadioScreen<VHFReceiverMenu> {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+	protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
 
 	}
 
-	@Override
-	protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-
-	}
-
-	@Override
-	protected void renderAdditionalBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-
-	}
-
-
-	protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {
-		mouseX -= leftPos;
-		mouseY -= topPos;
-		return mouseX >= (x - 1) && mouseX < (x + width + 1) && mouseY >= (y - 1) && mouseY < (y + height + 1);
-	}
 
 }
