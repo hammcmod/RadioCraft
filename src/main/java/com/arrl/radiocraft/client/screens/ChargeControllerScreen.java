@@ -2,12 +2,15 @@ package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
+import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.menus.ChargeControllerMenu;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
 public class ChargeControllerScreen extends AbstractContainerScreen<ChargeControllerMenu> {
@@ -50,44 +53,28 @@ public class ChargeControllerScreen extends AbstractContainerScreen<ChargeContro
 
 	@Override
 	public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
-
-		/*
-		if(isHovering(GAUGE_X, GAUGE_Y, GAUGE_WIDTH, GAUGE_HEIGHT, pMouseX, pMouseY))
-			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.power"), menu.getPowerTick()), pMouseX, pMouseY);
-
-		if(isHovering(LIGHT_X, LIGHT_Y[0], LIGHT_SIZE, LIGHT_SIZE, pMouseX, pMouseY))
-			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.no_output")), pMouseX, pMouseY);
-		else if(isHovering(LIGHT_X, LIGHT_Y[1], LIGHT_SIZE, LIGHT_SIZE, pMouseX, pMouseY))
-			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.charging")), pMouseX, pMouseY);
-		else if(isHovering(LIGHT_X, LIGHT_Y[2], LIGHT_SIZE, LIGHT_SIZE, pMouseX, pMouseY))
-			renderTooltip(poseStack, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.output")), pMouseX, pMouseY);
-
-		this.renderTooltip(poseStack, pMouseX, pMouseY);*/
-	}
-
-	@Override
-	protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
-		/*
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		RenderSystem.setShaderTexture(0, TEXTURE);
+		//super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		blit(poseStack, edgeSpacingX, edgeSpacingY, 0, 0, imageWidth, imageHeight);
+
+		pGuiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight);
 
 		if(menu.blockEntity.getPoweredOn()) {
-			if(menu.getPowerTick() == 0) // No power being transferred.
-				blit(poseStack, leftPos + LIGHT_X, topPos + LIGHT_Y[0], LIGHT_U, LIGHT_V[0], LIGHT_SIZE, LIGHT_SIZE);
-			else
-				blit(poseStack, leftPos + LIGHT_X, topPos + LIGHT_Y[2], LIGHT_U, LIGHT_V[2], LIGHT_SIZE, LIGHT_SIZE);
+			if (menu.getPowerTick() == 0) {
+				pGuiGraphics.blit(TEXTURE, leftPos + LIGHT_X, topPos + LIGHT_Y[0], LIGHT_U, LIGHT_V[0], LIGHT_SIZE, LIGHT_SIZE);
+			} else {
+				pGuiGraphics.blit(TEXTURE, leftPos + LIGHT_X, topPos + LIGHT_Y[2], LIGHT_U, LIGHT_V[2], LIGHT_SIZE, LIGHT_SIZE);
+			}
 
-			if(menu.getItems().get(0) != ItemStack.EMPTY)
-				blit(poseStack, leftPos + LIGHT_X, topPos + LIGHT_Y[1], LIGHT_U, LIGHT_V[1], LIGHT_SIZE, LIGHT_SIZE);
+			if (menu.getItems().getFirst() != ItemStack.EMPTY) {
+				pGuiGraphics.blit(TEXTURE, leftPos + LIGHT_X, topPos + LIGHT_Y[1], LIGHT_U, LIGHT_V[1], LIGHT_SIZE, LIGHT_SIZE);
+			}
 
-			ItemStack stack = menu.getItems().get(0);
-			if(stack.getItem() == RadiocraftItems.SMALL_BATTERY.get()) {
+			ItemStack stack = menu.getItems().getFirst();
+			if (stack.getItem() == RadiocraftItems.SMALL_BATTERY.get()) {
+				/*
+
 				CompoundTag nbt = stack.getOrCreateTag();
 				float f = nbt.contains("charge") ? (float)nbt.getInt("charge") / CommonConfig.SMALL_BATTERY_CAPACITY.get() : 0.0F;
 
@@ -101,8 +88,32 @@ public class ChargeControllerScreen extends AbstractContainerScreen<ChargeContro
 				int off = COIL_HEIGHT - height;
 
 				blit(poseStack, leftPos + 95, topPos + 27 + off, 176, v + off, COIL_WIDTH, height);
+
+				 */
 			}
-		}*/
+		}
+
+		for (Renderable renderable : this.renderables) {
+			renderable.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+		}
+	}
+
+	@Override
+	protected void renderLabels(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {
+		super.renderLabels(pGuiGraphics, pMouseX, pMouseY);
+		if(isHovering(GAUGE_X, GAUGE_Y, GAUGE_WIDTH, GAUGE_HEIGHT, pMouseX, pMouseY))
+			pGuiGraphics.renderTooltip(this.font, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.power"), menu.getPowerTick()), pMouseX - leftPos, pMouseY - topPos);
+		if(isHovering(LIGHT_X, LIGHT_Y[0], LIGHT_SIZE, LIGHT_SIZE, pMouseX, pMouseY))
+			pGuiGraphics.renderTooltip(this.font, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.no_output")), pMouseX - leftPos, pMouseY - topPos);
+		else if(isHovering(LIGHT_X, LIGHT_Y[1], LIGHT_SIZE, LIGHT_SIZE, pMouseX, pMouseY))
+			pGuiGraphics.renderTooltip(this.font, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.charging")), pMouseX - leftPos, pMouseY - topPos);
+		else if(isHovering(LIGHT_X, LIGHT_Y[2], LIGHT_SIZE, LIGHT_SIZE, pMouseX, pMouseY))
+			pGuiGraphics.renderTooltip(this.font, Component.translatable(Radiocraft.translationKey("screen", "chargecontroller.output")), pMouseX - leftPos, pMouseY - topPos);
+	}
+
+	@Override
+	protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+
 	}
 
 	protected boolean isHovering(int x, int y, int width, int height, double mouseX, double mouseY) {

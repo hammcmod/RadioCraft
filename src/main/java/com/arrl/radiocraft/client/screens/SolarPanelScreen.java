@@ -2,12 +2,9 @@ package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.menus.SolarPanelMenu;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -27,34 +24,24 @@ public class SolarPanelScreen extends AbstractContainerScreen<SolarPanelMenu> {
 	}
 
 	@Override
-	protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
-
-	}
-
-	/*
-	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-		renderBackground(poseStack);
-		super.render(poseStack, mouseX, mouseY, partialTicks);
-	}
-
-	@Override
-	protected void renderBg(PoseStack poseStack, float partialTicks, int x, int y) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		RenderSystem.setShaderTexture(0, TEXTURE);
-
+	public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		this.blit(poseStack, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight);
+		pGuiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, imageWidth, imageHeight);
 	}
 
 	@Override
-	protected void renderLabels(PoseStack matrixStack, int pX, int pY) {
+	protected void renderLabels(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {
+		super.renderLabels(pGuiGraphics, pMouseX, pMouseY);
 		String powerString = container.getPowerTick() + " FE/t";
 		int xOffset = this.font.width(powerString) / 2;
 		int yOffset = this.font.lineHeight / 2;
-		this.font.draw(matrixStack, powerString, (float)this.imageWidth / 2 - xOffset, (float)this.imageHeight / 2 - yOffset, ChatFormatting.DARK_GRAY.getColor());
-	}*/
+		pGuiGraphics.drawString(this.font, powerString, this.imageWidth / 2 - xOffset, this.imageHeight / 2 - yOffset, ChatFormatting.DARK_GRAY.getColor());
+	}
 
+	@Override
+	protected void renderBg(GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
+
+	}
 }

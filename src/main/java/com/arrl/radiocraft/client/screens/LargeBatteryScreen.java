@@ -30,38 +30,22 @@ public class LargeBatteryScreen extends AbstractContainerScreen<LargeBatteryMenu
 
 	}
 
-	/*
 	@Override
-	public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
-		renderBackground(poseStack);
-		super.render(poseStack, mouseX, mouseY, partialTicks);
-	}
-
-	@Override
-	protected void renderBg(PoseStack poseStack, float partialTicks, int x, int y) {
-		RenderSystem.setShader(GameRenderer::getPositionTexShader);
-		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-		RenderSystem.setShaderTexture(0, TEXTURE);
+	public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
+		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		this.blit(poseStack, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight);
+		pGuiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight);
 	}
 
 	@Override
-	protected void renderLabels(PoseStack poseStack, int pX, int pY) {
-		String powerString = (int)Math.round(menu.getCurrentPower() / (double)menu.getMaxPower() * 100) + "%";
+	protected void renderLabels(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY) {
+		super.renderLabels(pGuiGraphics, pMouseX, pMouseY);
 
-		float scale = 2.0F;
-		poseStack.pushPose();
-		poseStack.scale(scale, scale, scale);
-
+		String powerString = Math.round((float) menu.getCurrentPower() / menu.getMaxPower() * 100) + "%";
 		int xPos = 95 - (font.width(powerString) / 2);
-		int yPos = 37 - (font.lineHeight / 2);
-
-		this.font.draw(poseStack, powerString, xPos / scale, yPos / scale, 0xFFFFFF);
-
-		poseStack.popPose();
-	}*/
-
+		int yPos = 70 - (font.lineHeight / 2);
+		pGuiGraphics.drawString(this.font, powerString, xPos, yPos, 0xFFFFFF);
+	}
 }

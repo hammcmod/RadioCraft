@@ -13,6 +13,7 @@ import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class SolarPanelBlockEntity extends PowerBlockEntity {
@@ -43,13 +44,13 @@ public class SolarPanelBlockEntity extends PowerBlockEntity {
 	}
 
 	@Override
-	public Component getDisplayName() {
+	public @NotNull Component getDisplayName() {
 		return Component.translatable("container.solar_panel");
 	}
 
 	@Nullable
 	@Override
-	public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
+	public AbstractContainerMenu createMenu(int id, @NotNull Inventory playerInventory, @NotNull Player player) {
 		return new SolarPanelMenu(id, this, data);
 	}
 
