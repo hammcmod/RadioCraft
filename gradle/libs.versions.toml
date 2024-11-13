@@ -1,0 +1,45 @@
+[versions]
+    radiocraft = "1.0.1"
+
+# Common
+    minecraft = "1.21.1"
+    minecraft-range = "[1.21.1,)"
+    parchment-minecraft = "1.21"
+    parchment = "2024.07.28"
+
+# NeoForge
+    neoforge-loader-range = "[4,)"
+    neoforge-range = "[21.1.72,)"
+    neoforge = "21.1.72"
+
+# Dependencies
+    mixin = "0.8.7"
+    mixinextras = "0.3.5"
+    voicechat-api = "2.5.0"
+    voicechat = "5850298" # This is using cursemaven.
+
+# Plugins
+    plugin-mod-dev-gradle = "2.0.31-beta"
+    plugin-idea-ext = "1.1.8"
+    plugin-mixin = "0.7.+"
+
+[libraries]
+# Mixin
+    mixin = { group = "org.spongepowered", name = "mixin", version.ref = "mixin" }
+    mixinextras-common = { group = "io.github.llamalad7", name = "mixinextras-common", version.ref = "mixinextras" }
+
+# Platform
+    neoforge = { group = "net.neoforged", name = "neoforge", version.ref = "neoforge" }
+    minecraft = { group = "com.mojang", name = "minecraft", version.ref = "minecraft" }
+
+# Dependencies
+    voicechat-api = { group = "de.maxhenkel.voicechat", name = "voicechat-api", version.ref = "voicechat-api"}
+    voicechat = { group = "curse.maven", name = "simplevoicechat-416089", version.ref = "voicechat"}
+
+[plugins]
+# Platform
+    moddevgradle = { id = "net.neoforged.moddev", version.ref = "plugin-mod-dev-gradle" }
+
+# Misc
+    ideaext = { id = "org.jetbrains.gradle.plugin.idea-ext", version.ref = "plugin-idea-ext" }
+    mixin = { id = "org.spongepowered.mixin", version.ref = "plugin-mixin" }
