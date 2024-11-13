@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.mixin;
 
 import com.arrl.radiocraft.client.RadiocraftClientValues;
+import de.maxhenkel.voicechat.voice.client.PTTKeyHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -17,7 +18,7 @@ Reference the old Gradle here for how mixin was used:
 https://github.com/hammcmod/RadioCraft/blob/dev/build.gradle
 */
 
-/*
+
 @Mixin(PTTKeyHandler.class)
 public class MixinPTTKeyHandler {
 
@@ -34,4 +35,3 @@ public class MixinPTTKeyHandler {
 	}
 
 }
-*/
