@@ -1,0 +1,23 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "  A",
+    " D ",
+    "#  "
+  ],
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "D": {
+      "item": "minecraft:iron_ingot"
+    },
+    "A": {
+      "item": "minecraft:amethyst_shard"
+    }
+  },
+  "result": {
+    "id": "radiocraft:microphone",
+    "count": 1
+  }
+}

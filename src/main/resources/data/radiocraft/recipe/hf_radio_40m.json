@@ -1,0 +1,35 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "SNS",
+    "#RT",
+    "ICI"
+  ],
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "S": {
+      "item": "minecraft:netherite_scrap"
+    },
+    "R": {
+      "item": "radiocraft:radio_crystal"
+    },
+    "T": {
+      "item": "minecraft:tinted_glass"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "C": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    }
+  },
+  "result": {
+    "id": "radiocraft:hf_radio_40m",
+    "count": 1
+  }
+}

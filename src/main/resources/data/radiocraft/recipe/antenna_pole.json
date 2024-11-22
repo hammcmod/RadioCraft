@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " # ",
+    " # ",
+    " W "
+  ],
+  "key": {
+    "#": {
+      "item": "minecraft:iron_ingot"
+    },
+    "W": {
+      "item": "radiocraft:wire"
+    }
+  },
+  "result": {
+    "id": "radiocraft:antenna_pole",
+    "count": 1
+  }
+}
