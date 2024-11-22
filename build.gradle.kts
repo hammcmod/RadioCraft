@@ -35,11 +35,13 @@ neoForge {
         }
 
         create("client") {
+            environment("RADIOCRAFT_DEV_ENV", "true")
             client()
             gameDirectory = file("runs/client")
         }
 
         create("server") {
+            environment("RADIOCRAFT_DEV_ENV", "true")
             server()
             gameDirectory = file("runs/server")
             programArgument("--nogui")
