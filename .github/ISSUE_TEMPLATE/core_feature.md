@@ -1,6 +1,6 @@
 ---
 name: Core Feature
-about: Add a core feature tracker for the core dev team
+about: Add a core feature issue - FOR INTERNAL DEV USE ONLY
 title: 'CORE: '
 labels: 'bad bounty issue'
 assignees: ''
