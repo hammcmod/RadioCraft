@@ -1,7 +1,7 @@
 ---
 name: Research
 about: Track something to research and log the results in github
-title: 'CORE: '
+title: 'RESEARCH: '
 labels: 'research'
 assignees: ''
 
