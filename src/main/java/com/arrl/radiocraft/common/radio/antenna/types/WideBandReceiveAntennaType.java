@@ -31,7 +31,7 @@ public class WideBandReceiveAntennaType extends NonDirectionalAntennaType<EmptyA
         if(second == null || first == second)
             return null; // Do not match if the second arm is invalid or not perpendicular to first.
 
-        return new StaticAntenna<>(this, pos);
+        return new StaticAntenna<>(this, pos, level);
     }
 
     public Axis validArm(Level level, BlockPos pos) {

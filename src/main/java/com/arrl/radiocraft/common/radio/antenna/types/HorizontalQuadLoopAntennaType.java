@@ -57,7 +57,7 @@ public class HorizontalQuadLoopAntennaType extends NonDirectionalAntennaType<Hor
 			return null; // Return null if the quad is not a square.
 
 		int sideLength = (int)Math.sqrt(Math.round(squarePoints.get(0).distSqr(squarePoints.get(1))));
-		return new StaticAntenna<>(this, pos, new HorizontalQuadLoopAntennaData(sideLength));
+		return new StaticAntenna<>(this, pos, level, new HorizontalQuadLoopAntennaData(sideLength));
 	}
 
 	public boolean isSquare(List<BlockPos> points) {

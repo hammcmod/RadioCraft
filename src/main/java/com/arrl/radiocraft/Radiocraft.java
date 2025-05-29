@@ -1,6 +1,7 @@
 package com.arrl.radiocraft;
 
 import com.arrl.radiocraft.common.init.*;
+import com.arrl.radiocraft.common.network.RadiocraftNetworking;
 import com.arrl.radiocraft.datagen.RadiocraftBlockstateProvider;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
@@ -9,11 +10,14 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider.Factory;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
+import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
 import java.util.Random;
@@ -25,9 +29,10 @@ public class Radiocraft {
     public static final Logger LOGGER = LogUtils.getLogger();
     public static final Random RANDOM = new Random();
     public static final boolean IS_DEVELOPMENT_ENV = System.getenv("RADIOCRAFT_DEV_ENV") != null;
+    public static final String NETWORK_VERSION = "1";
 
-    public Radiocraft() {
-        registerRegistries();
+    public Radiocraft(IEventBus modEventBus) {
+        registerRegistries(modEventBus);
 
 
         ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
@@ -35,9 +40,7 @@ public class Radiocraft {
     }
 
     // Registering deferred registries to the event bus
-    private static void registerRegistries() {
-
-        IEventBus modEventBus = ModLoadingContext.get().getActiveContainer().getEventBus();
+    private static void registerRegistries(IEventBus modEventBus) {
 
         RadiocraftAntennaTypes.register();
         BENetworkTypes.register();
@@ -50,6 +53,16 @@ public class Radiocraft {
         RadiocraftTabs.CREATIVE_TABS.register(modEventBus);
 
         modEventBus.addListener(Radiocraft::gatherData);
+        modEventBus.addListener(Radiocraft::registerPackets);
+    }
+
+    //Networking registration is done using the subscribeEvent method as it doesn't seem to have a differed registry implementation
+    //Placed here for locational consistency with other registrations
+    @SubscribeEvent
+    public static void registerPackets(final RegisterPayloadHandlersEvent event) {
+        // Sets the current network version
+        final PayloadRegistrar registrar = event.registrar(NETWORK_VERSION);
+        RadiocraftNetworking.register(registrar);
     }
 
     // Added to mod event bus, for data gen

@@ -8,6 +8,7 @@ import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ImageButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
+import com.arrl.radiocraft.common.network.Serverbound.SHandheldRadioUpdatePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -18,6 +19,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 public class VHFHandheldScreen extends Screen {
@@ -132,6 +134,7 @@ public class VHFHandheldScreen extends Screen {
     protected void onFrequencyButtonUp(Button button) {
         if(cap.isPowered());
             //RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, 1)); // Frequency is sync'd back from server as client doesn't know steps.
+        //TODO frequency stepping send to server
     }
 
     /**
@@ -140,6 +143,7 @@ public class VHFHandheldScreen extends Screen {
     protected void onFrequencyButtonDown(Button button) {
         if(cap.isPowered());
             //RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, -1)); // Frequency is sync'd back from server as client doesn't know steps.
+        //TODO frequency stepping send to server
     }
 
     /**
@@ -149,6 +153,7 @@ public class VHFHandheldScreen extends Screen {
         //RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, true));
         cap.setPTTDown(true);
         RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
+        updateServer();
     }
 
     /**
@@ -158,6 +163,7 @@ public class VHFHandheldScreen extends Screen {
         //RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, false));
         cap.setPTTDown(false);
         RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
+        updateServer();
     }
 
     /**
@@ -166,6 +172,15 @@ public class VHFHandheldScreen extends Screen {
     protected void onPressPower(ToggleButton button) {
         //RadiocraftPackets.sendToServer(new SHandheldPowerPacket(index, !cap.isPowered()));
         cap.setPowered(!cap.isPowered());
+        updateServer();
     }
 
+    protected void updateServer(){
+        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(index, cap.isPowered(), cap.isPTTDown(), cap.getFrequencyKiloHertz())); //TODO frequency stepping is server side, change to indicate increments
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
+    }
 }

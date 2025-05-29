@@ -37,8 +37,9 @@ public interface IAntennaNetwork {
 	Set<IAntenna> allAntennas();
 
 	/**
+	 * TODO remove when confirmed seeing the old implementation inline is not useful for reference
 	 * @return The {@link Level} this network is contained within.
 	 */
-	Level getLevel();
+//	Level getLevel();
 
 }

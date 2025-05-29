@@ -18,7 +18,7 @@ public class JPoleAntennaType extends NonDirectionalAntennaType<EmptyAntennaData
 
     @Override
     public StaticAntenna<EmptyAntennaData> match(Level level, BlockPos pos) {
-        return level.getBlockState(pos).is(RadiocraftBlocks.J_POLE_ANTENNA.get()) ? new StaticAntenna<>(this, pos) : null;
+        return level.getBlockState(pos).is(RadiocraftBlocks.J_POLE_ANTENNA.get()) ? new StaticAntenna<>(this, pos, level) : null;
     }
 
     @Override

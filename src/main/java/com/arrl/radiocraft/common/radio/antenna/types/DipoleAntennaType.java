@@ -51,7 +51,7 @@ public class DipoleAntennaType extends NonDirectionalAntennaType<DipoleAntennaDa
 			return null;
 
 
-		return new StaticAntenna<>(this, pos, new DipoleAntennaData(relativeArm1.length(), relativeArm2.length()));
+		return new StaticAntenna<>(this, pos, level, new DipoleAntennaData(relativeArm1.length(), relativeArm2.length()));
 	}
 
 	@Override

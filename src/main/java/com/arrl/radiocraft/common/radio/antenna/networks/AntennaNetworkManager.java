@@ -6,6 +6,9 @@ import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import static com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities.ANTENNA_NETWORKS;
 
 /**
@@ -16,6 +19,12 @@ public class AntennaNetworkManager {
 
 	public static final ResourceLocation HF_ID = Radiocraft.id("hf");
 	public static final ResourceLocation VHF_ID = Radiocraft.id("vhf");
+	public static Map<ResourceLocation, AntennaNetwork> networks = new HashMap<>();
+
+	static{
+		networks.put(HF_ID, new AntennaNetwork());
+		networks.put(VHF_ID, new AntennaNetwork());
+	}
 
 	/**
 	 * Attempt to grab an existing {@link AntennaNetwork} from a {@link Level} by ID, or
@@ -28,7 +37,8 @@ public class AntennaNetworkManager {
 	 * missing {@link IAntennaNetworkCapability} for some reason.
 	 */
 	public static AntennaNetwork getNetwork(Level level, ResourceLocation id) {
-		IAntennaNetworkCapability cap = ANTENNA_NETWORKS.getCapability(level, null, null, null, null);
+		//TODO remove when confirmed seeing the old implementation inline is not useful for reference
+		/*IAntennaNetworkCapability cap = ANTENNA_NETWORKS.getCapability(level, null, null, null, null);
 		if(cap != null) { // IntelliJ is lying, this is NOT always true.
 			AntennaNetwork network = cap.getNetwork(id);
 			if(network == null)
@@ -36,7 +46,12 @@ public class AntennaNetworkManager {
 			else
 				return network;
 		}
-		return null;
+		return null;*/
+		if(level == null){  //TODO remove this at some point
+			System.err.println("level is null, it's not currently required but interesting regardless, network was " + id.getPath());
+			Thread.dumpStack();
+		}
+		return networks.get(id);
 	}
 
 }

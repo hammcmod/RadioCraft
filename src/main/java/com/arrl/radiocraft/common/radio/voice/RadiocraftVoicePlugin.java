@@ -7,13 +7,13 @@ import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.radio.voice.EncodingManager.EncodingData;
 import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio;
 import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadioManager;
-import de.maxhenkel.voicechat.api.ForgeVoicechatPlugin;
-import de.maxhenkel.voicechat.api.VoicechatPlugin;
-import de.maxhenkel.voicechat.api.VoicechatServerApi;
+import de.maxhenkel.voicechat.api.*;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
 import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
+import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -24,6 +24,9 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 	public static VoicechatServerApi API = null;
 	public static EncodingManager encodingManager = new EncodingManager();
 
+	//TODO not currently working, will be used by audiochannels such as those in PlayerRadio
+//	public static VolumeCategory handheldRadiosVolumeCategory;
+
 	@Override
 	public String getPluginId() {
 		return Radiocraft.MOD_ID;
@@ -33,13 +36,28 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 	public void registerEvents(EventRegistration registration) {
 		registration.registerEvent(MicrophonePacketEvent.class, this::onMicrophonePacket, 0);
 		registration.registerEvent(PlayerDisconnectedEvent.class, this::onPlayerDisconnected, 0);
+		registration.registerEvent(VoicechatServerStartedEvent.class, this::onServerStart, 0);
+	}
+
+	public void onServerStart(VoicechatServerStartedEvent event){
+		//TODO not currently working
+//		handheldRadiosVolumeCategory = event.getVoicechat().volumeCategoryBuilder()
+//				.setId("radiocraft_radios")
+//				.setName("Radios")
+//				.setDescription("Volume for Radios")
+//				.build();
+//		event.getVoicechat().registerVolumeCategory(handheldRadiosVolumeCategory);
 	}
 
 	public void onMicrophonePacket(MicrophonePacketEvent event) { // This should only be called serverside
 		if(API == null)
 			API = event.getVoicechat();
 
-		de.maxhenkel.voicechat.api.ServerPlayer sender = event.getSenderConnection().getPlayer();
+		VoicechatConnection connection = event.getSenderConnection();
+
+		if(connection == null) return; //the voicechat api is written such that the server could technically generate microphone packets (not specific to a player), but they wouldn't have a location so we ignore. Could implement something in the future
+
+		de.maxhenkel.voicechat.api.ServerPlayer sender = connection.getPlayer();
 
 		if(sender.getPlayer() instanceof ServerPlayer player) {
 
@@ -54,17 +72,23 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 				IVHFHandheldCapability cap = PlayerRadio.getHandheldCapOrNull(player);
 
 				if (cap != null) {
-					PlayerRadio playerRadio = PlayerRadioManager.get(player.getUUID());
-					if(playerRadio.canTransmitVoice())
-						playerRadio.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
+					PlayerRadioManager.get(player.getUUID()).ifPresentOrElse(playerRadio -> {
+						if (playerRadio.canTransmitVoice()){
+							System.err.println("Player radio can transmit " + (sender.getPlayer() instanceof Player ? ((Player)sender.getPlayer()).getName() : sender)); //TODO remove debug
+							playerRadio.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
+						}else{
+							System.err.println("Player radio cannot transmit " + (sender.getPlayer() instanceof Player ? ((Player)sender.getPlayer()).getName() : sender)); //TODO debug remove
+							}
+					}, ()-> System.err.println("DEBUG no player radio" + (sender.getPlayer() instanceof Player ? ((Player)sender.getPlayer()).getName() : sender))); //TODO debug remove
 				}
 
 				double sqrRange = API.getBroadcastRange();
 				sqrRange *= sqrRange;
 
+				//TODO refactor naming, listeners here refers to in world microphones on radio transmitters in hearing range of the player speaking, names make this not obvious
 				List<IVoiceTransmitter> listeners = VoiceTransmitters.LISTENERS.get(player.level());
 
-				for (IVoiceTransmitter listener : listeners) { // All radios in range of the sender will receive the packet
+				if(listeners != null) for (IVoiceTransmitter listener : listeners) { // All radios in range of the sender will receive the packet
 					Vec3 pos = listener.getPos();
 
 					if (pos.distanceToSqr(player.position()) > sqrRange)

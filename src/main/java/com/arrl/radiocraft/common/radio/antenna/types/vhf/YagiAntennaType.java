@@ -22,7 +22,7 @@ public class YagiAntennaType extends DirectionalAntennaType<YagiAntennaData> {
 
     @Override
     public StaticAntenna<YagiAntennaData> match(Level level, BlockPos pos) {
-        return level.getBlockState(pos).is(RadiocraftBlocks.YAGI_ANTENNA.get()) ? new StaticAntenna<>(this, pos) : null;
+        return level.getBlockState(pos).is(RadiocraftBlocks.YAGI_ANTENNA.get()) ? new StaticAntenna<>(this, pos, level) : null;
     }
 
     @Override

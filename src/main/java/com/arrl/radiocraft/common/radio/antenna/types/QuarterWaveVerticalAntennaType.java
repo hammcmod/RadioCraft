@@ -27,7 +27,7 @@ public class QuarterWaveVerticalAntennaType extends NonDirectionalAntennaType<Qu
 		if(height == 0)
 			return null; // Do not match if there is no pole.
 
-		return new StaticAntenna<>(this, pos, new QuarterWaveVerticalAntennaData(height));
+		return new StaticAntenna<>(this, pos, level, new QuarterWaveVerticalAntennaData(height));
 	}
 
 	public int getHeight(Level level, BlockPos pos) {

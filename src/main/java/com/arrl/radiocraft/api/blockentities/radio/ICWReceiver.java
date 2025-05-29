@@ -14,7 +14,7 @@ public interface ICWReceiver {
 
 	/**
 	 * @return The {@link CWReceiveBuffer} for this receiver, which is what receives and sorts {@link CWBuffer}s from
-	 * {@link CWBufferPacket}s on the client.
+	 * link CWBufferPacket s on the client. TODO fix link/code
 	 */
 	CWReceiveBuffer getCWReceiveBuffer();
 
@@ -26,7 +26,7 @@ public interface ICWReceiver {
 
 	/**
 	 * Handles the (server-side) receiving of CW packets from an {@link AntennaNetwork}. This should also be where any
-	 * {@link CWBufferPacket}s are then sent to clients tracking this receiver.
+	 * link CWBufferPacket s are then sent to clients tracking this receiver. TODO fix link/code
 	 *
 	 * @param packet The {@link AntennaCWPacket} being received. This is an {@link IAntennaPacket}, not a network packet.
 	 */

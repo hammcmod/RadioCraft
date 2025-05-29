@@ -21,11 +21,14 @@ public class RadiocraftCapabilities {
 
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+		//TODO add the rest of the blocks, only adding stuff that is on the short list for testing for now
 		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.CHARGE_CONTROLLER.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
 		event.registerBlock(CALLSIGNS, (level, pos, state, be, side) -> new CallsignCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
+		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
 
-		event.registerItem(VHF_HANDHELDS, (itemStack, context) -> new VHFHandheldCapability(), RadiocraftItems.VHF_HANDHELD.get());
+		event.registerItem(VHF_HANDHELDS, (itemStack, context) -> VHFHandheldCapability.getCapability(itemStack), RadiocraftItems.VHF_HANDHELD.get());
 
 		event.registerEntity(ANTENNA_WIRE_HOLDERS, EntityType.PLAYER, (myEntity, context) -> new AntennaWireHolderCapability());
 	}

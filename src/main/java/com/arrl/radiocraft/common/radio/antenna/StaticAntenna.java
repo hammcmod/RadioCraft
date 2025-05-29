@@ -10,6 +10,7 @@ import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 
@@ -24,6 +25,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	public final IAntennaType<T> type;
 	public final T data;
 	public final BlockPos pos;
+	public final Level level;
 
 	private AntennaNetwork network = null;
 
@@ -33,16 +35,18 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	private final Map<BlockPos, Double> cwSendCache = new HashMap<>();
 	private final Map<BlockPos, Double> cwReceiveCache = new HashMap<>();
 
-	public StaticAntenna(IAntennaType<T> type, BlockPos pos, T data) {
+	public StaticAntenna(IAntennaType<T> type, BlockPos pos, Level level, T data) {
 		this.type = type;
 		this.data = data;
 		this.pos = pos;
+		this.level = level;
 	}
 
-	public StaticAntenna(IAntennaType<T> type, BlockPos pos) {
+	public StaticAntenna(IAntennaType<T> type, BlockPos pos, Level level) {
 		this.type = type;
 		this.data = type.getDefaultData();
 		this.pos = pos;
+		this.level = level;
 	}
 
 	@Override
@@ -126,7 +130,9 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	}
 
 	public AntennaNetworkObject getNetworkObj() {
-		return (AntennaNetworkObject)IBENetworks.getObject(network.getLevel(), pos);
+		//TODO remove when confirmed seeing the old implementation inline is not useful for reference
+		//return (AntennaNetworkObject)IBENetworks.getObject(network.getLevel(), pos);
+		return (AntennaNetworkObject)IBENetworks.getObject(level, pos);
 	}
 
 	@Override

@@ -19,7 +19,7 @@ public class SlimJimAntennaType extends NonDirectionalAntennaType<EmptyAntennaDa
 
     @Override
     public StaticAntenna<EmptyAntennaData> match(Level level, BlockPos pos) {
-        return level.getBlockState(pos).is(RadiocraftBlocks.SLIM_JIM_ANTENNA.get()) ? new StaticAntenna<>(this, pos) : null;
+        return level.getBlockState(pos).is(RadiocraftBlocks.SLIM_JIM_ANTENNA.get()) ? new StaticAntenna<>(this, pos, level) : null;
     }
 
     @Override

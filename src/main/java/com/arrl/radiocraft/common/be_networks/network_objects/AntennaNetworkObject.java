@@ -153,7 +153,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         if(nbt.contains("antennaType")) {
             IAntennaType<?> type = AntennaTypes.getType(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, nbt.getString("antennaType")));
             if(type != null) {
-                antenna = new StaticAntenna<>(type, pos);
+                antenna = new StaticAntenna<>(type, pos, level);
                 antenna.deserializeNBT(null, nbt.getCompound("antennaData"));
             }
         }

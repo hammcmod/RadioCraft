@@ -6,12 +6,24 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.UnknownNullability;
 
+import java.util.WeakHashMap;
+
 public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	private ItemStack heldItem = ItemStack.EMPTY;
 	private boolean isPowered = false;
 	private int frequencyKiloHertz = 0;
 	private boolean isPTTDown = false;
+	//TODO temporary hack for testing, must be changed to use data attachment API for storing state, and produce a new capability on each request
+	private static final WeakHashMap<ItemStack, VHFHandheldCapability> capabilities = new WeakHashMap<>();
+
+	public VHFHandheldCapability(ItemStack item) {
+		heldItem = item;
+	}
+
+	public static IVHFHandheldCapability getCapability(ItemStack itemStack) {
+		return capabilities.computeIfAbsent(itemStack, VHFHandheldCapability::new);
+	}
 
 	@Override
 	public ItemStack getItem() {
@@ -53,6 +65,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 		isPTTDown = value;
 	}
 
+	//TODO obsolete as of the dataAttachment system, NBT is no longer worked with directly
 	@Override
 	public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();

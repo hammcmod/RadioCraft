@@ -40,6 +40,15 @@ neoForge {
             gameDirectory = file("runs/client")
         }
 
+        create("client2") {
+            environment("RADIOCRAFT_DEV_ENV", "true")
+            client()
+            gameDirectory = file("runs/client")
+            programArguments.addAll(
+                "--username","Dev2"
+            )
+        }
+
         create("server") {
             environment("RADIOCRAFT_DEV_ENV", "true")
             server()

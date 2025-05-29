@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 /**
  * Shared {@link BlockEntity} for all blocks which act as an antenna-- used for processing packets/sending them to the
- * network, receiving packets from the network & scheduling antenna update checks.
+ * network, receiving packets from the network {@literal &} scheduling antenna update checks.
  */
 public class AntennaBlockEntity extends BlockEntity implements INetworkObjectProvider {
 

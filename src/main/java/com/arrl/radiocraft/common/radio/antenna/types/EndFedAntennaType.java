@@ -39,7 +39,7 @@ public class EndFedAntennaType extends  NonDirectionalAntennaType<EndFedAntennaD
 		BlockPos relativeBlockPos = end.subtract(pos);
 		Vec3 relative = new Vec3(relativeBlockPos.getX(), relativeBlockPos.getY(), relativeBlockPos.getZ());
 
-		return new StaticAntenna<>(this, pos, new EndFedAntennaData(relative.length()));
+		return new StaticAntenna<>(this, pos, level, new EndFedAntennaData(relative.length()));
 	}
 
 	@Override

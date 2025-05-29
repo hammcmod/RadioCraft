@@ -75,7 +75,7 @@ public class VerticalQuadLoopAntennaType extends DirectionalAntennaType<Vertical
 			return null; // Return null if the quad is not a square.
 
 		int sideLength = (int)Math.sqrt(Math.round(squarePoints.get(0).distSqr(squarePoints.get(1))));
-		return new StaticAntenna<>(this, pos, new VerticalQuadLoopAntennaData(sideLength, xAxis));
+		return new StaticAntenna<>(this, pos, level, new VerticalQuadLoopAntennaData(sideLength, xAxis));
 	}
 
 	public boolean isSquare(List<BlockPos> points) {

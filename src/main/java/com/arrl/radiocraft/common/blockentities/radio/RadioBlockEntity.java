@@ -221,8 +221,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     // -------------------- BE & SYNC IMPLEMENTATION --------------------
 
     /**
-     * Use this to save data on radios instead of {@link BlockEntity#saveAdditional(CompoundTag)} as this will also
-     * be called by {@link BlockEntity#getUpdateTag()} and don't want to save caps on block updates.
+     * Use this to save data on radios instead of link BlockEntity#saveAdditional(CompoundTag) as this will also
+     * be called by link BlockEntity#getUpdateTag() and don't want to save caps on block updates.
+     *
+     * TODO probably needs rewrite for changes to codec based serialization
      */
     protected void setupSaveTag(CompoundTag nbt) {
         nbt.putBoolean("ssbEnabled", ssbEnabled);
@@ -233,8 +235,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     }
 
     /**
-     * Use this to read data on radios instead of {@link BlockEntity#load(CompoundTag)} as this will also
-     * be called by {@link BlockEntity#handleUpdateTag(CompoundTag)} and don't want to write two load methods.
+     * Use this to read data on radios instead of link BlockEntity#load(CompoundTag) as this will also TODO fix link
+     * be called by link BlockEntity#handleUpdateTag(CompoundTag) and don't want to write two load methods.
      */
     protected void readSaveTag(CompoundTag nbt) {
         ssbEnabled = nbt.getBoolean("ssbEnabled");
@@ -325,7 +327,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             return new SimpleContainerData(1);
 
         RadioNetworkObject networkObject = (RadioNetworkObject)IBENetworks.getObject(level, worldPosition);
-        return networkObject == null ? null : new ContainerData() {
+        return networkObject == null ? new SimpleContainerData(1) : new ContainerData() {
             @Override
             public int get(int index) {
                 return networkObject.isPowered ? 1 : 0;
