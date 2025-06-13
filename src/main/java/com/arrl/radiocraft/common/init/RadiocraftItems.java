@@ -1,7 +1,6 @@
 package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.DataComponent;
 import com.arrl.radiocraft.common.items.AntennaPoleItem;
 import com.arrl.radiocraft.common.items.AntennaWireItem;
 import com.arrl.radiocraft.common.items.SmallBatteryItem;

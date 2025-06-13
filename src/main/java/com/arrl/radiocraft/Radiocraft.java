@@ -51,6 +51,7 @@ public class Radiocraft {
         RadiocraftMenuTypes.MENU_TYPES.register(modEventBus);
         RadiocraftSoundEvents.SOUND_EVENTS.register(modEventBus);
         RadiocraftTabs.CREATIVE_TABS.register(modEventBus);
+        RadiocraftDataComponent.DATA_COMPONENTS.register(modEventBus);
 
         modEventBus.addListener(Radiocraft::gatherData);
         modEventBus.addListener(Radiocraft::registerPackets);

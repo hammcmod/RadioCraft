@@ -72,14 +72,11 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 				IVHFHandheldCapability cap = PlayerRadio.getHandheldCapOrNull(player);
 
 				if (cap != null) {
-					PlayerRadioManager.get(player.getUUID()).ifPresentOrElse(playerRadio -> {
-						if (playerRadio.canTransmitVoice()){
-							System.err.println("Player radio can transmit " + (sender.getPlayer() instanceof Player ? ((Player)sender.getPlayer()).getName() : sender)); //TODO remove debug
+					PlayerRadioManager.get(player.getUUID()).ifPresent(playerRadio -> {
+						if (playerRadio.canTransmitVoice()){ //TODO reconsider this structure, should the onus be on the radio to know if it should transmit instead?
 							playerRadio.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
-						}else{
-							System.err.println("Player radio cannot transmit " + (sender.getPlayer() instanceof Player ? ((Player)sender.getPlayer()).getName() : sender)); //TODO debug remove
-							}
-					}, ()-> System.err.println("DEBUG no player radio" + (sender.getPlayer() instanceof Player ? ((Player)sender.getPlayer()).getName() : sender))); //TODO debug remove
+						}
+					});
 				}
 
 				double sqrRange = API.getBroadcastRange();
@@ -88,7 +85,7 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 				//TODO refactor naming, listeners here refers to in world microphones on radio transmitters in hearing range of the player speaking, names make this not obvious
 				List<IVoiceTransmitter> listeners = VoiceTransmitters.LISTENERS.get(player.level());
 
-				if(listeners != null) for (IVoiceTransmitter listener : listeners) { // All radios in range of the sender will receive the packet
+				if(listeners != null) for (IVoiceTransmitter listener : listeners) { // All radios in audible range of the sender will receive the packet
 					Vec3 pos = listener.getPos();
 
 					if (pos.distanceToSqr(player.position()) > sqrRange)

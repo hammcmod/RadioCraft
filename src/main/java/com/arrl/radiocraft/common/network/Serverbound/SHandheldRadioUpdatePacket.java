@@ -33,8 +33,6 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
         this.powered = (packed&0x1)==0x1;
         this.ptt = (packed&0x2)==0x2;
         this.frequencyKiloHertz = frequencyKiloHertz;
-
-        System.err.println("unpacking " + packed + " powered " + (packed&0x1) + " " + this.powered + " ptt " + this.ptt);
     }
 
     public int getFrequencyKiloHertz() {

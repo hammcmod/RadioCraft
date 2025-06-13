@@ -152,15 +152,17 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         return cap != null && cap.isPowered() && cap.isPTTDown();
     }
 
-    public void openChannel() {
+    public boolean openChannel() {
         if(RadiocraftVoicePlugin.API == null)
             Radiocraft.LOGGER.error("VoiceChatServerApi has.");
 //        receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromEntity(getPlayer()));
         currentlevel = getPlayer().level();
         receiveChannel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromServerLevel(currentlevel), getPosInVoiceApiFormat());
+        if(receiveChannel == null) return false;
         receiveChannel.setDistance(16f);
 //        receiveChannel.setCategory(RadiocraftVoicePlugin.handheldRadiosVolumeCategory.getId()); //TODO not currently working
 //        receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromEntity(getPlayer()));
+        return true;
     }
 
     private Position getPosInVoiceApiFormat() {
@@ -203,7 +205,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             //TODO remove
             System.err.println("Receiving audio length " + antennaPacket.getRawAudio().length + " strength " + antennaPacket.getStrength() + " player " + player.getName() + " " + player.getUUID() + " eye position of player" + player.getEyePosition() + " from " + antennaPacket.getSourcePlayer());
             if(receiveChannel == null)
-                openChannel();
+                if(!openChannel()) return; //if the channel cannot be opened, return early
 
             //if entityChannel can be gotten working again, this is where you check to make sure it's still bound to the player
             //most likely redundant with the onPlayerCloned hook in PlayerRadioManager calling set player
@@ -214,7 +216,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             if(currentlevel != player.level()){
                 receiveChannel.flush();
                 receiveChannel = null;
-                openChannel();
+                if(!openChannel()) return;
             }
             receiveChannel.updateLocation(getPosInVoiceApiFormat());
 

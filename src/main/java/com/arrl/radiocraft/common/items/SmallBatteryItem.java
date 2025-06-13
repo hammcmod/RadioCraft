@@ -1,9 +1,5 @@
 package com.arrl.radiocraft.common.items;
 
-import com.arrl.radiocraft.CommonConfig;
-import com.arrl.radiocraft.common.DataComponent;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
