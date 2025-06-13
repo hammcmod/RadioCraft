@@ -38,8 +38,8 @@ public class VHFHandheldItem extends Item {
                     IVHFHandheldCapability cap = VHF_HANDHELDS.getCapability(item, null);
 
                     if (cap != null) {
-                        player.setItemInHand(InteractionHand.MAIN_HAND, cap.getItem());
-                        cap.setItem(mainItem);
+                        player.setItemInHand(InteractionHand.MAIN_HAND, cap.getBattery());
+                        cap.setBattery(mainItem);
                     }
                 }
 
@@ -57,7 +57,7 @@ public class VHFHandheldItem extends Item {
 
             if (cap != null) {
                 if (cap.isPowered()) {
-                    entity.sendSystemMessage(Component.literal("Would consume power for device " + cap.getItem() + " on player " + entity.getDisplayName()));
+                    entity.sendSystemMessage(Component.literal("Would consume power for device " + cap.getBattery() + " on player " + entity.getDisplayName()));
                     /*
                     TODO: Consume power on the item when held.
 

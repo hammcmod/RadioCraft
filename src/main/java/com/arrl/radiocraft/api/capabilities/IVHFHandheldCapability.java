@@ -7,14 +7,14 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 /**
  * Represents the inventory within a handheld radio.
  */
-public interface IVHFHandheldCapability extends INBTSerializable<CompoundTag> {
+public interface IVHFHandheldCapability {
 
     /**
      * @return The item (battery) held by this handheld radio.
      */
-    ItemStack getItem();
+    ItemStack getBattery();
 
-    void setItem(ItemStack item);
+    void setBattery(ItemStack item);
 
     int getFrequencyKiloHertz();
 

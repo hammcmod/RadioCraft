@@ -1,6 +1,5 @@
 package com.arrl.radiocraft.common.datacomponents;
 
-import com.arrl.radiocraft.common.init.RadiocraftDataComponent;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;

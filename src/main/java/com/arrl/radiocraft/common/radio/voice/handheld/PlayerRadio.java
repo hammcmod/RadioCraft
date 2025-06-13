@@ -33,10 +33,9 @@ import java.util.UUID;
 public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna {
 
     private LocationalAudioChannel receiveChannel = null;
-//    private StaticAudioChannel receiveChannel = null;
     private WeakReference<Player> playerRef = null; // Use a weak ref here, so it isn't able to permanently load the entity.
     private AntennaNetwork network = null;
-    private Level currentlevel; //keeps track of the current level, used to reset LocationalAudioChannel receiveChannel when the player changes dimension
+    private Level currentlevel; //keeps track of the current level, used only to reset LocationalAudioChannel receiveChannel when the player changes dimension
 
     public PlayerRadio(Player player) {
         setPlayer(player);
@@ -125,9 +124,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     @Override
     public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequencyKiloHertz, UUID sourcePlayer) {
         if(network != null) {
+            //TODO move transmission logic into the AntennaNetwork
             Set<IAntenna> antennas = network.allAntennas();
-
-            System.err.println("Transmitting, " + antennas.size() + " antenna(s) found"); //TODO remove
 
             for(IAntenna antenna : antennas) {
                 if(antenna != this) {

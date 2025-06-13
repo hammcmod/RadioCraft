@@ -1,86 +1,82 @@
 package com.arrl.radiocraft.common.capabilities;
 
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
+import com.arrl.radiocraft.common.datacomponents.HandheldRadioState;
+import com.arrl.radiocraft.common.init.RadiocraftDataComponent;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.UnknownNullability;
 
-import java.util.WeakHashMap;
+import java.util.function.UnaryOperator;
 
 public class VHFHandheldCapability implements IVHFHandheldCapability {
 
-	private ItemStack heldItem = ItemStack.EMPTY;
-	private boolean isPowered = false;
-	private int frequencyKiloHertz = 0;
-	private boolean isPTTDown = false;
+	private ItemStack installedBattery = ItemStack.EMPTY;
+//	private boolean isPowered = false;
+//	private int frequencyKiloHertz = 0;
+//	private boolean isPTTDown = false;
+	private ItemStack thisRadio;
 	//TODO temporary hack for testing, must be changed to use data attachment API for storing state, and produce a new capability on each request
-	private static final WeakHashMap<ItemStack, VHFHandheldCapability> capabilities = new WeakHashMap<>();
+//	private static final WeakHashMap<ItemStack, VHFHandheldCapability> capabilities = new WeakHashMap<>();
 
-	public VHFHandheldCapability(ItemStack item) {
-		heldItem = item;
+	public VHFHandheldCapability(ItemStack thisRadio) {
+		this.thisRadio = thisRadio;
 	}
 
-	public static IVHFHandheldCapability getCapability(ItemStack itemStack) {
-		return capabilities.computeIfAbsent(itemStack, VHFHandheldCapability::new);
-	}
-
-	@Override
-	public ItemStack getItem() {
-		return heldItem;
+	public static IVHFHandheldCapability getCapability(ItemStack radioItemstack) {
+		return new VHFHandheldCapability(radioItemstack);
 	}
 
 	@Override
-	public void setItem(ItemStack item) {
-		heldItem = item;
+	public ItemStack getBattery() {
+		return installedBattery;
+	} //TODO add item to datacomponent
+
+	@Override
+	public void setBattery(ItemStack item) {
+		installedBattery = item;
 	}
 
 	@Override
 	public int getFrequencyKiloHertz() {
-		return frequencyKiloHertz;
+		return getState().freq();
 	}
 
 	@Override
 	public void setFrequencyKiloHertz(int frequencyKiloHertz) {
-		this.frequencyKiloHertz = frequencyKiloHertz;
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), frequencyKiloHertz));
 	}
 
 	@Override
 	public boolean isPowered() {
-		return isPowered;
+		return getState().power();
 	}
 
 	@Override
 	public void setPowered(boolean value) {
-		isPowered = value;
+		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq()));
 	}
 
 	@Override
 	public boolean isPTTDown() {
-		return isPTTDown;
+		return getState().ptt();
 	}
 
 	@Override
 	public void setPTTDown(boolean value) {
-		isPTTDown = value;
+		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq()));
 	}
 
-	//TODO obsolete as of the dataAttachment system, NBT is no longer worked with directly
-	@Override
-	public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
-		CompoundTag nbt = new CompoundTag();
-		nbt.put("inventory", heldItem.save(provider));
-		nbt.putBoolean("isPowered", isPowered);
-		nbt.putInt("frequency", frequencyKiloHertz);
-		nbt.putBoolean("isPTTDown", isPTTDown);
-		return nbt;
+	protected HandheldRadioState getState(){
+		return thisRadio.getOrDefault(RadiocraftDataComponent.HANDHELD_RADIO_STATE_COMPONENT.value(), HandheldRadioState.getDefault());
 	}
 
-	@Override
-	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-		heldItem = ItemStack.parseOptional(provider, nbt.getCompound("inventory"));
-		isPowered = nbt.getBoolean("isPowered");
-		frequencyKiloHertz = nbt.getInt("frequency");
-		isPTTDown = nbt.getBoolean("isPTTDown");
+	protected void updateState(UnaryOperator<HandheldRadioState> updater){
+		thisRadio.update(
+				RadiocraftDataComponent.HANDHELD_RADIO_STATE_COMPONENT.value(),
+				HandheldRadioState.getDefault(),
+				updater
+		);
 	}
 }

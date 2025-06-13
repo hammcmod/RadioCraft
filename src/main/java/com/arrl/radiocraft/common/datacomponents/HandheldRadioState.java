@@ -22,4 +22,7 @@ public record HandheldRadioState(boolean power, boolean ptt, int freq) {
             HandheldRadioState::new
     );
 
+    public static HandheldRadioState getDefault() {
+        return new HandheldRadioState(false, false, 0); //TODO pick default frequency
+    }
 }

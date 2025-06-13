@@ -11,12 +11,8 @@ import java.util.Set;
 public class AntennaNetwork implements IAntennaNetwork {
 
 	private final Set<IAntenna> antennas = Collections.synchronizedSet(new HashSet<>()); // Synchronized list as it is read by the VoiP thread
-	//TODO remove when confirmed seeing the old implementation inline is not useful for reference
-//	private final Level level;
 
-	public AntennaNetwork() {
-//		this.level = level;
-	}
+	public AntennaNetwork() {}
 
 	@Override
 	public IAntenna addAntenna(IAntenna antenna) {
@@ -33,12 +29,5 @@ public class AntennaNetwork implements IAntennaNetwork {
 	public Set<IAntenna> allAntennas() {
 		return antennas;
 	}
-
-	//TODO remove when confirmed seeing the old implementation inline is not useful for reference
-//
-//	@Override
-//	public Level getLevel() {
-//		return level;
-//	}
 
 }
