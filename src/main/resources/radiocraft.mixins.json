@@ -4,7 +4,8 @@
   "compatibilityLevel": "JAVA_21",
   "refmap": "radiocraft.refmap.json",
   "mixins": [
-    "MixinPTTKeyHandler"
+    "MixinPTTKeyHandler",
+    "MixinVoiceActivation"
   ],
   "client": [
   ],
