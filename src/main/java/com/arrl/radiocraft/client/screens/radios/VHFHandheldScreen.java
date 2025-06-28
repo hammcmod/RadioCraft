@@ -3,11 +3,13 @@ package com.arrl.radiocraft.client.screens.radios;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
+import com.arrl.radiocraft.client.VoxStateEnum;
 import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ImageButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
+import com.arrl.radiocraft.mixin.MixinVoiceActivation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -73,6 +75,9 @@ public class VHFHandheldScreen extends Screen {
         if (cap.isPowered()) {
             pGuiGraphics.blit(TEXTURE, leftPos + 32, topPos + 107, 157, 0, 10, 13, 256, 256);
             if (cap.isPTTDown()) {
+                pGuiGraphics.blit(TEXTURE, leftPos + 44, topPos + 107, 167, 0, 10, 13, 256, 256);
+            }
+            if (RadiocraftClientValues.RADIO_VOX_MODE == VoxStateEnum.ACTIVE) {
                 pGuiGraphics.blit(TEXTURE, leftPos + 44, topPos + 107, 167, 0, 10, 13, 256, 256);
             }
             pGuiGraphics.drawString(this.font, cap.getFrequencyKiloHertz() * 1000.0 + " MHz", leftPos + 80,  topPos + 126, 0xFFFFFF);
