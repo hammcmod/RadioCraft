@@ -24,7 +24,7 @@ public class AntennaTypes {
 	public static <C extends IAntennaType<?>> C registerType(C type) {
 		ResourceLocation id = type.getId();
 		if(REGISTRY.containsKey(id))
-			Radiocraft.LOGGER.warn("Attempted to register a duplicate Antenna Type of ID " + id.toString());
+            Radiocraft.LOGGER.warn("Attempted to register a duplicate Antenna Type of ID {}", id.toString());
 		else
 			REGISTRY.put(id, type);
 

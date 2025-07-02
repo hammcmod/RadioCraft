@@ -53,7 +53,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     public void setPlayer(Player player) {
 
         Player old = playerRef == null ? null : playerRef.get();
-        System.err.println("Setting new player " + (player == null ? null : player.getName()) + ", old player was " + (old == null ? (playerRef != null ? "already cleared":"never set?") : old.getName()));
+        Radiocraft.LOGGER.error("Setting new player {}, old player was {}", player == null ? null : player.getName(), old == null ? (playerRef != null ? "already cleared" : "never set?") : old.getName());
 
         playerRef = new WeakReference<>(player);
         if(receiveChannel != null) {
@@ -152,7 +152,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
     public boolean openChannel() {
         if(RadiocraftVoicePlugin.API == null)
-            Radiocraft.LOGGER.error("VoiceChatServerApi has.");
+            Radiocraft.LOGGER.error("VoiceChatServerApi is null, cannot open channel.");
 //        receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromEntity(getPlayer()));
         currentlevel = getPlayer().level();
         receiveChannel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromServerLevel(currentlevel), getPosInVoiceApiFormat());

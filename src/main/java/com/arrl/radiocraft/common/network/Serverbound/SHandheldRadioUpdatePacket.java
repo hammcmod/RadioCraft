@@ -68,14 +68,14 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
             ItemStack stack = context.player().getInventory().getItem(this.index);
 
             if(stack == null){
-                System.err.println("Handheld Radio stack is null for player " + context.player().getName() + " despite getting handheld radio update packet"); //TODO replace with proper logging call
+                Radiocraft.LOGGER.error("Handheld Radio stack is null for player {} despite getting handheld radio update packet", context.player().getName());
                 return;
             }
 
             IVHFHandheldCapability cap = stack.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
 
             if(cap == null){
-                System.err.println("held item does not have handheld radio capability yet the following player send handheld radio update packet: " + context.player().getName()); //TODO replace with proper logging call
+                Radiocraft.LOGGER.error("held item does not have handheld radio capability yet the following player send handheld radio update packet: {}", context.player().getName());
                 return;
             }
 

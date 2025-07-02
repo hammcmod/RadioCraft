@@ -23,14 +23,14 @@ public class PlayerRadioManager {
     public static void onPlayerJoined(PlayerEvent.PlayerLoggedInEvent event) {
         Player player = event.getEntity();
         playerRadios.put(player.getUUID(), new PlayerRadio(player));
-        Radiocraft.LOGGER.debug("Player radio added for " + player.getName() + " uuid " + player.getUUID());
+        Radiocraft.LOGGER.debug("Player radio added for {} uuid {}", player.getName(), player.getUUID());
     }
 
     @SubscribeEvent
     public static void onPlayerLeft(PlayerEvent.PlayerLoggedOutEvent event) {
         UUID uuid = event.getEntity().getUUID();
-        get(uuid).ifPresentOrElse(u -> u.setPlayer(null), () -> System.out.println("Player radio was null on leave, onPlayerJoined not called? Player: " + event.getEntity().getName() + " uuid " + event.getEntity().getUUID()));
-        Radiocraft.LOGGER.debug("Player radio added for " + event.getEntity().getName() + " uuid " + event.getEntity().getUUID());
+        get(uuid).ifPresentOrElse(u -> u.setPlayer(null), () -> Radiocraft.LOGGER.error("Player radio was null on leave, onPlayerJoined not called? Player: {} uuid {}", event.getEntity().getName(), event.getEntity().getUUID()));
+        Radiocraft.LOGGER.debug("Player radio removed for {} uuid {}", event.getEntity().getName(), event.getEntity().getUUID());
         playerRadios.remove(uuid);
     }
 
@@ -41,7 +41,7 @@ public class PlayerRadioManager {
                     r -> r.setPlayer(event.getEntity()),
                     () -> {
                         playerRadios.put(event.getEntity().getUUID(), new PlayerRadio(event.getEntity()));
-                        System.out.println("Player radio was null on death, onPlayerJoined not called? Player: " + event.getEntity().getName());
+                        Radiocraft.LOGGER.error("Player radio was null on death, onPlayerJoined not called? Player: {}", event.getEntity().getName());
                     }
             ); // Ensure to update the player object when cloned (e.g. dimension change)
         }

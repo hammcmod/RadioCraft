@@ -48,7 +48,7 @@ public class AntennaNetworkManager {
 		}
 		return null;*/
 		if(level == null){  //TODO remove this at some point
-			System.err.println("level is null, it's not currently required but interesting regardless, network was " + id.getPath());
+            Radiocraft.LOGGER.error("level is null, it's not currently required but interesting regardless, network was {}", id.getPath());
 			Thread.dumpStack();
 		}
 		return networks.get(id);
