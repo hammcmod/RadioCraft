@@ -3,10 +3,7 @@ package com.arrl.radiocraft.client.screens.radios;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
-import com.arrl.radiocraft.client.screens.widgets.Dial;
-import com.arrl.radiocraft.client.screens.widgets.HoldButton;
-import com.arrl.radiocraft.client.screens.widgets.ImageButton;
-import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
+import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.network.Serverbound.SHandheldRadioUpdatePacket;
 import net.minecraft.client.Minecraft;
@@ -58,8 +55,29 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
         addRenderableWidget(new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Mic gain
         addRenderableWidget(new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Gain
-        addRenderableWidget(new ImageButton(leftPos + 106, topPos + 168, 18, 14, 76, 84, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
-        addRenderableWidget(new ImageButton(leftPos + 126, topPos + 168, 18, 14, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
+        addRenderableWidget(new HoverableImageButton(leftPos + 105, topPos + 168, 18, 14, 94, 84, 76, 84, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
+        addRenderableWidget(new HoverableImageButton(leftPos + 125, topPos + 168, 18, 14, 94, 98, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
+    }
+
+    // Takes in 0-10 for the power level. The radio only shows 0-4... but whatever. The texture might change.
+    private void renderPowerMeter(GuiGraphics guiGraphics, double power) {
+        int scaledMeter = (int) (33.0 * (power / 10.0));
+        // Move the needle to the left if the radio is off.
+        if (!cap.isPowered()) scaledMeter = 0;
+        // Render the meter finger
+        guiGraphics.blit(WIDGETS_TEXTURE, leftPos + 33 + scaledMeter, topPos + 126, 232, 0, 2, 20, 256, 256);
+    }
+
+    private void renderTxLed(GuiGraphics guiGraphics, boolean on) {
+        if (on) guiGraphics.blit(TEXTURE, leftPos + 32, topPos + 107, 157, 0, 10, 13, 256, 256);
+    }
+
+    private void renderRxLed(GuiGraphics guiGraphics, boolean on) {
+        if (on) guiGraphics.blit(TEXTURE, leftPos + 44, topPos + 107, 167, 0, 10, 13, 256, 256);
+    }
+
+    private void renderDataLed(GuiGraphics guiGraphics, boolean on) {
+        if (on) guiGraphics.blit(TEXTURE, leftPos + 56, topPos + 107, 167, 0, 10, 13, 256, 256);
     }
 
     @Override
@@ -72,12 +90,24 @@ public class VHFHandheldScreen extends Screen {
         int edgeSpacingY = (height - imageHeight) / 2;
         pGuiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, imageWidth, imageHeight);
 
+        /*
+
+        TODO
+
+        * Power meter shows transmitted power based on user's voice amplitude
+        * Data light turns on if there's a data transmission
+        * RX light turns on if there's any signal being received (maybe we add squelch?)
+
+         */
+
+        double power = Math.random() * 10.0; // For testing lol's
+        renderPowerMeter(pGuiGraphics, power);
+
         if (cap.isPowered()) {
-            pGuiGraphics.blit(TEXTURE, leftPos + 32, topPos + 107, 157, 0, 10, 13, 256, 256);
-            if (cap.isPTTDown()) {
-                pGuiGraphics.blit(TEXTURE, leftPos + 44, topPos + 107, 167, 0, 10, 13, 256, 256);
-            }
             pGuiGraphics.drawString(this.font, cap.getFrequencyKiloHertz() * 1000.0 + " MHz", leftPos + 80,  topPos + 126, 0xFFFFFF);
+
+            renderTxLed(pGuiGraphics, cap.isPTTDown());
+            renderRxLed(pGuiGraphics, !cap.isPTTDown()); // Just for testing
         }
 
         cap.getFrequencyKiloHertz();
