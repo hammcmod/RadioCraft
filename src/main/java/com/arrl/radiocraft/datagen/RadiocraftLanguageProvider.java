@@ -71,10 +71,13 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("commands", "callsign.set.success"), "%s's callsign has been set to %s.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.set.failure.multiple"), "Cannot reset the callsign of multiple targets at once.");
 			provider.add(Radiocraft.translationKey("commands", "solarweather.success"), "Event: %s\nProgress: %s\nDuration: %s\nNoise Floor: %s");
+
 			provider.add(Radiocraft.translationKey("screen", "chargecontroller.power"), "%s FE/s");
 			provider.add(Radiocraft.translationKey("screen", "radio.tx"), "Transmitting");
 			provider.add(Radiocraft.translationKey("screen", "radio.rx"), "Receiving");
 
+			// I'm honestly not convinced this line is working. I added it to the en_us.json generated file (probably a bad idea since it's not version controlled).
+			provider.add("config.jade.plugin_radiocraft.radiocraft", "RadioCraft");
 		});
 	}
 
