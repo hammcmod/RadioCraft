@@ -74,17 +74,20 @@ sourceSets.main.get().resources.srcDir(file("src/generated/resources"))
 repositories {
     maven("https://maven.maxhenkel.de/repository/public") { name = "VoiceChat Maven" }
     maven("https://cursemaven.com") { name = "CurseMaven" }
+    maven ("https://api.modrinth.com/maven") { name = "Modrinth" } // Used by Jade
     maven ("https://maven.blamejared.com") { name = "JEI Maven" } // Dependency of TOP
     maven ("https://maven.k-4u.nl") { name = "TOP Maven" }
 }
 
+val jade_version = "15.10.0+neoforge"
 val top_version="1.21_neo-12.0.4-6"
 
 dependencies {
     compileOnly(libs.mixinextras.common)
     compileOnly(libs.voicechat.api)
-    implementation("mcjty.theoneprobe:theoneprobe:${top_version}")
     implementation(libs.voicechat)
+    implementation("mcjty.theoneprobe:theoneprobe:${top_version}")
+    implementation("maven.modrinth:jade:${jade_version}")
 }
 
 tasks.withType<ProcessResources>().configureEach {

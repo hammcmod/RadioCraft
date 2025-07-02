@@ -49,5 +49,6 @@
   "screen.radiocraft.chargecontroller.power": "%s FE/s",
   "screen.radiocraft.radio.rx": "Receiving",
   "screen.radiocraft.radio.tx": "Transmitting",
-  "tabs.radiocraft.main_tab": "RadioCraft"
+  "tabs.radiocraft.main_tab": "RadioCraft",
+  "config.jade.plugin_radiocraft.radiocraft": "Radiocraft"
 }
