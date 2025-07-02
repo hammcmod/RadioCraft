@@ -53,8 +53,6 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     public void setPlayer(Player player) {
 
         Player old = playerRef == null ? null : playerRef.get();
-        Radiocraft.LOGGER.error("Setting new player {}, old player was {}", player == null ? null : player.getName(), old == null ? (playerRef != null ? "already cleared" : "never set?") : old.getName());
-
         playerRef = new WeakReference<>(player);
         if(receiveChannel != null) {
             if (player != null){
