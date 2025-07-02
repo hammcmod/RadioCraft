@@ -45,9 +45,8 @@ public class SolarEventManager {
 					solarEvent = RadiocraftData.SOLAR_EVENTS.getWeightedRandom().getInstance(); // Keep picking new event if the current one is finished
 					setEvent(event.getLevel(), solarEvent);
 					//RadiocraftPackets.sendToLevel(new CNoisePacket(solarEvent.getEvent().getNoise()), (ServerLevel)event.getLevel()); // Update noise value for all players in that level
-					Radiocraft.LOGGER.info(event.getLevel().dimension() + " " + solarEvent.getEvent().getNoise());
+                    Radiocraft.LOGGER.info("Dimension: {} Solar Event Noise: {}", event.getLevel().dimension(), solarEvent.getEvent().getNoise());
 				}
-
 				solarEvent.tick();
 			//}
 		}
