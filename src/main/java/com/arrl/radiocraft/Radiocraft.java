@@ -2,6 +2,7 @@ package com.arrl.radiocraft;
 
 import com.arrl.radiocraft.common.init.*;
 import com.arrl.radiocraft.common.network.RadiocraftNetworking;
+import com.arrl.radiocraft.compat.TopCompat;
 import com.arrl.radiocraft.datagen.RadiocraftBlockstateProvider;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
@@ -14,6 +15,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -34,9 +36,19 @@ public class Radiocraft {
     public Radiocraft(IEventBus modEventBus) {
         registerRegistries(modEventBus);
 
+        TopCompatRegistry tcr = new TopCompatRegistry();
+        modEventBus.register(tcr);
 
         ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
         ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.SERVER, RadiocraftServerConfig.SPEC, Radiocraft.MOD_ID + "-server.toml");
+    }
+
+    // This is probably not the best/easiest way to do this, but I couldn't get it to cooperate otherwise, and this is perfectly valid.
+    static class TopCompatRegistry {
+        @SubscribeEvent
+        public void commonSetup(FMLCommonSetupEvent event) {
+            TopCompat.register();
+        }
     }
 
     // Registering deferred registries to the event bus
