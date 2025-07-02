@@ -57,7 +57,7 @@ public class VHFHandheldItem extends Item {
 
             if (cap != null) {
                 if (cap.isPowered()) {
-                    entity.sendSystemMessage(Component.literal("Would consume power for device " + cap.getBattery() + " on player " + entity.getDisplayName()));
+                    //entity.sendSystemMessage(Component.literal("Would consume power for device " + cap.getBattery() + " on player " + entity.getDisplayName()));
                     /*
                     TODO: Consume power on the item when held.
 
