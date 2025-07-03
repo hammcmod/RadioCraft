@@ -1,8 +1,6 @@
 package com.arrl.radiocraft.api.capabilities;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.common.util.INBTSerializable;
 
 /**
  * Represents the inventory within a handheld radio.
@@ -27,5 +25,17 @@ public interface IVHFHandheldCapability {
     boolean isPTTDown();
 
     void setPTTDown(boolean value);
+
+    /**
+     * Sets if the receiving indicator light should be on
+     * @param rec true if the receive light should be on
+     */
+    void setReceiveIndicator(boolean rec);
+
+    /**
+     * Gets the status of the receiving light (on if we are currently receiving a transmission)
+     * @return if the receive indicator should be on
+     */
+    boolean getReceiveIndicator();
 
 }

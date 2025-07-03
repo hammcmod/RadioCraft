@@ -3,10 +3,7 @@ package com.arrl.radiocraft.common.capabilities;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.common.datacomponents.HandheldRadioState;
 import com.arrl.radiocraft.common.init.RadiocraftDataComponent;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.function.UnaryOperator;
 
@@ -45,7 +42,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setFrequencyKiloHertz(int frequencyKiloHertz) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), frequencyKiloHertz));
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), frequencyKiloHertz, old.receiveIndicator()));
 	}
 
 	@Override
@@ -55,7 +52,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPowered(boolean value) {
-		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq()));
+		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.receiveIndicator()));
 	}
 
 	@Override
@@ -65,7 +62,17 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPTTDown(boolean value) {
-		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq()));
+		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.receiveIndicator()));
+	}
+
+	@Override
+	public void setReceiveIndicator(boolean rec) {
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), rec));
+	}
+
+	@Override
+	public boolean getReceiveIndicator() {
+		return getState().receiveIndicator();
 	}
 
 	protected HandheldRadioState getState(){
