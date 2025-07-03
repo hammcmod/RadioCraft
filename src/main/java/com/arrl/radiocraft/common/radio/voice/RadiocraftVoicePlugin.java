@@ -2,10 +2,8 @@ package com.arrl.radiocraft.common.radio.voice;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
-import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.radio.voice.EncodingManager.EncodingData;
-import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio;
 import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadioManager;
 import de.maxhenkel.voicechat.api.*;
 import de.maxhenkel.voicechat.api.events.EventRegistration;
@@ -13,7 +11,6 @@ import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
 import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -68,17 +65,14 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 			if(encodedAudio.length == 0)
 				encodingData.reset();
 			else {
+				PlayerRadioManager.get(sender.getUuid()).ifPresent(playerRadio -> {
+					//still need to reconsider the structure for static antennas so not deleting this just yet, but for synchronization the check is moved inside
+//					if (playerRadio.canTransmitVoice()){ //TODO reconsider this structure, should the onus be on the radio to know if it should transmit instead?
+						playerRadio.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
+//					}
+				});
 
-				IVHFHandheldCapability cap = PlayerRadio.getHandheldCapOrNull(player);
-
-				if (cap != null) {
-					PlayerRadioManager.get(player.getUUID()).ifPresent(playerRadio -> {
-						if (playerRadio.canTransmitVoice()){ //TODO reconsider this structure, should the onus be on the radio to know if it should transmit instead?
-							playerRadio.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
-						}
-					});
-				}
-
+				//this is the auditory range NOT the radio range
 				double sqrRange = API.getBroadcastRange();
 				sqrRange *= sqrRange;
 

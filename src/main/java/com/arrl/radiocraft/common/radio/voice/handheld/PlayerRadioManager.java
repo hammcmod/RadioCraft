@@ -5,15 +5,17 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 
-import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @EventBusSubscriber(modid=Radiocraft.MOD_ID)
 public class PlayerRadioManager {
 
-    private static final HashMap<UUID, PlayerRadio> playerRadios = new HashMap<>();
+    private static final Map<UUID, PlayerRadio> playerRadios = new ConcurrentHashMap<>();
 
     public static Optional<PlayerRadio> get(UUID uuid) {
         return Optional.ofNullable(playerRadios.get(uuid));
@@ -44,6 +46,13 @@ public class PlayerRadioManager {
                         Radiocraft.LOGGER.error("Player radio was null on death, onPlayerJoined not called? Player: {}", event.getEntity().getName());
                     }
             ); // Ensure to update the player object when cloned (e.g. dimension change)
+        }
+    }
+
+    @SubscribeEvent
+    public static void onServerTick(ServerTickEvent.Post event){
+        for(PlayerRadio playerRadio : playerRadios.values()) {
+            playerRadio.tick();
         }
     }
 
