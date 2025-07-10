@@ -95,8 +95,10 @@ public class VHFHandheldScreen extends Screen {
 
         if (cap.isPowered() && cap.isPTTDown()) {
             POWER_METER.setValue(1.0);
-        } else {
+        } else if (cap.isPowered()) {
             POWER_METER.setValue(Math.random() / 10.0);
+        } else {
+            POWER_METER.setValue(0.0);
         }
 
         if (cap.isPowered()) {
