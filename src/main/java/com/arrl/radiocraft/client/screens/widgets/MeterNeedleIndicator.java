@@ -180,15 +180,12 @@ public class MeterNeedleIndicator extends AbstractWidget {
 
         // Hard boundary enforcement if bounce is disabled
         if (!enableBounce) {
-            boolean hitBoundary = false;
             if (currentNeedlePosition > 1.0) {
                 currentNeedlePosition = 1.0;
                 needleVelocity = 0.0; // Stop all movement at boundary
-                hitBoundary = true;
             } else if (currentNeedlePosition < 0.0) {
                 currentNeedlePosition = 0.0;
                 needleVelocity = 0.0; // Stop all movement at boundary
-                hitBoundary = true;
             }
         }
 
