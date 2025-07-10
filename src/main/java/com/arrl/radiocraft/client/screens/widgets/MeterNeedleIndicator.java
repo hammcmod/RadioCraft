@@ -37,6 +37,10 @@ public class MeterNeedleIndicator extends AbstractWidget {
     private double maxVelocity = 0.05; // Maximum velocity per millisecond to prevent overly fast movement
     private double minMovementThreshold = 0.001; // Minimum movement threshold to prevent endless tiny movements
 
+    // Bounce effect fields
+    private boolean enableBounce = true;
+    private double bounceStrength = 0.05; // Boundary stiffness (higher = harder physical stop)
+
     /**
      * Creates a new needle indicator which renders a horizontally or vertically moved needle onto a meter texture
      * Note: Remember to call `addRenderableWidget()` when you create the instance of this widget in your screen
@@ -131,6 +135,35 @@ public class MeterNeedleIndicator extends AbstractWidget {
         // Apply spring force towards target position
         double springForce = positionDifference * springConstant;
 
+        // Handle boundary physics when needle goes beyond limits
+        if (enableBounce) {
+            if (currentNeedlePosition > 1.0) {
+                // Physical stop at upper boundary - force increases with distance beyond boundary
+                double overshoot = currentNeedlePosition - 1.0;
+                double boundaryForce = -overshoot * bounceStrength * 10.0; // Strong force back toward boundary
+                springForce += boundaryForce;
+
+                // Zero velocity when hitting boundary moving outward, apply bounce velocity when moving inward
+                if (needleVelocity > 0) {
+                    needleVelocity = -needleVelocity * 0.3; // Reverse with reduced velocity for bounce
+                } else {
+                    needleVelocity *= 0.8; // Light damping when moving back toward valid range
+                }
+            } else if (currentNeedlePosition < 0.0) {
+                // Physical stop at lower boundary - force increases with distance beyond boundary
+                double overshoot = -currentNeedlePosition;
+                double boundaryForce = overshoot * bounceStrength * 10.0; // Strong force back toward boundary
+                springForce += boundaryForce;
+
+                // Zero velocity when hitting boundary moving outward, apply bounce velocity when moving inward
+                if (needleVelocity < 0) {
+                    needleVelocity = -needleVelocity * 0.3; // Reverse with reduced velocity for bounce
+                } else {
+                    needleVelocity *= 0.8; // Light damping when moving back toward valid range
+                }
+            }
+        }
+
         // Update velocity with spring force
         needleVelocity += springForce * deltaTime * 0.001; // Convert to per-millisecond
 
@@ -145,11 +178,23 @@ public class MeterNeedleIndicator extends AbstractWidget {
         // Update position based on velocity
         currentNeedlePosition += needleVelocity * deltaTime;
 
-        // Clamp position to valid range
-        currentNeedlePosition = Math.max(0.0, Math.min(1.0, currentNeedlePosition));
+        // Hard boundary enforcement if bounce is disabled
+        if (!enableBounce) {
+            boolean hitBoundary = false;
+            if (currentNeedlePosition > 1.0) {
+                currentNeedlePosition = 1.0;
+                needleVelocity = 0.0; // Stop all movement at boundary
+                hitBoundary = true;
+            } else if (currentNeedlePosition < 0.0) {
+                currentNeedlePosition = 0.0;
+                needleVelocity = 0.0; // Stop all movement at boundary
+                hitBoundary = true;
+            }
+        }
 
         // Stop tiny movements to prevent endless oscillation
-        if (Math.abs(positionDifference) < minMovementThreshold && Math.abs(needleVelocity) < minMovementThreshold) {
+        double adjustedThreshold = Math.max(minMovementThreshold, Math.abs(value) * 0.01);
+        if (Math.abs(positionDifference) < adjustedThreshold && Math.abs(needleVelocity) < minMovementThreshold) {
             needleVelocity = 0.0;
             currentNeedlePosition = value;
         }
@@ -186,6 +231,17 @@ public class MeterNeedleIndicator extends AbstractWidget {
     }
 
     /**
+     * Configures the bounce effect when needle hits extremes
+     * @param enabled Whether bounce effect is enabled
+     * @param boundaryStiffness Stiffness of the boundary "spring" (higher = harder stop, default: 0.1)
+     */
+    public void configureBounce(boolean enabled, double boundaryStiffness) {
+        this.enableBounce = enabled;
+        this.bounceStrength = Math.max(0.01, Math.min(2.0, boundaryStiffness)); // Allow range from 0.01 to 2.0
+    }
+
+
+    /**
      * Instantly snaps the needle to the target position (useful for initialization)
      */
     public void snapToTarget() {
@@ -198,18 +254,21 @@ public class MeterNeedleIndicator extends AbstractWidget {
         // Update needle position before rendering
         double needlePos = getNeedlePercentage();
 
+        // Clamp rendering position to valid range even if physics allows overshoot
+        double renderPos = Math.max(0.0, Math.min(1.0, needlePos));
+
         switch (mnt) {
             case METER_HORIZONTAL:
-                int horizontalOffset = (int) (needlePos * meterWidth);
+                int horizontalOffset = (int) (renderPos * meterWidth);
                 guiGraphics.blit(TEXTURE, this.getX() + horizontalOffset, this.getY(), u, v, width, height, textureWidth, textureHeight);
                 break;
             case METER_VERTICAL:
-                int verticalOffset = (int) (needlePos * meterHeight);
+                int verticalOffset = (int) (renderPos * meterHeight);
                 guiGraphics.blit(TEXTURE, this.getX(), this.getY() + verticalOffset, u, v, width, height, textureWidth, textureHeight);
                 break;
             case METER_ROTATION:
                 // Calculate current rotation angle based on needle position
-                double currentAngle = startingAngle + (needlePos * (endingAngle - startingAngle));
+                double currentAngle = startingAngle + (renderPos * (endingAngle - startingAngle));
 
                 // Convert angle to radians
                 double angleRadians = Math.toRadians(currentAngle);
