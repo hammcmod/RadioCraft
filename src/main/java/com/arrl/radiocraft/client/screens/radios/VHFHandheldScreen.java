@@ -74,15 +74,6 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(POWER_METER);
     }
 
-    // Takes in 0-10 for the power level. The radio only shows 0-4... but whatever. The texture might change.
-    private void renderPowerMeter(GuiGraphics guiGraphics, double power) {
-        int scaledMeter = (int) (33.0 * (power / 10.0));
-        // Move the needle to the left if the radio is off.
-        if (!cap.isPowered()) scaledMeter = 0;
-        // Render the meter finger
-        guiGraphics.blit(WIDGETS_TEXTURE, leftPos + 33 + scaledMeter, topPos + 126, 232, 0, 2, 20, 256, 256);
-    }
-
     @Override
     public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         // I removed the .super() call because for some reason it renders the backgrounds before buttons but after the other rendering of the actual menu.
@@ -95,16 +86,12 @@ public class VHFHandheldScreen extends Screen {
 
         /*
 
-        TODO
-
-        * Power meter shows transmitted power based on user's voice amplitude
+        * Power meter shows transmitted power (based on user's voice amplitude?)
         * Data light turns on if there's a data transmission
         * RX light turns on if there's any signal being received (maybe we add squelch?)
+        * Power meter shows receive strength if there's any signal being received (ignoring squelch)
 
          */
-
-        // double power = Math.random() * 10.0; // For testing lol's
-        // renderPowerMeter(pGuiGraphics, power);
 
         if (cap.isPowered() && cap.isPTTDown()) {
             POWER_METER.setValue(1.0);
