@@ -23,6 +23,6 @@ public record HandheldRadioState(boolean power, boolean ptt, int freq) {
     );
 
     public static HandheldRadioState getDefault() {
-        return new HandheldRadioState(false, false, 0); //TODO pick default frequency
+        return new HandheldRadioState(false, false, 146_520);
     }
 }

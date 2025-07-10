@@ -102,7 +102,7 @@ public class VHFHandheldScreen extends Screen {
         }
 
         if (cap.isPowered()) {
-            pGuiGraphics.drawString(this.font, cap.getFrequencyKiloHertz() * 1000.0 + " MHz", leftPos + 80,  topPos + 126, 0xFFFFFF);
+            pGuiGraphics.drawString(this.font, cap.getFrequencyKiloHertz() / 1000.0 + " MHz", leftPos + 80,  topPos + 126, 0xFFFFFF);
         }
 
         TX_LED.setIsOn(cap.isPowered() && cap.isPTTDown());
