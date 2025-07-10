@@ -33,6 +33,10 @@ public class VHFHandheldScreen extends Screen {
     protected final ItemStack item;
     protected final IVHFHandheldCapability cap;
 
+    LedIndicator TX_LED, RX_LED, DATA_LED;
+
+    MeterNeedleIndicator POWER_METER;
+
     public VHFHandheldScreen(int index) {
         super(Component.translatable(Radiocraft.translationKey("screen", "vhf_handheld")));
         this.index = index;
@@ -51,12 +55,23 @@ public class VHFHandheldScreen extends Screen {
         leftPos = (width - imageWidth) / 2;
         topPos = (height - imageHeight) / 2;
 
+        TX_LED = new LedIndicator(Component.literal("TX LED"), leftPos+ 32, topPos + 107, 10, 13, 157, 0, TEXTURE, 256, 256);
+        RX_LED = new LedIndicator(Component.literal("RX LED"), leftPos + 44, topPos + 107, 10, 13, 167, 0, TEXTURE, 256, 256);
+        DATA_LED = new LedIndicator(Component.literal("Data LED"), leftPos + 56, topPos + 107, 10, 13, 167, 0, TEXTURE, 256, 256);
+
+        //     public MeterNeedleIndicator(Component name, MeterNeedleType mnt, int meterDimension, int x, int y, int width, int height, int u, int v, ResourceLocation texture, int textureWidth, int textureHeight) {
+        POWER_METER = new MeterNeedleIndicator(Component.literal("Power"), MeterNeedleIndicator.MeterNeedleType.METER_HORIZONTAL, 33, leftPos + 33, topPos + 126, 2, 20, 232, 0, WIDGETS_TEXTURE, 256, 256);
+
         addRenderableWidget(new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower)); // Power
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
         addRenderableWidget(new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Mic gain
         addRenderableWidget(new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Gain
         addRenderableWidget(new HoverableImageButton(leftPos + 105, topPos + 168, 18, 14, 94, 84, 76, 84, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
         addRenderableWidget(new HoverableImageButton(leftPos + 125, topPos + 168, 18, 14, 94, 98, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
+        addRenderableWidget(TX_LED);
+        addRenderableWidget(RX_LED);
+        addRenderableWidget(DATA_LED);
+        addRenderableWidget(POWER_METER);
     }
 
     // Takes in 0-10 for the power level. The radio only shows 0-4... but whatever. The texture might change.
@@ -66,18 +81,6 @@ public class VHFHandheldScreen extends Screen {
         if (!cap.isPowered()) scaledMeter = 0;
         // Render the meter finger
         guiGraphics.blit(WIDGETS_TEXTURE, leftPos + 33 + scaledMeter, topPos + 126, 232, 0, 2, 20, 256, 256);
-    }
-
-    private void renderTxLed(GuiGraphics guiGraphics, boolean on) {
-        if (on) guiGraphics.blit(TEXTURE, leftPos + 32, topPos + 107, 157, 0, 10, 13, 256, 256);
-    }
-
-    private void renderRxLed(GuiGraphics guiGraphics, boolean on) {
-        if (on) guiGraphics.blit(TEXTURE, leftPos + 44, topPos + 107, 167, 0, 10, 13, 256, 256);
-    }
-
-    private void renderDataLed(GuiGraphics guiGraphics, boolean on) {
-        if (on) guiGraphics.blit(TEXTURE, leftPos + 56, topPos + 107, 167, 0, 10, 13, 256, 256);
     }
 
     @Override
@@ -100,15 +103,22 @@ public class VHFHandheldScreen extends Screen {
 
          */
 
-        double power = Math.random() * 10.0; // For testing lol's
-        renderPowerMeter(pGuiGraphics, power);
+        // double power = Math.random() * 10.0; // For testing lol's
+        // renderPowerMeter(pGuiGraphics, power);
+
+        if (cap.isPowered() && cap.isPTTDown()) {
+            POWER_METER.setValue(1.0);
+        } else {
+            POWER_METER.setValue(Math.random() / 10.0);
+        }
 
         if (cap.isPowered()) {
             pGuiGraphics.drawString(this.font, cap.getFrequencyKiloHertz() * 1000.0 + " MHz", leftPos + 80,  topPos + 126, 0xFFFFFF);
-
-            renderTxLed(pGuiGraphics, cap.isPTTDown());
-            renderRxLed(pGuiGraphics, !cap.isPTTDown()); // Just for testing
         }
+
+        TX_LED.setIsOn(cap.isPowered() && cap.isPTTDown());
+        RX_LED.setIsOn(cap.isPowered() && !cap.isPTTDown());
+        DATA_LED.setIsOn(false); // TBI
 
         cap.getFrequencyKiloHertz();
 
