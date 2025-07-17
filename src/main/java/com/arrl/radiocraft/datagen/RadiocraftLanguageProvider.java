@@ -62,6 +62,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");
 			provider.addBlock(RadiocraftBlocks.CHARGE_CONTROLLER, "Charge Controller");
 			provider.addBlock(RadiocraftBlocks.MICROPHONE, "Microphone");
+			provider.addBlock(RadiocraftBlocks.YAGI_ANTENNA, "Yagi Antenna");
+			provider.addBlock(RadiocraftBlocks.J_POLE_ANTENNA, "J-Pole Antenna");
+			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
 
 			provider.add(Radiocraft.translationKey("commands", "callsign.get.success"), "%s's callsign is %s.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.get.failure"), "%s does not have a callsign.");
