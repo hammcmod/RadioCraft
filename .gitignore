@@ -24,3 +24,6 @@ runs
 
 # Files from Forge MDK
 forge*changelog.txt
+
+# Caches for generated files
+src/generated/resources/.cache

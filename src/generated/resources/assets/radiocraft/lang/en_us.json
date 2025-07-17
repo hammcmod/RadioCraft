@@ -25,9 +25,6 @@
   "block.radiocraft.vhf_repeater": "VHF Repeater",
   "block.radiocraft.waterproof_wire": "Waterproof Wire",
   "block.radiocraft.wire": "Wire",
-  "block.radiocraft.yagi_antenna": "Yagi Antenna",
-  "block.radiocraft.j_pole_antenna": "J Pole Antenna",
-  "block.radiocraft.slim_jim_antenna": "Slim Jim Antenna",
   "commands.radiocraft.callsign.get.failure": "%s does not have a callsign.",
   "commands.radiocraft.callsign.get.failure.multiple": "Cannot get the callsign of multiple targets at once.",
   "commands.radiocraft.callsign.get.success": "%s's callsign is %s.",
@@ -36,6 +33,7 @@
   "commands.radiocraft.callsign.set.failure.multiple": "Cannot reset the callsign of multiple targets at once.",
   "commands.radiocraft.callsign.set.success": "%s's callsign has been set to %s.",
   "commands.radiocraft.solarweather.success": "Event: %s\nProgress: %s\nDuration: %s\nNoise Floor: %s",
+  "config.jade.plugin_radiocraft.radiocraft": "RadioCraft",
   "item.radiocraft.antenna_analyzer": "Antenna Analyzer",
   "item.radiocraft.antenna_wire": "Antenna Wire",
   "item.radiocraft.coaxial_core": "Coaxial Core",
@@ -49,6 +47,5 @@
   "screen.radiocraft.chargecontroller.power": "%s FE/s",
   "screen.radiocraft.radio.rx": "Receiving",
   "screen.radiocraft.radio.tx": "Transmitting",
-  "tabs.radiocraft.main_tab": "RadioCraft",
-  "config.jade.plugin_radiocraft.radiocraft": "Radiocraft"
+  "tabs.radiocraft.main_tab": "RadioCraft"
 }
