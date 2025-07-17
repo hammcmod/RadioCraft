@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * {@link PlayerRadio} acts as a container used for the transmission and receiving of signals for VHF handsets.
@@ -39,8 +40,9 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
     private volatile boolean canReceive;
     private volatile boolean canTransmit;
-    private final Object antennaPosLock = new Object();
-    private volatile IAntenna.AntennaPos antennaPos;
+    //fun fact, all updates to volatile references are atomic inherently! AtomicReference is used here for readability
+    //and to ensure programmers understand they don't need to synchronize on PlayerRadio to access this
+    private final AtomicReference<IAntenna.AntennaPos> antennaPos = new AtomicReference<>();
     private volatile int frequency;
     //position and level for voiceChannel;
     private volatile Vec3 voicePosition;
@@ -95,12 +97,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
     @Override
     public AntennaPos getAntennaPos() {
-        return this.antennaPos;
-    }
-
-    @Override
-    public Object getAntennaPosLock() {
-        return this.antennaPosLock;
+        return this.antennaPos.get();
     }
 
     @Override
@@ -135,11 +132,9 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             //TODO move transmission logic into the AntennaNetwork
 
             AntennaPos thisPos;
-            synchronized (getAntennaPosLock()) {
-                thisPos = getAntennaPos();
-                if(thisPos == null || thisPos.level() == null) return;
-                if(!thisPos.level().equals(level.getServerLevel())) return;
-            }
+            thisPos = getAntennaPos();
+            if(thisPos == null || thisPos.level() == null) return;
+            if(!thisPos.level().equals(level.getServerLevel())) return;
 
             Set<IAntenna> antennas;
             Set<IAntenna> masterSet = network.allAntennas();
@@ -152,10 +147,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                 if(antenna != this) {
                     AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequencyKiloHertz, 1.0F, this, sourcePlayer);
 
-                    AntennaPos pos;
-                    synchronized (antenna.getAntennaPosLock()) {
-                        pos = antenna.getAntennaPos();
-                    }
+                    AntennaPos pos = antenna.getAntennaPos();
 
                     double distance = Math.sqrt(thisPos.position().distSqr(pos.position()));
                     packet.setStrength(BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0F, 0.0F, packet.getLevel().isDay()));
@@ -263,17 +255,15 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                 this.canReceive = false;
                 this.canTransmit = false;
                 this.voicePosition = null;
-                synchronized (getAntennaPosLock()) {
-                    this.antennaPos = null;
-                }
+                this.voiceLevel = null;
+                this.antennaPos.set(null);
             } else {
                 this.canTransmit = cap.isPowered() && cap.isPTTDown();
                 this.canReceive = cap.isPowered();
                 this.frequency = cap.getFrequencyKiloHertz();
                 this.voicePosition = player.getEyePosition();
-                synchronized (getAntennaPosLock()) {
-                    this.antennaPos = new AntennaPos(player.blockPosition(), player.level());
-                }
+                this.voiceLevel = player.level();
+                this.antennaPos.set(new AntennaPos(player.blockPosition(), player.level()));
             }
         }
     }

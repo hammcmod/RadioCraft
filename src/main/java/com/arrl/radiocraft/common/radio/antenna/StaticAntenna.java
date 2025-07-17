@@ -15,6 +15,7 @@ import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * {@link StaticAntenna} represents an Antenna which never moves, meaning the receiving and sending values can always be
@@ -24,28 +25,29 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 
 	public final IAntennaType<T> type;
 	public final T data;
-	public final BlockPos pos;
+	public final AtomicReference<AntennaPos> pos = new AtomicReference<>();
 	public final Level level;
 
 	private AntennaNetwork network = null;
 
-	private final Map<BlockPos, Double> ssbSendCache = new HashMap<>();
-	private final Map<BlockPos, Double> ssbReceiveCache = new HashMap<>();
-
-	private final Map<BlockPos, Double> cwSendCache = new HashMap<>();
-	private final Map<BlockPos, Double> cwReceiveCache = new HashMap<>();
+	//Disabled due to numerous bugs regarding the complete lack of cache invalidation
+//	private final Map<BlockPos, Double> ssbSendCache = new HashMap<>();
+//	private final Map<BlockPos, Double> ssbReceiveCache = new HashMap<>();
+//
+//	private final Map<BlockPos, Double> cwSendCache = new HashMap<>();
+//	private final Map<BlockPos, Double> cwReceiveCache = new HashMap<>();
 
 	public StaticAntenna(IAntennaType<T> type, BlockPos pos, Level level, T data) {
 		this.type = type;
 		this.data = data;
-		this.pos = pos;
+		this.pos.set(new AntennaPos(pos, level));
 		this.level = level;
 	}
 
 	public StaticAntenna(IAntennaType<T> type, BlockPos pos, Level level) {
 		this.type = type;
 		this.data = type.getDefaultData();
-		this.pos = pos;
+		this.pos.set(new AntennaPos(pos, level));
 		this.level = level;
 	}
 
@@ -59,13 +61,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 					AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequencyKiloHertz, 1.0F, this, sourcePlayer);
 
 					// Calculate the strength this packet should be sent at.
-					BlockPos destination = antenna.getBlockPos();
-					if(ssbSendCache.containsKey(antenna.getBlockPos())) // Recalculate if value wasn't already present.
-						packet.setStrength(ssbSendCache.get(destination));
-					else {
-						packet.setStrength(type.getTransmitEfficiency(packet, data, destination, false) * SWRHelper.getEfficiencyMultiplier(getSWR(wavelength)));
-						ssbSendCache.put(destination, packet.getStrength());
-					}
+					AntennaPos destination = antenna.getAntennaPos();
+//					if(ssbSendCache.containsKey(antenna.getBlockPos())) // Recalculate if value wasn't already present.
+//						packet.setStrength(ssbSendCache.get(destination));
+//					else {
+						packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * SWRHelper.getEfficiencyMultiplier(getSWR(wavelength)));
+//						ssbSendCache.put(destination, packet.getStrength());
+//					}
 
 					antenna.receiveAudioPacket(packet);
 				}
@@ -77,13 +79,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	public void receiveAudioPacket(AntennaVoicePacket packet) {
 		AntennaNetworkObject obj = getNetworkObj();
 		if(obj != null) {
-			BlockPos source = packet.getSource().getBlockPos();
-			if(ssbReceiveCache.containsKey(source))
-				packet.setStrength(packet.getStrength() * ssbReceiveCache.get(source));
-			else {
-				packet.setStrength(type.getReceiveEfficiency(packet, data, pos));
-				ssbReceiveCache.put(source, packet.getStrength());
-			}
+//			BlockPos source = packet.getSource().getBlockPos();
+//			if(ssbReceiveCache.containsKey(source))
+//				packet.setStrength(packet.getStrength() * ssbReceiveCache.get(source));
+//			else {
+				packet.setStrength(type.getReceiveEfficiency(packet, data, pos.get().position()));
+//				ssbReceiveCache.put(source, packet.getStrength());
+//			}
 
 			obj.receiveAudioPacket(packet);
 		}
@@ -98,13 +100,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 					AntennaCWPacket packet = new AntennaCWPacket(level, buffers, wavelength, frequencyKiloHertz, 1.0F, this);
 
 					// Calculate the strength this packet should be sent at.
-					BlockPos destination = antenna.getBlockPos();
-					if(cwSendCache.containsKey(destination))
-						packet.setStrength(cwSendCache.get(destination));
-					else {
-						packet.setStrength(type.getTransmitEfficiency(packet, data, destination, true));
-						cwSendCache.put(destination, packet.getStrength());
-					}
+					AntennaPos destination = antenna.getAntennaPos();
+//					if(cwSendCache.containsKey(destination))
+//						packet.setStrength(cwSendCache.get(destination));
+//					else {
+						packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), true));
+//						cwSendCache.put(destination, packet.getStrength());
+//					}
 
 					antenna.receiveCWPacket(packet);
 				}
@@ -117,13 +119,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 		AntennaNetworkObject obj = getNetworkObj();
 
 		if(obj != null) {
-			BlockPos source = packet.getSource().getBlockPos();
-			if(cwReceiveCache.containsKey(source))
-				packet.setStrength(cwReceiveCache.get(source));
-			else {
-				packet.setStrength(type.getReceiveEfficiency(packet, data, pos));
-				cwReceiveCache.put(source, packet.getStrength());
-			}
+//			BlockPos source = packet.getSource().getBlockPos();
+//			if(cwReceiveCache.containsKey(source))
+//				packet.setStrength(cwReceiveCache.get(source));
+//			else {
+				packet.setStrength(type.getReceiveEfficiency(packet, data, pos.get().position()));
+//				cwReceiveCache.put(source, packet.getStrength());
+//			}
 
 			obj.receiveCWPacket(packet);
 		}
@@ -132,12 +134,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	public AntennaNetworkObject getNetworkObj() {
 		//TODO remove when confirmed seeing the old implementation inline is not useful for reference
 		//return (AntennaNetworkObject)IBENetworks.getObject(network.getLevel(), pos);
-		return (AntennaNetworkObject)IBENetworks.getObject(level, pos);
+		AntennaPos p = this.getAntennaPos();
+		return (AntennaNetworkObject)IBENetworks.getObject(p.level(), p.position());
 	}
 
 	@Override
-	public BlockPos getBlockPos() {
-		return pos;
+	public AntennaPos getAntennaPos() {
+		return pos.get();
 	}
 
 	public void setNetwork(AntennaNetwork network) {

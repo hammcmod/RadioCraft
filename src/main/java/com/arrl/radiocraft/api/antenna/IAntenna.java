@@ -53,16 +53,10 @@ public interface IAntenna {
 	void receiveCWPacket(AntennaCWPacket packet);
 
 	/**
-	 * Used for calculating signal strengths, always synchronize on {@link AntennaPos#getAntennaPosLock()} when calling this method
+	 * Thread safe, used for calculating signal strengths, must be backed by {@link java.util.concurrent.atomic.AtomicReference}
 	 * @return Position of this antenna
 	 */
 	AntennaPos getAntennaPos();
-
-	/**
-	 *
-	 * @return an object to {@code synchronize()} on when calling {@link AntennaPos#getAntennaPos()}
-	 */
-	Object getAntennaPosLock();
 
 	/**
 	 * Immutable single record for the position of an antenna. Used for calculating signal strengths.

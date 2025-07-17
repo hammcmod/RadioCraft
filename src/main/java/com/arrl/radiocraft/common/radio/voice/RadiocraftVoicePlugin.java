@@ -11,6 +11,7 @@ import de.maxhenkel.voicechat.api.events.MicrophonePacketEvent;
 import de.maxhenkel.voicechat.api.events.PlayerDisconnectedEvent;
 import de.maxhenkel.voicechat.api.events.VoicechatServerStartedEvent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
@@ -76,13 +77,13 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 				double sqrRange = API.getBroadcastRange();
 				sqrRange *= sqrRange;
 
-				//TODO refactor naming, listeners here refers to in world microphones on radio transmitters in hearing range of the player speaking, names make this not obvious
-				List<IVoiceTransmitter> listeners = VoiceTransmitters.LISTENERS.get(player.level());
+				List<IVoiceTransmitter> listeningMics = VoiceTransmitters.LISTENERS.get((Level) sender.getServerLevel().getServerLevel());
 
-				if(listeners != null) for (IVoiceTransmitter listener : listeners) { // All radios in audible range of the sender will receive the packet
+				if(listeningMics != null) for (IVoiceTransmitter listener : listeningMics) { // All radios in audible range of the sender will receive the packet
 					Vec3 pos = listener.getPos();
+					Position playerPos = sender.getPosition();
 
-					if (pos.distanceToSqr(player.position()) > sqrRange)
+					if (pos.distanceToSqr(new Vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ())) > sqrRange)
 						continue; // Do not transmit if out of range.
 
 					if (!listener.canTransmitVoice())
