@@ -16,7 +16,7 @@
     mixin = "0.8.7"
     mixinextras = "0.3.5"
     voicechat-api = "2.5.0"
-    voicechat = "5850298" # This is using cursemaven.
+    voicechat = "6787187" # This is using cursemaven.
 
 # Plugins
     plugin-mod-dev-gradle = "2.0.31-beta"
@@ -34,7 +34,9 @@
 
 # Dependencies
     voicechat-api = { group = "de.maxhenkel.voicechat", name = "voicechat-api", version.ref = "voicechat-api"}
-    voicechat = { group = "curse.maven", name = "simplevoicechat-416089", version.ref = "voicechat"}
+# If you're fixing an issue from SVC, update the URL here from the CurseForge download page (find Curse Maven Snippet)
+# and then update the version above under the "Dependencies" section. This allows you to update the SVC mod source.
+    voicechat = { group = "curse.maven", name = "simple-voice-chat-416089", version.ref = "voicechat"}
 
 [plugins]
 # Platform
