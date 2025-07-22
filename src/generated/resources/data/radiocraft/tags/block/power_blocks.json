@@ -1,19 +1,20 @@
 {
   "values": [
+    "radiocraft:wire",
     "radiocraft:solar_panel",
     "radiocraft:large_battery",
     "radiocraft:charge_controller",
-    "radiocraft:vhf_base_station",
-    "radiocraft:vhf_receiver",
-    "radiocraft:vhf_repeater",
+    "radiocraft:all_band_radio",
     "radiocraft:hf_radio_10m",
     "radiocraft:hf_radio_20m",
     "radiocraft:hf_radio_40m",
     "radiocraft:hf_radio_80m",
     "radiocraft:hf_receiver",
-    "radiocraft:all_band_radio",
     "radiocraft:qrp_radio_20m",
     "radiocraft:qrp_radio_40m",
-    "radiocraft:qrp_radio_20m"
+    "radiocraft:vhf_base_station",
+    "radiocraft:vhf_receiver",
+    "radiocraft:vhf_repeater",
+    "radiocraft:digital_interface"
   ]
 }

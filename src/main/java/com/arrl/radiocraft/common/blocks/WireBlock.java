@@ -197,7 +197,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return level.getBlockState(pos).isFaceSturdy(level, pos, Direction.UP);
 	}
 
-	private static boolean canConnectTo(BlockState state, boolean isPower) {
+	public static boolean canConnectTo(BlockState state, boolean isPower) {
 		if(state.getBlock() instanceof WireBlock wire)
 			return wire.isPower == isPower; // If identical wire, OR if valid connection
 		return isValidConnection(state, isPower);

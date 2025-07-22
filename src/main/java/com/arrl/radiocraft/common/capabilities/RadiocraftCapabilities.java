@@ -21,9 +21,24 @@ public class RadiocraftCapabilities {
 
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		//TODO add the rest of the blocks, only adding stuff that is on the short list for testing for now
+		// Register BE_NETWORKS capability for all power blocks
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.SOLAR_PANEL.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.LARGE_BATTERY.get());
 		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.CHARGE_CONTROLLER.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.ALL_BAND_RADIO.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RADIO_20M.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RADIO_40M.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RADIO_80M.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RECEIVER.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.QRP_RADIO_20M.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.QRP_RADIO_40M.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.VHF_BASE_STATION.get());
 		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.VHF_REPEATER.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.DIGITAL_INTERFACE.get());
+
+		// Existing registrations for other capabilities TODO: Add other blocks and such here as necessary for functionality.
 		event.registerBlock(CALLSIGNS, (level, pos, state, be, side) -> new CallsignCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
@@ -32,4 +47,5 @@ public class RadiocraftCapabilities {
 
 		event.registerEntity(ANTENNA_WIRE_HOLDERS, EntityType.PLAYER, (myEntity, context) -> new AntennaWireHolderCapability());
 	}
+
 }
