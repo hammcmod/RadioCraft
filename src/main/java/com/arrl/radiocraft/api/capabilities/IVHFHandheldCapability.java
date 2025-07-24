@@ -27,15 +27,17 @@ public interface IVHFHandheldCapability {
     void setPTTDown(boolean value);
 
     /**
-     * Sets if the receiving indicator light should be on
-     * @param rec true if the receive light should be on
+     * Stores the RMS strength of the audio received in the last tick, updated every tick by {@link com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio}
+     * @param rec new strength value
      */
-    void setReceiveIndicator(boolean rec);
+    void setReceiveStrength(float rec);
 
     /**
-     * Gets the status of the receiving light (on if we are currently receiving a transmission)
-     * @return if the receive indicator should be on
+     * Gets the RMS strength of the audio received in the last tick, updated every tick by {@link com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio} <br>
+     * The decibels level of the receive strength can be calculated by <code>20.0f * log10(RMS / reference value)</code>
+     * where the reference value is what the RMS of a 1 decibel sample should be. Used for the receive strength meter in {@link com.arrl.radiocraft.client.screens.radios.VHFHandheldScreen}
+     * @return RMS receive strength
      */
-    boolean getReceiveIndicator();
+    float getReceiveStrength();
 
 }

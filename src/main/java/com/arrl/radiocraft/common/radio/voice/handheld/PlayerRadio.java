@@ -48,6 +48,10 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     private volatile Vec3 voicePosition;
     private volatile Level voiceLevel;
 
+    //used for calculating average amplitude for power meter
+    private volatile long runningSampleSum=0; //stores the sum of the square of every sample since last tick
+    private volatile long runningSampleCount=0; //number of samples since last tick
+
     public PlayerRadio(Player player) {
         setPlayer(player);
     }
@@ -198,10 +202,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
     @Override
     public void receiveAudioPacket(AntennaVoicePacket packet) {
-        synchronized (this) {
-            if (this.isReceiving() && canReceiveVoice()) {
-                receive(packet);
-            }
+        if (this.isReceiving() && canReceiveVoice()) {
+            receive(packet);
         }
     }
 
@@ -211,7 +213,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     }
 
     @Override
-    public void receive(AntennaVoicePacket antennaPacket) {
+    public synchronized void receive(AntennaVoicePacket antennaPacket) {
         if(this.isReceiving()) {
 //            System.err.println("Receiving audio length " + antennaPacket.getRawAudio().length + " strength " + antennaPacket.getStrength() + " player " + player.getName() + " " + player.getUUID() + " eye position of player" + player.getEyePosition() + " from " + antennaPacket.getSourcePlayer());
 
@@ -232,9 +234,16 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                 receiveChannel.updateLocation(getPosInVoiceApiFormat());
             }
 
+            long runningTotal = 0;
             short[] rawAudio = antennaPacket.getRawAudio();
-            for(int i = 0; i < rawAudio.length; i++)
-                rawAudio[i] = (short)Math.round(rawAudio[i] * antennaPacket.getStrength()); // Apply appropriate gain for signal strength
+            for(int i = 0; i < rawAudio.length; i++) {
+                short sample = (short) Math.round(rawAudio[i] * antennaPacket.getStrength()); // Apply appropriate gain for signal strength
+                runningTotal = sample * sample;
+                rawAudio[i] = sample;
+            }
+
+            runningSampleCount += rawAudio.length;
+            runningSampleSum+=runningTotal;
 
             byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
             receiveChannel.send(opusAudio);
@@ -248,25 +257,28 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         this.network = network;
     }
 
-    public void tick() {
-        synchronized (this) {
-            Player player = getPlayer();
-            IVHFHandheldCapability cap = player != null ? getHandheldCapOrNull(player) : null;
+    public synchronized void tick() {
+        Player player = getPlayer();
+        IVHFHandheldCapability cap = player != null ? getHandheldCapOrNull(player) : null;
 
-            if(cap == null) {
-                this.canReceive = false;
-                this.canTransmit = false;
-                this.voicePosition = null;
-                this.voiceLevel = null;
-                this.antennaPos.set(null);
-            } else {
-                this.canTransmit = cap.isPowered() && cap.isPTTDown();
-                this.canReceive = cap.isPowered();
-                this.frequency = cap.getFrequencyKiloHertz();
-                this.voicePosition = player.getEyePosition();
-                this.voiceLevel = player.level();
-                this.antennaPos.set(new AntennaPos(player.blockPosition(), player.level()));
-            }
+        if(cap == null) {
+            this.canReceive = false;
+            this.canTransmit = false;
+            this.voicePosition = null;
+            this.voiceLevel = null;
+            this.antennaPos.set(null);
+        } else {
+            this.canTransmit = cap.isPowered() && cap.isPTTDown();
+            this.canReceive = cap.isPowered();
+            this.frequency = cap.getFrequencyKiloHertz();
+            this.voicePosition = player.getEyePosition();
+            this.voiceLevel = player.level();
+            this.antennaPos.set(new AntennaPos(player.blockPosition(), player.level()));
+
+            cap.setReceiveStrength(runningSampleCount == 0 ? 0f : (float)Math.sqrt((double) runningSampleSum / runningSampleCount));
         }
+
+        runningSampleSum = 0;
+        runningSampleCount = 0;
     }
 }

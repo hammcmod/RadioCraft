@@ -13,7 +13,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 //	private boolean isPowered = false;
 //	private int frequencyKiloHertz = 0;
 //	private boolean isPTTDown = false;
-	private ItemStack thisRadio;
+	private final ItemStack thisRadio;
 	//TODO temporary hack for testing, must be changed to use data attachment API for storing state, and produce a new capability on each request
 //	private static final WeakHashMap<ItemStack, VHFHandheldCapability> capabilities = new WeakHashMap<>();
 
@@ -42,7 +42,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setFrequencyKiloHertz(int frequencyKiloHertz) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), frequencyKiloHertz, old.receiveIndicator()));
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), frequencyKiloHertz, old.receiveIndicatorStrength()));
 	}
 
 	@Override
@@ -52,7 +52,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPowered(boolean value) {
-		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.receiveIndicator()));
+		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.receiveIndicatorStrength()));
 	}
 
 	@Override
@@ -62,17 +62,17 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPTTDown(boolean value) {
-		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.receiveIndicator()));
+		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.receiveIndicatorStrength()));
 	}
 
 	@Override
-	public void setReceiveIndicator(boolean rec) {
+	public void setReceiveStrength(float rec) {
 		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), rec));
 	}
 
 	@Override
-	public boolean getReceiveIndicator() {
-		return getState().receiveIndicator();
+	public float getReceiveStrength() {
+		return getState().receiveIndicatorStrength();
 	}
 
 	protected HandheldRadioState getState(){
