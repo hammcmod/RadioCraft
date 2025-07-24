@@ -62,10 +62,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
+
+					if(destination == null) continue;
+
 //					if(ssbSendCache.containsKey(antenna.getBlockPos())) // Recalculate if value wasn't already present.
 //						packet.setStrength(ssbSendCache.get(destination));
 //					else {
-						packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * SWRHelper.getEfficiencyMultiplier(getSWR(wavelength)));
+					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * SWRHelper.getEfficiencyMultiplier(getSWR(wavelength)));
 //						ssbSendCache.put(destination, packet.getStrength());
 //					}
 
@@ -101,10 +104,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
+
+					if(destination == null) continue;
+
 //					if(cwSendCache.containsKey(destination))
 //						packet.setStrength(cwSendCache.get(destination));
 //					else {
-						packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), true));
+					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), true));
 //						cwSendCache.put(destination, packet.getStrength());
 //					}
 

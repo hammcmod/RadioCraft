@@ -149,6 +149,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
                     AntennaPos pos = antenna.getAntennaPos();
 
+                    if(pos == null) continue;
+
                     double distance = Math.sqrt(thisPos.position().distSqr(pos.position()));
                     packet.setStrength(BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0F, 0.0F, packet.getLevel().isDay()));
 

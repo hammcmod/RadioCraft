@@ -79,17 +79,26 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 
 				List<IVoiceTransmitter> listeningMics = VoiceTransmitters.LISTENERS.get((Level) sender.getServerLevel().getServerLevel());
 
-				if(listeningMics != null) for (IVoiceTransmitter listener : listeningMics) { // All radios in audible range of the sender will receive the packet
-					Vec3 pos = listener.getPos();
-					Position playerPos = sender.getPosition();
+				if(listeningMics != null) {
 
-					if (pos.distanceToSqr(new Vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ())) > sqrRange)
-						continue; // Do not transmit if out of range.
+					//make a copy so we don't have to hold up the game thread
+					List<IVoiceTransmitter> listeningMicsCopy;
+					synchronized (listeningMics) {
+						listeningMicsCopy = List.copyOf(listeningMics);
+					}
 
-					if (!listener.canTransmitVoice())
-						continue; // Do not transmit if listener is not accepting packets.
+					for (IVoiceTransmitter listener : listeningMicsCopy) { // All radio's microphones in audible range of the sender will receive the packet
+						Vec3 pos = listener.getPos();
+						Position playerPos = sender.getPosition();
 
-					listener.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
+						if (pos.distanceToSqr(new Vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ())) > sqrRange)
+							continue; // Do not transmit if out of range.
+
+						if (!listener.canTransmitVoice())
+							continue; // Do not transmit if listener is not accepting packets.
+
+						listener.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
+					}
 				}
 			}
 		}
