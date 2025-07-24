@@ -22,6 +22,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
         // Define the POWER_BLOCKS tag
         tag(RadiocraftTags.Blocks.POWER_BLOCKS)
                 .add(RadiocraftBlocks.WIRE.get())
+                .add(RadiocraftBlocks.WATERPROOF_WIRE.get())
                 .add(RadiocraftBlocks.SOLAR_PANEL.get())
                 .add(RadiocraftBlocks.LARGE_BATTERY.get())
                 .add(RadiocraftBlocks.CHARGE_CONTROLLER.get())

@@ -107,8 +107,10 @@ public class BENetworkObject {
         CompoundTag networksTag = nbt.getCompound("networks");
         for(String key : networksTag.getAllKeys()) {
             BENetwork network = cap.getNetwork(networksTag.getUUID(key));
-            network.add(this);
-            networks.put(Direction.byName(key), network);
+            if (network != null) {
+                networks.put(Direction.byName(key), network);
+                network.add(this);
+            }
         }
     }
 
@@ -120,5 +122,4 @@ public class BENetworkObject {
         for(BENetwork network : networks.values())
             network.remove(this, false);
     }
-
 }

@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.api.benetworks;
 
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
@@ -31,17 +32,35 @@ public class BENetworkRegistry {
     public static BENetwork createNetwork(ResourceLocation id, UUID uuid, Level level) {
         BENetwork network = networkTypes.get(id).apply(uuid);
 
-        // TODO: Something needs to be here.
-        //level.getCapability(RadiocraftCapabilities.BE_NETWORKS).ifPresent(cap -> cap.addNetwork(network));
+        // Get the BE_NETWORKS capability and add the network to it
+        IBENetworks beNetworks = RadiocraftCapabilities.BE_NETWORKS.getCapability(level, BlockPos.ZERO, null, null, null);
+        if (beNetworks != null) {
+            beNetworks.addNetwork(network);
+        } else {
+            throw new IllegalStateException("Could not get BE_NETWORKS capability for level. Network creation will fail.");
+        }
+
         return network;
     }
 
     public static BENetworkObject createObject(ResourceLocation id, Level level, BlockPos pos) {
+        // Check if the object type exists
+        if (!objectTypes.containsKey(id)) {
+            throw new IllegalArgumentException("No network object type registered for id: " + id);
+        }
+
+        // Create the network object
         BENetworkObject object = objectTypes.get(id).apply(level, pos);
 
-        RadiocraftCapabilities.BE_NETWORKS.getCapability(level, pos, null, null, null).setObject(pos, object);
+        // Get the BE_NETWORKS capability for this position
+        IBENetworks beNetworks = RadiocraftCapabilities.BE_NETWORKS.getCapability(level, pos, null, null, null);
+        if (beNetworks != null) {
+            // Set the object in the capability
+            beNetworks.setObject(pos, object);
+        } else {
+            throw new IllegalStateException("Could not get BE_NETWORKS capability for position " + pos + ". Make sure the block is registered for BE_NETWORKS capability.");
+        }
 
         return object;
     }
-
 }

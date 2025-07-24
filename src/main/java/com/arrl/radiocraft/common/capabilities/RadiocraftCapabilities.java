@@ -2,6 +2,9 @@ package com.arrl.radiocraft.common.capabilities;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.*;
+import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
+import com.arrl.radiocraft.common.blockentities.SolarPanelBlockEntity;
+import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import net.minecraft.resources.ResourceLocation;
@@ -14,31 +17,28 @@ import net.neoforged.neoforge.capabilities.*;
 public class RadiocraftCapabilities {
 
 	public static BlockCapability<ICallsignCapability, Void> CALLSIGNS = BlockCapability.createVoid(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "callsigns"), ICallsignCapability.class);
-	public static BlockCapability<IBENetworks, Void> BE_NETWORKS = BlockCapability.createVoid(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "be_networks"), IBENetworks.class);
 	public static BlockCapability<IAntennaNetworkCapability, Void> ANTENNA_NETWORKS = BlockCapability.createVoid(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "antenna_networks"), IAntennaNetworkCapability.class);
+	public static BlockCapability<IBENetworks, Void> BE_NETWORKS = BlockCapability.createVoid(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "be_networks"), IBENetworks.class);
 	public static ItemCapability<IVHFHandheldCapability, Void> VHF_HANDHELDS = ItemCapability.createVoid(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "vhf_handhelds"), IVHFHandheldCapability.class);
 	public static EntityCapability<IAntennaWireHolderCapability, Void> ANTENNA_WIRE_HOLDERS = EntityCapability.createVoid(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "antenna_wire_holders"), IAntennaWireHolderCapability.class);
 
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		// Register BE_NETWORKS capability for all power blocks
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.SOLAR_PANEL.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.LARGE_BATTERY.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.CHARGE_CONTROLLER.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.ALL_BAND_RADIO.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RADIO_20M.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RADIO_40M.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RADIO_80M.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.HF_RECEIVER.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.QRP_RADIO_20M.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.QRP_RADIO_40M.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.VHF_BASE_STATION.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.VHF_REPEATER.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.DIGITAL_INTERFACE.get());
 
-		// Existing registrations for other capabilities TODO: Add other blocks and such here as necessary for functionality.
+		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
+				RadiocraftBlockEntities.SOLAR_PANEL.get(),
+				(be, side) -> ((SolarPanelBlockEntity) be).getEnergyStorage());
+
+		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK,
+				RadiocraftBlockEntities.LARGE_BATTERY.get(),
+				(be, side) -> ((LargeBatteryBlockEntity) be).getEnergyStorage());
+
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(),
+				RadiocraftBlocks.HF_RADIO_10M.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(),
+				RadiocraftBlocks.VHF_RECEIVER.get());
+
+		// Existing registrations for other capabilities
 		event.registerBlock(CALLSIGNS, (level, pos, state, be, side) -> new CallsignCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
@@ -47,5 +47,4 @@ public class RadiocraftCapabilities {
 
 		event.registerEntity(ANTENNA_WIRE_HOLDERS, EntityType.PLAYER, (myEntity, context) -> new AntennaWireHolderCapability());
 	}
-
 }

@@ -1,6 +1,7 @@
 {
   "values": [
     "radiocraft:wire",
+    "radiocraft:waterproof_wire",
     "radiocraft:solar_panel",
     "radiocraft:large_battery",
     "radiocraft:charge_controller",
