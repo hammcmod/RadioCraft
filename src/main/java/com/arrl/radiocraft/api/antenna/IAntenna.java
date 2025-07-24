@@ -53,8 +53,16 @@ public interface IAntenna {
 	void receiveCWPacket(AntennaCWPacket packet);
 
 	/**
-	 * @return The {@link BlockPos} containing this {@link IAntenna}. Used for calculating signal strengths.
+	 * Thread safe, used for calculating signal strengths, must be backed by {@link java.util.concurrent.atomic.AtomicReference}
+	 * @return Position of this antenna
 	 */
-	BlockPos getBlockPos();
+	AntennaPos getAntennaPos();
+
+	/**
+	 * Immutable single record for the position of an antenna. Used for calculating signal strengths.
+	 * @param position current {@link BlockPos} of the antenna
+	 * @param level current {@link Level} of the antenna
+	 */
+	record AntennaPos(BlockPos position, Level level) {}
 
 }

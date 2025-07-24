@@ -30,8 +30,8 @@ public class VHFHandheldScreen extends Screen {
     protected int topPos;
 
     protected final int index;
-    protected final ItemStack item;
-    protected final IVHFHandheldCapability cap;
+    protected ItemStack item;
+    protected IVHFHandheldCapability cap;
 
     LedIndicator TX_LED, RX_LED, DATA_LED;
 
@@ -40,13 +40,22 @@ public class VHFHandheldScreen extends Screen {
     public VHFHandheldScreen(int index) {
         super(Component.translatable(Radiocraft.translationKey("screen", "vhf_handheld")));
         this.index = index;
-        this.item = Minecraft.getInstance().player.getInventory().getItem(index);
-        this.cap = item.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
+        updateCap();
 
         if(this.cap == null) // IntelliJ is lying, this is not always true.
             onClose();
 
         RadiocraftClientValues.SCREEN_VOICE_ENABLED = true;
+    }
+
+    protected void updateCap(){
+
+        if(Minecraft.getInstance().player == null) return; // just to get rid of IDE warning, if this happens we have bigger fish to fry
+
+        this.item = Minecraft.getInstance().player.getInventory().getItem(index);
+        this.cap = item.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
+
+        if(cap == null) onClose();
     }
 
     @Override
@@ -78,6 +87,11 @@ public class VHFHandheldScreen extends Screen {
     public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         // I removed the .super() call because for some reason it renders the backgrounds before buttons but after the other rendering of the actual menu.
         // I guess I could just add these items to the renderables list, but then you can't influence the powered state.
+
+        updateCap();
+
+        if(cap == null) return;
+
         renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
         int edgeSpacingX = (width - imageWidth) / 2;
@@ -96,7 +110,12 @@ public class VHFHandheldScreen extends Screen {
         if (cap.isPowered() && cap.isPTTDown()) {
             POWER_METER.setValue(1.0);
         } else if (cap.isPowered()) {
-            POWER_METER.setValue(Math.random() / 10.0);
+            if(cap.getReceiveStrength() <= 0f) {
+                POWER_METER.setValue(Math.random() / 10.0);
+            } else {
+                POWER_METER.setValue(Math.log10(cap.getReceiveStrength() / 5f));
+                System.out.println(cap.getReceiveStrength() + " " + Math.log10(cap.getReceiveStrength() / 5f));
+            }
         } else {
             POWER_METER.setValue(0.0);
         }
@@ -106,7 +125,7 @@ public class VHFHandheldScreen extends Screen {
         }
 
         TX_LED.setIsOn(cap.isPowered() && cap.isPTTDown());
-        RX_LED.setIsOn(cap.isPowered() && !cap.isPTTDown());
+        RX_LED.setIsOn(cap.isPowered() && cap.getReceiveStrength() > 0);
         DATA_LED.setIsOn(false); // TBI
 
         cap.getFrequencyKiloHertz();

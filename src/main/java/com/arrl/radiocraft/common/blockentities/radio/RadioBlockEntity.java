@@ -32,6 +32,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class RadioBlockEntity extends BlockEntity implements ITogglableBE, IVoiceTransmitter, IBEVoiceReceiver, INetworkObjectProvider, MenuProvider {
 
@@ -45,8 +46,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
     protected boolean wasPowered; // Used for rendering clientside. The NetworkObject is the one actually controlling this.
 
+    protected final AtomicReference<BlockPos> micPos = new AtomicReference<>(); //thread safe position reference, overkill but makes purpose clear
+
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, int wavelength) {
         super(type, pos, state);
+        this.micPos.set(pos);
         this.wavelength = wavelength;
         Band band = RadiocraftData.BANDS.getValue(wavelength);
         this.frequency = band == null ? 0 : band.minFrequency();
@@ -203,7 +207,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public Vec3 getPos() {
-        return getBlockPos().getCenter();
+        return this.micPos.get().getCenter();
     }
 
     public double getStaticVolume() {

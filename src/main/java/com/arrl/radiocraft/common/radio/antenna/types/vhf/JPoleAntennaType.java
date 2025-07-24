@@ -23,7 +23,7 @@ public class JPoleAntennaType extends NonDirectionalAntennaType<EmptyAntennaData
 
     @Override
     public double getTransmitEfficiency(IAntennaPacket packet, EmptyAntennaData data, BlockPos destination, boolean isCW) {
-        double distance = Math.sqrt(packet.getSource().getBlockPos().distSqr(destination)) / 1.3D;
+        double distance = Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(destination)) / 1.3D;
         return BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, 1.0F, 0.0F, packet.getLevel().isDay());
     }
 

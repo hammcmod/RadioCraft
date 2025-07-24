@@ -30,27 +30,12 @@ public class AntennaNetworkManager {
 	 * Attempt to grab an existing {@link AntennaNetwork} from a {@link Level} by ID, or
 	 * create one if there are none present on that {@link Level}.
 	 *
-	 * @param level The {@link Level} to grab from.
 	 * @param id The {@link ResourceLocation} ID of the desired {@link AntennaNetwork}.
 	 *
 	 * @return {@link AntennaNetwork} if one was found or created, otherwise null if level was
 	 * missing {@link IAntennaNetworkCapability} for some reason.
 	 */
-	public static AntennaNetwork getNetwork(Level level, ResourceLocation id) {
-		//TODO remove when confirmed seeing the old implementation inline is not useful for reference
-		/*IAntennaNetworkCapability cap = ANTENNA_NETWORKS.getCapability(level, null, null, null, null);
-		if(cap != null) { // IntelliJ is lying, this is NOT always true.
-			AntennaNetwork network = cap.getNetwork(id);
-			if(network == null)
-				return cap.setNetwork(id, new AntennaNetwork(level));
-			else
-				return network;
-		}
-		return null;*/
-		if(level == null){  //TODO remove this at some point
-            Radiocraft.LOGGER.error("level is null, it's not currently required but interesting regardless, network was {}", id.getPath());
-			Thread.dumpStack();
-		}
+	public static AntennaNetwork getNetwork(ResourceLocation id) {
 		return networks.get(id);
 	}
 
