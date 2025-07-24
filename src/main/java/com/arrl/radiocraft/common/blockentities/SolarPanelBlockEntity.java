@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blockentities;
 
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.data.PowerNetworkSavedData;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -18,19 +19,39 @@ import java.util.Set;
 
 public class SolarPanelBlockEntity extends BlockEntity {
 
-	private final EnergyStorage energyStorage = new EnergyStorage(10000, 0, 100);
+	private static final int SOLAR_OUTPUT_WATTS = 200; // Measured in W/m^2
+	// Convert 1W = 8FE/t; 200 W/m^2 = 1,600 (FE/t)/m^2
+	private static final int SOLAR_OUTPUT = SOLAR_OUTPUT_WATTS * 8;
+
+	private final EnergyStorage energyStorage = new EnergyStorage(SOLAR_OUTPUT, SOLAR_OUTPUT, SOLAR_OUTPUT);
 
 	public SolarPanelBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.SOLAR_PANEL.get(), pos, state);
+	}
+
+	public static double getSolarCoefficient(Level level, BlockPos pos) {
+		if (!level.canSeeSky(pos)) return 0;
+		if (!level.isDay()) return 0;
+		return Math.cos(level.getSunAngle(0));
+	}
+
+	public static double getRainCoefficient(Level level) {
+		return level.isRaining() ? 0.2 : 1;
+	}
+
+	public static int getSolarOutput(Level level, BlockPos pos) {
+		double solarEffCoefficient = getSolarCoefficient(level, pos);
+		double rainEffCoefficient = getRainCoefficient(level);
+		return (int) (SOLAR_OUTPUT * solarEffCoefficient * rainEffCoefficient);
 	}
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if (t instanceof SolarPanelBlockEntity be) {
 			if (level.isClientSide) return;
 
-			// Generate power
-			if (level.canSeeSky(pos) && level.isDay() && !level.isRaining()) {
-				be.energyStorage.receiveEnergy(20, false); // 20 RF/t
+			int energyFromSolar = getSolarOutput(level, pos);
+			if (energyFromSolar > 0) {
+				be.energyStorage.receiveEnergy(energyFromSolar, false);
 			}
 
 			// Distribute power to network
