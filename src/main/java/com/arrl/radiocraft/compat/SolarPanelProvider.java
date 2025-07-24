@@ -12,7 +12,7 @@ import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
-public enum SolarPanelProvider  implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum SolarPanelProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
     @Override

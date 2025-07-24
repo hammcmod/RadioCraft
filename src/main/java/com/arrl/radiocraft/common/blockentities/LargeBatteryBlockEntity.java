@@ -2,6 +2,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.CommonConfig;
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.data.PowerNetworkSavedData;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.LargeBatteryMenu;
@@ -26,6 +27,8 @@ import org.jetbrains.annotations.Nullable;
 
 public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider {
 
+	private int transferredEnergyLastTick = 0;
+
 	private final EnergyStorage energyStorage = new EnergyStorage(
 			CommonConfig.LARGE_BATTERY_CAPACITY.get(),
 			CommonConfig.LARGE_BATTERY_OUTPUT.get(),
@@ -45,6 +48,7 @@ public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider
 	}
 
 	private void distributeEnergyToNetwork(ServerLevel level) {
+		transferredEnergyLastTick = 0;
 		if (energyStorage.getEnergyStored() == 0) return;
 
 		PowerNetworkSavedData networkData = PowerNetworkSavedData.get(level);
@@ -63,6 +67,8 @@ public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider
 					IEnergyStorage storage = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, null);
 					if (storage != null && storage.canReceive()) {
 						int transferred = storage.receiveEnergy(energyToDistribute, false);
+						transferredEnergyLastTick += transferred;
+						Radiocraft.LOGGER.info("Transferred " + transferred + " RF from " + pos + " to " + worldPosition);
 						energyStorage.extractEnergy(transferred, false);
 						energyToDistribute -= transferred;
 
@@ -71,6 +77,10 @@ public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider
 				}
 			}
 		}
+	}
+
+	public int getTransferredEnergyLastTick() {
+		return transferredEnergyLastTick;
 	}
 
 	public IEnergyStorage getEnergyStorage() {

@@ -1,8 +1,8 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.data.PowerNetworkSavedData;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -137,13 +137,13 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		}
 		return false;
 	}
-
 	@Override
 	public void onPlace(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean isMoving) {
 		if (level.isClientSide || oldState.is(this)) return;
 
 		if (isPower && level instanceof ServerLevel serverLevel) {
-			connectToAdjacentNetworks(serverLevel, pos);
+			PowerNetworkSavedData networkData = PowerNetworkSavedData.get(serverLevel);
+			networkData.connectToAdjacentNetworks(serverLevel, pos);
 		}
 	}
 
@@ -152,46 +152,12 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		if (newState.is(this) || level.isClientSide) return;
 
 		if (isPower && level instanceof ServerLevel serverLevel) {
-			com.arrl.radiocraft.common.data.PowerNetworkSavedData networkData = com.arrl.radiocraft.common.data.PowerNetworkSavedData.get(serverLevel);
-			networkData.removeFromNetwork(pos);
-			// Note: Network splitting logic would go here if needed
+			PowerNetworkSavedData networkData = PowerNetworkSavedData.get(serverLevel);
+			networkData.splitNetworkOnRemoval(serverLevel, pos);
 		}
 
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
-
-	private void connectToAdjacentNetworks(ServerLevel level, BlockPos pos) {
-		com.arrl.radiocraft.common.data.PowerNetworkSavedData networkData = com.arrl.radiocraft.common.data.PowerNetworkSavedData.get(level);
-
-		Set<PowerBENetwork> adjacentNetworks = new HashSet<>();
-
-		// Find all adjacent networks
-		for (Direction dir : Direction.values()) {
-			BlockPos adjacentPos = pos.relative(dir);
-			if (canConnectTo(level.getBlockState(adjacentPos), true)) {
-				var network = networkData.getNetwork(adjacentPos);
-				if (network != null) {
-					adjacentNetworks.add(network);
-				}
-			}
-		}
-
-		PowerBENetwork targetNetwork;
-		if (adjacentNetworks.isEmpty()) {
-			// Create new network
-			targetNetwork = networkData.createNetwork();
-		} else if (adjacentNetworks.size() == 1) {
-			// Join existing network
-			targetNetwork = adjacentNetworks.iterator().next();
-		} else {
-			// Merge multiple networks
-			targetNetwork = networkData.createNetwork();
-			networkData.mergeNetworks(adjacentNetworks, targetNetwork);
-		}
-
-		networkData.addToNetwork(pos, targetNetwork);
-	}
-
 
 	@Override
 	public @NotNull BlockState updateShape(BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState,

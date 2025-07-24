@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.items;
 
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.IAntennaWireHolderCapability;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.entities.AntennaWire;
@@ -32,13 +33,17 @@ public class AntennaWireItem extends Item {
         if(state.is(Blocks.ANTENNA_WIRE_HOLDERS)) {
             Player player = context.getPlayer();
             level.gameEvent(GameEvent.BLOCK_ATTACH, pos, GameEvent.Context.of(player));
+            Radiocraft.LOGGER.info("Antenna Wire attachment started at " + pos);
 
             if (!level.isClientSide && player != null) {
 
                 IAntennaWireHolderCapability cap = RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS.getCapability(player, null);
 
+                Radiocraft.LOGGER.info("Antenna Wire holder capability: " + cap);
+
                 if (cap != null) {
                     BlockPos heldPos = cap.getHeldPos();
+                    Radiocraft.LOGGER.info("Antenna Wire heldPos: " + heldPos);
 
                     if(heldPos == null) {
                         AntennaWire entity = AntennaWire.createWire(level, pos, player);
@@ -51,8 +56,11 @@ public class AntennaWireItem extends Item {
                         if(!pos.equals(cap.getHeldPos())) { // Do not allow wire to be created with identical start and end points.
                             AntennaWire entity = AntennaWire.getFirstHeldWire(level, heldPos, player);
 
+                            Radiocraft.LOGGER.info("Antenna Wire entity for end placement: " + entity);
+
                             if(entity != null) {
                                 entity.setEndPos(pos);
+                                Radiocraft.LOGGER.info("Antenna Wire entity end pos: " + entity.getEndPos());
                                 entity.setHolder(null);
                                 player.level().playSound(null, entity.getEndPos(), SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 1.0F, 1.0F);
                                 entity.updateAntennas();

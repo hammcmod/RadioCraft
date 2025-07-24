@@ -1,6 +1,5 @@
 package com.arrl.radiocraft.common.blockentities;
 
-import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.data.PowerNetworkSavedData;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import net.minecraft.core.BlockPos;
