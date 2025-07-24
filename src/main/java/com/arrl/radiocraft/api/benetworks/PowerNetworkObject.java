@@ -5,7 +5,6 @@ import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 
 /**
  * Base class representing a {@link BENetworkObject} which consumes power. Each BE should have its own implementation
@@ -49,12 +48,13 @@ public abstract class PowerNetworkObject extends BENetworkObject {
     @Override
     public void load(IBENetworks cap, CompoundTag nbt) {
         super.load(cap, nbt);
-        energyStorage = new BasicEnergyStorage(
-                nbt.getInt("capacity"),
-                nbt.getInt("maxReceive"),
-                nbt.getInt("maxExtract"),
-                nbt.getInt("energy")
-        );
+        if (nbt.contains("capacity") && nbt.contains("maxReceive") && nbt.contains("maxExtract")) {
+            energyStorage = new BasicEnergyStorage(
+                    nbt.getInt("capacity"),
+                    nbt.getInt("maxReceive"),
+                    nbt.getInt("maxExtract"),
+                    nbt.getInt("energy")
+            );
+        }
     }
-
 }

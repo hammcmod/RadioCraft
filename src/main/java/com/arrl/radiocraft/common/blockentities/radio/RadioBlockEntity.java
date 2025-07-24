@@ -16,7 +16,6 @@ import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
@@ -191,7 +190,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
-        List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
+        List<AntennaNetworkObject> antennas = ((RadioNetworkObject) IBENetworks.getObject(this.level, worldPosition)).getAntennas();
         if(antennas.size() == 1)
             antennas.get(0).transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
         else if(antennas.size() > 1)

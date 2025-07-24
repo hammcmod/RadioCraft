@@ -54,7 +54,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	@Override
 	public void receiveCW(AntennaCWPacket packet) {
 		if(!level.isClientSide && getCWEnabled()) {
-			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
+			List<AntennaNetworkObject> antennas = ((RadioNetworkObject) IBENetworks.getObject(this.level, worldPosition)).getAntennas();
 			if(antennas.size() == 1);
 				// Send necessary buffers to clients tracking this BE, these will get re-ordered and then played back on the client.
 				//RadiocraftPackets.sendToTrackingChunk(new CWBufferPacket(level.dimension(), worldPosition, packet.getBuffers(), (float)packet.getStrength()), level.getChunkAt(worldPosition));

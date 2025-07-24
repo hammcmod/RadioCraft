@@ -37,7 +37,7 @@ public class SolarPanelBlock extends AbstractPowerNetworkBlock {
 
 	@Nullable
 	@Override
-	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> be) {
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> blockEntityType) {
 		return !level.isClientSide ? SolarPanelBlockEntity::tick : null;
 	}
 
@@ -45,5 +45,4 @@ public class SolarPanelBlock extends AbstractPowerNetworkBlock {
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
 		return SHAPE;
 	}
-
 }

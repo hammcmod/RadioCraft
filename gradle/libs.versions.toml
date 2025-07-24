@@ -9,8 +9,8 @@
 
 # NeoForge
     neoforge-loader-range = "[4,)"
-    neoforge-range = "[21.1.72,)"
-    neoforge = "21.1.72"
+    neoforge-range = "[21.1.72,)" # Might require 164
+    neoforge = "21.1.194"
 
 # Dependencies
     mixin = "0.8.7"
