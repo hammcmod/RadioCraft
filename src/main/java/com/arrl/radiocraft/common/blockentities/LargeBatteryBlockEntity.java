@@ -25,7 +25,7 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider {
+public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider, IEnergyStorage {
 
 	private int transferredEnergyLastTick = 0;
 
@@ -141,5 +141,35 @@ public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider
 		if (tag.contains("energy")) {
 			energyStorage.deserializeNBT(registries, tag.get("energy"));
 		}
+	}
+
+	@Override
+	public int receiveEnergy(int i, boolean b) {
+		return energyStorage.receiveEnergy(i, b);
+	}
+
+	@Override
+	public int extractEnergy(int i, boolean b) {
+		return energyStorage.extractEnergy(i, b);
+	}
+
+	@Override
+	public int getEnergyStored() {
+		return energyStorage.getEnergyStored();
+	}
+
+	@Override
+	public int getMaxEnergyStored() {
+		return energyStorage.getMaxEnergyStored();
+	}
+
+	@Override
+	public boolean canExtract() {
+		return energyStorage.canExtract();
+	}
+
+	@Override
+	public boolean canReceive() {
+		return energyStorage.canReceive();
 	}
 }

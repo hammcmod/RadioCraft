@@ -72,11 +72,7 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
 
         if(holder != null) {
             entity.setHolder(holder);
-            RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS.getCapability(holder, null).setHeldPos(pos);
-
-            /*holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent((cap) -> {
-                cap.setHeldPos(pos);
-            });*/
+            holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).setHeldPos(holder, pos);
         }
 
         level.addFreshEntity(entity);
@@ -140,7 +136,7 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
                 Player holder = getWireHolder();
                 if (!isRemoved() && !survives()) {
                     if(holder != null)
-                        RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS.getCapability(holder, null).setHeldPos(null);
+                        holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).setHeldPos(holder, null);
                         //holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent(cap -> cap.setHeldPos(null)); // Reset held pos.
                     discard();
                     endPart.discard();

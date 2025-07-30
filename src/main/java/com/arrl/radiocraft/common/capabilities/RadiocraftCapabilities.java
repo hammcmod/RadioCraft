@@ -42,9 +42,25 @@ public class RadiocraftCapabilities {
 		event.registerBlock(CALLSIGNS, (level, pos, state, be, side) -> new CallsignCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
+		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.ALL_BAND_RADIO.get());
 
 		event.registerItem(VHF_HANDHELDS, (itemStack, context) -> VHFHandheldCapability.getCapability(itemStack), RadiocraftItems.VHF_HANDHELD.get());
 
-		event.registerEntity(ANTENNA_WIRE_HOLDERS, EntityType.PLAYER, (myEntity, context) -> new AntennaWireHolderCapability());
+		event.registerEntity(ANTENNA_WIRE_HOLDERS, EntityType.PLAYER, (player, context) -> new AntennaWireHolderCapability());
+
+		event.registerBlock(Capabilities.EnergyStorage.BLOCK, (level, pos, state, be, side) -> {
+					if (be instanceof LargeBatteryBlockEntity)
+						return (LargeBatteryBlockEntity) be;
+					else {
+						throw new RuntimeException("Capability needs a Large Battery Block Entity");
+					}
+		}, RadiocraftBlocks.LARGE_BATTERY.get());
+		event.registerBlock(Capabilities.EnergyStorage.BLOCK, (level, pos, state, be, side) -> {
+					if (be instanceof SolarPanelBlockEntity)
+						return (SolarPanelBlockEntity) be;
+					else {
+						throw new RuntimeException("Capability needs a Solar Panel Block Entity");
+					}
+		}, RadiocraftBlocks.SOLAR_PANEL.get());
 	}
 }

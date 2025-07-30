@@ -16,7 +16,9 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Set;
 
-public class SolarPanelBlockEntity extends BlockEntity {
+public class SolarPanelBlockEntity extends BlockEntity implements IEnergyStorage {
+
+	private int lastSolarOutput = 0;
 
 	private static final int SOLAR_OUTPUT_WATTS = 200; // Measured in W/m^2
 	// Convert 1W = 8FE/t; 200 W/m^2 = 1,600 (FE/t)/m^2
@@ -58,7 +60,12 @@ public class SolarPanelBlockEntity extends BlockEntity {
 		}
 	}
 
+	public int getLastSolarOutput() {
+		return lastSolarOutput;
+	}
+
 	private void distributePower(ServerLevel level) {
+		lastSolarOutput = 0;
 		if (energyStorage.getEnergyStored() == 0) return;
 
 		PowerNetworkSavedData networkData = PowerNetworkSavedData.get(level);
@@ -78,6 +85,7 @@ public class SolarPanelBlockEntity extends BlockEntity {
 					IEnergyStorage storage = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, null);
 					if (storage != null && storage.canReceive()) {
 						int transferred = storage.receiveEnergy(energyPerBlock, false);
+						lastSolarOutput += transferred;
 						energyStorage.extractEnergy(transferred, false);
 
 						if (energyStorage.getEnergyStored() == 0) break;
@@ -125,5 +133,35 @@ public class SolarPanelBlockEntity extends BlockEntity {
 		if (tag.contains("energy")) {
 			energyStorage.deserializeNBT(registries, tag.get("energy"));
 		}
+	}
+
+	@Override
+	public int receiveEnergy(int i, boolean b) {
+		return 0;
+	}
+
+	@Override
+	public int extractEnergy(int i, boolean b) {
+		return energyStorage.extractEnergy(i, b);
+	}
+
+	@Override
+	public int getEnergyStored() {
+		return energyStorage.getEnergyStored();
+	}
+
+	@Override
+	public int getMaxEnergyStored() {
+		return energyStorage.getMaxEnergyStored();
+	}
+
+	@Override
+	public boolean canExtract() {
+		return true;
+	}
+
+	@Override
+	public boolean canReceive() {
+		return false;
 	}
 }

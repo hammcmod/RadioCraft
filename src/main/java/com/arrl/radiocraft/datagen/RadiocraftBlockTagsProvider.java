@@ -49,7 +49,8 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
                 .add(RadiocraftBlocks.J_POLE_ANTENNA.get())
                 .add(RadiocraftBlocks.SLIM_JIM_ANTENNA.get())
-                .add(RadiocraftBlocks.YAGI_ANTENNA.get());
+                .add(RadiocraftBlocks.YAGI_ANTENNA.get())
+                .add(RadiocraftBlocks.ALL_BAND_RADIO.get());
 
         // Define the ANTENNA_BLOCKS tag
         tag(RadiocraftTags.Blocks.ANTENNA_BLOCKS)
