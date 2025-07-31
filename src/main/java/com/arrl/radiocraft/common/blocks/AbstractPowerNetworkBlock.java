@@ -7,6 +7,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -23,5 +24,11 @@ public abstract class AbstractPowerNetworkBlock extends AbstractNetworkBlock {
 			serverPlayer.openMenu(Objects.requireNonNull(pState.getMenuProvider(pLevel, pPos)), pPos);
 		}
 		return InteractionResult.sidedSuccess(pLevel.isClientSide);
+	}
+
+	@Override
+	public void onPlace(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean isMoving) {
+		super.onPlace(state, level, pos, oldState, isMoving);
+		level.invalidateCapabilities(pos);
 	}
 }

@@ -87,6 +87,10 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
         int posY = pos.getY();
         int posZ = pos.getZ();
 
+        return new ArrayList<>();
+        /*
+
+        TODO: Fix the server thread desync here. If this code is called, the entire game fails to save.
         AABB aabb = new AABB(posX, posY, posZ, posX + 1.0D, posY + 1.0D, posZ + 1.0D);
         List<AntennaWire> wires = level.getEntitiesOfClass(AntennaWire.class, aabb, entity -> !entity.isRemoved());
         List<AntennaWirePart> parts = level.getEntitiesOfClass(AntennaWirePart.class, aabb, entity -> !entity.isRemoved());
@@ -95,6 +99,8 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
         out.addAll(wires);
         out.addAll(parts);
         return out;
+
+        */
     }
 
     /**
