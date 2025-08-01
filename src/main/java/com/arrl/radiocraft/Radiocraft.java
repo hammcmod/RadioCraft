@@ -3,6 +3,7 @@ package com.arrl.radiocraft;
 import com.arrl.radiocraft.common.init.*;
 import com.arrl.radiocraft.common.network.RadiocraftNetworking;
 import com.arrl.radiocraft.compat.TopCompat;
+import com.arrl.radiocraft.datagen.RadiocraftBlockTagsProvider;
 import com.arrl.radiocraft.datagen.RadiocraftBlockstateProvider;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
@@ -83,8 +84,12 @@ public class Radiocraft {
         DataGenerator gen = event.getGenerator();
         ExistingFileHelper existingFileHelper = event.getExistingFileHelper();
 
-        gen.addProvider(event.includeClient(), (Factory<RadiocraftLanguageProvider>) output -> new RadiocraftLanguageProvider(output, "en_us")); // Ugly cast due to ambiguous method sigs.
-        gen.addProvider(event.includeClient(), (Factory<RadiocraftBlockstateProvider>) output -> new RadiocraftBlockstateProvider(output, existingFileHelper));
+        gen.addProvider(event.includeServer(),
+                new RadiocraftBlockTagsProvider(gen.getPackOutput(), event.getLookupProvider(), existingFileHelper));
+        gen.addProvider(event.includeClient(), (Factory<RadiocraftLanguageProvider>) output ->
+                new RadiocraftLanguageProvider(output, "en_us"));
+        gen.addProvider(event.includeClient(), (Factory<RadiocraftBlockstateProvider>) output -> new
+                RadiocraftBlockstateProvider(output, existingFileHelper));
     }
 
     public static ResourceLocation id(String path) {
