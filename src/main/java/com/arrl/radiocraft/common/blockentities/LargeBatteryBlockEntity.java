@@ -145,12 +145,16 @@ public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider
 
 	@Override
 	public int receiveEnergy(int i, boolean b) {
-		return energyStorage.receiveEnergy(i, b);
+		int transferred = energyStorage.receiveEnergy(i, b);
+		transferredEnergyLastTick += transferred;
+		return transferred;
 	}
 
 	@Override
 	public int extractEnergy(int i, boolean b) {
-		return energyStorage.extractEnergy(i, b);
+		int transferred = energyStorage.extractEnergy(i, b);
+		transferredEnergyLastTick -= transferred;
+		return transferred;
 	}
 
 	@Override

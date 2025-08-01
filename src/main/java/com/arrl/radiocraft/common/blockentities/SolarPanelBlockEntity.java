@@ -142,7 +142,9 @@ public class SolarPanelBlockEntity extends BlockEntity implements IEnergyStorage
 
 	@Override
 	public int extractEnergy(int i, boolean b) {
-		return energyStorage.extractEnergy(i, b);
+		int extracted = energyStorage.extractEnergy(i, b);
+		lastSolarOutput += extracted;
+		return extracted;
 	}
 
 	@Override
