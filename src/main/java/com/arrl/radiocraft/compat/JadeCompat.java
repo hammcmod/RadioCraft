@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.compat;
 
-import com.arrl.radiocraft.common.blocks.AntennaCenterBlock;
+import com.arrl.radiocraft.common.blocks.LargeBatteryBlock;
+import com.arrl.radiocraft.common.blocks.SolarPanelBlock;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;
@@ -13,19 +14,19 @@ public class JadeCompat implements IWailaPlugin {
 
     @Override
     public void register(IWailaCommonRegistration registration) {
-        //TODO register data providers
+        // Register enhanced network debug provider for power-related blocks
+        // registration.registerBlockDataProvider(EnhancedNetworkDebugProvider.INSTANCE, WireBlock.class);
+        // registration.registerBlockDataProvider(EnhancedNetworkDebugProvider.INSTANCE, AbstractPowerNetworkBlock.class);
+        registration.registerBlockDataProvider(SolarPanelProvider.INSTANCE, SolarPanelBlock.class);
+        registration.registerBlockDataProvider(BatteryProvider.INSTANCE, LargeBatteryBlock.class);
     }
 
     @Override
     public void registerClient(IWailaClientRegistration registration) {
-        //TODO register component providers, icon providers, callbacks, and config options here
-
-        ArrayList<Class> blocks = new ArrayList<>();
-
-        blocks.add(AntennaCenterBlock.class);
-
-        blocks.forEach(
-                clazz -> registration.registerBlockComponent(JadeProbe.getProbe(), clazz)
-        );
+        // Register enhanced network debug provider for power-related blocks
+        // registration.registerBlockComponent(EnhancedNetworkDebugProvider.INSTANCE, WireBlock.class);
+        // registration.registerBlockComponent(EnhancedNetworkDebugProvider.INSTANCE, AbstractPowerNetworkBlock.class);
+        registration.registerBlockComponent(SolarPanelProvider.INSTANCE, SolarPanelBlock.class);
+        registration.registerBlockComponent(BatteryProvider.INSTANCE, LargeBatteryBlock.class);
     }
 }

@@ -81,6 +81,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 
 			// Jade configuration translations
 			provider.add("config.jade.plugin_radiocraft.radiocraft", "RadioCraft");
+			provider.add("config.jade.plugin_radiocraft.wire_debug", "Wire Debug Info");
+			provider.add("config.jade.plugin_radiocraft.power_network_debug", "Power Network Debug Information");
+			provider.add("config.jade.plugin_radiocraft.enhanced_network_debug", "Enhanced Network Debug Information");
 		});
 	}
 

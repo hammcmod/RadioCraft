@@ -7,7 +7,9 @@ import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
 import com.arrl.radiocraft.common.be_networks.WireUtils;
+import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -16,6 +18,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.common.data.internal.NeoForgeBlockTagsProvider;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import org.jetbrains.annotations.NotNull;
 
 public abstract class AbstractNetworkBlock extends BaseEntityBlock {
@@ -28,18 +32,9 @@ public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 	public void onPlace(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean isMoving) {
 		if(!level.isClientSide) {
 			if(oldState.getBlock() != this) {
-
-				// TODO: This should be using capabilities.
-				//boolean isPower = ForgeRegistries.BLOCKS.tags().getTag(RadiocraftTags.Blocks.POWER_BLOCKS).contains(this);
-				//boolean isCoax = ForgeRegistries.BLOCKS.tags().getTag(RadiocraftTags.Blocks.COAX_BLOCKS).contains(this);
-
-				boolean isPower = false;
-				boolean isCoax = false;
-
-				// This is awkward, but I don't see a good way to do it
-				if(isPower)
+				if(state.is(RadiocraftTags.Blocks.POWER_BLOCKS))
 					WireUtils.tryConnect(level, pos, no -> no instanceof PowerNetworkObject, PowerBENetwork::new, RadiocraftBlocks.WIRE.get());
-				if(isCoax)
+				if(state.is(RadiocraftTags.Blocks.COAX_BLOCKS))
 					WireUtils.tryConnect(level, pos, no -> no instanceof ICoaxNetworkObject, BENetwork::new, RadiocraftBlocks.COAX_WIRE.get());
 			}
 		}
