@@ -22,9 +22,9 @@ public enum SolarPanelProvider implements IBlockComponentProvider, IServerDataPr
         double solarCoefficient = blockAccessor.getServerData().getDouble("solar_coefficient");
         double rainCoefficient = blockAccessor.getServerData().getDouble("rain_coefficient");
         if (blockAccessor.getBlockEntity() instanceof SolarPanelBlockEntity) {
-            iTooltip.add(Component.literal(String.format("§7Solar Output: §e%.2f Watts", solarOutput / 8.0)));
-            iTooltip.add(Component.literal("Solar output last tick: " + solarOutputLastTick / 8.0 + " Watts"));
-            iTooltip.add(Component.literal(String.format("§7Panel Efficiency: §e%.2f %%", solarCoefficient * rainCoefficient * 100.0)));
+            iTooltip.add(Component.literal(String.format("§7Solar Available: §e%.2f Watts", solarOutput / 8.0)));
+            iTooltip.add(Component.literal("Solar Output: " + solarOutputLastTick / 8.0 + " Watts"));
+            iTooltip.add(Component.literal(String.format("§7Solar Elevation/Rain Efficiency: §e%.2f %%", solarCoefficient * rainCoefficient * 100.0)));
         }
     }
 
@@ -33,12 +33,13 @@ public enum SolarPanelProvider implements IBlockComponentProvider, IServerDataPr
         BlockEntity be = accessor.getBlockEntity();
         if (be instanceof SolarPanelBlockEntity && be.getLevel() != null) {
             int solarOutput = SolarPanelBlockEntity.getSolarOutput(be.getLevel(), be.getBlockPos());
-            data.putInt("solar_output", solarOutput);
             int solarOutputLastTick = ((SolarPanelBlockEntity) be).getLastSolarOutput();
-            data.putInt("solar_output_last_tick", solarOutputLastTick);
             double solarCoefficient = SolarPanelBlockEntity.getSolarCoefficient(be.getLevel(), be.getBlockPos());
-            data.putDouble("solar_coefficient", solarCoefficient);
             double rainCoefficient = SolarPanelBlockEntity.getRainCoefficient(be.getLevel());
+
+            data.putInt("solar_output", solarOutput);
+            data.putInt("solar_output_last_tick", solarOutputLastTick);
+            data.putDouble("solar_coefficient", solarCoefficient);
             data.putDouble("rain_coefficient", rainCoefficient);
         }
     }

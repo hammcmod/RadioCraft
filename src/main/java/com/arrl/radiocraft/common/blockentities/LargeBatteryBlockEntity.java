@@ -2,7 +2,6 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.CommonConfig;
-import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.data.PowerNetworkSavedData;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.LargeBatteryMenu;
@@ -19,7 +18,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
@@ -42,8 +40,7 @@ public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider
 	public static void tick(Level level, BlockPos pos, BlockState state, LargeBatteryBlockEntity be) {
 		if (level.isClientSide) return;
 
-		// Battery doesn't need to do much on tick - it just stores and provides energy
-		// Energy distribution is handled by the network system
+		// Battery distributes stored energy using unified method
 		be.distributeEnergyToNetwork((ServerLevel) level);
 	}
 
@@ -52,31 +49,15 @@ public class LargeBatteryBlockEntity extends BlockEntity implements MenuProvider
 		if (energyStorage.getEnergyStored() == 0) return;
 
 		PowerNetworkSavedData networkData = PowerNetworkSavedData.get(level);
-		var network = networkData.getNetwork(worldPosition);
+		int transferred = networkData.distributeStoragePower(
+				level,
+				worldPosition,
+				energyStorage.getEnergyStored(),
+				CommonConfig.LARGE_BATTERY_OUTPUT.get()
+		);
 
-		if (network != null) {
-			// Find energy consumers in the network
-			var networkPositions = networkData.getNetworkPositions(network.getUUID());
-			int energyToDistribute = Math.min(energyStorage.getEnergyStored(), CommonConfig.LARGE_BATTERY_OUTPUT.get());
-
-			for (BlockPos pos : networkPositions) {
-				if (pos.equals(worldPosition)) continue; // Skip self
-
-				BlockEntity be = level.getBlockEntity(pos);
-				if (be != null) {
-					IEnergyStorage storage = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, null);
-					if (storage != null && storage.canReceive()) {
-						int transferred = storage.receiveEnergy(energyToDistribute, false);
-						transferredEnergyLastTick += transferred;
-						Radiocraft.LOGGER.info("Transferred " + transferred + " RF from " + pos + " to " + worldPosition);
-						energyStorage.extractEnergy(transferred, false);
-						energyToDistribute -= transferred;
-
-						if (energyToDistribute <= 0) break;
-					}
-				}
-			}
-		}
+		transferredEnergyLastTick = transferred;
+		energyStorage.extractEnergy(transferred, false);
 	}
 
 	public int getTransferredEnergyLastTick() {

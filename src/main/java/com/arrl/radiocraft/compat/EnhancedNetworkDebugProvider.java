@@ -5,8 +5,6 @@ import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import com.arrl.radiocraft.common.blocks.AbstractPowerNetworkBlock;
-import com.arrl.radiocraft.common.blocks.WireBlock;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.Direction;
@@ -61,7 +59,6 @@ public enum EnhancedNetworkDebugProvider implements IBlockComponentProvider, ISe
         tooltip.add(Component.literal("§7Connected Blocks:"));
         for (Direction dir : Direction.values()) {
             String blockName = serverData.getString("adjacent_" + dir.getName());
-            boolean isWire = serverData.getBoolean("is_wire_" + dir.getName());
             boolean isValidConnection = serverData.getBoolean("valid_" + dir.getName());
             boolean powerTagged = serverData.getBoolean("power_tagged_" + dir.getName());
             boolean coaxTagged = serverData.getBoolean("coax_tagged_" + dir.getName());
@@ -70,9 +67,6 @@ public enum EnhancedNetworkDebugProvider implements IBlockComponentProvider, ISe
 
             if (!blockName.isEmpty()) {
                 String status = "";
-                if (isWire) {
-                    status += "§b[WIRE]";
-                }
                 if (isValidConnection) status += "§a[VALID]";
                 if (powerTagged) status += "§b[POWER TAGGED]";
                 if (coaxTagged) status += "§b[COAX TAGGED]";
@@ -156,10 +150,6 @@ public enum EnhancedNetworkDebugProvider implements IBlockComponentProvider, ISe
             // Store block name
             String blockName = adjacentBlock.getDescriptionId();
             data.putString("adjacent_" + dir.getName(), blockName);
-
-            // Check if it's a wire
-            boolean isWire = adjacentBlock instanceof WireBlock && ((WireBlock) adjacentBlock).isPower;
-            data.putBoolean("is_wire_" + dir.getName(), isWire);
 
             // Check if this block is tagged
             boolean powerTagged2 = adjacentState.is(RadiocraftTags.Blocks.POWER_BLOCKS);

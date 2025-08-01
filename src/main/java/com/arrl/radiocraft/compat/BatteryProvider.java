@@ -2,7 +2,6 @@ package com.arrl.radiocraft.compat;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
-import com.arrl.radiocraft.common.blockentities.SolarPanelBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,8 +23,8 @@ public enum BatteryProvider implements IBlockComponentProvider, IServerDataProvi
 
         if (blockAccessor.getBlockEntity() instanceof LargeBatteryBlockEntity) {
             iTooltip.add(Component.literal(String.format("Power Transferred: %.2f Watts", lastTickTransferredRf / 8.0)));
-            iTooltip.add(Component.literal(String.format("Current Storage: %.2f Joules", currentStorage / 8.0)));
-            iTooltip.add(Component.literal(String.format("Max Storage: %.2f Joules", maxStorage / 8.0)));
+            iTooltip.add(Component.literal(String.format("Current Storage: %.2f kJ", currentStorage / 8.0 / 1000.0)));
+            iTooltip.add(Component.literal(String.format("Max Storage: %.2f kJ", maxStorage / 8.0 / 1000.0)));
         }
     }
 
@@ -37,10 +36,6 @@ public enum BatteryProvider implements IBlockComponentProvider, IServerDataProvi
             int currentStorage = ((LargeBatteryBlockEntity) be).getEnergyStorage().getEnergyStored();
             int maxStorage = ((LargeBatteryBlockEntity) be).getEnergyStorage().getMaxEnergyStored();
 
-            Radiocraft.LOGGER.info("Last tick transferred: " + lastTickTransferredRf);
-            Radiocraft.LOGGER.info("Current storage: " + currentStorage);
-            Radiocraft.LOGGER.info("Max storage: " + maxStorage);
-
             data.putInt("transferred_power", lastTickTransferredRf);
             data.putInt("current_storage", currentStorage);
             data.putInt("max_storage", maxStorage);
@@ -49,6 +44,6 @@ public enum BatteryProvider implements IBlockComponentProvider, IServerDataProvi
 
     @Override
     public ResourceLocation getUid() {
-        return Radiocraft.id("solar_panel_provider");
+        return Radiocraft.id("large_battery_provider");
     }
 }

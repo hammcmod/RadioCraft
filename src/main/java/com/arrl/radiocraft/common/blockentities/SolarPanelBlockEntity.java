@@ -9,12 +9,9 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.Set;
 
 public class SolarPanelBlockEntity extends BlockEntity implements IEnergyStorage {
 
@@ -55,7 +52,7 @@ public class SolarPanelBlockEntity extends BlockEntity implements IEnergyStorage
 				be.energyStorage.receiveEnergy(energyFromSolar, false);
 			}
 
-			// Distribute power to network
+			// Distribute power using unified method
 			be.distributePower((ServerLevel) level);
 		}
 	}
@@ -69,30 +66,15 @@ public class SolarPanelBlockEntity extends BlockEntity implements IEnergyStorage
 		if (energyStorage.getEnergyStored() == 0) return;
 
 		PowerNetworkSavedData networkData = PowerNetworkSavedData.get(level);
-		var network = networkData.getNetwork(worldPosition);
+		int transferred = networkData.distributeProducerPower(
+				level,
+				worldPosition,
+				energyStorage.getEnergyStored(),
+				SOLAR_OUTPUT
+		);
 
-		if (network != null) {
-			// Find consumers in the network
-			Set<BlockPos> networkPositions = networkData.getNetworkPositions(network.getUUID());
-			int totalEnergyToDistribute = energyStorage.getEnergyStored();
-			int energyPerBlock = totalEnergyToDistribute / networkPositions.size();
-
-			for (BlockPos pos : networkPositions) {
-				if (pos.equals(worldPosition)) continue; // Skip self
-
-				BlockEntity be = level.getBlockEntity(pos);
-				if (be != null) {
-					IEnergyStorage storage = level.getCapability(Capabilities.EnergyStorage.BLOCK, pos, null);
-					if (storage != null && storage.canReceive()) {
-						int transferred = storage.receiveEnergy(energyPerBlock, false);
-						lastSolarOutput += transferred;
-						energyStorage.extractEnergy(transferred, false);
-
-						if (energyStorage.getEnergyStored() == 0) break;
-					}
-				}
-			}
-		}
+		lastSolarOutput = transferred;
+		energyStorage.extractEnergy(transferred, false);
 	}
 
 	public IEnergyStorage getEnergyStorage() {
