@@ -124,7 +124,6 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         float f = (float)distance / stepCount;
         int blockLight = (int)Mth.lerp(f, toBlockLight, fromBlockLight);
         int skyLight = (int)Mth.lerp(f, toSkyLight, fromSkyLight);
-        int packedLight = LightTexture.pack(blockLight, skyLight);
         float baseColor = distance % 2 == (isKnot ? 1 : 0) ? 0.7F : 1.0F;
         float red = 0.4F * baseColor;
         float green = 0.4F * baseColor;
@@ -132,8 +131,17 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         float x = xDif * f;
         float y = yDif > 0.0F ? yDif * f * f : yDif - yDif * (1.0F - f) * (1.0F - f);
         float z = zDif * f;
-        consumer.addVertex(matrix, x - xOffset, y + yOffset, z + zOffset).setColor(red, green, blue, 1.0F).setUv(packedLight, 0f);
-        consumer.addVertex(matrix, x + xOffset, y + width - yOffset, z - zOffset).setColor(red, green, blue, 1.0F).setUv(packedLight, 0f);
+        consumer.addVertex(matrix, x - xOffset, y + yOffset, z + zOffset)
+                .setColor(red, green, blue, 1.0F)
+                .setUv(0f, 0f)
+                .setOverlay(0)
+                .setUv2(blockLight, skyLight)
+                .setNormal(0f, 1f, 0f);
+        consumer.addVertex(matrix, x + xOffset, y + width - yOffset, z - zOffset)
+                .setColor(red, green, blue, 1.0F)
+                .setUv(1f, 0f)
+                .setOverlay(0)
+                .setUv2(blockLight, skyLight)
+                .setNormal(0f, 1f, 0f);
     }
-
 }
