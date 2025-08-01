@@ -43,6 +43,10 @@ public class AntennaConnectorBlock extends Block {
         return SHAPES.get(state.getValue(PLACED_ON));
     }
 
+    public @NotNull VoxelShape getCollisionShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+        return SHAPES.get(state.getValue(PLACED_ON));
+    }
+
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {

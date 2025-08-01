@@ -5,7 +5,7 @@ import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
-import com.arrl.radiocraft.common.network.Serverbound.SHandheldRadioUpdatePacket;
+import com.arrl.radiocraft.common.network.serverbound.SHandheldRadioUpdatePacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
