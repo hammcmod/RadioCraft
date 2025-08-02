@@ -1,11 +1,14 @@
 package com.arrl.radiocraft.datagen;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.api.capabilities.LicenseClass;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+import org.apache.commons.lang3.text.WordUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -81,6 +84,13 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 
 			// Jade configuration translations
 			provider.add("config.jade.plugin_radiocraft.radiocraft", "RadioCraft");
+
+			Arrays.stream(LicenseClass.values()).forEach((licenseClass) -> {
+                // I'm not going to bother pulling in the Apache Commons Text library, because I really don't want to shadow it in
+                @SuppressWarnings("deprecation")
+				String friendlyClassName = WordUtils.capitalizeFully(licenseClass.name().replace("_", " "));
+				provider.add(Radiocraft.translationKey("license_class", licenseClass.name()), friendlyClassName);
+			});
 		});
 	}
 
