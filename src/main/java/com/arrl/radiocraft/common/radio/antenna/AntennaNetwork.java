@@ -2,7 +2,6 @@ package com.arrl.radiocraft.common.radio.antenna;
 
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaNetwork;
-import net.minecraft.world.level.Level;
 
 import java.util.Collections;
 import java.util.HashSet;

@@ -5,6 +5,7 @@ import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
+import com.arrl.radiocraft.common.network.clientbound.CWireEndPosUpdatePacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -23,6 +24,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.entity.IEntityWithComplexSpawn;
 import net.neoforged.neoforge.entity.PartEntity;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -72,11 +74,7 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
 
         if(holder != null) {
             entity.setHolder(holder);
-            RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS.getCapability(holder, null).setHeldPos(pos);
-
-            /*holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent((cap) -> {
-                cap.setHeldPos(pos);
-            });*/
+            holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).setHeldPos(holder, pos);
         }
 
         level.addFreshEntity(entity);
@@ -140,7 +138,7 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
                 Player holder = getWireHolder();
                 if (!isRemoved() && !survives()) {
                     if(holder != null)
-                        RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS.getCapability(holder, null).setHeldPos(null);
+                        holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).setHeldPos(holder, null);
                         //holder.getCapability(RadiocraftCapabilities.ANTENNA_WIRE_HOLDERS).ifPresent(cap -> cap.setHeldPos(null)); // Reset held pos.
                     discard();
                     endPart.discard();
@@ -187,8 +185,9 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
      */
     public void setEndPos(BlockPos endPos) {
         endPart.setPos(new Vec3(endPos.getX() + 0.5D, endPos.getY() + 0.5D, endPos.getZ() + 0.5D));
-        if(!level().isClientSide);
-            //RadiocraftPackets.sendToLevel(new CAntennaWirePacket(getId(), endPos), (ServerLevel)level());
+        if(!level().isClientSide) {
+            PacketDistributor.sendToPlayersTrackingChunk((ServerLevel)level(), level().getChunkAt(endPart.getEndPos()).getPos(), new CWireEndPosUpdatePacket(getId(), endPos.asLong()));
+        }
     }
 
     public BlockPos getEndPos() {
@@ -197,6 +196,11 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
 
     public BlockPos getStartPos() {
         return blockPosition();
+    }
+
+    @Override
+    public double getLength() {
+        return endPart.position().distanceTo(position());
     }
 
     public boolean isPairedWith(IAntennaWire other) {

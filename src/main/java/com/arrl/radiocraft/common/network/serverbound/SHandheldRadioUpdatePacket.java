@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.network.Serverbound;
+package com.arrl.radiocraft.common.network.serverbound;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;

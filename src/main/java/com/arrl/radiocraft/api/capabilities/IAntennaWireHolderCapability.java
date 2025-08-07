@@ -12,13 +12,7 @@ public interface IAntennaWireHolderCapability {
 	/**
 	 * @return The {@link BlockPos} containing the held {@link AntennaWire}
 	 */
-	BlockPos getHeldPos();
+	BlockPos getHeldPos(Player player);
 
-	void setHeldPos(BlockPos pos);
-
-	/**
-	 * @return True if this player is holding a wire, otherwise false.
-	 */
-	boolean hasHeldWire();
-
+	void setHeldPos(Player player, BlockPos pos);
 }

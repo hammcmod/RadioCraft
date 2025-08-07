@@ -2,6 +2,7 @@ package com.arrl.radiocraft.datagen;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
@@ -66,6 +67,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.J_POLE_ANTENNA, "J-Pole Antenna");
 			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
 
+			provider.addEntityType(RadiocraftEntityTypes.ANTENNA_WIRE, "Antenna Wire");
+
 			provider.add(Radiocraft.translationKey("commands", "callsign.get.success"), "%s's callsign is %s.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.get.failure"), "%s does not have a callsign.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.get.failure.multiple"), "Cannot get the callsign of multiple targets at once.");
@@ -81,6 +84,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 
 			// Jade configuration translations
 			provider.add("config.jade.plugin_radiocraft.radiocraft", "RadioCraft");
+			provider.add("config.jade.plugin_radiocraft.antenna_wire", "Antenna Wire");
 		});
 	}
 
