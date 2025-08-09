@@ -31,10 +31,17 @@ public class PlayerCallsignSavedData extends SavedData implements IPlayerCallsig
         PlayerCallsignSavedData data = new PlayerCallsignSavedData();
         PlayerCallsignSavedData.callsigns.clear();
         for (String uuid: callData.getAllKeys()) {
-            String playerUUID = callData.getString(uuid +"_uuid");
-            String callsign = callData.getString(uuid +"_callsign");
-            LicenseClass licenseClass = LicenseClass.valueOf(callData.getString(uuid +"_class"));
-            PlayerCallsignSavedData.callsigns.put(uuid, new PlayerCallsignData(playerUUID, callsign, licenseClass));
+            String playerUUID = null;
+            String callsign = null;
+            LicenseClass licenseClass = null;
+            try {
+                playerUUID = callData.getString(uuid +"_uuid");
+                callsign = callData.getString(uuid +"_callsign");
+                licenseClass = LicenseClass.valueOf(callData.getString(uuid +"_class"));
+                PlayerCallsignSavedData.callsigns.put(uuid, new PlayerCallsignData(playerUUID, callsign, licenseClass));
+            } catch (IllegalArgumentException e) {
+                Radiocraft.LOGGER.error("Invalid callsign data for {}", playerUUID);
+            }
         }
         return data;
     }
