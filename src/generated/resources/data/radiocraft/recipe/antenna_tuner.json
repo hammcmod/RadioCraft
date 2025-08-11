@@ -5,20 +5,23 @@
     "#": {
       "item": "radiocraft:wire"
     },
+    "B": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
     "E": {
       "item": "minecraft:emerald"
     },
     "L": {
       "item": "minecraft:lightning_rod"
-    },
-    "S": {
-      "item": "minecraft:netherite_scrap"
     }
   },
   "pattern": [
     "###",
     "#L#",
-    "SE#"
+    "BEC"
   ],
   "result": {
     "count": 1,

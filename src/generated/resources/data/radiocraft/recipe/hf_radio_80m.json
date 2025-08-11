@@ -5,14 +5,14 @@
     "#": {
       "item": "radiocraft:wire"
     },
-    "C": {
+    "B": {
       "item": "radiocraft:hf_circuit_board"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
     },
     "I": {
       "item": "minecraft:iron_ingot"
-    },
-    "N": {
-      "item": "minecraft:netherite_ingot"
     },
     "R": {
       "item": "radiocraft:radio_crystal"
@@ -22,9 +22,9 @@
     }
   },
   "pattern": [
-    "NNN",
+    "CCB",
     "#RT",
-    "ICI"
+    "IBI"
   ],
   "result": {
     "count": 1,

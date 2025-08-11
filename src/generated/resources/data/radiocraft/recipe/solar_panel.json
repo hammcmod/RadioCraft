@@ -2,20 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "item": "radiocraft:wire"
-    },
     "D": {
       "item": "minecraft:daylight_detector"
     },
-    "K": {
-      "item": "minecraft:dried_kelp"
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "W": {
+      "item": "radiocraft:wire"
     }
   },
   "pattern": [
-    "KKK",
-    "DDD",
-    "###"
+    "GGG",
+    "WDW",
+    "   "
   ],
   "result": {
     "count": 1,

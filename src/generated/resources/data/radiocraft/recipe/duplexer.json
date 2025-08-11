@@ -5,17 +5,20 @@
     "#": {
       "item": "minecraft:iron_ingot"
     },
+    "B": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
     "L": {
       "item": "minecraft:lightning_rod"
-    },
-    "N": {
-      "item": "minecraft:netherite_ingot"
     }
   },
   "pattern": [
     "#L#",
-    "#L#",
-    "#N#"
+    "#B#",
+    "#C#"
   ],
   "result": {
     "count": 1,

@@ -2,20 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
+    "C": {
       "item": "radiocraft:wire"
-    },
-    "A": {
-      "item": "minecraft:amethyst_shard"
     },
     "D": {
       "item": "minecraft:iron_ingot"
+    },
+    "M": {
+      "item": "radiocraft:hand_microphone"
     }
   },
   "pattern": [
-    "  A",
+    " M ",
     " D ",
-    "#  "
+    " C "
   ],
   "result": {
     "count": 1,

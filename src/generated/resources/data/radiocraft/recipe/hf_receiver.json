@@ -5,14 +5,14 @@
     "#": {
       "item": "radiocraft:wire"
     },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
     "I": {
       "item": "minecraft:iron_ingot"
     },
     "L": {
       "item": "minecraft:lightning_rod"
-    },
-    "N": {
-      "item": "minecraft:netherite_scrap"
     },
     "S": {
       "item": "radiocraft:radio_speaker"
@@ -20,7 +20,7 @@
   },
   "pattern": [
     "III",
-    "N#S",
+    "C#S",
     "L#I"
   ],
   "result": {
