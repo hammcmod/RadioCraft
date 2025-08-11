@@ -273,26 +273,33 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                 receiveChannel.updateLocation(getPosInVoiceApiFormat());
             }
 
+            int packetFrequency = antennaPacket.getFrequency();
+            double packetStrength = antennaPacket.getStrength();
 
-            //TODO placeholder for audio effect testing (make muffled sounding when not on hotbar)
-//            boolean isHeld = false;
-//            for(SynchronousRadioState state : this.radios) {
-//                if (state.canReceive && state.itemLocation == HandheldLocation.HELD) {
-//                    isHeld = true;
-//                    break;
-//                }
-//            }
+            //TODO make muffled sounding when not on hotbar (via low pass or the like, not just volume reduction)
+            boolean isHeld = false;
+            boolean shouldRecieve = false;
+            for(SynchronousRadioState state : this.radios) {
+                if (state.canReceive && state.frequency == packetFrequency) {
+                    shouldRecieve = true;
+                    if(state.itemLocation == HandheldLocation.HELD) {
+                        isHeld = true;
+                    }
+                }
+            }
+
+            if(!shouldRecieve) return;
 
             long runningTotal = 0;
             short[] rawAudio = antennaPacket.getRawAudio();
             for(int i = 0; i < rawAudio.length; i++) {
-                short sample = (short) Math.round(rawAudio[i] * antennaPacket.getStrength()); // Apply appropriate gain for signal strength
+                short sample = (short) Math.round(rawAudio[i] * packetStrength * (isHeld ? 1f : 0.5f)); // Apply appropriate gain for signal strength
                 runningTotal = sample * sample;
                 rawAudio[i] = sample;
             }
 
             //TODO rework receiving to be per handheld, when frequency support is added
-            for(SynchronousRadioState state : this.radios) if(state.canReceive) {
+            for(SynchronousRadioState state : this.radios) if(state.canReceive && state.frequency == packetFrequency) {
                 state.runningSampleCount += rawAudio.length;
                 state.runningSampleSum += runningTotal;
             }

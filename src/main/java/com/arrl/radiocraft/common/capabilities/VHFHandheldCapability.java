@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.capabilities;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.common.datacomponents.HandheldRadioState;
 import com.arrl.radiocraft.common.init.RadiocraftDataComponent;
+import com.arrl.radiocraft.common.radio.Band;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.UnaryOperator;
@@ -42,7 +43,20 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setFrequencyKiloHertz(int frequencyKiloHertz) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), frequencyKiloHertz, old.receiveIndicatorStrength()));
+		updateState(
+			(old) -> new HandheldRadioState(
+				old.power(),
+				old.ptt(),
+				Math.max(
+						Math.min(
+								frequencyKiloHertz,
+								Band.getBand(2).maxFrequency()
+						),
+						Band.getBand(2).minFrequency()
+				),
+				old.receiveIndicatorStrength()
+			)
+		);
 	}
 
 	@Override

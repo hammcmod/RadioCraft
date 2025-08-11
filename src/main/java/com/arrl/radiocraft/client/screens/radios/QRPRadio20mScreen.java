@@ -6,10 +6,8 @@ import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
-import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.menus.QRPRadio20mMenu;
 import com.arrl.radiocraft.common.radio.Band;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -47,7 +45,7 @@ public class QRPRadio20mScreen extends HFRadioScreen<QRPRadio20mMenu> {
     protected void renderAdditionalBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
         int freq = menu.getFrequency();
 
-        Band band = RadiocraftData.BANDS.getValue(menu.getWavelength());
+        Band band = Band.getBand(menu.getWavelength());
         int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
         int min = band.minFrequency();
         int max = (band.maxFrequency() - band.minFrequency()) / step * step + min;
