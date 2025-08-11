@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "minecraft:lightning_rod"
+    },
+    "N": {
+      "item": "minecraft:netherite_scrap"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
+    }
+  },
+  "pattern": [
+    "III",
+    "N#S",
+    "L#I"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:hf_receiver"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "A": {
+      "item": "minecraft:note_block"
+    },
+    "D": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "AAA",
+    "ADA",
+    "A#A"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:radio_speaker"
+  }
+}

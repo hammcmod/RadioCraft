@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "H": {
+      "item": "radiocraft:hand_microphone"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "radiocraft:radio_crystal"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
+    },
+    "W": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "pattern": [
+    "III",
+    "HRS",
+    "#WW"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:vhf_base_station"
+  }
+}

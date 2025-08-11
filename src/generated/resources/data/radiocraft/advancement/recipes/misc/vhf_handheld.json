@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_radio_crystal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:radio_crystal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "radiocraft:vhf_handheld"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_radio_crystal"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "radiocraft:vhf_handheld"
+    ]
+  }
+}
