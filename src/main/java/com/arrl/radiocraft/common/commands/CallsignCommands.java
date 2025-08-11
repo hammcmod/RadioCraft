@@ -115,6 +115,9 @@ public class CallsignCommands {
 			if(data != null) {
 				ServerPlayer player = source.getServer().getPlayerList().getPlayer(UUID.fromString(data.playerUUID()));
 				Component name = Component.literal(data.playerUUID());
+				if (data.playerName() != null && !data.playerName().isEmpty()) {
+					name = Component.literal(data.playerName());
+				}
 				if (player != null) {
 					// If the player is null, it's a player who isn't online. We know their UUID but can't get their username (trivially).
 					name = Component.literal(player.getGameProfile().getName());
@@ -188,7 +191,7 @@ public class CallsignCommands {
 		}
 		final GameProfile targetProfile = getTarget(source, gameProfiles);
 		playerSavedData = getPlayerCallsignSavedData(source.getLevel());
-		playerSavedData.setCallsignData(targetProfile.getId(), new PlayerCallsignData(targetProfile.getId().toString(), callsign, licenseClass));
+		playerSavedData.setCallsignData(targetProfile.getId(), new PlayerCallsignData(targetProfile.getId().toString(), targetProfile.getName(), callsign, licenseClass));
 		Component name = Component.literal(targetProfile.getName());
 		Component license = Component.translatable(Radiocraft.translationKey("license_class", licenseClass.name()));
 		Supplier<Component> combined = () -> Component.translatable(Radiocraft.translationKey("commands", "callsign.set.success"), name, callsign, license);

@@ -36,11 +36,13 @@ public class PlayerCallsignSavedData extends SavedData implements IPlayerCallsig
         for (String uuid : callData.getAllKeys()) {
             try {
                 CompoundTag playerData = callData.getCompound(uuid);
-                String playerUUID = playerData.getString("uuid");
                 String callsign = playerData.getString("callsign");
+                String playerName = "";
+                if (playerData.contains("name")) {
+                    playerName = playerData.getString("name");
+                }
                 LicenseClass licenseClass = LicenseClass.valueOf(playerData.getString("class"));
-
-                PlayerCallsignSavedData.callsigns.put(uuid, new PlayerCallsignData(playerUUID, callsign, licenseClass));
+                PlayerCallsignSavedData.callsigns.put(uuid, new PlayerCallsignData(uuid, playerName, callsign, licenseClass));
                 Radiocraft.LOGGER.info("Loaded callsign data for UUID: {}, Callsign: {}", uuid, callsign);
             } catch (IllegalArgumentException e) {
                 Radiocraft.LOGGER.error("Invalid callsign data for UUID: {}", uuid, e);
@@ -57,9 +59,11 @@ public class PlayerCallsignSavedData extends SavedData implements IPlayerCallsig
         for (String uuid: callsigns.keySet()) {
             PlayerCallsignData data = callsigns.get(uuid);
             CompoundTag playerData = new CompoundTag();
-            playerData.putString("uuid", data.playerUUID());
             playerData.putString("callsign", data.callsign());
             playerData.putString("class", data.licenseClass().name());
+            if (data.playerName() != null && !data.playerName().isEmpty()) {
+                playerData.putString("name", data.playerName());
+            }
             callData.put(uuid, playerData);
         }
         nbt.put("player_callsign_data", callData);
