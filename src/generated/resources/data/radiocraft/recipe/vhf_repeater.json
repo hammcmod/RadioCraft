@@ -8,11 +8,11 @@
     "B": {
       "item": "radiocraft:vhf_base_station"
     },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
     "I": {
       "item": "minecraft:iron_ingot"
-    },
-    "N": {
-      "item": "minecraft:netherite_ingot"
     },
     "R": {
       "item": "radiocraft:radio_crystal"
@@ -23,7 +23,7 @@
   },
   "pattern": [
     "ITI",
-    "NBR",
+    "CBR",
     "I#I"
   ],
   "result": {

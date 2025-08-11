@@ -2,20 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "item": "radiocraft:wire"
-    },
     "B": {
-      "item": "minecraft:stone_button"
-    },
-    "I": {
-      "item": "minecraft:iron_ingot"
+      "tag": "minecraft:buttons"
     },
     "L": {
       "item": "minecraft:lightning_rod"
     },
     "M": {
-      "item": "radiocraft:microphone"
+      "item": "radiocraft:hand_microphone"
     },
     "R": {
       "item": "radiocraft:radio_crystal"
@@ -25,9 +19,9 @@
     }
   },
   "pattern": [
-    "LII",
-    "BRS",
-    "#M#"
+    "L  ",
+    "MRS",
+    "BBB"
   ],
   "result": {
     "count": 1,

@@ -2,23 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "item": "radiocraft:wire"
-    },
     "B": {
-      "item": "minecraft:polished_blackstone_button"
+      "tag": "minecraft:buttons"
     },
-    "M": {
-      "item": "radiocraft:microphone"
+    "C": {
+      "item": "minecraft:amethyst_shard"
     },
-    "P": {
-      "tag": "minecraft:planks"
+    "W": {
+      "item": "radiocraft:wire"
     }
   },
   "pattern": [
-    " P ",
-    "BM ",
-    " # "
+    " B ",
+    "WCW",
+    "   "
   ],
   "result": {
     "count": 1,

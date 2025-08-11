@@ -8,14 +8,14 @@
     "A": {
       "item": "minecraft:amethyst_shard"
     },
-    "D": {
-      "item": "minecraft:diamond"
+    "I": {
+      "item": "minecraft:iron_ingot"
     }
   },
   "pattern": [
-    "AAA",
-    "ADA",
-    "A#A"
+    " # ",
+    "IAI",
+    " # "
   ],
   "result": {
     "count": 1,

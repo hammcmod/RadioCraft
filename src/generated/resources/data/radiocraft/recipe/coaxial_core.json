@@ -2,8 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "I": {
-      "item": "minecraft:iron_ingot"
+    "C": {
+      "item": "minecraft:copper_ingot"
     },
     "K": {
       "item": "minecraft:dried_kelp"
@@ -11,7 +11,7 @@
   },
   "pattern": [
     "KKK",
-    "III",
+    "CCC",
     "KKK"
   ],
   "result": {

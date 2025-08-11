@@ -11,6 +11,7 @@ import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -20,7 +21,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput recipeOutput) {
+    protected void buildRecipes(@NotNull RecipeOutput recipeOutput) {
         // Basic components
         buildWireRecipe(recipeOutput);
         buildWaterproofWireRecipe(recipeOutput);
@@ -65,8 +66,8 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .pattern("#  ")
                 .pattern(" # ")
                 .pattern("  #")
-                .define('#', Items.IRON_INGOT)
-                .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
+                .define('#', Items.COPPER_INGOT)
+                .unlockedBy("has_copper_ingot", has(Items.COPPER_INGOT))
                 .save(recipeOutput);
     }
 
@@ -127,33 +128,33 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
     private void buildCoaxialCoreRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.COAXIAL_CORE.get(), 3)
                 .pattern("KKK")
-                .pattern("III")
+                .pattern("CCC")
                 .pattern("KKK")
                 .define('K', Items.DRIED_KELP)
-                .define('I', Items.IRON_INGOT)
-                .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
+                .define('C', Items.COPPER_INGOT)
+                .unlockedBy("has_copper_ingot", has(Items.COPPER_INGOT))
                 .save(recipeOutput);
     }
 
     private void buildMicrophoneRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.MICROPHONE.get(), 1)
-                .pattern("  A")
+                .pattern(" M ")
                 .pattern(" D ")
-                .pattern("#  ")
-                .define('#', RadiocraftItems.WIRE.get())
+                .pattern(" C ")
+                .define('C', RadiocraftItems.WIRE.get())
                 .define('D', Items.IRON_INGOT)
-                .define('A', Items.AMETHYST_SHARD)
+                .define('M', RadiocraftItems.HAND_MICROPHONE.get())
                 .unlockedBy("has_wire", has(RadiocraftItems.WIRE.get()))
                 .save(recipeOutput);
     }
 
     private void buildSolarPanelRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.SOLAR_PANEL.get(), 1)
-                .pattern("KKK")
-                .pattern("DDD")
-                .pattern("###")
-                .define('#', RadiocraftItems.WIRE.get())
-                .define('K', Items.DRIED_KELP)
+                .pattern("GGG")
+                .pattern("WDW")
+                .pattern("   ")
+                .define('W', RadiocraftItems.WIRE.get())
+                .define('G', Items.GLASS)
                 .define('D', Items.DAYLIGHT_DETECTOR)
                 .unlockedBy("has_wire", has(RadiocraftItems.WIRE.get()))
                 .save(recipeOutput);
@@ -161,23 +162,23 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
 
     private void buildRadioCrystalRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.RADIO_CRYSTAL.get(), 1)
-                .pattern("AAA")
-                .pattern("ADA")
-                .pattern("A#A")
+                .pattern(" # ")
+                .pattern("IAI")
+                .pattern(" # ")
                 .define('#', RadiocraftItems.WIRE.get())
-                .define('D', Items.DIAMOND)
+                .define('I', Items.IRON_INGOT)
                 .define('A', Items.AMETHYST_SHARD)
-                .unlockedBy("has_diamond", has(Items.DIAMOND))
+                .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
                 .save(recipeOutput);
     }
 
     private void buildRadioSpeakerRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.RADIO_SPEAKER.get(), 1)
-                .pattern("AAA")
-                .pattern("ADA")
-                .pattern("A#A")
+                .pattern("   ")
+                .pattern("PAP")
+                .pattern("P#P")
                 .define('#', RadiocraftItems.WIRE.get())
-                .define('D', Items.IRON_INGOT)
+                .define('P', ItemTags.PLANKS)
                 .define('A', Items.NOTE_BLOCK)
                 .unlockedBy("has_note_block", has(Items.NOTE_BLOCK))
                 .save(recipeOutput);
@@ -198,12 +199,13 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
     private void buildDuplexerRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.DUPLEXER.get(), 1)
                 .pattern("#L#")
-                .pattern("#L#")
-                .pattern("#N#")
+                .pattern("#B#")
+                .pattern("#C#")
                 .define('#', Items.IRON_INGOT)
-                .define('N', Items.NETHERITE_INGOT)
+                .define('C', Items.COPPER_INGOT)
                 .define('L', Items.LIGHTNING_ROD)
-                .unlockedBy("has_netherite_ingot", has(Items.NETHERITE_INGOT))
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
                 .save(recipeOutput);
     }
 
@@ -235,14 +237,13 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
 
     private void buildHandMicrophoneRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.HAND_MICROPHONE.get(), 1)
-                .pattern(" P ")
-                .pattern("BM ")
-                .pattern(" # ")
-                .define('#', RadiocraftItems.WIRE.get())
-                .define('P', ItemTags.PLANKS)
-                .define('B', Items.POLISHED_BLACKSTONE_BUTTON)
-                .define('M', RadiocraftItems.MICROPHONE.get())
-                .unlockedBy("has_microphone", has(RadiocraftItems.MICROPHONE.get()))
+                .pattern(" B ")
+                .pattern("WCW")
+                .pattern("   ")
+                .define('W', RadiocraftItems.WIRE.get())
+                .define('C', Items.AMETHYST_SHARD)
+                .define('B', ItemTags.BUTTONS)
+                .unlockedBy("has_wire", has(RadiocraftItems.WIRE.get()))
                 .save(recipeOutput);
     }
 
@@ -250,10 +251,11 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.ANTENNA_TUNER.get(), 1)
                 .pattern("###")
                 .pattern("#L#")
-                .pattern("SE#")
+                .pattern("BEC")
                 .define('#', RadiocraftItems.WIRE.get())
                 .define('L', Items.LIGHTNING_ROD)
-                .define('S', Items.NETHERITE_SCRAP)
+                .define('C', Items.COPPER_INGOT)
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
                 .define('E', Items.EMERALD)
                 .unlockedBy("has_emerald", has(Items.EMERALD))
                 .save(recipeOutput);
@@ -276,11 +278,11 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
     private void buildHfReceiverRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.HF_RECEIVER.get(), 1)
                 .pattern("III")
-                .pattern("N#S")
+                .pattern("C#S")
                 .pattern("L#I")
                 .define('#', RadiocraftItems.WIRE.get())
                 .define('S', RadiocraftItems.RADIO_SPEAKER.get())
-                .define('N', Items.NETHERITE_SCRAP)
+                .define('C', Items.COPPER_INGOT)
                 .define('L', Items.LIGHTNING_ROD)
                 .define('I', Items.IRON_INGOT)
                 .unlockedBy("has_radio_speaker", has(RadiocraftItems.RADIO_SPEAKER.get()))
@@ -348,46 +350,45 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
 
     private void buildHfRadio20mRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.HF_RADIO_20M.get(), 1)
-                .pattern("NNN")
+                .pattern("BCC")
                 .pattern("#RT")
-                .pattern("ICI")
+                .pattern("IBI")
                 .define('#', RadiocraftItems.WIRE.get())
-                .define('N', Items.NETHERITE_SCRAP)
+                .define('C', Items.COPPER_INGOT)
                 .define('R', RadiocraftItems.RADIO_CRYSTAL.get())
                 .define('T', Items.TINTED_GLASS)
                 .define('I', Items.IRON_INGOT)
-                .define('C', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
                 .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
                 .save(recipeOutput);
     }
 
     private void buildHfRadio40mRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.HF_RADIO_40M.get(), 1)
-                .pattern("SNS")
+                .pattern("CBC")
                 .pattern("#RT")
-                .pattern("ICI")
+                .pattern("IBI")
                 .define('#', RadiocraftItems.WIRE.get())
-                .define('S', Items.NETHERITE_SCRAP)
                 .define('R', RadiocraftItems.RADIO_CRYSTAL.get())
                 .define('T', Items.TINTED_GLASS)
                 .define('I', Items.IRON_INGOT)
-                .define('C', RadiocraftItems.HF_CIRCUIT_BOARD.get())
-                .define('N', Items.NETHERITE_INGOT)
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('C', Items.COPPER_INGOT)
                 .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
                 .save(recipeOutput);
     }
 
     private void buildHfRadio80mRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.HF_RADIO_80M.get(), 1)
-                .pattern("NNN")
+                .pattern("CCB")
                 .pattern("#RT")
-                .pattern("ICI")
+                .pattern("IBI")
                 .define('#', RadiocraftItems.WIRE.get())
-                .define('N', Items.NETHERITE_INGOT)
+                .define('C', Items.COPPER_INGOT)
                 .define('R', RadiocraftItems.RADIO_CRYSTAL.get())
                 .define('T', Items.TINTED_GLASS)
                 .define('I', Items.IRON_INGOT)
-                .define('C', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
                 .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
                 .save(recipeOutput);
     }
@@ -395,13 +396,13 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
     private void buildVhfRepeaterRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.VHF_REPEATER.get(), 1)
                 .pattern("ITI")
-                .pattern("NBR")
+                .pattern("CBR")
                 .pattern("I#I")
                 .define('#', RadiocraftItems.WIRE.get())
                 .define('I', Items.IRON_INGOT)
                 .define('R', RadiocraftItems.RADIO_CRYSTAL.get())
                 .define('B', RadiocraftItems.VHF_BASE_STATION.get())
-                .define('N', Items.NETHERITE_INGOT)
+                .define('C', Items.COPPER_INGOT)
                 .define('T', Items.IRON_TRAPDOOR)
                 .unlockedBy("has_vhf_base_station", has(RadiocraftItems.VHF_BASE_STATION.get()))
                 .save(recipeOutput);
@@ -409,16 +410,14 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
 
     private void buildVhfHandheldRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.VHF_HANDHELD.get(), 1)
-                .pattern("LII")
-                .pattern("BRS")
-                .pattern("#M#")
-                .define('#', RadiocraftItems.WIRE.get())
-                .define('I', Items.IRON_INGOT)
+                .pattern("L  ")
+                .pattern("MRS")
+                .pattern("BBB")
                 .define('R', RadiocraftItems.RADIO_CRYSTAL.get())
                 .define('S', RadiocraftItems.RADIO_SPEAKER.get())
                 .define('L', Items.LIGHTNING_ROD)
-                .define('M', RadiocraftItems.MICROPHONE.get())
-                .define('B', Items.STONE_BUTTON)
+                .define('M', RadiocraftItems.HAND_MICROPHONE.get())
+                .define('B', ItemTags.BUTTONS)
                 .unlockedBy("has_radio_crystal", has(RadiocraftItems.RADIO_CRYSTAL.get()))
                 .save(recipeOutput);
     }

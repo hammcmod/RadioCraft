@@ -8,14 +8,14 @@
     "A": {
       "item": "minecraft:note_block"
     },
-    "D": {
-      "item": "minecraft:iron_ingot"
+    "P": {
+      "tag": "minecraft:planks"
     }
   },
   "pattern": [
-    "AAA",
-    "ADA",
-    "A#A"
+    "   ",
+    "PAP",
+    "P#P"
   ],
   "result": {
     "count": 1,
