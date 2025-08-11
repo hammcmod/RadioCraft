@@ -8,7 +8,6 @@ import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.ITogglableBE;
-import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.SWRHelper;
@@ -16,7 +15,6 @@ import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
@@ -52,7 +50,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         super(type, pos, state);
         this.micPos.set(pos);
         this.wavelength = wavelength;
-        Band band = RadiocraftData.BANDS.getValue(wavelength);
+        Band band = Band.getBand(wavelength);
         this.frequency = band == null ? 0 : band.minFrequency();
         this.voiceReceiver = new BEVoiceReceiver(pos.getX(), pos.getY(), pos.getZ());
     }
@@ -180,7 +178,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * @param stepCount The number of steps to increment by.
      */
     public void updateFrequency(int stepCount) {
-        Band band = RadiocraftData.BANDS.getValue(wavelength);
+        Band band = Band.getBand(wavelength);
         int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
         int min = band.minFrequency();
         int max = (band.maxFrequency() - band.minFrequency()) / step * step + min; // This calc looks weird, but it's integer division, throws away remainder to ensure the freq doesn't do a "half step" to max.

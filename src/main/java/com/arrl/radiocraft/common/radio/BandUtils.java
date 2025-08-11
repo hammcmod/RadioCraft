@@ -1,14 +1,12 @@
 package com.arrl.radiocraft.common.radio;
 
-import com.arrl.radiocraft.common.init.RadiocraftData;
-
 /**
  * Util class for helper methods regarding bands and ranges.
  */
 public class BandUtils {
 
 	public static double getBaseStrength(int wavelength, double distance, double losEfficiency, double skipEfficiency, boolean isDay) {
-		Band band = RadiocraftData.BANDS.getValue(wavelength);
+		Band band = Band.getBand(wavelength);
 		if(band == null)
 			return 0.0D;
 

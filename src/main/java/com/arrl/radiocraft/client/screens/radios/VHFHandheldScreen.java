@@ -1,11 +1,13 @@
 package com.arrl.radiocraft.client.screens.radios;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.network.serverbound.SHandheldRadioUpdatePacket;
+import com.arrl.radiocraft.common.radio.Band;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -128,8 +130,6 @@ public class VHFHandheldScreen extends Screen {
         RX_LED.setIsOn(cap.isPowered() && cap.getReceiveStrength() > 0);
         DATA_LED.setIsOn(false); // TBI
 
-        cap.getFrequencyKiloHertz();
-
         for (Renderable renderable : this.renderables) {
             renderable.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
         }
@@ -180,18 +180,28 @@ public class VHFHandheldScreen extends Screen {
      * Callback for frequency up buttons.
      */
     protected void onFrequencyButtonUp(Button button) {
-        if(cap.isPowered());
-            //RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, 1)); // Frequency is sync'd back from server as client doesn't know steps.
-        //TODO frequency stepping send to server
+        if(!cap.isPowered()) return;
+        cap.setFrequencyKiloHertz(
+                Math.min( //ServerConfig is synced on game join, so no further checking is necessary
+                        cap.getFrequencyKiloHertz() + RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
+                        Band.getBand(2).maxFrequency()
+                )
+        );
+        updateServer();
     }
 
     /**
      * Callback for frequency down buttons.
      */
     protected void onFrequencyButtonDown(Button button) {
-        if(cap.isPowered());
-            //RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, -1)); // Frequency is sync'd back from server as client doesn't know steps.
-        //TODO frequency stepping send to server
+        if(!cap.isPowered()) return;
+        cap.setFrequencyKiloHertz(
+                Math.max(  //ServerConfig is synced on game join, so no further checking is necessary
+                        cap.getFrequencyKiloHertz() - RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
+                        Band.getBand(2).minFrequency()
+                )
+        );
+        updateServer();
     }
 
     /**
@@ -224,7 +234,7 @@ public class VHFHandheldScreen extends Screen {
     }
 
     protected void updateServer(){
-        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(index, cap.isPowered(), cap.isPTTDown(), cap.getFrequencyKiloHertz())); //TODO frequency stepping is server side, change to indicate increments
+        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(index, cap.isPowered(), cap.isPTTDown(), cap.getFrequencyKiloHertz()));
     }
 
     @Override
