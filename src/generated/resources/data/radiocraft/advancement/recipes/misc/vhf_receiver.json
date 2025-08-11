@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_radio_speaker": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:radio_speaker"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "radiocraft:vhf_receiver"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_radio_speaker"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "radiocraft:vhf_receiver"
+    ]
+  }
+}

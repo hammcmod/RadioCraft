@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "D": {
+      "item": "minecraft:daylight_detector"
+    },
+    "K": {
+      "item": "minecraft:dried_kelp"
+    }
+  },
+  "pattern": [
+    "KKK",
+    "DDD",
+    "###"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:solar_panel"
+  }
+}

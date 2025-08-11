@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_antenna_pole": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:antenna_pole"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "radiocraft:solar_weather_station"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_antenna_pole"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "radiocraft:solar_weather_station"
+    ]
+  }
+}

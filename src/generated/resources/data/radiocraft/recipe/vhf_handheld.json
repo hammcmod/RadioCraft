@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "B": {
+      "item": "minecraft:stone_button"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "minecraft:lightning_rod"
+    },
+    "M": {
+      "item": "radiocraft:microphone"
+    },
+    "R": {
+      "item": "radiocraft:radio_crystal"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
+    }
+  },
+  "pattern": [
+    "LII",
+    "BRS",
+    "#M#"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:vhf_handheld"
+  }
+}

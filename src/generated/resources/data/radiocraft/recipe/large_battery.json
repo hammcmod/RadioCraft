@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "tag": "c:stripped_logs"
+    },
+    "S": {
+      "item": "radiocraft:small_battery"
+    }
+  },
+  "pattern": [
+    "LSL",
+    "LSL",
+    "LSL"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:large_battery"
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "B": {
+      "item": "minecraft:polished_blackstone_button"
+    },
+    "M": {
+      "item": "radiocraft:microphone"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "pattern": [
+    " P ",
+    "BM ",
+    " # "
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:hand_microphone"
+  }
+}
