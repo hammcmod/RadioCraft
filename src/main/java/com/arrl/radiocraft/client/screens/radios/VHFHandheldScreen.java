@@ -35,6 +35,14 @@ public class VHFHandheldScreen extends Screen {
     protected ItemStack item;
     protected IVHFHandheldCapability cap;
 
+    protected static int FREQUENCY_ENTERING_TIMEOUT = 7000; //in millis
+
+    protected int enteredFrequency=0;
+    protected int curDigit=0;
+    protected long millisOfLastFrequency=0;
+
+    protected MenuState menuState = MenuState.DEFAULT;
+
     LedIndicator TX_LED, RX_LED, DATA_LED;
 
     MeterNeedleIndicator POWER_METER;
@@ -79,10 +87,24 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Gain
         addRenderableWidget(new HoverableImageButton(leftPos + 105, topPos + 168, 18, 14, 94, 84, 76, 84, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
         addRenderableWidget(new HoverableImageButton(leftPos + 125, topPos + 168, 18, 14, 94, 98, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
+        //number buttons
+        addRenderableWidget(new HoverableImageButton(leftPos + 54, topPos + 225, 20, 14, 172, 0, 152, 0, WIDGETS_TEXTURE, 256, 256, (b) -> this.onNum(0)));
+        for(int i=1; i<10; i++) {
+            final int num = i;
+            addRenderableWidget(new HoverableImageButton(leftPos + 29 + ((i-1)%3)*25, topPos + 168 + ((i-1)/3)*19, 20, 14, 172, i*14, 152, i*14, WIDGETS_TEXTURE, 256, 256, (b) -> this.onNum(num)));
+        }
+
+        addRenderableWidget(new HoverableImageButton(leftPos + 103, topPos + 225, 42, 14, 192, 112, 192, 42, WIDGETS_TEXTURE, 256, 256, this::onPressEnter));
+
         addRenderableWidget(TX_LED);
         addRenderableWidget(RX_LED);
         addRenderableWidget(DATA_LED);
         addRenderableWidget(POWER_METER);
+    }
+
+    protected enum MenuState{
+        DEFAULT,
+        SET_FREQ
     }
 
     @Override
@@ -93,6 +115,13 @@ public class VHFHandheldScreen extends Screen {
         updateCap();
 
         if(cap == null) return;
+
+        if(menuState == MenuState.SET_FREQ && System.currentTimeMillis() - millisOfLastFrequency > FREQUENCY_ENTERING_TIMEOUT) {
+            curDigit = 0;
+            enteredFrequency = 0;
+            millisOfLastFrequency = 0;
+            menuState = MenuState.DEFAULT;
+        }
 
         renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
@@ -123,7 +152,16 @@ public class VHFHandheldScreen extends Screen {
         }
 
         if (cap.isPowered()) {
-            pGuiGraphics.drawString(this.font, cap.getFrequencyKiloHertz() / 1000.0 + " MHz", leftPos + 80,  topPos + 126, 0xFFFFFF);
+            switch (menuState) {
+                case DEFAULT:
+                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyKiloHertz() / 1000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
+
+                    break;
+                case SET_FREQ:
+                    pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);
+                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", enteredFrequency / 1000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
+                    break;
+            }
         }
 
         TX_LED.setIsOn(cap.isPowered() && cap.isPTTDown());
@@ -175,6 +213,55 @@ public class VHFHandheldScreen extends Screen {
      * Callback to do nothing, for readability.
      */
     protected void doNothing(AbstractWidget button) {}
+
+    private final int[] powLookup= {
+            100_000,
+            10_000,
+            1_000,
+            100,
+            10,
+            1
+    };
+
+
+    /**
+     * callback for number buttons
+     * @param num - which digit was pressed
+     */
+    protected void onNum(int num){
+        if(!cap.isPowered()) return;
+        switch (menuState) {
+            case DEFAULT:
+                menuState = MenuState.SET_FREQ;
+            case SET_FREQ:
+                if (curDigit >= 6) break;
+                millisOfLastFrequency = System.currentTimeMillis();
+                enteredFrequency += powLookup[curDigit++] * num;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Callback for pressing enter
+     */
+    private void onPressEnter(Button button) {
+        if(!cap.isPowered()) return;
+        if(menuState == MenuState.SET_FREQ) {
+            if(!cap.isPowered()) return;
+            if(enteredFrequency >= Band.getBand(2).minFrequency() && enteredFrequency <= Band.getBand(2).maxFrequency()) {
+                cap.setFrequencyKiloHertz(
+                        enteredFrequency
+                );
+            }
+            updateServer();
+            curDigit = 0;
+            enteredFrequency = 0;
+            millisOfLastFrequency = 0;
+            menuState = MenuState.DEFAULT;
+        }
+    }
 
     /**
      * Callback for frequency up buttons.
