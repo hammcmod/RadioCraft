@@ -86,6 +86,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "radio.tx"), "Transmitting");
 			provider.add(Radiocraft.translationKey("screen", "radio.rx"), "Receiving");
 
+            provider.add(Radiocraft.translationKey("tooltip", "not_implemented"), "§7Not Implemented (Decorative Only)§r");
+            provider.add(Radiocraft.translationKey("tooltip", "not_implemented_crafting_only"), "§7Not Implemented (Crafting Ingredient Only)§r");
+
 			// Jade configuration translations
 			provider.add("config.jade.plugin_radiocraft.radiocraft", "RadioCraft");
 			provider.add("config.jade.plugin_radiocraft.antenna_wire", "Antenna Wire");

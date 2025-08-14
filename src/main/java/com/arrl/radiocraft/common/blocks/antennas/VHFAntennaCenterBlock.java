@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.blocks;
+package com.arrl.radiocraft.common.blocks.antennas;
 
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
@@ -11,7 +11,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Use for any blocks which contain an AntennaBlockEntity (for example baluns)
  */
-public class VHFAntennaCenterBlock extends AntennaCenterBlock {
+public abstract class VHFAntennaCenterBlock extends AntennaCenterBlock {
 
 	public VHFAntennaCenterBlock(Properties properties) {
 		super(properties);
@@ -22,5 +22,4 @@ public class VHFAntennaCenterBlock extends AntennaCenterBlock {
 	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
 		return new AntennaBlockEntity(pos, state, AntennaNetworkManager.VHF_ID);
 	}
-
 }

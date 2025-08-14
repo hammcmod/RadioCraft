@@ -3,7 +3,7 @@ package com.arrl.radiocraft.common.blockentities;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.common.be_networks.network_objects.ChargeControllerNetworkObject;
-import com.arrl.radiocraft.common.blocks.ChargeControllerBlock;
+import com.arrl.radiocraft.common.blocks.power.ChargeControllerBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.menus.ChargeControllerMenu;

@@ -23,10 +23,6 @@ public class ItemRenderEvents {
 
     // Separate lists for different item types to avoid generic conflicts
     private static final List<Supplier<? extends Item>> DEV_REGULAR_ITEMS = List.of(
-            RadiocraftItems.HAND_MICROPHONE,
-            RadiocraftItems.HF_CIRCUIT_BOARD,
-            RadiocraftItems.FERRITE_CORE,
-            RadiocraftItems.COAXIAL_CORE,
             RadiocraftItems.ANTENNA_ANALYZER,
             RadiocraftItems.WATERPROOF_WIRE
     );
@@ -56,7 +52,8 @@ public class ItemRenderEvents {
             RadiocraftItems.DIGITAL_INTERFACE,
             RadiocraftItems.YAGI_ANTENNA,
             RadiocraftItems.J_POLE_ANTENNA,
-            RadiocraftItems.SLIM_JIM_ANTENNA
+            RadiocraftItems.SLIM_JIM_ANTENNA,
+            RadiocraftItems.MICROPHONE
     );
 
     private static final List<DeferredHolder<Item, ?>> DEV_SPECIAL_ITEMS = List.of(

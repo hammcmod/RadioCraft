@@ -1,13 +1,17 @@
-package com.arrl.radiocraft.common.blocks;
+package com.arrl.radiocraft.common.blocks.antennas;
 
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -27,6 +31,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.List;
 
 /**
  * @author MoreThanHidden -- refactored by Favouriteless
@@ -142,5 +148,11 @@ public class AntennaPoleBlock extends Block implements SimpleWaterloggedBlock {
             bottomPos.move(Direction.DOWN);
         }
         super.onRemove(state, level, pos, newState, isMoving);
+    }
+
+    @Override
+    public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented"));
     }
 }
