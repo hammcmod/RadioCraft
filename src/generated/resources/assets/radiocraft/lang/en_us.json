@@ -60,5 +60,7 @@
   "screen.radiocraft.chargecontroller.power": "%s FE/s",
   "screen.radiocraft.radio.rx": "Receiving",
   "screen.radiocraft.radio.tx": "Transmitting",
-  "tabs.radiocraft.main_tab": "RadioCraft"
+  "tabs.radiocraft.main_tab": "RadioCraft",
+  "tooltip.radiocraft.not_implemented": "§7Not Implemented (Decorative Only)§r",
+  "tooltip.radiocraft.not_implemented_crafting_only": "§7Not Implemented (Crafting Ingredient Only)§r"
 }

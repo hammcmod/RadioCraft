@@ -1,9 +1,13 @@
-package com.arrl.radiocraft.common.blocks;
+package com.arrl.radiocraft.common.blocks.radios;
 
-import com.arrl.radiocraft.common.blockentities.radio.HFRadio80mBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.HFRadio10mBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -15,19 +19,20 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.HashMap;
+import java.util.List;
 
-public class HFRadio80mBlock extends RadioBlock {
+public class HFRadio10mBlock extends RadioBlock {
 
 	public static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
 
 	static {
-		SHAPES.put(Direction.NORTH, Block.box(1.0D, 0.0D, 1.0D, 15.0D, 13.0D, 16.0D));
-		SHAPES.put(Direction.SOUTH, Block.box(1.0D, 0.0D, 0.0D, 15.0D, 13.0D, 15.0D));
-		SHAPES.put(Direction.EAST, Block.box(0.0D, 0.0D, 1.0D, 15.0D, 13.0D, 15.0D));
-		SHAPES.put(Direction.WEST, Block.box(1.0D, 0.0D, 1.0D, 16.0D, 13.0D, 15.0D));
+		SHAPES.put(Direction.NORTH, Block.box(1.0D, 0.0D, 3.0D, 15.0D, 5.0D, 16.0D));
+		SHAPES.put(Direction.SOUTH, Block.box(1.0D, 0.0D, 0.0D, 15.0D, 5.0D, 13.0D));
+		SHAPES.put(Direction.WEST, Block.box(3.0D, 0.0D, 1.0D, 16.0D, 5.0D, 15.0D));
+		SHAPES.put(Direction.EAST, Block.box(0.0D, 0.0D, 1.0D, 13.0D, 5.0D, 15.0D));
 	}
 
-	public HFRadio80mBlock(Properties properties) {
+	public HFRadio10mBlock(Properties properties) {
 		super(properties);
 	}
 
@@ -39,7 +44,7 @@ public class HFRadio80mBlock extends RadioBlock {
 	@Nullable
 	@Override
 	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-		return new HFRadio80mBlockEntity(pos, state);
+		return new HFRadio10mBlockEntity(pos, state);
 	}
 
 	@Override
@@ -47,4 +52,9 @@ public class HFRadio80mBlock extends RadioBlock {
 		return SHAPES.get(state.getValue(RadioBlock.HORIZONTAL_FACING));
 	}
 
+    @Override
+    public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented"));
+    }
 }

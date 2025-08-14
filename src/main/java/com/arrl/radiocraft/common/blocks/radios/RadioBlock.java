@@ -1,6 +1,7 @@
-package com.arrl.radiocraft.common.blocks;
+package com.arrl.radiocraft.common.blocks.radios;
 
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
+import com.arrl.radiocraft.common.blocks.power.AbstractPowerNetworkBlock;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;

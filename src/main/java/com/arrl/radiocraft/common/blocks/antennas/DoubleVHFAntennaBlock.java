@@ -1,4 +1,4 @@
-package com.arrl.radiocraft.common.blocks;
+package com.arrl.radiocraft.common.blocks.antennas;
 
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;

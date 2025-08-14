@@ -1,8 +1,9 @@
-package com.arrl.radiocraft.common.blocks;
+package com.arrl.radiocraft.common.blocks.antennas;
 
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
+import com.arrl.radiocraft.common.blocks.AbstractNetworkBlock;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.mojang.serialization.MapCodec;
@@ -27,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
 /**
  * Use for any blocks which contain an AntennaBlockEntity (for example baluns)
  */
-public class AntennaCenterBlock extends AbstractNetworkBlock {
+public abstract class AntennaCenterBlock extends AbstractNetworkBlock {
 
 	public AntennaCenterBlock(Properties properties) {
 		super(properties);
