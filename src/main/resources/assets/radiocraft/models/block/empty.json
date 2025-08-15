@@ -1,0 +1,9 @@
+{
+  "format_version": "1.21.6",
+  "texture_size": [32, 32],
+  "textures": {
+    "particle": "radiocraft:block/slim-jim-pipe"
+  },
+  "elements": [],
+  "display": {}
+}
