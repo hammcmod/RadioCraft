@@ -14,9 +14,8 @@ import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
-import de.maxhenkel.voicechat.api.Position;
 import de.maxhenkel.voicechat.api.ServerLevel;
-import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -32,10 +31,9 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna {
 
-    private LocationalAudioChannel receiveChannel = null;
+    private EntityAudioChannel receiveChannel = null;
     private WeakReference<Player> playerRef = null; // Use a weak ref here, so it isn't able to permanently load the entity.
     private volatile AntennaNetwork network = null;
-    private Level voiceChannelCurrentLevel; //keeps track of the current level, used only to reset LocationalAudioChannel receiveChannel when the player changes dimension
 
     private volatile List<SynchronousRadioState> radios = Collections.emptyList();
     //fun fact, all updates to volatile references are atomic inherently! AtomicReference is used here for readability
@@ -78,9 +76,11 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         BACKPACK
     }
 
-    //ephemeral state for each handheld for each tick
-    //each tick each radio gets a new SynchronousRadioState instance
-    //that only lives until the next tick
+    /**
+     * Ephemeral state for each handheld for each tick.
+     * Each tick each radio gets a new SynchronousRadioState instance
+     * that only lives until the next tick
+     */
     protected static class SynchronousRadioState{
 
         final ItemStack item;
@@ -220,19 +220,15 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     public boolean openChannel() {
         if(RadiocraftVoicePlugin.API == null)
             Radiocraft.LOGGER.error("VoiceChatServerApi is null, cannot open channel.");
-//        receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromEntity(getPlayer()));
-        voiceChannelCurrentLevel = this.voiceLevel;
-        receiveChannel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromServerLevel(voiceChannelCurrentLevel), getPosInVoiceApiFormat());
+
+        // You are supposed to use a _random_ uuid when making any audio channel, but there's a bug
+        // where entity audio channels need to use the UUID of the entity they are attached to instead
+        receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(getPlayer().getUUID(), RadiocraftVoicePlugin.API.fromEntity(getPlayer()));
         if(receiveChannel == null) return false;
         receiveChannel.setDistance(16f);
 //        receiveChannel.setCategory(RadiocraftVoicePlugin.handheldRadiosVolumeCategory.getId()); //TODO not currently working
 //        receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromEntity(getPlayer()));
         return true;
-    }
-
-    private Position getPosInVoiceApiFormat() {
-        Vec3 p = getPos();
-        return RadiocraftVoicePlugin.API.createPosition(p.x, p.y, p.z);
     }
 
     @Override
@@ -254,23 +250,15 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     @Override
     public synchronized void receive(AntennaVoicePacket antennaPacket) {
         if(this.isReceiving()) {
-//            System.err.println("Receiving audio length " + antennaPacket.getRawAudio().length + " strength " + antennaPacket.getStrength() + " player " + player.getName() + " " + player.getUUID() + " eye position of player" + player.getEyePosition() + " from " + antennaPacket.getSourcePlayer());
 
-            //if entityChannel can be gotten working again, this is where you check to make sure it's still bound to the player
-//            if(receiveChannel.getEntity().getEntity() != player){
-//                System.err.println("receivechannel entity didn't equal this player? entity: " + receiveChannel.getEntity().getEntity() + " player " + player);
-//                receiveChannel.updateEntity(RadiocraftVoicePlugin.API.fromEntity(player));
-//            }
+            Player player = getPlayer();
 
-
-            if (voiceChannelCurrentLevel != this.voiceLevel) {
-                if (receiveChannel != null) receiveChannel.flush();
-                receiveChannel = null;
+            if(receiveChannel == null)
                 if (!openChannel()) return;
-            }else if(receiveChannel == null) {
-                if (!openChannel()) return;
-            } else {
-                receiveChannel.updateLocation(getPosInVoiceApiFormat());
+
+            if(receiveChannel.getEntity().getEntity() != player){
+                receiveChannel.flush();
+                receiveChannel.updateEntity(RadiocraftVoicePlugin.API.fromEntity(player));
             }
 
             int packetFrequency = antennaPacket.getFrequency();
