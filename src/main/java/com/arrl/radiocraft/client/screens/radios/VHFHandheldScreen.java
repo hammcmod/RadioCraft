@@ -18,7 +18,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 public class VHFHandheldScreen extends Screen {
@@ -207,6 +206,10 @@ public class VHFHandheldScreen extends Screen {
         RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
         RadiocraftClientValues.SCREEN_VOICE_ENABLED = false;
         RadiocraftClientValues.SCREEN_CW_ENABLED = false;
+        if(cap.isPTTDown()) {
+            cap.setPTTDown(false);
+            updateServer();
+        }
     }
 
     /**
@@ -321,7 +324,7 @@ public class VHFHandheldScreen extends Screen {
     }
 
     protected void updateServer(){
-        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(index, cap.isPowered(), cap.isPTTDown(), cap.getFrequencyKiloHertz()));
+        SHandheldRadioUpdatePacket.updateServer(index, cap);
     }
 
     @Override

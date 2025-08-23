@@ -26,8 +26,12 @@ public class VHFHandheldItem extends Item {
         ItemStack item = player.getItemInHand(hand);
 
         if(hand == InteractionHand.MAIN_HAND) {
-            if(level.isClientSide())
+            if(level.isClientSide() && player.isCrouching()) {
                 VHFHandheldScreen.open(player.getInventory().selected); // The open call is in a different class so the server doesn't try to load it.
+            }
+            if(!player.isCrouching()){
+                return InteractionResultHolder.pass(item); //prevents bob animation on use key (aka right click)
+            }
         }
         else {
             if(!level.isClientSide()) {
@@ -35,7 +39,7 @@ public class VHFHandheldItem extends Item {
 
                 if(player.isCrouching() && (mainItem.getItem() == RadiocraftItems.SMALL_BATTERY.get() || mainItem.isEmpty())) { // Shift use with battery or air in main hand = swap batteries.
 
-                    IVHFHandheldCapability cap = VHF_HANDHELDS.getCapability(item, null);
+                    IVHFHandheldCapability cap = item.getCapability(VHF_HANDHELDS);
 
                     if (cap != null) {
                         player.setItemInHand(InteractionHand.MAIN_HAND, cap.getBattery());
@@ -47,6 +51,12 @@ public class VHFHandheldItem extends Item {
         }
 
         return super.use(level, player, hand);
+    }
+
+    // prevents item bob on data update, which occurs every tick when receiving to update the RF meter
+    @Override
+    public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+        return false;
     }
 
     @Override

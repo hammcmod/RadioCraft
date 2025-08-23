@@ -45,6 +45,12 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     private volatile Vec3 voicePosition;
     private volatile Level voiceLevel;
 
+    private boolean isUseHeld;
+
+    public void setUseHeld(boolean useHeld) {
+        this.isUseHeld = useHeld;
+    }
+
     public PlayerRadio(Player player) {
         setPlayer(player);
     }
@@ -109,7 +115,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         }
     }
 
-    protected static List<SynchronousRadioState> genHandheldStates(Player player) {
+    protected List<SynchronousRadioState> genHandheldStates(Player player) {
 
         Inventory playerInventory = player.getInventory();
         LinkedList<SynchronousRadioState> out = new LinkedList<>();
@@ -129,7 +135,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     //if the current radio is the held item, put it before the offhand and other radios
                     //otherwise add the radio to the end of the list, so the order is held, then offhand, then all others
                     if (i == playerInventory.selected) {
-                        out.addFirst(new SynchronousRadioState(itemStack, cap, HandheldLocation.HELD));
+                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyKiloHertz(), HandheldLocation.HELD));
                     } else {
                         out.addLast(new SynchronousRadioState(itemStack, cap, Inventory.isHotbarSlot(i) ? HandheldLocation.HOT_BAR : HandheldLocation.BACKPACK));
                     }
