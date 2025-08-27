@@ -1,0 +1,23 @@
+{
+  "variants": {
+    "half=lower,facing=north": {
+      "model": "radiocraft:block/slim_jim_antenna",
+      "y": 90
+    },
+    "half=lower,facing=south": {
+      "model": "radiocraft:block/slim_jim_antenna",
+      "y": 270
+    },
+    "half=lower,facing=east": {
+      "model": "radiocraft:block/slim_jim_antenna",
+      "y": 180
+    },
+    "half=lower,facing=west": {
+      "model": "radiocraft:block/slim_jim_antenna",
+      "y": 0
+    },
+    "half=upper": {
+      "model": "radiocraft:block/empty"
+    }
+  }
+}
