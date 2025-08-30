@@ -41,8 +41,12 @@ public class AntennaBlockEntity extends BlockEntity implements INetworkObjectPro
 	 */
 	private void updateAntenna() {
 		IAntenna a = AntennaTypes.match(level, worldPosition);
-		if(a instanceof StaticAntenna<?> newAntenna)
-			((AntennaNetworkObject)IBENetworks.getObject(level, worldPosition)).setAntenna(newAntenna);
+		if(a instanceof StaticAntenna<?> newAntenna && level != null) {
+			AntennaNetworkObject antenna = ((AntennaNetworkObject)IBENetworks.getObject(level, worldPosition));
+			if (antenna != null) {
+				antenna.setAntenna(newAntenna);
+			}
+		}
 	}
 
 	/**

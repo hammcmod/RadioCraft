@@ -13,12 +13,12 @@ public abstract class DirectionalAntennaType<T extends AntennaData> extends NonD
 
     @Override
     public double getTransmitEfficiency(IAntennaPacket packet, T data, BlockPos destination, boolean isCW) {
-        return super.getTransmitEfficiency(packet, data, destination, isCW) * getDirectionalEfficiency(data, packet.getSource().getBlockPos(), destination);
+        return super.getTransmitEfficiency(packet, data, destination, isCW) * getDirectionalEfficiency(data, packet.getSource().getAntennaPos().position(), destination);
     }
 
     @Override
     public double getReceiveEfficiency(IAntennaPacket packet, T data, BlockPos pos) {
-        return super.getReceiveEfficiency(packet, data, pos) * getDirectionalEfficiency(data, packet.getSource().getBlockPos(), pos);
+        return super.getReceiveEfficiency(packet, data, pos) * getDirectionalEfficiency(data, packet.getSource().getAntennaPos().position(), pos);
     }
 
     /**

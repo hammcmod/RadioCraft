@@ -127,7 +127,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
     }
 
     public void setAntenna(StaticAntenna<?> antenna) {
-        AntennaNetwork network = AntennaNetworkManager.getNetwork(level, networkId);
+        AntennaNetwork network = AntennaNetworkManager.getNetwork(networkId);
 
         if(this.antenna != null)
             network.removeAntenna(this.antenna);

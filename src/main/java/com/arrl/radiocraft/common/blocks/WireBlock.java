@@ -12,6 +12,10 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -35,6 +39,7 @@ import java.util.*;
 public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	public final boolean isPower;
+    public final boolean isWaterproof;
 
 	public static final BooleanProperty NORTH = BooleanProperty.create("north");
 	public static final BooleanProperty EAST = BooleanProperty.create("east");
@@ -62,7 +67,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		SHAPES.put(Direction.UP, makePaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D));
 	}
 
-	public WireBlock(Properties properties, boolean isPower) {
+	public WireBlock(Properties properties, boolean isPower, boolean isWaterproof) {
 		super(properties);
 		registerDefaultState(defaultBlockState()
 				.setValue(BlockStateProperties.WATERLOGGED, false)
@@ -71,6 +76,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				.setValue(UP, false).setValue(DOWN, false)
 				.setValue(ON_GROUND, false));
 		this.isPower = isPower;
+        this.isWaterproof = isWaterproof;
 	}
 
 	@Override
@@ -218,4 +224,13 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return isPower ? state.is(RadiocraftTags.Blocks.POWER_BLOCKS) : state.is(RadiocraftTags.Blocks.COAX_BLOCKS);
 	}
 
+    @Override
+    public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        if (isPower && !isWaterproof) {
+            tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented_crafting_only"));
+        } else {
+            tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented"));
+        }
+    }
 }

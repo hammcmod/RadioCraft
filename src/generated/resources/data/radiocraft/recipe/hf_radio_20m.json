@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "B": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "radiocraft:radio_crystal"
+    },
+    "T": {
+      "item": "minecraft:tinted_glass"
+    }
+  },
+  "pattern": [
+    "BCC",
+    "#RT",
+    "IBI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:hf_radio_20m"
+  }
+}

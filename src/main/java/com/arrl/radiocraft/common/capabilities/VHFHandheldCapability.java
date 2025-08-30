@@ -3,10 +3,8 @@ package com.arrl.radiocraft.common.capabilities;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.common.datacomponents.HandheldRadioState;
 import com.arrl.radiocraft.common.init.RadiocraftDataComponent;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
+import com.arrl.radiocraft.common.radio.Band;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.function.UnaryOperator;
 
@@ -16,7 +14,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 //	private boolean isPowered = false;
 //	private int frequencyKiloHertz = 0;
 //	private boolean isPTTDown = false;
-	private ItemStack thisRadio;
+	private final ItemStack thisRadio;
 	//TODO temporary hack for testing, must be changed to use data attachment API for storing state, and produce a new capability on each request
 //	private static final WeakHashMap<ItemStack, VHFHandheldCapability> capabilities = new WeakHashMap<>();
 
@@ -45,7 +43,20 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setFrequencyKiloHertz(int frequencyKiloHertz) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), frequencyKiloHertz));
+		updateState(
+			(old) -> new HandheldRadioState(
+				old.power(),
+				old.ptt(),
+				Math.max(
+						Math.min(
+								frequencyKiloHertz,
+								Band.getBand(2).maxFrequency()
+						),
+						Band.getBand(2).minFrequency()
+				),
+				old.receiveIndicatorStrength()
+			)
+		);
 	}
 
 	@Override
@@ -55,7 +66,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPowered(boolean value) {
-		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq()));
+		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.receiveIndicatorStrength()));
 	}
 
 	@Override
@@ -65,7 +76,17 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPTTDown(boolean value) {
-		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq()));
+		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.receiveIndicatorStrength()));
+	}
+
+	@Override
+	public void setReceiveStrength(float rec) {
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), rec));
+	}
+
+	@Override
+	public float getReceiveStrength() {
+		return getState().receiveIndicatorStrength();
 	}
 
 	protected HandheldRadioState getState(){

@@ -1,0 +1,106 @@
+{
+	"format_version": "1.21.6",
+	"credit": "Made with Blockbench",
+	"texture_size": [32, 32],
+    "render_type": "minecraft:cutout",
+	"textures": {
+		"0": "radiocraft:block/slim-jim-pipe",
+		"1": "radiocraft:block/slim-jim-wire",
+		"2": "radiocraft:block/slim-jim-pole",
+		"particle": "radiocraft:block/slim-jim-pipe"
+	},
+	"elements": [
+		{
+			"from": [8, 0, 7],
+			"to": [10, 5, 9],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 0, 7]},
+			"faces": {
+				"north": {"uv": [0, 0, 2, 5], "texture": "#0"},
+				"east": {"uv": [2, 0, 4, 5], "texture": "#0"},
+				"south": {"uv": [4, 0, 6, 5], "texture": "#0"},
+				"west": {"uv": [0, 5, 2, 10], "texture": "#0"},
+				"up": {"uv": [4, 7, 2, 5], "texture": "#0"},
+				"down": {"uv": [6, 5, 4, 7], "texture": "#0"}
+			}
+		},
+		{
+			"from": [5, 3, 7],
+			"to": [8, 4, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [5, 3, 7]},
+			"faces": {
+				"north": {"uv": [5, 0, 6.5, 0.5], "texture": "#2"},
+				"east": {"uv": [5, 4, 5.5, 4.5], "texture": "#2"},
+				"south": {"uv": [5, 0.5, 6.5, 1], "texture": "#2"},
+				"west": {"uv": [5, 4.5, 5.5, 5], "texture": "#2"},
+				"up": {"uv": [6.5, 1.5, 5, 1], "texture": "#2"},
+				"down": {"uv": [6.5, 1.5, 5, 2], "texture": "#2"}
+			}
+		},
+		{
+			"from": [7, 4, 7],
+			"to": [8, 24, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [7, 4, 7]},
+			"faces": {
+				"north": {"uv": [0, 0, 0.5, 10], "texture": "#2"},
+				"east": {"uv": [0.5, 0, 1, 10], "texture": "#2"},
+				"south": {"uv": [1, 0, 1.5, 10], "texture": "#2"},
+				"west": {"uv": [1.5, 0, 2, 10], "texture": "#2"},
+				"up": {"uv": [6, 5, 5.5, 4.5], "texture": "#2"},
+				"down": {"uv": [5.5, 5.5, 5, 6], "texture": "#2"}
+			}
+		},
+		{
+			"from": [5, 4, 7],
+			"to": [6, 11, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [5, 4, 7]},
+			"faces": {
+				"north": {"uv": [4, 0, 4.5, 3.5], "texture": "#2"},
+				"east": {"uv": [4, 3.5, 4.5, 7], "texture": "#2"},
+				"south": {"uv": [4.5, 0, 5, 3.5], "texture": "#2"},
+				"west": {"uv": [4.5, 3.5, 5, 7], "texture": "#2"},
+				"up": {"uv": [5.5, 5.5, 5, 5], "texture": "#2"},
+				"down": {"uv": [6, 4, 5.5, 4.5], "texture": "#2"}
+			}
+		},
+		{
+			"from": [5, 12, 7],
+			"to": [6, 24, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [5, 12, 7]},
+			"faces": {
+				"north": {"uv": [2, 0, 2.5, 6], "texture": "#2"},
+				"east": {"uv": [2.5, 0, 3, 6], "texture": "#2"},
+				"south": {"uv": [3, 0, 3.5, 6], "texture": "#2"},
+				"west": {"uv": [3.5, 0, 4, 6], "texture": "#2"},
+				"up": {"uv": [6, 5.5, 5.5, 5], "texture": "#2"},
+				"down": {"uv": [6, 5.5, 5.5, 6], "texture": "#2"}
+			}
+		},
+		{
+			"from": [5, 24, 7],
+			"to": [8, 25, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [5, 24, 7]},
+			"faces": {
+				"north": {"uv": [5, 2, 6.5, 2.5], "texture": "#2"},
+				"east": {"uv": [2, 6, 2.5, 6.5], "texture": "#2"},
+				"south": {"uv": [5, 2.5, 6.5, 3], "texture": "#2"},
+				"west": {"uv": [2.5, 6, 3, 6.5], "texture": "#2"},
+				"up": {"uv": [6.5, 3.5, 5, 3], "texture": "#2"},
+				"down": {"uv": [6.5, 3.5, 5, 4], "texture": "#2"}
+			}
+		},
+		{
+			"from": [3, 0, 8],
+			"to": [8, 5, 8],
+			"rotation": {"angle": 0, "axis": "y", "origin": [3, 1, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 5, 5], "texture": "#1"},
+				"east": {"uv": [0, 0, 0, 5], "texture": "#1"},
+				"south": {"uv": [0, 5, 5, 10], "texture": "#1"},
+				"west": {"uv": [0, 0, 0, 5], "texture": "#1"},
+				"up": {"uv": [5, 0, 0, 0], "texture": "#1"},
+				"down": {"uv": [5, 0, 0, 0], "texture": "#1"}
+			}
+		}
+	],
+	"display": {}
+}

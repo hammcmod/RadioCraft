@@ -1,11 +1,15 @@
 package com.arrl.radiocraft.datagen;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.api.capabilities.LicenseClass;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.LanguageProvider;
+import org.apache.commons.lang3.text.WordUtils;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
@@ -62,13 +66,19 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");
 			provider.addBlock(RadiocraftBlocks.CHARGE_CONTROLLER, "Charge Controller");
 			provider.addBlock(RadiocraftBlocks.MICROPHONE, "Microphone");
+			provider.addBlock(RadiocraftBlocks.YAGI_ANTENNA, "Yagi Antenna");
+			provider.addBlock(RadiocraftBlocks.J_POLE_ANTENNA, "J-Pole Antenna");
+			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
 
-			provider.add(Radiocraft.translationKey("commands", "callsign.get.success"), "%s's callsign is %s.");
+			provider.addEntityType(RadiocraftEntityTypes.ANTENNA_WIRE, "Antenna Wire");
+
+			provider.add(Radiocraft.translationKey("commands", "callsign.list.empty"), "No callsigns found");
+			provider.add(Radiocraft.translationKey("commands", "callsign.get.success"), "%s's callsign is %s of license class %s.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.get.failure"), "%s does not have a callsign.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.get.failure.multiple"), "Cannot get the callsign of multiple targets at once.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.reset.success"), "%s's callsign has been reset.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.reset.failure.multiple"), "Cannot reset the callsign of multiple targets at once.");
-			provider.add(Radiocraft.translationKey("commands", "callsign.set.success"), "%s's callsign has been set to %s.");
+			provider.add(Radiocraft.translationKey("commands", "callsign.set.success"), "%s's callsign has been set to %s and license class %s.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.set.failure.multiple"), "Cannot reset the callsign of multiple targets at once.");
 			provider.add(Radiocraft.translationKey("commands", "solarweather.success"), "Event: %s\nProgress: %s\nDuration: %s\nNoise Floor: %s");
 
@@ -76,8 +86,19 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "radio.tx"), "Transmitting");
 			provider.add(Radiocraft.translationKey("screen", "radio.rx"), "Receiving");
 
-			// I'm honestly not convinced this line is working. I added it to the en_us.json generated file (probably a bad idea since it's not version controlled).
+            provider.add(Radiocraft.translationKey("tooltip", "not_implemented"), "§7Not Implemented (Decorative Only)§r");
+            provider.add(Radiocraft.translationKey("tooltip", "not_implemented_crafting_only"), "§7Not Implemented (Crafting Ingredient Only)§r");
+
+			// Jade configuration translations
 			provider.add("config.jade.plugin_radiocraft.radiocraft", "RadioCraft");
+			provider.add("config.jade.plugin_radiocraft.antenna_wire", "Antenna Wire");
+
+			Arrays.stream(LicenseClass.values()).forEach((licenseClass) -> {
+                // I'm not going to bother pulling in the Apache Commons Text library, because I really don't want to shadow it in
+                @SuppressWarnings("deprecation")
+				String friendlyClassName = WordUtils.capitalizeFully(licenseClass.name().replace("_", " "));
+				provider.add(Radiocraft.translationKey("license_class", licenseClass.name()), friendlyClassName);
+			});
 		});
 	}
 

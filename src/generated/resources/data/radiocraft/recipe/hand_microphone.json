@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "tag": "minecraft:buttons"
+    },
+    "C": {
+      "item": "minecraft:amethyst_shard"
+    },
+    "W": {
+      "item": "radiocraft:wire"
+    }
+  },
+  "pattern": [
+    " B ",
+    "WCW",
+    "   "
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:hand_microphone"
+  }
+}

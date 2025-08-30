@@ -78,6 +78,8 @@ public class AntennaWirePart extends PartEntity<AntennaWire> implements IAntenna
 		return blockPosition();
 	}
 
+	public double getLength() { return parent.getLength();}
+
 	public boolean isPairedWith(IAntennaWire other) {
 		return other == parent;
 	}

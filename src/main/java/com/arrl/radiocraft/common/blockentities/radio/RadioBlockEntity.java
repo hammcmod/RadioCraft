@@ -8,7 +8,6 @@ import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.ITogglableBE;
-import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.SWRHelper;
@@ -16,7 +15,6 @@ import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
@@ -32,6 +30,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class RadioBlockEntity extends BlockEntity implements ITogglableBE, IVoiceTransmitter, IBEVoiceReceiver, INetworkObjectProvider, MenuProvider {
 
@@ -45,10 +44,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
     protected boolean wasPowered; // Used for rendering clientside. The NetworkObject is the one actually controlling this.
 
+    protected final AtomicReference<BlockPos> micPos = new AtomicReference<>(); //thread safe position reference, overkill but makes purpose clear
+
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, int wavelength) {
         super(type, pos, state);
+        this.micPos.set(pos);
         this.wavelength = wavelength;
-        Band band = RadiocraftData.BANDS.getValue(wavelength);
+        Band band = Band.getBand(wavelength);
         this.frequency = band == null ? 0 : band.minFrequency();
         this.voiceReceiver = new BEVoiceReceiver(pos.getX(), pos.getY(), pos.getZ());
     }
@@ -176,7 +178,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * @param stepCount The number of steps to increment by.
      */
     public void updateFrequency(int stepCount) {
-        Band band = RadiocraftData.BANDS.getValue(wavelength);
+        Band band = Band.getBand(wavelength);
         int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
         int min = band.minFrequency();
         int max = (band.maxFrequency() - band.minFrequency()) / step * step + min; // This calc looks weird, but it's integer division, throws away remainder to ensure the freq doesn't do a "half step" to max.
@@ -203,7 +205,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public Vec3 getPos() {
-        return getBlockPos().getCenter();
+        return this.micPos.get().getCenter();
     }
 
     public double getStaticVolume() {

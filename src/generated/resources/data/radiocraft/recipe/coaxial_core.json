@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "K": {
+      "item": "minecraft:dried_kelp"
+    }
+  },
+  "pattern": [
+    "KKK",
+    "CCC",
+    "KKK"
+  ],
+  "result": {
+    "count": 3,
+    "id": "radiocraft:coaxial_core"
+  }
+}

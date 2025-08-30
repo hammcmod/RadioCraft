@@ -2,7 +2,7 @@ package com.arrl.radiocraft.common.items;
 
 import javax.annotation.Nullable;
 
-import com.arrl.radiocraft.common.blocks.AntennaPoleBlock;
+import com.arrl.radiocraft.common.blocks.antennas.AntennaPoleBlock;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;

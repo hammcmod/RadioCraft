@@ -1,0 +1,10 @@
+{
+  "parent": "radiocraft:block/slim_jim_antenna",
+  "display": {
+    "gui": {
+      "rotation": [180, 6.25, -137.5],
+      "translation": [1, 1, 0],
+      "scale": [0.46, 0.46, 0.46]
+    }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "D": {
+      "item": "minecraft:daylight_detector"
+    },
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "W": {
+      "item": "radiocraft:wire"
+    }
+  },
+  "pattern": [
+    "GGG",
+    "WDW",
+    "   "
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:solar_panel"
+  }
+}
