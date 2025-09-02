@@ -8,7 +8,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /*
-TODO: Fix the mixin. This is required to be able to use the PTT functionality without requiring an actual key press
+This is required to be able to use the PTT functionality of SVC without requiring an actual key press
 This is used in the GUI pane for the radios; a PTT button on the GUI screen can be clicked in place of using the PTT key.
 
 The source code from the simple voice chat mod:
@@ -24,13 +24,13 @@ public class MixinPTTKeyHandler {
 
 	@Inject(method="isPTTDown", at=@At("HEAD"), cancellable = true, remap = false)
 	private void isPTTDown(CallbackInfoReturnable<Boolean> cir) {
-		if(RadiocraftClientValues.SCREEN_PTT_PRESSED && RadiocraftClientValues.SCREEN_VOICE_ENABLED)
+		if(RadiocraftClientValues.PTT_PRESSED && RadiocraftClientValues.VOICE_ENABLED)
 			cir.setReturnValue(true);
 	}
 
 	@Inject(method="isAnyDown", at=@At("HEAD"), cancellable = true, remap = false)
 	private void isAnyDown(CallbackInfoReturnable<Boolean> cir) {
-		if(RadiocraftClientValues.SCREEN_PTT_PRESSED && RadiocraftClientValues.SCREEN_VOICE_ENABLED)
+		if(RadiocraftClientValues.PTT_PRESSED && RadiocraftClientValues.VOICE_ENABLED)
 			cir.setReturnValue(true);
 	}
 
