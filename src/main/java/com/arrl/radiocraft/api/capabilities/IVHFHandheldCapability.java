@@ -40,4 +40,11 @@ public interface IVHFHandheldCapability {
      */
     float getReceiveStrength();
 
+    float getGain();
+
+    void setGain(float gain);
+
+    float getMicGain();
+
+    void setMicGain(float micGain);
 }

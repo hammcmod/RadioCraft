@@ -82,8 +82,8 @@ public class VHFHandheldScreen extends Screen {
 
         addRenderableWidget(new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower)); // Power
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
-        addRenderableWidget(new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Mic gain
-        addRenderableWidget(new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Gain
+        addRenderableWidget(new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::onMicGainUp, this::onMicGainDown)); // Mic gain
+        addRenderableWidget(new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::onGainUp, this::onGainDown)); // Gain
         addRenderableWidget(new HoverableImageButton(leftPos + 105, topPos + 168, 18, 14, 94, 84, 76, 84, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
         addRenderableWidget(new HoverableImageButton(leftPos + 125, topPos + 168, 18, 14, 94, 98, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
         //number buttons
@@ -289,6 +289,59 @@ public class VHFHandheldScreen extends Screen {
                 Math.max(  //ServerConfig is synced on game join, so no further checking is necessary
                         cap.getFrequencyKiloHertz() - RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
                         Band.getBand(2).minFrequency()
+                )
+        );
+        updateServer();
+    }
+    
+    /**
+     * Callback for gain dial up.
+     */
+    protected void onGainUp(Dial dial) {
+        cap.setGain(
+                Math.min(
+                        cap.getGain() + 0.1f,
+                        (float)RadiocraftServerConfig.HANDHELD_MAX_GAIN.get().floatValue()
+                )
+        );
+        updateServer();
+        System.out.println(cap.getGain());
+    }
+
+    /**
+     * Callback for gain dial down.
+     */
+    protected void onGainDown(Dial dial) {
+        cap.setGain(
+                Math.max(
+                        cap.getGain() - 0.1f,
+                        0.0f
+                )
+        );
+        updateServer();
+    }
+        
+    /**
+     * Callback for mic gain dial up.
+     */
+    protected void onMicGainUp(Dial dial) {
+        cap.setMicGain(
+                Math.min(
+                        cap.getMicGain() + 0.1f,
+                        (float)RadiocraftServerConfig.HANDHELD_MAX_MIC_GAIN.get().floatValue()
+                )
+        );
+        updateServer();
+    }
+
+    /**
+     * Callback for gain dial down.
+     */
+    protected void onMicGainDown(Dial dial) {
+        cap.setMicGain(
+                Math.max(
+                        cap.getMicGain() - 0.1f,
+                        0.0f
                 )
         );
         updateServer();
