@@ -9,4 +9,6 @@ public class RadiocraftClientValues {
 
 	public static boolean SCREEN_CW_ENABLED = false; // Used for recording morse input buffers
 
+	public static VoxStateEnum RADIO_VOX_MODE = VoxStateEnum.INACTIVE; // Used for showing if VOX is running on the radio
+
 }
