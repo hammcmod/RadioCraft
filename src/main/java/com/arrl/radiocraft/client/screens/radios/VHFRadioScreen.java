@@ -10,7 +10,7 @@ public abstract class VHFRadioScreen<T extends RadioMenu<?>> extends RadioScreen
 
     public VHFRadioScreen(T menu, Inventory inventory, Component title, ResourceLocation texture, ResourceLocation widgetsTexture) {
         super(menu, inventory, title, texture, widgetsTexture);
-        RadiocraftClientValues.SCREEN_VOICE_ENABLED = true;
+        RadiocraftClientValues.VOICE_ENABLED = true;
     }
 
 }

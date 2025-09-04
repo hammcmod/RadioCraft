@@ -54,7 +54,7 @@ public class VHFHandheldScreen extends Screen {
         if(this.cap == null) // IntelliJ is lying, this is not always true.
             onClose();
 
-        RadiocraftClientValues.SCREEN_VOICE_ENABLED = true;
+        RadiocraftClientValues.VOICE_ENABLED = true;
     }
 
     protected void updateCap(){
@@ -203,8 +203,8 @@ public class VHFHandheldScreen extends Screen {
     @Override
     public void onClose() {
         super.onClose();
-        RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
-        RadiocraftClientValues.SCREEN_VOICE_ENABLED = false;
+        RadiocraftClientValues.PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
+        RadiocraftClientValues.VOICE_ENABLED = false;
         RadiocraftClientValues.SCREEN_CW_ENABLED = false;
         if(cap.isPTTDown()) {
             cap.setPTTDown(false);
@@ -300,7 +300,7 @@ public class VHFHandheldScreen extends Screen {
     protected void onPressPTT(HoldButton button) {
         //RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, true));
         cap.setPTTDown(true);
-        RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
+        RadiocraftClientValues.PTT_PRESSED = true;
         updateServer();
     }
 
@@ -310,7 +310,7 @@ public class VHFHandheldScreen extends Screen {
     protected void onReleasePTT(HoldButton button) {
         //RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, false));
         cap.setPTTDown(false);
-        RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
+        RadiocraftClientValues.PTT_PRESSED = false;
         updateServer();
     }
 

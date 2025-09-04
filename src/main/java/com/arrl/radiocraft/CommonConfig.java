@@ -15,6 +15,7 @@ public class CommonConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> SOLAR_PANEL_MAX_OUTPUT;
 	public static final ModConfigSpec.ConfigValue<Double> SOLAR_PANEL_RAIN_MULTIPLIER;
 
+    public static final ModConfigSpec.ConfigValue<Integer> PTT_HELD_RELEASE_TIME_MS;
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_10M_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_10M_TRANSMIT_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_20M_RECEIVE_TICK;
@@ -34,9 +35,6 @@ public class CommonConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_40M_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_40M_TRANSMIT_TICK;
 
-
-
-
 	static {
 		BUILDER.push("Power Options ( * = Restart game to take effect)");
 		LARGE_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of large batteries. #default 1500000 integer").define("large_battery_capacity", 1500000);
@@ -49,6 +47,12 @@ public class CommonConfig {
 		BUILDER.pop();
 
 		BUILDER.push("Radio Options ( * = Restart game to take effect)");
+        /*
+          PTT_HELD_RELEASE_TIME_MS: Time to continue transmitting after last PTT held event received from use event
+          You might find if your client has fairly low FPS that you will want to set this value higher than 200ms. 200ms should handle as low as 5 FPS. Maximum value is 1000ms or 1 FPS.
+          Setting this value below 50ms will have little to no effect as the voice packets are buffered at 20ms of samples and the game tick is 50ms per.
+         */
+        PTT_HELD_RELEASE_TIME_MS = BUILDER.comment("*Time to continue transmitting after last PTT held event #default 1000").defineInRange("ptt_held_release_time_ms", 200, 50, 1000);
 		HF_RADIO_10M_RECEIVE_TICK = BUILDER.comment("*HF Radio (10m) power consumption per tick (while receiving) #default 125").define("hf_radio_10m_receive", 125);
 		HF_RADIO_10M_TRANSMIT_TICK = BUILDER.comment("*HF Radio (10m) power consumption per tick (while transmitting) #default 375").define("hf_radio_10m_transmit", 375);
 		HF_RADIO_20M_RECEIVE_TICK = BUILDER.comment("*HF Radio (20m) power consumption per tick (while receiving) #default 125").define("hf_radio_20m_receive", 125);

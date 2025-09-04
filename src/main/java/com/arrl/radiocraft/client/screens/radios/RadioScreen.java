@@ -34,8 +34,8 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	@Override
 	public void onClose() {
 		super.onClose();
-		RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
-		RadiocraftClientValues.SCREEN_VOICE_ENABLED = false;
+		RadiocraftClientValues.PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
+		RadiocraftClientValues.VOICE_ENABLED = false;
 		RadiocraftClientValues.SCREEN_CW_ENABLED = false;
 	}
 
@@ -100,7 +100,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 */
 	protected void onPressPTT(HoldButton button) {
 		//RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), true));
-		RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
+		RadiocraftClientValues.PTT_PRESSED = true;
 	}
 
 	/**
@@ -108,7 +108,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 */
 	protected void onReleasePTT(HoldButton button) {
 		//RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), false));
-		RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
+		RadiocraftClientValues.PTT_PRESSED = false;
 	}
 
 	/**
