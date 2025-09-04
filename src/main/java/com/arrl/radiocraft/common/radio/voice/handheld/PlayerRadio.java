@@ -98,20 +98,25 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
         final int frequency;
 
+        final float gain;
+        final float micGain;
+
         //used for calculating average amplitude for power meter
         volatile long runningSampleSum=0; //stores the sum of the square of every sample since last tick
         volatile long runningSampleCount=0; //number of samples since last tick
 
-        public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, int frequency, HandheldLocation itemLocation){
+        public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, int frequency, HandheldLocation itemLocation, float gain, float micGain){
             this.item = item;
             this.canReceive = canReceive;
             this.canTransmit = canTransmit;
             this.frequency = frequency;
             this.itemLocation = itemLocation;
+            this.gain = gain;
+            this.micGain = micGain;
         }
 
         public SynchronousRadioState(ItemStack item, IVHFHandheldCapability cap, HandheldLocation itemLocation) {
-            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), cap.getFrequencyKiloHertz(), itemLocation);
+            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), cap.getFrequencyKiloHertz(), itemLocation, cap.getGain(), cap.getMicGain());
         }
     }
 
@@ -135,7 +140,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     //if the current radio is the held item, put it before the offhand and other radios
                     //otherwise add the radio to the end of the list, so the order is held, then offhand, then all others
                     if (i == playerInventory.selected) {
-                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyKiloHertz(), HandheldLocation.HELD));
+                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyKiloHertz(), HandheldLocation.HELD, cap.getGain(), cap.getMicGain()));
                     } else {
                         out.addLast(new SynchronousRadioState(itemStack, cap, Inventory.isHotbarSlot(i) ? HandheldLocation.HOT_BAR : HandheldLocation.BACKPACK));
                     }
@@ -243,7 +248,13 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         synchronized (this){
             for(SynchronousRadioState radio : radios) if(radio.canTransmit) currentlyTransmitting.add(radio);
         }
-        for(SynchronousRadioState radio : currentlyTransmitting) transmitAudioPacket(level, rawAudio, 2, radio.frequency, sourcePlayer);
+        for(SynchronousRadioState radio : currentlyTransmitting) {    
+            short[] audio = rawAudio.clone();
+            for (int i = 0; i < audio.length; i++) {
+                audio[i] = (short)Math.round(audio[i] * radio.micGain);
+            }
+            transmitAudioPacket(level, audio, 2, radio.frequency, sourcePlayer);
+        }
     }
 
     @Override
@@ -273,6 +284,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             //TODO make muffled sounding when not on hotbar (via low pass or the like, not just volume reduction)
             boolean isHeld = false;
             boolean shouldRecieve = false;
+            float gain = 1.0f;
             for(SynchronousRadioState state : this.radios) {
                 if (state.canReceive && state.frequency == packetFrequency) {
                     shouldRecieve = true;
@@ -280,6 +292,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                         isHeld = true;
                     }
                 }
+                gain = state.gain;
             }
 
             if(!shouldRecieve) return;
@@ -287,7 +300,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             long runningTotal = 0;
             short[] rawAudio = antennaPacket.getRawAudio();
             for(int i = 0; i < rawAudio.length; i++) {
-                short sample = (short) Math.round(rawAudio[i] * packetStrength * (isHeld ? 1f : 0.5f)); // Apply appropriate gain for signal strength
+                short sample = (short) Math.round(rawAudio[i] * packetStrength * (isHeld ? 1f : 0.5f) * gain); // Apply appropriate gain for signal strength
                 runningTotal = sample * sample;
                 rawAudio[i] = sample;
             }
