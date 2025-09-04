@@ -305,7 +305,6 @@ public class VHFHandheldScreen extends Screen {
                 )
         );
         updateServer();
-        System.out.println(cap.getGain());
     }
 
     /**

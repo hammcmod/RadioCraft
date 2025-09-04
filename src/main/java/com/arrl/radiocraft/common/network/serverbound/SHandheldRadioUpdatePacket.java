@@ -33,13 +33,12 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
     }
 
     //constructor for StreamCodec decoding
-    private SHandheldRadioUpdatePacket(Integer index, Byte packed, Byte gain, Byte micGain, Integer frequencyKiloHertz) {
+    private SHandheldRadioUpdatePacket(Integer index, Byte packed, Float gain, Float micGain, Integer frequencyKiloHertz) {
         this.index = index;
         this.powered = (packed&0x1)==0x1;
         this.ptt = (packed&0x2)==0x2;
-        // byte & 0xFF here will implicitly cast byte to int and get rid of sign, restoring 0-255 range
-        this.gain = (float)((gain & 0xFF) / 10.0f);
-        this.micGain = (float)((micGain & 0xFF) / 10.0f);
+        this.gain = gain;
+        this.micGain = micGain;
         this.frequencyKiloHertz = frequencyKiloHertz;
     }
 
@@ -55,17 +54,12 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
         return (byte) ((this.powered ? 0x1 : 0) + (this.ptt ? 0x2 : 0));
     }
 
-    // gain is a float multiplier but let's mostly care around 1x as 10
-    // since we don't need more resolution than one decimal, we can use a byte and cheapen the network load
-    // this gives us a range of 0.0x to 25.5x gain
-    private Byte getGain() {
-        // i am not using Byte.MIN_VALUE or Byte.MAX_VALUE because those are -128 to 127 (signed)
-        // the cast here will make it signed but it's correctly handled in the constructor above
-        return (byte)Math.max(0, Math.min(255, Math.round(this.gain * 10)));
+    private float getGain() {
+        return this.gain;
     }
 
-    private Byte getMicGain() {
-        return (byte)Math.max(0, Math.min(255, Math.round(this.micGain * 10)));
+    private float getMicGain() {
+        return this.micGain;
     }
 
     public static final StreamCodec<ByteBuf, SHandheldRadioUpdatePacket> STREAM_CODEC = StreamCodec.composite(
@@ -73,9 +67,9 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
             SHandheldRadioUpdatePacket::getIndex,
             ByteBufCodecs.BYTE,
             SHandheldRadioUpdatePacket::packBools,
-            ByteBufCodecs.BYTE,
+            ByteBufCodecs.FLOAT,
             SHandheldRadioUpdatePacket::getGain,
-            ByteBufCodecs.BYTE,
+            ByteBufCodecs.FLOAT,
             SHandheldRadioUpdatePacket::getMicGain,
             ByteBufCodecs.INT,
             SHandheldRadioUpdatePacket::getFrequencyKiloHertz,
