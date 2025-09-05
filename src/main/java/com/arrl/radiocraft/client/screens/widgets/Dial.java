@@ -89,4 +89,9 @@ public class Dial extends AbstractWidget {
 		void execute(Dial dial);
 	}
 
+	// this differs from isHoveredOrFocused by going false when mouse is let go
+	// whereas isHoveredOrFocused lingers because the widget is still "focused" as last cilcked, like a text box
+	public boolean isHoveredOrChanging() {
+		return this.isHovered() || isMouseDown;
+	}
 }

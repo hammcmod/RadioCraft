@@ -15,6 +15,9 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_FREQUENCY_STEP;
 	public static final ModConfigSpec.ConfigValue<Integer> ANTENNA_UPDATE_DELAY;
 
+	public static final ModConfigSpec.ConfigValue<Double> HANDHELD_MAX_GAIN;
+	public static final ModConfigSpec.ConfigValue<Double> HANDHELD_MAX_MIC_GAIN;
+
 	public record BandConfig(int wavelength, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Integer> minFrequency, ModConfigSpec.ConfigValue<Integer> maxFrequency) {
 		public Band getBand() {
 			return new Band(wavelength, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
@@ -52,6 +55,10 @@ public class RadiocraftServerConfig {
 			BUILDER.pop();
 		}
 
+		BUILDER.push("VHF Handheld Options");
+		HANDHELD_MAX_GAIN = BUILDER.comment(" Maximum output gain").defineInRange("handheld_max_gain", 5.0, 1.0, 25.0);
+		HANDHELD_MAX_MIC_GAIN = BUILDER.comment(" Maximum microphone gain").defineInRange("handheld_max_mic_gain", 5.0, 1.0, 25.0);
+		BUILDER.pop();
 
 		SPEC = BUILDER.build();
 	}

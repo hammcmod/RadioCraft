@@ -19,20 +19,26 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
     int index;
     boolean powered;
     boolean ptt;
+    float gain;
+    float micGain;
     int frequencyKiloHertz; //TODO change to allow server to control frequency steps
 
-    public SHandheldRadioUpdatePacket(int index, boolean powered, boolean ptt, int frequencyKiloHertz) {
+    public SHandheldRadioUpdatePacket(int index, boolean powered, boolean ptt, float gain, float micGain, int frequencyKiloHertz) {
         this.index = index;
         this.powered = powered;
         this.ptt = ptt;
+        this.gain = gain;
+        this.micGain = micGain;
         this.frequencyKiloHertz = frequencyKiloHertz;
     }
 
     //constructor for StreamCodec decoding
-    private SHandheldRadioUpdatePacket(Integer index, Byte packed, Integer frequencyKiloHertz) {
+    private SHandheldRadioUpdatePacket(Integer index, Byte packed, Float gain, Float micGain, Integer frequencyKiloHertz) {
         this.index = index;
         this.powered = (packed&0x1)==0x1;
         this.ptt = (packed&0x2)==0x2;
+        this.gain = gain;
+        this.micGain = micGain;
         this.frequencyKiloHertz = frequencyKiloHertz;
     }
 
@@ -48,11 +54,23 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
         return (byte) ((this.powered ? 0x1 : 0) + (this.ptt ? 0x2 : 0));
     }
 
+    private float getGain() {
+        return this.gain;
+    }
+
+    private float getMicGain() {
+        return this.micGain;
+    }
+
     public static final StreamCodec<ByteBuf, SHandheldRadioUpdatePacket> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.INT,
             SHandheldRadioUpdatePacket::getIndex,
             ByteBufCodecs.BYTE,
             SHandheldRadioUpdatePacket::packBools,
+            ByteBufCodecs.FLOAT,
+            SHandheldRadioUpdatePacket::getGain,
+            ByteBufCodecs.FLOAT,
+            SHandheldRadioUpdatePacket::getMicGain,
             ByteBufCodecs.INT,
             SHandheldRadioUpdatePacket::getFrequencyKiloHertz,
             SHandheldRadioUpdatePacket::new);
@@ -82,12 +100,14 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
 
             cap.setPowered(this.powered);
             cap.setPTTDown(this.ptt);
+            cap.setGain(this.gain);
+            cap.setMicGain(this.micGain);
             cap.setFrequencyKiloHertz(this.frequencyKiloHertz); //TODO server should handle frequency steps
 
         });
     }
 
     public static void updateServer(int inventoryIndex, IVHFHandheldCapability cap) {
-        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(inventoryIndex, cap.isPowered(), cap.isPTTDown(), cap.getFrequencyKiloHertz()));
+        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(inventoryIndex, cap.isPowered(), cap.isPTTDown(), cap.getGain(), cap.getMicGain(), cap.getFrequencyKiloHertz()));
     }
 }
