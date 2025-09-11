@@ -9,6 +9,7 @@
   "block.radiocraft.coax_wire": "Coaxial Wire",
   "block.radiocraft.digital_interface": "Digital Interface (TNC)",
   "block.radiocraft.duplexer": "Duplexer",
+  "block.radiocraft.fm_radio": "Broadcast FM Radio Receiver",
   "block.radiocraft.hf_radio_10m": "HF Radio (10m)",
   "block.radiocraft.hf_radio_20m": "HF Radio (20m)",
   "block.radiocraft.hf_radio_40m": "HF Radio (40m)",
