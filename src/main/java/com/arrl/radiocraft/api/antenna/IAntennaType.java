@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public interface IAntennaType<T extends AntennaData> {
 
 	/**
+     * The unique identifier for this {@link IAntennaType}.
 	 * @return The {@link ResourceLocation} used to identify this {@link IAntennaType} within the registry, as well as
 	 * save/load its data.
 	 */

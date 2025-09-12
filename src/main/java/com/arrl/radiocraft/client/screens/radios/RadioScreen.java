@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
+@SuppressWarnings("empty") // Some parts are not implemented; this is okay as we'll fix this later when block radios are worked on
 public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContainerScreen<T> {
 
 	protected final ResourceLocation texture;

@@ -20,7 +20,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
 /**
-    @author MoreThanHidden
     This class is used to render the AntennaWire
     @see net.minecraft.client.renderer.entity.LeashKnotRenderer
     @see net.minecraft.client.renderer.entity.MobRenderer (renderLeash)
@@ -90,7 +89,7 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         float yDiff = (float)(fromPos.y - toPos.y);
         float zDiff = (float)(fromPos.z - toPos.z);
 
-        float offsetMod = (float) (Mth.fastInvSqrt(xDiff * xDiff + zDiff * zDiff) * 0.025F / 2.0F);
+        float offsetMod = Mth.sqrt(xDiff * xDiff + zDiff * zDiff) * 0.025F / 2.0F;
         float xOffset = zDiff * offsetMod;
         float zOffset = xDiff * offsetMod;
 

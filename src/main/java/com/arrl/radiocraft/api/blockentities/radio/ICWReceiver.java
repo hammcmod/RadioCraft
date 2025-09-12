@@ -13,12 +13,14 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 public interface ICWReceiver {
 
 	/**
+     * Get the {@link CWReceiveBuffer} for this receiver.
 	 * @return The {@link CWReceiveBuffer} for this receiver, which is what receives and sorts {@link CWBuffer}s from
 	 * link CWBufferPacket s on the client. TODO fix link/code
 	 */
 	CWReceiveBuffer getCWReceiveBuffer();
 
 	/**
+     * Checks if this receiver is currently open to receive CW/morse.
 	 * @return True if this receiver is currently open to receive CW/morse. Checks for if CW mode is enabled, power is
 	 * on etc. should be done here.
 	 */

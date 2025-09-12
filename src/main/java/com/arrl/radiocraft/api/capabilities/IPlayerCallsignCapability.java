@@ -9,17 +9,20 @@ import java.util.UUID;
 public interface IPlayerCallsignCapability {
 
 	/**
+     * Get all callsigns stored.
 	 * @return All callsigns stored
 	 */
 	ArrayList<String> getCallsigns();
 
 	/**
+     * Get the callsign data for a target player.
 	 * @param callsign Callsign belonging to the target player
 	 * @return The callsign data assicated with the target player (if exists)
 	 */
 	PlayerCallsignData getCallsignData(String callsign);
 
 	/**
+     * Get the callsign data for a target player.
 	 * @param playerUUID {@link UUID} belonging to the target player.
 	 * @return The callsign {@link String} associated with the provided {@link UUID}.
 	 */
@@ -29,12 +32,14 @@ public interface IPlayerCallsignCapability {
 	 * Set the callsign string associated with a certain player.
 	 * @param playerUUID The {@link UUID} of the target player.
 	 * @param playerCallsignData The callsign data to be used.
+     * @return The callsign data being used.
 	 */
 	IPlayerCallsignCapability setCallsignData(UUID playerUUID, PlayerCallsignData playerCallsignData);
 
 	/**
 	 * Remove the callsign associated with a target player.
 	 * @param playerUUID The {@link UUID} of the target player.
+     * @return The callsign data being removed.
 	 */
 	IPlayerCallsignCapability resetCallsign(UUID playerUUID);
 }

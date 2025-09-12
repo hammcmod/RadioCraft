@@ -35,7 +35,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 /**
- * @author MoreThanHidden -- refactored by Favouriteless
  * Antenna Pole Block (place from the bottom max of 10) based on ScaffoldingBlock
  */
 public class AntennaPoleBlock extends Block implements SimpleWaterloggedBlock {
@@ -45,6 +44,7 @@ public class AntennaPoleBlock extends Block implements SimpleWaterloggedBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty BOTTOM = BlockStateProperties.BOTTOM;
 
+    @SuppressWarnings("this-escape")
     public AntennaPoleBlock(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(DISTANCE, STABILITY_MAX_DISTANCE).setValue(WATERLOGGED, Boolean.FALSE).setValue(BOTTOM, Boolean.FALSE));

@@ -21,6 +21,7 @@ public class LargeBatteryMenu extends AbstractContainerMenu {
 	private final IntSplitDataSlot dataEnergy;
 	private final IntSplitDataSlot dataMaxEnergy;
 
+    @SuppressWarnings("this-escape")
 	public LargeBatteryMenu(final int id, final LargeBatteryBlockEntity blockEntity, IntSplitDataSlot dataEnergy, IntSplitDataSlot dataMaxEnergy) {
 		super(RadiocraftMenuTypes.LARGE_BATTERY.get(), id);
 		this.blockEntity = blockEntity;

@@ -12,26 +12,31 @@ import net.minecraft.server.level.ServerLevel;
 public interface IAntennaPacket {
 
 	/**
+     * The wavelength of the signal being transmitted.
 	 * @return The wavelength of the signal being transmitted.
 	 */
 	int getWavelength();
 
 	/**
+     * The frequency of the signal being transmitted.
 	 * @return The frequency of the signal being transmitted.
 	 */
 	int getFrequency();
 
 	/**
+     * The strength of the signal.
 	 * @return A 0-1 double value representing the strength of the signal.
 	 */
 	double getStrength();
 
 	/**
+     * The {@link IAntenna} the signal originated from.
 	 * @return The {@link IAntenna} the signal originated from.
 	 */
 	IAntenna getSource();
 
 	/**
+     * The {@link ServerLevel} this packet is being sent within.
 	 * @return The {@link ServerLevel} this packet is being sent within.
 	 */
 	ServerLevel getLevel();

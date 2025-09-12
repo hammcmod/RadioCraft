@@ -67,6 +67,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		SHAPES.put(Direction.UP, makePaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D));
 	}
 
+    @SuppressWarnings("this-escape")
 	public WireBlock(Properties properties, boolean isPower, boolean isWaterproof) {
 		super(properties);
 		registerDefaultState(defaultBlockState()

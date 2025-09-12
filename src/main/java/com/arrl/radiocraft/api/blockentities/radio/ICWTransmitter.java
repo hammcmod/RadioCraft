@@ -14,6 +14,7 @@ import java.util.Collection;
 public interface ICWTransmitter {
 
 	/**
+     * Get the {@link CWSendBuffer} for this transmitter.
 	 * @return The {@link CWSendBuffer} for this transmitter, which is what constructs {@link CWBuffer}s and sends
 	 * them to the server. This is for client-side use.
 	 */

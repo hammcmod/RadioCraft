@@ -49,6 +49,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         this.isUseHeld = useHeld;
     }
 
+    @SuppressWarnings("this-escape")
     public PlayerRadio(Player player) {
         setPlayer(player);
     }
