@@ -38,7 +38,7 @@ import java.util.List;
  * Antenna Pole Block (place from the bottom max of 10) based on ScaffoldingBlock
  */
 public class AntennaPoleBlock extends Block implements SimpleWaterloggedBlock {
-    private static final VoxelShape SHAPE = Shapes.or(Block.box(7.0D, 0.0D, 7.0D, 9.0D, 16.0D, 9.0D));;
+    private static final VoxelShape SHAPE = Shapes.or(Block.box(7.0D, 0.0D, 7.0D, 9.0D, 16.0D, 9.0D));
     public static final int STABILITY_MAX_DISTANCE = 10;
     public static final IntegerProperty DISTANCE = IntegerProperty.create("distance", 0, STABILITY_MAX_DISTANCE);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
