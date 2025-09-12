@@ -1,7 +1,6 @@
 package com.arrl.radiocraft.common;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;

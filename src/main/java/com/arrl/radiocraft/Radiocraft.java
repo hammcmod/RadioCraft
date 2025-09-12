@@ -6,7 +6,6 @@ import com.arrl.radiocraft.compat.TopCompat;
 import com.arrl.radiocraft.datagen.RadiocraftBlockTagsProvider;
 import com.arrl.radiocraft.datagen.RadiocraftBlockstateProvider;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
-import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.datagen.RadiocraftRecipesProvider;
 import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataGenerator;
