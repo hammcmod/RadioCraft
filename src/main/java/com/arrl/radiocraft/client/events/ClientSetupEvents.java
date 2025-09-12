@@ -31,6 +31,7 @@ public class ClientSetupEvents {
 		event.register(RadiocraftMenuTypes.VHF_BASE_STATION.get(), VHFBaseStationScreen::new);
 		event.register(RadiocraftMenuTypes.VHF_RECEIVER.get(), VHFReceiverScreen::new);
 		event.register(RadiocraftMenuTypes.HF_RECEIVER.get(), HFReceiverScreen::new);
+        event.register(RadiocraftMenuTypes.FM_RADIO.get(), FMRadioScreen::new);
 	}
 	
 	@SubscribeEvent

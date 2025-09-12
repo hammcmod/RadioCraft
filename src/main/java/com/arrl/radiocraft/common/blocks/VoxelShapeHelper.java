@@ -10,8 +10,8 @@ public class VoxelShapeHelper {
     private static double[] getShapeDimensions(@NotNull VoxelShape shape) {
         var boxes = shape.toAabbs().getFirst();
         return new double[]{
-                boxes.minX * 16, boxes.minZ * 16,
-                boxes.maxX * 16, boxes.maxZ * 16
+                boxes.minX * 16, boxes.minY * 16, boxes.minZ * 16,
+                boxes.maxX * 16, boxes.maxY * 16, boxes.maxZ * 16
         };
     }
 
@@ -71,14 +71,16 @@ public class VoxelShapeHelper {
     private static VoxelShape rotateClockwise90(VoxelShape shape) {
         double[] dims = getShapeDimensions(shape);
         double minX = dims[0];
-        double minZ = dims[1];
-        double maxX = dims[2];
-        double maxZ = dims[3];
+        double minY = dims[1];
+        double minZ = dims[2];
+        double maxX = dims[3];
+        double maxY = dims[4];
+        double maxZ = dims[5];
 
         // 90° clockwise rotation: (x, z) -> (z, 16-x)
         double newMinZ = 16.0D - maxX;
         double newMaxZ = 16.0D - minX;
 
-        return Block.box(minZ, 0.0D, newMinZ, maxZ, 16.0D, newMaxZ);
+        return Block.box(minZ, minY, newMinZ, maxZ, maxY, newMaxZ);
     }
 }

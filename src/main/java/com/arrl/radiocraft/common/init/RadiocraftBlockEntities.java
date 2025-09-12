@@ -42,8 +42,10 @@ public class RadiocraftBlockEntities {
 			() -> BlockEntityType.Builder.of(VHFBaseStationBlockEntity::new, RadiocraftBlocks.VHF_BASE_STATION.get()).build(null));
 	public static final Supplier<BlockEntityType<VHFReceiverBlockEntity>> VHF_RECEIVER = BLOCK_ENTITY_TYPES.register("vhf_receiver",
 			() -> BlockEntityType.Builder.of(VHFReceiverBlockEntity::new, RadiocraftBlocks.VHF_RECEIVER.get()).build(null));
+    public static final Supplier<BlockEntityType<FMRadioBlockEntity>> FM_RADIO = BLOCK_ENTITY_TYPES.register("fm_radio",
+            () -> BlockEntityType.Builder.of(FMRadioBlockEntity::new, RadiocraftBlocks.FM_RADIO.get()).build(null));
 
-	public static final Supplier<BlockEntityType<?>> ANTENNA = BLOCK_ENTITY_TYPES.register("antenna",
+    public static final Supplier<BlockEntityType<?>> ANTENNA = BLOCK_ENTITY_TYPES.register("antenna",
 			() -> BlockEntityType.Builder.of(AntennaBlockEntity::new,
 					RadiocraftBlocks.BALUN_ONE_TO_ONE.get(),
 					RadiocraftBlocks.BALUN_TWO_TO_ONE.get(),

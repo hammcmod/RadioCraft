@@ -5,7 +5,7 @@
 	"texture_size": [32, 32],
 	"textures": {
 		"0": "radiocraft:block/fm_radio",
-		"particle": "stone"
+		"particle": "minecraft:block/stone"
 	},
 	"elements": [
 		{

@@ -26,6 +26,8 @@ public class RadiocraftMenuTypes {
 	public static final Supplier<MenuType<QRPRadio20mMenu>> QRP_RADIO_20M = MENU_TYPES.register("qrp_radio_20m", () -> IMenuTypeExtension.create(QRPRadio20mMenu::new));
 	public static final Supplier<MenuType<QRPRadio40mMenu>> QRP_RADIO_40M = MENU_TYPES.register("qrp_radio_40m", () -> IMenuTypeExtension.create(QRPRadio40mMenu::new));
 
+    public static final Supplier<MenuType<FMRadioMenu>> FM_RADIO = MENU_TYPES.register("fm_radio", () -> IMenuTypeExtension.create(FMRadioMenu::new));
+
 	public static final Supplier<MenuType<VHFBaseStationMenu>> VHF_BASE_STATION = MENU_TYPES.register("vhf_base_station", () -> IMenuTypeExtension.create(VHFBaseStationMenu::new));
 
 	public static final Supplier<MenuType<VHFReceiverMenu>> VHF_RECEIVER = MENU_TYPES.register("vhf_receiver", () -> IMenuTypeExtension.create(VHFReceiverMenu::new));
