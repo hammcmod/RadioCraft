@@ -260,12 +260,12 @@ public class VHFHandheldScreen extends Screen {
      * callback for number buttons
      * @param num - which digit was pressed
      */
+    @SuppressWarnings("fallthrough")
     protected void onNum(int num){
         if(!cap.isPowered()) return;
         switch (menuState) {
             case DEFAULT:
                 menuState = MenuState.SET_FREQ;
-                break;
             case SET_FREQ:
                 if (curDigit >= 6) break;
                 millisOfLastFrequency = System.currentTimeMillis();

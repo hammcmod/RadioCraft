@@ -105,7 +105,7 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         int stepCount = fromEntity instanceof Player ? 24 : (int)Math.round(new Vec3(xDiff, yDiff, zDiff).length()) * 3;
 
         poseStack.pushPose();
-        poseStack.translate(xAngleOffset, leashOffset.y, zAngleOffset);; // Move poseStack to start of the wire
+        poseStack.translate(xAngleOffset, leashOffset.y, zAngleOffset); // Move poseStack to start of the wire
 
         for(int i = 0; i <= stepCount; ++i) // Add top vert pairs
             addVertexPair(consumer, posMatrix, xDiff, yDiff, zDiff, toBlockLight, fromBlockLight, toSkyLight, fromSkyLight, 0.025F, 0.025F, xOffset, zOffset, i, false, stepCount);
