@@ -88,7 +88,7 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         float yDiff = (float)(fromPos.y - toPos.y);
         float zDiff = (float)(fromPos.z - toPos.z);
 
-        float offsetMod = Mth.sqrt(xDiff * xDiff + zDiff * zDiff) * 0.025F / 2.0F;
+        float offsetMod = Mth.invSqrt(xDiff * xDiff + zDiff * zDiff) * 0.025F / 2.0F;
         float xOffset = zDiff * offsetMod;
         float zOffset = xDiff * offsetMod;
 
