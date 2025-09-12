@@ -17,7 +17,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * @author MoreThanHidden
  * BEAntenna Pole Item (place from the bottom) based on ScaffoldingBlockItem
  */
 public class AntennaPoleItem extends BlockItem {

@@ -20,6 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * {@link StaticAntenna} represents an Antenna which never moves, meaning the receiving and sending values can always be
  * cached.
+ *
+ * @param <T> The type of antenna data this antenna uses
  */
 public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSerializable<CompoundTag> {
 

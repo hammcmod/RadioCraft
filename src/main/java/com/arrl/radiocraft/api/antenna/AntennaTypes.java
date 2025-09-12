@@ -14,10 +14,16 @@ import java.util.Map;
  */
 public class AntennaTypes {
 
+    /**
+     * Constructor for the {@link AntennaTypes} class.
+     */
+    public AntennaTypes() {}
+
 	private static final Map<ResourceLocation, IAntennaType<?>> REGISTRY = new HashMap<>();
 
 	/**
 	 * Register an {@link IAntennaType}.
+     * @param <C> The type of {@link IAntennaType} being registered.
 	 * @param type The {@link IAntennaType} to be registered
 	 * @return The {@link IAntennaType} after registration.
 	 */

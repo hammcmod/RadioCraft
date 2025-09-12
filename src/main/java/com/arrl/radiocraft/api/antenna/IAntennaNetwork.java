@@ -32,6 +32,7 @@ public interface IAntennaNetwork {
 	void removeAntenna(IAntenna antenna);
 
 	/**
+     * Get a list of all {@link StaticAntenna}s present on the network.
 	 * @return A list of all {@link StaticAntenna}s present on the network.
 	 */
 	Set<IAntenna> allAntennas();

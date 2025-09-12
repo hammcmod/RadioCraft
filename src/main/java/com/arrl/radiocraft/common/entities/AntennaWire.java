@@ -33,7 +33,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 /**
- @author MoreThanHidden//refactored by Favouriteless
  This class is used to create the antenna wire entity.
  @see net.minecraft.world.entity.decoration.LeashFenceKnotEntity
  */
@@ -52,9 +51,9 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
         this(level, new BlockPos(0, 0, 0));
     }
 
+    @SuppressWarnings("this-escape")
     public AntennaWire(Level level, BlockPos pos) {
         super(RadiocraftEntityTypes.ANTENNA_WIRE.get(), level);
-
         this.endPart = new AntennaWirePart(this, "end");
         this.parts = new AntennaWirePart[] { endPart };
         setId(ENTITY_COUNTER.getAndAdd(getParts().length + 1) + 1);

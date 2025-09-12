@@ -50,6 +50,7 @@ public class VHFHandheldScreen extends Screen {
 
     MeterNeedleIndicator POWER_METER;
 
+    @SuppressWarnings("this-escape")
     public VHFHandheldScreen(int index) {
         super(Component.translatable(Radiocraft.translationKey("screen", "vhf_handheld")));
         this.index = index;
@@ -264,6 +265,7 @@ public class VHFHandheldScreen extends Screen {
         switch (menuState) {
             case DEFAULT:
                 menuState = MenuState.SET_FREQ;
+                break;
             case SET_FREQ:
                 if (curDigit >= 6) break;
                 millisOfLastFrequency = System.currentTimeMillis();
@@ -329,7 +331,7 @@ public class VHFHandheldScreen extends Screen {
         cap.setGain(
                 Math.min(
                         cap.getGain() + 0.1f,
-                        (float)RadiocraftServerConfig.HANDHELD_MAX_GAIN.get().floatValue()
+                        RadiocraftServerConfig.HANDHELD_MAX_GAIN.get().floatValue()
                 )
         );
         updateServer();
@@ -355,7 +357,7 @@ public class VHFHandheldScreen extends Screen {
         cap.setMicGain(
                 Math.min(
                         cap.getMicGain() + 0.1f,
-                        (float)RadiocraftServerConfig.HANDHELD_MAX_MIC_GAIN.get().floatValue()
+                        RadiocraftServerConfig.HANDHELD_MAX_MIC_GAIN.get().floatValue()
                 )
         );
         updateServer();
