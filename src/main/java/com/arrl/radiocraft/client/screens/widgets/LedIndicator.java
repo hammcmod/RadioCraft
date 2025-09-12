@@ -1,6 +1,5 @@
 package com.arrl.radiocraft.client.screens.widgets;
 
-import com.arrl.radiocraft.Radiocraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.narration.NarrationElementOutput;

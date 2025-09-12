@@ -1,6 +1,5 @@
 package com.arrl.radiocraft.common.capabilities;
 
-import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.IAntennaWireHolderCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;

@@ -1,15 +1,11 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
-import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public abstract class PowerBlockEntity extends BlockEntity implements MenuProvider, INetworkObjectProvider {
 

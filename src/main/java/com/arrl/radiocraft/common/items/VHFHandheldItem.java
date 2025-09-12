@@ -3,7 +3,6 @@ package com.arrl.radiocraft.common.items;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.client.screens.radios.VHFHandheldScreen;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;

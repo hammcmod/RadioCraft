@@ -3,7 +3,6 @@ package com.arrl.radiocraft.client.screens.radios;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.menus.HFRadio10mMenu;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
