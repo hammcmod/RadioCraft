@@ -3,7 +3,6 @@ package com.arrl.radiocraft.common.radio.antenna.types.vhf;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.NonDirectionalAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.data.EmptyAntennaData;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.Level;
 public class SlimJimAntennaType extends NonDirectionalAntennaType<EmptyAntennaData> {
 
     public SlimJimAntennaType() {
-        super(Radiocraft.id("slim_jim"), 1.0D, 1.0D, 1.0D, 0.0D);
+        super(Radiocraft.id("slim_jim"), 0.0D, 0.0D, 1.0D, 0.0D);
     }
 
     @Override
@@ -28,13 +27,20 @@ public class SlimJimAntennaType extends NonDirectionalAntennaType<EmptyAntennaDa
         if(level.isThundering())
             return 0.0D;
 
-        double distance = Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(destination)) / 1.2D;
-        return BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, 1.0F, 0.0F, level.isDay());
+        return super.getTransmitEfficiency(packet, data, destination, isCW);
     }
 
     @Override
     public double getReceiveEfficiency(IAntennaPacket packet, EmptyAntennaData data, BlockPos pos) {
-        return packet.getLevel().isThundering() ? 0.0D : 1.0D;
+        if(packet.getLevel().isThundering())
+            return 0.0D;
+
+        return getReceiveGainLinear() * packet.getStrength();
+    }
+
+    @Override
+    protected double modifyDistanceForTransmit(IAntennaPacket packet, EmptyAntennaData data, BlockPos destination, double distance) {
+        return distance / 1.2D;
     }
 
     @Override

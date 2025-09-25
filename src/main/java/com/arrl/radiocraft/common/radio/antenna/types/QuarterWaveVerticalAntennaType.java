@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 public class QuarterWaveVerticalAntennaType extends NonDirectionalAntennaType<QuarterWaveVerticalAntennaData> {
 
 	public QuarterWaveVerticalAntennaType() {
-		super(Radiocraft.id("quarter_wave_vertical"), 1.0D, 1.0D, 1.2D, 0.7D);
+		super(Radiocraft.id("quarter_wave_vertical"), 0.0D, 0.0D, 1.2D, 0.7D);
 	}
 
 	@Override

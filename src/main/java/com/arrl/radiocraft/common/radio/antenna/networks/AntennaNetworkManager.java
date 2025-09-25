@@ -1,13 +1,16 @@
 package com.arrl.radiocraft.common.radio.antenna.networks;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.capabilities.IAntennaNetworkCapability;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Helper class for grabbing antenna networks from a level, as well as creating
@@ -36,5 +39,16 @@ public class AntennaNetworkManager {
 	public static AntennaNetwork getNetwork(ResourceLocation id) {
 		return networks.get(id);
 	}
+
+    /**
+     * Get all antennas in all networks. Because aint nobody got time for just getting one network of antennas.
+     * @return Set of antennas
+     */
+    public static Set<IAntenna> getAllAntennas() {
+        HashSet<IAntenna> antennas = new HashSet<>();
+        antennas.addAll(networks.get(HF_ID).allAntennas());
+        antennas.addAll(networks.get(VHF_ID).allAntennas());
+        return antennas;
+    }
 
 }

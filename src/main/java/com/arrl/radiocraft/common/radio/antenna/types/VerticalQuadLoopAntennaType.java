@@ -16,7 +16,7 @@ import java.util.List;
 public class VerticalQuadLoopAntennaType extends DirectionalAntennaType<VerticalQuadLoopAntennaData> {
 
 	public VerticalQuadLoopAntennaType() {
-		super(Radiocraft.id("vertical_quad_loop"), 1.0D, 1.0D, 1.25D, 1.25D);
+		super(Radiocraft.id("vertical_quad_loop"), 0.0D, 0.0D, 1.25D, 1.25D);
 	}
 	@Override
 	public StaticAntenna<VerticalQuadLoopAntennaData> match(Level level, BlockPos pos) {

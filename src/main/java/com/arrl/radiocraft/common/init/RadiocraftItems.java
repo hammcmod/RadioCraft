@@ -2,10 +2,7 @@ package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.datacomponents.HandheldRadioState;
-import com.arrl.radiocraft.common.items.AntennaPoleItem;
-import com.arrl.radiocraft.common.items.AntennaWireItem;
-import com.arrl.radiocraft.common.items.SmallBatteryItem;
-import com.arrl.radiocraft.common.items.VHFHandheldItem;
+import com.arrl.radiocraft.common.items.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -36,7 +33,7 @@ public class RadiocraftItems {
 	public static final DeferredHolder<Item, SmallBatteryItem> SMALL_BATTERY = ITEMS.register("small_battery", () -> new SmallBatteryItem(new Properties().stacksTo(1))); //.component(DataComponent.ENERGY_DATA_COMPONENT, new DataComponent.EnergyRecord(1000.0))));
 	public static final Supplier<Item> FERRITE_CORE = simpleItem("ferrite_core", null);
 	public static final Supplier<Item> COAXIAL_CORE = simpleItem("coaxial_core", null);
-	public static final Supplier<Item> ANTENNA_ANALYZER = simpleItem("antenna_analyzer", Component.translatable("tooltip.radiocraft.not_implemented"));
+	public static final Supplier<Item> ANTENNA_ANALYZER = ITEMS.register("antenna_analyzer", () -> new AntennaAnalyzerItem(new Properties().stacksTo(1)));
 	public static final DeferredHolder<Item, VHFHandheldItem> VHF_HANDHELD = ITEMS.register("vhf_handheld", () -> new VHFHandheldItem(new Properties().stacksTo(1).component(RadiocraftDataComponent.HANDHELD_RADIO_STATE_COMPONENT.value(), HandheldRadioState.getDefault())));
 	public static final DeferredHolder<Item, AntennaWireItem> ANTENNA_WIRE = ITEMS.register("antenna_wire", () -> new AntennaWireItem(new Properties()));
 

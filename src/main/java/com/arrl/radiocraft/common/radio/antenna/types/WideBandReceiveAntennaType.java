@@ -12,8 +12,8 @@ import net.minecraft.world.level.block.Blocks;
 
 public class WideBandReceiveAntennaType extends NonDirectionalAntennaType<EmptyAntennaData> {
 
-    protected WideBandReceiveAntennaType(double receive, double transmit, double los, double skip) {
-        super(Radiocraft.id("wide_band_receive"), receive, transmit, los, skip);
+    protected WideBandReceiveAntennaType(double receiveGainDbi, double transmitGainDbi, double los, double skip) {
+        super(Radiocraft.id("wide_band_receive"), receiveGainDbi, transmitGainDbi, los, skip);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class WideBandReceiveAntennaType extends NonDirectionalAntennaType<EmptyA
             case 40, 80 -> 0.2D;
             default -> 0.0D;
         };
-        return packet.getStrength() * f;
+        return getReceiveGainLinear() * packet.getStrength() * f;
     }
 
     @Override

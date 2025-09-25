@@ -15,7 +15,7 @@ import java.util.List;
 public class EndFedAntennaType extends  NonDirectionalAntennaType<EndFedAntennaData> {
 
 	public EndFedAntennaType() {
-		super(Radiocraft.id("end_fed"), 0.75D, 0.75D, 1.0D, 1.0D);
+		super(Radiocraft.id("end_fed"), -1.25D, -1.25D, 1.0D, 1.0D);
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class EndFedAntennaType extends  NonDirectionalAntennaType<EndFedAntennaD
 	@Override
 	public double getSWR(EndFedAntennaData data, int wavelength) {
 		int desiredLength = (int)Math.round(wavelength / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
-		double incorrectBlocks = desiredLength - data.getLength();
+		double incorrectBlocks = Math.abs(desiredLength - data.getLength());
 
 		return 1.0D + (0.5D * incorrectBlocks);
 	}
