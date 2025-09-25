@@ -15,7 +15,7 @@ import java.util.List;
 public class HorizontalQuadLoopAntennaType extends NonDirectionalAntennaType<HorizontalQuadLoopAntennaData> {
 
 	public HorizontalQuadLoopAntennaType() {
-		super(Radiocraft.id("horizontal_quad_loop"), 1.0D, 1.0D, 0.25D, 1.25D);
+		super(Radiocraft.id("horizontal_quad_loop"), 0.0D, 0.0D, 0.25D, 1.25D);
 	}
 
 	@Override

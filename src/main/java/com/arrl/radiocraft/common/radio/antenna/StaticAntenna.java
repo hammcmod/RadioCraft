@@ -151,7 +151,17 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 		return pos.get();
 	}
 
-	public void setNetwork(AntennaNetwork network) {
+    @Override
+    public IAntennaType<? extends AntennaData> getType() {
+        return type;
+    }
+
+    @Override
+    public AntennaData getData() {
+        return data;
+    }
+
+    public void setNetwork(AntennaNetwork network) {
 		if(this.network != null)
 			this.network.removeAntenna(this);
 		network.addAntenna(this);

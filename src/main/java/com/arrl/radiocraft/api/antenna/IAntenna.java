@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.api.antenna;
 
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
@@ -57,6 +58,18 @@ public interface IAntenna {
 	 * @return Position of this antenna
 	 */
 	AntennaPos getAntennaPos();
+
+    /**
+     * Get the type of this antenna.
+     * @return The type of this antenna.
+     */
+    IAntennaType<? extends AntennaData> getType();
+
+    /**
+     * Get the data for this antenna.
+     * @return The data for this antenna.
+     */
+    AntennaData getData();
 
 	/**
 	 * Immutable single record for the position of an antenna. Used for calculating signal strengths.
