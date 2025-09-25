@@ -7,18 +7,20 @@ import net.minecraft.resources.ResourceLocation;
 
 public abstract class DirectionalAntennaType<T extends AntennaData> extends NonDirectionalAntennaType<T> {
 
-    protected DirectionalAntennaType(ResourceLocation id, double receive, double transmit, double los, double skip) {
-        super(id, receive, transmit, los, skip);
+    protected DirectionalAntennaType(ResourceLocation id, double receiveGainDbi, double transmitGainDbi, double los, double skip) {
+        super(id, receiveGainDbi, transmitGainDbi, los, skip);
     }
 
     @Override
     public double getTransmitEfficiency(IAntennaPacket packet, T data, BlockPos destination, boolean isCW) {
-        return super.getTransmitEfficiency(packet, data, destination, isCW) * getDirectionalEfficiency(data, packet.getSource().getAntennaPos().position(), destination);
+        double base = super.getTransmitEfficiency(packet, data, destination, isCW);
+        return base * getDirectionalEfficiency(data, packet.getSource().getAntennaPos().position(), destination);
     }
 
     @Override
     public double getReceiveEfficiency(IAntennaPacket packet, T data, BlockPos pos) {
-        return super.getReceiveEfficiency(packet, data, pos) * getDirectionalEfficiency(data, packet.getSource().getAntennaPos().position(), pos);
+        double base = super.getReceiveEfficiency(packet, data, pos);
+        return base * getDirectionalEfficiency(data, packet.getSource().getAntennaPos().position(), pos);
     }
 
     /**

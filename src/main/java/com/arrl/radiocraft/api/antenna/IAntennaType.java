@@ -67,6 +67,8 @@ public interface IAntennaType<T extends AntennaData> {
 	/**
 	 * Calculates the SWR of an antenna for a given wavelength based on it's properties. This has an
 	 * impact on the efficiency of the antenna.
+     *
+     * TODO: Make this take a (center) frequency in MHz from the Band data, instead of this garbage int for a wavelength
 	 *
 	 * @param data {@link AntennaData} object belonging to this antenna.
 	 * @param wavelength The wavelength to be used for checking SWR.

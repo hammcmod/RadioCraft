@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.radio.voice.handheld;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntenna;
+import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
@@ -9,9 +10,13 @@ import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.IVoiceReceiver;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
+import com.arrl.radiocraft.common.radio.antenna.types.QuarterWaveVerticalAntennaType;
+import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
+import com.arrl.radiocraft.common.radio.antenna.types.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
@@ -159,6 +164,16 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     @Override
     public AntennaPos getAntennaPos() {
         return this.antennaPos.get();
+    }
+
+    @Override
+    public IAntennaType<? extends AntennaData> getType() {
+        return new RubberDuckyAntennaType();
+    }
+
+    @Override
+    public AntennaData getData() {
+        return new RubberDuckyAntennaData(0.1);
     }
 
     @Override
