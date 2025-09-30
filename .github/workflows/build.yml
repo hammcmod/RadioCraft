@@ -34,4 +34,3 @@ jobs:
             path: build/libs/*.jar
             if-no-files-found: warn
             retention-days: 14
-            compression-value: 0
