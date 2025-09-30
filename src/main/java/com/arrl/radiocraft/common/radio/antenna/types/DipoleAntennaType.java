@@ -57,7 +57,7 @@ public class DipoleAntennaType extends NonDirectionalAntennaType<DipoleAntennaDa
 
 	@Override
 	public double getSWR(DipoleAntennaData data, float frequencyHertz) {
-		int desiredLength = (int)Math.round(BandUtils.getWavelengthMetersFromFrequencyHertz(frequencyHertz) / 4.0D); // The desired length for each "arm" is 1/4 of the name used, round to the nearest int (for example 10m radio -> 3 blocks)
+		int desiredLength = (int)Math.round(BandUtils.getWavelengthMetersFromFrequencyHertz(frequencyHertz) / 4.0D); // The desired length for each "arm" is 1/4 of the wavelength used, round to the nearest int (for example 10m radio -> 3 blocks)
 		double incorrectBlocks = Math.abs(desiredLength - data.getArmLength1()) + Math.abs(desiredLength - data.getArmLength2());
 
 		return 1.0D + (0.5D * incorrectBlocks);
