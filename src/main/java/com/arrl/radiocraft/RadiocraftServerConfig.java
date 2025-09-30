@@ -20,7 +20,7 @@ public class RadiocraftServerConfig {
 
     public static final ModConfigSpec.ConfigValue<Boolean> CALLSIGN_PERMISSIONS_ENABLED;
 
-	public record BandConfig(int wavelength, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Integer> minFrequency, ModConfigSpec.ConfigValue<Integer> maxFrequency) {
+	public record BandConfig(int wavelength, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Float> minFrequency, ModConfigSpec.ConfigValue<Float> maxFrequency) {
 		public Band getBand() {
 			return new Band(wavelength, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
 		}
@@ -34,8 +34,8 @@ public class RadiocraftServerConfig {
 		BUILDER.pop();
 
 		BUILDER.push("Band Options ( * = Restart game to take effect)");
-		HF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a HF frequency, in kHz (0.001MHz) #default 1").define("hf_frequency_step", 1);
-		VHF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a VHF frequency, in kHz (0.001MHz) #default 100").define("vhf_frequency_step", 20);
+		HF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a HF frequency, in Hz #default 1000").define("hf_frequency_step", 1_000);
+		VHF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a VHF frequency, in Hz #default 100000").define("vhf_frequency_step", 20_000);
 		BUILDER.pop();
 
 		BUILDER.comment(" While wavelength and frequency are to measures of the same principle, when we refer to a band like say 10m, we mean a range of actual frequencies that aren't exactly 10m in wavelength");

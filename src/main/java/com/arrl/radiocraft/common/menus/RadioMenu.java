@@ -36,39 +36,14 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
 				setWavelength(value);
 			}
 		});
-
-		addDataSlot(new DataSlot() {
-			@Override
-			public int get() {
-				return getFrequency() & 0xFFFF;
-			}
-
-			@Override
-			public void set(int value) {
-				int frequency = getFrequency() & 0xFFFF0000;
-				setFrequency(frequency + (value & 0xFFFF));
-			}
-		});
-		addDataSlot(new DataSlot() {
-			@Override
-			public int get() {
-				return (getFrequency() << 16) & 0x0000FFFF;
-			}
-
-			@Override
-			public void set(int value) {
-				int frequency = getFrequency() & 0x0000FFFF;
-				setFrequency(frequency + (value << 16));
-			}
-		});
 		addDataSlots(data);
 	}
 
-	public int getFrequency() {
+	public float getFrequency() {
 		return blockEntity.getFrequency();
 	}
 
-	public void setFrequency(int value) {
+	public void setFrequency(float value) {
 		blockEntity.setFrequency(value);
 	}
 
