@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.radio.antenna.types;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.RubberDuckyAntennaData;
 import net.minecraft.core.BlockPos;
@@ -21,8 +22,8 @@ public class RubberDuckyAntennaType extends NonDirectionalAntennaType<RubberDuck
     }
 
     @Override
-    public double getSWR(RubberDuckyAntennaData data, int wavelength) {
-        return (int)Math.abs(Math.round(wavelength / 4.0D));
+    public double getSWR(RubberDuckyAntennaData data, float frequencyHertz) {
+        return (int)Math.abs(Math.round(BandUtils.getWavelengthMetersFromFrequencyHertz(frequencyHertz) / 4.0D));
     }
 
     @Override
