@@ -7,6 +7,7 @@ import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.IVoiceReceiver;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
@@ -177,7 +178,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     }
 
     @Override
-    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, float frequencyHertz) {
+    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequencyHertz) {
         // Handheld doesn't have CW capability.
     }
 
@@ -198,7 +199,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     }
 
     @Override
-    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, float frequencyHertz, UUID sourcePlayer) {
+    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer) {
 
         AntennaNetwork network;
         synchronized (this) {
@@ -222,14 +223,14 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
             for(IAntenna antenna : antennas) {
                 if(antenna != this) {
-                    AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequencyHertz, 1.0F, this, sourcePlayer);
+                    AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), band, frequencyHertz, 1.0F, this, sourcePlayer);
 
                     AntennaPos pos = antenna.getAntennaPos();
 
                     if(pos == null) continue;
 
                     double distance = Math.sqrt(thisPos.position().distSqr(pos.position()));
-                    packet.setStrength(BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0F, 0.0F, packet.getLevel().isDay()));
+                    packet.setStrength(BandUtils.getBaseStrength(packet.getBand(), distance, 1.0F, 0.0F, packet.getLevel().isDay()));
 
                     antenna.receiveAudioPacket(packet);
                 }
@@ -269,7 +270,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             for (int i = 0; i < audio.length; i++) {
                 audio[i] = (short)Math.round(audio[i] * radio.micGain);
             }
-            transmitAudioPacket(level, audio, 2, radio.frequency, sourcePlayer);
+            transmitAudioPacket(level, audio, Band.getBand("2m"), radio.frequency, sourcePlayer);
         }
     }
 

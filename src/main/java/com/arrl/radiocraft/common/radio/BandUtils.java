@@ -5,8 +5,7 @@ package com.arrl.radiocraft.common.radio;
  */
 public class BandUtils {
 
-	public static double getBaseStrength(int wavelength, double distance, double losEfficiency, double skipEfficiency, boolean isDay) {
-		Band band = Band.getBand(wavelength);
+	public static double getBaseStrength(Band band, double distance, double losEfficiency, double skipEfficiency, boolean isDay) {
 		if(band == null)
 			return 0.0D;
 
@@ -28,4 +27,9 @@ public class BandUtils {
 		return 0.0D;
 	}
 
+    public static double getWavelengthMetersFromFrequencyHertz(double frequencyHertz) {
+        // The constant c represents the speed of light in a vacuum, which is exactly 299,792,458 meters per second.
+        final double SPEED_OF_LIGHT_METERS_PER_SECOND = 299792458D;
+        return SPEED_OF_LIGHT_METERS_PER_SECOND / frequencyHertz;
+    }
 }

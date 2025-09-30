@@ -5,22 +5,24 @@ import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.HFRadio80mMenu;
+import com.arrl.radiocraft.common.radio.Band;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class HFRadio80mBlockEntity extends HFRadioBlockEntity {
 
 	public HFRadio80mBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.HF_RADIO_80M.get(), pos, state, 80);
+		super(RadiocraftBlockEntities.HF_RADIO_80M.get(), pos, state, Band.getBand("80m"));
 	}
 
 	@Override
-	public Component getDisplayName() {
+	public @NotNull Component getDisplayName() {
 		return Component.translatable("container.hf_radio_80m");
 	}
 

@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.api.antenna;
 
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
@@ -26,11 +27,11 @@ public interface IAntenna {
 	 * Transmit an audio packet to other {@link IAntenna}s on the network.
 	 * @param level The {@link ServerLevel} object (SVC API) for this {@link IAntenna}'s {@link Level}.
 	 * @param rawAudio The raw PCM audio being sent in the packet.
-	 * @param wavelength The wavelength of the transmission.
+	 * @param band The band of the transmission.
 	 * @param frequencyHertz The frequency (Hertz) of the transmission.
 	 * @param sourcePlayer The {@link UUID} of the player who sent the audio. Used for opus encoding/decoding.
 	 */
-	void transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, int wavelength, float frequencyHertz, UUID sourcePlayer);
+	void transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer);
 
 	/**
 	 * Handle receiving an audio packet from another {@link IAntenna} on the network.
@@ -42,10 +43,10 @@ public interface IAntenna {
 	 * Transmit a CW/morse packet to other {@link IAntenna}s on the network.
 	 * @param level The {@link ServerLevel} object for this {@link IAntenna}.
 	 * @param buffers The {@link CWBuffer}s being sent, may not be in order.
-	 * @param wavelength The wavelength of the transmission.
+	 * @param band The band of the transmission.
 	 * @param frequencyHertz The frequency (Hertz) of the transmission.
 	 */
-	void transmitCWPacket(ServerLevel level, Collection<CWBuffer> buffers, int wavelength, float frequencyHertz);
+	void transmitCWPacket(ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequencyHertz);
 
 	/**
 	 * Handle receiving a CW/morse packet from another {@link IAntenna} on the network.

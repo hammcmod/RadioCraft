@@ -65,17 +65,17 @@ public interface IAntennaType<T extends AntennaData> {
 	}
 
 	/**
-	 * Calculates the SWR of an antenna for a given wavelength based on it's properties. This has an
+	 * Calculates the SWR of an antenna for a given frequency based on it's properties. This has an
 	 * impact on the efficiency of the antenna.
      *
      * TODO: Make this take a (center) frequency in MHz from the Band data, instead of this garbage int for a wavelength
 	 *
 	 * @param data {@link AntennaData} object belonging to this antenna.
-	 * @param wavelength The wavelength to be used for checking SWR.
+	 * @param frequencyHertz The frequency to be used for checking SWR.
 	 *
-	 * @return The SWR of the antenna while using the specified wavelength.
+	 * @return The SWR of the antenna while using the specified frequency.
 	 */
-	double getSWR(T data, int wavelength);
+	double getSWR(T data, float frequencyHertz);
 
 	/**
 	 * Get an {@link AntennaData} instance which represents the default starting values for this {@link IAntennaType}.

@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.api.antenna;
 
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import net.minecraft.server.level.ServerLevel;
@@ -12,10 +13,10 @@ import net.minecraft.server.level.ServerLevel;
 public interface IAntennaPacket {
 
 	/**
-     * The wavelength of the signal being transmitted.
-	 * @return The wavelength of the signal being transmitted.
+     * The name of the signal being transmitted.
+	 * @return The name of the signal being transmitted.
 	 */
-	int getWavelength();
+	Band getBand();
 
 	/**
      * The frequency of the signal being transmitted.

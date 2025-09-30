@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.radio.antenna.types.vhf;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.DirectionalAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.data.YagiAntennaData;
@@ -43,8 +44,9 @@ public class YagiAntennaType extends DirectionalAntennaType<YagiAntennaData> {
     }
 
     @Override
-    public double getSWR(YagiAntennaData data, int wavelength) {
-        return wavelength == 2 ? 1.0D : 10.0D;
+    public double getSWR(YagiAntennaData data, float frequencyHertz) {
+        // TODO: Fix floating point == operator
+        return BandUtils.getWavelengthMetersFromFrequencyHertz(frequencyHertz) == 2 ? 1.0D : 10.0D;
     }
 
     @Override
