@@ -1,6 +1,6 @@
 name: Build
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -21,5 +21,17 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
+      - name: Data Generation
+        run: ./gradlew runData
+
       - name: Build Mod
         run: ./gradlew build
+
+      - name: Save Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+            name: Build Jars
+            path: build/libs/*.jar
+            if-no-files-found: warn
+            retention-days: 14
+            compression-value: 0
