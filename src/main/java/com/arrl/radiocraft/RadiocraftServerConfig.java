@@ -18,6 +18,8 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> HANDHELD_MAX_GAIN;
 	public static final ModConfigSpec.ConfigValue<Double> HANDHELD_MAX_MIC_GAIN;
 
+    public static final ModConfigSpec.ConfigValue<Boolean> CALLSIGN_PERMISSIONS_ENABLED;
+
 	public record BandConfig(int wavelength, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Integer> minFrequency, ModConfigSpec.ConfigValue<Integer> maxFrequency) {
 		public Band getBand() {
 			return new Band(wavelength, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
@@ -59,6 +61,10 @@ public class RadiocraftServerConfig {
 		HANDHELD_MAX_GAIN = BUILDER.comment(" Maximum output gain").defineInRange("handheld_max_gain", 5.0, 1.0, 25.0);
 		HANDHELD_MAX_MIC_GAIN = BUILDER.comment(" Maximum microphone gain").defineInRange("handheld_max_mic_gain", 5.0, 1.0, 25.0);
 		BUILDER.pop();
+
+        BUILDER.push("Permissions");
+        CALLSIGN_PERMISSIONS_ENABLED = BUILDER.comment(" Require op for callsign configuration").define("callsign_permissions_enabled", true);
+        BUILDER.pop();
 
 		SPEC = BUILDER.build();
 	}
