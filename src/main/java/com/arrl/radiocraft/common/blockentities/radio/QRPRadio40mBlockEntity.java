@@ -5,6 +5,7 @@ import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.QRPRadio40mMenu;
+import com.arrl.radiocraft.common.radio.Band;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 public class QRPRadio40mBlockEntity extends HFRadioBlockEntity {
 
     public QRPRadio40mBlockEntity(BlockPos pos, BlockState state) {
-        super(RadiocraftBlockEntities.QRP_RADIO_40M.get(), pos, state, 40);
+        super(RadiocraftBlockEntities.QRP_RADIO_40M.get(), pos, state, Band.getBand("40m"));
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.HFRadioAllBandMenu;
+import com.arrl.radiocraft.common.radio.Band;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
@@ -17,7 +18,7 @@ import org.jetbrains.annotations.Nullable;
 public class HFRadioAllBandBlockEntity extends HFRadioBlockEntity {
 
     public HFRadioAllBandBlockEntity(BlockPos pos, BlockState state) {
-        super(RadiocraftBlockEntities.HF_RADIO_ALL_BAND.get(), pos, state, 10);
+        super(RadiocraftBlockEntities.HF_RADIO_ALL_BAND.get(), pos, state, Band.getBand("10m"));
     }
 
     @Override

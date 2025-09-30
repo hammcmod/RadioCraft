@@ -57,7 +57,7 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
 
     protected double getPropagationStrength(IAntennaPacket packet, double distance, boolean isCW) {
         double effectiveDistance = isCW ? distance / CW_RANGE_MULTIPLIER : distance;
-        return BandUtils.getBaseStrength(packet.getWavelength(), effectiveDistance, getLosEfficiency(), getSkipEfficiency(), packet.getLevel().isDay());
+        return BandUtils.getBaseStrength(packet.getBand(), effectiveDistance, getLosEfficiency(), getSkipEfficiency(), packet.getLevel().isDay());
     }
 
     protected double getLosEfficiency() {

@@ -4,6 +4,7 @@ import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
@@ -54,13 +55,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	}
 
 	@Override
-	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, float frequencyHertz, UUID sourcePlayer) {
+	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
 
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
-					AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequencyHertz, 1.0F, this, sourcePlayer);
+					AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), band, frequencyHertz, 1.0F, this, sourcePlayer);
 
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
@@ -70,7 +71,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 //					if(ssbSendCache.containsKey(antenna.getBlockPos())) // Recalculate if value wasn't already present.
 //						packet.setStrength(ssbSendCache.get(destination));
 //					else {
-					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * SWRHelper.getEfficiencyMultiplier(getSWR(wavelength)));
+					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * SWRHelper.getEfficiencyMultiplier(getSWR(frequencyHertz)));
 //						ssbSendCache.put(destination, packet.getStrength());
 //					}
 
@@ -97,12 +98,12 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	}
 
 	@Override
-	public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, float frequencyHertz) {
+	public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequencyHertz) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
-					AntennaCWPacket packet = new AntennaCWPacket(level, buffers, wavelength, frequencyHertz, 1.0F, this);
+					AntennaCWPacket packet = new AntennaCWPacket(level, buffers, band, frequencyHertz, 1.0F, this);
 
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
@@ -168,8 +169,8 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 		this.network = network;
 	}
 
-	public double getSWR(int wavelength) {
-		return type.getSWR(data, wavelength);
+	public double getSWR(float frequencyHertz) {
+		return type.getSWR(data, frequencyHertz);
 	}
 
 	@Override
