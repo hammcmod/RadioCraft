@@ -12,7 +12,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	private ItemStack installedBattery = ItemStack.EMPTY;
 //	private boolean isPowered = false;
-//	private int frequencyKiloHertz = 0;
+//	private int frequencyHertz = 0;
 //	private boolean isPTTDown = false;
 	private final ItemStack thisRadio;
 	//TODO temporary hack for testing, must be changed to use data attachment API for storing state, and produce a new capability on each request
@@ -37,19 +37,19 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 	}
 
 	@Override
-	public int getFrequencyKiloHertz() {
+	public float getFrequencyHertz() {
 		return getState().freq();
 	}
 
 	@Override
-	public void setFrequencyKiloHertz(int frequencyKiloHertz) {
+	public void setFrequencyHertz(float frequencyHertz) {
 		updateState(
 			(old) -> new HandheldRadioState(
 				old.power(),
 				old.ptt(),
 				Math.max(
 						Math.min(
-								frequencyKiloHertz,
+                                frequencyHertz,
 								Band.getBand(2).maxFrequency()
 						),
 						Band.getBand(2).minFrequency()

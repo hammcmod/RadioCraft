@@ -12,11 +12,11 @@ public class AntennaCWPacket implements IAntennaPacket {
 	private final ServerLevel level;
 	private final Collection<CWBuffer> buffers;
 	private final int wavelength;
-	private final int frequency;
+	private final float frequency;
 	private double strength;
 	private final IAntenna source;
 
-	public AntennaCWPacket(ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency, double strength, IAntenna source) {
+	public AntennaCWPacket(ServerLevel level, Collection<CWBuffer> buffers, int wavelength, float frequency, double strength, IAntenna source) {
 		this.level = level;
 		this.buffers = buffers;
 		this.wavelength = wavelength;
@@ -31,7 +31,7 @@ public class AntennaCWPacket implements IAntennaPacket {
 	}
 
 	@Override
-	public int getFrequency() {
+	public float getFrequency() {
 		return frequency;
 	}
 

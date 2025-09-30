@@ -38,7 +38,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected boolean isPTTDown = false; // Used by PTT button packets
 
     protected int wavelength; // Wavelength the frequency is currently on, usually not changed.
-    protected int frequency; // Frequency the radio is currently using (in kHz)
+    protected float frequency; // Frequency the radio is currently using (in Hz)
 
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
@@ -142,11 +142,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         }
     }
 
-    public int getFrequency() {
+    public float getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(int frequency) {
+    public void setFrequency(float frequency) {
         this.frequency = frequency;
     }
 
@@ -180,8 +180,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void updateFrequency(int stepCount) {
         Band band = Band.getBand(wavelength);
         int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
-        int min = band.minFrequency();
-        int max = (band.maxFrequency() - band.minFrequency()) / step * step + min; // This calc looks weird, but it's integer division, throws away remainder to ensure the freq doesn't do a "half step" to max.
+        float min = band.minFrequency();
+        float max = (band.maxFrequency() - band.minFrequency()) / step * step + min; // This calc looks weird, but it's integer division, throws away remainder to ensure the freq doesn't do a "half step" to max.
 
         frequency = Mth.clamp(frequency + step * stepCount, min, max);
         setChanged();
@@ -231,7 +231,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected void setupSaveTag(CompoundTag nbt) {
         nbt.putBoolean("ssbEnabled", ssbEnabled);
         nbt.putInt("wavelength", wavelength);
-        nbt.putInt("frequency", frequency);
+        nbt.putFloat("frequency", frequency);
         nbt.putDouble("antennaSWR", antennaSWR);
         nbt.putBoolean("wasPowered", wasPowered);
     }
@@ -243,7 +243,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected void readSaveTag(CompoundTag nbt) {
         ssbEnabled = nbt.getBoolean("ssbEnabled");
         wavelength = nbt.getInt("wavelength");
-        frequency = nbt.getInt("frequency");
+        frequency = nbt.getFloat("frequency");
         antennaSWR = nbt.getDouble("antennaSWR");
         wasPowered = nbt.getBoolean("wasPowered");
     }

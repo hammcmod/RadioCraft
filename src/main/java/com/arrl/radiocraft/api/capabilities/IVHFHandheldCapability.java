@@ -20,16 +20,16 @@ public interface IVHFHandheldCapability {
     void setBattery(ItemStack item);
 
     /**
-     * Gets the frequency of the handheld radio in kilohertz.
-     * @return The frequency of the handheld radio in kilohertz.
+     * Gets the frequency of the handheld radio in hertz.
+     * @return The frequency of the handheld radio in hertz.
      */
-    int getFrequencyKiloHertz();
+    float getFrequencyHertz();
 
     /**
-     * Sets the frequency of the handheld radio in kilohertz.
-     * @param frequencyKiloHertz The new frequency in kilohertz.
+     * Sets the frequency of the handheld radio in hertz.
+     * @param frequencyHertz The new frequency in hertz.
      */
-    void setFrequencyKiloHertz(int frequencyKiloHertz);
+    void setFrequencyHertz(float frequencyHertz);
 
     /**
      * Gets the power state of the handheld radio.

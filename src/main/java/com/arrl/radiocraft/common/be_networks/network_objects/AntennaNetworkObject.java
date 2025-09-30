@@ -38,7 +38,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         this.networkId = networkId;
     }
 
-    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
+    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, float frequency, UUID sourcePlayer) {
         antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
     }
 
@@ -56,7 +56,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
             overdraw(level);
     }
 
-    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
+    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, float frequency) {
         antenna.transmitCWPacket(level, buffers, wavelength, frequency);
     }
 

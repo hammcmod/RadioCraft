@@ -21,7 +21,7 @@ public interface IAntennaPacket {
      * The frequency of the signal being transmitted.
 	 * @return The frequency of the signal being transmitted.
 	 */
-	int getFrequency();
+	float getFrequency();
 
 	/**
      * The strength of the signal.

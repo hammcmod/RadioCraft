@@ -11,13 +11,13 @@ public class AntennaVoicePacket implements IAntennaPacket {
 	private final de.maxhenkel.voicechat.api.ServerLevel level; // This is a voice api ServerLevel not a minecraft one.
 	private final short[] rawAudio;
 	private final int wavelength;
-	private final int frequency;
+	private final float frequency;
 	private double strength;
 	private final IAntenna source;
 	private final UUID sourcePlayer;
 
 
-	public AntennaVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, int wavelength, int frequency, double strength, IAntenna source, UUID sourcePlayer) {
+	public AntennaVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, int wavelength, float frequency, double strength, IAntenna source, UUID sourcePlayer) {
 		this.level = level;
 		this.rawAudio = rawAudio;
 		this.wavelength = wavelength;
@@ -33,7 +33,7 @@ public class AntennaVoicePacket implements IAntennaPacket {
 	}
 
 	@Override
-	public int getFrequency() {
+	public float getFrequency() {
 		return frequency;
 	}
 

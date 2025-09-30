@@ -54,13 +54,13 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	}
 
 	@Override
-	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequencyKiloHertz, UUID sourcePlayer) {
+	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, float frequencyHertz, UUID sourcePlayer) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
 
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
-					AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequencyKiloHertz, 1.0F, this, sourcePlayer);
+					AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequencyHertz, 1.0F, this, sourcePlayer);
 
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
@@ -97,12 +97,12 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	}
 
 	@Override
-	public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequencyKiloHertz) {
+	public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, float frequencyHertz) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
-					AntennaCWPacket packet = new AntennaCWPacket(level, buffers, wavelength, frequencyKiloHertz, 1.0F, this);
+					AntennaCWPacket packet = new AntennaCWPacket(level, buffers, wavelength, frequencyHertz, 1.0F, this);
 
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();

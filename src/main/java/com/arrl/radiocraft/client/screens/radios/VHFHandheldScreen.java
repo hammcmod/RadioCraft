@@ -37,7 +37,7 @@ public class VHFHandheldScreen extends Screen {
 
     protected static int FREQUENCY_ENTERING_TIMEOUT = 7000; //in millis
 
-    protected int enteredFrequency=0;
+    protected float enteredFrequency=0;
     protected int curDigit=0;
     protected long millisOfLastFrequency=0;
 
@@ -160,12 +160,12 @@ public class VHFHandheldScreen extends Screen {
         if (cap.isPowered()) {
             switch (menuState) {
                 case DEFAULT:
-                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyKiloHertz() / 1000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
+                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyHertz() / 1000_000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
 
                     break;
                 case SET_FREQ:
                     pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);
-                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", enteredFrequency / 1000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
+                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", enteredFrequency / 1000_000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
                     break;
             }
         }
@@ -269,7 +269,8 @@ public class VHFHandheldScreen extends Screen {
             case SET_FREQ:
                 if (curDigit >= 6) break;
                 millisOfLastFrequency = System.currentTimeMillis();
-                enteredFrequency += powLookup[curDigit++] * num;
+                int cd = curDigit++;
+                enteredFrequency += (float) Math.pow(10.0, (6 - cd) + 2.0) * num;
                 break;
             default:
                 break;
@@ -284,7 +285,7 @@ public class VHFHandheldScreen extends Screen {
         if(menuState == MenuState.SET_FREQ) {
             if(!cap.isPowered()) return;
             if(enteredFrequency >= Band.getBand(2).minFrequency() && enteredFrequency <= Band.getBand(2).maxFrequency()) {
-                cap.setFrequencyKiloHertz(
+                cap.setFrequencyHertz(
                         enteredFrequency
                 );
             }
@@ -301,9 +302,9 @@ public class VHFHandheldScreen extends Screen {
      */
     protected void onFrequencyButtonUp(Button button) {
         if(!cap.isPowered()) return;
-        cap.setFrequencyKiloHertz(
+        cap.setFrequencyHertz(
                 Math.min( //ServerConfig is synced on game join, so no further checking is necessary
-                        cap.getFrequencyKiloHertz() + RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
+                        cap.getFrequencyHertz() + RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
                         Band.getBand(2).maxFrequency()
                 )
         );
@@ -315,9 +316,9 @@ public class VHFHandheldScreen extends Screen {
      */
     protected void onFrequencyButtonDown(Button button) {
         if(!cap.isPowered()) return;
-        cap.setFrequencyKiloHertz(
+        cap.setFrequencyHertz(
                 Math.max(  //ServerConfig is synced on game join, so no further checking is necessary
-                        cap.getFrequencyKiloHertz() - RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
+                        cap.getFrequencyHertz() - RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
                         Band.getBand(2).minFrequency()
                 )
         );
