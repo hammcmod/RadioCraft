@@ -6,7 +6,7 @@ import com.arrl.radiocraft.compat.TopCompat;
 import com.arrl.radiocraft.datagen.RadiocraftBlockTagsProvider;
 import com.arrl.radiocraft.datagen.RadiocraftBlockstateProvider;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
-import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
+import com.arrl.radiocraft.datagen.RadiocraftRecipesProvider;
 import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider.Factory;
@@ -17,6 +17,7 @@ import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -39,6 +40,8 @@ public class Radiocraft {
 
         TopCompatRegistry tcr = new TopCompatRegistry();
         modEventBus.register(tcr);
+
+        NeoForge.EVENT_BUS.register(RadiocraftSavedData.class);
 
         ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
         ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.SERVER, RadiocraftServerConfig.SPEC, Radiocraft.MOD_ID + "-server.toml");
@@ -90,6 +93,8 @@ public class Radiocraft {
                 new RadiocraftLanguageProvider(output, "en_us"));
         gen.addProvider(event.includeClient(), (Factory<RadiocraftBlockstateProvider>) output -> new
                 RadiocraftBlockstateProvider(output, existingFileHelper));
+        gen.addProvider(true, (Factory<RadiocraftRecipesProvider>) output -> new
+                RadiocraftRecipesProvider(output, event.getLookupProvider()));
     }
 
     public static ResourceLocation id(String path) {

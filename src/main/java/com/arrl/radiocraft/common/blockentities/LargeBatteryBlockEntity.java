@@ -1,7 +1,6 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.CommonConfig;
-import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.BatteryNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;

@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "tag": "minecraft:buttons"
+    },
+    "L": {
+      "item": "minecraft:lightning_rod"
+    },
+    "M": {
+      "item": "radiocraft:hand_microphone"
+    },
+    "R": {
+      "item": "radiocraft:radio_crystal"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
+    }
+  },
+  "pattern": [
+    "L  ",
+    "MRS",
+    "BBB"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:vhf_handheld"
+  }
+}

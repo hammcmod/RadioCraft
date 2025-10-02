@@ -6,13 +6,18 @@ import com.arrl.radiocraft.common.items.AntennaPoleItem;
 import com.arrl.radiocraft.common.items.AntennaWireItem;
 import com.arrl.radiocraft.common.items.SmallBatteryItem;
 import com.arrl.radiocraft.common.items.VHFHandheldItem;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.Properties;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -23,15 +28,15 @@ public class RadiocraftItems {
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.createItems(Radiocraft.MOD_ID);
 
 	// Regular Items
-	public static final Supplier<Item> RADIO_CRYSTAL = simpleItem("radio_crystal");
-	public static final Supplier<Item> RADIO_SPEAKER = simpleItem("radio_speaker");
-	public static final Supplier<Item> HAND_MICROPHONE = simpleItem("hand_microphone");
-	public static final Supplier<Item> HF_CIRCUIT_BOARD = simpleItem("hf_circuit_board");
+	public static final Supplier<Item> RADIO_CRYSTAL = simpleItem("radio_crystal", null);
+	public static final Supplier<Item> RADIO_SPEAKER = simpleItem("radio_speaker", null);
+	public static final Supplier<Item> HAND_MICROPHONE = simpleItem("hand_microphone", null);
+	public static final Supplier<Item> HF_CIRCUIT_BOARD = simpleItem("hf_circuit_board", null);
 
 	public static final DeferredHolder<Item, SmallBatteryItem> SMALL_BATTERY = ITEMS.register("small_battery", () -> new SmallBatteryItem(new Properties().stacksTo(1))); //.component(DataComponent.ENERGY_DATA_COMPONENT, new DataComponent.EnergyRecord(1000.0))));
-	public static final Supplier<Item> FERRITE_CORE = simpleItem("ferrite_core");
-	public static final Supplier<Item> COAXIAL_CORE = simpleItem("coaxial_core");
-	public static final Supplier<Item> ANTENNA_ANALYZER = simpleItem("antenna_analyzer");
+	public static final Supplier<Item> FERRITE_CORE = simpleItem("ferrite_core", null);
+	public static final Supplier<Item> COAXIAL_CORE = simpleItem("coaxial_core", null);
+	public static final Supplier<Item> ANTENNA_ANALYZER = simpleItem("antenna_analyzer", Component.translatable("tooltip.radiocraft.not_implemented"));
 	public static final DeferredHolder<Item, VHFHandheldItem> VHF_HANDHELD = ITEMS.register("vhf_handheld", () -> new VHFHandheldItem(new Properties().stacksTo(1).component(RadiocraftDataComponent.HANDHELD_RADIO_STATE_COMPONENT.value(), HandheldRadioState.getDefault())));
 	public static final DeferredHolder<Item, AntennaWireItem> ANTENNA_WIRE = ITEMS.register("antenna_wire", () -> new AntennaWireItem(new Properties()));
 
@@ -75,8 +80,18 @@ public class RadiocraftItems {
 
 
 	// Helper methods to cut down on boilerplate
-	private static Supplier<Item> simpleItem(String name) {
-		return ITEMS.register(name, () -> new Item(new Properties()));
+	private static Supplier<Item> simpleItem(String name, Component tooltip) {
+        if (tooltip != null) {
+            return ITEMS.register(name, () -> new Item(new Properties()) {
+                @Override
+                public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+                    super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+                    tooltipComponents.add(tooltip);
+                }
+            });
+        } else {
+            return ITEMS.register(name, () -> new Item(new Properties()));
+        }
 	}
 
 	private static Supplier<BlockItem> simpleBlockItem(String name, Supplier<? extends Block> block) {

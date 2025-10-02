@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "B": {
+      "item": "radiocraft:vhf_base_station"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "radiocraft:radio_crystal"
+    },
+    "T": {
+      "item": "minecraft:iron_trapdoor"
+    }
+  },
+  "pattern": [
+    "ITI",
+    "CBR",
+    "I#I"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:vhf_repeater"
+  }
+}

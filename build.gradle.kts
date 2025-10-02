@@ -7,8 +7,74 @@ plugins {
     alias(libs.plugins.moddevgradle)
 }
 
+/**
+ * Determines the version from Git tags following semantic versioning.
+ * If the current commit is tagged and clean, uses the tag as version.
+ * If dirty (uncommitted changes), appends "-dirty" to the version.
+ * If not on a tagged commit, uses the latest tag with commit distance and hash.
+ */
+fun getVersionFromGit(): String {
+    return try {
+        val gitDescribe = executeCommand("git", "describe", "--tags", "--long", "--dirty", "--always")
 
-version = libs.versions.radiocraft.get()
+        when {
+            gitDescribe.contains("-dirty") -> {
+                // Clean up the describe output and add dirty suffix
+                val cleanVersion = gitDescribe.replace("-dirty", "")
+                parseGitDescribe(cleanVersion) + "-dirty"
+            }
+            gitDescribe.matches(Regex("^v?\\d+\\.\\d+\\.\\d+$")) -> {
+                // We're exactly on a tagged commit, clean state
+                gitDescribe.removePrefix("v")
+            }
+            else -> {
+                // We're not on a tagged commit or it's a complex describe output
+                parseGitDescribe(gitDescribe)
+            }
+        }
+    } catch (e: Exception) {
+        logger.warn("Failed to get version from git: ${e.message}")
+        "unknown"
+    }
+}
+
+fun parseGitDescribe(describe: String): String {
+    // Parse git describe output like "v1.0.0-5-g1234567" or "1.0.0-5-g1234567"
+    val parts = describe.split("-")
+    return when {
+        parts.size >= 3 -> {
+            val tag = parts[0].removePrefix("v")
+            val distance = parts[1].toIntOrNull() ?: 0
+            val hash = parts[2]
+            if (distance > 0) {
+                "$tag-dev.$distance+$hash"
+            } else {
+                tag
+            }
+        }
+        else -> describe.removePrefix("v")
+    }
+}
+
+fun executeCommand(vararg command: String): String {
+    val process = ProcessBuilder(*command)
+        .directory(rootDir)
+        .start()
+
+    val output = process.inputStream.bufferedReader().readText().trim()
+    val exitCode = process.waitFor()
+
+    if (exitCode != 0) {
+        val error = process.errorStream.bufferedReader().readText()
+        throw RuntimeException("Command failed with exit code $exitCode: $error")
+    }
+
+    return output
+}
+
+// Set version from Git
+version = getVersionFromGit()
+
 val mcVersion = libs.versions.minecraft.asProvider().get()
 val mcVersionRange = libs.versions.minecraft.range.get()
 val neoVersion = libs.versions.neoforge.asProvider().get()
@@ -128,6 +194,11 @@ tasks.withType<Jar>().configureEach {
 tasks.withType<JavaCompile>().configureEach {
     this.options.encoding = "UTF-8"
     this.options.getRelease().set(21)
+    this.options.compilerArgs.add("-Xlint:all")
+}
+
+tasks.withType<Javadoc>().configureEach {
+    this.include("**/api/**/*.java")
 }
 
 java {
@@ -150,5 +221,12 @@ idea {
     module {
         isDownloadSources = true
         isDownloadJavadoc = true
+    }
+}
+
+// Optional: Add a task to print the current version
+tasks.register("printVersion") {
+    doLast {
+        println("Current version: ${version}")
     }
 }

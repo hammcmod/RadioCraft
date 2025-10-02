@@ -6,14 +6,27 @@ import net.minecraft.resources.ResourceLocation;
 
 import java.util.UUID;
 
+/**
+ * Represents a network of compatible power sources and sinks.
+ */
 public class PowerBENetwork extends BENetwork {
 
+    /**
+     * The type of network.
+     */
     public static final ResourceLocation TYPE = Radiocraft.id("power");
 
+    /**
+     * Creates a new {@link PowerBENetwork} with a specified UUID.
+     * @param uuid The UUID of the network.
+     */
     public PowerBENetwork(UUID uuid) {
         super(uuid);
     }
 
+    /**
+     * Creates a new {@link PowerBENetwork} with a random UUID.
+     */
     public PowerBENetwork() {
         super(UUID.randomUUID());
     }
@@ -21,6 +34,7 @@ public class PowerBENetwork extends BENetwork {
     /**
      * Attempts to pull power from the network.
      *
+     * @param amount Amount of power to pull.
      * @param simulate If true, do not actually extract energy from providers
      *
      * @return Amount pulled from network
@@ -40,6 +54,8 @@ public class PowerBENetwork extends BENetwork {
     /**
      * Attempts to push power to {@link PowerNetworkObject}s on the network.
      *
+     * @param amount Amount of power to push.
+     * @param direct If true, push power directly to consumers. Otherwise, push power indirectly to consumers.
      * @param simulate If true, do not actually push energy to providers
      * @param forBatteries If true, only push power to batteries. Otherwise, only push power to non-batteries.
      *
@@ -62,6 +78,10 @@ public class PowerBENetwork extends BENetwork {
         return pushed;
     }
 
+    /**
+     * Adds a {@link BENetworkObject} to this {@link BENetwork}.
+     * @param networkObject The {@link BENetworkObject} to add.
+     */
     @Override
     public void add(BENetworkObject networkObject) {
         if(networkObject instanceof PowerNetworkObject)
@@ -70,6 +90,10 @@ public class PowerBENetwork extends BENetwork {
             Radiocraft.LOGGER.warn("Tried to add a non PowerNetworkObject to a PowerBENetwork.");
     }
 
+    /**
+     * Gets the {@link ResourceLocation} of this {@link BENetwork}.
+     * @return The {@link ResourceLocation} of this {@link BENetwork}.
+     */
     @Override
     public ResourceLocation getType() {
         return TYPE;

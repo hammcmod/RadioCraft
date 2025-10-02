@@ -10,15 +10,16 @@ import net.minecraft.world.entity.player.Player;
 public interface IAntennaWireHolderCapability {
 
 	/**
+     * Get the {@link BlockPos} containing the held {@link AntennaWire}.
+     * @param player The {@link Player} holding the {@link AntennaWire}
 	 * @return The {@link BlockPos} containing the held {@link AntennaWire}
 	 */
-	BlockPos getHeldPos();
+	BlockPos getHeldPos(Player player);
 
-	void setHeldPos(BlockPos pos);
-
-	/**
-	 * @return True if this player is holding a wire, otherwise false.
-	 */
-	boolean hasHeldWire();
-
+    /**
+     * Set the {@link BlockPos} containing the held {@link AntennaWire}.
+     * @param player The {@link Player} holding the {@link AntennaWire}
+     * @param pos The {@link BlockPos} containing the held {@link AntennaWire}
+     */
+	void setHeldPos(Player player, BlockPos pos);
 }

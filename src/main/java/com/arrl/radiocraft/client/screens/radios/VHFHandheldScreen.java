@@ -1,22 +1,24 @@
 package com.arrl.radiocraft.client.screens.radios;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
-import com.arrl.radiocraft.common.network.Serverbound.SHandheldRadioUpdatePacket;
+import com.arrl.radiocraft.common.network.serverbound.SHandheldRadioUpdatePacket;
+import com.arrl.radiocraft.common.radio.Band;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
+import net.minecraft.client.gui.navigation.ScreenAxis;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.NotNull;
 
 public class VHFHandheldScreen extends Screen {
@@ -33,10 +35,22 @@ public class VHFHandheldScreen extends Screen {
     protected ItemStack item;
     protected IVHFHandheldCapability cap;
 
+    protected static int FREQUENCY_ENTERING_TIMEOUT = 7000; //in millis
+
+    protected int enteredFrequency=0;
+    protected int curDigit=0;
+    protected long millisOfLastFrequency=0;
+
+    protected Dial micGainDial;
+    protected Dial gainDial;
+
+    protected MenuState menuState = MenuState.DEFAULT;
+
     LedIndicator TX_LED, RX_LED, DATA_LED;
 
     MeterNeedleIndicator POWER_METER;
 
+    @SuppressWarnings("this-escape")
     public VHFHandheldScreen(int index) {
         super(Component.translatable(Radiocraft.translationKey("screen", "vhf_handheld")));
         this.index = index;
@@ -73,14 +87,30 @@ public class VHFHandheldScreen extends Screen {
 
         addRenderableWidget(new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower)); // Power
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
-        addRenderableWidget(new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Mic gain
-        addRenderableWidget(new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::doNothing, this::doNothing)); // Gain
+        this.micGainDial = new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::onMicGainUp, this::onMicGainDown);
+        addRenderableWidget(this.micGainDial); // Mic gain
+        this.gainDial = new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::onGainUp, this::onGainDown);
+        addRenderableWidget(this.gainDial); // Gain
         addRenderableWidget(new HoverableImageButton(leftPos + 105, topPos + 168, 18, 14, 94, 84, 76, 84, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
         addRenderableWidget(new HoverableImageButton(leftPos + 125, topPos + 168, 18, 14, 94, 98, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
+        //number buttons
+        addRenderableWidget(new HoverableImageButton(leftPos + 54, topPos + 225, 20, 14, 172, 0, 152, 0, WIDGETS_TEXTURE, 256, 256, (b) -> this.onNum(0)));
+        for(int i=1; i<10; i++) {
+            final int num = i;
+            addRenderableWidget(new HoverableImageButton(leftPos + 29 + ((i-1)%3)*25, topPos + 168 + ((i-1)/3)*19, 20, 14, 172, i*14, 152, i*14, WIDGETS_TEXTURE, 256, 256, (b) -> this.onNum(num)));
+        }
+
+        addRenderableWidget(new HoverableImageButton(leftPos + 103, topPos + 225, 42, 14, 192, 112, 192, 42, WIDGETS_TEXTURE, 256, 256, this::onPressEnter));
+
         addRenderableWidget(TX_LED);
         addRenderableWidget(RX_LED);
         addRenderableWidget(DATA_LED);
         addRenderableWidget(POWER_METER);
+    }
+
+    protected enum MenuState{
+        DEFAULT,
+        SET_FREQ
     }
 
     @Override
@@ -91,6 +121,13 @@ public class VHFHandheldScreen extends Screen {
         updateCap();
 
         if(cap == null) return;
+
+        if(menuState == MenuState.SET_FREQ && System.currentTimeMillis() - millisOfLastFrequency > FREQUENCY_ENTERING_TIMEOUT) {
+            curDigit = 0;
+            enteredFrequency = 0;
+            millisOfLastFrequency = 0;
+            menuState = MenuState.DEFAULT;
+        }
 
         renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
@@ -121,14 +158,43 @@ public class VHFHandheldScreen extends Screen {
         }
 
         if (cap.isPowered()) {
-            pGuiGraphics.drawString(this.font, cap.getFrequencyKiloHertz() / 1000.0 + " MHz", leftPos + 80,  topPos + 126, 0xFFFFFF);
+            switch (menuState) {
+                case DEFAULT:
+                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyKiloHertz() / 1000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
+
+                    break;
+                case SET_FREQ:
+                    pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);
+                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", enteredFrequency / 1000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
+                    break;
+            }
+        }
+
+        if (micGainDial.isHoveredOrChanging()) {
+            String strValue = String.format("%d%%", Math.round(cap.getMicGain() * 100));
+            pGuiGraphics.drawString(
+                this.font,
+                strValue,
+                micGainDial.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) - this.font.width(strValue) / 2,
+                micGainDial.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) - this.font.lineHeight / 2,
+                0xFFFFFF
+            );
+        }
+
+        if (gainDial.isHoveredOrChanging()) {
+            String strValue = String.format("%d%%", Math.round(cap.getGain() * 100));
+            pGuiGraphics.drawString(
+                this.font,
+                strValue,
+                gainDial.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) - this.font.width(strValue) / 2,
+                gainDial.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) - this.font.lineHeight / 2,
+                0xFFFFFF
+            );
         }
 
         TX_LED.setIsOn(cap.isPowered() && cap.isPTTDown());
         RX_LED.setIsOn(cap.isPowered() && cap.getReceiveStrength() > 0);
         DATA_LED.setIsOn(false); // TBI
-
-        cap.getFrequencyKiloHertz();
 
         for (Renderable renderable : this.renderables) {
             renderable.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
@@ -169,6 +235,10 @@ public class VHFHandheldScreen extends Screen {
         RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
         RadiocraftClientValues.SCREEN_VOICE_ENABLED = false;
         RadiocraftClientValues.SCREEN_CW_ENABLED = false;
+        if(cap.isPTTDown()) {
+            cap.setPTTDown(false);
+            updateServer();
+        }
     }
 
     /**
@@ -176,22 +246,134 @@ public class VHFHandheldScreen extends Screen {
      */
     protected void doNothing(AbstractWidget button) {}
 
+    private final int[] powLookup= {
+            100_000,
+            10_000,
+            1_000,
+            100,
+            10,
+            1
+    };
+
+
+    /**
+     * callback for number buttons
+     * @param num - which digit was pressed
+     */
+    @SuppressWarnings("fallthrough")
+    protected void onNum(int num){
+        if(!cap.isPowered()) return;
+        switch (menuState) {
+            case DEFAULT:
+                menuState = MenuState.SET_FREQ;
+            case SET_FREQ:
+                if (curDigit >= 6) break;
+                millisOfLastFrequency = System.currentTimeMillis();
+                enteredFrequency += powLookup[curDigit++] * num;
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * Callback for pressing enter
+     */
+    private void onPressEnter(Button button) {
+        if(!cap.isPowered()) return;
+        if(menuState == MenuState.SET_FREQ) {
+            if(!cap.isPowered()) return;
+            if(enteredFrequency >= Band.getBand(2).minFrequency() && enteredFrequency <= Band.getBand(2).maxFrequency()) {
+                cap.setFrequencyKiloHertz(
+                        enteredFrequency
+                );
+            }
+            updateServer();
+            curDigit = 0;
+            enteredFrequency = 0;
+            millisOfLastFrequency = 0;
+            menuState = MenuState.DEFAULT;
+        }
+    }
+
     /**
      * Callback for frequency up buttons.
      */
     protected void onFrequencyButtonUp(Button button) {
-        if(cap.isPowered());
-            //RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, 1)); // Frequency is sync'd back from server as client doesn't know steps.
-        //TODO frequency stepping send to server
+        if(!cap.isPowered()) return;
+        cap.setFrequencyKiloHertz(
+                Math.min( //ServerConfig is synced on game join, so no further checking is necessary
+                        cap.getFrequencyKiloHertz() + RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
+                        Band.getBand(2).maxFrequency()
+                )
+        );
+        updateServer();
     }
 
     /**
      * Callback for frequency down buttons.
      */
     protected void onFrequencyButtonDown(Button button) {
-        if(cap.isPowered());
-            //RadiocraftPackets.sendToServer(new SHandheldFrequencyPacket(index, -1)); // Frequency is sync'd back from server as client doesn't know steps.
-        //TODO frequency stepping send to server
+        if(!cap.isPowered()) return;
+        cap.setFrequencyKiloHertz(
+                Math.max(  //ServerConfig is synced on game join, so no further checking is necessary
+                        cap.getFrequencyKiloHertz() - RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
+                        Band.getBand(2).minFrequency()
+                )
+        );
+        updateServer();
+    }
+    
+    /**
+     * Callback for gain dial up.
+     */
+    protected void onGainUp(Dial dial) {
+        cap.setGain(
+                Math.min(
+                        cap.getGain() + 0.1f,
+                        RadiocraftServerConfig.HANDHELD_MAX_GAIN.get().floatValue()
+                )
+        );
+        updateServer();
+    }
+
+    /**
+     * Callback for gain dial down.
+     */
+    protected void onGainDown(Dial dial) {
+        cap.setGain(
+                Math.max(
+                        cap.getGain() - 0.1f,
+                        0.0f
+                )
+        );
+        updateServer();
+    }
+        
+    /**
+     * Callback for mic gain dial up.
+     */
+    protected void onMicGainUp(Dial dial) {
+        cap.setMicGain(
+                Math.min(
+                        cap.getMicGain() + 0.1f,
+                        RadiocraftServerConfig.HANDHELD_MAX_MIC_GAIN.get().floatValue()
+                )
+        );
+        updateServer();
+    }
+
+    /**
+     * Callback for gain dial down.
+     */
+    protected void onMicGainDown(Dial dial) {
+        cap.setMicGain(
+                Math.max(
+                        cap.getMicGain() - 0.1f,
+                        0.0f
+                )
+        );
+        updateServer();
     }
 
     /**
@@ -224,7 +406,7 @@ public class VHFHandheldScreen extends Screen {
     }
 
     protected void updateServer(){
-        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(index, cap.isPowered(), cap.isPTTDown(), cap.getFrequencyKiloHertz())); //TODO frequency stepping is server side, change to indicate increments
+        SHandheldRadioUpdatePacket.updateServer(index, cap);
     }
 
     @Override

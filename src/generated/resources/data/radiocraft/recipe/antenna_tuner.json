@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "B": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "E": {
+      "item": "minecraft:emerald"
+    },
+    "L": {
+      "item": "minecraft:lightning_rod"
+    }
+  },
+  "pattern": [
+    "###",
+    "#L#",
+    "BEC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:antenna_tuner"
+  }
+}

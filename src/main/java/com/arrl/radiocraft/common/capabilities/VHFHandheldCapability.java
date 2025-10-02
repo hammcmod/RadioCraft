@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.capabilities;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.common.datacomponents.HandheldRadioState;
 import com.arrl.radiocraft.common.init.RadiocraftDataComponent;
+import com.arrl.radiocraft.common.radio.Band;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.function.UnaryOperator;
@@ -42,7 +43,22 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setFrequencyKiloHertz(int frequencyKiloHertz) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), frequencyKiloHertz, old.receiveIndicatorStrength()));
+		updateState(
+			(old) -> new HandheldRadioState(
+				old.power(),
+				old.ptt(),
+				Math.max(
+						Math.min(
+								frequencyKiloHertz,
+								Band.getBand(2).maxFrequency()
+						),
+						Band.getBand(2).minFrequency()
+				),
+				old.gain(),
+				old.micGain(),
+				old.receiveIndicatorStrength()
+			)
+		);
 	}
 
 	@Override
@@ -52,7 +68,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPowered(boolean value) {
-		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.receiveIndicatorStrength()));
+		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength()));
 	}
 
 	@Override
@@ -62,17 +78,37 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPTTDown(boolean value) {
-		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.receiveIndicatorStrength()));
+		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength()));
 	}
 
 	@Override
 	public void setReceiveStrength(float rec) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), rec));
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), old.micGain(), rec));
 	}
 
 	@Override
 	public float getReceiveStrength() {
 		return getState().receiveIndicatorStrength();
+	}
+
+	@Override
+	public float getGain() {
+		return getState().gain();
+	}
+
+	@Override
+	public void setGain(float gain) {
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), gain, old.micGain(), old.receiveIndicatorStrength()));
+	}
+
+	@Override
+	public float getMicGain() {
+		return getState().micGain();
+	}
+
+	@Override
+	public void setMicGain(float micGain) {
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), micGain, old.receiveIndicatorStrength()));
 	}
 
 	protected HandheldRadioState getState(){

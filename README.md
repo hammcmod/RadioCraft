@@ -1,6 +1,8 @@
 # Radio Craft (Amateur Radio Mod for Minecraft)
 Minecraft Mod that brings functioning Ham Radios into the game - Funded by the ARRL
 
+### [Click here for setup instructions](https://github.com/hammcmod/RadioCraft/wiki/Setting-up-Radiocraft)
+
 Join our Discord here: https://discord.gg/tZFWE2jYQX
 
 View details about the project: https://radiocraft.w1btr.com

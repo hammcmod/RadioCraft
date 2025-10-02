@@ -12,8 +12,7 @@ public class RadiocraftCommands {
 
 	@SubscribeEvent
 	public static void onRegisterCommands(RegisterCommandsEvent event) {
-		//event.getDispatcher().register(CallsignCommands.BUILDER);
+		event.getDispatcher().register(CallsignCommands.BUILDER);
 		event.getDispatcher().register(SolarWeatherCommands.BUILDER);
 	}
-
 }

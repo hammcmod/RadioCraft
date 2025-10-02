@@ -7,15 +7,13 @@ import com.arrl.radiocraft.client.screens.*;
 import com.arrl.radiocraft.client.screens.radios.*;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
-import net.minecraft.client.gui.screens.MenuScreens;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 
-@EventBusSubscriber(modid= Radiocraft.MOD_ID, bus= EventBusSubscriber.Bus.MOD, value= Dist.CLIENT)
+@EventBusSubscriber(modid= Radiocraft.MOD_ID, value= Dist.CLIENT)
 public class ClientSetupEvents {
 
 	@SubscribeEvent

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "D": {
+      "item": "minecraft:diamond"
+    },
+    "M": {
+      "item": "radiocraft:microphone"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
+    }
+  },
+  "pattern": [
+    "   ",
+    "#MS",
+    "##D"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:digital_interface"
+  }
+}

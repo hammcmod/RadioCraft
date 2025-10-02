@@ -15,6 +15,7 @@ public class SolarPanelMenu extends AbstractContainerMenu {
 	private final ContainerLevelAccess canInteractWithCallable;
 	private final DataSlot data;
 
+    @SuppressWarnings("this-escape")
 	public SolarPanelMenu(final int id, final SolarPanelBlockEntity blockEntity, DataSlot data) {
 		super(RadiocraftMenuTypes.SOLAR_PANEL.get(), id);
 		this.blockEntity = blockEntity;

@@ -19,6 +19,7 @@ public class ChargeControllerMenu extends AbstractContainerMenu {
 	private final ContainerLevelAccess canInteractWithCallable;
 	private final ContainerData data;
 
+    @SuppressWarnings("this-escape")
 	public ChargeControllerMenu(int id, Inventory playerInventory, @NotNull ChargeControllerBlockEntity be, ContainerData data) {
 		super(RadiocraftMenuTypes.CHARGE_CONTROLLER.get(), id);
 		this.blockEntity = be;

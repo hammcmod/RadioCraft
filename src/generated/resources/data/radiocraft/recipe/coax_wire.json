@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "C": {
+      "item": "radiocraft:coaxial_core"
+    },
+    "K": {
+      "item": "minecraft:dried_kelp"
+    }
+  },
+  "pattern": [
+    "KKK",
+    "###",
+    "CCC"
+  ],
+  "result": {
+    "count": 3,
+    "id": "radiocraft:coax_wire"
+  }
+}

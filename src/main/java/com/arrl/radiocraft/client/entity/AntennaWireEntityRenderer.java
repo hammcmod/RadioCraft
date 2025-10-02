@@ -3,7 +3,6 @@ package com.arrl.radiocraft.client.entity;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -20,7 +19,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix4f;
 
 /**
-    @author MoreThanHidden
     This class is used to render the AntennaWire
     @see net.minecraft.client.renderer.entity.LeashKnotRenderer
     @see net.minecraft.client.renderer.entity.MobRenderer (renderLeash)
@@ -90,7 +88,7 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         float yDiff = (float)(fromPos.y - toPos.y);
         float zDiff = (float)(fromPos.z - toPos.z);
 
-        float offsetMod = (float) (Mth.fastInvSqrt(xDiff * xDiff + zDiff * zDiff) * 0.025F / 2.0F);
+        float offsetMod = Mth.invSqrt(xDiff * xDiff + zDiff * zDiff) * 0.025F / 2.0F;
         float xOffset = zDiff * offsetMod;
         float zOffset = xDiff * offsetMod;
 
@@ -107,7 +105,7 @@ public class AntennaWireEntityRenderer extends EntityRenderer<AntennaWire> {
         int stepCount = fromEntity instanceof Player ? 24 : (int)Math.round(new Vec3(xDiff, yDiff, zDiff).length()) * 3;
 
         poseStack.pushPose();
-        poseStack.translate(xAngleOffset, leashOffset.y, zAngleOffset);; // Move poseStack to start of the wire
+        poseStack.translate(xAngleOffset, leashOffset.y, zAngleOffset); // Move poseStack to start of the wire
 
         for(int i = 0; i <= stepCount; ++i) // Add top vert pairs
             addVertexPair(consumer, posMatrix, xDiff, yDiff, zDiff, toBlockLight, fromBlockLight, toSkyLight, fromSkyLight, 0.025F, 0.025F, xOffset, zOffset, i, false, stepCount);

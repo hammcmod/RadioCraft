@@ -9,11 +9,20 @@ issueTrackerURL="https://github.com/hammcmod/RadioCraft/issues" #optional
     version="${version}" #mandatory
     displayName="RadioCraft" #mandatory
     #updateJSONURL="https://change.me.example.invalid/updates.json" #optional
-    #displayURL="https://change.me.to.your.mods.homepage.example.invalid/" #optional
+    displayURL="https://radiocraft.w1btr.com/" #optional
     logoFile="logo.png" #optional
     credits="Funded by the AARL" #optional
     authors="The RadioCraft Developers" #optional
-    description='''RadioCraft'''
+    description='''Radiocraft is a Minecraft mod that adds ham radio (also known as Amateur Radio) into Minecraft Java edition.
+
+* Adds realistic, immersive communication
+*Survival-friendly, challenging, and satisfying functionality
+* Educational and accurate (albeit simplified) representations of the real ham radio hobby!
+
+What is Ham Radio?
+
+Ham radio is a hobby and service that involves using the radio frequency spectrum for various purposes, such as communication, experimentation, education, and emergency assistance. Ham radio operators, also known as amateur radio operators or hams, need to obtain a license from their government to operate on certain frequency bands and follow certain rules. Ham radio allows hams to talk to other hams across the world, or even into space, using different modes of transmission, such as voice, text, image, and data. Ham radio is also a way to meet new people, learn new skills, and have fun!
+'''
 
 [[mixins]]
     config="radiocraft.mixins.json"

@@ -14,18 +14,16 @@ import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
-import de.maxhenkel.voicechat.api.Position;
 import de.maxhenkel.voicechat.api.ServerLevel;
-import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 
 import java.lang.ref.WeakReference;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -33,25 +31,25 @@ import java.util.concurrent.atomic.AtomicReference;
  */
 public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna {
 
-    private LocationalAudioChannel receiveChannel = null;
+    private EntityAudioChannel receiveChannel = null;
     private WeakReference<Player> playerRef = null; // Use a weak ref here, so it isn't able to permanently load the entity.
     private volatile AntennaNetwork network = null;
-    private Level voiceChannelCurrentLevel; //keeps track of the current level, used only to reset LocationalAudioChannel receiveChannel when the player changes dimension
 
-    private volatile boolean canReceive;
-    private volatile boolean canTransmit;
+    private volatile List<SynchronousRadioState> radios = Collections.emptyList();
     //fun fact, all updates to volatile references are atomic inherently! AtomicReference is used here for readability
     //and to ensure programmers understand they don't need to synchronize on PlayerRadio to access this
     private final AtomicReference<IAntenna.AntennaPos> antennaPos = new AtomicReference<>();
-    private volatile int frequency;
     //position and level for voiceChannel;
     private volatile Vec3 voicePosition;
     private volatile Level voiceLevel;
 
-    //used for calculating average amplitude for power meter
-    private volatile long runningSampleSum=0; //stores the sum of the square of every sample since last tick
-    private volatile long runningSampleCount=0; //number of samples since last tick
+    private boolean isUseHeld;
 
+    public void setUseHeld(boolean useHeld) {
+        this.isUseHeld = useHeld;
+    }
+
+    @SuppressWarnings("this-escape")
     public PlayerRadio(Player player) {
         setPlayer(player);
     }
@@ -79,19 +77,78 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         }
     }
 
+    protected enum HandheldLocation{
+        HELD,
+        HOT_BAR,
+        BACKPACK
+    }
+
     /**
-     * Attempt to find a valid VHF handheld on the given player.
-     * @param player The player to be checked.
-     * @return A {@link IVHFHandheldCapability} of the found radio, or empty if none
-     * were found.
+     * Ephemeral state for each handheld for each tick.
+     * Each tick each radio gets a new SynchronousRadioState instance
+     * that only lives until the next tick
      */
-    protected static IVHFHandheldCapability getHandheldCapOrNull(Player player) {
-        if (player.getMainHandItem().getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
-            return RadiocraftCapabilities.VHF_HANDHELDS.getCapability(player.getMainHandItem(), null);
-        } else if (player.getOffhandItem().getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
-            return RadiocraftCapabilities.VHF_HANDHELDS.getCapability(player.getOffhandItem(), null);
+    protected static class SynchronousRadioState{
+
+        final ItemStack item;
+
+        final HandheldLocation itemLocation;
+
+        final boolean canReceive;
+        final boolean canTransmit;
+
+        final int frequency;
+
+        final float gain;
+        final float micGain;
+
+        //used for calculating average amplitude for power meter
+        volatile long runningSampleSum=0; //stores the sum of the square of every sample since last tick
+        volatile long runningSampleCount=0; //number of samples since last tick
+
+        public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, int frequency, HandheldLocation itemLocation, float gain, float micGain){
+            this.item = item;
+            this.canReceive = canReceive;
+            this.canTransmit = canTransmit;
+            this.frequency = frequency;
+            this.itemLocation = itemLocation;
+            this.gain = gain;
+            this.micGain = micGain;
         }
-        return null;
+
+        public SynchronousRadioState(ItemStack item, IVHFHandheldCapability cap, HandheldLocation itemLocation) {
+            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), cap.getFrequencyKiloHertz(), itemLocation, cap.getGain(), cap.getMicGain());
+        }
+    }
+
+    protected List<SynchronousRadioState> genHandheldStates(Player player) {
+
+        Inventory playerInventory = player.getInventory();
+        LinkedList<SynchronousRadioState> out = new LinkedList<>();
+
+        //Add offhand first, so it goes before other radios on the hot bar, but after the held item
+        ItemStack offhand = player.getOffhandItem();
+        if (offhand.getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
+            IVHFHandheldCapability cap = offhand.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
+            if(cap != null) out.add(new SynchronousRadioState(offhand, cap, HandheldLocation.HELD));
+        }
+
+        for(int i=0; i<playerInventory.getContainerSize(); i++) {
+            ItemStack itemStack = player.getInventory().getItem(i);
+            if(itemStack.getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
+                IVHFHandheldCapability cap = itemStack.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
+                if(cap != null) {
+                    //if the current radio is the held item, put it before the offhand and other radios
+                    //otherwise add the radio to the end of the list, so the order is held, then offhand, then all others
+                    if (i == playerInventory.selected) {
+                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyKiloHertz(), HandheldLocation.HELD, cap.getGain(), cap.getMicGain()));
+                    } else {
+                        out.addLast(new SynchronousRadioState(itemStack, cap, Inventory.isHotbarSlot(i) ? HandheldLocation.HOT_BAR : HandheldLocation.BACKPACK));
+                    }
+                }
+            }
+        }
+        return out;
     }
 
     @Override
@@ -114,9 +171,10 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         // Handheld doesn't have CW capability.
     }
 
-    @Override
-    public boolean isReceiving() {
-        return this.canReceive;
+    @Override //TODO get rid of this
+    public synchronized boolean isReceiving() {
+        for(SynchronousRadioState state : radios) if(state.canReceive) return true;
+        return false;
     }
 
     @Override
@@ -164,17 +222,20 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         }
     }
 
-    @Override
-    public boolean canTransmitVoice() {
-        return this.canTransmit;
+    @Override //TODO get rid of this
+    public synchronized boolean canTransmitVoice() {
+        for(SynchronousRadioState state : radios) if(state.canTransmit) return true;
+        return false;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean openChannel() {
         if(RadiocraftVoicePlugin.API == null)
             Radiocraft.LOGGER.error("VoiceChatServerApi is null, cannot open channel.");
-//        receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromEntity(getPlayer()));
-        voiceChannelCurrentLevel = this.voiceLevel;
-        receiveChannel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), RadiocraftVoicePlugin.API.fromServerLevel(voiceChannelCurrentLevel), getPosInVoiceApiFormat());
+
+        // You are supposed to use a _random_ uuid when making any audio channel, but there's a bug
+        // where entity audio channels need to use the UUID of the entity they are attached to instead
+        receiveChannel = RadiocraftVoicePlugin.API.createEntityAudioChannel(getPlayer().getUUID(), RadiocraftVoicePlugin.API.fromEntity(getPlayer()));
         if(receiveChannel == null) return false;
         receiveChannel.setDistance(16f);
 //        receiveChannel.setCategory(RadiocraftVoicePlugin.handheldRadiosVolumeCategory.getId()); //TODO not currently working
@@ -182,68 +243,74 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         return true;
     }
 
-    private Position getPosInVoiceApiFormat() {
-        Vec3 p = getPos();
-        return RadiocraftVoicePlugin.API.createPosition(p.x, p.y, p.z);
-    }
-
     @Override
     public void acceptVoicePacket(ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
-//        IVHFHandheldCapability cap = getHandheldCapOrNull(getPlayer());
-//        if(cap != null)
-
-        int freq;
+        LinkedList<SynchronousRadioState> currentlyTransmitting = new LinkedList<>();
         synchronized (this){
-            if(!this.canTransmitVoice()) return;
-            freq = this.frequency;
+            for(SynchronousRadioState radio : radios) if(radio.canTransmit) currentlyTransmitting.add(radio);
         }
-        transmitAudioPacket(level, rawAudio, 2, freq, sourcePlayer);
+        for(SynchronousRadioState radio : currentlyTransmitting) {    
+            short[] audio = rawAudio.clone();
+            for (int i = 0; i < audio.length; i++) {
+                audio[i] = (short)Math.round(audio[i] * radio.micGain);
+            }
+            transmitAudioPacket(level, audio, 2, radio.frequency, sourcePlayer);
+        }
     }
 
     @Override
     public void receiveAudioPacket(AntennaVoicePacket packet) {
-        if (this.isReceiving() && canReceiveVoice()) {
+        if (this.isReceiving()) {
             receive(packet);
         }
-    }
-
-    //TODO reconsider where canTransmit and canRecieve should be called from
-    private boolean canReceiveVoice() {
-        return this.canReceive;
     }
 
     @Override
     public synchronized void receive(AntennaVoicePacket antennaPacket) {
         if(this.isReceiving()) {
-//            System.err.println("Receiving audio length " + antennaPacket.getRawAudio().length + " strength " + antennaPacket.getStrength() + " player " + player.getName() + " " + player.getUUID() + " eye position of player" + player.getEyePosition() + " from " + antennaPacket.getSourcePlayer());
 
-            //if entityChannel can be gotten working again, this is where you check to make sure it's still bound to the player
-//            if(receiveChannel.getEntity().getEntity() != player){
-//                System.err.println("receivechannel entity didn't equal this player? entity: " + receiveChannel.getEntity().getEntity() + " player " + player);
-//                receiveChannel.updateEntity(RadiocraftVoicePlugin.API.fromEntity(player));
-//            }
+            Player player = getPlayer();
 
-
-            if (voiceChannelCurrentLevel != this.voiceLevel) {
-                if (receiveChannel != null) receiveChannel.flush();
-                receiveChannel = null;
+            if(receiveChannel == null)
                 if (!openChannel()) return;
-            }else if(receiveChannel == null) {
-                if (!openChannel()) return;
-            } else {
-                receiveChannel.updateLocation(getPosInVoiceApiFormat());
+
+            if(receiveChannel.getEntity().getEntity() != player){
+                receiveChannel.flush();
+                receiveChannel.updateEntity(RadiocraftVoicePlugin.API.fromEntity(player));
             }
+
+            int packetFrequency = antennaPacket.getFrequency();
+            double packetStrength = antennaPacket.getStrength();
+
+            //TODO make muffled sounding when not on hotbar (via low pass or the like, not just volume reduction)
+            boolean isHeld = false;
+            boolean shouldRecieve = false;
+            float gain = 1.0f;
+            for(SynchronousRadioState state : this.radios) {
+                if (state.canReceive && state.frequency == packetFrequency) {
+                    shouldRecieve = true;
+                    if(state.itemLocation == HandheldLocation.HELD) {
+                        isHeld = true;
+                    }
+                }
+                gain = state.gain;
+            }
+
+            if(!shouldRecieve) return;
 
             long runningTotal = 0;
             short[] rawAudio = antennaPacket.getRawAudio();
             for(int i = 0; i < rawAudio.length; i++) {
-                short sample = (short) Math.round(rawAudio[i] * antennaPacket.getStrength()); // Apply appropriate gain for signal strength
+                short sample = (short) Math.round(rawAudio[i] * packetStrength * (isHeld ? 1f : 0.5f) * gain); // Apply appropriate gain for signal strength
                 runningTotal = sample * sample;
                 rawAudio[i] = sample;
             }
 
-            runningSampleCount += rawAudio.length;
-            runningSampleSum+=runningTotal;
+            //TODO rework receiving to be per handheld, when frequency support is added
+            for(SynchronousRadioState state : this.radios) if(state.canReceive && state.frequency == packetFrequency) {
+                state.runningSampleCount += rawAudio.length;
+                state.runningSampleSum += runningTotal;
+            }
 
             byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
             receiveChannel.send(opusAudio);
@@ -257,28 +324,31 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         this.network = network;
     }
 
-    public synchronized void tick() {
+    public void tick() {
         Player player = getPlayer();
-        IVHFHandheldCapability cap = player != null ? getHandheldCapOrNull(player) : null;
+        List<SynchronousRadioState> radios = player == null ? Collections.emptyList() : genHandheldStates(player);
+        List<SynchronousRadioState> lastTickRadios;
 
-        if(cap == null) {
-            this.canReceive = false;
-            this.canTransmit = false;
-            this.voicePosition = null;
-            this.voiceLevel = null;
-            this.antennaPos.set(null);
-        } else {
-            this.canTransmit = cap.isPowered() && cap.isPTTDown();
-            this.canReceive = cap.isPowered();
-            this.frequency = cap.getFrequencyKiloHertz();
-            this.voicePosition = player.getEyePosition();
-            this.voiceLevel = player.level();
-            this.antennaPos.set(new AntennaPos(player.blockPosition(), player.level()));
+        synchronized (this) {
+            lastTickRadios = this.radios;
+            this.radios = radios;
 
-            cap.setReceiveStrength(runningSampleCount == 0 ? 0f : (float)Math.sqrt((double) runningSampleSum / runningSampleCount));
+            if (radios.isEmpty()) {
+                this.voicePosition = null;
+                this.voiceLevel = null;
+                this.antennaPos.set(null);
+            } else {
+                this.voicePosition = player.getEyePosition();
+                this.voiceLevel = player.level();
+                this.antennaPos.set(new AntennaPos(player.blockPosition(), player.level()));
+            }
         }
 
-        runningSampleSum = 0;
-        runningSampleCount = 0;
+        for(SynchronousRadioState state : lastTickRadios) if(state.item != null){
+            IVHFHandheldCapability cap = state.item.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
+            if(cap != null) {
+                cap.setReceiveStrength(state.runningSampleCount == 0 ? 0f : (float)Math.sqrt((double) state.runningSampleSum / state.runningSampleCount));
+            }
+        }
     }
 }

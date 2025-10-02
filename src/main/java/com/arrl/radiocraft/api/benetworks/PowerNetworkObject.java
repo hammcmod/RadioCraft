@@ -13,32 +13,59 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
  */
 public abstract class PowerNetworkObject extends BENetworkObject {
 
+    /**
+     * The {@link IEnergyStorage} for this {@link PowerNetworkObject}.
+     */
     protected BasicEnergyStorage energyStorage;
 
+    /**
+     * Creates a new {@link PowerNetworkObject}.
+     * @param level The {@link Level} this object is in.
+     * @param pos The {@link BlockPos} of this object.
+     * @param capacity The maximum amount of energy this object can hold.
+     * @param maxReceive The maximum amount of energy this object can receive.
+     * @param maxExtract The maximum amount of energy this object can extract.
+     */
     public PowerNetworkObject(Level level, BlockPos pos, int capacity, int maxReceive, int maxExtract) {
         super(level, pos);
         this.energyStorage = new BasicEnergyStorage(capacity, maxReceive, maxExtract);
     }
 
+    /**
+     * Gets the {@link IEnergyStorage} for this {@link PowerNetworkObject}.
+     * @return The {@link IEnergyStorage} for this {@link PowerNetworkObject}.
+     */
     public BasicEnergyStorage getStorage() {
         return energyStorage;
     }
 
     /**
+     * Is this {@link PowerNetworkObject} an indirect consumer?
      * @return True if this {@link PowerNetworkObject} can receive energy from a non-direct provider (battery, charge
      * controller)
      */
     public abstract boolean isIndirectConsumer();
 
     /**
+     * Is this {@link PowerNetworkObject} a direct consumer?
      * @return True if this {@link PowerNetworkObject} can receive energy from a direct provider (solar panel)
      */
     public abstract boolean isDirectConsumer();
 
+    /**
+     * Tries to consume energy.
+     * @param amount The amount of energy to consume.
+     * @param simulate Whether to simulate the consumption.
+     * @return True if the energy was consumed.
+     */
     protected boolean tryConsumeEnergy(int amount, boolean simulate) {
         return energyStorage.extractEnergy(amount, simulate) == amount;
     }
 
+    /**
+     * Saves the NBT.
+     * @param nbt The {@link CompoundTag} to save to.
+     */
     @Override
     public void save(CompoundTag nbt) {
         super.save(nbt);
@@ -46,6 +73,11 @@ public abstract class PowerNetworkObject extends BENetworkObject {
             energyStorage.saveAdditional(nbt);
     }
 
+    /**
+     * Loads the NBT
+     * @param cap The {@link IBENetworks} capability to use.
+     * @param nbt The {@link CompoundTag} to load from.
+     */
     @Override
     public void load(IBENetworks cap, CompoundTag nbt) {
         super.load(cap, nbt);
@@ -56,5 +88,4 @@ public abstract class PowerNetworkObject extends BENetworkObject {
                 nbt.getInt("energy")
         );
     }
-
 }

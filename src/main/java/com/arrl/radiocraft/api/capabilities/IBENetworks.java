@@ -65,6 +65,7 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
 
     /**
      * Tick all {@link BENetworkObject}s.
+     * @param level The {@link Level} to tick.
      */
     void tickNetworkObjects(Level level);
 
@@ -143,11 +144,21 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
             cap.removeNetwork(network);
     }
 
-
+    /**
+     * Grab a {@link IBENetworks} capability from a given {@link Level}.
+     * @param level The {@link Level} to grab the capability from.
+     * @return The {@link IBENetworks} capability at the given position.
+     */
     static IBENetworks get(@NotNull Level level) {
         return null;// level.getCapability(RadiocraftCapabilities.BE_NETWORKS).orElse(null);
     }
 
+    /**
+     * Grab a {@link IBENetworks} capability from a given {@link Level} and {@link BlockPos}.
+     * @param level The {@link Level} to grab the capability from.
+     * @param pos The {@link BlockPos} to grab the capability from.
+     * @return The {@link IBENetworks} capability at the given position.
+     */
     static IBENetworks get(@NotNull Level level, @NotNull BlockPos pos) {
         return RadiocraftCapabilities.BE_NETWORKS.getCapability(level, pos, null, null, null);
     }

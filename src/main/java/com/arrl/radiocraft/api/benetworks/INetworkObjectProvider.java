@@ -39,6 +39,12 @@ public interface INetworkObjectProvider {
         return null;
     }
 
+    /**
+     * Initialize a new {@link BENetworkObject} for this {@link INetworkObjectProvider}.
+     * @param cap The {@link IBENetworks} capability to use.
+     * @param pos The {@link BlockPos} of this {@link INetworkObjectProvider}.
+     * @return The newly created {@link BENetworkObject}.
+     */
     default BENetworkObject initNetworkObject(IBENetworks cap, BlockPos pos) {
         BENetworkObject networkObject = createNetworkObject();
         cap.setObject(pos, networkObject);

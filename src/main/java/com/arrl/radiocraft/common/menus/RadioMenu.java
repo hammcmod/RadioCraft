@@ -17,6 +17,7 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
 
 	private final ContainerData data;
 
+    @SuppressWarnings("this-escape")
 	public RadioMenu(MenuType<?> type, int id, T blockEntity, Block validBlock) {
 		super(type, id);
 		this.blockEntity = blockEntity;

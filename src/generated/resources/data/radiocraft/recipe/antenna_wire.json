@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "K": {
+      "item": "minecraft:dried_kelp"
+    }
+  },
+  "pattern": [
+    "K# ",
+    "K# ",
+    "K# "
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:antenna_wire"
+  }
+}

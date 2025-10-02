@@ -4,11 +4,9 @@ import com.arrl.radiocraft.Radiocraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-import java.util.ArrayList;
 import java.util.function.Supplier;
 
 /**
@@ -18,17 +16,13 @@ public class RadiocraftTabs {
 
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(BuiltInRegistries.CREATIVE_MODE_TAB, Radiocraft.MOD_ID);
 
-
     public static CreativeModeTab TAB = CreativeModeTab.builder().icon(() -> new ItemStack(RadiocraftItems.HF_RADIO_10M.get())).title(Component.translatable(Radiocraft.translationKey("tabs", "main_tab"))).displayItems((itemDisplayParameters, output) -> {
 
         // In the development environment, we load everything.
         // In the release version, we only enabled working items/blocks. So put all stuff not ready for release here.
         if (Radiocraft.IS_DEVELOPMENT_ENV) {
-            output.accept(RadiocraftItems.HAND_MICROPHONE.get());
-            output.accept(RadiocraftItems.HF_CIRCUIT_BOARD.get());
+            output.accept(RadiocraftItems.MICROPHONE.get());
             output.accept(RadiocraftItems.SMALL_BATTERY.get());
-            output.accept(RadiocraftItems.FERRITE_CORE.get());
-            output.accept(RadiocraftItems.COAXIAL_CORE.get());
             output.accept(RadiocraftItems.ANTENNA_ANALYZER.get());
             output.accept(RadiocraftItems.WATERPROOF_WIRE.get());
             output.accept(RadiocraftItems.SOLAR_PANEL.get());
@@ -62,10 +56,15 @@ public class RadiocraftTabs {
 
         // Anything below here should be in the release creative menu
 
+        // General crafting-only ingredients (Not used yet, but they are "finished")
+        output.accept(RadiocraftItems.HF_CIRCUIT_BOARD.get());
+        output.accept(RadiocraftItems.FERRITE_CORE.get());
+        output.accept(RadiocraftItems.COAXIAL_CORE.get());
+
         // Crafting ingredients for VHF Handheld (the only actual working radio right now)
         output.accept(RadiocraftItems.RADIO_CRYSTAL.get());
         output.accept(RadiocraftItems.RADIO_SPEAKER.get());
-        output.accept(RadiocraftItems.MICROPHONE.get());
+        output.accept(RadiocraftItems.HAND_MICROPHONE.get());
         output.accept(RadiocraftItems.WIRE.get());
 
         output.accept(RadiocraftItems.VHF_HANDHELD.get());

@@ -9,8 +9,6 @@ import net.minecraft.world.level.Level;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities.ANTENNA_NETWORKS;
-
 /**
  * Helper class for grabbing antenna networks from a level, as well as creating
  * new ones if they are not present.

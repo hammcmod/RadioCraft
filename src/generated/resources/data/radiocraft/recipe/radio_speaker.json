@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "A": {
+      "item": "minecraft:note_block"
+    },
+    "P": {
+      "tag": "minecraft:planks"
+    }
+  },
+  "pattern": [
+    "   ",
+    "PAP",
+    "P#P"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:radio_speaker"
+  }
+}

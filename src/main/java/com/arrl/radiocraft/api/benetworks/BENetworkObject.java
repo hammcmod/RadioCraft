@@ -19,26 +19,63 @@ import java.util.Map.Entry;
  */
 public class BENetworkObject {
 
+    /**
+     * The default type of a {@link BENetworkObject}.
+     */
     public static final ResourceLocation DEFAULT_TYPE = Radiocraft.id("default");
+    /**
+     * The networks this {@link BENetworkObject} is in.
+     */
     protected final Map<Direction, BENetwork> networks = new HashMap<>();
+    /**
+     * The {@link Level} this {@link BENetworkObject} is in.
+     */
     protected final Level level;
+    /**
+     * The position of this {@link BENetworkObject}.
+     */
     protected final BlockPos pos;
 
+    /**
+     * Creates a new {@link BENetworkObject}.
+     * @param level The {@link Level} this object is in.
+     * @param pos The {@link BlockPos} of this object.
+     */
     public BENetworkObject(Level level, BlockPos pos) {
         this.level = level;
         this.pos = pos;
     }
 
+    /**
+     * Called every tick.
+     * @param level The {@link Level} this object is in.
+     * @param pos The {@link BlockPos} of this object.
+     */
     public void tick(Level level, BlockPos pos) {}
 
+    /**
+     * Gets the network this {@link BENetworkObject} is in.
+     * @param side The {@link Direction} of the network.
+     * @return The network this {@link BENetworkObject} is in.
+     */
     public BENetwork getNetwork(@NotNull Direction side) {
         return networks.get(side);
     }
 
+    /**
+     * Sets a network for this {@link BENetworkObject}.
+     * @param side The {@link Direction} of the network.
+     * @param network The {@link BENetwork} to set.
+     */
     public void setNetwork(@NotNull Direction side, BENetwork network) {
         networks.put(side, network);
     }
 
+    /**
+     * Replaces a network with another network.
+     * @param original The network to replace.
+     * @param newNetwork The new network.
+     */
     public void replaceNetwork(BENetwork original, BENetwork newNetwork) {
         for(Direction dir : networks.keySet()) {
             if(networks.get(dir) == original) {
@@ -48,20 +85,35 @@ public class BENetworkObject {
         }
     }
 
+    /**
+     * Clears all networks this {@link BENetworkObject} is in.
+     */
     public void clearNetworks() {
         for(BENetwork network : networks.values())
             network.remove(this, true);
         networks.clear();
     }
 
+    /**
+     * Gets the type of this {@link BENetworkObject}.
+     * @return The type of this {@link BENetworkObject}.
+     */
     public ResourceLocation getType() {
         return DEFAULT_TYPE;
     }
 
+    /**
+     * Gets the position of this {@link BENetworkObject}.
+     * @return The position of this {@link BENetworkObject}.
+     */
     public BlockPos getPos() {
         return pos;
     }
 
+    /**
+     * Gets the {@link Level} this {@link BENetworkObject} is in.
+     * @return The {@link Level} this {@link BENetworkObject} is in.
+     */
     public Level getLevel() {
         return level;
     }
@@ -96,6 +148,10 @@ public class BENetworkObject {
      */
     public void onNetworkRemove(BENetwork network) {}
 
+    /**
+     * Saves the NBT.
+     * @param nbt The {@link CompoundTag} to save to.
+     */
     public void save(CompoundTag nbt) {
         CompoundTag networksTag = new CompoundTag();
         for(Entry<Direction, BENetwork> entry : networks.entrySet())
@@ -103,6 +159,11 @@ public class BENetworkObject {
         nbt.put("networks", networksTag);
     }
 
+    /**
+     * Loads the NBT
+     * @param cap The {@link IBENetworks} capability to use.
+     * @param nbt The {@link CompoundTag} to load from.
+     */
     public void load(IBENetworks cap, CompoundTag nbt) {
         CompoundTag networksTag = nbt.getCompound("networks");
         for(String key : networksTag.getAllKeys()) {

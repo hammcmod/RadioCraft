@@ -11,7 +11,6 @@ import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -41,8 +40,12 @@ public class AntennaBlockEntity extends BlockEntity implements INetworkObjectPro
 	 */
 	private void updateAntenna() {
 		IAntenna a = AntennaTypes.match(level, worldPosition);
-		if(a instanceof StaticAntenna<?> newAntenna)
-			((AntennaNetworkObject)IBENetworks.getObject(level, worldPosition)).setAntenna(newAntenna);
+		if(a instanceof StaticAntenna<?> newAntenna && level != null) {
+			AntennaNetworkObject antenna = ((AntennaNetworkObject)IBENetworks.getObject(level, worldPosition));
+			if (antenna != null) {
+				antenna.setAntenna(newAntenna);
+			}
+		}
 	}
 
 	/**
