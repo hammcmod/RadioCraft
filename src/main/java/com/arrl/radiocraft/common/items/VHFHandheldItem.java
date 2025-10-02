@@ -59,35 +59,53 @@ public class VHFHandheldItem extends Item {
     }
 
     /**
+     * Called when this radio (in cursor) is clicked on another item in a slot.
+     * Handles battery swap when clicking on a Small Battery.
+     * Works in survival mode only - creative mode handled by ItemStackedOnOtherEvent.
+     */
+    @Override
+    public boolean overrideStackedOnOther(ItemStack radio, net.minecraft.world.inventory.Slot slot, 
+                                         net.minecraft.world.inventory.ClickAction action, Player player) {
+        ItemStack slotStack = slot.getItem();
+        
+        if (action == net.minecraft.world.inventory.ClickAction.PRIMARY && !slotStack.isEmpty() && 
+            slotStack.getItem() == RadiocraftItems.SMALL_BATTERY.get()) {
+            
+            if (!player.level().isClientSide()) {
+                swapBatteryEnergy(radio, slotStack, player);
+            }
+            
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
      * Swaps energy between the radio and a battery item.
      * Radio's energy goes to the battery, battery's energy goes to the radio.
+     * Public and static so it can be called from inventory click events.
      */
-    private void swapBatteryEnergy(ItemStack radio, ItemStack battery, Player player) {
+    public static void swapBatteryEnergy(ItemStack radio, ItemStack battery, Player player) {
         IEnergyStorage radioEnergy = radio.getCapability(Capabilities.EnergyStorage.ITEM);
         IEnergyStorage batteryEnergy = battery.getCapability(Capabilities.EnergyStorage.ITEM);
         
         if (radioEnergy != null && batteryEnergy != null) {
-            // Guardar energia atual de ambos
             int radioStored = radioEnergy.getEnergyStored();
             int batteryStored = batteryEnergy.getEnergyStored();
             
-            // Trocar energias
-            // Esvaziar rádio
+            // Swap energies
             radioEnergy.extractEnergy(radioStored, false);
-            // Adicionar energia da bateria ao rádio
             radioEnergy.receiveEnergy(batteryStored, false);
             
-            // Esvaziar bateria
             batteryEnergy.extractEnergy(batteryStored, false);
-            // Adicionar energia antiga do rádio à bateria
             batteryEnergy.receiveEnergy(radioStored, false);
             
-            // Som de troca
+            // Sound and message feedback
             player.level().playSound(null, player.blockPosition(), 
                 SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.PLAYERS, 
                 1.0f, 1.0f);
             
-            // Mensagem de feedback
             player.displayClientMessage(
                 Component.translatable("message.radiocraft.battery_swapped"), 
                 true
@@ -113,15 +131,15 @@ public class VHFHandheldItem extends Item {
                     int storedEnergy = energyStorage.getEnergyStored();
                     
                     if (storedEnergy > 0) {
-                        // Calcular consumo baseado no estado
+                        // Calculate consumption based on radio state
                         int consumption = calculateEnergyConsumption(cap);
                         
                         energyStorage.extractEnergy(consumption, false);
                     } else {
-                        // Sem energia - desligar rádio
+                        // No energy - turn off radio
                         cap.setPowered(false);
                         
-                        // Mensagem de bateria vazia
+                        // Empty battery message
                         player.displayClientMessage(
                             Component.translatable("message.radiocraft.radio_battery_empty"),
                             true

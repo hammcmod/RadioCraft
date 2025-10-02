@@ -199,7 +199,7 @@ public class VHFHandheldScreen extends Screen {
         RX_LED.setIsOn(cap.isPowered() && cap.getReceiveStrength() > 0);
         DATA_LED.setIsOn(false); // TBI
 
-        // Renderizar indicador de bateria
+        // Render battery indicator
         if (cap.isPowered()) {
             renderBatteryIndicator(pGuiGraphics);
         }
@@ -220,37 +220,12 @@ public class VHFHandheldScreen extends Screen {
             int max = energyStorage.getMaxEnergyStored();
             float percentage = max > 0 ? (float) stored / max : 0.0f;
             
-            // Posição do indicador (canto inferior direito, acima dos botões)
-            int batteryX = leftPos + 105;
-            int batteryY = topPos + 145;
-            
-            // Dimensões da barra
-            int barWidth = 40;
-            int barHeight = 4;
-            int filledWidth = (int) (barWidth * percentage);
-            
-            // Fundo (preto)
-            graphics.fill(batteryX, batteryY, batteryX + barWidth, batteryY + barHeight, 0xFF000000);
-            
-            // Cor baseada na porcentagem
-            int color;
-            if (percentage > 0.5f) {
-                color = 0xFF00FF00; // Verde
-            } else if (percentage > 0.2f) {
-                color = 0xFFFFFF00; // Amarelo
-            } else {
-                color = 0xFFFF0000; // Vermelho
-            }
-            
-            // Barra preenchida
-            if (filledWidth > 0) {
-                graphics.fill(batteryX, batteryY, batteryX + filledWidth, batteryY + barHeight, color);
-            }
-            
-            // Texto com porcentagem (pequeno, acima da barra)
+            // Battery percentage text (bottom right corner of green screen, right-aligned)
             String percentText = String.format("%d%%", (int)(percentage * 100));
-            int textX = batteryX + (barWidth - this.font.width(percentText)) / 2;
-            graphics.drawString(this.font, percentText, textX, batteryY - 9, 0xFFFFFF);
+            int textWidth = this.font.width(percentText);
+            int textX = leftPos + 140 - textWidth; // Right-aligned, within screen bounds
+            int textY = topPos + 133; // Same line as second frequency display
+            graphics.drawString(this.font, percentText, textX, textY, 0xFFFFFF);
         }
     }
 
@@ -453,9 +428,41 @@ public class VHFHandheldScreen extends Screen {
      * Callback to toggle power on a device.
      */
     protected void onPressPower(ToggleButton button) {
-        //RadiocraftPackets.sendToServer(new SHandheldPowerPacket(index, !cap.isPowered()));
-        cap.setPowered(!cap.isPowered());
-        updateServer();
+        // Check if trying to turn on
+        if (!cap.isPowered()) {
+            // Check if radio has battery
+            net.neoforged.neoforge.energy.IEnergyStorage energyStorage = 
+                minecraft.player.getInventory().getItem(index).getCapability(
+                    net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.ITEM);
+            
+            if (energyStorage != null && energyStorage.getEnergyStored() > 0) {
+                // Has battery - turn on
+                cap.setPowered(true);
+                updateServer();
+            } else {
+                // No battery - show message and delay button reset for visual feedback
+                minecraft.player.displayClientMessage(
+                    net.minecraft.network.chat.Component.translatable("message.radiocraft.radio_battery_empty"),
+                    true
+                );
+                
+                // Schedule button reset after 10 ticks (0.5 seconds) for visual feedback
+                minecraft.execute(() -> {
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(200); // 500ms delay
+                            minecraft.execute(() -> button.isToggled = false);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }).start();
+                });
+            }
+        } else {
+            // Turning off - always allow
+            cap.setPowered(false);
+            updateServer();
+        }
     }
 
     protected void updateServer(){

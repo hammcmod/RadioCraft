@@ -1,7 +1,11 @@
 package com.arrl.radiocraft.common.items;
 
+import com.arrl.radiocraft.common.init.RadiocraftItems;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -9,14 +13,35 @@ import org.jetbrains.annotations.NotNull;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
+import java.util.List;
 
 public class SmallBatteryItem extends Item {
 
     public SmallBatteryItem(Properties properties) {
         super(properties);
+    }
+
+    /**
+     * Called when this battery (in cursor) is clicked on another item in a slot.
+     * Handles battery swap when clicking on a VHF Handheld Radio.
+     * Works in survival mode only - creative mode handled by ItemStackedOnOtherEvent.
+     */
+    @Override
+    public boolean overrideStackedOnOther(ItemStack battery, Slot slot, ClickAction action, Player player) {
+        ItemStack slotStack = slot.getItem();
+        
+        if (action == ClickAction.PRIMARY && !slotStack.isEmpty() && 
+            slotStack.getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
+            
+            if (!player.level().isClientSide()) {
+                VHFHandheldItem.swapBatteryEnergy(slotStack, battery, player);
+            }
+            
+            return true;
+        }
+        
+        return false;
     }
 
     @Override
