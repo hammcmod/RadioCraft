@@ -26,6 +26,12 @@ public class RadiocraftDataComponent {
             builder -> builder.persistent(net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT)
     );
 
+    // Integer data component for storing energy in VHF Handheld radios
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> RADIO_ENERGY = DATA_COMPONENTS.registerComponentType(
+            "radio_energy",
+            builder -> builder.persistent(net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT)
+    );
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<HandheldRadioState>> HANDHELD_RADIO_STATE_COMPONENT = DATA_COMPONENTS.registerComponentType(
             "handheld_radio_state",
             builder -> builder

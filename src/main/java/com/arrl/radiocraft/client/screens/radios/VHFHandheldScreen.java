@@ -21,6 +21,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+
 public class VHFHandheldScreen extends Screen {
 
     public static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/vhf_handheld.png");
@@ -196,8 +199,58 @@ public class VHFHandheldScreen extends Screen {
         RX_LED.setIsOn(cap.isPowered() && cap.getReceiveStrength() > 0);
         DATA_LED.setIsOn(false); // TBI
 
+        // Renderizar indicador de bateria
+        if (cap.isPowered()) {
+            renderBatteryIndicator(pGuiGraphics);
+        }
+
         for (Renderable renderable : this.renderables) {
             renderable.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        }
+    }
+    
+    /**
+     * Renders a battery charge indicator on the screen.
+     */
+    private void renderBatteryIndicator(GuiGraphics graphics) {
+        IEnergyStorage energyStorage = item.getCapability(Capabilities.EnergyStorage.ITEM);
+        
+        if (energyStorage != null) {
+            int stored = energyStorage.getEnergyStored();
+            int max = energyStorage.getMaxEnergyStored();
+            float percentage = max > 0 ? (float) stored / max : 0.0f;
+            
+            // Posição do indicador (canto inferior direito, acima dos botões)
+            int batteryX = leftPos + 105;
+            int batteryY = topPos + 145;
+            
+            // Dimensões da barra
+            int barWidth = 40;
+            int barHeight = 4;
+            int filledWidth = (int) (barWidth * percentage);
+            
+            // Fundo (preto)
+            graphics.fill(batteryX, batteryY, batteryX + barWidth, batteryY + barHeight, 0xFF000000);
+            
+            // Cor baseada na porcentagem
+            int color;
+            if (percentage > 0.5f) {
+                color = 0xFF00FF00; // Verde
+            } else if (percentage > 0.2f) {
+                color = 0xFFFFFF00; // Amarelo
+            } else {
+                color = 0xFFFF0000; // Vermelho
+            }
+            
+            // Barra preenchida
+            if (filledWidth > 0) {
+                graphics.fill(batteryX, batteryY, batteryX + filledWidth, batteryY + barHeight, color);
+            }
+            
+            // Texto com porcentagem (pequeno, acima da barra)
+            String percentText = String.format("%d%%", (int)(percentage * 100));
+            int textX = batteryX + (barWidth - this.font.width(percentText)) / 2;
+            graphics.drawString(this.font, percentText, textX, batteryY - 9, 0xFFFFFF);
         }
     }
 
