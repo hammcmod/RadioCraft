@@ -37,7 +37,13 @@ public class RadiocraftCapabilities {
         event.registerBlockEntity(BLOCK_ENTITY_CALLSIGNS, RadiocraftBlockEntities.HF_RADIO_ALL_BAND.get(), (entity, ignored) -> BlockEntityCallsignSavedData.get(entity.getLevel().getServer().overworld()));
 
 		event.registerItem(VHF_HANDHELDS, (itemStack, context) -> new VHFHandheldCapability(itemStack), RadiocraftItems.VHF_HANDHELD.get());
-		event.registerItem(Capabilities.EnergyStorage.ITEM, (itemStack, context) -> new BatteryCapability(itemStack), RadiocraftItems.SMALL_BATTERY.get());
+		
+		// Register SmallBatteryItem with ComponentEnergyStorage and random initial energy (50-70%)
+		event.registerItem(Capabilities.EnergyStorage.ITEM, (itemStack, context) -> {
+			int capacity = com.arrl.radiocraft.CommonConfig.SMALL_BATTERY_CAPACITY.get();
+			// Use custom BATTERY_ENERGY component for energy storage with random initial charge
+			return new RandomInitialEnergyStorage(itemStack, com.arrl.radiocraft.common.init.RadiocraftDataComponent.BATTERY_ENERGY.get(), capacity);
+		}, RadiocraftItems.SMALL_BATTERY.get());
 
 		event.registerEntity(ANTENNA_WIRE_HOLDERS, EntityType.PLAYER, (player, context) -> new AntennaWireHolderCapability());
 		event.registerEntity(PLAYER_CALLSIGNS, EntityType.PLAYER, (player, context) -> PlayerCallsignSavedData.get(player.getServer().overworld()));

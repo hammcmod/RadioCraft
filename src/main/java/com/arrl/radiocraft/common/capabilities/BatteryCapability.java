@@ -5,6 +5,13 @@ import com.arrl.radiocraft.Radiocraft;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
+/**
+ * DEPRECATED: This class is no longer used. SmallBatteryItem now uses ComponentEnergyStorage
+ * with RandomInitialEnergyStorage wrapper for proper energy handling.
+ * Kept for reference only.
+ * @deprecated Use ComponentEnergyStorage with RadiocraftDataComponent.BATTERY_ENERGY instead
+ */
+@Deprecated
 public class BatteryCapability implements IEnergyStorage {
 
     int energyStored;

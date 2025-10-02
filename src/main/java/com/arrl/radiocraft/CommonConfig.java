@@ -41,7 +41,7 @@ public class CommonConfig {
 		BUILDER.push("Power Options ( * = Restart game to take effect)");
 		LARGE_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of large batteries. #default 1500000 integer").define("large_battery_capacity", 1500000);
 		LARGE_BATTERY_OUTPUT = BUILDER.comment("*Max output per tick for a large battery. #default 1250").define("large_battery_output", 1250);
-		SMALL_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of small batteries. #default 125000 integer").define("small_battery_capacity", 125000);
+		SMALL_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of small batteries. #default 125000 integer").define("small_battery_capacity", 166500);
 		CHARGE_CONTROLLER_TICK = BUILDER.comment("*Amount of power a charge controller can process each tick. #default 625 integer").define("charge_controller_tick", 625);
 		CHARGE_CONTROLLER_BATTERY_CHARGE = BUILDER.comment("*Amount of power a charge controller can transfer to a small battery each tick. #default 10 integer").define("charge_controller_battery_charge", 10);
 		SOLAR_PANEL_MAX_OUTPUT = BUILDER.comment("*Maximum output of a solar power per tick. #default 125").define("solar_panel_max_output integer", 125);

@@ -20,6 +20,12 @@ public class RadiocraftDataComponent {
                     .networkSynchronized(EnergyRecord.STREAM_CODEC)
     );
 
+    // Integer data component for storing energy values (used by batteries)
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> BATTERY_ENERGY = DATA_COMPONENTS.registerComponentType(
+            "battery_energy",
+            builder -> builder.persistent(net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT)
+    );
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<HandheldRadioState>> HANDHELD_RADIO_STATE_COMPONENT = DATA_COMPONENTS.registerComponentType(
             "handheld_radio_state",
             builder -> builder
