@@ -15,6 +15,7 @@ out
 
 # vscode
 .vscode
+*.code-workspace
 
 # gradle
 build
