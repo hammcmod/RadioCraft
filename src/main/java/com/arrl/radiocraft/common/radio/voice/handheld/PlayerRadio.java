@@ -15,7 +15,6 @@ import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
-import com.arrl.radiocraft.common.radio.antenna.types.QuarterWaveVerticalAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
@@ -174,7 +173,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
     @Override
     public AntennaData getData() {
-        return new RubberDuckyAntennaData(0.1);
+        return new RubberDuckyAntennaData(0.155);
     }
 
     @Override

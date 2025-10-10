@@ -67,7 +67,9 @@ public class AntennaAnalyzerItem extends Item {
             IAntenna antenna = antennas.iterator().next();
 
             if (player != null) {
-                player.displayClientMessage(Component.literal("Antenna network at " + antenna.getAntennaPos().toString() + " has " + antennas.size() + " antennas"), true);
+                player.displayClientMessage(Component.translatable(
+                        Radiocraft.translationKey("message", "antenna_analyzer.network_found"),
+                        antenna.getAntennaPos(), antennas.size()), true);
                 return InteractionResult.CONSUME;
             }
         }
@@ -82,26 +84,39 @@ public class AntennaAnalyzerItem extends Item {
                         // This honestly just prevents us from always saying they have a radio in their inventory. It has mostly no other purpose right now.
                         boolean hasHandheldRadio = player.getInventory().items.stream().anyMatch((itemStack) -> itemStack.getItem() instanceof VHFHandheldItem);
                         if (hasHandheldRadio) {
-                            player.sendSystemMessage(Component.literal("You are holding a handheld radio, the antenna is " + data.getLength() + "m long and it has an SWR of " + type.getSWR(data, 2)));
+                            String formattedLength = String.format("%.3f", data.getLength());
+                            // TODO: I'm not sure the best way to pick the frequency to check in the general case; I selected default simplex for now.
+                            String formattedSwr = String.format("%.3f", type.getSWR(data, 146_520_000.0f));
+                            player.sendSystemMessage(Component.translatable(
+                                    Radiocraft.translationKey("message", "antenna_analyzer.handheld_with_stats"),
+                                    formattedLength, formattedSwr));
                         } else {
-                            player.sendSystemMessage(Component.literal("You are not holding a handheld radio"));
+                            player.sendSystemMessage(Component.translatable(
+                                    Radiocraft.translationKey("message", "antenna_analyzer.no_handheld")));
                         }
                     } else {
                         // This should never happen, but hey!
                         boolean hasHandheldRadio = player.getInventory().items.stream().anyMatch((itemStack) -> itemStack.getItem() instanceof VHFHandheldItem);
                         if (hasHandheldRadio) {
-                            player.sendSystemMessage(Component.literal("You are holding a handheld radio, but it's using an antenna we know nothing about."));
+                            player.sendSystemMessage(Component.translatable(
+                                    Radiocraft.translationKey("message", "antenna_analyzer.unknown_handheld_antenna")));
                         } else {
-                            player.sendSystemMessage(Component.literal("You are not holding a handheld radio"));
+                            player.sendSystemMessage(Component.translatable(
+                                    Radiocraft.translationKey("message", "antenna_analyzer.no_handheld")));
                         }
                     }
                 }));
                 return InteractionResult.CONSUME;
             } else {
-                player.displayClientMessage(Component.literal("No antenna networks found at " + context.getClickedPos() + "."), true);
+                player.displayClientMessage(Component.translatable(
+                        Radiocraft.translationKey("message", "antenna_analyzer.no_networks_at"),
+                        context.getClickedPos()), true);
                 if (Radiocraft.IS_DEVELOPMENT_ENV) {
                     Set<IAntenna> allAntennasExceptPlayer = AntennaNetworkManager.getAllAntennas().stream().filter((it) -> !(it instanceof PlayerRadio)).collect(Collectors.toSet());
-                    player.sendSystemMessage(Component.literal("There are " + allAntennasExceptPlayer.size() + " networks in the world: " + String.join(" ", allAntennasExceptPlayer.stream().map(Object::toString).toList())));
+                    player.sendSystemMessage(Component.translatable(
+                            Radiocraft.translationKey("message", "antenna_analyzer.development_summary"),
+                            allAntennasExceptPlayer.size(),
+                            String.join(" ", allAntennasExceptPlayer.stream().map(Object::toString).toList())));
                 }
             }
         }
@@ -117,6 +132,6 @@ public class AntennaAnalyzerItem extends Item {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented"));
+        tooltipComponents.add(Component.translatable(Radiocraft.translationKey("tooltip", "antenna_analyzer")));
     }
 }

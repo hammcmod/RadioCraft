@@ -23,11 +23,12 @@ public class RubberDuckyAntennaType extends NonDirectionalAntennaType<RubberDuck
 
     @Override
     public double getSWR(RubberDuckyAntennaData data, float frequencyHertz) {
-        return (int)Math.abs(Math.round(BandUtils.getWavelengthMetersFromFrequencyHertz(frequencyHertz) / 4.0D));
+        // Parabola with 144MHz being 2.0, 148MHz being 2.0, and 146MHz being 1.2 SWR
+        return 2 * Math.pow(10, -13) * Math.pow(frequencyHertz, 2) - 5.84 * Math.pow(10, -5) * frequencyHertz + 4264.4;
     }
 
     @Override
     public RubberDuckyAntennaData getDefaultData() {
-        return new RubberDuckyAntennaData(0.1);
+        return new RubberDuckyAntennaData(0.155);
     }
 }

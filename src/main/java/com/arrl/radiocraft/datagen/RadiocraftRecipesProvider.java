@@ -40,6 +40,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         buildDigitalInterfaceRecipe(recipeOutput);
         buildHandMicrophoneRecipe(recipeOutput);
         buildAntennaToolsRecipe(recipeOutput);
+        buildAntennaAnalyzerRecipe(recipeOutput);
         buildHfCircuitBoardRecipe(recipeOutput);
 
         // Receivers and radios
@@ -258,6 +259,21 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
                 .define('E', Items.EMERALD)
                 .unlockedBy("has_emerald", has(Items.EMERALD))
+                .save(recipeOutput);
+    }
+
+    private void buildAntennaAnalyzerRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.ANTENNA_ANALYZER.get(), 1)
+                .pattern("CGC")
+                .pattern("#H#")
+                .pattern("IBI")
+                .define('#', RadiocraftItems.WIRE.get())
+                .define('C', Items.COPPER_INGOT)
+                .define('G', Items.GLASS_PANE)
+                .define('H', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('I', Items.IRON_INGOT)
+                .define('B', RadiocraftItems.SMALL_BATTERY.get())
+                .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
                 .save(recipeOutput);
     }
 
