@@ -52,6 +52,11 @@ public class VHFHandheldScreen extends Screen {
     LedIndicator TX_LED, RX_LED, DATA_LED;
 
     MeterNeedleIndicator POWER_METER;
+    
+    // Reference to the power toggle so we can reset it later without creating threads
+    protected ToggleButton powerToggle;
+    // If > 0, time in millis at which the power toggle should be reset to false
+    protected long powerToggleResetAt = 0L;
 
     @SuppressWarnings("this-escape")
     public VHFHandheldScreen(int index) {
@@ -88,7 +93,10 @@ public class VHFHandheldScreen extends Screen {
         //     public MeterNeedleIndicator(Component name, MeterNeedleType mnt, int meterDimension, int x, int y, int width, int height, int u, int v, ResourceLocation texture, int textureWidth, int textureHeight) {
         POWER_METER = new MeterNeedleIndicator(Component.literal("Power"), MeterNeedleIndicator.MeterNeedleType.METER_HORIZONTAL, 33, leftPos + 33, topPos + 126, 2, 20, 232, 0, WIDGETS_TEXTURE, 256, 256);
 
-        addRenderableWidget(new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower)); // Power
+    // Power toggle - store reference so we can reset it later on the client thread without spawning threads
+    ToggleButton powerBtn = new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower);
+    this.powerToggle = powerBtn;
+    addRenderableWidget(powerBtn); // Power
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
         this.micGainDial = new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::onMicGainUp, this::onMicGainDown);
         addRenderableWidget(this.micGainDial); // Mic gain
@@ -133,6 +141,14 @@ public class VHFHandheldScreen extends Screen {
         }
 
         renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+
+        // Check if we need to reset the power toggle (scheduled earlier when trying to turn on with no battery)
+        if (powerToggleResetAt > 0L && System.currentTimeMillis() >= powerToggleResetAt) {
+            if (powerToggle != null) {
+                powerToggle.isToggled = false;
+            }
+            powerToggleResetAt = 0L;
+        }
 
         int edgeSpacingX = (width - imageWidth) / 2;
         int edgeSpacingY = (height - imageHeight) / 2;
@@ -446,17 +462,9 @@ public class VHFHandheldScreen extends Screen {
                     true
                 );
                 
-                // Schedule button reset after 10 ticks (0.5 seconds) for visual feedback
-                minecraft.execute(() -> {
-                    new Thread(() -> {
-                        try {
-                            Thread.sleep(200); // 500ms delay
-                            minecraft.execute(() -> button.isToggled = false);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }).start();
-                });
+                // Schedule button reset after ~200ms for visual feedback by setting a timestamp
+                // We set powerToggleResetAt and let the main client thread clear the toggle in render().
+                powerToggleResetAt = System.currentTimeMillis() + 200L;
             }
         } else {
             // Turning off - always allow
