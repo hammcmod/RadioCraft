@@ -303,7 +303,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             boolean shouldRecieve = false;
             float gain = 1.0f;
             for(SynchronousRadioState state : this.radios) {
-                if (state.canReceive && state.frequency == packetFrequency) {
+                boolean inReasonableRange = BandUtils.areFrequenciesEqualWithTolerance(state.frequency, packetFrequency, 1000);
+                if (state.canReceive && inReasonableRange) {
                     shouldRecieve = true;
                     if(state.itemLocation == HandheldLocation.HELD) {
                         isHeld = true;
@@ -323,9 +324,12 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             }
 
             //TODO rework receiving to be per handheld, when frequency support is added
-            for(SynchronousRadioState state : this.radios) if(state.canReceive && state.frequency == packetFrequency) {
-                state.runningSampleCount += rawAudio.length;
-                state.runningSampleSum += runningTotal;
+            for(SynchronousRadioState state : this.radios) {
+                boolean inReasonableRange = BandUtils.areFrequenciesEqualWithTolerance(state.frequency, packetFrequency, 1000);
+                if(state.canReceive && inReasonableRange) {
+                    state.runningSampleCount += rawAudio.length;
+                    state.runningSampleSum += runningTotal;
+                }
             }
 
             byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
