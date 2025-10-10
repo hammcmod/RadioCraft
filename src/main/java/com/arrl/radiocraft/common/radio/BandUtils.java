@@ -32,4 +32,15 @@ public class BandUtils {
         final double SPEED_OF_LIGHT_METERS_PER_SECOND = 299792458D;
         return SPEED_OF_LIGHT_METERS_PER_SECOND / frequencyHertz;
     }
+
+    /**
+     * Check if two frequencies are within a tolerance of each other.
+     * @param a Frequency in Hz
+     * @param b Frequency in Hz
+     * @param tolerance Tolerance in Hz
+     * @return Whether the frequencies are within tolerance of each other given the tolerance value (Hz)
+     */
+    public static boolean areFrequenciesEqualWithTolerance(float a, float b, float tolerance) {
+        return Math.abs(a - b) < tolerance;
+    }
 }

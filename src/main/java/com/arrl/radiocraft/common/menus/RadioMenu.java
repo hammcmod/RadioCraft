@@ -26,6 +26,10 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
 		this.validBlock = validBlock;
 		this.data = blockEntity.getDataSlots();
 		addDataSlots(data);
+        // TODO: Previously, frequency and band data was shared with the client via data slots,
+        //  which only support integers. This is the wrong way to do it.
+        //  The data should instead be sent to the client via a network packet.
+        //  As far as I can tell, this was not used since these only affect the block radios, not the player radios.
 	}
 
 	public float getFrequency() {
