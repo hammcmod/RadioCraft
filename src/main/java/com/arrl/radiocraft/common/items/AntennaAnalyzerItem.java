@@ -45,46 +45,63 @@ public class AntennaAnalyzerItem extends Item {
         return allAntennas;
     }
 
-    private IAntenna getPlayerAntenna(Player player) {
+    private Set<IAntenna> getPlayerAntennas(Player player) {
+        // TODO: This method currently only will get one antenna and that's the antenna known by PlayerRadio.
+        //  In the future, this will want to actually check the inventory and list for each handheld radio there.
         return AntennaNetworkManager.getNetwork(AntennaNetworkManager.VHF_ID).allAntennas().stream().filter((antenna) -> {
             IAntenna.AntennaPos ap = antenna.getAntennaPos();
-            if (ap == null) return false;
-            BlockPos playerPos = player.blockPosition();
-            if (ap.level() == player.level() && ap.position().equals(playerPos)) {
-                return antenna.getType() instanceof RubberDuckyAntennaType;
-            }
-            return false;
-        }).findFirst().orElse(null);
+            Player test = antenna.getPlayer();
+            return test != null && test.equals(player);
+        }).collect(Collectors.toSet());
     }
 
     @Override
     public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
         if(context.getLevel().isClientSide()) { return InteractionResult.PASS; }
 
+        Player player = context.getPlayer();
+
         Set<IAntenna> antennas = getAntennasAt(context.getLevel(), context.getClickedPos());
 
         if (!antennas.isEmpty()) {
             IAntenna antenna = antennas.iterator().next();
 
-            if (context.getPlayer() != null) {
-                context.getPlayer().displayClientMessage(Component.literal("Antenna network at " + antenna.getAntennaPos().toString() + " has " + antennas.size() + " antennas"), true);
+            if (player != null) {
+                player.displayClientMessage(Component.literal("Antenna network at " + antenna.getAntennaPos().toString() + " has " + antennas.size() + " antennas"), true);
                 return InteractionResult.CONSUME;
             }
         }
 
-        if(context.getPlayer() != null) {
-            IAntenna playerRadio = getPlayerAntenna(context.getPlayer());
-            if(playerRadio != null) {
-                RubberDuckyAntennaType type = (RubberDuckyAntennaType) playerRadio.getType();
-                RubberDuckyAntennaData data = (RubberDuckyAntennaData) playerRadio.getData();
-
-                context.getPlayer().displayClientMessage(Component.literal("You are holding a handheld radio, the antenna is " + data.getLength() + "m long and  has an SWR of " + type.getSWR(data, 2)), true);
+        if(player != null) {
+            Set<IAntenna> playerRadios = getPlayerAntennas(player);
+            if(!playerRadios.isEmpty()) {
+                playerRadios.forEach((it -> {
+                    if (it.getType() instanceof RubberDuckyAntennaType) {
+                        RubberDuckyAntennaType type = (RubberDuckyAntennaType) it.getType();
+                        RubberDuckyAntennaData data = (RubberDuckyAntennaData) it.getData();
+                        // This honestly just prevents us from always saying they have a radio in their inventory. It has mostly no other purpose right now.
+                        boolean hasHandheldRadio = player.getInventory().items.stream().anyMatch((itemStack) -> itemStack.getItem() instanceof VHFHandheldItem);
+                        if (hasHandheldRadio) {
+                            player.sendSystemMessage(Component.literal("You are holding a handheld radio, the antenna is " + data.getLength() + "m long and it has an SWR of " + type.getSWR(data, 2)));
+                        } else {
+                            player.sendSystemMessage(Component.literal("You are not holding a handheld radio"));
+                        }
+                    } else {
+                        // This should never happen, but hey!
+                        boolean hasHandheldRadio = player.getInventory().items.stream().anyMatch((itemStack) -> itemStack.getItem() instanceof VHFHandheldItem);
+                        if (hasHandheldRadio) {
+                            player.sendSystemMessage(Component.literal("You are holding a handheld radio, but it's using an antenna we know nothing about."));
+                        } else {
+                            player.sendSystemMessage(Component.literal("You are not holding a handheld radio"));
+                        }
+                    }
+                }));
                 return InteractionResult.CONSUME;
             } else {
-                context.getPlayer().displayClientMessage(Component.literal("No antenna networks found at " + context.getClickedPos() + "."), true);
+                player.displayClientMessage(Component.literal("No antenna networks found at " + context.getClickedPos() + "."), true);
                 if (Radiocraft.IS_DEVELOPMENT_ENV) {
                     Set<IAntenna> allAntennasExceptPlayer = AntennaNetworkManager.getAllAntennas().stream().filter((it) -> !(it instanceof PlayerRadio)).collect(Collectors.toSet());
-                    context.getPlayer().sendSystemMessage(Component.literal("There are " + allAntennasExceptPlayer.size() + " networks in the world: " + String.join(" ", allAntennasExceptPlayer.stream().map(Object::toString).toList())));
+                    player.sendSystemMessage(Component.literal("There are " + allAntennasExceptPlayer.size() + " networks in the world: " + String.join(" ", allAntennasExceptPlayer.stream().map(Object::toString).toList())));
                 }
             }
         }

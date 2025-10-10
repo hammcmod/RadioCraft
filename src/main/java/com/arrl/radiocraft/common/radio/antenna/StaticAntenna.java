@@ -11,6 +11,7 @@ import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.UnknownNullability;
@@ -182,4 +183,9 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
 		data.deserializeNBT(provider, nbt);
 	}
+
+    @Override
+    public Player getPlayer() {
+        return null;
+    }
 }

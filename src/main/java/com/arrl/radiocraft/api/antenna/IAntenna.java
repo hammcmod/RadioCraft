@@ -8,6 +8,7 @@ import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -78,5 +79,11 @@ public interface IAntenna {
 	 * @param level current {@link Level} of the antenna
 	 */
 	record AntennaPos(BlockPos position, Level level) {}
+
+    /**
+     * Get the player this antenna belongs to.
+     * @return The player this antenna belongs to, or null if it doesn't belong to a player.
+     */
+    Player getPlayer();
 
 }
