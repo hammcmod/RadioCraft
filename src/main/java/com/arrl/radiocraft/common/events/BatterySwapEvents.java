@@ -9,9 +9,15 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.ItemStackedOnOtherEvent;
 
 /**
- * Handles battery swap functionality for creative mode.
- * In survival mode, Item.overrideStackedOnOther() is called.
- * In creative mode, only this event is fired.
+ * Handles battery swap functionality when a player stacks a battery item on top of a radio in an
+ * inventory slot. In survival mode the swap is handled by the item's
+ * {@link net.minecraft.world.item.Item#overrideStackedOnOther(ItemStack, net.minecraft.world.inventory.Slot, net.minecraft.world.inventory.ClickAction, net.minecraft.world.entity.player.Player)}
+ * hook (which runs on the server). In creative mode that hook is not invoked the same way,
+ * and the {@link net.neoforged.neoforge.event.ItemStackedOnOtherEvent} is fired instead (client-side),
+ * so we need this subscriber to ensure the behavior is consistent in both modes.
+ *
+ * Adventure mode behaves like survival for this interaction; the same overrideStackedOnOther() path
+ * will be used there, so no special handling is required.
  */
 @EventBusSubscriber
 public class BatterySwapEvents {

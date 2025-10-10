@@ -47,7 +47,7 @@ public class VHFHandheldItem extends Item {
             if(!level.isClientSide()) {
                 ItemStack mainItem = player.getItemInHand(InteractionHand.MAIN_HAND);
 
-                // Shift + usar com bateria na mão principal = trocar energia
+                // Shift + use with battery in main hand = swap battery energy between radio and battery
                 if(player.isCrouching() && mainItem.getItem() == RadiocraftItems.SMALL_BATTERY.get()) {
                     swapBatteryEnergy(item, mainItem, player);
                     return InteractionResultHolder.success(item);

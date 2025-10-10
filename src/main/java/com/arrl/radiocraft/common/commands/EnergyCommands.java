@@ -18,8 +18,8 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 public class EnergyCommands {
 
     public static final LiteralArgumentBuilder<CommandSourceStack> BUILDER =
-            Commands.literal("rcenergy")
-                    .requires(source -> source.hasPermission(2)) // Requires OP level 2
+        Commands.literal("rcenergy")
+            .requires(source -> source.hasPermission(3)) // Requires OP level 3 (operator)
                     
                     // /rcenergy drain - Drains all energy from item in main hand
                     .then(Commands.literal("drain")

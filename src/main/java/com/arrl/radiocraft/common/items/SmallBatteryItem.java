@@ -25,7 +25,11 @@ public class SmallBatteryItem extends Item {
     /**
      * Called when this battery (in cursor) is clicked on another item in a slot.
      * Handles battery swap when clicking on a VHF Handheld Radio.
-     * Works in survival mode only - creative mode handled by ItemStackedOnOtherEvent.
+     *
+     * In survival (and adventure) mode this logic is invoked via
+     * {@link net.minecraft.world.item.Item#overrideStackedOnOther(ItemStack, net.minecraft.world.inventory.Slot, net.minecraft.world.inventory.ClickAction, net.minecraft.world.entity.player.Player)}.
+     * In creative mode the {@link net.neoforged.neoforge.event.ItemStackedOnOtherEvent} is fired instead;
+     * see {@link com.arrl.radiocraft.common.events.BatterySwapEvents} which handles that case.
      */
     @Override
     public boolean overrideStackedOnOther(ItemStack battery, Slot slot, ClickAction action, Player player) {
