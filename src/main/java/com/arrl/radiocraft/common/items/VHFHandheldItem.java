@@ -220,7 +220,7 @@ public class VHFHandheldItem extends Item {
     public void onCraftedBy(ItemStack stack, Level level, Player player) {
         super.onCraftedBy(stack, level, player);
         
-        // Rádio novo vem com 50-70% de carga (como as baterias)
+    // New radio comes with 50-70% charge (like batteries)
         IEnergyStorage energyStorage = stack.getCapability(Capabilities.EnergyStorage.ITEM);
         if (energyStorage != null) {
             int capacity = energyStorage.getMaxEnergyStored();
