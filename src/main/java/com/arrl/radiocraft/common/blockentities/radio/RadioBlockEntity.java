@@ -37,8 +37,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected boolean ssbEnabled = false;
     protected boolean isPTTDown = false; // Used by PTT button packets
 
-    protected int wavelength; // Wavelength the frequency is currently on, usually not changed.
-    protected int frequency; // Frequency the radio is currently using (in kHz)
+    protected Band band; // Band the radio is configured for, usually not changed.
+    protected float frequency; // Frequency the radio is currently using (in Hz)
 
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
@@ -46,11 +46,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     protected final AtomicReference<BlockPos> micPos = new AtomicReference<>(); //thread safe position reference, overkill but makes purpose clear
 
-    public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, int wavelength) {
+    public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, Band band) {
         super(type, pos, state);
         this.micPos.set(pos);
-        this.wavelength = wavelength;
-        Band band = Band.getBand(wavelength);
+        this.band = band;
         this.frequency = band == null ? 0 : band.minFrequency();
         this.voiceReceiver = new BEVoiceReceiver(pos.getX(), pos.getY(), pos.getZ());
     }
@@ -70,7 +69,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
                 double newSWR = 0.0D;
                 if(antennas.size() == 1)
-                    newSWR = antennas.get(0).getSWR(be.wavelength);
+                    newSWR = antennas.get(0).getSWR(be.frequency);
                 else if(antennas.size() > 1)
                     newSWR = 10.0D;
 
@@ -142,20 +141,20 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         }
     }
 
-    public int getFrequency() {
+    public float getFrequency() {
         return frequency;
     }
 
-    public void setFrequency(int frequency) {
+    public void setFrequency(float frequency) {
         this.frequency = frequency;
     }
 
-    public int getWavelength() {
-        return wavelength;
+    public Band getBand() {
+        return band;
     }
 
-    public void setWavelength(int wavelength) {
-        this.wavelength = wavelength;
+    public void setBand(Band band) {
+        this.band = band;
         updateIsReceiving();
         updateBlock();
     }
@@ -178,10 +177,9 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * @param stepCount The number of steps to increment by.
      */
     public void updateFrequency(int stepCount) {
-        Band band = Band.getBand(wavelength);
         int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
-        int min = band.minFrequency();
-        int max = (band.maxFrequency() - band.minFrequency()) / step * step + min; // This calc looks weird, but it's integer division, throws away remainder to ensure the freq doesn't do a "half step" to max.
+        float min = band.minFrequency();
+        float max = (band.maxFrequency() - band.minFrequency()) / step * step + min; // This calc looks weird, but it's integer division, throws away remainder to ensure the freq doesn't do a "half step" to max.
 
         frequency = Mth.clamp(frequency + step * stepCount, min, max);
         setChanged();
@@ -191,7 +189,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
         List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
         if(antennas.size() == 1)
-            antennas.get(0).transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
+            antennas.get(0).transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer);
         else if(antennas.size() > 1)
             overdraw();
     }
@@ -230,8 +228,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      */
     protected void setupSaveTag(CompoundTag nbt) {
         nbt.putBoolean("ssbEnabled", ssbEnabled);
-        nbt.putInt("wavelength", wavelength);
-        nbt.putInt("frequency", frequency);
+        nbt.putString("name", band.name());
+        nbt.putFloat("frequency", frequency);
         nbt.putDouble("antennaSWR", antennaSWR);
         nbt.putBoolean("wasPowered", wasPowered);
     }
@@ -242,8 +240,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      */
     protected void readSaveTag(CompoundTag nbt) {
         ssbEnabled = nbt.getBoolean("ssbEnabled");
-        wavelength = nbt.getInt("wavelength");
-        frequency = nbt.getInt("frequency");
+        band = Band.getBand(nbt.getString("name"));
+        frequency = nbt.getFloat("frequency");
         antennaSWR = nbt.getDouble("antennaSWR");
         wasPowered = nbt.getBoolean("wasPowered");
     }
@@ -265,7 +263,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void load(CompoundTag nbt) {
         super.load(nbt);
         readSaveTag(nbt);
-        Band band = RadiocraftData.BANDS.getValue(wavelength);
+        Band band = RadiocraftData.BANDS.getValue(name);
         if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % RadiocraftServerConfig.HF_FREQUENCY_STEP.get() != 0)
             frequency = band.minFrequency(); // Reset frequency if the saved one was either out of bands or not aligned to the correct step size.
     }

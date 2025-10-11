@@ -9,6 +9,7 @@ import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
@@ -38,8 +39,8 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         this.networkId = networkId;
     }
 
-    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequency, UUID sourcePlayer) {
-        antenna.transmitAudioPacket(level, rawAudio, wavelength, frequency, sourcePlayer);
+    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequency, UUID sourcePlayer) {
+        antenna.transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer);
     }
 
     public void receiveAudioPacket(AntennaVoicePacket packet) {
@@ -56,8 +57,8 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
             overdraw(level);
     }
 
-    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequency) {
-        antenna.transmitCWPacket(level, buffers, wavelength, frequency);
+    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequency) {
+        antenna.transmitCWPacket(level, buffers, band, frequency);
     }
 
     public void receiveCWPacket(AntennaCWPacket packet) {
@@ -116,10 +117,10 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         }
     }
 
-    public double getSWR(int wavelength) {
+    public double getSWR(float frequencyHertz) {
         if(radios.size() > 1)
             return 10.0D;
-        return antenna == null ? 0 : antenna.getSWR(wavelength);
+        return antenna == null ? 0 : antenna.getSWR(frequencyHertz);
     }
 
     public StaticAntenna<?> getAntenna() {

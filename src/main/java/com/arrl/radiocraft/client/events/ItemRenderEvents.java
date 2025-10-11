@@ -23,7 +23,6 @@ public class ItemRenderEvents {
 
     // Separate lists for different item types to avoid generic conflicts
     private static final List<Supplier<? extends Item>> DEV_REGULAR_ITEMS = List.of(
-            RadiocraftItems.ANTENNA_ANALYZER,
             RadiocraftItems.WATERPROOF_WIRE
     );
 

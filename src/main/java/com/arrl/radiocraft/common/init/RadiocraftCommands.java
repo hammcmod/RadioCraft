@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.commands.AntennaNetworkCommands;
 import com.arrl.radiocraft.common.commands.CallsignCommands;
 import com.arrl.radiocraft.common.commands.EnergyCommands;
 import com.arrl.radiocraft.common.commands.SolarWeatherCommands;
@@ -16,5 +17,6 @@ public class RadiocraftCommands {
 		event.getDispatcher().register(CallsignCommands.BUILDER);
 		event.getDispatcher().register(SolarWeatherCommands.BUILDER);
 		event.getDispatcher().register(EnergyCommands.BUILDER);
+        event.getDispatcher().register(AntennaNetworkCommands.BUILDER);
 	}
 }

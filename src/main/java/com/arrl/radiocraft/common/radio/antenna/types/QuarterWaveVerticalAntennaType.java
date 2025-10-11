@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.radio.antenna.types;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.QuarterWaveVerticalAntennaData;
 import net.minecraft.core.BlockPos;
@@ -12,7 +13,7 @@ import net.minecraft.world.level.Level;
 public class QuarterWaveVerticalAntennaType extends NonDirectionalAntennaType<QuarterWaveVerticalAntennaData> {
 
 	public QuarterWaveVerticalAntennaType() {
-		super(Radiocraft.id("quarter_wave_vertical"), 1.0D, 1.0D, 1.2D, 0.7D);
+		super(Radiocraft.id("quarter_wave_vertical"), 0.0D, 0.0D, 1.2D, 0.7D);
 	}
 
 	@Override
@@ -46,8 +47,8 @@ public class QuarterWaveVerticalAntennaType extends NonDirectionalAntennaType<Qu
 	}
 
 	@Override
-	public double getSWR(QuarterWaveVerticalAntennaData data, int wavelength) {
-		int desiredLength = (int)Math.round(wavelength / 4.0D);
+	public double getSWR(QuarterWaveVerticalAntennaData data, float frequencyHertz) {
+		int desiredLength = (int)Math.round(BandUtils.getWavelengthMetersFromFrequencyHertz(frequencyHertz) / 4.0D);
 		int incorrectBlocks = Math.abs(desiredLength - data.getHeight());
 
 		return incorrectBlocks == 0 ? 1.0D : 10.0D;

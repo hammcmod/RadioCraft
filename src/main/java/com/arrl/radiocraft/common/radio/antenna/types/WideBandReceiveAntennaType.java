@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.radio.antenna.types;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.EmptyAntennaData;
 import net.minecraft.core.BlockPos;
@@ -12,8 +13,8 @@ import net.minecraft.world.level.block.Blocks;
 
 public class WideBandReceiveAntennaType extends NonDirectionalAntennaType<EmptyAntennaData> {
 
-    protected WideBandReceiveAntennaType(double receive, double transmit, double los, double skip) {
-        super(Radiocraft.id("wide_band_receive"), receive, transmit, los, skip);
+    protected WideBandReceiveAntennaType(double receiveGainDbi, double transmitGainDbi, double los, double skip) {
+        super(Radiocraft.id("wide_band_receive"), receiveGainDbi, transmitGainDbi, los, skip);
     }
 
     @Override
@@ -67,18 +68,18 @@ public class WideBandReceiveAntennaType extends NonDirectionalAntennaType<EmptyA
 
     @Override
     public double getReceiveEfficiency(IAntennaPacket packet, EmptyAntennaData data, BlockPos pos) {
-        double f = switch(packet.getWavelength()) {
-            case 2 -> 0.7D;
-            case 10 -> 0.5D;
-            case 20 -> 0.3D;
-            case 40, 80 -> 0.2D;
+        double f = switch(packet.getBand().name()) {
+            case "2m" -> 0.7D;
+            case "10m" -> 0.5D;
+            case "20m" -> 0.3D;
+            case "40m", "80m" -> 0.2D;
             default -> 0.0D;
         };
-        return packet.getStrength() * f;
+        return getReceiveGainLinear() * packet.getStrength() * f;
     }
 
     @Override
-    public double getSWR(EmptyAntennaData data, int wavelength) {
+    public double getSWR(EmptyAntennaData data, float frequencyHertz) {
         return 1.0;
     }
 

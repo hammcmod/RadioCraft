@@ -40,9 +40,7 @@ public class VHFHandheldScreen extends Screen {
 
     protected static int FREQUENCY_ENTERING_TIMEOUT = 7000; //in millis
 
-    protected int enteredFrequency=0;
-    protected int curDigit=0;
-    protected long millisOfLastFrequency=0;
+    private final FrequencyEntryState frequencyEntryState = new FrequencyEntryState();
 
     protected Dial micGainDial;
     protected Dial gainDial;
@@ -106,7 +104,7 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(new HoverableImageButton(leftPos + 125, topPos + 168, 18, 14, 94, 98, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
         //number buttons
         addRenderableWidget(new HoverableImageButton(leftPos + 54, topPos + 225, 20, 14, 172, 0, 152, 0, WIDGETS_TEXTURE, 256, 256, (b) -> this.onNum(0)));
-        for(int i=1; i<10; i++) {
+        for (int i = 1; i < 10; i += 1) {
             final int num = i;
             addRenderableWidget(new HoverableImageButton(leftPos + 29 + ((i-1)%3)*25, topPos + 168 + ((i-1)/3)*19, 20, 14, 172, i*14, 152, i*14, WIDGETS_TEXTURE, 256, 256, (b) -> this.onNum(num)));
         }
@@ -133,10 +131,8 @@ public class VHFHandheldScreen extends Screen {
 
         if(cap == null) return;
 
-        if(menuState == MenuState.SET_FREQ && System.currentTimeMillis() - millisOfLastFrequency > FREQUENCY_ENTERING_TIMEOUT) {
-            curDigit = 0;
-            enteredFrequency = 0;
-            millisOfLastFrequency = 0;
+        if (menuState == MenuState.SET_FREQ && frequencyEntryState.hasTimedOut()) {
+            frequencyEntryState.reset();
             menuState = MenuState.DEFAULT;
         }
 
@@ -177,15 +173,11 @@ public class VHFHandheldScreen extends Screen {
         }
 
         if (cap.isPowered()) {
-            switch (menuState) {
-                case DEFAULT:
-                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyKiloHertz() / 1000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
-
-                    break;
-                case SET_FREQ:
-                    pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);
-                    pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", enteredFrequency / 1000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
-                    break;
+            if (menuState == MenuState.DEFAULT) {
+                pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyHertz() / 1000_000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
+            } else if (menuState == MenuState.SET_FREQ) {
+                pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);
+                pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", frequencyEntryState.getFrequencyHz() / 1000_000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
             }
         }
 
@@ -290,33 +282,20 @@ public class VHFHandheldScreen extends Screen {
      */
     protected void doNothing(AbstractWidget button) {}
 
-    private final int[] powLookup= {
-            100_000,
-            10_000,
-            1_000,
-            100,
-            10,
-            1
-    };
-
-
     /**
      * callback for number buttons
      * @param num - which digit was pressed
      */
-    @SuppressWarnings("fallthrough")
     protected void onNum(int num){
         if(!cap.isPowered()) return;
-        switch (menuState) {
-            case DEFAULT:
-                menuState = MenuState.SET_FREQ;
-            case SET_FREQ:
-                if (curDigit >= 6) break;
-                millisOfLastFrequency = System.currentTimeMillis();
-                enteredFrequency += powLookup[curDigit++] * num;
-                break;
-            default:
-                break;
+
+        if (menuState == MenuState.DEFAULT) {
+            menuState = MenuState.SET_FREQ;
+            frequencyEntryState.reset();
+        }
+
+        if (menuState == MenuState.SET_FREQ) {
+            frequencyEntryState.appendDigit(num);
         }
     }
 
@@ -326,16 +305,14 @@ public class VHFHandheldScreen extends Screen {
     private void onPressEnter(Button button) {
         if(!cap.isPowered()) return;
         if(menuState == MenuState.SET_FREQ) {
-            if(!cap.isPowered()) return;
-            if(enteredFrequency >= Band.getBand(2).minFrequency() && enteredFrequency <= Band.getBand(2).maxFrequency()) {
-                cap.setFrequencyKiloHertz(
-                        enteredFrequency
+            float requestedFrequency = frequencyEntryState.getFrequencyHz();
+            if(requestedFrequency >= Band.getBand(2).minFrequency() && requestedFrequency <= Band.getBand(2).maxFrequency()) {
+                cap.setFrequencyHertz(
+                        requestedFrequency
                 );
             }
             updateServer();
-            curDigit = 0;
-            enteredFrequency = 0;
-            millisOfLastFrequency = 0;
+            frequencyEntryState.reset();
             menuState = MenuState.DEFAULT;
         }
     }
@@ -345,9 +322,9 @@ public class VHFHandheldScreen extends Screen {
      */
     protected void onFrequencyButtonUp(Button button) {
         if(!cap.isPowered()) return;
-        cap.setFrequencyKiloHertz(
+        cap.setFrequencyHertz(
                 Math.min( //ServerConfig is synced on game join, so no further checking is necessary
-                        cap.getFrequencyKiloHertz() + RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
+                        cap.getFrequencyHertz() + RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
                         Band.getBand(2).maxFrequency()
                 )
         );
@@ -359,9 +336,9 @@ public class VHFHandheldScreen extends Screen {
      */
     protected void onFrequencyButtonDown(Button button) {
         if(!cap.isPowered()) return;
-        cap.setFrequencyKiloHertz(
+        cap.setFrequencyHertz(
                 Math.max(  //ServerConfig is synced on game join, so no further checking is necessary
-                        cap.getFrequencyKiloHertz() - RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
+                        cap.getFrequencyHertz() - RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
                         Band.getBand(2).minFrequency()
                 )
         );
@@ -470,6 +447,47 @@ public class VHFHandheldScreen extends Screen {
             // Turning off - always allow
             cap.setPowered(false);
             updateServer();
+        }
+    }
+
+    private final class FrequencyEntryState {
+        private static final int MAX_DIGITS = 6;
+
+        private float frequencyHz;
+        private int digitsEntered;
+        private long lastInteractionAt;
+
+        void appendDigit(int digit) {
+            if (digitsEntered >= MAX_DIGITS) {
+                return;
+            }
+
+            if (digitsEntered == 0) {
+                frequencyHz = 0.0f;
+            }
+
+            float placeValue = (float) Math.pow(10.0, (MAX_DIGITS - digitsEntered) + 2.0);
+            frequencyHz += placeValue * digit;
+            digitsEntered = digitsEntered + 1;
+            lastInteractionAt = System.currentTimeMillis();
+        }
+
+        float getFrequencyHz() {
+            return frequencyHz;
+        }
+
+        boolean hasTimedOut() {
+            if (digitsEntered <= 0) {
+                return false;
+            }
+            long elapsed = System.currentTimeMillis() - lastInteractionAt;
+            return elapsed > FREQUENCY_ENTERING_TIMEOUT;
+        }
+
+        void reset() {
+            frequencyHz = 0.0f;
+            digitsEntered = 0;
+            lastInteractionAt = 0;
         }
     }
 

@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.radio.antenna.types.vhf;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.DirectionalAntennaType;
@@ -17,23 +18,12 @@ import net.minecraft.world.phys.Vec2;
 public class YagiAntennaType extends DirectionalAntennaType<YagiAntennaData> {
 
     public YagiAntennaType() {
-        super(Radiocraft.id("yagi"), 1.0D, 1.0D, 1.0D, 0.0D);
+        super(Radiocraft.id("yagi"), 0.0D, 0.0D, 1.0D, 0.0D);
     }
 
     @Override
     public StaticAntenna<YagiAntennaData> match(Level level, BlockPos pos) {
         return level.getBlockState(pos).is(RadiocraftBlocks.YAGI_ANTENNA.get()) ? new StaticAntenna<>(this, pos, level) : null;
-    }
-
-    @Override
-    public double getTransmitEfficiency(IAntennaPacket packet, YagiAntennaData data, BlockPos destination, boolean isCW) {
-        double distance = Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(destination)) / 2.0D;
-        return BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, 1.0F, 0.0F, packet.getLevel().isDay());
-    }
-
-    @Override
-    public double getReceiveEfficiency(IAntennaPacket packet, YagiAntennaData data, BlockPos pos) {
-        return 1.0D;
     }
 
     @Override
@@ -50,8 +40,13 @@ public class YagiAntennaType extends DirectionalAntennaType<YagiAntennaData> {
     }
 
     @Override
-    public double getSWR(YagiAntennaData data, int wavelength) {
-        return wavelength == 2 ? 1.0D : 10.0D;
+    protected double modifyDistanceForTransmit(IAntennaPacket packet, YagiAntennaData data, BlockPos destination, double distance) {
+        return distance / 2.0D;
+    }
+
+    @Override
+    public double getSWR(YagiAntennaData data, float frequencyHertz) {
+        return Band.getBand(frequencyHertz) == Band.getBand("2m") ? 1.0D : 10.0D;
     }
 
     @Override

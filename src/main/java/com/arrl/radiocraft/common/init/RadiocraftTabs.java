@@ -23,7 +23,6 @@ public class RadiocraftTabs {
         if (Radiocraft.IS_DEVELOPMENT_ENV) {
             output.accept(RadiocraftItems.MICROPHONE.get());
             output.accept(RadiocraftItems.SMALL_BATTERY.get());
-            output.accept(RadiocraftItems.ANTENNA_ANALYZER.get());
             output.accept(RadiocraftItems.WATERPROOF_WIRE.get());
             output.accept(RadiocraftItems.SOLAR_PANEL.get());
             output.accept(RadiocraftItems.LARGE_BATTERY.get());
@@ -60,6 +59,9 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.HF_CIRCUIT_BOARD.get());
         output.accept(RadiocraftItems.FERRITE_CORE.get());
         output.accept(RadiocraftItems.COAXIAL_CORE.get());
+
+        // The antenna analyzer
+        output.accept(RadiocraftItems.ANTENNA_ANALYZER.get());
 
         // Crafting ingredients for VHF Handheld (the only actual working radio right now)
         output.accept(RadiocraftItems.RADIO_CRYSTAL.get());

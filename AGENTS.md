@@ -26,3 +26,6 @@ Use concise, present-tense commit messages (`Fix antenna wire sync`) and keep re
 
 ## Development Environment Notes
 Use dedicated Gradle run directories to avoid polluting personal saves. If you adjust configuration files under `run/`, do not commit them unless they are required defaults. When introducing new dependencies, add them through `build.gradle.kts` and cite the source Maven repository.
+
+## Agent Notes
+- Do **not** edit files under `src/generated/`; always ask the user to run `./gradlew runData` after making localization or data changes so generated assets stay in sync.

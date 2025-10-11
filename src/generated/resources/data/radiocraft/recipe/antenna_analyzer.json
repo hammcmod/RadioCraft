@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "B": {
+      "item": "radiocraft:small_battery"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "H": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "CGC",
+    "#H#",
+    "IBI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:antenna_analyzer"
+  }
+}

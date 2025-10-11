@@ -43,12 +43,11 @@ public class QRPRadio40mScreen extends HFRadioScreen<QRPRadio40mMenu> {
 
     @Override
     protected void renderAdditionalBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        int freq = menu.getFrequency();
-
-        Band band = Band.getBand(menu.getWavelength());
+        float freq = menu.getFrequency();
+        Band band = menu.getBand();
         int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
-        int min = band.minFrequency();
-        int max = (band.maxFrequency() - band.minFrequency()) / step * step + min;
+        float min = band.minFrequency();
+        float max = (band.maxFrequency() - band.minFrequency()) / step * step + min;
 
         if(menu.isPowered()) {
             if(freq >= max || freq <= min) {
@@ -56,6 +55,4 @@ public class QRPRadio40mScreen extends HFRadioScreen<QRPRadio40mMenu> {
             }
         }
     }
-
-
 }

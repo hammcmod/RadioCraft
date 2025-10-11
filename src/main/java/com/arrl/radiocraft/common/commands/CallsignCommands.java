@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.commands;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.capabilities.BlockEntityCallsignData;
 import com.arrl.radiocraft.api.capabilities.LicenseClass;
 import com.arrl.radiocraft.api.capabilities.PlayerCallsignData;
@@ -18,6 +19,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.server.command.EnumArgument;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -175,6 +177,10 @@ public class CallsignCommands {
 			source.sendFailure(Component.translatable(Radiocraft.translationKey("commands", "callsign.reset.failure.multiple")));
 			return 0;
 		}
+        if (RadiocraftServerConfig.CALLSIGN_PERMISSIONS_ENABLED.get() && !isPrivileged(source.getPlayerOrException())) {
+            source.sendFailure(Component.translatable(Radiocraft.translationKey("commands", "callsign.reset.failure.permission")));
+            return 0;
+        }
 		final GameProfile targetProfile = getTarget(source, gameProfiles);
 		playerSavedData = getPlayerCallsignSavedData(source.getLevel());
 		playerSavedData.resetCallsign(targetProfile.getId());
@@ -189,6 +195,10 @@ public class CallsignCommands {
 			source.sendFailure(Component.translatable(Radiocraft.translationKey("commands", "callsign.set.failure.multiple")));
 			return 0;
 		}
+        if (RadiocraftServerConfig.CALLSIGN_PERMISSIONS_ENABLED.get() && !isPrivileged(source.getPlayerOrException())) {
+            source.sendFailure(Component.translatable(Radiocraft.translationKey("commands", "callsign.set.failure.permission")));
+            return 0;
+        }
 		final GameProfile targetProfile = getTarget(source, gameProfiles);
 		playerSavedData = getPlayerCallsignSavedData(source.getLevel());
 		playerSavedData.setCallsignData(targetProfile.getId(), new PlayerCallsignData(targetProfile.getId().toString(), targetProfile.getName(), callsign, licenseClass));
@@ -204,4 +214,12 @@ public class CallsignCommands {
 				source.getPlayerOrException().getGameProfile() :
 				gameProfiles.stream().findFirst().get();
 	}
+
+    private static boolean isPrivileged(@NotNull ServerPlayer player) {
+        if (player.serverLevel().getServer().isSingleplayer()) {
+            return true;
+        }
+        // https://minecraft.fandom.com/wiki/Permission_level
+        return player.hasPermissions(3);
+    }
 }

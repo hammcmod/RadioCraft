@@ -2,16 +2,21 @@ package com.arrl.radiocraft.common.radio.voice.handheld;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntenna;
+import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.IVoiceReceiver;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
+import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
+import com.arrl.radiocraft.common.radio.antenna.types.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
@@ -97,7 +102,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         final boolean canReceive;
         final boolean canTransmit;
 
-        final int frequency;
+        final float frequency;
 
         final float gain;
         final float micGain;
@@ -106,7 +111,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         volatile long runningSampleSum=0; //stores the sum of the square of every sample since last tick
         volatile long runningSampleCount=0; //number of samples since last tick
 
-        public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, int frequency, HandheldLocation itemLocation, float gain, float micGain){
+        public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, float frequency, HandheldLocation itemLocation, float gain, float micGain){
             this.item = item;
             this.canReceive = canReceive;
             this.canTransmit = canTransmit;
@@ -117,7 +122,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         }
 
         public SynchronousRadioState(ItemStack item, IVHFHandheldCapability cap, HandheldLocation itemLocation) {
-            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), cap.getFrequencyKiloHertz(), itemLocation, cap.getGain(), cap.getMicGain());
+            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), cap.getFrequencyHertz(), itemLocation, cap.getGain(), cap.getMicGain());
         }
     }
 
@@ -141,7 +146,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     //if the current radio is the held item, put it before the offhand and other radios
                     //otherwise add the radio to the end of the list, so the order is held, then offhand, then all others
                     if (i == playerInventory.selected) {
-                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyKiloHertz(), HandheldLocation.HELD, cap.getGain(), cap.getMicGain()));
+                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyHertz(), HandheldLocation.HELD, cap.getGain(), cap.getMicGain()));
                     } else {
                         out.addLast(new SynchronousRadioState(itemStack, cap, Inventory.isHotbarSlot(i) ? HandheldLocation.HOT_BAR : HandheldLocation.BACKPACK));
                     }
@@ -162,7 +167,17 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     }
 
     @Override
-    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, int wavelength, int frequencyKiloHertz) {
+    public IAntennaType<? extends AntennaData> getType() {
+        return new RubberDuckyAntennaType();
+    }
+
+    @Override
+    public AntennaData getData() {
+        return new RubberDuckyAntennaData(0.155);
+    }
+
+    @Override
+    public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequencyHertz) {
         // Handheld doesn't have CW capability.
     }
 
@@ -183,7 +198,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     }
 
     @Override
-    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, int wavelength, int frequencyKiloHertz, UUID sourcePlayer) {
+    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer) {
 
         AntennaNetwork network;
         synchronized (this) {
@@ -207,14 +222,14 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
             for(IAntenna antenna : antennas) {
                 if(antenna != this) {
-                    AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), wavelength, frequencyKiloHertz, 1.0F, this, sourcePlayer);
+                    AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), band, frequencyHertz, 1.0F, this, sourcePlayer);
 
                     AntennaPos pos = antenna.getAntennaPos();
 
                     if(pos == null) continue;
 
                     double distance = Math.sqrt(thisPos.position().distSqr(pos.position()));
-                    packet.setStrength(BandUtils.getBaseStrength(packet.getWavelength(), distance, 1.0F, 0.0F, packet.getLevel().isDay()));
+                    packet.setStrength(BandUtils.getBaseStrength(packet.getBand(), distance, 1.0F, 0.0F, packet.getLevel().isDay()));
 
                     antenna.receiveAudioPacket(packet);
                 }
@@ -254,7 +269,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             for (int i = 0; i < audio.length; i++) {
                 audio[i] = (short)Math.round(audio[i] * radio.micGain);
             }
-            transmitAudioPacket(level, audio, 2, radio.frequency, sourcePlayer);
+            transmitAudioPacket(level, audio, Band.getBand("2m"), radio.frequency, sourcePlayer);
         }
     }
 
@@ -279,7 +294,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                 receiveChannel.updateEntity(RadiocraftVoicePlugin.API.fromEntity(player));
             }
 
-            int packetFrequency = antennaPacket.getFrequency();
+            float packetFrequency = antennaPacket.getFrequency();
             double packetStrength = antennaPacket.getStrength();
 
             //TODO make muffled sounding when not on hotbar (via low pass or the like, not just volume reduction)
@@ -287,7 +302,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             boolean shouldRecieve = false;
             float gain = 1.0f;
             for(SynchronousRadioState state : this.radios) {
-                if (state.canReceive && state.frequency == packetFrequency) {
+                boolean inReasonableRange = BandUtils.areFrequenciesEqualWithTolerance(state.frequency, packetFrequency, 1000);
+                if (state.canReceive && inReasonableRange) {
                     shouldRecieve = true;
                     if(state.itemLocation == HandheldLocation.HELD) {
                         isHeld = true;
@@ -307,9 +323,12 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             }
 
             //TODO rework receiving to be per handheld, when frequency support is added
-            for(SynchronousRadioState state : this.radios) if(state.canReceive && state.frequency == packetFrequency) {
-                state.runningSampleCount += rawAudio.length;
-                state.runningSampleSum += runningTotal;
+            for(SynchronousRadioState state : this.radios) {
+                boolean inReasonableRange = BandUtils.areFrequenciesEqualWithTolerance(state.frequency, packetFrequency, 1000);
+                if(state.canReceive && inReasonableRange) {
+                    state.runningSampleCount += rawAudio.length;
+                    state.runningSampleSum += runningTotal;
+                }
             }
 
             byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);

@@ -9,18 +9,24 @@ import net.minecraft.resources.ResourceLocation;
 
 public abstract class NonDirectionalAntennaType<T extends AntennaData> implements IAntennaType<T> {
 
+    private static final double CW_RANGE_MULTIPLIER = 1.5D;
+
     private final ResourceLocation id;
     private final double los;
     private final double skip;
-    private final double receive;
-    private final double transmit;
+    private final double receiveGainDbi;
+    private final double transmitGainDbi;
+    private final double receiveGainLinear;
+    private final double transmitGainLinear;
 
-    protected NonDirectionalAntennaType(ResourceLocation id, double receive, double transmit, double los, double skip) {
+    protected NonDirectionalAntennaType(ResourceLocation id, double receiveGainDbi, double transmitGainDbi, double los, double skip) {
         this.id = id;
         this.los = los;
         this.skip = skip;
-        this.receive = receive;
-        this.transmit = transmit;
+        this.receiveGainDbi = receiveGainDbi;
+        this.transmitGainDbi = transmitGainDbi;
+        this.receiveGainLinear = dbiToLinear(receiveGainDbi);
+        this.transmitGainLinear = dbiToLinear(transmitGainDbi);
     }
 
     @Override
@@ -30,13 +36,56 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
 
     @Override
     public double getTransmitEfficiency(IAntennaPacket packet, T data, BlockPos destination, boolean isCW) {
-        double distance = Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(destination));
-        return transmit * BandUtils.getBaseStrength(packet.getWavelength(), isCW ? distance / 1.5D : distance, los, skip, packet.getLevel().isDay());
+        double distance = computeDistance(packet, destination);
+        double adjustedDistance = modifyDistanceForTransmit(packet, data, destination, distance);
+        double propagation = getPropagationStrength(packet, adjustedDistance, isCW);
+        return propagation * getTransmitGainLinear();
     }
 
     @Override
     public double getReceiveEfficiency(IAntennaPacket packet, T data, BlockPos pos) {
-        return receive * packet.getStrength();
+        return getReceiveGainLinear() * packet.getStrength();
+    }
+
+    protected double computeDistance(IAntennaPacket packet, BlockPos destination) {
+        return Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(destination));
+    }
+
+    protected double modifyDistanceForTransmit(IAntennaPacket packet, T data, BlockPos destination, double distance) {
+        return distance;
+    }
+
+    protected double getPropagationStrength(IAntennaPacket packet, double distance, boolean isCW) {
+        double effectiveDistance = isCW ? distance / CW_RANGE_MULTIPLIER : distance;
+        return BandUtils.getBaseStrength(packet.getBand(), effectiveDistance, getLosEfficiency(), getSkipEfficiency(), packet.getLevel().isDay());
+    }
+
+    protected double getLosEfficiency() {
+        return los;
+    }
+
+    protected double getSkipEfficiency() {
+        return skip;
+    }
+
+    public double getReceiveGainDbi() {
+        return receiveGainDbi;
+    }
+
+    public double getTransmitGainDbi() {
+        return transmitGainDbi;
+    }
+
+    public double getReceiveGainLinear() {
+        return receiveGainLinear;
+    }
+
+    public double getTransmitGainLinear() {
+        return transmitGainLinear;
+    }
+
+    private static double dbiToLinear(double dbi) {
+        return Math.pow(10.0D, dbi / 10.0D);
     }
 
 }

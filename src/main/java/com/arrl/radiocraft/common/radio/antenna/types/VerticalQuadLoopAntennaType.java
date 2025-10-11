@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.types.data.VerticalQuadLoopAntennaData;
 import net.minecraft.core.BlockPos;
@@ -16,7 +17,7 @@ import java.util.List;
 public class VerticalQuadLoopAntennaType extends DirectionalAntennaType<VerticalQuadLoopAntennaData> {
 
 	public VerticalQuadLoopAntennaType() {
-		super(Radiocraft.id("vertical_quad_loop"), 1.0D, 1.0D, 1.25D, 1.25D);
+		super(Radiocraft.id("vertical_quad_loop"), 0.0D, 0.0D, 1.25D, 1.25D);
 	}
 	@Override
 	public StaticAntenna<VerticalQuadLoopAntennaData> match(Level level, BlockPos pos) {
@@ -94,8 +95,8 @@ public class VerticalQuadLoopAntennaType extends DirectionalAntennaType<Vertical
 	}
 
 	@Override
-	public double getSWR(VerticalQuadLoopAntennaData data, int wavelength) {
-		int desiredLength = (int)Math.round(wavelength / 4.0D);
+	public double getSWR(VerticalQuadLoopAntennaData data, float frequencyHertz) {
+		int desiredLength = (int)Math.round(BandUtils.getWavelengthMetersFromFrequencyHertz(frequencyHertz) / 4.0D);
 		int incorrectBlocks = Math.abs(desiredLength - data.getSideLength());
 		return 1.0D + (0.5D * incorrectBlocks);
 	}

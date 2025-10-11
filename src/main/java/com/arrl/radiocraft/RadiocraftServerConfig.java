@@ -18,13 +18,15 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> HANDHELD_MAX_GAIN;
 	public static final ModConfigSpec.ConfigValue<Double> HANDHELD_MAX_MIC_GAIN;
 
-	public record BandConfig(int wavelength, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Integer> minFrequency, ModConfigSpec.ConfigValue<Integer> maxFrequency) {
+    public static final ModConfigSpec.ConfigValue<Boolean> CALLSIGN_PERMISSIONS_ENABLED;
+
+	public record BandConfig(String name, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Float> minFrequency, ModConfigSpec.ConfigValue<Float> maxFrequency) {
 		public Band getBand() {
-			return new Band(wavelength, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
+			return new Band(name, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
 		}
 	}
 
-	public static final Map<Integer, BandConfig> BAND_CONFIGS = new ConcurrentHashMap<>();
+	public static final Map<String, BandConfig> BAND_CONFIGS = new ConcurrentHashMap<>();
 
 	static {
 		BUILDER.push("Antenna Options ( * = Restart game to take effect)");
@@ -32,25 +34,25 @@ public class RadiocraftServerConfig {
 		BUILDER.pop();
 
 		BUILDER.push("Band Options ( * = Restart game to take effect)");
-		HF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a HF frequency, in kHz (0.001MHz) #default 1").define("hf_frequency_step", 1);
-		VHF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a VHF frequency, in kHz (0.001MHz) #default 100").define("vhf_frequency_step", 20);
+		HF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a HF frequency, in Hz #default 1000").define("hf_frequency_step", 1_000);
+		VHF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a VHF frequency, in Hz #default 100000").define("vhf_frequency_step", 20_000);
 		BUILDER.pop();
 
-		BUILDER.comment(" While wavelength and frequency are to measures of the same principle, when we refer to a band like say 10m, we mean a range of actual frequencies that aren't exactly 10m in wavelength");
+		BUILDER.comment(" While name and frequency are to measures of the same principle, when we refer to a band like say 10m, we mean a range of actual frequencies that aren't exactly 10m in name");
 		BUILDER.comment(" Band names like 10m are just for human convenience (so you don't have to say radio capable of 144MHz to 146MHz");
 
 		BAND_CONFIGS.clear();
 		for(Band band : Band.getDefaults()) {
-			BUILDER.push(band.wavelength() == 2 ? "2m band settings, also known as VHF" : band.wavelength() + "m band settings");
-			BAND_CONFIGS.put(band.wavelength(), new BandConfig(
-					band.wavelength(),
-					BUILDER.comment(" Line of sight range for this band").define(band.wavelength() + "m_los", band.losRange()),
-					BUILDER.comment(" minimum range for the skip effect during the day").define(band.wavelength() + "m_minSkipDay", band.minSkipDay()),
-					BUILDER.comment(" maximum range for the skip effect during the day").define(band.wavelength() + "m_maxSkipDay", band.maxSkipDay()),
-					BUILDER.comment(" minimum range for the skip effect during the night").define(band.wavelength() + "m_minSkipNight", band.minSkipNight()),
-					BUILDER.comment(" maximum range for the skip effect during the night").define(band.wavelength() + "m_maxSkipNight", band.maxSkipNight()),
-					BUILDER.comment(" The minimum frequency for this band").define(band.wavelength() + "m_minFrequency", band.minFrequency()),
-					BUILDER.comment(" The maximum frequency for this band").define(band.wavelength() + "m_maxFrequency", band.maxFrequency())
+			BUILDER.push(band.name().equals("2m") ? band.name() + " band settings, also known as VHF" : band.name() + " band settings");
+			BAND_CONFIGS.put(band.name(), new BandConfig(
+					band.name(),
+					BUILDER.comment(" Line of sight range for this band").define(band.name() + "m_los", band.losRange()),
+					BUILDER.comment(" minimum range for the skip effect during the day").define(band.name() + "m_minSkipDay", band.minSkipDay()),
+					BUILDER.comment(" maximum range for the skip effect during the day").define(band.name() + "m_maxSkipDay", band.maxSkipDay()),
+					BUILDER.comment(" minimum range for the skip effect during the night").define(band.name() + "m_minSkipNight", band.minSkipNight()),
+					BUILDER.comment(" maximum range for the skip effect during the night").define(band.name() + "m_maxSkipNight", band.maxSkipNight()),
+					BUILDER.comment(" The minimum frequency for this band").define(band.name() + "m_minFrequency", band.minFrequency()),
+					BUILDER.comment(" The maximum frequency for this band").define(band.name() + "m_maxFrequency", band.maxFrequency())
 			));
 			BUILDER.pop();
 		}
@@ -59,6 +61,10 @@ public class RadiocraftServerConfig {
 		HANDHELD_MAX_GAIN = BUILDER.comment(" Maximum output gain").defineInRange("handheld_max_gain", 5.0, 1.0, 25.0);
 		HANDHELD_MAX_MIC_GAIN = BUILDER.comment(" Maximum microphone gain").defineInRange("handheld_max_mic_gain", 5.0, 1.0, 25.0);
 		BUILDER.pop();
+
+        BUILDER.push("Permissions");
+        CALLSIGN_PERMISSIONS_ENABLED = BUILDER.comment(" Require op for callsign configuration").define("callsign_permissions_enabled", true);
+        BUILDER.pop();
 
 		SPEC = BUILDER.build();
 	}
