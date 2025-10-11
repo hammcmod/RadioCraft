@@ -224,7 +224,7 @@ A common small battery, typically starts with 50-70% charge
 VHF Handheld Radio
 Energy: 83250 / 166500 J
 Charge: 50.0%
-Click battery on radio to swap energy
+Click battery on VHF Handheld to swap batteries
 ```
 
 #### Radio GUI Display
@@ -456,7 +456,7 @@ provider.add("tooltip.radiocraft.battery_percentage", "Charge: %s%%");
 provider.add("tooltip.radiocraft.small_battery", 
     "§7A common small battery, typically starts with 50-70% charge§r");
 provider.add("tooltip.radiocraft.vhf_handheld_battery_swap", 
-    "§7Click battery on radio to swap energy§r");
+    "Click battery on VHF Handheld to swap batteries");
 
 // Messages
 provider.add("message.radiocraft.battery_swapped", "Battery energy swapped!");

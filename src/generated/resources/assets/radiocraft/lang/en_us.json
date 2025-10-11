@@ -70,4 +70,4 @@
   "tooltip.radiocraft.not_implemented_crafting_only": "§7Not Implemented (Crafting Ingredient Only)§r",
   "tooltip.radiocraft.small_battery": "§7A common small battery, typically starts with 50-70% charge§r",
   "tooltip.radiocraft.vhf_handheld_battery_swap": "§7Click battery on radio to swap energy§r"
-}
+    "tooltip.radiocraft.vhf_handheld_battery_swap": "Click battery on VHF Handheld to swap batteries",
