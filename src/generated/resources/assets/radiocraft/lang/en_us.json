@@ -73,9 +73,9 @@
   "tooltip.radiocraft.battery_percentage": "Charge: %s%%",
   "tooltip.radiocraft.energy_stored": "Energy: %s / %s FE",
   "tooltip.radiocraft.energy_stored_joules": "Energy: %s / %s J",
-  "tooltip.radiocraft.antenna_analyzer": "Used for analyzing antenna networks and handheld radio antennas",
   "tooltip.radiocraft.not_implemented": "§7Not Implemented (Decorative Only)§r",
   "tooltip.radiocraft.not_implemented_crafting_only": "§7Not Implemented (Crafting Ingredient Only)§r",
   "tooltip.radiocraft.small_battery": "A common small battery, typically starts with 50-70% charge",
-  "tooltip.radiocraft.vhf_handheld_battery_swap": "Click battery on VHF Handheld to swap batteries"
+  "tooltip.radiocraft.vhf_handheld_battery_swap": "Click battery on VHF Handheld to swap batteries",
+  "tooltip.radiocraft.antenna_analyzer": "Used for analyzing antenna networks and handheld radio antennas"
 }
