@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.items;
 
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
+import com.arrl.radiocraft.client.events.ClientTick;
 import com.arrl.radiocraft.client.screens.radios.VHFHandheldScreen;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import net.minecraft.server.level.ServerPlayer;
@@ -11,6 +12,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.NotNull;
 
 import static com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities.VHF_HANDHELDS;
 
@@ -21,12 +23,16 @@ public class VHFHandheldItem extends Item {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public @NotNull InteractionResultHolder<ItemStack> use(@NotNull Level level, Player player, @NotNull InteractionHand hand) {
         ItemStack item = player.getItemInHand(hand);
 
         if(hand == InteractionHand.MAIN_HAND) {
-            if(level.isClientSide() && player.isCrouching()) {
-                VHFHandheldScreen.open(player.getInventory().selected); // The open call is in a different class so the server doesn't try to load it.
+            if(level.isClientSide()) {
+                if (player.isCrouching()) {
+                    VHFHandheldScreen.open(player.getInventory().selected);// The open call is in a different class so the server doesn't try to load it.
+                } else {
+                    ClientTick.pttActivated();
+                }
             }
             if(!player.isCrouching()){
                 return InteractionResultHolder.pass(item); //prevents bob animation on use key (aka right click)
