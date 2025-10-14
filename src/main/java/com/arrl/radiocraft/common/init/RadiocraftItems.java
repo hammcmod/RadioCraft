@@ -30,7 +30,10 @@ public class RadiocraftItems {
 	public static final Supplier<Item> HAND_MICROPHONE = simpleItem("hand_microphone", null);
 	public static final Supplier<Item> HF_CIRCUIT_BOARD = simpleItem("hf_circuit_board", null);
 
-	public static final DeferredHolder<Item, SmallBatteryItem> SMALL_BATTERY = ITEMS.register("small_battery", () -> new SmallBatteryItem(new Properties().stacksTo(1))); //.component(DataComponent.ENERGY_DATA_COMPONENT, new DataComponent.EnergyRecord(1000.0))));
+	public static final DeferredHolder<Item, SmallBatteryItem> SMALL_BATTERY = ITEMS.register("small_battery", () -> new SmallBatteryItem(new Properties()
+			.stacksTo(1)
+	));
+	
 	public static final Supplier<Item> FERRITE_CORE = simpleItem("ferrite_core", null);
 	public static final Supplier<Item> COAXIAL_CORE = simpleItem("coaxial_core", null);
 	public static final Supplier<Item> ANTENNA_ANALYZER = ITEMS.register("antenna_analyzer", () -> new AntennaAnalyzerItem(new Properties().stacksTo(1)));

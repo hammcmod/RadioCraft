@@ -21,6 +21,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.energy.IEnergyStorage;
+
 public class VHFHandheldScreen extends Screen {
 
     public static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/vhf_handheld.png");
@@ -47,6 +50,11 @@ public class VHFHandheldScreen extends Screen {
     LedIndicator TX_LED, RX_LED, DATA_LED;
 
     MeterNeedleIndicator POWER_METER;
+    
+    // Reference to the power toggle so we can reset it later without creating threads
+    protected ToggleButton powerToggle;
+    // If > 0, time in millis at which the power toggle should be reset to false
+    protected long powerToggleResetAt = 0L;
 
     @SuppressWarnings("this-escape")
     public VHFHandheldScreen(int index) {
@@ -83,7 +91,10 @@ public class VHFHandheldScreen extends Screen {
         //     public MeterNeedleIndicator(Component name, MeterNeedleType mnt, int meterDimension, int x, int y, int width, int height, int u, int v, ResourceLocation texture, int textureWidth, int textureHeight) {
         POWER_METER = new MeterNeedleIndicator(Component.literal("Power"), MeterNeedleIndicator.MeterNeedleType.METER_HORIZONTAL, 33, leftPos + 33, topPos + 126, 2, 20, 232, 0, WIDGETS_TEXTURE, 256, 256);
 
-        addRenderableWidget(new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower)); // Power
+    // Power toggle - store reference so we can reset it later on the client thread without spawning threads
+    ToggleButton powerBtn = new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower);
+    this.powerToggle = powerBtn;
+    addRenderableWidget(powerBtn); // Power
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
         this.micGainDial = new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::onMicGainUp, this::onMicGainDown);
         addRenderableWidget(this.micGainDial); // Mic gain
@@ -126,6 +137,14 @@ public class VHFHandheldScreen extends Screen {
         }
 
         renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+
+        // Check if we need to reset the power toggle (scheduled earlier when trying to turn on with no battery)
+        if (powerToggleResetAt > 0L && System.currentTimeMillis() >= powerToggleResetAt) {
+            if (powerToggle != null) {
+                powerToggle.isToggled = false;
+            }
+            powerToggleResetAt = 0L;
+        }
 
         int edgeSpacingX = (width - imageWidth) / 2;
         int edgeSpacingY = (height - imageHeight) / 2;
@@ -188,8 +207,33 @@ public class VHFHandheldScreen extends Screen {
         RX_LED.setIsOn(cap.isPowered() && cap.getReceiveStrength() > 0);
         DATA_LED.setIsOn(false); // TBI
 
+        // Render battery indicator
+        if (cap.isPowered()) {
+            renderBatteryIndicator(pGuiGraphics);
+        }
+
         for (Renderable renderable : this.renderables) {
             renderable.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+        }
+    }
+    
+    /**
+     * Renders a battery charge indicator on the screen.
+     */
+    private void renderBatteryIndicator(GuiGraphics graphics) {
+        IEnergyStorage energyStorage = item.getCapability(Capabilities.EnergyStorage.ITEM);
+        
+        if (energyStorage != null) {
+            int stored = energyStorage.getEnergyStored();
+            int max = energyStorage.getMaxEnergyStored();
+            float percentage = max > 0 ? (float) stored / max : 0.0f;
+            
+            // Battery percentage text (bottom right corner of green screen, right-aligned)
+            String percentText = String.format("%d%%", (int)(percentage * 100));
+            int textWidth = this.font.width(percentText);
+            int textX = leftPos + 140 - textWidth; // Right-aligned, within screen bounds
+            int textY = topPos + 133; // Same line as second frequency display
+            graphics.drawString(this.font, percentText, textX, textY, 0xFFFFFF);
         }
     }
 
@@ -377,9 +421,33 @@ public class VHFHandheldScreen extends Screen {
      * Callback to toggle power on a device.
      */
     protected void onPressPower(ToggleButton button) {
-        //RadiocraftPackets.sendToServer(new SHandheldPowerPacket(index, !cap.isPowered()));
-        cap.setPowered(!cap.isPowered());
-        updateServer();
+        // Check if trying to turn on
+        if (!cap.isPowered()) {
+            // Check if radio has battery
+            net.neoforged.neoforge.energy.IEnergyStorage energyStorage = 
+                minecraft.player.getInventory().getItem(index).getCapability(
+                    net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.ITEM);
+            
+            if (energyStorage != null && energyStorage.getEnergyStored() > 0) {
+                // Has battery - turn on
+                cap.setPowered(true);
+                updateServer();
+            } else {
+                // No battery - show message and delay button reset for visual feedback
+                minecraft.player.displayClientMessage(
+                    net.minecraft.network.chat.Component.translatable("message.radiocraft.radio_battery_empty"),
+                    true
+                );
+                
+                // Schedule button reset after ~200ms for visual feedback by setting a timestamp
+                // We set powerToggleResetAt and let the main client thread clear the toggle in render().
+                powerToggleResetAt = System.currentTimeMillis() + 200L;
+            }
+        } else {
+            // Turning off - always allow
+            cap.setPowered(false);
+            updateServer();
+        }
     }
 
     private final class FrequencyEntryState {

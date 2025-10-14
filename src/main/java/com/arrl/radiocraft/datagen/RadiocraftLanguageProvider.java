@@ -98,6 +98,14 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 
             provider.add(Radiocraft.translationKey("tooltip", "not_implemented"), "§7Not Implemented (Decorative Only)§r");
             provider.add(Radiocraft.translationKey("tooltip", "not_implemented_crafting_only"), "§7Not Implemented (Crafting Ingredient Only)§r");
+            provider.add(Radiocraft.translationKey("tooltip", "energy_stored"), "Energy: %s / %s FE");
+            provider.add(Radiocraft.translationKey("tooltip", "energy_stored_joules"), "Energy: %s / %s J");
+            provider.add(Radiocraft.translationKey("tooltip", "battery_percentage"), "Charge: %s%%");
+			provider.add(Radiocraft.translationKey("tooltip", "small_battery"), "A common small battery, typically starts with 50-70% charge");
+			provider.add(Radiocraft.translationKey("tooltip", "vhf_handheld_battery_swap"), "Click battery on VHF Handheld to swap batteries");
+
+			provider.add(Radiocraft.translationKey("message", "battery_swapped"), "Battery swapped");
+            provider.add(Radiocraft.translationKey("message", "radio_battery_empty"), "Radio battery depleted");
 
 			// Jade configuration translations
 			provider.add("config.jade.plugin_radiocraft.radiocraft", "RadioCraft");
