@@ -35,49 +35,50 @@ public class BlinkingAutoGlowingGeoLayer<T extends GeoAnimatable> extends GeoRen
             return;
         }
 
-    // 60-tick cycle (3 seconds) to alternate colors
+    // 1200-tick cycle (1 minute) for smooth red->green transition
     long time = level.getGameTime();
-    long cycle = (time / 20L) % 3L; // Change color every 20 ticks (1 second)
 
     // Blink every 10 ticks (half second)
     boolean ledOn = (time / 10L) % 2L == 0L;
 
-    // Always perform an emissive pass. When ledOn is true, use the color for the current cycle;
+    // Always perform an emissive pass. When ledOn is true, compute a smooth tint;
     // otherwise use black (no visible glow) between pulses.
-        RenderType emissiveRenderType = RenderType.eyes(getGlowTexture(animatable));
-        VertexConsumer emissiveBuffer = bufferSource.getBuffer(emissiveRenderType);
 
-        float red = 0.0f;
-        float green = 0.0f;
-        float blue = 0.0f;
+    // Use the glowmask texture and apply a dynamic tint that smoothly interpolates
+    // from red to green over a 1200-tick cycle. Between pulses render black (off).
+    RenderType emissiveRenderType = RenderType.eyes(getGlowTexture(animatable));
+    VertexConsumer emissiveBuffer = bufferSource.getBuffer(emissiveRenderType);
+
+        float redTint = 0.0f;
+        float greenTint = 0.0f;
+        float blueTint = 0.0f;
 
         if (ledOn) {
-            if (cycle == 0) { // Red
-                red = 1.0f;
-            } else if (cycle == 1) { // Yellow
-                red = 1.0f;
-                green = 1.0f;
-            } else { // Green
-                green = 1.0f;
-            }
+            // Smooth progress over the full 1200-tick cycle (1 minute). Include partialTick for smoothness.
+            float progress = ((time % 1200L) + partialTick) / 1200.0f; // 0..1 across red->green
+            // Interpolate from red (1,0) to green (0,1)
+            redTint = 1.0f - progress;
+            greenTint = progress;
+            blueTint = 0.0f;
         } else {
-            // Between pulses, render black (no emissive color)
-            red = 0.0f;
-            green = 0.0f;
-            blue = 0.0f;
+            // Off (black)
+            redTint = 0.0f;
+            greenTint = 0.0f;
+            blueTint = 0.0f;
         }
 
-        int r = Math.max(0, Math.min(255, (int) (red * 255.0f)));
-        int g = Math.max(0, Math.min(255, (int) (green * 255.0f)));
-        int b = Math.max(0, Math.min(255, (int) (blue * 255.0f)));
-        int colour = (255 << 24) | (r << 16) | (g << 8) | b;
 
-    // Use the renderer's reRender method to draw the emissive glowmask with the chosen color.
-    // Apply a tiny Z offset to avoid z-fighting with the base model.
-    poseStack.pushPose();
-    // Translate a very small amount along view Z to prevent depth fighting.
-    poseStack.translate(0.0d, 0.0d, -0.0005d);
-    getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, emissiveRenderType, emissiveBuffer, partialTick, packedLight, packedOverlay, colour);
-    poseStack.popPose();
+    int r = Math.max(0, Math.min(255, (int) (redTint * 255.0f)));
+    int g = Math.max(0, Math.min(255, (int) (greenTint * 255.0f)));
+    int b = Math.max(0, Math.min(255, (int) (blueTint * 255.0f)));
+    int colour = (255 << 24) | (r << 16) | (g << 8) | b;
+
+    // Render with fullbright so tint appears strong regardless of environment.
+    int fullBright = 15728880; // packed light value for full brightness (15,15)
+
+        poseStack.pushPose();
+
+    getRenderer().reRender(bakedModel, poseStack, bufferSource, animatable, emissiveRenderType, emissiveBuffer, partialTick, fullBright, packedOverlay, colour);
+        poseStack.popPose();
     }
 }
