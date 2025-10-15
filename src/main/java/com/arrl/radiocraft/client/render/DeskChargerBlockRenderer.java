@@ -13,13 +13,15 @@ import software.bernie.geckolib.model.DefaultedBlockGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
-/** Minimal Geo renderer for desk charger - no animations. */
+/** Minimal Geo renderer for the desk charger - no animations. */
 public class DeskChargerBlockRenderer extends GeoBlockRenderer<DeskChargerBlockEntity> {
 
     public DeskChargerBlockRenderer(BlockEntityRendererProvider.Context context) {
         super(new DeskChargerModel());
-        // Add the automatic glowing layer - it will look for a texture with _glowmask suffix
-        addRenderLayer(new AutoGlowingGeoLayer<>(this));
+    // Replace the line below
+    // addRenderLayer(new AutoGlowingGeoLayer<>(this));
+    // with this one:
+    addRenderLayer(new BlinkingAutoGlowingGeoLayer<>(this));
     }
 
     public static class DeskChargerModel extends DefaultedBlockGeoModel<DeskChargerBlockEntity> {
