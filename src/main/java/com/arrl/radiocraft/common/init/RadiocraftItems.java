@@ -77,6 +77,8 @@ public class RadiocraftItems {
 
 	public static final Supplier<BlockItem> SOLAR_WEATHER_STATION = simpleBlockItem("solar_weather_station", RadiocraftBlocks.SOLAR_WEATHER_STATION);
 	public static final Supplier<BlockItem> MICROPHONE = simpleBlockItem("microphone", RadiocraftBlocks.MICROPHONE);
+	// Desk charger is a development-only block used for testing the Gecko model
+	public static final Supplier<BlockItem> DESK_CHARGER = simpleBlockItem("desk_charger", RadiocraftBlocks.DESK_CHARGER);
 
 
 	// Helper methods to cut down on boilerplate

@@ -69,6 +69,8 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, SolarWeatherStationBlock> SOLAR_WEATHER_STATION = BLOCKS.register("solar_weather_station", () -> new SolarWeatherStationBlock(PROPERTIES_STONE));
 
 	public static final DeferredHolder<Block, MicrophoneBlock> MICROPHONE = BLOCKS.register("microphone", () -> new MicrophoneBlock(PROPERTIES_STONE));
+	// Desk charger used for testing the gecko model
+	public static final DeferredHolder<Block, DeskChargerBlock> DESK_CHARGER = BLOCKS.register("desk_charger", () -> new DeskChargerBlock(PROPERTIES_RADIO));
 
 	public static Supplier<Block> simpleBlock(String name, Properties properties) {
 		return BLOCKS.register(name, () -> new Block(properties));

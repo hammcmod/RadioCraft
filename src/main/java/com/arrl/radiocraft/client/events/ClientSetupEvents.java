@@ -6,6 +6,10 @@ import com.arrl.radiocraft.client.entity.AntennaWireEntityRenderer;
 import com.arrl.radiocraft.client.screens.*;
 import com.arrl.radiocraft.client.screens.radios.*;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
+import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
+import com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity;
+import com.arrl.radiocraft.client.render.DeskChargerBlockRenderer;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -36,5 +40,9 @@ public class ClientSetupEvents {
 	@SubscribeEvent
 	public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
 		event.registerEntityRenderer(RadiocraftEntityTypes.ANTENNA_WIRE.get(), AntennaWireEntityRenderer::new);
+		// Desk charger geo renderer
+		// Cast to the concrete BlockEntityType generic to satisfy method signature
+		// Use a lambda with an unchecked raw cast to avoid generic signature issues in the registration helper.
+		event.registerBlockEntityRenderer((net.minecraft.world.level.block.entity.BlockEntityType) RadiocraftBlockEntities.DESK_CHARGER.get(), ctx -> new DeskChargerBlockRenderer(ctx));
 	}
 }
