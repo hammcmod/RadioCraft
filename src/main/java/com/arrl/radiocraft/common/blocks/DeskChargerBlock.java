@@ -2,7 +2,17 @@ package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -29,9 +39,77 @@ public class DeskChargerBlock extends BaseEntityBlock {
         super(properties);
     }
 
+    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+
+    // Split into base (always present) and radio (only when item present in slot) shapes
+    private static final VoxelShape BASE_SHAPE = makeBaseShape();
+    private static final VoxelShape RADIO_SHAPE = makeRadioShape();
+
+    private static VoxelShape makeBaseShape() {
+        VoxelShape shape = Shapes.empty();
+        shape = Shapes.join(shape, Shapes.box(0.359375, 0.09375, 0.5624998582892072, 0.640625, 0.125, 0.609375), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(0.34375, 0, 0.40625, 0.65625, 0.09375, 0.625), BooleanOp.OR);
+
+        return shape;
+    }
+
+    private static VoxelShape makeRadioShape() {
+        VoxelShape shape = Shapes.empty();
+        shape = Shapes.join(shape, Shapes.box(0.375, 0.03125, 0.4375, 0.625, 0.40625, 0.59375), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(0.390625, 0.40625, 0.53125, 0.4375, 0.671875, 0.578125), BooleanOp.OR);
+        shape = Shapes.join(shape, Shapes.box(0.359375, 0.3125, 0.4921875, 0.40625, 0.359375, 0.5390625), BooleanOp.OR);
+
+        return shape;
+    }
+
     @Override
     public RenderShape getRenderShape(BlockState state) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(FACING);
+    }
+
+    @Nullable
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        // If there's a DeskChargerBlockEntity with a radio in the slot, include the radio shape
+        if (level.getBlockEntity(pos) instanceof DeskChargerBlockEntity desk) {
+            var stack = desk.inventory.getStackInSlot(0);
+            if (stack != null && !stack.isEmpty()) {
+                return Shapes.or(BASE_SHAPE, RADIO_SHAPE);
+            }
+        }
+        return BASE_SHAPE;
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        if (level.getBlockEntity(pos) instanceof DeskChargerBlockEntity desk) {
+            var stack = desk.inventory.getStackInSlot(0);
+            if (stack != null && !stack.isEmpty()) {
+                return Shapes.or(BASE_SHAPE, RADIO_SHAPE);
+            }
+        }
+        return BASE_SHAPE;
+    }
+
+    @Override
+    public VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        if (level.getBlockEntity(pos) instanceof DeskChargerBlockEntity desk) {
+            var stack = desk.inventory.getStackInSlot(0);
+            if (stack != null && !stack.isEmpty()) {
+                return Shapes.or(BASE_SHAPE, RADIO_SHAPE);
+            }
+        }
+        return BASE_SHAPE;
     }
 
     @Nullable
