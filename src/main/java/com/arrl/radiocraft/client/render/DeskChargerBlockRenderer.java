@@ -16,8 +16,10 @@ import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 /** Minimal Geo renderer for the desk charger - no animations. */
 public class DeskChargerBlockRenderer extends GeoBlockRenderer<DeskChargerBlockEntity> {
 
+    private static final DeskChargerModel MODEL = new DeskChargerModel();
+
     public DeskChargerBlockRenderer(BlockEntityRendererProvider.Context context) {
-        super(new DeskChargerModel());
+        super(MODEL);
     // Replace the line below
     // addRenderLayer(new AutoGlowingGeoLayer<>(this));
     // with this one:
@@ -37,6 +39,17 @@ public class DeskChargerBlockRenderer extends GeoBlockRenderer<DeskChargerBlockE
 
         if (level != null) {
             packedLight = LevelRenderer.getLightColor(level, pos);
+        }
+
+        // Hide the "Radio" bone if there's no radio in the charger slot
+        var stack = blockEntity.inventory.getStackInSlot(0);
+        try {
+            var bone = MODEL.getAnimationProcessor().getBone("Radio");
+            if (bone != null) {
+                bone.setHidden(stack == null || stack.isEmpty());
+            }
+        } catch (Exception e) {
+            Radiocraft.LOGGER.debug("Could not toggle Radio bone visibility: {}", e.getMessage());
         }
 
         super.render(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay);
