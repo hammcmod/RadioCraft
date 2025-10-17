@@ -7,6 +7,7 @@
   "block.radiocraft.balun_two_to_one": "Balun (2:1)",
   "block.radiocraft.charge_controller": "Charge Controller",
   "block.radiocraft.coax_wire": "Coaxial Wire",
+  "block.radiocraft.desk_charger": "Desk Charger",
   "block.radiocraft.digital_interface": "Digital Interface (TNC)",
   "block.radiocraft.duplexer": "Duplexer",
   "block.radiocraft.hf_radio_10m": "HF Radio (10m)",
@@ -77,5 +78,6 @@
   "tooltip.radiocraft.not_implemented_crafting_only": "§7Not Implemented (Crafting Ingredient Only)§r",
   "tooltip.radiocraft.small_battery": "A common small battery, typically starts with 50-70% charge",
   "tooltip.radiocraft.vhf_handheld_battery_swap": "Click battery on VHF Handheld to swap batteries",
-  "tooltip.radiocraft.antenna_analyzer": "Used for analyzing antenna networks and handheld radio antennas"
+  "tooltip.radiocraft.antenna_analyzer": "Used for analyzing antenna networks and handheld radio antennas",
+  "tooltip.radiocraft.desk_charger": "Charges handheld radios placed on top"
 }
