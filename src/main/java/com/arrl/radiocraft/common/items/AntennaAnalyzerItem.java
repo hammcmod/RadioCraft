@@ -5,7 +5,7 @@ import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
-import com.arrl.radiocraft.common.radio.antenna.types.data.RubberDuckyAntennaData;
+import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;

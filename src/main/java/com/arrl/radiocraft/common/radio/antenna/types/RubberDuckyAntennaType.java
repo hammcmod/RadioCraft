@@ -1,9 +1,8 @@
 package com.arrl.radiocraft.common.radio.antenna.types;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
-import com.arrl.radiocraft.common.radio.antenna.types.data.RubberDuckyAntennaData;
+import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 

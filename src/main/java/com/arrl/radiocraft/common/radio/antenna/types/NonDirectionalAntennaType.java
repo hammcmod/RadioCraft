@@ -3,7 +3,7 @@ package com.arrl.radiocraft.common.radio.antenna.types;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.radio.BandUtils;
-import com.arrl.radiocraft.common.radio.antenna.AntennaData;
+import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 

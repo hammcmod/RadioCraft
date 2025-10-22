@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.api.antenna;
 
 import com.arrl.radiocraft.common.radio.antenna.*;
+import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;

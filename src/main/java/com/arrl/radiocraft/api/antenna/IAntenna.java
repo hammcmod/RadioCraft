@@ -2,7 +2,7 @@ package com.arrl.radiocraft.api.antenna;
 
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
-import com.arrl.radiocraft.common.radio.antenna.AntennaData;
+import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
