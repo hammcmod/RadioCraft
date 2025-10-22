@@ -1,31 +1,30 @@
-package com.arrl.radiocraft.common.radio.antenna.types.data;
+package com.arrl.radiocraft.common.radio.antenna.data;
 
-import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import org.jetbrains.annotations.UnknownNullability;
 
-public class EndFedAntennaData extends AntennaData {
+public class QuarterWaveVerticalAntennaData extends AntennaData {
 
-	private double length;
+	private int height;
 
-	public EndFedAntennaData(double length) {
-		this.length = length;
+	public QuarterWaveVerticalAntennaData(int height) {
+		this.height = height;
 	}
 
-	public double getLength() {
-		return length;
+	public int getHeight() {
+		return height;
 	}
 
 	@Override
 	public @UnknownNullability CompoundTag serializeNBT(HolderLookup.Provider provider) {
 		CompoundTag nbt = new CompoundTag();
-		nbt.putDouble("length", length);
+		nbt.putInt("height", height);
 		return nbt;
 	}
 
 	@Override
 	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-		length = nbt.getDouble("length");
+		this.height = nbt.getInt("height");
 	}
 }

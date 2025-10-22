@@ -1,6 +1,5 @@
-package com.arrl.radiocraft.common.radio.antenna.types.data;
+package com.arrl.radiocraft.common.radio.antenna.data;
 
-import com.arrl.radiocraft.common.radio.antenna.AntennaData;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;

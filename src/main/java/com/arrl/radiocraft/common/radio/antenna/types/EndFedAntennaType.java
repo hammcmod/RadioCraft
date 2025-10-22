@@ -6,7 +6,7 @@ import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
-import com.arrl.radiocraft.common.radio.antenna.types.data.EndFedAntennaData;
+import com.arrl.radiocraft.common.radio.antenna.data.EndFedAntennaData;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
