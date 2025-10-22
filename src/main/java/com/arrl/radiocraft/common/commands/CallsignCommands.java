@@ -11,6 +11,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.GameProfileArgument;
@@ -21,8 +22,13 @@ import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.server.command.EnumArgument;
 import org.jetbrains.annotations.NotNull;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -68,9 +74,22 @@ public class CallsignCommands {
 							.then(Commands.argument("player", GameProfileArgument.gameProfile())
 									.executes(command -> resetCallsign(command.getSource(), GameProfileArgument.getGameProfiles(command, "player")))))
 
-					.then(Commands.literal("set")
-							.then(Commands.argument("player", GameProfileArgument.gameProfile())
-									.then(Commands.argument("callsign", StringArgumentType.string())
+				.then(Commands.literal("generate")
+					.requires(source -> source.hasPermission(3))
+					.then(Commands.argument("player", GameProfileArgument.gameProfile())
+							.executes(command -> generateCallsign(command.getSource(), GameProfileArgument.getGameProfiles(command, "player"), LicenseClass.TECHNICIAN))
+							.then(Commands.argument("license", EnumArgument.enumArgument(LicenseClass.class))
+								.executes(command -> generateCallsign(command.getSource(), GameProfileArgument.getGameProfiles(command, "player"), command.getArgument("license", LicenseClass.class))))))
+
+				.then(Commands.literal("generate-online")
+					.requires(source -> source.hasPermission(3))
+					.executes(command -> generateCallsignForOnlinePlayers(command.getSource(), LicenseClass.TECHNICIAN))
+					.then(Commands.argument("license", EnumArgument.enumArgument(LicenseClass.class))
+						.executes(command -> generateCallsignForOnlinePlayers(command.getSource(), command.getArgument("license", LicenseClass.class)))))
+
+				.then(Commands.literal("set")
+						.then(Commands.argument("player", GameProfileArgument.gameProfile())
+								.then(Commands.argument("callsign", StringArgumentType.string())
 											.then(Commands.argument("license", EnumArgument.enumArgument(LicenseClass.class))
 													.executes(command -> setCallsign(command.getSource(), GameProfileArgument.getGameProfiles(command, "player"), StringArgumentType.getString(command, "callsign"), command.getArgument("license", LicenseClass.class)))))))
 
@@ -207,6 +226,120 @@ public class CallsignCommands {
 		Supplier<Component> combined = () -> Component.translatable(Radiocraft.translationKey("commands", "callsign.set.success"), name, callsign, license);
 		source.sendSuccess(combined, true);
 		return 1;
+	}
+
+	public static int generateCallsign(CommandSourceStack source, Collection<GameProfile> gameProfiles, LicenseClass licenseClass) throws CommandSyntaxException {
+		if (gameProfiles != null && gameProfiles.size() > 1) {
+			source.sendFailure(Component.translatable(Radiocraft.translationKey("commands", "callsign.generate.failure.multiple")));
+			return 0;
+		}
+		final GameProfile targetProfile = getTarget(source, gameProfiles);
+		playerSavedData = getPlayerCallsignSavedData(source.getLevel());
+		blockEntitySavedData = getBlockEntityCallsignSavedData(source.getLevel());
+		PlayerCallsignData existingData = playerSavedData.getCallsignData(targetProfile.getId());
+		if (existingData != null) {
+			sendExistingCallsignMessage(source, targetProfile.getName(), existingData);
+			return 1;
+		}
+		String generatedCallsign = generateCallsignFromUuid(targetProfile.getId());
+		if (handleCallsignCollision(source, targetProfile.getId(), targetProfile.getName(), generatedCallsign)) {
+			return 0;
+		}
+		PlayerCallsignData newData = new PlayerCallsignData(targetProfile.getId().toString(), targetProfile.getName(), generatedCallsign, licenseClass);
+		playerSavedData.setCallsignData(targetProfile.getId(), newData);
+		sendGeneratedCallsignMessage(source, targetProfile.getName(), generatedCallsign, licenseClass);
+		return 1;
+	}
+
+	public static int generateCallsignForOnlinePlayers(CommandSourceStack source, LicenseClass licenseClass) {
+		playerSavedData = getPlayerCallsignSavedData(source.getLevel());
+		blockEntitySavedData = getBlockEntityCallsignSavedData(source.getLevel());
+		List<ServerPlayer> players = source.getServer().getPlayerList().getPlayers();
+		if (players.isEmpty()) {
+			source.sendSuccess(() -> Component.translatable(Radiocraft.translationKey("commands", "callsign.generate.online.empty")), true);
+			return 0;
+		}
+
+		int generatedCount = 0;
+		for (ServerPlayer player : players) {
+			PlayerCallsignData existingData = playerSavedData.getCallsignData(player.getUUID());
+			if (existingData != null) {
+				sendExistingCallsignMessage(source, player.getGameProfile().getName(), existingData);
+				continue;
+			}
+			String generatedCallsign = generateCallsignFromUuid(player.getUUID());
+			if (handleCallsignCollision(source, player.getUUID(), player.getGameProfile().getName(), generatedCallsign)) {
+				continue;
+			}
+			PlayerCallsignData newData = new PlayerCallsignData(player.getUUID().toString(), player.getGameProfile().getName(), generatedCallsign, licenseClass);
+			playerSavedData.setCallsignData(player.getUUID(), newData);
+			sendGeneratedCallsignMessage(source, player.getGameProfile().getName(), generatedCallsign, licenseClass);
+			generatedCount++;
+		}
+
+		if (generatedCount == 0) {
+			source.sendSuccess(() -> Component.translatable(Radiocraft.translationKey("commands", "callsign.generate.online.none")), true);
+		}
+
+		return Math.max(generatedCount, 1);
+	}
+
+	private static void sendGeneratedCallsignMessage(CommandSourceStack source, String playerName, String callsign, LicenseClass licenseClass) {
+		Component nameComponent = Component.literal(playerName).withStyle(ChatFormatting.WHITE);
+		Component callsignComponent = Component.literal(callsign).withStyle(ChatFormatting.GREEN);
+		Component licenseComponent = Component.translatable(Radiocraft.translationKey("license_class", licenseClass.name())).withStyle(ChatFormatting.GREEN);
+		Supplier<Component> combined = () -> Component.translatable(Radiocraft.translationKey("commands", "callsign.generate.success"), nameComponent, callsignComponent, licenseComponent);
+		source.sendSuccess(combined, true);
+	}
+
+	private static void sendExistingCallsignMessage(CommandSourceStack source, String playerName, PlayerCallsignData existingData) {
+		Component nameComponent = Component.literal(playerName).withStyle(ChatFormatting.WHITE);
+		Component callsignComponent = Component.literal(existingData.callsign()).withStyle(ChatFormatting.GRAY);
+		Component licenseComponent = Component.translatable(Radiocraft.translationKey("license_class", existingData.licenseClass().name())).withStyle(ChatFormatting.GRAY);
+		Supplier<Component> combined = () -> Component.translatable(Radiocraft.translationKey("commands", "callsign.generate.existing"), nameComponent, callsignComponent, licenseComponent);
+		source.sendSuccess(combined, true);
+	}
+
+	private static boolean handleCallsignCollision(CommandSourceStack source, UUID targetUuid, String targetName, String callsign) {
+		PlayerCallsignData collisionPlayer = playerSavedData.getCallsignData(callsign);
+		if (collisionPlayer != null && !collisionPlayer.playerUUID().equals(targetUuid.toString())) {
+			String existingName = Objects.requireNonNullElse(collisionPlayer.playerName(), collisionPlayer.playerUUID());
+			Component existingOwner = Component.literal(existingName).withStyle(ChatFormatting.WHITE);
+			sendCollisionMessage(source, targetName, callsign, existingOwner);
+			return true;
+		}
+
+		BlockEntityCallsignData collisionBlock = blockEntitySavedData.getCallsignData(callsign);
+		if (collisionBlock != null) {
+			String location = collisionBlock.pos().dimension().location() + " " + collisionBlock.pos().pos().toShortString();
+			Component existingOwner = Component.literal(location).withStyle(ChatFormatting.GRAY);
+			sendCollisionMessage(source, targetName, callsign, existingOwner);
+			return true;
+		}
+
+		return false;
+	}
+
+	private static void sendCollisionMessage(CommandSourceStack source, String playerName, String callsign, Component existingOwner) {
+		Component nameComponent = Component.literal(playerName).withStyle(ChatFormatting.WHITE);
+		Component callsignComponent = Component.literal(callsign).withStyle(ChatFormatting.GRAY);
+		Component manualComponent = Component.literal("/callsign set " + playerName + " <callsign> <license>").withStyle(ChatFormatting.YELLOW);
+		Component message = Component.translatable(Radiocraft.translationKey("commands", "callsign.generate.collision"), nameComponent, callsignComponent, existingOwner, manualComponent);
+		source.sendFailure(message);
+	}
+
+	private static String generateCallsignFromUuid(UUID playerUUID) {
+		try {
+			MessageDigest digest = MessageDigest.getInstance("SHA-256");
+			byte[] hash = digest.digest(playerUUID.toString().getBytes(StandardCharsets.UTF_8));
+			int digit = Byte.toUnsignedInt(hash[0]) % 10;
+			char firstLetter = (char) ('A' + (Byte.toUnsignedInt(hash[1]) % 26));
+			char secondLetter = (char) ('A' + (Byte.toUnsignedInt(hash[2]) % 26));
+			char thirdLetter = (char) ('A' + (Byte.toUnsignedInt(hash[3]) % 26));
+			return "TS" + digit + firstLetter + secondLetter + thirdLetter;
+		} catch (NoSuchAlgorithmException exception) {
+			throw new IllegalStateException("Unable to generate deterministic callsign", exception);
+		}
 	}
 
 	public static GameProfile getTarget(CommandSourceStack source, Collection<GameProfile> gameProfiles) throws CommandSyntaxException {
