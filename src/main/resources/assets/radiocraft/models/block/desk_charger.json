@@ -111,6 +111,6 @@
     }
   },
   "textures": {
-    "particle": "radiocraft:item/desk_charger"
+    "particle": "radiocraft:block/desk_charger"
   }
 }

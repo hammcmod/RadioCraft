@@ -13,17 +13,20 @@ import software.bernie.geckolib.model.DefaultedBlockGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
 import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
 
-/** Minimal Geo renderer for the desk charger - no animations. */
+/**
+ * GeckoLib renderer for the Desk Charger block entity.
+ * <p>
+ * Handles rendering of the desk charger model with dynamic LED indicators via
+ * {@link BlinkingAutoGlowingGeoLayer}. The Radio bone visibility is toggled based on
+ * whether a radio is present in the charger slot.
+ */
 public class DeskChargerBlockRenderer extends GeoBlockRenderer<DeskChargerBlockEntity> {
 
     private static final DeskChargerModel MODEL = new DeskChargerModel();
 
     public DeskChargerBlockRenderer(BlockEntityRendererProvider.Context context) {
         super(MODEL);
-    // Replace the line below
-    // addRenderLayer(new AutoGlowingGeoLayer<>(this));
-    // with this one:
-    addRenderLayer(new BlinkingAutoGlowingGeoLayer<>(this));
+        addRenderLayer(new BlinkingAutoGlowingGeoLayer<>(this));
     }
 
     public static class DeskChargerModel extends DefaultedBlockGeoModel<DeskChargerBlockEntity> {
