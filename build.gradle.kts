@@ -157,6 +157,7 @@ dependencies {
     implementation(libs.voicechat)
     implementation("mcjty.theoneprobe:theoneprobe:${top_version}")
     implementation("maven.modrinth:jade:${jade_version}")
+    // GeckoLib for block/entity geo models
     implementation("software.bernie.geckolib:geckolib-neoforge-${mcVersion}:${geckolib_version}")
 }
 

@@ -44,6 +44,7 @@ public class BlinkingAutoGlowingGeoLayer<T extends GeoAnimatable> extends GeoRen
 
     @Override
     public void render(PoseStack poseStack, T animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+        // Default LED color: red for items (which lack BlockEntity logic for dynamic behavior)
         float redTint = 1.0f;
         float greenTint = 0.0f;
         float blueTint = 0.0f;
@@ -54,6 +55,7 @@ public class BlinkingAutoGlowingGeoLayer<T extends GeoAnimatable> extends GeoRen
 
             var stack = be.inventory.getStackInSlot(0);
             if (stack == null || stack.isEmpty()) {
+                // No radio present - LED is off (dark)
                 redTint = greenTint = blueTint = 0.0f;
             } else {
                 var radioEnergy = stack.getCapability(net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.ITEM);
@@ -64,39 +66,47 @@ public class BlinkingAutoGlowingGeoLayer<T extends GeoAnimatable> extends GeoRen
                     int radioMax = radioEnergy.getMaxEnergyStored();
                     int blockStored = blockEnergy.getEnergyStored();
 
+                    // LED off if radio or charger has no energy
                     if (radioStored <= 0 || blockStored <= 0) {
                         redTint = greenTint = blueTint = 0.0f;
                     } else {
+                        // Interpolate LED color from red (0% charge) to green (100% charge)
                         float charge = (float) radioStored / (float) Math.max(1, radioMax);
                         redTint = 1.0f - charge;
                         greenTint = charge;
                         blueTint = 0.0f;
 
+                        // Apply blinking effect while charging
                         boolean charging = radioStored < radioMax && (blockStored > 0 || be.isInfinite());
 
                         if (charging) {
                             long t = level.getGameTime();
-                            int period = 8;
-                            int onFor = 4;
+                            int period = 8; // Blink cycle duration in ticks
+                            int onFor = 4;  // Ticks LED is on per cycle
                             boolean lightOn = (t % period) < onFor;
                             
                             if (!lightOn) {
+                                // During "off" phase, LED is dark
                                 redTint = greenTint = blueTint = 0.0f;
                             }
                         }
+                        // When fully charged or not charging: steady on (no blinking)
                     }
                 }
             }
         }
 
+        // Convert float RGB values to packed integer (ARGB format)
         int r = Math.max(0, Math.min(255, (int) (redTint * 255.0f)));
         int g = Math.max(0, Math.min(255, (int) (greenTint * 255.0f)));
         int b = Math.max(0, Math.min(255, (int) (blueTint * 255.0f)));
         int color = (255 << 24) | (r << 16) | (g << 8) | b;
 
+        // Use fullbright lighting so LED color appears consistent regardless of ambient light
         // fullBright = (15 << 20) | (15 << 4) = 0xF000F0 = 15728880 (sky light 15, block light 15)
-        int fullBright = 15728880;
+        int fullBright = 0xF000F0;
 
+        // entityTranslucentEmissive properly renders dark colors (unlike eyes() which always glows)
         RenderType emissiveRenderType = RenderType.entityTranslucentEmissive(getGlowTexture(animatable));
         VertexConsumer emissiveBuffer = bufferSource.getBuffer(emissiveRenderType);
 
