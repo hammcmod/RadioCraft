@@ -149,6 +149,7 @@ repositories {
 
 val jade_version = "15.10.0+neoforge"
 val top_version="1.21_neo-12.0.4-6"
+val geckolib_version = "4.7.5.1"
 
 dependencies {
     compileOnly(libs.mixinextras.common)
@@ -156,9 +157,7 @@ dependencies {
     implementation(libs.voicechat)
     implementation("mcjty.theoneprobe:theoneprobe:${top_version}")
     implementation("maven.modrinth:jade:${jade_version}")
-    // GeckoLib for block/entity geo models (used for desk charger testing)
-    // Use the NeoForge-specific artifact which includes the Minecraft version in the artifact id
-    implementation("software.bernie.geckolib:geckolib-neoforge-${mcVersion}:4.7.5.1")
+    implementation("software.bernie.geckolib:geckolib-neoforge-${mcVersion}:${geckolib_version}")
 }
 
 tasks.withType<ProcessResources>().configureEach {

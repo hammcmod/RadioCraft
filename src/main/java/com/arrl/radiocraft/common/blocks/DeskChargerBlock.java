@@ -73,7 +73,6 @@ public class DeskChargerBlock extends BaseEntityBlock {
     private static final Map<Direction, VoxelShape> COMBINED_SHAPES = new EnumMap<>(Direction.class);
 
     static {
-        // Pre-calculate all rotations at class load time to avoid runtime computation
         for (Direction direction : Direction.Plane.HORIZONTAL) {
             BASE_SHAPES.put(direction, calculateShapeForDirection(BASE_SHAPE_NORTH, direction));
             COMBINED_SHAPES.put(direction, calculateShapeForDirection(COMBINED_SHAPE_NORTH, direction));
@@ -128,8 +127,6 @@ public class DeskChargerBlock extends BaseEntityBlock {
      * @return Rotated VoxelShape for the specified direction
      */
     private static VoxelShape calculateShapeForDirection(VoxelShape baseShape, Direction direction) {
-        // Calculate number of 90° clockwise rotations needed
-        // NORTH(2) = 0 rotations, EAST(3) = 1, SOUTH(0) = 2, WEST(1) = 3
         int rotations = (direction.get2DDataValue() - Direction.NORTH.get2DDataValue() + 4) % 4;
         
         VoxelShape result = baseShape;
@@ -157,7 +154,6 @@ public class DeskChargerBlock extends BaseEntityBlock {
     private static VoxelShape rotateShapeClockwise(VoxelShape shape) {
         VoxelShape rotated = Shapes.empty();
         for (AABB aabb : shape.toAabbs()) {
-            // 90° clockwise: (x, z) -> (1-z, x)
             double newMinX = 1.0 - aabb.maxZ;
             double newMinZ = aabb.minX;
             double newMaxX = 1.0 - aabb.minZ;

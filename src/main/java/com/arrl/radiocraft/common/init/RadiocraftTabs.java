@@ -21,7 +21,6 @@ public class RadiocraftTabs {
         // In the development environment, we load everything.
         // In the release version, we only enabled working items/blocks. So put all stuff not ready for release here.
         if (Radiocraft.IS_DEVELOPMENT_ENV) {
-            output.accept(RadiocraftItems.DESK_CHARGER.get());
             output.accept(RadiocraftItems.MICROPHONE.get());
             output.accept(RadiocraftItems.SMALL_BATTERY.get());
             output.accept(RadiocraftItems.WATERPROOF_WIRE.get());
@@ -55,6 +54,8 @@ public class RadiocraftTabs {
         }
 
         // Anything below here should be in the release creative menu
+
+        output.accept(RadiocraftItems.DESK_CHARGER.get());
 
         // General crafting-only ingredients (Not used yet, but they are "finished")
         output.accept(RadiocraftItems.HF_CIRCUIT_BOARD.get());

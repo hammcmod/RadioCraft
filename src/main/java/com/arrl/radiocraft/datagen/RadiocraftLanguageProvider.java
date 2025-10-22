@@ -69,6 +69,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.YAGI_ANTENNA, "Yagi Antenna");
 			provider.addBlock(RadiocraftBlocks.J_POLE_ANTENNA, "J-Pole Antenna");
 			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
+			provider.addBlock(RadiocraftBlocks.DESK_CHARGER, "Desk Charger");
 
 			provider.addEntityType(RadiocraftEntityTypes.ANTENNA_WIRE, "Antenna Wire");
 
@@ -86,6 +87,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "chargecontroller.power"), "%s FE/s");
 			provider.add(Radiocraft.translationKey("screen", "radio.tx"), "Transmitting");
 			provider.add(Radiocraft.translationKey("screen", "radio.rx"), "Receiving");
+
+			provider.add(Radiocraft.translationKey("screen", "desk_charger"), "Desk Charger");
 
 			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.network_found"), "Antenna network at %s has %s antennas");
 			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.handheld_with_stats"), "You are holding a handheld radio, the antenna is %s m long and it has an SWR of %s");

@@ -31,10 +31,6 @@ import net.minecraft.nbt.CompoundTag;
 
 import javax.annotation.Nullable;
 
-/**
- * Minimal BlockEntity to test GeckoLib rendering of the desk charger model.
- * No animations or logic are implemented — only the required GeckoLib hooks.
- */
 public class DeskChargerBlockEntity extends BlockEntity implements GeoBlockEntity, MenuProvider {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
@@ -50,9 +46,7 @@ public class DeskChargerBlockEntity extends BlockEntity implements GeoBlockEntit
         }
     };
 
-    // Block-level energy buffer used to charge radios placed on the desk charger
     public final BasicEnergyStorage energyStorage = new BasicEnergyStorage(1000, 250, 250);
-    // When true the charger will supply energy to radios without draining its internal buffer
     private boolean infinite = false;
 
     public DeskChargerBlockEntity(BlockPos pos, BlockState state) {
@@ -62,41 +56,32 @@ public class DeskChargerBlockEntity extends BlockEntity implements GeoBlockEntit
     public static void tick(Level level, BlockPos pos, BlockState state, DeskChargerBlockEntity be) {
         if (level.isClientSide()) return;
 
-        // Get block energy capability
-        // Use the BE's own energyStorage for reliable transfers
         net.neoforged.neoforge.energy.IEnergyStorage blockEnergy = be.energyStorage;
         if (blockEnergy == null) return;
 
-        // Get the radio in slot 0
         ItemStack radio = be.inventory.getStackInSlot(0);
         if (radio == null || radio.isEmpty()) return;
 
-        // Ensure item has energy capability
         net.neoforged.neoforge.energy.IEnergyStorage radioEnergy = radio.getCapability(net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.ITEM);
         if (radioEnergy == null) return;
 
-        // Transfer rate per tick
-        int desiredTransfer = 50; // FE per tick
+        int desiredTransfer = 50;
 
-        // Don't extract before knowing how much radio can accept. Simulate receive first.
         int available = blockEnergy.getEnergyStored();
         if (available <= 0) return;
 
         int toAttempt = Math.min(desiredTransfer, available);
-        // If infinite mode is enabled, simulate acceptance up to desiredTransfer but don't extract from buffer
-            if (be.infinite) {
+        if (be.infinite) {
             int accepted = radioEnergy.receiveEnergy(desiredTransfer, true);
             if (accepted <= 0) return;
             int received = radioEnergy.receiveEnergy(accepted, false);
-            // log what was delivered
             Radiocraft.LOGGER.debug("DeskCharger tick (infinite) @ {}: delivered={} to radio", pos, received);
                 be.setChanged();
-                // notify clients so render layer updates without opening GUI
                 level.sendBlockUpdated(pos, state, state, 3);
             return;
         }
 
-        int accepted = radioEnergy.receiveEnergy(toAttempt, true); // simulate
+        int accepted = radioEnergy.receiveEnergy(toAttempt, true);
         if (accepted <= 0) return;
 
         int extracted = blockEnergy.extractEnergy(accepted, false);
@@ -104,16 +89,13 @@ public class DeskChargerBlockEntity extends BlockEntity implements GeoBlockEntit
 
         int received = radioEnergy.receiveEnergy(extracted, false);
         if (received < extracted) {
-            // return remainder to block
             blockEnergy.receiveEnergy(extracted - received, false);
         }
 
-        // Debug logging to help trace transfer behavior
         int radioStoredAfter = radioEnergy.getEnergyStored();
         Radiocraft.LOGGER.debug("DeskCharger tick @ {}: available={}, toAttempt={}, accepted(sim)={}, extracted={}, received={}, radioStoredAfter={}", pos, available, toAttempt, accepted, extracted, received, radioStoredAfter);
 
         be.setChanged();
-        // notify clients so render layer updates without opening GUI
         level.sendBlockUpdated(pos, state, state, 3);
     }
 
@@ -192,7 +174,7 @@ public class DeskChargerBlockEntity extends BlockEntity implements GeoBlockEntit
 
     @Override
     public Component getDisplayName() {
-        return Component.literal("Desk Charger");
+        return Component.translatable(Radiocraft.translationKey("screen", "desk_charger"));
     }
 
     @Nullable
