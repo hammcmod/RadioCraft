@@ -7,8 +7,11 @@ import com.arrl.radiocraft.common.blocks.power.ChargeControllerBlock;
 import com.arrl.radiocraft.common.blocks.power.LargeBatteryBlock;
 import com.arrl.radiocraft.common.blocks.power.SolarPanelBlock;
 import com.arrl.radiocraft.common.blocks.radios.*;
+
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour.Properties;
 import net.minecraft.world.level.material.MapColor;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -69,8 +72,8 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, SolarWeatherStationBlock> SOLAR_WEATHER_STATION = BLOCKS.register("solar_weather_station", () -> new SolarWeatherStationBlock(PROPERTIES_STONE));
 
 	public static final DeferredHolder<Block, MicrophoneBlock> MICROPHONE = BLOCKS.register("microphone", () -> new MicrophoneBlock(PROPERTIES_STONE));
-	// Desk charger used for testing the gecko model
-	public static final DeferredHolder<Block, DeskChargerBlock> DESK_CHARGER = BLOCKS.register("desk_charger", () -> new DeskChargerBlock(PROPERTIES_RADIO));
+	// Desk charger - breaks instantly and drops item when destroyed
+	public static final DeferredHolder<Block, DeskChargerBlock> DESK_CHARGER = BLOCKS.register("desk_charger", () -> new DeskChargerBlock(Properties.of().mapColor(DyeColor.GRAY).strength(0.0F, 5.0F).sound(SoundType.METAL).noOcclusion()));
 
 	public static Supplier<Block> simpleBlock(String name, Properties properties) {
 		return BLOCKS.register(name, () -> new Block(properties));

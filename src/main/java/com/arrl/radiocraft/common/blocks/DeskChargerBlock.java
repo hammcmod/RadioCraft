@@ -32,13 +32,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import java.util.ArrayList;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.AABB;
-import java.util.EnumMap;
-import java.util.Map;
 
 /**
  * Desk Charger block with energy storage and directional placement.
@@ -257,10 +258,19 @@ public class DeskChargerBlock extends BaseEntityBlock {
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof DeskChargerBlockEntity desk) {
+                // Drop inventory contents (radio if present)
                 desk.drops();
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, net.minecraft.world.level.storage.loot.LootParams.Builder builder) {
+        // Always drop the desk charger item itself
+        List<ItemStack> drops = new ArrayList<>();
+        drops.add(new ItemStack(this));
+        return drops;
     }
 
     @Override

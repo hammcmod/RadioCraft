@@ -42,6 +42,7 @@ public class DeskChargerBlockRenderer extends GeoBlockRenderer<DeskChargerBlockE
 - Dynamic color based on radio charge percentage
 - Blinking animation when charging, steady when full or idle
 - LED turns off when no radio present or no energy available
+- **Block Durability:** Breaks instantly with any tool or hand (strength 0.0F) and drops item when destroyed
 
 ---
 
