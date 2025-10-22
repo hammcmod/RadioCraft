@@ -66,7 +66,7 @@
   "license_class.radiocraft.TECHNICIAN": "Technician",
   "license_class.radiocraft.WIRELESS_INTERNET_SERVICE_PROVIDER": "Wireless Internet Service Provider",
   "message.radiocraft.antenna_analyzer.development_summary": "There are %s networks in the world: %s",
-  "message.radiocraft.antenna_analyzer.handheld_with_stats": "You are holding a handheld radio, the antenna is %s m long and it has an SWR of %s",
+  "message.radiocraft.antenna_analyzer.handheld_with_stats": "You are holding a handheld radio; the antenna is %s m long. SWR at %s MHz is %s",
   "message.radiocraft.antenna_analyzer.network_found": "Antenna network at %s has %s antennas",
   "message.radiocraft.antenna_analyzer.no_handheld": "You are not holding a handheld radio",
   "message.radiocraft.antenna_analyzer.no_networks_at": "No antenna networks found at %s.",
