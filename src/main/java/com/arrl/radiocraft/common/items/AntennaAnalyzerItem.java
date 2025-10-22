@@ -2,6 +2,8 @@ package com.arrl.radiocraft.common.items;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntenna;
+import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
+import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
@@ -30,6 +32,8 @@ public class AntennaAnalyzerItem extends Item {
     public AntennaAnalyzerItem(Properties properties) {
         super(properties);
     }
+
+    private static final float FALLBACK_ANALYZER_FREQUENCY_HZ = 146_520_000.0f;
 
     private Set<IAntenna> getAntennasAt(Level level, BlockPos pos) {
         Set<IAntenna> allAntennas = new HashSet<IAntenna>();
@@ -82,21 +86,25 @@ public class AntennaAnalyzerItem extends Item {
                         RubberDuckyAntennaType type = (RubberDuckyAntennaType) it.getType();
                         RubberDuckyAntennaData data = (RubberDuckyAntennaData) it.getData();
                         // This honestly just prevents us from always saying they have a radio in their inventory. It has mostly no other purpose right now.
-                        boolean hasHandheldRadio = player.getInventory().items.stream().anyMatch((itemStack) -> itemStack.getItem() instanceof VHFHandheldItem);
+                        boolean hasHandheldRadio = hasHandheldRadio(player);
                         if (hasHandheldRadio) {
+                            Float handheldFrequencyHz = resolveHandheldFrequency(player);
+                            float frequencyHz = (handheldFrequencyHz != null && Float.isFinite(handheldFrequencyHz) && handheldFrequencyHz > 0.0f)
+                                    ? handheldFrequencyHz
+                                    : FALLBACK_ANALYZER_FREQUENCY_HZ;
                             String formattedLength = String.format("%.3f", data.getLength());
-                            // TODO: I'm not sure the best way to pick the frequency to check in the general case; I selected default simplex for now.
-                            String formattedSwr = String.format("%.3f", type.getSWR(data, 146_520_000.0f));
+                            String formattedFrequencyMhz = String.format("%.3f", frequencyHz / 1_000_000.0f);
+                            String formattedSwr = String.format("%.3f", type.getSWR(data, frequencyHz));
                             player.sendSystemMessage(Component.translatable(
                                     Radiocraft.translationKey("message", "antenna_analyzer.handheld_with_stats"),
-                                    formattedLength, formattedSwr));
+                                    formattedLength, formattedFrequencyMhz, formattedSwr));
                         } else {
                             player.sendSystemMessage(Component.translatable(
                                     Radiocraft.translationKey("message", "antenna_analyzer.no_handheld")));
                         }
                     } else {
                         // This should never happen, but hey!
-                        boolean hasHandheldRadio = player.getInventory().items.stream().anyMatch((itemStack) -> itemStack.getItem() instanceof VHFHandheldItem);
+                        boolean hasHandheldRadio = hasHandheldRadio(player);
                         if (hasHandheldRadio) {
                             player.sendSystemMessage(Component.translatable(
                                     Radiocraft.translationKey("message", "antenna_analyzer.unknown_handheld_antenna")));
@@ -133,5 +141,51 @@ public class AntennaAnalyzerItem extends Item {
     public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
         tooltipComponents.add(Component.translatable(Radiocraft.translationKey("tooltip", "antenna_analyzer")));
+    }
+
+    private boolean hasHandheldRadio(Player player) {
+        if (player.getMainHandItem().getItem() instanceof VHFHandheldItem) {
+            return true;
+        }
+
+        if (player.getOffhandItem().getItem() instanceof VHFHandheldItem) {
+            return true;
+        }
+
+        return player.getInventory().items.stream().anyMatch(stack -> stack.getItem() instanceof VHFHandheldItem);
+    }
+
+    private Float resolveHandheldFrequency(Player player) {
+        Float freq = extractHandheldFrequency(player.getMainHandItem());
+        if (freq != null) {
+            return freq;
+        }
+
+        freq = extractHandheldFrequency(player.getOffhandItem());
+        if (freq != null) {
+            return freq;
+        }
+
+        for (ItemStack stack : player.getInventory().items) {
+            freq = extractHandheldFrequency(stack);
+            if (freq != null) {
+                return freq;
+            }
+        }
+
+        return null;
+    }
+
+    private Float extractHandheldFrequency(ItemStack stack) {
+        if (stack == null || stack.isEmpty() || !(stack.getItem() instanceof VHFHandheldItem)) {
+            return null;
+        }
+
+        IVHFHandheldCapability cap = RadiocraftCapabilities.VHF_HANDHELDS.getCapability(stack, null);
+        if (cap == null) {
+            return null;
+        }
+
+        return cap.getFrequencyHertz();
     }
 }
