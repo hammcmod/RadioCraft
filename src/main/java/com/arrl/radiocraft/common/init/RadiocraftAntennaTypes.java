@@ -19,6 +19,7 @@ public class RadiocraftAntennaTypes {
 	public static JPoleAntennaType J_POLE;
 	public static SlimJimAntennaType SLIM_JIM;
 	public static YagiAntennaType YAGI;
+	public static com.arrl.radiocraft.common.radio.antenna.types.vhf.SatelliteDishAntennaType SATELLITE_DISH;
 
 	public static void register() {
 		DIPOLE = AntennaTypes.registerType(new DipoleAntennaType());
@@ -30,6 +31,7 @@ public class RadiocraftAntennaTypes {
 		J_POLE = AntennaTypes.registerType(new JPoleAntennaType());
 		SLIM_JIM = AntennaTypes.registerType(new SlimJimAntennaType());
 		YAGI = AntennaTypes.registerType(new YagiAntennaType());
+		SATELLITE_DISH = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.vhf.SatelliteDishAntennaType());
 	}
 
 }

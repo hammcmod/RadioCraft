@@ -52,7 +52,10 @@ public class RadiocraftBlockEntities {
 					RadiocraftBlocks.YAGI_ANTENNA.get()
 			).build(null));
 
-		public static final Supplier<BlockEntityType<?>> DESK_CHARGER = BLOCK_ENTITY_TYPES.register("desk_charger",
-				() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity::new, RadiocraftBlocks.DESK_CHARGER.get()).build(null));
+	public static final Supplier<BlockEntityType<?>> DESK_CHARGER = BLOCK_ENTITY_TYPES.register("desk_charger",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity::new, RadiocraftBlocks.DESK_CHARGER.get()).build(null));
+
+	public static final Supplier<BlockEntityType<?>> SATELLITE_DISH = BLOCK_ENTITY_TYPES.register("satellite_dish",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.SatelliteDishBlockEntity::new, RadiocraftBlocks.SATELLITE_DISH.get()).build(null));
 
 }
