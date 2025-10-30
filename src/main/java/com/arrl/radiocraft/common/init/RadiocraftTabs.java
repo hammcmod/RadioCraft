@@ -48,13 +48,13 @@ public class RadiocraftTabs {
             output.accept(RadiocraftItems.BALUN_TWO_TO_ONE.get());
             output.accept(RadiocraftItems.COAX_WIRE.get());
             output.accept(RadiocraftItems.DIGITAL_INTERFACE.get());
-            output.accept(RadiocraftItems.YAGI_ANTENNA.get());
-            output.accept(RadiocraftItems.J_POLE_ANTENNA.get());
-            output.accept(RadiocraftItems.SLIM_JIM_ANTENNA.get());
-        }
+			output.accept(RadiocraftItems.YAGI_ANTENNA.get());
+			output.accept(RadiocraftItems.J_POLE_ANTENNA.get());
+			output.accept(RadiocraftItems.SLIM_JIM_ANTENNA.get());
+		}
 
-        // Anything below here should be in the release creative menu
-
+		// Anything below here should be in the release creative menu
+		output.accept(RadiocraftItems.SATELLITE_DISH.get());
         output.accept(RadiocraftItems.DESK_CHARGER.get());
 
         // General crafting-only ingredients (Not used yet, but they are "finished")
