@@ -55,6 +55,16 @@ public class RadiocraftCapabilities {
 			);
 		}, RadiocraftItems.VHF_HANDHELD.get());
 
+		// Register block energy capability for Desk Charger (small buffer)
+		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, RadiocraftBlockEntities.DESK_CHARGER.get(), (be, side) -> {
+			// Return the block entity's own energy storage instance so fills/transfers target the BE
+			if (be instanceof com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity desk) {
+				return desk.energyStorage;
+			}
+			// Fallback: new buffer (shouldn't be used)
+			return new com.arrl.radiocraft.common.capabilities.BasicEnergyStorage(1000, 250, 250);
+		});
+
 		event.registerEntity(ANTENNA_WIRE_HOLDERS, EntityType.PLAYER, (player, context) -> new AntennaWireHolderCapability());
 		event.registerEntity(PLAYER_CALLSIGNS, EntityType.PLAYER, (player, context) -> PlayerCallsignSavedData.get(player.getServer().overworld()));
 	}

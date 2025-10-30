@@ -55,6 +55,8 @@ public class RadiocraftTabs {
 
         // Anything below here should be in the release creative menu
 
+        output.accept(RadiocraftItems.DESK_CHARGER.get());
+
         // General crafting-only ingredients (Not used yet, but they are "finished")
         output.accept(RadiocraftItems.HF_CIRCUIT_BOARD.get());
         output.accept(RadiocraftItems.FERRITE_CORE.get());

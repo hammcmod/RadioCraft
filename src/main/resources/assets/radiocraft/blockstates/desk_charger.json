@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "radiocraft:block/desk_charger",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "radiocraft:block/desk_charger"
+    },
+    "facing=south": {
+      "model": "radiocraft:block/desk_charger",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/desk_charger",
+      "y": 270
+    }
+  }
+}

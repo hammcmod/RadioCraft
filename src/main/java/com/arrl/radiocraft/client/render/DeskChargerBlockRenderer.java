@@ -1,0 +1,60 @@
+package com.arrl.radiocraft.client.render;
+
+import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
+import software.bernie.geckolib.model.DefaultedBlockGeoModel;
+import software.bernie.geckolib.renderer.GeoBlockRenderer;
+import software.bernie.geckolib.renderer.layer.AutoGlowingGeoLayer;
+
+/**
+ * GeckoLib renderer for the Desk Charger block entity.
+ * <p>
+ * Handles rendering of the desk charger model with dynamic LED indicators via
+ * {@link BlinkingAutoGlowingGeoLayer}. The Radio bone visibility is toggled based on
+ * whether a radio is present in the charger slot.
+ */
+public class DeskChargerBlockRenderer extends GeoBlockRenderer<DeskChargerBlockEntity> {
+
+    private static final DeskChargerModel MODEL = new DeskChargerModel();
+
+    public DeskChargerBlockRenderer(BlockEntityRendererProvider.Context context) {
+        super(MODEL);
+        addRenderLayer(new BlinkingAutoGlowingGeoLayer<>(this));
+    }
+
+    public static class DeskChargerModel extends DefaultedBlockGeoModel<DeskChargerBlockEntity> {
+        public DeskChargerModel() {
+            super(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "desk_charger"));
+        }
+    }
+
+    @Override
+    public void render(DeskChargerBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+        Level level = blockEntity.getLevel();
+        BlockPos pos = blockEntity.getBlockPos();
+
+        if (level != null) {
+            packedLight = LevelRenderer.getLightColor(level, pos);
+        }
+
+        // Hide the "Radio" bone if there's no radio in the charger slot
+        var stack = blockEntity.inventory.getStackInSlot(0);
+        try {
+            var bone = MODEL.getAnimationProcessor().getBone("Radio");
+            if (bone != null) {
+                bone.setHidden(stack == null || stack.isEmpty());
+            }
+        } catch (Exception e) {
+            Radiocraft.LOGGER.debug("Could not toggle Radio bone visibility: {}", e.getMessage());
+        }
+
+        super.render(blockEntity, partialTick, poseStack, bufferSource, packedLight, packedOverlay);
+    }
+}

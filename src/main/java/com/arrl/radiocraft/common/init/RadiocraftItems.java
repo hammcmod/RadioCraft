@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.init;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.datacomponents.HandheldRadioState;
 import com.arrl.radiocraft.common.items.*;
+import com.arrl.radiocraft.common.items.DeskChargerBlockItem;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -77,6 +78,8 @@ public class RadiocraftItems {
 
 	public static final Supplier<BlockItem> SOLAR_WEATHER_STATION = simpleBlockItem("solar_weather_station", RadiocraftBlocks.SOLAR_WEATHER_STATION);
 	public static final Supplier<BlockItem> MICROPHONE = simpleBlockItem("microphone", RadiocraftBlocks.MICROPHONE);
+
+	public static final DeferredHolder<Item, DeskChargerBlockItem> DESK_CHARGER = ITEMS.register("desk_charger", () -> new DeskChargerBlockItem(RadiocraftBlocks.DESK_CHARGER.get(), new Properties()));
 
 
 	// Helper methods to cut down on boilerplate

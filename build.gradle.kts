@@ -143,10 +143,13 @@ repositories {
     maven ("https://api.modrinth.com/maven") { name = "Modrinth" } // Used by Jade
     maven ("https://maven.blamejared.com") { name = "JEI Maven" } // Dependency of TOP
     maven ("https://maven.k-4u.nl") { name = "TOP Maven" }
+    // GeckoLib Cloudsmith repository (contains geckolib-neoforge artifacts)
+    maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/") { name = "GeckoLib Cloudsmith" }
 }
 
 val jade_version = "15.10.0+neoforge"
 val top_version="1.21_neo-12.0.4-6"
+val geckolib_version = "4.7.5.1"
 
 dependencies {
     compileOnly(libs.mixinextras.common)
@@ -154,6 +157,8 @@ dependencies {
     implementation(libs.voicechat)
     implementation("mcjty.theoneprobe:theoneprobe:${top_version}")
     implementation("maven.modrinth:jade:${jade_version}")
+    // GeckoLib for block/entity geo models
+    implementation("software.bernie.geckolib:geckolib-neoforge-${mcVersion}:${geckolib_version}")
 }
 
 tasks.withType<ProcessResources>().configureEach {

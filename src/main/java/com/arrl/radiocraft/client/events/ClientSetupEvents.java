@@ -6,6 +6,10 @@ import com.arrl.radiocraft.client.entity.AntennaWireEntityRenderer;
 import com.arrl.radiocraft.client.screens.*;
 import com.arrl.radiocraft.client.screens.radios.*;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
+import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
+import com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity;
+import com.arrl.radiocraft.client.render.DeskChargerBlockRenderer;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -31,10 +35,15 @@ public class ClientSetupEvents {
 		event.register(RadiocraftMenuTypes.VHF_BASE_STATION.get(), VHFBaseStationScreen::new);
 		event.register(RadiocraftMenuTypes.VHF_RECEIVER.get(), VHFReceiverScreen::new);
 		event.register(RadiocraftMenuTypes.HF_RECEIVER.get(), HFReceiverScreen::new);
+		event.register(RadiocraftMenuTypes.DESK_CHARGER.get(), DeskChargerScreen::new);
 	}
 	
 	@SubscribeEvent
 	public static void onRegisterRenderers(EntityRenderersEvent.RegisterRenderers event) {
 		event.registerEntityRenderer(RadiocraftEntityTypes.ANTENNA_WIRE.get(), AntennaWireEntityRenderer::new);
+		// Desk charger geo renderer
+		// Cast to the concrete BlockEntityType generic to satisfy method signature
+		// Use a lambda with an unchecked raw cast to avoid generic signature issues in the registration helper.
+		event.registerBlockEntityRenderer((net.minecraft.world.level.block.entity.BlockEntityType) RadiocraftBlockEntities.DESK_CHARGER.get(), ctx -> new DeskChargerBlockRenderer(ctx));
 	}
 }
