@@ -51,10 +51,10 @@ public class RadiocraftTabs {
 			output.accept(RadiocraftItems.YAGI_ANTENNA.get());
 			output.accept(RadiocraftItems.J_POLE_ANTENNA.get());
 			output.accept(RadiocraftItems.SLIM_JIM_ANTENNA.get());
+			output.accept(RadiocraftItems.SATELLITE_DISH.get());
 		}
 
 		// Anything below here should be in the release creative menu
-		output.accept(RadiocraftItems.SATELLITE_DISH.get());
         output.accept(RadiocraftItems.DESK_CHARGER.get());
 
         // General crafting-only ingredients (Not used yet, but they are "finished")
