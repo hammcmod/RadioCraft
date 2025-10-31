@@ -30,5 +30,9 @@ public class RadiocraftMenuTypes {
 
 	public static final Supplier<MenuType<VHFReceiverMenu>> VHF_RECEIVER = MENU_TYPES.register("vhf_receiver", () -> IMenuTypeExtension.create(VHFReceiverMenu::new));
 	public static final Supplier<MenuType<DeskChargerMenu>> DESK_CHARGER = MENU_TYPES.register("desk_charger", () -> IMenuTypeExtension.create(DeskChargerMenu::new));
+	public static final Supplier<MenuType<DigitalInterfaceMenu>> DIGITAL_INTERFACE = MENU_TYPES.register("digital_interface", () -> IMenuTypeExtension.create(DigitalInterfaceMenu::new));
+	public static final Supplier<MenuType<DuplexerMenu>> DUPLEXER = MENU_TYPES.register("duplexer", () -> IMenuTypeExtension.create(DuplexerMenu::new));
+	public static final Supplier<MenuType<AntennaTunerMenu>> ANTENNA_TUNER = MENU_TYPES.register("antenna_tuner", () -> IMenuTypeExtension.create(AntennaTunerMenu::new));
+	public static final Supplier<MenuType<VHFRepeaterMenu>> VHF_REPEATER = MENU_TYPES.register("vhf_repeater", () -> IMenuTypeExtension.create(VHFRepeaterMenu::new));
 
 }
