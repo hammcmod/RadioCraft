@@ -5,6 +5,7 @@ import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
+import com.arrl.radiocraft.common.advancements.VhfTransmissionTracker;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.radio.Band;
@@ -21,6 +22,7 @@ import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -49,6 +51,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     private volatile Level voiceLevel;
 
     private boolean isUseHeld;
+    private boolean wasTransmitting;
 
     public void setUseHeld(boolean useHeld) {
         this.isUseHeld = useHeld;
@@ -369,5 +372,11 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                 cap.setReceiveStrength(state.runningSampleCount == 0 ? 0f : (float)Math.sqrt((double) state.runningSampleSum / state.runningSampleCount));
             }
         }
+
+        boolean transmittingNow = radios.stream().anyMatch(state -> state.canTransmit);
+        if(transmittingNow && !wasTransmitting && player instanceof ServerPlayer serverPlayer) {
+            VhfTransmissionTracker.handleTransmission(serverPlayer);
+        }
+        wasTransmitting = transmittingNow;
     }
 }

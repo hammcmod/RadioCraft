@@ -1,0 +1,23 @@
+{
+  "parent": "radiocraft:achievements/vhf_sota",
+  "criteria": {
+    "progress": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.radiocraft.bota_ocean.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "radiocraft:vhf_handheld"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.radiocraft.bota_ocean.title"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+{
+  "parent": "radiocraft:achievements/bota_all_overworld",
+  "criteria": {
+    "progress": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancement.radiocraft.bota_legacy.description"
+    },
+    "frame": "challenge",
+    "hidden": false,
+    "icon": {
+      "item": "radiocraft:vhf_handheld"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancement.radiocraft.bota_legacy.title"
+    }
+  }
+}
