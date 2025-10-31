@@ -80,6 +80,7 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> MICROPHONE = simpleBlockItem("microphone", RadiocraftBlocks.MICROPHONE);
 
 	public static final DeferredHolder<Item, DeskChargerBlockItem> DESK_CHARGER = ITEMS.register("desk_charger", () -> new DeskChargerBlockItem(RadiocraftBlocks.DESK_CHARGER.get(), new Properties()));
+	public static final DeferredHolder<Item, SatelliteDishBlockItem> SATELLITE_DISH = ITEMS.register("satellite_dish", () -> new SatelliteDishBlockItem(RadiocraftBlocks.SATELLITE_DISH.get(), new Properties()));
 
 
 	// Helper methods to cut down on boilerplate

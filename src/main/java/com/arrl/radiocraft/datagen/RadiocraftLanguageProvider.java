@@ -69,6 +69,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.YAGI_ANTENNA, "Yagi Antenna");
 			provider.addBlock(RadiocraftBlocks.J_POLE_ANTENNA, "J-Pole Antenna");
 			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
+			provider.addBlock(RadiocraftBlocks.SATELLITE_DISH, "Satellite Dish");
 			provider.addBlock(RadiocraftBlocks.DESK_CHARGER, "Desk Charger");
 
 			provider.addEntityType(RadiocraftEntityTypes.ANTENNA_WIRE, "Antenna Wire");

@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "radiocraft:block/satellite_dish",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "radiocraft:block/satellite_dish"
+    },
+    "facing=south": {
+      "model": "radiocraft:block/satellite_dish",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/satellite_dish",
+      "y": 270
+    }
+  }
+}
