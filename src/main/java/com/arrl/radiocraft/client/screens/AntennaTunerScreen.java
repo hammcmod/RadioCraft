@@ -17,8 +17,8 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 
 	public AntennaTunerScreen(AntennaTunerMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
-		this.imageWidth = 176;
-		this.imageHeight = 166;
+		this.imageWidth = 256; // Ajustado para tamanho real da textura
+		this.imageHeight = 256; // Aumentado para mostrar textura completa
 	}
 
 	@Override

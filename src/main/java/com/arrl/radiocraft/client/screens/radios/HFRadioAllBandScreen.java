@@ -40,6 +40,11 @@ public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
     }
 
     @Override
+    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        // Don't render the default title and inventory labels
+    }
+
+    @Override
     protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		/*
 		if(isHovering(33, 18, 25, 11, pMouseX, pMouseY))

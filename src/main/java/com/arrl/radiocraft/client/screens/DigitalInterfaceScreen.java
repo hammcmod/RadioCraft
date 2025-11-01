@@ -1,10 +1,10 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.client.screens.widgets.ImageButton;
 import com.arrl.radiocraft.common.menus.DigitalInterfaceMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
@@ -19,6 +19,7 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	private static final ResourceLocation TEXTURE_ARPS = Radiocraft.id("textures/gui/digital_interface_arps.png");
 	private static final ResourceLocation TEXTURE_MSG = Radiocraft.id("textures/gui/digital_interface_msg.png");
 	private static final ResourceLocation TEXTURE_FILES = Radiocraft.id("textures/gui/digital_interface_files.png");
+	private static final ResourceLocation WIDGETS_TEXTURE = Radiocraft.id("textures/gui/digital_interface_rtty.png"); // Reuse main texture for widgets
 
 	// Tab indices
 	private static final int TAB_RTTY = 0;
@@ -30,8 +31,8 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 
 	public DigitalInterfaceScreen(DigitalInterfaceMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
-		this.imageWidth = 176;
-		this.imageHeight = 166;
+		this.imageWidth = 255; // Ajustado para tamanho real da textura
+		this.imageHeight = 167; // Aumentado para mostrar textura completa
 		updateTexture();
 	}
 
@@ -39,31 +40,14 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	protected void init() {
 		super.init();
 
-		// Tab buttons at the top
-		int buttonWidth = 40;
-		int buttonHeight = 20;
-		int startX = leftPos + 8;
-		int startY = topPos - 18;
-
-		addRenderableWidget(Button.builder(Component.translatable("gui.radiocraft.tab.arps"), 
-			button -> selectTab(TAB_ARPS))
-			.bounds(startX, startY, buttonWidth, buttonHeight)
-			.build());
-
-		addRenderableWidget(Button.builder(Component.translatable("gui.radiocraft.tab.msg"), 
-			button -> selectTab(TAB_MSG))
-			.bounds(startX + buttonWidth + 2, startY, buttonWidth, buttonHeight)
-			.build());
-
-		addRenderableWidget(Button.builder(Component.translatable("gui.radiocraft.tab.rtty"), 
-			button -> selectTab(TAB_RTTY))
-			.bounds(startX + (buttonWidth + 2) * 2, startY, buttonWidth, buttonHeight)
-			.build());
-
-		addRenderableWidget(Button.builder(Component.translatable("gui.radiocraft.tab.files"), 
-			button -> selectTab(TAB_FILES))
-			.bounds(startX + (buttonWidth + 2) * 3, startY, buttonWidth, buttonHeight)
-			.build());
+		// Tab buttons embedded in the texture at the top
+		// TODO: Adjust u, v coordinates based on actual button sprites in texture
+		// These are placeholder coordinates - you'll need to update them based on where
+		// the tab button sprites are located in digital_interface_*.png files
+		addRenderableWidget(new ImageButton(leftPos + 8, topPos + 4, 35, 15, 1, 213, WIDGETS_TEXTURE, 225, 168, (btn) -> selectTab(TAB_ARPS)));
+		addRenderableWidget(new ImageButton(leftPos + 60, topPos + 4, 35, 15, 36, 213, WIDGETS_TEXTURE, 225, 168, (btn) -> selectTab(TAB_MSG)));
+		addRenderableWidget(new ImageButton(leftPos + 112, topPos + 4, 35, 15, 71, 213, WIDGETS_TEXTURE, 225, 168, (btn) -> selectTab(TAB_RTTY)));
+		addRenderableWidget(new ImageButton(leftPos + 164, topPos + 4, 35, 15, 106, 213, WIDGETS_TEXTURE, 225, 168, (btn) -> selectTab(TAB_FILES)));
 
 		updateTexture();
 	}
@@ -97,7 +81,8 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		guiGraphics.blit(currentTexture, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight);
+		// Renderiza apenas a área 217x133 da textura (começando em 0,0)
+		guiGraphics.blit(currentTexture, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 	}
 
 	@Override
