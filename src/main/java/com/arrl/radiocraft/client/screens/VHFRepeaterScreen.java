@@ -17,8 +17,8 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 
 	public VHFRepeaterScreen(VHFRepeaterMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
-		this.imageWidth = 256; // Ajustado para tamanho real da textura
-		this.imageHeight = 256; // Aumentado para mostrar textura completa
+		this.imageWidth = 250;
+		this.imageHeight = 216;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight);
+		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 216);
 	}
 
 	@Override

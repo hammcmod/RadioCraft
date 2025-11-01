@@ -17,8 +17,8 @@ public class DuplexerScreen extends AbstractContainerScreen<DuplexerMenu> {
 
 	public DuplexerScreen(DuplexerMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
-		this.imageWidth = 176; // Ajustar se textura for maior
-		this.imageHeight = 256; // Aumentado para mostrar textura completa
+		this.imageWidth = 250;
+		this.imageHeight = 120;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class DuplexerScreen extends AbstractContainerScreen<DuplexerMenu> {
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight);
+		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 120);
 	}
 
 	@Override
