@@ -95,7 +95,8 @@ public class VHFHandheldScreen extends Screen {
     ToggleButton powerBtn = new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower);
     this.powerToggle = powerBtn;
     addRenderableWidget(powerBtn); // Power
-        addRenderableWidget(new ToggleButton(cap.isVoxEnabled(), leftPos + 68, topPos + 107, 30, 21, 76, 120, WIDGETS_TEXTURE, 256, 256, this::onToggleVox)); // VOX toggle
+        // VOX toggle button - using placeholder texture coordinates until proper sprite is added
+        addRenderableWidget(new ToggleButton(cap.isVoxEnabled(), leftPos + 68, topPos + 107, 20, 14, 172, 14, WIDGETS_TEXTURE, 256, 256, this::onToggleVox)); // VOX toggle (temp using button "1" sprite)
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
         this.micGainDial = new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::onMicGainUp, this::onMicGainDown);
         addRenderableWidget(this.micGainDial); // Mic gain
@@ -177,9 +178,9 @@ public class VHFHandheldScreen extends Screen {
             if (menuState == MenuState.DEFAULT) {
                 pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyHertz() / 1000_000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
                 
-                // Draw VOX indicator when enabled
+                // Draw VOX indicator when enabled (left side of LCD, before battery percentage)
                 if (cap.isVoxEnabled()) {
-                    pGuiGraphics.drawString(this.font, "VOX", leftPos + 80, topPos + 133, 0x00FF00);
+                    pGuiGraphics.drawString(this.font, "VOX", leftPos + 30, topPos + 133, 0x00FF00);
                 }
             } else if (menuState == MenuState.SET_FREQ) {
                 pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);

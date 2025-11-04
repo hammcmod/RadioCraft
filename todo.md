@@ -7,6 +7,9 @@
 - [ ] Provide working SWR and propagation hooks so core HF radios are usable
 - [x] HF receiver, QRP radios, and the all-band radio shapeless combinations exist
 - [x] VHF handhelds have functional radios
+- [x] VOX (Voice-Operated Transmit) mode implemented for VHF handhelds
+- [ ] **TODO**: Adjust VOX button and text position in VHF Handheld GUI to correct locations
+- [ ] **TODO**: Create proper VOX button texture sprites (30×21px) at coordinates (u=76, v=120) in `vhf_handheld_widgets.png`
 
 ### Antennas & Signal Model
 - [x] Dipole, end-fed, quarter-wave vertical, loop, wide-band receive, and VHF Yagi/J-pole/Slim Jim antennas are implemented
