@@ -95,6 +95,7 @@ public class VHFHandheldScreen extends Screen {
     ToggleButton powerBtn = new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower);
     this.powerToggle = powerBtn;
     addRenderableWidget(powerBtn); // Power
+        addRenderableWidget(new ToggleButton(cap.isVoxEnabled(), leftPos + 68, topPos + 107, 30, 21, 76, 120, WIDGETS_TEXTURE, 256, 256, this::onToggleVox)); // VOX toggle
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
         this.micGainDial = new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::onMicGainUp, this::onMicGainDown);
         addRenderableWidget(this.micGainDial); // Mic gain
@@ -175,6 +176,11 @@ public class VHFHandheldScreen extends Screen {
         if (cap.isPowered()) {
             if (menuState == MenuState.DEFAULT) {
                 pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyHertz() / 1000_000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
+                
+                // Draw VOX indicator when enabled
+                if (cap.isVoxEnabled()) {
+                    pGuiGraphics.drawString(this.font, "VOX", leftPos + 80, topPos + 133, 0x00FF00);
+                }
             } else if (menuState == MenuState.SET_FREQ) {
                 pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);
                 pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", frequencyEntryState.getFrequencyHz() / 1000_000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
@@ -414,6 +420,14 @@ public class VHFHandheldScreen extends Screen {
         //RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, false));
         cap.setPTTDown(false);
         RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
+        updateServer();
+    }
+
+    /**
+     * Callback to toggle VOX mode.
+     */
+    protected void onToggleVox(ToggleButton button) {
+        cap.setVoxEnabled(button.isToggled);
         updateServer();
     }
 

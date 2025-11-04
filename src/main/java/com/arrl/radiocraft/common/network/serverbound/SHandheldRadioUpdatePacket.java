@@ -22,14 +22,16 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
     float gain;
     float micGain;
     float frequencyHertz; //TODO change to allow server to control frequency steps
+    boolean vox;
 
-    public SHandheldRadioUpdatePacket(int index, boolean powered, boolean ptt, float gain, float micGain, float frequencyHertz) {
+    public SHandheldRadioUpdatePacket(int index, boolean powered, boolean ptt, float gain, float micGain, float frequencyHertz, boolean vox) {
         this.index = index;
         this.powered = powered;
         this.ptt = ptt;
         this.gain = gain;
         this.micGain = micGain;
         this.frequencyHertz = frequencyHertz;
+        this.vox = vox;
     }
 
     //constructor for StreamCodec decoding
@@ -37,6 +39,7 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
         this.index = index;
         this.powered = (packed&0x1)==0x1;
         this.ptt = (packed&0x2)==0x2;
+        this.vox = (packed&0x4)==0x4;
         this.gain = gain;
         this.micGain = micGain;
         this.frequencyHertz = frequencyHertz;
@@ -51,7 +54,7 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
     }
 
     private Byte packBools() {
-        return (byte) ((this.powered ? 0x1 : 0) + (this.ptt ? 0x2 : 0));
+        return (byte) ((this.powered ? 0x1 : 0) + (this.ptt ? 0x2 : 0) + (this.vox ? 0x4 : 0));
     }
 
     private float getGain() {
@@ -103,11 +106,12 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
             cap.setGain(this.gain);
             cap.setMicGain(this.micGain);
             cap.setFrequencyHertz(this.frequencyHertz); //TODO server should handle frequency steps
+            cap.setVoxEnabled(this.vox);
 
         });
     }
 
     public static void updateServer(int inventoryIndex, IVHFHandheldCapability cap) {
-        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(inventoryIndex, cap.isPowered(), cap.isPTTDown(), cap.getGain(), cap.getMicGain(), cap.getFrequencyHertz()));
+        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(inventoryIndex, cap.isPowered(), cap.isPTTDown(), cap.getGain(), cap.getMicGain(), cap.getFrequencyHertz(), cap.isVoxEnabled()));
     }
 }

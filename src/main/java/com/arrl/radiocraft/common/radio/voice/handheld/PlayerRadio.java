@@ -122,7 +122,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         }
 
         public SynchronousRadioState(ItemStack item, IVHFHandheldCapability cap, HandheldLocation itemLocation) {
-            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), cap.getFrequencyHertz(), itemLocation, cap.getGain(), cap.getMicGain());
+            this(item, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || cap.isVoxEnabled()), cap.getFrequencyHertz(), itemLocation, cap.getGain(), cap.getMicGain());
         }
     }
 
@@ -146,7 +146,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     //if the current radio is the held item, put it before the offhand and other radios
                     //otherwise add the radio to the end of the list, so the order is held, then offhand, then all others
                     if (i == playerInventory.selected) {
-                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyHertz(), HandheldLocation.HELD, cap.getGain(), cap.getMicGain()));
+                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld || cap.isVoxEnabled()), cap.getFrequencyHertz(), HandheldLocation.HELD, cap.getGain(), cap.getMicGain()));
                     } else {
                         out.addLast(new SynchronousRadioState(itemStack, cap, Inventory.isHotbarSlot(i) ? HandheldLocation.HOT_BAR : HandheldLocation.BACKPACK));
                     }

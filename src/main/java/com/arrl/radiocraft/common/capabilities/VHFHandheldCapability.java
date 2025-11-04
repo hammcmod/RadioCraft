@@ -41,52 +41,45 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 		return getState().freq();
 	}
 
-	@Override
-	public void setFrequencyHertz(float frequencyHertz) {
-		updateState(
-			(old) -> new HandheldRadioState(
-				old.power(),
-				old.ptt(),
-				Math.max(
-						Math.min(
+    @Override
+    public void setFrequencyHertz(float frequencyHertz) {
+        updateState(
+            (old) -> new HandheldRadioState(
+                old.power(),
+                old.ptt(),
+                Math.max(
+                        Math.min(
                                 frequencyHertz,
-								Band.getBand(2).maxFrequency()
-						),
-						Band.getBand(2).minFrequency()
-				),
-				old.gain(),
-				old.micGain(),
-				old.receiveIndicatorStrength()
-			)
-		);
-	}
-
-	@Override
+                                Band.getBand(2).maxFrequency()
+                        ),
+                        Band.getBand(2).minFrequency()
+                ),
+                old.gain(),
+                old.micGain(),
+                old.receiveIndicatorStrength(),
+                old.vox()
+            )
+        );
+    }	@Override
 	public boolean isPowered() {
 		return getState().power();
 	}
 
-	@Override
-	public void setPowered(boolean value) {
-		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength()));
-	}
-
-	@Override
+    @Override
+    public void setPowered(boolean value) {
+        updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength(), old.vox()));
+    }	@Override
 	public boolean isPTTDown() {
 		return getState().ptt();
 	}
 
-	@Override
-	public void setPTTDown(boolean value) {
-		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength()));
-	}
-
-	@Override
-	public void setReceiveStrength(float rec) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), old.micGain(), rec));
-	}
-
-	@Override
+    @Override
+    public void setPTTDown(boolean value) {
+        updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength(), old.vox()));
+    }    @Override
+    public void setReceiveStrength(float rec) {
+        updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), old.micGain(), rec, old.vox()));
+    }	@Override
 	public float getReceiveStrength() {
 		return getState().receiveIndicatorStrength();
 	}
@@ -96,19 +89,27 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 		return getState().gain();
 	}
 
-	@Override
-	public void setGain(float gain) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), gain, old.micGain(), old.receiveIndicatorStrength()));
-	}
-
-	@Override
+    @Override
+    public void setGain(float gain) {
+        updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), gain, old.micGain(), old.receiveIndicatorStrength(), old.vox()));
+    }	@Override
 	public float getMicGain() {
 		return getState().micGain();
 	}
 
 	@Override
 	public void setMicGain(float micGain) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), micGain, old.receiveIndicatorStrength()));
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), micGain, old.receiveIndicatorStrength(), old.vox()));
+	}
+
+	@Override
+	public boolean isVoxEnabled() {
+		return getState().vox();
+	}
+
+	@Override
+	public void setVoxEnabled(boolean value) {
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength(), value));
 	}
 
 	protected HandheldRadioState getState(){
