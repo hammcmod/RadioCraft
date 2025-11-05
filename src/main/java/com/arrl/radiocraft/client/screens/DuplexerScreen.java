@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.client.screens.widgets.ScrewButton;
 import com.arrl.radiocraft.common.menus.DuplexerMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -18,12 +19,23 @@ public class DuplexerScreen extends AbstractContainerScreen<DuplexerMenu> {
 	public DuplexerScreen(DuplexerMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
 		this.imageWidth = 250;
-		this.imageHeight = 120;
+		this.imageHeight = 75;
 	}
 
 	@Override
 	protected void init() {
 		super.init();
+
+		// Screw widgets at Y=30
+		// Texture positions: normal (0,76), hover with border (20,76)
+		// Screws are 21x21 pixels
+		// X positions: 7, 18, 60, 103, 146, 188, 230 (first one is the test position at 7)
+		addRenderableWidget(new ScrewButton(leftPos + 7, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 49, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 92, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 135, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 177, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 219, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
 	}
 
 	@Override
