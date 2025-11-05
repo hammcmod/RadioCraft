@@ -39,7 +39,10 @@ public class ImageButton extends Button {
 
 	@Override
 	protected void renderWidget(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-		if (isHovered()) pGuiGraphics.blit(this.resourceLocation, getX(), getY(), u, v, width, height, textureWidth, textureHeight);
+		// Don't render if coordinates are negative (transparent/skip)
+		if (isHovered() && u >= 0 && v >= 0) {
+			pGuiGraphics.blit(this.resourceLocation, getX(), getY(), u, v, width, height, textureWidth, textureHeight);
+		}
 	}
 
 	@OnlyIn(Dist.CLIENT)
