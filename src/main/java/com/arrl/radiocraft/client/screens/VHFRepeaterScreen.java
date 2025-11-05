@@ -26,7 +26,19 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 	protected void init() {
 		super.init();
 
-		addRenderableWidget(new ToggleButton(false, leftPos + 19, topPos + 30, 18, 19, 0, 154, TEXTURE, 250, 216, (pularcorda) -> {})); // LeftDial
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 19, topPos + 30, 18, 19, 0, 154, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 42, topPos + 30, 18, 19, 23, 154, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 65, topPos + 30, 18, 19, 46, 154, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 19, topPos + 51, 18, 19, 0, 175, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 42, topPos + 51, 18, 19, 23, 175, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 65, topPos + 51, 18, 19, 46, 175, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 19, topPos + 72, 18, 19, 0, 196, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 42, topPos + 72, 18, 19, 23, 196, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 65, topPos + 72, 18, 19, 46, 196, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 22, topPos + 94, 13, 15, 68, 155, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 67, topPos + 94, 13, 15, 68, 155, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 168, topPos + 59, 13, 15, 68, 155, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new StaticToggleButton(false, leftPos + 207, topPos + 59, 13, 15, 68, 155, TEXTURE, 250, 216, (btn) -> {}));
 	}
 
 	@Override
