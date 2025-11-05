@@ -18,7 +18,7 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 	public AntennaTunerScreen(AntennaTunerMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
 		this.imageWidth = 250;
-		this.imageHeight = 182;
+		this.imageHeight = 128;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 182);
+		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 128);
 	}
 
 	@Override
