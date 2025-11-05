@@ -18,7 +18,7 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 	public VHFRepeaterScreen(VHFRepeaterMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
 		this.imageWidth = 250;
-		this.imageHeight = 216;
+		this.imageHeight = 153;
 	}
 
 	@Override
@@ -40,7 +40,7 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 216);
+		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 153);
 	}
 
 	@Override

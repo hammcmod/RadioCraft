@@ -16,8 +16,8 @@ public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
     public HFRadioAllBandScreen(HFRadioAllBandMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, Radiocraft.id("textures/gui/hf_radio_all_band.png"), Radiocraft.id("textures/gui/hf_radio_all_band_widgets.png"));
 
-        this.imageWidth = 250;
-        this.imageHeight = 147;
+        this.imageWidth = 252;
+        this.imageHeight = 142;
     }
 
     @Override

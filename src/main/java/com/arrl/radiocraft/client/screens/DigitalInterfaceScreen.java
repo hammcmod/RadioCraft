@@ -32,7 +32,7 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	public DigitalInterfaceScreen(DigitalInterfaceMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
 		this.imageWidth = 217;
-		this.imageHeight = 202;
+		this.imageHeight = 142;
 		updateTexture();
 	}
 
@@ -82,7 +82,7 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
 		// Renderiza a área completa da textura 217x202
-		guiGraphics.blit(currentTexture, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 217, 202);
+		guiGraphics.blit(currentTexture, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 217, 242);
 	}
 
 	@Override
