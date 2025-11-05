@@ -19,7 +19,7 @@ public class DuplexerScreen extends AbstractContainerScreen<DuplexerMenu> {
 	public DuplexerScreen(DuplexerMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
 		this.imageWidth = 250;
-		this.imageHeight = 75;
+		this.imageHeight = 76;
 	}
 
 	@Override
