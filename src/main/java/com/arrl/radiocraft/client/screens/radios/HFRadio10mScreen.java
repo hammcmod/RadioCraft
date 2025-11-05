@@ -24,10 +24,18 @@ public class HFRadio10mScreen extends HFRadioScreen<HFRadio10mMenu> {
 		addRenderableWidget(new ValueButton(leftPos + 197, topPos + 66, 34, 19, 0, 34, widgetsTexture, 256, 256, () -> menu.blockEntity.getCWEnabled(), this::onPressCW)); // CW Button
 		addRenderableWidget(new ValueButton(leftPos + 197, topPos + 86, 34, 19, 0, 72, widgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB)); // SSB button
 		addRenderableWidget(new HoldButton(leftPos + 128, topPos + 110, 51, 19, 0, 110, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
-		addRenderableWidget(new Dial(leftPos + 134, topPos + 37, 42, 45, 102, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
-		addRenderableWidget(new ImageButton(leftPos + 129, topPos + 93, 25, 17, 0, 148, widgetsTexture, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
-		addRenderableWidget(new ImageButton(leftPos + 154, topPos + 93, 25, 17, 0, 182, widgetsTexture, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
-		addRenderableWidget(new Dial(leftPos + 209, topPos + 20, 32, 34, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
+		addRenderableWidget(new Dial(leftPos + 134, topPos + 37, 42, 45, 102, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown));
+		
+		CustomToggleButton freqUpBtn = new CustomToggleButton(false, leftPos + 129, topPos + 93, 25, 17, 0, 148, 25, 148, 0, 165, 25, 165, widgetsTexture, 256, 256, (btn) -> { 
+			onFrequencyButtonUp(null);
+		});
+		CustomToggleButton freqDownBtn = new CustomToggleButton(false, leftPos + 154, topPos + 93, 25, 17, 0, 182, 25, 182, 0, 199, 25, 199, widgetsTexture, 256, 256, (btn) -> { 
+			onFrequencyButtonDown(null);
+		});
+		addRenderableWidget(freqUpBtn);
+		addRenderableWidget(freqDownBtn);
+		
+		addRenderableWidget(new Dial(leftPos + 209, topPos + 20, 32, 34, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing));
 		addRenderableWidget(new Dial(leftPos + 90, topPos + 86, 32, 34, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
 	}
 
