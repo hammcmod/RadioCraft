@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.menus.VHFRepeaterMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,6 +25,8 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 	@Override
 	protected void init() {
 		super.init();
+
+		addRenderableWidget(new ToggleButton(false, leftPos + 19, topPos + 30, 18, 19, 0, 154, TEXTURE, 250, 216, (pularcorda) -> {})); // LeftDial
 	}
 
 	@Override
@@ -40,7 +43,7 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 153);
+		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 216);
 	}
 
 	@Override

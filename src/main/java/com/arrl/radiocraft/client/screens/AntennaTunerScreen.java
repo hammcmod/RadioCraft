@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.menus.AntennaTunerMenu;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
@@ -24,7 +25,11 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 	@Override
 	protected void init() {
 		super.init();
-	}
+
+		addRenderableWidget(new Dial(leftPos + 23, topPos + 76, 42, 45, 48, 137, TEXTURE, 250, 182, (dial) -> {}, (dial) -> {})); // LeftDial
+		addRenderableWidget(new Dial(leftPos + 106, topPos + 76, 42, 45, 48, 137, TEXTURE, 250, 182, (dial) -> {}, (dial) -> {})); // MiddleDial
+		addRenderableWidget(new Dial(leftPos + 188, topPos + 76, 42, 45, 48, 137, TEXTURE, 250, 182, (dial) -> {}, (dial) -> {})); // RightDial
+    }
 
 	@Override
 	public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -40,7 +45,7 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 128);
+		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 182);
 	}
 
 	@Override
