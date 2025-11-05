@@ -23,15 +23,18 @@ public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 13, topPos + 14, 14, 17, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
-        addRenderableWidget(new ValueButton(leftPos + 197, topPos + 66, 34, 19, 0, 34, widgetsTexture, 256, 256, () -> menu.blockEntity.getCWEnabled(), this::onPressCW)); // CW Button
-        addRenderableWidget(new ValueButton(leftPos + 197, topPos + 86, 34, 19, 0, 72, widgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB)); // SSB button
-        addRenderableWidget(new HoldButton(leftPos + 128, topPos + 110, 51, 19, 0, 110, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
-        addRenderableWidget(new Dial(leftPos + 134, topPos + 37, 42, 45, 102, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
-        addRenderableWidget(new ImageButton(leftPos + 129, topPos + 93, 25, 17, 0, 148, widgetsTexture, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
-        addRenderableWidget(new ImageButton(leftPos + 154, topPos + 93, 25, 17, 0, 182, widgetsTexture, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
-        addRenderableWidget(new Dial(leftPos + 209, topPos + 20, 32, 34, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
-        addRenderableWidget(new Dial(leftPos + 90, topPos + 86, 32, 34, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
+        addRenderableWidget(new StaticToggleButton(false, leftPos + 86, topPos + 57, 32, 17, 30, 5, widgetsTexture, 256, 256, (btn) -> onPressCW(null)));
+        addRenderableWidget(new StaticToggleButton(false, leftPos + 86, topPos + 77, 32, 17, 68, 5, widgetsTexture, 256, 256, (btn) -> onPressSSB(null)));
+        addRenderableWidget(new StaticToggleButton(false, leftPos + 37, topPos + 106, 49, 17, 0, 29, widgetsTexture, 256, 256, (btn) -> { onPressPTT(null); onReleasePTT(null); }));
+        addRenderableWidget(new StaticToggleButton(false, leftPos + 89, topPos + 101, 24, 24, 0, 0, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new StaticToggleButton(false, leftPos + 222, topPos + 80, 20, 20, 0, 49, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new StaticToggleButton(false, leftPos + 222, topPos + 59, 20, 20, 22, 49, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new CustomToggleButton(false, leftPos + 35, topPos + 82, 16, 12, -1, -1, 165, 6, 111, 7, 111, 7, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new CustomToggleButton(false, leftPos + 52, topPos + 82, 16, 12, -1, -1, 182, 6, 127, 7, 127, 7, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new CustomToggleButton(false, leftPos + 69, topPos + 82, 16, 12, -1, -1, 199, 6, 144, 7, 144, 7, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new CustomToggleButton(false, leftPos + 196, topPos + 15, 16, 12, -1, -1, 199, 6, 144, 7, 144, 7, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new ImageButton(leftPos + 129, topPos + 93, 25, 17, 0, 148, widgetsTexture, 256, 256, this::onFrequencyButtonUp));
+        addRenderableWidget(new ImageButton(leftPos + 154, topPos + 93, 25, 17, 0, 182, widgetsTexture, 256, 256, this::onFrequencyButtonDown));
     }
 
     @Override
