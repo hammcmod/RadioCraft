@@ -18,7 +18,7 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 
 	public AntennaTunerScreen(AntennaTunerMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
-		this.imageWidth = 250;
+		this.imageWidth = 256;
 		this.imageHeight = 128;
 	}
 
@@ -26,9 +26,9 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 	protected void init() {
 		super.init();
 
-		addRenderableWidget(new Dial(leftPos + 23, topPos + 76, 42, 45, 48, 137, TEXTURE, 250, 182, (dial) -> {}, (dial) -> {})); // LeftDial
-		addRenderableWidget(new Dial(leftPos + 106, topPos + 76, 42, 45, 48, 137, TEXTURE, 250, 182, (dial) -> {}, (dial) -> {})); // MiddleDial
-		addRenderableWidget(new Dial(leftPos + 188, topPos + 76, 42, 45, 48, 137, TEXTURE, 250, 182, (dial) -> {}, (dial) -> {})); // RightDial
+		addRenderableWidget(new Dial(leftPos + 23, topPos + 76, 42, 45, 48, 137, TEXTURE, 256, 256, (dial) -> {}, (dial) -> {})); // LeftDial
+		addRenderableWidget(new Dial(leftPos + 106, topPos + 76, 42, 45, 48, 137, TEXTURE, 256, 256, (dial) -> {}, (dial) -> {})); // MiddleDial
+		addRenderableWidget(new Dial(leftPos + 188, topPos + 76, 42, 45, 48, 137, TEXTURE, 256, 256, (dial) -> {}, (dial) -> {})); // RightDial
     }
 
 	@Override
@@ -45,7 +45,7 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 182);
+		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 	}
 
 	@Override
