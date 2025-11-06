@@ -15,11 +15,16 @@ import org.jetbrains.annotations.NotNull;
 public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInterfaceMenu> {
 
 	// Tab textures
-	private static final ResourceLocation TEXTURE_RTTY = Radiocraft.id("textures/gui/digital_interface_rtty.png");
+	private static final ResourceLocation TEXTURE_RTTY = Radiocraft.id("textures/gui/digital_interface_rtty_send.png");
 	private static final ResourceLocation TEXTURE_ARPS = Radiocraft.id("textures/gui/digital_interface_arps.png");
 	private static final ResourceLocation TEXTURE_MSG = Radiocraft.id("textures/gui/digital_interface_msg.png");
 	private static final ResourceLocation TEXTURE_FILES = Radiocraft.id("textures/gui/digital_interface_files.png");
-	private static final ResourceLocation WIDGETS_TEXTURE = Radiocraft.id("textures/gui/digital_interface_rtty.png"); // Reuse main texture for widgets
+	
+	// Widget textures - cada aba pode ter seus próprios widgets específicos
+	private static final ResourceLocation WIDGETS_RTTY = TEXTURE_RTTY;
+	private static final ResourceLocation WIDGETS_ARPS = TEXTURE_ARPS;
+	private static final ResourceLocation WIDGETS_MSG = TEXTURE_MSG;
+	private static final ResourceLocation WIDGETS_FILES = TEXTURE_FILES;
 
 	// Tab indices
 	private static final int TAB_RTTY = 0;
@@ -28,11 +33,14 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	private static final int TAB_FILES = 3;
 
 	private ResourceLocation currentTexture;
+	private ResourceLocation currentWidgetsTexture;
+	private int currentTextureWidth;
+	private int currentTextureHeight;
 
 	public DigitalInterfaceScreen(DigitalInterfaceMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
 		this.imageWidth = 217;
-		this.imageHeight = 142;
+		this.imageHeight = 132;
 		updateTexture();
 	}
 
@@ -40,14 +48,12 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	protected void init() {
 		super.init();
 
-		// Tab buttons embedded in the texture at the top
-		// TODO: Adjust u, v coordinates based on actual button sprites in texture
-		// These are placeholder coordinates - you'll need to update them based on where
-		// the tab button sprites are located in digital_interface_*.png files
-		addRenderableWidget(new ImageButton(leftPos + 8, topPos + 4, 35, 15, 1, 213, WIDGETS_TEXTURE, 225, 168, (btn) -> selectTab(TAB_ARPS)));
-		addRenderableWidget(new ImageButton(leftPos + 60, topPos + 4, 35, 15, 36, 213, WIDGETS_TEXTURE, 225, 168, (btn) -> selectTab(TAB_MSG)));
-		addRenderableWidget(new ImageButton(leftPos + 112, topPos + 4, 35, 15, 71, 213, WIDGETS_TEXTURE, 225, 168, (btn) -> selectTab(TAB_RTTY)));
-		addRenderableWidget(new ImageButton(leftPos + 164, topPos + 4, 35, 15, 106, 213, WIDGETS_TEXTURE, 225, 168, (btn) -> selectTab(TAB_FILES)));
+		// Tab buttons - usando WIDGETS_RTTY como textura padrão para os botões das abas
+		// Os botões das abas são comuns a todas as abas e ficam na textura principal
+		addRenderableWidget(new ImageButton(leftPos + 8, topPos + 4, 35, 15, 1, 213, WIDGETS_RTTY, 225, 168, (btn) -> selectTab(TAB_ARPS)));
+		addRenderableWidget(new ImageButton(leftPos + 60, topPos + 4, 35, 15, 36, 213, WIDGETS_RTTY, 225, 168, (btn) -> selectTab(TAB_MSG)));
+		addRenderableWidget(new ImageButton(leftPos + 112, topPos + 4, 35, 15, 71, 213, WIDGETS_RTTY, 225, 168, (btn) -> selectTab(TAB_RTTY)));
+		addRenderableWidget(new ImageButton(leftPos + 164, topPos + 4, 35, 15, 106, 213, WIDGETS_RTTY, 225, 168, (btn) -> selectTab(TAB_FILES)));
 
 		updateTexture();
 	}
@@ -58,12 +64,32 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	}
 
 	private void updateTexture() {
-		currentTexture = switch (menu.getSelectedTab()) {
-			case TAB_ARPS -> TEXTURE_ARPS;
-			case TAB_MSG -> TEXTURE_MSG;
-			case TAB_FILES -> TEXTURE_FILES;
-			default -> TEXTURE_RTTY;
-		};
+		switch (menu.getSelectedTab()) {
+			case TAB_ARPS:
+				currentTexture = TEXTURE_ARPS;
+				currentWidgetsTexture = WIDGETS_ARPS;
+				currentTextureWidth = 217;
+				currentTextureHeight = 202;
+				break;
+			case TAB_MSG:
+				currentTexture = TEXTURE_MSG;
+				currentWidgetsTexture = WIDGETS_MSG;
+				currentTextureWidth = 224;
+				currentTextureHeight = 167;
+				break;
+			case TAB_FILES:
+				currentTexture = TEXTURE_FILES;
+				currentWidgetsTexture = WIDGETS_FILES;
+				currentTextureWidth = 217;
+				currentTextureHeight = 155;
+				break;
+			default: // TAB_RTTY
+				currentTexture = TEXTURE_RTTY;
+				currentWidgetsTexture = WIDGETS_RTTY;
+				currentTextureWidth = 225;
+				currentTextureHeight = 168;
+				break;
+		}
 	}
 
 	@Override
@@ -81,8 +107,7 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		// Renderiza a área completa da textura 217x202
-		guiGraphics.blit(currentTexture, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 217, 242);
+		guiGraphics.blit(currentTexture, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, currentTextureWidth, currentTextureHeight);
 	}
 
 	@Override
