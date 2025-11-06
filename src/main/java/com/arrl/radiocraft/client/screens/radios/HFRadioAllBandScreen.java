@@ -5,6 +5,7 @@ import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.menus.HFRadioAllBandMenu;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
  * TODO This class was copied from the 10m screen and is almost certainly wrong all over.
  */
 public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
+
+    private final ResourceLocation hf80mWidgetsTexture = Radiocraft.id("textures/gui/hf_radio_80m_widgets.png");
 
     public HFRadioAllBandScreen(HFRadioAllBandMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, Radiocraft.id("textures/gui/hf_radio_all_band.png"), Radiocraft.id("textures/gui/hf_radio_all_band_widgets.png"));
@@ -23,9 +26,9 @@ public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
     @Override
     protected void init() {
         super.init();
-        addRenderableWidget(new StaticToggleButton(false, leftPos + 86, topPos + 57, 32, 17, 30, 5, widgetsTexture, 256, 256, (btn) -> onPressCW(null)));
-        addRenderableWidget(new StaticToggleButton(false, leftPos + 86, topPos + 77, 32, 17, 68, 5, widgetsTexture, 256, 256, (btn) -> onPressSSB(null)));
-        addRenderableWidget(new StaticToggleButton(false, leftPos + 37, topPos + 106, 49, 17, 0, 29, widgetsTexture, 256, 256, (btn) -> { onPressPTT(null); onReleasePTT(null); }));
+        addRenderableWidget(new ValueButton(leftPos + 86, topPos + 57, 34, 19, -1, 0, hf80mWidgetsTexture, 256, 256, () -> menu.blockEntity.getCWEnabled(), this::onPressCW));
+        addRenderableWidget(new ValueButton(leftPos + 86, topPos + 77, 34, 19, -1, 38, hf80mWidgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB));
+        addRenderableWidget(new HoldButton(leftPos + 35, topPos + 104, 51, 19, -1, 76, hf80mWidgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT));
         addRenderableWidget(new StaticToggleButton(false, leftPos + 89, topPos + 101, 24, 24, 0, 0, widgetsTexture, 256, 256, (btn) -> {}));
         addRenderableWidget(new StaticToggleButton(false, leftPos + 222, topPos + 80, 20, 20, 0, 49, widgetsTexture, 256, 256, (btn) -> {}));
         addRenderableWidget(new StaticToggleButton(false, leftPos + 222, topPos + 59, 20, 20, 22, 49, widgetsTexture, 256, 256, (btn) -> {}));
