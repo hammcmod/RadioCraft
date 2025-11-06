@@ -24,13 +24,15 @@ public class MixinPTTKeyHandler {
 
 	@Inject(method="isPTTDown", at=@At("HEAD"), cancellable = true, remap = false)
 	private void isPTTDown(CallbackInfoReturnable<Boolean> cir) {
-		if(RadiocraftClientValues.SCREEN_PTT_PRESSED && RadiocraftClientValues.SCREEN_VOICE_ENABLED)
+		// Allow transmission if PTT is pressed OR if VOX mode is enabled
+		if(RadiocraftClientValues.SCREEN_VOICE_ENABLED && (RadiocraftClientValues.SCREEN_PTT_PRESSED || RadiocraftClientValues.SCREEN_VOX_ENABLED))
 			cir.setReturnValue(true);
 	}
 
 	@Inject(method="isAnyDown", at=@At("HEAD"), cancellable = true, remap = false)
 	private void isAnyDown(CallbackInfoReturnable<Boolean> cir) {
-		if(RadiocraftClientValues.SCREEN_PTT_PRESSED && RadiocraftClientValues.SCREEN_VOICE_ENABLED)
+		// Allow transmission if PTT is pressed OR if VOX mode is enabled
+		if(RadiocraftClientValues.SCREEN_VOICE_ENABLED && (RadiocraftClientValues.SCREEN_PTT_PRESSED || RadiocraftClientValues.SCREEN_VOX_ENABLED))
 			cir.setReturnValue(true);
 	}
 

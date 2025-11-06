@@ -138,6 +138,9 @@ public class VHFHandheldScreen extends Screen {
             menuState = MenuState.DEFAULT;
         }
 
+        // Update VOX state for voice transmission
+        RadiocraftClientValues.SCREEN_VOX_ENABLED = cap.isPowered() && cap.isVoxEnabled();
+
         renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
         // Check if we need to reset the power toggle (scheduled earlier when trying to turn on with no battery)
@@ -161,9 +164,15 @@ public class VHFHandheldScreen extends Screen {
 
          */
 
-        if (cap.isPowered() && cap.isPTTDown()) {
+        // Check if transmitting: PTT pressed OR VOX enabled (ready to transmit)
+        boolean isTransmitting = cap.isPowered() && (cap.isPTTDown() || cap.isVoxEnabled());
+        
+        if (isTransmitting) {
+            // Show full power when transmitting (either via PTT or VOX)
+            // TODO: In future, could show actual audio amplitude from microphone
             POWER_METER.setValue(1.0);
         } else if (cap.isPowered()) {
+            // Show receive strength when not transmitting
             if(cap.getReceiveStrength() <= 0f) {
                 POWER_METER.setValue(Math.random() / 10.0);
             } else {
@@ -210,7 +219,12 @@ public class VHFHandheldScreen extends Screen {
             );
         }
 
-        TX_LED.setIsOn(cap.isPowered() && cap.isPTTDown());
+        // TX LED logic:
+        // - On when PTT is manually pressed
+        // - On when VOX is enabled (indicating ready to transmit on voice)
+        // Note: We can't detect actual audio transmission in VOX mode on client-side,
+        // so we show TX LED whenever VOX is active to indicate "ready to transmit"
+        TX_LED.setIsOn(cap.isPowered() && (cap.isPTTDown() || cap.isVoxEnabled()));
         RX_LED.setIsOn(cap.isPowered() && cap.getReceiveStrength() > 0);
         DATA_LED.setIsOn(false); // TBI
 
@@ -277,6 +291,7 @@ public class VHFHandheldScreen extends Screen {
         super.onClose();
         RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
         RadiocraftClientValues.SCREEN_VOICE_ENABLED = false;
+        RadiocraftClientValues.SCREEN_VOX_ENABLED = false; // Disable VOX when screen closes
         RadiocraftClientValues.SCREEN_CW_ENABLED = false;
         if(cap.isPTTDown()) {
             cap.setPTTDown(false);
