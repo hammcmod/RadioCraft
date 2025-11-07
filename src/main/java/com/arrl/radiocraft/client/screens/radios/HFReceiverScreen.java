@@ -35,6 +35,11 @@ public class HFReceiverScreen extends HFRadioScreen<HFReceiverMenu> {
 	}
 
 	@Override
+	protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		// Don't render the default title and inventory labels
+	}
+
+	@Override
 	protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		/*
 		if(menu.isPowered()) {

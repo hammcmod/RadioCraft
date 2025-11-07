@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class VHFReceiverScreen extends VHFRadioScreen<VHFReceiverMenu> {
 
-	private StaticToggleButton[] ledButtons = new StaticToggleButton[6];
+	private LedIndicator[] ledButtons = new LedIndicator[6];
 
 	public VHFReceiverScreen(VHFReceiverMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title, Radiocraft.id("textures/gui/vhf_receiver.png"), Radiocraft.id("textures/gui/vhf_receiver_widgets.png"));
@@ -25,14 +25,17 @@ public class VHFReceiverScreen extends VHFRadioScreen<VHFReceiverMenu> {
 		addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 10, topPos + 11, 14, 19, 0, 0, widgetsTexture, 256, 256, this::onPressPower));
 		addRenderableWidget(new StaticToggleButton(false, leftPos + 221, topPos + 10, 20, 20, 221, 112, texture, 256, 256, (btn) -> {}));
 		
-		ledButtons[0] = new StaticToggleButton(false, leftPos + 43, topPos + 50, 17, 17, 0, 106, texture, 256, 256, (btn) -> {});
-		ledButtons[1] = new StaticToggleButton(false, leftPos + 73, topPos + 50, 17, 17, 0, 106, texture, 256, 256, (btn) -> {});
-		ledButtons[2] = new StaticToggleButton(false, leftPos + 102, topPos + 50, 17, 17, 0, 106, texture, 256, 256, (btn) -> {});
-		ledButtons[3] = new StaticToggleButton(false, leftPos + 132, topPos + 50, 17, 17, 0, 106, texture, 256, 256, (btn) -> {});
-		ledButtons[4] = new StaticToggleButton(false, leftPos + 161, topPos + 50, 17, 17, 0, 106, texture, 256, 256, (btn) -> {});
-		ledButtons[5] = new StaticToggleButton(false, leftPos + 191, topPos + 50, 17, 17, 0, 106, texture, 256, 256, (btn) -> {});
+		// LEDs - usar LedIndicator que apenas renderiza quando ligado e não é clicável
+		ledButtons[0] = new LedIndicator(Component.literal("LED 1"), leftPos + 43, topPos + 50, 17, 17, 0, 106, texture, 256, 256);
+		ledButtons[1] = new LedIndicator(Component.literal("LED 2"), leftPos + 73, topPos + 50, 17, 17, 0, 106, texture, 256, 256);
+		ledButtons[2] = new LedIndicator(Component.literal("LED 3"), leftPos + 102, topPos + 50, 17, 17, 0, 106, texture, 256, 256);
+		ledButtons[3] = new LedIndicator(Component.literal("LED 4"), leftPos + 132, topPos + 50, 17, 17, 0, 106, texture, 256, 256);
+		ledButtons[4] = new LedIndicator(Component.literal("LED 5"), leftPos + 161, topPos + 50, 17, 17, 0, 106, texture, 256, 256);
+		ledButtons[5] = new LedIndicator(Component.literal("LED 6"), leftPos + 191, topPos + 50, 17, 17, 0, 106, texture, 256, 256);
 		
-		for (StaticToggleButton led : ledButtons) {
+		// Iniciar todos os LEDs apagados
+		for (LedIndicator led : ledButtons) {
+			led.setIsOn(false);
 			addRenderableWidget(led);
 		}
 		
@@ -62,8 +65,8 @@ public class VHFReceiverScreen extends VHFRadioScreen<VHFReceiverMenu> {
 	 */
 	protected void onMemoryButton(int buttonNumber) {
 		if (buttonNumber >= 1 && buttonNumber <= 6) {
-			StaticToggleButton led = ledButtons[buttonNumber - 1];
-			led.isToggled = !led.isToggled;
+			LedIndicator led = ledButtons[buttonNumber - 1];
+			led.setIsOn(!led.getIsOn());
 		}
 	}
 
