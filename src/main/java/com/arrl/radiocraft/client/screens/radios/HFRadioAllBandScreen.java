@@ -29,15 +29,15 @@ public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
         addRenderableWidget(new ValueButton(leftPos + 86, topPos + 57, 34, 19, -1, 0, hf80mWidgetsTexture, 256, 256, () -> menu.blockEntity.getCWEnabled(), this::onPressCW));
         addRenderableWidget(new ValueButton(leftPos + 86, topPos + 77, 34, 19, -1, 38, hf80mWidgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB));
         addRenderableWidget(new HoldButton(leftPos + 35, topPos + 104, 51, 19, -1, 76, hf80mWidgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT));
-        addRenderableWidget(new StaticToggleButton(false, leftPos + 89, topPos + 101, 24, 24, 0, 0, widgetsTexture, 256, 256, (btn) -> {}));
-        addRenderableWidget(new StaticToggleButton(false, leftPos + 222, topPos + 80, 20, 20, 0, 49, widgetsTexture, 256, 256, (btn) -> {}));
-        addRenderableWidget(new StaticToggleButton(false, leftPos + 222, topPos + 59, 20, 20, 22, 49, widgetsTexture, 256, 256, (btn) -> {}));
-        addRenderableWidget(new CustomToggleButton(false, leftPos + 35, topPos + 82, 16, 12, -1, -1, 165, 6, 111, 7, 111, 7, widgetsTexture, 256, 256, (btn) -> {}));
-        addRenderableWidget(new CustomToggleButton(false, leftPos + 52, topPos + 82, 16, 12, -1, -1, 182, 6, 127, 7, 127, 7, widgetsTexture, 256, 256, (btn) -> {}));
-        addRenderableWidget(new CustomToggleButton(false, leftPos + 69, topPos + 82, 16, 12, -1, -1, 199, 6, 144, 7, 144, 7, widgetsTexture, 256, 256, (btn) -> {}));
-        addRenderableWidget(new CustomToggleButton(false, leftPos + 196, topPos + 15, 16, 12, -1, -1, 199, 6, 144, 7, 144, 7, widgetsTexture, 256, 256, (btn) -> {}));
-        addRenderableWidget(new ImageButton(leftPos + 129, topPos + 93, 25, 17, 0, 148, widgetsTexture, 256, 256, this::onFrequencyButtonUp));
-        addRenderableWidget(new ImageButton(leftPos + 154, topPos + 93, 25, 17, 0, 182, widgetsTexture, 256, 256, this::onFrequencyButtonDown));
+        addRenderableWidget(new ToggleButton(false, leftPos + 88, topPos + 100, 26, 26, 0, 138, widgetsTexture, 256, 256, (btn) -> {})); // FM button
+        addRenderableWidget(new ToggleButton(false, leftPos + 221, topPos + 79, 22, 22, 0, 47, widgetsTexture, 256, 256, (btn) -> {})); // MIC
+        addRenderableWidget(new ToggleButton(false, leftPos + 221, topPos + 58, 22, 22, 0, 91, widgetsTexture, 256, 256, (btn) -> {})); // SPK
+        addRenderableWidget(new ToggleButton(false, leftPos + 35, topPos + 82, 16, 11, 115, 2, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new ToggleButton(false, leftPos + 52, topPos + 82, 16, 11, 115, 2, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new ToggleButton(false, leftPos + 69, topPos + 82, 16, 11, 149, 2, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new ToggleButton(false, leftPos + 196, topPos + 15, 16, 11, 149, 2, widgetsTexture, 256, 256, (btn) -> {}));
+        addRenderableWidget(new ImageButton(leftPos + 194, topPos + 94, 18, 17, 46, 49, widgetsTexture, 256, 256, this::onFrequencyButtonUp));
+        addRenderableWidget(new ImageButton(leftPos + 194, topPos + 112, 18, 17, 46, 83, widgetsTexture, 256, 256, this::onFrequencyButtonDown));
     }
 
     @Override
