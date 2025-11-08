@@ -15,30 +15,31 @@ import org.jetbrains.annotations.NotNull;
 public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> {
 
 	private static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/vhf_repeater.png");
+	private static final ResourceLocation WIDGETS_TEXTURE = Radiocraft.id("textures/gui/vhf_repeater_widgets.png");
 
 	public VHFRepeaterScreen(VHFRepeaterMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
-		this.imageWidth = 250;
-		this.imageHeight = 153;
+		this.imageWidth = 256;
+		this.imageHeight = 151;
 	}
 
 	@Override
 	protected void init() {
 		super.init();
 
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 19, topPos + 30, 18, 19, 0, 154, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 42, topPos + 30, 18, 19, 23, 154, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 65, topPos + 30, 18, 19, 46, 154, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 19, topPos + 51, 18, 19, 0, 175, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 42, topPos + 51, 18, 19, 23, 175, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 65, topPos + 51, 18, 19, 46, 175, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 19, topPos + 72, 18, 19, 0, 196, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 42, topPos + 72, 18, 19, 23, 196, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 65, topPos + 72, 18, 19, 46, 196, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 22, topPos + 94, 13, 15, 68, 155, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 67, topPos + 94, 13, 15, 68, 155, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 168, topPos + 59, 13, 15, 68, 155, TEXTURE, 250, 216, (btn) -> {}));
-		addRenderableWidget(new StaticToggleButton(false, leftPos + 207, topPos + 59, 13, 15, 68, 155, TEXTURE, 250, 216, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 18, topPos + 29, 20, 21, 0, 0, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 41, topPos + 29, 20, 21, 0, 42, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 64, topPos + 29, 20, 21, 0, 84, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 18, topPos + 50, 20, 21, 0, 126, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 41, topPos + 50, 20, 21, 0, 168, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 64, topPos + 50, 20, 21, 40, 0, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 18, topPos + 71, 20, 21, 40, 42, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 41, topPos + 71, 20, 21, 40, 84, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 64, topPos + 71, 20, 21, 40, 126, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 21, topPos + 93, 15, 17, 44, 171, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 66, topPos + 93, 15, 17, 44, 171, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 167, topPos + 58, 15, 17, 44, 171, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
+		addRenderableWidget(new ToggleButton(false, leftPos + 206, topPos + 58, 15, 17, 44, 171, WIDGETS_TEXTURE, 256, 256, (btn) -> {}));
 	}
 
 	@Override
@@ -55,7 +56,7 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 
 		int edgeSpacingX = (this.width - this.imageWidth) / 2;
 		int edgeSpacingY = (this.height - this.imageHeight) / 2;
-		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 250, 216);
+		guiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
 	}
 
 	@Override

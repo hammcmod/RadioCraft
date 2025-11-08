@@ -32,6 +32,7 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	private static final int TAB_FILES = 3;
 
 	private ResourceLocation currentTexture;
+	private int currentTab = TAB_RTTY; // Sempre inicia na aba RTTY
 
 	public DigitalInterfaceScreen(DigitalInterfaceMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
@@ -43,12 +44,14 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	@Override
 	protected void init() {
 		super.init();
+		
+		updateTexture();
 
 		// Tab buttons - todos usam a mesma textura de widgets
-		addRenderableWidget(new ToggleButton(menu.getSelectedTab() == TAB_ARPS, leftPos + 16, topPos + 17, 35, 14, 0, 0, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_ARPS)));
-		addRenderableWidget(new ToggleButton(menu.getSelectedTab() == TAB_MSG, leftPos + 50, topPos + 17, 36, 14, 144, 0, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_MSG)));
-		addRenderableWidget(new ToggleButton(menu.getSelectedTab() == TAB_RTTY, leftPos + 85, topPos + 17, 36, 14, 0, 28, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_RTTY)));
-		addRenderableWidget(new ToggleButton(menu.getSelectedTab() == TAB_FILES, leftPos + 120, topPos + 17, 37, 14, 70, 0, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_FILES)));
+		addRenderableWidget(new ToggleButton(currentTab == TAB_ARPS, leftPos + 16, topPos + 17, 35, 14, 0, 0, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_ARPS)));
+		addRenderableWidget(new ToggleButton(currentTab == TAB_MSG, leftPos + 50, topPos + 17, 36, 14, 144, 0, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_MSG)));
+		addRenderableWidget(new ToggleButton(currentTab == TAB_RTTY, leftPos + 85, topPos + 17, 36, 14, 0, 28, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_RTTY)));
+		addRenderableWidget(new ToggleButton(currentTab == TAB_FILES, leftPos + 120, topPos + 17, 37, 14, 70, 0, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_FILES)));
 		
 		// Botões gerais (azul, verde, vermelho)
 		// addRenderableWidget(new ImageButton(leftPos + 161, topPos + 18, 11, 11, 1, 57, WIDGETS_TEXTURE, 217, 80, (btn) -> onBlueButton()));
@@ -57,13 +60,11 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		
 		// Adicionar botões específicos da aba atual
 		addTabSpecificButtons();
-
-		updateTexture();
 	}
 	
 	private void addTabSpecificButtons() {
 		// Botões específicos por aba
-		switch (menu.getSelectedTab()) {
+		switch (currentTab) {
 			case TAB_FILES:
 				addRenderableWidget(new HoldButton(leftPos + 78, topPos + 40, 28, 14, 72, 28, WIDGETS_TEXTURE, 217, 80, (btn) -> {}, (btn) -> onFilesSend()));
 				
@@ -111,15 +112,14 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	}
 
 	private void selectTab(int tabIndex) {
-		menu.setSelectedTab(tabIndex);
-		updateTexture();
+		currentTab = tabIndex;
 		// Reinicializar a tela para atualizar os botões da nova aba
 		this.clearWidgets();
 		this.init();
 	}
 
 	private void updateTexture() {
-		currentTexture = switch (menu.getSelectedTab()) {
+		currentTexture = switch (currentTab) {
 			case TAB_ARPS -> TEXTURE_ARPS;
 			case TAB_MSG -> TEXTURE_MSG;
 			case TAB_FILES -> TEXTURE_FILES;
@@ -129,7 +129,6 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 
 	@Override
 	public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		updateTexture(); // Update texture in case it changed from server
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 		renderTooltip(guiGraphics, mouseX, mouseY);
 	}
