@@ -26,14 +26,8 @@ public class HFRadio10mScreen extends HFRadioScreen<HFRadio10mMenu> {
 		addRenderableWidget(new HoldButton(leftPos + 128, topPos + 110, 51, 19, 0, 110, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
 		addRenderableWidget(new Dial(leftPos + 134, topPos + 37, 42, 45, 102, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown));
 		
-		CustomToggleButton freqUpBtn = new CustomToggleButton(false, leftPos + 129, topPos + 93, 25, 17, 0, 148, 25, 148, 0, 165, 25, 165, widgetsTexture, 256, 256, (btn) -> { 
-			onFrequencyButtonUp(null);
-		});
-		CustomToggleButton freqDownBtn = new CustomToggleButton(false, leftPos + 154, topPos + 93, 25, 17, 0, 182, 25, 182, 0, 199, 25, 199, widgetsTexture, 256, 256, (btn) -> { 
-			onFrequencyButtonDown(null);
-		});
-		addRenderableWidget(freqUpBtn);
-		addRenderableWidget(freqDownBtn);
+		addRenderableWidget(new HoldButton(leftPos + 129, topPos + 93, 25, 17, 0, 148, widgetsTexture, 256, 256, (btn) -> onFrequencyButtonUp(null), (btn) -> {}));
+		addRenderableWidget(new HoldButton(leftPos + 154, topPos + 93, 25, 17, 0, 182, widgetsTexture, 256, 256, (btn) -> onFrequencyButtonDown(null), (btn) -> {}));
 		
 		addRenderableWidget(new Dial(leftPos + 209, topPos + 20, 32, 34, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing));
 		addRenderableWidget(new Dial(leftPos + 90, topPos + 86, 32, 34, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
