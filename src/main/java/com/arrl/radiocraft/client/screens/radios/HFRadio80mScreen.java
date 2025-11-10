@@ -30,6 +30,8 @@ public class HFRadio80mScreen extends HFRadioScreen<HFRadio80mMenu> {
         addRenderableWidget(new Dial(leftPos + 87, topPos + 176, 28, 33, 143, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency Dial (moved left of Mic Gain)
         addRenderableWidget(new Dial(leftPos + 122, topPos + 183, 15, 17, 94, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic Gain dial
         addRenderableWidget(new Dial(leftPos + 160, topPos + 183, 15, 17, 94, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
+        addRenderableWidget(new ToggleButton(false, leftPos + 175, topPos + 183, 22, 22, 0, 159, widgetsTexture, 256, 256, (btn) -> {})); // SPK 
+        addRenderableWidget(new ToggleButton(false, leftPos + 138, topPos + 183, 22, 22, 0, 114, widgetsTexture, 256, 256, (btn) -> {})); // MIC
     }
 
     @Override
