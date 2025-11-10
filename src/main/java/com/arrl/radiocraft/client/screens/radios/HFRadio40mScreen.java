@@ -29,13 +29,22 @@ public class HFRadio40mScreen extends HFRadioScreen<HFRadio40mMenu> {
 		addRenderableWidget(new HoldButton(leftPos + 172, topPos + 99, 51, 19, 0, 118, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
 		addRenderableWidget(new Dial(leftPos + 103, topPos + 63, 42, 45, 102, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
 		addRenderableWidget(new Dial(leftPos + 56, topPos + 58, 28, 30, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
+		addRenderableWidget(new Dial(leftPos + 56, topPos + 23, 28, 30, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // dial1
+		addRenderableWidget(new Dial(leftPos + 56, topPos + 93, 28, 30, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // dial2
 		addRenderableWidget(new Dial(leftPos + 200, topPos + 58, 28, 30, 102, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
+		addRenderableWidget(new ToggleButton(false, leftPos + 22, topPos + 62, 22, 22, 0, 200, widgetsTexture, 256, 256, (btn) -> {})); // SPK 
+		addRenderableWidget(new ToggleButton(false, leftPos + 167, topPos + 62, 22, 22, 0, 156, widgetsTexture, 256, 256, (btn) -> {})); // MIC
 	}
 
 	@Override
 	protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
 
 	}
+    
+	@Override
+    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        // Don't render the default title and inventory labels
+    }
 
 	@Override
 	protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
