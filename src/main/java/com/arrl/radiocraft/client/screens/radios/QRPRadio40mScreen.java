@@ -32,6 +32,9 @@ public class QRPRadio40mScreen extends HFRadioScreen<QRPRadio40mMenu> {
         addRenderableWidget(new Dial(leftPos + 48, topPos + 47, 42, 42, 121, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
         addRenderableWidget(new Dial(leftPos + 31, topPos + 36, 15, 15, 121, 85, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
         addRenderableWidget(new Dial(leftPos + 31, topPos + 62, 15, 15, 121, 85, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
+        addRenderableWidget(new Dial(leftPos + 29, topPos + 94, 28, 28, 122, 115, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
+        addRenderableWidget(new Dial(leftPos + 81, topPos + 94, 28, 28, 122, 115, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
+        addRenderableWidget(new Dial(leftPos + 132, topPos + 94, 28, 28, 122, 115, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
 
     }
 
