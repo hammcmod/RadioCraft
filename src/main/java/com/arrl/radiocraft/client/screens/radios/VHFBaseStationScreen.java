@@ -21,18 +21,16 @@ public class VHFBaseStationScreen extends VHFRadioScreen<VHFBaseStationMenu> {
 	protected void init() {
 		super.init();
 		addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 7, topPos + 6, 20, 21, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button
-		addRenderableWidget(new HoldButton(leftPos + 6, topPos + 27, 22, 22, 0, 66, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
+		addRenderableWidget(new HoldButton(leftPos + 6, topPos + 27, 22, 22, 0, 66, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // MIC
 		addRenderableWidget(new Dial(leftPos + 48, topPos + 59, 42, 42, 44, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
 		addRenderableWidget(new Dial(leftPos + 133, topPos + 69, 28, 31, 74, 84, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Dial1
 		addRenderableWidget(new Dial(leftPos + 170, topPos + 69, 28, 31, 74, 84, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Dial2
-		addRenderableWidget(new ImageButton(leftPos + 93, topPos + 65, 18, 12, 0, 42, widgetsTexture, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
-		addRenderableWidget(new ImageButton(leftPos + 93, topPos + 82, 18, 12, 0, 42, widgetsTexture, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
 		addRenderableWidget(new Dial(leftPos + 231, topPos + 5, 15, 17, 44, 84, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
 		addRenderableWidget(new Dial(leftPos + 231, topPos + 31, 15, 17, 44, 84, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
-		addRenderableWidget(new ToggleButton(false, leftPos + 210, topPos + 3, 22, 22, 0, 110, widgetsTexture, 256, 256, (btn) -> {})); // MIC
-        addRenderableWidget(new ToggleButton(false, leftPos + 210, topPos + 29, 22, 22, 0, 66, widgetsTexture, 256, 256, (btn) -> {})); // SPK
-		addRenderableWidget(new ToggleButton(false, leftPos + 93, topPos + 65, 18, 12, 0, 42, widgetsTexture, 256, 256, (btn) -> {})); // Top right frequency Dial button
-		addRenderableWidget(new ToggleButton(false, leftPos + 93, topPos + 82, 18, 12, 0, 42, widgetsTexture, 256, 256, (btn) -> {})); // Bottom right frequency Dial button
+		addRenderableWidget(new ToggleButton(false, leftPos + 210, topPos + 3, 22, 22, 0, 110, widgetsTexture, 256, 256, (btn) -> {})); // SPK
+        addRenderableWidget(new ToggleButton(false, leftPos + 210, topPos + 29, 22, 22, 0, 66, widgetsTexture, 256, 256, (btn) -> {})); // MIC
+		addRenderableWidget(new ToggleButton(false, leftPos + 93, topPos + 65, 18, 12, 0, 42, widgetsTexture, 256, 256, (btn) -> {})); // Frequency up button
+		addRenderableWidget(new ToggleButton(false, leftPos + 93, topPos + 82, 18, 12, 0, 42, widgetsTexture, 256, 256, (btn) -> {})); // Frequency down button
 	}
 
 	@Override
