@@ -40,6 +40,11 @@ public class QRPRadio40mScreen extends HFRadioScreen<QRPRadio40mMenu> {
 
     }
 
+    @Override
+    protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        // Don't render the default title and inventory labels
+    }
+
 
     @Override
     protected void renderAdditionalBackground(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
