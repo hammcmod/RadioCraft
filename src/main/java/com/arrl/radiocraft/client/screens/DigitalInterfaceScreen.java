@@ -22,7 +22,7 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	private static final ResourceLocation TEXTURE_MSG = Radiocraft.id("textures/gui/digital_interface_msg.png");
 	private static final ResourceLocation TEXTURE_FILES = Radiocraft.id("textures/gui/digital_interface_files.png");
 	
-	// Widget texture - todos os widgets estão em um único arquivo
+	// Widget texture - all widgets are in a single file
 	private static final ResourceLocation WIDGETS_TEXTURE = Radiocraft.id("textures/gui/digital_interface_widgets.png");
 
 	// Tab indices
@@ -32,7 +32,7 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	private static final int TAB_FILES = 3;
 
 	private ResourceLocation currentTexture;
-	private int currentTab = TAB_RTTY; // Sempre inicia na aba RTTY
+	private int currentTab = TAB_RTTY; // Always starts on RTTY tab
 
 	public DigitalInterfaceScreen(DigitalInterfaceMenu menu, Inventory playerInventory, Component title) {
 		super(menu, playerInventory, title);
@@ -47,28 +47,28 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		
 		updateTexture();
 
-		// Tab buttons - todos usam a mesma textura de widgets
+		// Tab buttons - all use the same widget texture
 		addRenderableWidget(new ToggleButton(currentTab == TAB_ARPS, leftPos + 16, topPos + 17, 35, 14, 0, 0, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_ARPS)));
 		addRenderableWidget(new ToggleButton(currentTab == TAB_MSG, leftPos + 50, topPos + 17, 36, 14, 144, 0, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_MSG)));
 		addRenderableWidget(new ToggleButton(currentTab == TAB_RTTY, leftPos + 85, topPos + 17, 36, 14, 0, 28, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_RTTY)));
 		addRenderableWidget(new ToggleButton(currentTab == TAB_FILES, leftPos + 120, topPos + 17, 37, 14, 70, 0, WIDGETS_TEXTURE, 217, 80, (btn) -> selectTab(TAB_FILES)));
 		
-		// Botões gerais (azul, verde, vermelho)
+		// General buttons (blue, green, red)
 		// addRenderableWidget(new ImageButton(leftPos + 161, topPos + 18, 11, 11, 1, 57, WIDGETS_TEXTURE, 217, 80, (btn) -> onBlueButton()));
 		// addRenderableWidget(new ImageButton(leftPos + 174, topPos + 18, 11, 11, 14, 57, WIDGETS_TEXTURE, 217, 80, (btn) -> onGreenButton()));
 		// addRenderableWidget(new ImageButton(leftPos + 189, topPos + 17, 11, 11, 29, 56, WIDGETS_TEXTURE, 217, 80, (btn) -> onRedButton()));
 		
-		// Adicionar botões específicos da aba atual
+		// Add tab-specific buttons
 		addTabSpecificButtons();
 	}
 	
 	private void addTabSpecificButtons() {
-		// Botões específicos por aba
+		// Tab-specific buttons
 		switch (currentTab) {
 			case TAB_FILES:
 				addRenderableWidget(new HoldButton(leftPos + 78, topPos + 40, 28, 14, 72, 28, WIDGETS_TEXTURE, 217, 80, (btn) -> {}, (btn) -> onFilesSend()));
 				
-				// LEDs da aba files
+				// Files tab LEDs
 				// addRenderableWidget(new ImageButton(leftPos + 27, topPos + 107, 8, 12, 43, 57, WIDGETS_TEXTURE, 217, 80, (btn) -> {}));
 				// addRenderableWidget(new ImageButton(leftPos + 42, topPos + 107, 8, 12, 53, 57, WIDGETS_TEXTURE, 217, 80, (btn) -> {}));
 				// addRenderableWidget(new ImageButton(leftPos + 57, topPos + 107, 8, 12, 63, 57, WIDGETS_TEXTURE, 217, 80, (btn) -> {}));
@@ -82,11 +82,11 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 				break;
 				
 			case TAB_MSG:
-				// Nenhum botão específico
+				// No specific buttons
 				break;
 				
 			case TAB_ARPS:
-				// Nenhum botão específico ainda
+				// No specific buttons yet
 				break;
 		}
 	}
@@ -113,7 +113,7 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 
 	private void selectTab(int tabIndex) {
 		currentTab = tabIndex;
-		// Reinicializar a tela para atualizar os botões da nova aba
+		// Reinitialize the screen to update buttons for the new tab
 		this.clearWidgets();
 		this.init();
 	}
