@@ -138,7 +138,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	}
 
 	/**
-	 * Callback for lowering frequency by one step on the dial.
+	 * Callback for raising frequency by one step on the dial.
 	 */
 	protected void onFrequencyDialDown(Dial dial) {
 		if(menu.isPowered());
