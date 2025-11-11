@@ -26,16 +26,16 @@ public class DuplexerScreen extends AbstractContainerScreen<DuplexerMenu> {
 	protected void init() {
 		super.init();
 
-		// Screw widgets at Y=30
-		// Texture positions: normal (0,76), hover with border (20,76)
-		// Screws are 21x21 pixels
-		// X positions: 7, 18, 60, 103, 146, 188, 230 (first one is the test position at 7)
-		addRenderableWidget(new ScrewButton(leftPos + 7, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
-		addRenderableWidget(new ScrewButton(leftPos + 49, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
-		addRenderableWidget(new ScrewButton(leftPos + 92, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
-		addRenderableWidget(new ScrewButton(leftPos + 135, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
-		addRenderableWidget(new ScrewButton(leftPos + 177, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
-		addRenderableWidget(new ScrewButton(leftPos + 219, topPos + 30, 21, 21, 0, 76, 20, 76, TEXTURE, 250, 120));
+		// Screw widgets - coordinates follow Dial pattern with border adjustment
+		// Texture position: normal (2,78), hover automatically at (2+width, 78)
+		// Widget size includes border: 19x19 pixels
+		// Position adjustments: -1px x/y for border, texture u/v also -1px
+		addRenderableWidget(new ScrewButton(leftPos + 9, topPos + 32, 19, 19, 2, 78, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 51, topPos + 32, 19, 19, 2, 78, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 94, topPos + 32, 19, 19, 2, 78, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 137, topPos + 32, 19, 19, 2, 78, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 179, topPos + 32, 19, 19, 2, 78, TEXTURE, 250, 120));
+		addRenderableWidget(new ScrewButton(leftPos + 221, topPos + 32, 19, 19, 2, 78, TEXTURE, 250, 120));
 	}
 
 	@Override
