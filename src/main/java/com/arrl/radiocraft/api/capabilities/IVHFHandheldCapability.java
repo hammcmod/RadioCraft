@@ -92,4 +92,16 @@ public interface IVHFHandheldCapability {
      * @param micGain The gain of the microphone (1.0 is 100% gain)
      */
     void setMicGain(float micGain);
+
+    /**
+     * Gets the VOX (Voice-Operated Transmit) mode state.
+     * @return True if VOX mode is enabled.
+     */
+    boolean isVoxEnabled();
+
+    /**
+     * Sets the VOX (Voice-Operated Transmit) mode state.
+     * @param value The new VOX mode state.
+     */
+    void setVoxEnabled(boolean value);
 }

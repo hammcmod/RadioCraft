@@ -95,6 +95,8 @@ public class VHFHandheldScreen extends Screen {
     ToggleButton powerBtn = new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower);
     this.powerToggle = powerBtn;
     addRenderableWidget(powerBtn); // Power
+        addRenderableWidget(new ToggleButton(cap.isVoxEnabled(), leftPos + 39, topPos + 6, 20, 14, 152, 168, WIDGETS_TEXTURE, 256, 256, this::onToggleVox)); // VOX
+
         addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
         this.micGainDial = new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::onMicGainUp, this::onMicGainDown);
         addRenderableWidget(this.micGainDial); // Mic gain
@@ -136,6 +138,9 @@ public class VHFHandheldScreen extends Screen {
             menuState = MenuState.DEFAULT;
         }
 
+        // Update VOX state for voice transmission
+        RadiocraftClientValues.SCREEN_VOX_ENABLED = cap.isPowered() && cap.isVoxEnabled();
+
         renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 
         // Check if we need to reset the power toggle (scheduled earlier when trying to turn on with no battery)
@@ -150,23 +155,18 @@ public class VHFHandheldScreen extends Screen {
         int edgeSpacingY = (height - imageHeight) / 2;
         pGuiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, imageWidth, imageHeight);
 
-        /*
-
-        * Power meter shows transmitted power (based on user's voice amplitude?)
-        * Data light turns on if there's a data transmission
-        * RX light turns on if there's any signal being received (maybe we add squelch?)
-        * Power meter shows receive strength if there's any signal being received (ignoring squelch)
-
-         */
-
-        if (cap.isPowered() && cap.isPTTDown()) {
+        // Check if transmitting: PTT pressed OR VOX enabled (ready to transmit)
+        boolean isTransmitting = cap.isPowered() && (cap.isPTTDown() || cap.isVoxEnabled());
+        
+        if (isTransmitting) {
+            // Show full power when transmitting (either via PTT or VOX)
             POWER_METER.setValue(1.0);
         } else if (cap.isPowered()) {
+            // Show receive strength when not transmitting
             if(cap.getReceiveStrength() <= 0f) {
                 POWER_METER.setValue(Math.random() / 10.0);
             } else {
                 POWER_METER.setValue(Math.log10(cap.getReceiveStrength() / 5f));
-                System.out.println(cap.getReceiveStrength() + " " + Math.log10(cap.getReceiveStrength() / 5f));
             }
         } else {
             POWER_METER.setValue(0.0);
@@ -175,6 +175,11 @@ public class VHFHandheldScreen extends Screen {
         if (cap.isPowered()) {
             if (menuState == MenuState.DEFAULT) {
                 pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyHertz() / 1000_000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
+                
+                // Draw VOX indicator when enabled (left side of LCD, before battery percentage)
+                if (cap.isVoxEnabled()) {
+                    pGuiGraphics.drawString(this.font, "VOX", leftPos + 80, topPos + 133, 0x00FF00);
+                }
             } else if (menuState == MenuState.SET_FREQ) {
                 pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);
                 pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", frequencyEntryState.getFrequencyHz() / 1000_000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
@@ -203,9 +208,14 @@ public class VHFHandheldScreen extends Screen {
             );
         }
 
-        TX_LED.setIsOn(cap.isPowered() && cap.isPTTDown());
+        // TX LED logic:
+        // - On when PTT is manually pressed
+        // - On when VOX is enabled (indicating ready to transmit on voice)
+        // Note: We can't detect actual audio transmission in VOX mode on client-side,
+        // so we show TX LED whenever VOX is active to indicate "ready to transmit"
+        TX_LED.setIsOn(cap.isPowered() && (cap.isPTTDown() || cap.isVoxEnabled()));
         RX_LED.setIsOn(cap.isPowered() && cap.getReceiveStrength() > 0);
-        DATA_LED.setIsOn(false); // TBI
+        DATA_LED.setIsOn(false);
 
         // Render battery indicator
         if (cap.isPowered()) {
@@ -270,6 +280,7 @@ public class VHFHandheldScreen extends Screen {
         super.onClose();
         RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
         RadiocraftClientValues.SCREEN_VOICE_ENABLED = false;
+        RadiocraftClientValues.SCREEN_VOX_ENABLED = false; // Disable VOX when screen closes
         RadiocraftClientValues.SCREEN_CW_ENABLED = false;
         if(cap.isPTTDown()) {
             cap.setPTTDown(false);
@@ -414,6 +425,14 @@ public class VHFHandheldScreen extends Screen {
         //RadiocraftPackets.sendToServer(new SHandheldPTTPacket(index, false));
         cap.setPTTDown(false);
         RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
+        updateServer();
+    }
+
+    /**
+     * Callback to toggle VOX mode.
+     */
+    protected void onToggleVox(ToggleButton button) {
+        cap.setVoxEnabled(button.isToggled);
         updateServer();
     }
 
