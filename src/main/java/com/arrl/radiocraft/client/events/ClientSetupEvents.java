@@ -36,6 +36,10 @@ public class ClientSetupEvents {
 		event.register(RadiocraftMenuTypes.VHF_RECEIVER.get(), VHFReceiverScreen::new);
 		event.register(RadiocraftMenuTypes.HF_RECEIVER.get(), HFReceiverScreen::new);
 		event.register(RadiocraftMenuTypes.DESK_CHARGER.get(), DeskChargerScreen::new);
+		event.register(RadiocraftMenuTypes.DIGITAL_INTERFACE.get(), DigitalInterfaceScreen::new);
+		event.register(RadiocraftMenuTypes.DUPLEXER.get(), DuplexerScreen::new);
+		event.register(RadiocraftMenuTypes.ANTENNA_TUNER.get(), AntennaTunerScreen::new);
+		event.register(RadiocraftMenuTypes.VHF_REPEATER.get(), VHFRepeaterScreen::new);
 	}
 	
 	@SubscribeEvent

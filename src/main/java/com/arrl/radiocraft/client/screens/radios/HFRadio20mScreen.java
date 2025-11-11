@@ -25,8 +25,11 @@ public class HFRadio20mScreen extends HFRadioScreen<HFRadio20mMenu> {
 		addRenderableWidget(new ValueButton(leftPos + 74, topPos + 53, 30, 21, 0, 76, widgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB)); // SSB button
 		addRenderableWidget(new HoldButton(leftPos + 200, topPos + 11, 34, 21, 0, 118, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT button
 		addRenderableWidget(new Dial(leftPos + 125, topPos + 54, 62, 68, 68, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
-		addRenderableWidget(new ImageButton(leftPos + 103, topPos + 55, 22, 19, 0, 160, widgetsTexture, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
-		addRenderableWidget(new ImageButton(leftPos + 103, topPos + 75, 22, 19, 0, 198, widgetsTexture, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
+		addRenderableWidget(new HoldButton(leftPos + 103, topPos + 55, 22, 19, 0, 160, widgetsTexture, 256, 256, (btn) -> onFrequencyButtonUp(null), (btn) -> {})); // Frequency up button
+		addRenderableWidget(new HoldButton(leftPos + 103, topPos + 75, 22, 19, 0, 198, widgetsTexture, 256, 256, (btn) -> onFrequencyButtonDown(null), (btn) -> {})); // Frequency down button
+		addRenderableWidget(new Dial(leftPos + 40, topPos + 94, 28, 31, 126, 137, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Dial 1
+		addRenderableWidget(new Dial(leftPos + 70, topPos + 94, 28, 31, 126, 137, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Dial 2
+		addRenderableWidget(new Dial(leftPos + 100, topPos + 94, 28, 31, 126, 137, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Dial 3
 		addRenderableWidget(new Dial(leftPos + 193, topPos + 52, 28, 31, 68, 136, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
 		addRenderableWidget(new Dial(leftPos + 193, topPos + 92, 28, 31, 68, 136, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
 	}
@@ -34,6 +37,11 @@ public class HFRadio20mScreen extends HFRadioScreen<HFRadio20mMenu> {
 	@Override
 	protected void renderBg(@NotNull GuiGraphics pGuiGraphics, float pPartialTick, int pMouseX, int pMouseY) {
 
+	}
+
+	@Override
+	protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
+		// Don't render the default title and inventory labels
 	}
 
 	@Override

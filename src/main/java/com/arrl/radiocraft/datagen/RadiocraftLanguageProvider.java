@@ -95,6 +95,18 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "radio.rx"), "Receiving");
 
 			provider.add(Radiocraft.translationKey("screen", "desk_charger"), "Desk Charger");
+			
+			// Container titles for new GUIs
+			provider.add("container.radiocraft.digital_interface", "Digital Interface (TNC)");
+			provider.add("container.radiocraft.duplexer", "Duplexer");
+			provider.add("container.radiocraft.antenna_tuner", "Antenna Tuner");
+			provider.add("container.radiocraft.vhf_repeater", "VHF Repeater");
+			
+			// Digital Interface tab labels
+			provider.add(Radiocraft.translationKey("gui", "tab.arps"), "ARPS");
+			provider.add(Radiocraft.translationKey("gui", "tab.msg"), "MSG");
+			provider.add(Radiocraft.translationKey("gui", "tab.rtty"), "RTTY");
+			provider.add(Radiocraft.translationKey("gui", "tab.files"), "FILES");
 
 			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.network_found"), "Antenna network at %s has %s antennas");
 			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.handheld_with_stats"), "You are holding a handheld radio; the antenna is %s m long. SWR at %s MHz is %s");
