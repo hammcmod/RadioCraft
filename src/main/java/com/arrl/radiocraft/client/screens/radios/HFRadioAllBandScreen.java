@@ -14,6 +14,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
 
+    private static final ResourceLocation WIDGETS_20M = Radiocraft.id("textures/gui/hf_radio_20m_widgets.png");
+
     public HFRadioAllBandScreen(HFRadioAllBandMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, Radiocraft.id("textures/gui/hf_radio_all_band.png"), Radiocraft.id("textures/gui/hf_radio_all_band_widgets.png"));
 
@@ -36,6 +38,9 @@ public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
         addRenderableWidget(new ToggleButton(false, leftPos + 196, topPos + 15, 16, 11, 149, 2, widgetsTexture, 256, 256, (btn) -> {}));
         addRenderableWidget(new HoldButton(leftPos + 194, topPos + 94, 18, 17, 46, 49, widgetsTexture, 256, 256, (btn) -> onFrequencyButtonUp(null), (btn) -> {}));
         addRenderableWidget(new HoldButton(leftPos + 194, topPos + 112, 18, 17, 46, 83, widgetsTexture, 256, 256, (btn) -> onFrequencyButtonDown(null), (btn) -> {}));
+        addRenderableWidget(new Dial(leftPos + 125, topPos + 62, 62, 68, 68, 0, WIDGETS_20M, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
+        addRenderableWidget(new Dial(leftPos + 194, topPos + 62, 28, 31, 152, 66, widgetsTexture, 256, 256, (dial) -> {}, (dial) -> {}));
+        addRenderableWidget(new Dial(leftPos + 217, topPos + 101, 28, 31, 152, 66, widgetsTexture, 256, 256, (dial) -> {}, (dial) -> {}));
     }
 
     @Override
