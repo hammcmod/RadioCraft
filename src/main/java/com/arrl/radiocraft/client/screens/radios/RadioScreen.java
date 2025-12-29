@@ -6,6 +6,7 @@ import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
 import com.arrl.radiocraft.common.menus.RadioMenu;
+import com.arrl.radiocraft.common.network.serverbound.SRadioPTTUpdatePacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -100,7 +101,9 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for pressing a PTT button.
 	 */
 	protected void onPressPTT(HoldButton button) {
-		//RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), true));
+		if(menu.blockEntity != null) {
+			SRadioPTTUpdatePacket.updateServer(menu.blockEntity.getBlockPos(), true);
+		}
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
 	}
 
@@ -108,7 +111,9 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for releasing a PTT button.
 	 */
 	protected void onReleasePTT(HoldButton button) {
-		//RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), false));
+		if(menu.blockEntity != null) {
+			SRadioPTTUpdatePacket.updateServer(menu.blockEntity.getBlockPos(), false);
+		}
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
 	}
 

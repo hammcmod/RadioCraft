@@ -31,8 +31,6 @@ public class ItemRenderEvents {
             RadiocraftItems.LARGE_BATTERY,
             RadiocraftItems.CHARGE_CONTROLLER,
             RadiocraftItems.SOLAR_WEATHER_STATION,
-            RadiocraftItems.VHF_BASE_STATION,
-            RadiocraftItems.VHF_RECEIVER,
             RadiocraftItems.VHF_REPEATER,
             RadiocraftItems.HF_RADIO_10M,
             RadiocraftItems.HF_RADIO_20M,
@@ -57,7 +55,7 @@ public class ItemRenderEvents {
 
     private static final List<DeferredHolder<Item, ?>> DEV_SPECIAL_ITEMS = List.of(
             RadiocraftItems.ANTENNA_POLE,
-            RadiocraftItems.SMALL_BATTERY,
+            RadiocraftItems.SATELLITE_DISH,
             RadiocraftItems.ANTENNA_WIRE
     );
 

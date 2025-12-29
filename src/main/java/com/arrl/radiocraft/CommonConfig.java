@@ -28,6 +28,7 @@ public class CommonConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RECEIVER_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_BASE_STATION_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_BASE_STATION_TRANSMIT_TICK;
+	public static final ModConfigSpec.IntValue BLOCK_RADIO_SPEAKER_RADIUS;
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_RECEIVER_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_20M_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_20M_TRANSMIT_TICK;
@@ -66,6 +67,8 @@ public class CommonConfig {
 		QRP_RADIO_40M_TRANSMIT_TICK = BUILDER.comment("*QRP Radio (40m) power consumption per tick (while transmitting) #default 188").define("qrp_radio_40m_transmit", 188);
 		VHF_BASE_STATION_RECEIVE_TICK = BUILDER.comment("*VHF Base Station power consumption per tick (while receiving) #default 63").define("vhf_base_station_receive", 63);
 		VHF_BASE_STATION_TRANSMIT_TICK = BUILDER.comment("*VHF Base Station power consumption per tick (while transmitting) #default 188").define("vhf_base_station_transmit", 188);
+		BLOCK_RADIO_SPEAKER_RADIUS = BUILDER.comment("*Block radio speaker radius (blocks) for received transmissions, 1-32. #default 16")
+				.defineInRange("block_radio_speaker_radius", 16, 1, 32);
 		VHF_RECEIVER_TICK = BUILDER.comment("*VHF Receiver power consumption per tick (while receiving) #default 125").define("vhf_receiver", 125);
 
 

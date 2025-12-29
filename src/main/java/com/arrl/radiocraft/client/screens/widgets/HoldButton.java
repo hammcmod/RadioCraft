@@ -22,10 +22,15 @@ public class HoldButton extends AbstractWidget {
 	private final int textureHeight;
 	private final OnInteract onPress;
 	private final OnInteract onRelease;
+	private final boolean invertPressed;
 
 	private boolean isPressed = false;
 
 	public HoldButton(int x, int y, int width, int height, int u, int v, ResourceLocation texLocation, int texWidth, int texHeight, OnInteract onPress, OnInteract onRelease) {
+		this(x, y, width, height, u, v, texLocation, texWidth, texHeight, false, onPress, onRelease);
+	}
+
+	public HoldButton(int x, int y, int width, int height, int u, int v, ResourceLocation texLocation, int texWidth, int texHeight, boolean invertPressed, OnInteract onPress, OnInteract onRelease) {
 		super(x, y, width, height, CommonComponents.EMPTY);
 		this.onPress = onPress;
 		this.onRelease = onRelease;
@@ -34,6 +39,7 @@ public class HoldButton extends AbstractWidget {
 		this.v = v;
 		this.textureWidth = texWidth;
 		this.textureHeight = texHeight;
+		this.invertPressed = invertPressed;
 	}
 
 	@Override
@@ -44,7 +50,8 @@ public class HoldButton extends AbstractWidget {
 		}
 
 		int xBlit = !isHovered() ? u : u + width;
-		int yBlit = !isPressed ? v : v + height;
+		boolean pressedFrame = invertPressed ? !isPressed : isPressed;
+		int yBlit = pressedFrame ? v + height : v;
 
 		RenderSystem.enableDepthTest();
 		pGuiGraphics.blit(this.resourceLocation, this.getX(), this.getY(), xBlit, yBlit, width, height, textureWidth, textureHeight);

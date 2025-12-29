@@ -1,10 +1,10 @@
 package com.arrl.radiocraft.common.blockentities.radio;
 
 import com.arrl.radiocraft.RadiocraftServerConfig;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.api.blockentities.radio.IBEVoiceReceiver;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
-import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.ITogglableBE;
@@ -14,6 +14,7 @@ import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
@@ -39,12 +40,16 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     protected Band band; // Band the radio is configured for, usually not changed.
     protected float frequency; // Frequency the radio is currently using (in Hz)
+    protected volatile float gain = 1.0F;
+    protected volatile float micGain = 1.0F;
 
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
     protected boolean wasPowered; // Used for rendering clientside. The NetworkObject is the one actually controlling this.
 
     protected final AtomicReference<BlockPos> micPos = new AtomicReference<>(); //thread safe position reference, overkill but makes purpose clear
+    @Nullable
+    private BENetworkObject cachedNetworkObject;
 
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, Band band) {
         super(type, pos, state);
@@ -52,6 +57,14 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         this.band = band;
         this.frequency = band == null ? 0 : band.minFrequency();
         this.voiceReceiver = new BEVoiceReceiver(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    @Override
+    public BENetworkObject getNetworkObject(Level level, BlockPos pos) {
+        if(cachedNetworkObject != null)
+            return cachedNetworkObject;
+        cachedNetworkObject = INetworkObjectProvider.super.getNetworkObject(level, pos);
+        return cachedNetworkObject;
     }
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
@@ -129,14 +142,15 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     public void updateIsReceiving() {
         if(!level.isClientSide() && getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject) {
-            if(canTransmitVoice()) {
+            boolean powered = networkObject.isPowered;
+            boolean canTransmit = canTransmitVoice();
+            if(canTransmit) {
                 networkObject.setTransmitting(true);
                 getVoiceReceiver().setReceiving(false);
             }
             else {
                 networkObject.setTransmitting(false);
-                if(ssbEnabled)
-                    getVoiceReceiver().setReceiving(true);
+                getVoiceReceiver().setReceiving(powered && ssbEnabled);
             }
         }
     }
@@ -147,6 +161,35 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     public void setFrequency(float frequency) {
         this.frequency = frequency;
+        setChanged();
+    }
+
+    public float getGain() {
+        return gain;
+    }
+
+    public void setGain(float gain) {
+        this.gain = clampGain(gain);
+        setChanged();
+    }
+
+    public float getMicGain() {
+        return micGain;
+    }
+
+    public void setMicGain(float micGain) {
+        this.micGain = clampMicGain(micGain);
+        setChanged();
+    }
+
+    private float clampGain(float gain) {
+        float maxGain = RadiocraftServerConfig.HANDHELD_MAX_GAIN.get().floatValue();
+        return Mth.clamp(gain, 0.0F, maxGain);
+    }
+
+    private float clampMicGain(float micGain) {
+        float maxMicGain = RadiocraftServerConfig.HANDHELD_MAX_MIC_GAIN.get().floatValue();
+        return Mth.clamp(micGain, 0.0F, maxMicGain);
     }
 
     public Band getBand() {
@@ -168,7 +211,18 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             isPTTDown = value;
             updateIsReceiving();
             updateBlock();
+            if(!isPTTDown)
+                resetMicPos();
         }
+    }
+
+    public void setMicPos(BlockPos pos) {
+        if(pos != null)
+            micPos.set(pos);
+    }
+
+    public void resetMicPos() {
+        micPos.set(worldPosition);
     }
 
     /**
@@ -187,7 +241,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
-        List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
+        RadioNetworkObject networkObject = (RadioNetworkObject)getNetworkObject(this.level, worldPosition);
+        if(networkObject == null)
+            return;
+        List<AntennaNetworkObject> antennas = networkObject.getAntennas();
         if(antennas.size() == 1)
             antennas.get(0).transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer);
         else if(antennas.size() > 1)
@@ -230,6 +287,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putBoolean("ssbEnabled", ssbEnabled);
         nbt.putString("name", band.name());
         nbt.putFloat("frequency", frequency);
+        nbt.putFloat("gain", gain);
+        nbt.putFloat("micGain", micGain);
         nbt.putDouble("antennaSWR", antennaSWR);
         nbt.putBoolean("wasPowered", wasPowered);
     }
@@ -239,11 +298,28 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * be called by link BlockEntity#handleUpdateTag(CompoundTag) and don't want to write two load methods.
      */
     protected void readSaveTag(CompoundTag nbt) {
-        ssbEnabled = nbt.getBoolean("ssbEnabled");
-        band = Band.getBand(nbt.getString("name"));
-        frequency = nbt.getFloat("frequency");
-        antennaSWR = nbt.getDouble("antennaSWR");
-        wasPowered = nbt.getBoolean("wasPowered");
+        if(nbt.contains("ssbEnabled"))
+            ssbEnabled = nbt.getBoolean("ssbEnabled");
+        if(nbt.contains("name")) {
+            Band loadedBand = Band.getBand(nbt.getString("name"));
+            if(loadedBand != null)
+                band = loadedBand;
+        }
+        if(nbt.contains("frequency"))
+            frequency = nbt.getFloat("frequency");
+        if(nbt.contains("gain"))
+            gain = clampGain(nbt.getFloat("gain"));
+        if(nbt.contains("micGain"))
+            micGain = clampMicGain(nbt.getFloat("micGain"));
+        if(nbt.contains("antennaSWR"))
+            antennaSWR = nbt.getDouble("antennaSWR");
+        if(nbt.contains("wasPowered"))
+            wasPowered = nbt.getBoolean("wasPowered");
+
+        if(band != null) {
+            if(frequency > band.maxFrequency() || frequency < band.minFrequency())
+                frequency = band.minFrequency();
+        }
     }
 
     /**
@@ -252,23 +328,22 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      */
     protected void setupSoundInstances() {}
 
-    /*
     @Override
-    protected void saveAdditional(CompoundTag nbt) {
-        super.saveAdditional(nbt);
+    protected void saveAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.saveAdditional(nbt, registries);
         setupSaveTag(nbt);
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider registries) {
+        super.loadAdditional(nbt, registries);
         readSaveTag(nbt);
-        Band band = RadiocraftData.BANDS.getValue(name);
-        if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % RadiocraftServerConfig.HF_FREQUENCY_STEP.get() != 0)
-            frequency = band.minFrequency(); // Reset frequency if the saved one was either out of bands or not aligned to the correct step size.
     }
 
-     */
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        return saveWithoutMetadata(registries);
+    }
 
     @Override
     public void onLoad() {
@@ -326,11 +401,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(level.isClientSide)
             return new SimpleContainerData(1);
 
-        RadioNetworkObject networkObject = (RadioNetworkObject)IBENetworks.getObject(level, worldPosition);
-        return networkObject == null ? new SimpleContainerData(1) : new ContainerData() {
+        return new ContainerData() {
             @Override
             public int get(int index) {
-                return networkObject.isPowered ? 1 : 0;
+                if(index != 0)
+                    return 0;
+                RadioNetworkObject networkObject = (RadioNetworkObject)getNetworkObject(level, worldPosition);
+                return networkObject != null && networkObject.isPowered ? 1 : 0;
             }
 
             @Override
@@ -352,6 +429,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             BlockState state = level.getBlockState(worldPosition);
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
         }
+    }
+
+    public void syncToClient() {
+        updateBlock();
     }
 
 }
