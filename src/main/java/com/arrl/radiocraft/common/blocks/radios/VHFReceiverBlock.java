@@ -55,6 +55,6 @@ public class VHFReceiverBlock extends RadioBlock {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented"));
+        tooltipComponents.add(Component.translatable("tooltip.radiocraft.partially_implemented"));
     }
 }

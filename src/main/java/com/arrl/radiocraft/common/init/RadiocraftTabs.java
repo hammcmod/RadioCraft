@@ -22,14 +22,11 @@ public class RadiocraftTabs {
         // In the release version, we only enabled working items/blocks. So put all stuff not ready for release here.
         if (Radiocraft.IS_DEVELOPMENT_ENV) {
             output.accept(RadiocraftItems.MICROPHONE.get());
-            output.accept(RadiocraftItems.SMALL_BATTERY.get());
             output.accept(RadiocraftItems.WATERPROOF_WIRE.get());
             output.accept(RadiocraftItems.SOLAR_PANEL.get());
             output.accept(RadiocraftItems.LARGE_BATTERY.get());
             output.accept(RadiocraftItems.CHARGE_CONTROLLER.get());
             output.accept(RadiocraftItems.SOLAR_WEATHER_STATION.get());
-            output.accept(RadiocraftItems.VHF_BASE_STATION.get());
-            output.accept(RadiocraftItems.VHF_RECEIVER.get());
             output.accept(RadiocraftItems.VHF_REPEATER.get());
             output.accept(RadiocraftItems.HF_RADIO_10M.get());
             output.accept(RadiocraftItems.HF_RADIO_20M.get());
@@ -56,6 +53,9 @@ public class RadiocraftTabs {
 
 		// Anything below here should be in the release creative menu
         output.accept(RadiocraftItems.DESK_CHARGER.get());
+        output.accept(RadiocraftItems.SMALL_BATTERY.get());
+        output.accept(RadiocraftItems.VHF_BASE_STATION.get());
+        output.accept(RadiocraftItems.VHF_RECEIVER.get());
 
         // General crafting-only ingredients (Not used yet, but they are "finished")
         output.accept(RadiocraftItems.HF_CIRCUIT_BOARD.get());
