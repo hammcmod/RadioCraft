@@ -129,6 +129,33 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("message", "battery_swapped"), "Battery swapped");
             provider.add(Radiocraft.translationKey("message", "radio_battery_empty"), "Radio battery depleted");
 
+			// Advancements – RadioCraft progression
+			provider.add("advancement.radiocraft.root.title", "RadioCraft Adventures");
+			provider.add("advancement.radiocraft.root.description", "Embark on on-air operations with RadioCraft gear");
+			// SOTA / BOTA branches
+			provider.add("advancement.radiocraft.vhf_sota.title", "Summits On The Air");
+			provider.add("advancement.radiocraft.vhf_sota.description", "Transmit with a VHF handheld from Y128 or higher");
+			provider.add("advancement.radiocraft.bota_all_overworld.title", "Overworld BOTA Award");
+			provider.add("advancement.radiocraft.bota_all_overworld.description", "Operate your VHF handheld from every overworld biome");
+			provider.add("advancement.radiocraft.bota_all_nether.title", "Nether BOTA Award");
+			provider.add("advancement.radiocraft.bota_all_nether.description", "Operate your VHF handheld from every Nether biome");
+			provider.add("advancement.radiocraft.bota_biome_types.title", "Biome Explorer");
+			provider.add("advancement.radiocraft.bota_biome_types.description", "Transmit from an arid, wetland, flatland, woodland, highland, and ocean biome");
+			provider.add("advancement.radiocraft.bota_legacy.title", "Legacy Biomes Award");
+			provider.add("advancement.radiocraft.bota_legacy.description", "Complete VHF operations from every legacy 1.7 era overworld biome");
+			provider.add("advancement.radiocraft.bota_arid.title", "Arid Activator");
+			provider.add("advancement.radiocraft.bota_arid.description", "Log a VHF handheld transmission from an arid biome");
+			provider.add("advancement.radiocraft.bota_wetland.title", "Wetland Watch");
+			provider.add("advancement.radiocraft.bota_wetland.description", "Log a VHF handheld transmission while knee-deep in a wetland");
+			provider.add("advancement.radiocraft.bota_flatland.title", "Flatland Frequency");
+			provider.add("advancement.radiocraft.bota_flatland.description", "Log a VHF handheld transmission from the open plains");
+			provider.add("advancement.radiocraft.bota_woodland.title", "Woodland Whisper");
+			provider.add("advancement.radiocraft.bota_woodland.description", "Log a VHF handheld transmission under the forest canopy");
+			provider.add("advancement.radiocraft.bota_highland.title", "Highland Howl");
+			provider.add("advancement.radiocraft.bota_highland.description", "Log a VHF handheld transmission from a windswept highland");
+			provider.add("advancement.radiocraft.bota_ocean.title", "Ocean Operator");
+			provider.add("advancement.radiocraft.bota_ocean.description", "Log a VHF handheld transmission over coastal waters");
+
 			// Jade configuration translations
 			provider.add("config.jade.plugin_radiocraft.radiocraft", "RadioCraft");
 			provider.add("config.jade.plugin_radiocraft.antenna_wire", "Antenna Wire");
