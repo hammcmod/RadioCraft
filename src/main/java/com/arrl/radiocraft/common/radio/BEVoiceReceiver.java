@@ -1,11 +1,13 @@
 package com.arrl.radiocraft.common.radio;
 
+import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
+import net.minecraft.util.Mth;
 
 import java.util.UUID;
 
@@ -15,12 +17,13 @@ import java.util.UUID;
  */
 public class BEVoiceReceiver implements IVoiceReceiver {
 
-	private LocationalAudioChannel receiveChannel = null;
+	private volatile LocationalAudioChannel receiveChannel = null;
 	private final int x;
 	private final int y;
 	private final int z;
 
-	private boolean isReceiving;
+	private volatile boolean isReceiving;
+	private volatile float distance = -1.0F;
 
 	public BEVoiceReceiver(int x, int y, int z) {
 		this(x, y, z, false);
@@ -37,6 +40,8 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 		if(RadiocraftVoicePlugin.API == null)
 			Radiocraft.LOGGER.error("Radiocraft VoiceChatServerApi is null.");
 		receiveChannel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), level, RadiocraftVoicePlugin.API.createPosition(x, y, z));
+		if(distance > 0.0F)
+			receiveChannel.setDistance(distance);
 	}
 
 	public void receive(AntennaVoicePacket antennaPacket) {
@@ -59,6 +64,18 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 
 	public void setReceiving(boolean value) {
 		isReceiving = value;
+	}
+
+	public void setDistance(float distance) {
+		float clamped = Mth.clamp(distance, 1.0F, 32.0F);
+		this.distance = clamped;
+
+		if(receiveChannel != null)
+			receiveChannel.setDistance(clamped);
+	}
+
+	public void setDistanceFromConfig() {
+		setDistance(CommonConfig.BLOCK_RADIO_SPEAKER_RADIUS.get());
 	}
 
 }

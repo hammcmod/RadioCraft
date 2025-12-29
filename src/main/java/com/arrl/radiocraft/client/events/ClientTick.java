@@ -29,6 +29,11 @@ public class ClientTick {
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
 
+        if(Minecraft.getInstance().screen != null) {
+            wasUseHeld = Minecraft.getInstance().options.keyUse.isDown();
+            return;
+        }
+
         boolean isUseHeld = Minecraft.getInstance().options.keyUse.isDown();
 
         if(isUseHeld != wasUseHeld) {

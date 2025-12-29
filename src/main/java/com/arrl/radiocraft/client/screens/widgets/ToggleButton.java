@@ -17,10 +17,15 @@ public class ToggleButton extends AbstractWidget {
 	private final int textureWidth;
 	private final int textureHeight;
 	private final OnInteract onPress;
+	private final boolean invertToggled;
 
 	public boolean isToggled;
 
 	public ToggleButton(boolean isToggled, int x, int y, int width, int height, int u, int v, ResourceLocation texLocation, int texWidth, int texHeight, OnInteract onPress) {
+		this(isToggled, x, y, width, height, u, v, texLocation, texWidth, texHeight, false, onPress);
+	}
+
+	public ToggleButton(boolean isToggled, int x, int y, int width, int height, int u, int v, ResourceLocation texLocation, int texWidth, int texHeight, boolean invertToggled, OnInteract onPress) {
 		super(x, y, width, height, CommonComponents.EMPTY);
 		this.textureWidth = texWidth;
 		this.textureHeight = texHeight;
@@ -29,12 +34,14 @@ public class ToggleButton extends AbstractWidget {
 		this.resourceLocation = texLocation;
 		this.isToggled = isToggled;
 		this.onPress = onPress;
+		this.invertToggled = invertToggled;
 	}
 
 	@Override
 	protected void renderWidget(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		int xBlit = !isHovered() ? u : u + width;
-		int yBlit = !isToggled ? v : v + height;
+		boolean toggledFrame = invertToggled ? !isToggled : isToggled;
+		int yBlit = toggledFrame ? v + height : v;
 		pGuiGraphics.blit(this.resourceLocation, this.getX(), this.getY(), xBlit, yBlit, width, height, textureWidth, textureHeight);
 	}
 
