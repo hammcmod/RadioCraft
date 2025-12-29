@@ -72,7 +72,7 @@ public class VHFBaseStationScreen extends VHFRadioScreen<VHFBaseStationMenu> {
 			powerToggle.isToggled = powered;
 
 		if(powered) {
-			pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", menu.getFrequency() / 1_000_000.0F), leftPos + 60, topPos + 18, 0xF2E9FF);
+			pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", menu.getFrequency() / 1_000_000.0F), leftPos + 46, topPos + 18, 0xF2E9FF);
 		}
 
 		boolean txOn = powered && com.arrl.radiocraft.client.RadiocraftClientValues.SCREEN_PTT_PRESSED;

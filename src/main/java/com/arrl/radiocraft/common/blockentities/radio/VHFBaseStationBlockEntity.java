@@ -39,6 +39,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class VHFBaseStationBlockEntity extends VHFRadioBlockEntity {
 
+    private static final float DEFAULT_FREQUENCY = 146_520_000.0F;
     private static final EmptyAntennaData IDEAL_DATA = new EmptyAntennaData();
 
     private final BaseStationAntenna idealAntenna;
@@ -48,6 +49,7 @@ public class VHFBaseStationBlockEntity extends VHFRadioBlockEntity {
     public VHFBaseStationBlockEntity(BlockPos pos, BlockState state) {
         super(RadiocraftBlockEntities.VHF_BASE_STATION.get(), pos, state, Band.getBand("2m"));
         this.idealAntenna = new BaseStationAntenna(this);
+        setFrequencyClamped(DEFAULT_FREQUENCY);
     }
 
     @Override

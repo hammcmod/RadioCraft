@@ -3,6 +3,8 @@ package com.arrl.radiocraft.common.network;
 import com.arrl.radiocraft.common.network.serverbound.SHandheldRadioUpdatePacket;
 import com.arrl.radiocraft.common.network.clientbound.CWireEndPosUpdatePacket;
 import com.arrl.radiocraft.common.network.serverbound.SPlayerClickHoldUpdate;
+import com.arrl.radiocraft.common.network.serverbound.SReceiverChannelSelectPacket;
+import com.arrl.radiocraft.common.network.serverbound.SReceiverChannelSettingsUpdatePacket;
 import com.arrl.radiocraft.common.network.serverbound.SRadioPowerUpdatePacket;
 import com.arrl.radiocraft.common.network.serverbound.SRadioPTTUpdatePacket;
 import com.arrl.radiocraft.common.network.serverbound.SRadioSettingsUpdatePacket;
@@ -18,5 +20,7 @@ public class RadiocraftNetworking {
         registrar.playToServer(SRadioPTTUpdatePacket.TYPE, SRadioPTTUpdatePacket.STREAM_CODEC, SRadioPTTUpdatePacket::handle);
         registrar.playToServer(SRadioSettingsUpdatePacket.TYPE, SRadioSettingsUpdatePacket.STREAM_CODEC, SRadioSettingsUpdatePacket::handle);
         registrar.playToServer(SRadioPowerUpdatePacket.TYPE, SRadioPowerUpdatePacket.STREAM_CODEC, SRadioPowerUpdatePacket::handle);
+        registrar.playToServer(SReceiverChannelSelectPacket.TYPE, SReceiverChannelSelectPacket.STREAM_CODEC, SReceiverChannelSelectPacket::handle);
+        registrar.playToServer(SReceiverChannelSettingsUpdatePacket.TYPE, SReceiverChannelSettingsUpdatePacket.STREAM_CODEC, SReceiverChannelSettingsUpdatePacket::handle);
     }
 }
