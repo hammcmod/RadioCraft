@@ -19,7 +19,7 @@ public class RadioNetworkObject extends PowerNetworkObject implements ICoaxNetwo
 
     public boolean isPowered = false;
 
-    protected final List<AntennaNetworkObject> antennas = Collections.synchronizedList(new ArrayList<>());
+    protected final Set<AntennaNetworkObject> antennas = Collections.synchronizedSet(new HashSet<>());
     protected boolean isTransmitting = false;
     protected int transmitUse;
     protected int receiveUse;
@@ -42,8 +42,8 @@ public class RadioNetworkObject extends PowerNetworkObject implements ICoaxNetwo
 
     @Override
     public void tick(Level level, BlockPos pos) {
-        if(isPowered)
-            isPowered = tryConsumeEnergy(isTransmitting ? transmitUse : receiveUse, false);
+        // MVP bypass: block radio power networks are not implemented yet.
+        // Keep the on/off state stable so PTT/audio can be tested before FE integration.
     }
 
     @Override
@@ -69,7 +69,7 @@ public class RadioNetworkObject extends PowerNetworkObject implements ICoaxNetwo
     }
 
     public boolean canPowerOn() {
-        return tryConsumeEnergy(receiveUse, true);
+        return true;
     }
 
     @Override
@@ -105,7 +105,9 @@ public class RadioNetworkObject extends PowerNetworkObject implements ICoaxNetwo
     }
 
     public List<AntennaNetworkObject> getAntennas() {
-        return this.antennas;
+        synchronized (this.antennas) {
+            return List.copyOf(this.antennas);
+        }
     }
 
     @Override

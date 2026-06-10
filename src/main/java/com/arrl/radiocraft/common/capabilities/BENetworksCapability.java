@@ -16,13 +16,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.WeakHashMap;
 
 public class BENetworksCapability implements IBENetworks {
+
+    private static final Map<Level, BENetworksCapability> LEVEL_CAPABILITIES = new WeakHashMap<>();
 
     private final Map<BlockPos, BENetworkObject> networkObjects = new HashMap<>();
     private final Map<UUID, BENetwork> networks = new HashMap<>();
 
     public BENetworksCapability() {}
+
+    public static synchronized BENetworksCapability get(Level level) {
+        return LEVEL_CAPABILITIES.computeIfAbsent(level, ignored -> new BENetworksCapability());
+    }
 
     @Override
     public BENetworkObject getObject(@NotNull BlockPos pos) {

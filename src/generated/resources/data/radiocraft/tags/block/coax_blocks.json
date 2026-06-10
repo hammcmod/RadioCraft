@@ -9,6 +9,16 @@
     "radiocraft:j_pole_antenna",
     "radiocraft:slim_jim_antenna",
     "radiocraft:yagi_antenna",
-    "radiocraft:all_band_radio"
+    "radiocraft:all_band_radio",
+    "radiocraft:hf_radio_10m",
+    "radiocraft:hf_radio_20m",
+    "radiocraft:hf_radio_40m",
+    "radiocraft:hf_radio_80m",
+    "radiocraft:hf_receiver",
+    "radiocraft:qrp_radio_20m",
+    "radiocraft:qrp_radio_40m",
+    "radiocraft:vhf_base_station",
+    "radiocraft:vhf_receiver",
+    "radiocraft:vhf_repeater"
   ]
 }

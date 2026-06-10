@@ -39,6 +39,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     protected Band band; // Band the radio is configured for, usually not changed.
     protected float frequency; // Frequency the radio is currently using (in Hz)
+    protected float speakerGain = 1.0F;
+    protected float micGain = 1.0F;
 
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
@@ -149,6 +151,26 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         this.frequency = frequency;
     }
 
+    public float getSpeakerGain() {
+        return speakerGain;
+    }
+
+    public void setSpeakerGain(float speakerGain) {
+        this.speakerGain = Mth.clamp(speakerGain, 0.0F, 2.0F);
+        setChanged();
+        updateBlock();
+    }
+
+    public float getMicGain() {
+        return micGain;
+    }
+
+    public void setMicGain(float micGain) {
+        this.micGain = Mth.clamp(micGain, 0.0F, 2.0F);
+        setChanged();
+        updateBlock();
+    }
+
     public Band getBand() {
         return band;
     }
@@ -183,6 +205,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
         frequency = Mth.clamp(frequency + step * stepCount, min, max);
         setChanged();
+        updateBlock();
     }
 
     @Override
@@ -230,6 +253,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putBoolean("ssbEnabled", ssbEnabled);
         nbt.putString("name", band.name());
         nbt.putFloat("frequency", frequency);
+        nbt.putFloat("speakerGain", speakerGain);
+        nbt.putFloat("micGain", micGain);
         nbt.putDouble("antennaSWR", antennaSWR);
         nbt.putBoolean("wasPowered", wasPowered);
     }
@@ -242,6 +267,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         ssbEnabled = nbt.getBoolean("ssbEnabled");
         band = Band.getBand(nbt.getString("name"));
         frequency = nbt.getFloat("frequency");
+        speakerGain = nbt.contains("speakerGain") ? nbt.getFloat("speakerGain") : 1.0F;
+        micGain = nbt.contains("micGain") ? nbt.getFloat("micGain") : 1.0F;
         antennaSWR = nbt.getDouble("antennaSWR");
         wasPowered = nbt.getBoolean("wasPowered");
     }

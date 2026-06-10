@@ -132,6 +132,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			// Jade configuration translations
 			provider.add("config.jade.plugin_radiocraft.radiocraft", "RadioCraft");
 			provider.add("config.jade.plugin_radiocraft.antenna_wire", "Antenna Wire");
+			provider.add("config.jade.plugin_radiocraft.antenna_info", "Antenna Info");
+			provider.add("config.jade.plugin_radiocraft.radio", "Radio");
+			provider.add("config.jade.plugin_radiocraft.coax_wire", "Coax Wire");
 
 			Arrays.stream(LicenseClass.values()).forEach((licenseClass) -> {
                 // I'm not going to bother pulling in the Apache Commons Text library, because I really don't want to shadow it in
