@@ -37,6 +37,8 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 		if(RadiocraftVoicePlugin.API == null)
 			Radiocraft.LOGGER.error("Radiocraft VoiceChatServerApi is null.");
 		receiveChannel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), level, RadiocraftVoicePlugin.API.createPosition(x, y, z));
+		if(receiveChannel != null)
+			receiveChannel.setDistance(16.0F);
 	}
 
 	public void receive(AntennaVoicePacket antennaPacket) {

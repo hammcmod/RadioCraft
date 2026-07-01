@@ -53,7 +53,7 @@ public class HFRadio40mScreen extends HFRadioScreen<HFRadio40mMenu> {
 			poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
 
 			poseStack.scale(0.65F, 0.65F, 0.65F);
-			float freqMhz = menu.getFrequency() / 1000.0F; // Frequency is in kHz, divide by 1000 to get MHz
+			float freqMhz = menu.getFrequency() / 1_000_000.0F;
 			font.draw(poseStack, String.format("%.3f", freqMhz) + "MHz", (leftPos + 110) / 0.65F, (topPos + 48) / 0.65F, 0x222222); // Divide the positions rendered at by 1.5F as the entire pose was scaled by 1.5F.
 
 			poseStack.popPose(); // Reset pose stack. Will cause a memory leak if you push without popping.

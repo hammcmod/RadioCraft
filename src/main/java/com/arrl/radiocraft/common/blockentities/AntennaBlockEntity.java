@@ -57,7 +57,7 @@ public class AntennaBlockEntity extends BlockEntity implements INetworkObjectPro
 
 	public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
 		if(t instanceof AntennaBlockEntity be) {
-			if(be.antennaCheckCooldown-- == 0)
+			if(be.antennaCheckCooldown >= 0 && be.antennaCheckCooldown-- == 0)
 				be.updateAntenna();
 		}
 	}
@@ -81,13 +81,21 @@ public class AntennaBlockEntity extends BlockEntity implements INetworkObjectPro
 	@Override
 	public void onLoad() {
 		super.onLoad();
-		if(!level.isClientSide())
+		if(!level.isClientSide()) {
 			getNetworkObject(level, worldPosition); // This forces the network object to get initialised.
+			updateAntenna();
+		}
 	}
 
 	@Override
 	public BENetworkObject createNetworkObject() {
-		return new AntennaNetworkObject(level, worldPosition, networkId);
+		AntennaNetworkObject antennaNetworkObject = new AntennaNetworkObject(level, worldPosition, networkId);
+		if(level != null) {
+			IAntenna antenna = AntennaTypes.match(level, worldPosition);
+			if(antenna instanceof StaticAntenna<?> staticAntenna)
+				antennaNetworkObject.setAntenna(staticAntenna);
+		}
+		return antennaNetworkObject;
 	}
 
 }

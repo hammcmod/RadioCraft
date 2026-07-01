@@ -2,6 +2,7 @@ package com.arrl.radiocraft.api.capabilities;
 
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.common.capabilities.BENetworksCapability;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -78,7 +79,7 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
      * @return {@link BENetworkObject} if an object is present, otherwise false.
      */
     static BENetworkObject getObject(@NotNull Level level, @NotNull BlockPos pos) {
-        IBENetworks cap = get(level);
+        IBENetworks cap = get(level, pos);
         return cap != null ? cap.getObject(pos) : null;
     }
 
@@ -90,7 +91,7 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
      * @param object The {@link BENetworkObject} to place in that position.
      */
     static void setObject(@NotNull Level level, @NotNull BlockPos pos, @NotNull BENetworkObject object) {
-        IBENetworks cap = get(level);
+        IBENetworks cap = get(level, pos);
         if(cap != null)
             cap.setObject(pos, object);
     }
@@ -102,7 +103,7 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
      * @param pos The {@link BlockPos} of the {@link BENetworkObject} being removed.
      */
     static void removeObject(@NotNull Level level, @NotNull BlockPos pos) {
-        IBENetworks cap = get(level);
+        IBENetworks cap = get(level, pos);
         if(cap != null)
             cap.removeObject(pos);
     }
@@ -150,7 +151,7 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
      * @return The {@link IBENetworks} capability at the given position.
      */
     static IBENetworks get(@NotNull Level level) {
-        return null;// level.getCapability(RadiocraftCapabilities.BE_NETWORKS).orElse(null);
+        return BENetworksCapability.get(level);
     }
 
     /**

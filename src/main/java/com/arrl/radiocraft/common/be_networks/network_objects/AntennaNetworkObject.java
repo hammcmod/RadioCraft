@@ -10,6 +10,7 @@ import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.radio.Band;
+import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
@@ -30,7 +31,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
 
     public static final ResourceLocation TYPE = Radiocraft.id("antenna");
 
-    protected final List<RadioNetworkObject> radios = Collections.synchronizedList(new ArrayList<>());
+    protected final Set<RadioNetworkObject> radios = Collections.synchronizedSet(new HashSet<>());
     protected StaticAntenna<?> antenna = null;
     protected ResourceLocation networkId;
 
@@ -45,10 +46,10 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
 
     public void receiveAudioPacket(AntennaVoicePacket packet) {
         if(radios.size() == 1) {
-            BlockPos checkPos = radios.get(0).getPos();
+            BlockPos checkPos = radios.iterator().next().getPos();
             if(level.isLoaded(checkPos)) {
                 if(level.getChunkAt(checkPos).getBlockEntity(checkPos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof RadioBlockEntity radio) {
-                    if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
+                    if(BandUtils.areFrequenciesEqualWithTolerance(radio.getFrequency(), packet.getFrequency(), 1000.0F)) // Only receive if listening to correct frequency.
                         radio.getVoiceReceiver().receive(packet);
                 }
             }
@@ -64,9 +65,9 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
     public void receiveCWPacket(AntennaCWPacket packet) {
         if(radios.size() == 1) {
             if(level.isLoaded(pos)) {
-                BlockEntity be = level.getBlockEntity(radios.get(0).getPos());
+                BlockEntity be = level.getBlockEntity(radios.iterator().next().getPos());
                 if(be instanceof HFRadioBlockEntity radio) {
-                    if(radio.getFrequency() == packet.getFrequency()) // Only receive if listening to correct frequency.
+                    if(BandUtils.areFrequenciesEqualWithTolerance(radio.getFrequency(), packet.getFrequency(), 1000.0F)) // Only receive if listening to correct frequency.
                         radio.receiveCW(packet);
                 }
             }

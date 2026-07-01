@@ -27,9 +27,29 @@ public class RadiocraftCapabilities {
 
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-		//TODO add the rest of the blocks, only adding stuff that is on the short list for testing for now
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.CHARGE_CONTROLLER.get());
-		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> new BENetworksCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> BENetworksCapability.get(level),
+				RadiocraftBlocks.CHARGE_CONTROLLER.get(),
+				RadiocraftBlocks.SOLAR_PANEL.get(),
+				RadiocraftBlocks.LARGE_BATTERY.get(),
+				RadiocraftBlocks.ALL_BAND_RADIO.get(),
+				RadiocraftBlocks.HF_RADIO_10M.get(),
+				RadiocraftBlocks.HF_RADIO_20M.get(),
+				RadiocraftBlocks.HF_RADIO_40M.get(),
+				RadiocraftBlocks.HF_RADIO_80M.get(),
+				RadiocraftBlocks.HF_RECEIVER.get(),
+				RadiocraftBlocks.QRP_RADIO_20M.get(),
+				RadiocraftBlocks.QRP_RADIO_40M.get(),
+				RadiocraftBlocks.VHF_BASE_STATION.get(),
+				RadiocraftBlocks.VHF_RECEIVER.get(),
+				RadiocraftBlocks.VHF_REPEATER.get(),
+				RadiocraftBlocks.DUPLEXER.get(),
+				RadiocraftBlocks.ANTENNA_TUNER.get(),
+				RadiocraftBlocks.BALUN_ONE_TO_ONE.get(),
+				RadiocraftBlocks.BALUN_TWO_TO_ONE.get(),
+				RadiocraftBlocks.J_POLE_ANTENNA.get(),
+				RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
+				RadiocraftBlocks.YAGI_ANTENNA.get(),
+				RadiocraftBlocks.SATELLITE_DISH.get());
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
         event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.ALL_BAND_RADIO.get());

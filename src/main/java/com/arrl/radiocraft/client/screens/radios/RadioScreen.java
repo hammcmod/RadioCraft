@@ -6,6 +6,7 @@ import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
 import com.arrl.radiocraft.common.menus.RadioMenu;
+import com.arrl.radiocraft.common.network.serverbound.SBlockRadioControlPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -34,10 +35,12 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 
 	@Override
 	public void onClose() {
-		super.onClose();
+		if(RadiocraftClientValues.SCREEN_PTT_PRESSED)
+			SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_PTT, false);
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = false; // Make sure to stop recording player's mic when the UI is closed, in case they didn't let go of PTT
 		RadiocraftClientValues.SCREEN_VOICE_ENABLED = false;
 		RadiocraftClientValues.SCREEN_CW_ENABLED = false;
+		super.onClose();
 	}
 
 	@Override
@@ -100,7 +103,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for pressing a PTT button.
 	 */
 	protected void onPressPTT(HoldButton button) {
-		//RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), true));
+		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_PTT, true);
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = true;
 	}
 
@@ -108,7 +111,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for releasing a PTT button.
 	 */
 	protected void onReleasePTT(HoldButton button) {
-		//RadiocraftPackets.sendToServer(new SRadioPTTPacket(menu.blockEntity.getBlockPos(), false));
+		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_PTT, false);
 		RadiocraftClientValues.SCREEN_PTT_PRESSED = false;
 	}
 
@@ -116,7 +119,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback to toggle power on a device.
 	 */
 	protected void onPressPower(ToggleButton button) {
-		//RadiocraftPackets.sendToServer(new STogglePacket(menu.blockEntity.getBlockPos()));
+		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.TOGGLE_POWER, true);
 	}
 
 	/**
@@ -125,7 +128,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	protected void onPressSSB(ValueButton button) {
 		boolean ssbEnabled = menu.blockEntity.getSSBEnabled();
 
-		//RadiocraftPackets.sendToServer(new SRadioSSBPacket(menu.blockEntity.getBlockPos(), !ssbEnabled));
+		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_SSB, !ssbEnabled);
 		menu.blockEntity.setSSBEnabled(!ssbEnabled); // Update instantly for GUI, server will re-sync this value though.
 	}
 
@@ -133,32 +136,37 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for raising frequency by one step on the dial.
 	 */
 	protected void onFrequencyDialUp(Dial dial) {
-		if(menu.isPowered());
-			//RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
+		if(menu.isPowered())
+			stepFrequency(1);
 	}
 
 	/**
 	 * Callback for raising frequency by one step on the dial.
 	 */
 	protected void onFrequencyDialDown(Dial dial) {
-		if(menu.isPowered());
-			//RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
+		if(menu.isPowered())
+			stepFrequency(-1);
 	}
 
 	/**
 	 * Callback for frequency up buttons.
 	 */
 	protected void onFrequencyButtonUp(Button button) {
-		if(menu.isPowered());
-			//RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), 1));
+		if(menu.isPowered())
+			stepFrequency(1);
 	}
 
 	/**
 	 * Callback for frequency down buttons.
 	 */
 	protected void onFrequencyButtonDown(Button button) {
-		if(menu.isPowered());
-			//RadiocraftPackets.sendToServer(new SFrequencyPacket(menu.blockEntity.getBlockPos(), -1));
+		if(menu.isPowered())
+			stepFrequency(-1);
+	}
+
+	private void stepFrequency(int stepCount) {
+		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.STEP_FREQUENCY, stepCount);
+		menu.blockEntity.updateFrequency(stepCount); // Optimistic UI update; the server remains authoritative.
 	}
 
 }

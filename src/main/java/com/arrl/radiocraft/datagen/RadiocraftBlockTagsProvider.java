@@ -50,7 +50,17 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.J_POLE_ANTENNA.get())
                 .add(RadiocraftBlocks.SLIM_JIM_ANTENNA.get())
                 .add(RadiocraftBlocks.YAGI_ANTENNA.get())
-                .add(RadiocraftBlocks.ALL_BAND_RADIO.get());
+                .add(RadiocraftBlocks.ALL_BAND_RADIO.get())
+                .add(RadiocraftBlocks.HF_RADIO_10M.get())
+                .add(RadiocraftBlocks.HF_RADIO_20M.get())
+                .add(RadiocraftBlocks.HF_RADIO_40M.get())
+                .add(RadiocraftBlocks.HF_RADIO_80M.get())
+                .add(RadiocraftBlocks.HF_RECEIVER.get())
+                .add(RadiocraftBlocks.QRP_RADIO_20M.get())
+                .add(RadiocraftBlocks.QRP_RADIO_40M.get())
+                .add(RadiocraftBlocks.VHF_BASE_STATION.get())
+                .add(RadiocraftBlocks.VHF_RECEIVER.get())
+                .add(RadiocraftBlocks.VHF_REPEATER.get());
 
         // Define the ANTENNA_BLOCKS tag
         tag(RadiocraftTags.Blocks.ANTENNA_BLOCKS)

@@ -7,7 +7,9 @@ import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
 import com.arrl.radiocraft.common.be_networks.WireUtils;
+import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -29,12 +31,8 @@ public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 		if(!level.isClientSide) {
 			if(oldState.getBlock() != this) {
 
-				// TODO: This should be using capabilities.
-				//boolean isPower = ForgeRegistries.BLOCKS.tags().getTag(RadiocraftTags.Blocks.POWER_BLOCKS).contains(this);
-				//boolean isCoax = ForgeRegistries.BLOCKS.tags().getTag(RadiocraftTags.Blocks.COAX_BLOCKS).contains(this);
-
-				boolean isPower = false;
-				boolean isCoax = false;
+				boolean isPower = state.is(RadiocraftTags.Blocks.POWER_BLOCKS);
+				boolean isCoax = state.is(RadiocraftTags.Blocks.COAX_BLOCKS) || this instanceof RadioBlock;
 
 				// This is awkward, but I don't see a good way to do it
 				if(isPower)
