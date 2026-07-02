@@ -1,0 +1,23 @@
+{
+  "criteria": {
+    "bootstrap": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "announce_to_chat": false,
+    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
+    "description": {
+      "translate": "advancement.radiocraft.root.description"
+    },
+    "frame": "goal",
+    "hidden": false,
+    "icon": {
+      "item": "radiocraft:vhf_handheld"
+    },
+    "show_toast": false,
+    "title": {
+      "translate": "advancement.radiocraft.root.title"
+    }
+  }
+}

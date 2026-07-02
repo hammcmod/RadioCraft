@@ -7,6 +7,7 @@ import com.arrl.radiocraft.datagen.RadiocraftBlockTagsProvider;
 import com.arrl.radiocraft.datagen.RadiocraftBlockstateProvider;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
 import com.arrl.radiocraft.datagen.RadiocraftRecipesProvider;
+import com.arrl.radiocraft.datagen.RadiocraftAdvancementProvider;
 import com.mojang.logging.LogUtils;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.DataProvider.Factory;
@@ -95,6 +96,7 @@ public class Radiocraft {
                 RadiocraftBlockstateProvider(output, existingFileHelper));
         gen.addProvider(true, (Factory<RadiocraftRecipesProvider>) output -> new
                 RadiocraftRecipesProvider(output, event.getLookupProvider()));
+        gen.addProvider(event.includeServer(), new RadiocraftAdvancementProvider(gen.getPackOutput()));
     }
 
     public static ResourceLocation id(String path) {
