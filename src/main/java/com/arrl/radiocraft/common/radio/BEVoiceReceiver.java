@@ -21,6 +21,7 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 	private final int z;
 
 	private boolean isReceiving;
+	private static boolean warnedNoApi = false;
 
 	public BEVoiceReceiver(int x, int y, int z) {
 		this(x, y, z, false);
@@ -34,25 +35,38 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 	}
 
 	public void openChannel(ServerLevel level) {
-		if(RadiocraftVoicePlugin.API == null)
-			Radiocraft.LOGGER.error("Radiocraft VoiceChatServerApi is null.");
 		receiveChannel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), level, RadiocraftVoicePlugin.API.createPosition(x, y, z));
 		if(receiveChannel != null)
 			receiveChannel.setDistance(16.0F);
 	}
 
+	/**
+	 * Plays the packet's audio at the radio, scaled by the packet's strength. Does nothing when the voice chat server
+	 * API is not available (no voice chat server running, e.g. a GameTest server), so the rest of the radio path can
+	 * still be exercised without it.
+	 */
 	public void receive(AntennaVoicePacket antennaPacket) {
-		if(isReceiving) {
-			if(receiveChannel == null)
-				openChannel(RadiocraftVoicePlugin.API.fromServerLevel(antennaPacket.getLevel()));
-
-			short[] rawAudio = antennaPacket.getRawAudio();
-			for(int i = 0; i < rawAudio.length; i++)
-				rawAudio[i] = (short)Math.round(rawAudio[i] * antennaPacket.getStrength()); // Apply appropriate gain for signal strength
-
-			byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
-			receiveChannel.send(opusAudio);
+		if(!isReceiving)
+			return;
+		if(RadiocraftVoicePlugin.API == null) {
+			if(!warnedNoApi) {
+				warnedNoApi = true;
+				Radiocraft.LOGGER.warn("Radio at {},{},{} received audio but the voice chat server API is not available; audio will not be played.", x, y, z);
+			}
+			return;
 		}
+
+		if(receiveChannel == null)
+			openChannel(RadiocraftVoicePlugin.API.fromServerLevel(antennaPacket.getLevel()));
+		if(receiveChannel == null)
+			return;
+
+		short[] rawAudio = antennaPacket.getRawAudio();
+		for(int i = 0; i < rawAudio.length; i++)
+			rawAudio[i] = (short)Math.round(rawAudio[i] * antennaPacket.getStrength()); // Apply appropriate gain for signal strength
+
+		byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
+		receiveChannel.send(opusAudio);
 	}
 
 	public boolean isReceiving() {

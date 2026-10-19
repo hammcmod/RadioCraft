@@ -38,6 +38,7 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 	}
 
 	public void onServerStart(VoicechatServerStartedEvent event){
+		API = event.getVoicechat(); // Available from server start, not only after the first microphone packet.
 		//TODO not currently working
 //		handheldRadiosVolumeCategory = event.getVoicechat().volumeCategoryBuilder()
 //				.setId("radiocraft_radios")

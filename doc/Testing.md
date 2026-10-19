@@ -94,6 +94,11 @@ Stand-ins for player actions (these change the world):
 | `rcdebug power <pos> on\|off` | radio power switch |
 | `rcdebug tune <pos> <MHz>` | sets frequency (clamped to the band) |
 | `rcdebug mode <pos> ssb\|cw\|off` | mode buttons |
+| `rcdebug transmit <pos>` | sends one 20 ms frame of tone from an SSB radio, as if its operator spoke (no PTT needed) |
+| `rcdebug key <pos>` | keys one buffer of morse (dit, gap, dah) from a CW radio |
+
+Whatever another radio receives shows up as `lastSignal=<strength> receivedTicksAgo=<n>` in `rcdebug radio`. With a
+client standing near the receiving radio you also hear it: voice through Simple Voice Chat, CW as the morse tone.
 
 Example: a 20m station with a dipole between two poles, built in one call, then inspected:
 
@@ -113,6 +118,10 @@ python tools/rcon.py "rcdebug radio 0 -60 0"
 Expected: `antennas=1`, `radiocraft:dipole swr=1.00`, `measuredSwr=1.00 staticFactor=1.000 syncedPowered=true`.
 Wires strung to a block that is not a wire holder (air, dirt) are removed by the game after 3 s.
 
+Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug transmit 0 -60 0` and
+`rcdebug radio 20 -60 0` shows `lastSignal=0.933` (1 - 20/300 for the 20m line of sight range of 300). Switch both to
+`cw` and `rcdebug key` gives `0.956` (CW counts distance at 1/1.5).
+
 ## How the pieces fit (as of 2026-10)
 
 - **Networks are in memory only.** `BENetworksCapability` is a per-level map that is never written to disk. Devices
@@ -128,6 +137,20 @@ Wires strung to a block that is not a wire holder (air, dirt) are removed by the
 - **Static volume** on the client is `NOISE_VOLUME * efficiency(SWR)`. `NOISE_VOLUME` comes from the solar event
   via `CNoisePacket` (sent on login, dimension change and whenever the event changes). A better match means louder
   band noise, which is the intended behaviour. Static is not yet ducked by a received signal.
+- **Voice path** (server, voice thread): Simple Voice Chat mic packet -> `RadioBlockEntity#acceptVoicePacket` (only
+  while `canTransmitVoice`: on, SSB, PTT down) -> `AntennaNetworkObject#transmitAudioPacket` ->
+  `StaticAntenna#transmitAudioPacket`, which builds one `AntennaVoicePacket` per other antenna on the HF
+  `AntennaNetwork` with strength `transmitEfficiency * efficiency(SWR)` -> receiving `StaticAntenna` scales by its
+  receive gain -> `AntennaNetworkObject#receiveAudioPacket` (exactly one radio on the coax, frequency within 1 kHz)
+  -> `RadioBlockEntity#receiveVoice`, which records the signal and plays it through `BEVoiceReceiver`. Strength
+  inside line of sight is `1 - distance / losRange`; beyond that `BandUtils#getBaseStrength` uses the skip window.
+- **CW path**: the client records key-down per tick in `CWSendBuffer` while the screen is open and sends
+  `SCWBufferPacket`s (20 ticks each) -> `HFRadioBlockEntity#transmitMorse` (on, CW mode, screen open) ->
+  `StaticAntenna#transmitCWPacket` (distance counted at 1/1.5, same SWR loss) -> `HFRadioBlockEntity#receiveCW` ->
+  `CCWBufferPacket` to clients tracking the chunk -> `CWReceiveBuffer` -> `RadioMorseSoundInstance` volume per tick.
+- **Last received signal**: `RadioBlockEntity#getLastSignalStrength/GameTime` remember what last arrived (voice or
+  CW). This is what the transmission GameTests and `rcdebug radio` read; the static-masking work will send it to
+  the client.
 
 ## Bug audit (2026-10)
 
@@ -148,6 +171,19 @@ Fixed, each with a GameTest or unit test that now runs as required:
    sound itself still needs a client and ears).
 8. Antennas were unrecognized after a restart because wire entities load after the balun's block entity - the balun
    rechecks after the update delay and each wire asks for a recheck on its first tick.
+9. CW did not work at all: the CW button never reached the server (no `SET_CW` action), the client never sent key
+   input and the server never forwarded received morse (both packets had been lost in the NeoForge port) -
+   `cwReachesRadioOnSameFrequency`, `cwIsNotHeardInSsbMode`, `cwNeedsPowerAndCwMode`, `CWBufferTest`,
+   `CCWBufferPacketTest`.
+10. A radio that was switched off (or never on) still received voice while in SSB mode -
+    `unpoweredRadioHearsNothing`.
+11. A broken balun's antenna stayed on the air (ghost receiver in the `AntennaNetwork`) - removed in
+    `AntennaNetworkObject#discard`.
+12. CW ignored antenna mismatch while voice did not - both now apply the SWR efficiency.
+
+End to end, two stations talking (`TransmissionGameTests`): `voiceReachesRadioOnSameFrequency`,
+`voiceWorksInBothDirections`, `radioOnAnotherFrequencyHearsNothing`, `radioInCwModeDoesNotHearVoice`,
+`noAntennaMeansNoTransmission`.
 
 Still open:
 

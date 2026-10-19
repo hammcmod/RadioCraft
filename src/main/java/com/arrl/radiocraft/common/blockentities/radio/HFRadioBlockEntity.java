@@ -6,6 +6,7 @@ import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.client.blockentity.RadioBlockEntityClientHandler;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
+import com.arrl.radiocraft.common.network.clientbound.CCWBufferPacket;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
@@ -43,22 +44,33 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	@Override
 	public CWSendBuffer getCWSendBuffer() {
 		if(cwSendBuffer == null)
-			cwSendBuffer = new CWSendBuffer(level.dimension(), worldPosition);
+			cwSendBuffer = new CWSendBuffer(worldPosition);
 		return cwSendBuffer;
+	}
+
+	private boolean isPowered() {
+		return getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject && networkObject.isPowered;
 	}
 
 	@Override
 	public boolean canReceiveCW() {
-		return cwEnabled;
+		return cwEnabled && isPowered();
+	}
+
+	/** True while the radio is on and in CW mode, which is all keying needs (there is no PTT for CW). */
+	public boolean canTransmitCW() {
+		return cwEnabled && isPowered();
 	}
 
 	@Override
 	public void receiveCW(AntennaCWPacket packet) {
-		if(!level.isClientSide && getCWEnabled()) {
+		if(level instanceof ServerLevel serverLevel && canReceiveCW()) {
 			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
-			if(antennas.size() == 1);
-				// Send necessary buffers to clients tracking this BE, these will get re-ordered and then played back on the client.
-				//RadiocraftPackets.sendToTrackingChunk(new CWBufferPacket(level.dimension(), worldPosition, packet.getBuffers(), (float)packet.getStrength()), level.getChunkAt(worldPosition));
+			if(antennas.size() == 1) {
+				recordSignal(packet.getStrength());
+				// Clients tracking this radio re-order the buffers and play them back through the morse sound instance.
+				CCWBufferPacket.sendToTracking(serverLevel, worldPosition, List.copyOf(packet.getBuffers()), (float)packet.getStrength());
+			}
 			else if(antennas.size() > 1)
 				overdraw();
 		}
@@ -73,6 +85,8 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 			ssbEnabled = false; // Disable SSB if it as enabled here, don't need to sync here as it's done in super method.
 		if(cwEnabled != value) {
 			cwEnabled = value;
+			if(level != null)
+				updateIsReceiving(); // SSB may have just been switched off above, which stops voice receive.
 			updateBlock();
 			setChanged();
 		}
@@ -87,7 +101,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 
 	@Override
 	public void transmitMorse(Collection<CWBuffer> buffers) {
-		if(level instanceof ServerLevel serverLevel) {
+		if(level instanceof ServerLevel serverLevel && canTransmitCW()) {
 			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
 			if(antennas.size() == 1)
 				antennas.get(0).transmitCWPacket(serverLevel, buffers, band, frequency);

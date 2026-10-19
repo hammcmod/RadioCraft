@@ -7,10 +7,10 @@ listed in [doc/Testing.md](doc/Testing.md#bug-audit-2026-10); each fix has a tes
 
 In order. Each step gets GameTests where the server side can be checked; audio still needs clients and ears.
 
-1. **Prove two HF radios can talk.** GameTests that push a synthetic audio packet radio -> antenna -> AntennaNetwork
-   -> other antenna -> receiving radio, checking what arrives and at what strength, and that a radio on another
-   frequency hears nothing. Fix CW receive (the packet in `HFRadioBlockEntity#receiveCW` is commented out).
-   Needs no design decisions.
+1. ~~**Prove two HF radios can talk.**~~ Done (2026-10-19): `TransmissionGameTests` run two 20m stations through
+   the antenna network for voice and CW, checking strength, wrong frequency, wrong mode, power off and no antenna.
+   CW works end to end again (`SCWBufferPacket` / `CCWBufferPacket`, `SET_CW`). `rcdebug transmit` / `rcdebug key`
+   do the same on the dev server. Still to hear by ear in a client: morse tone playback and voice through SVC.
 2. **Make solar weather shape propagation**, not just the static level: skip distance and strength per band, day vs
    night, blackouts killing HF. Open questions for the maintainer: which bands each event helps or hurts and by how
    much; per-dimension (as now) or global events; whether the solar weather station block should show the event now.

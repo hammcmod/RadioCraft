@@ -115,7 +115,8 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 //					if(cwSendCache.containsKey(destination))
 //						packet.setStrength(cwSendCache.get(destination));
 //					else {
-					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), true));
+					// Same mismatch loss as voice: a badly matched antenna radiates less of the key-down power too.
+					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), true) * SWRHelper.getEfficiencyMultiplier(getSWR(frequencyHertz)));
 //						cwSendCache.put(destination, packet.getStrength());
 //					}
 

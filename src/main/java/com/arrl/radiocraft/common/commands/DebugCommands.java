@@ -14,6 +14,7 @@ import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
+import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -29,9 +30,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * Developer diagnostics and controls, so the mod can be inspected and driven without a GUI. Output is plain text so it
@@ -50,6 +53,8 @@ import java.util.Locale;
  *     <li>/rcdebug power &lt;pos&gt; on|off - radio power switch</li>
  *     <li>/rcdebug tune &lt;pos&gt; &lt;MHz&gt; - set a radio's frequency (clamped/stepped to its band)</li>
  *     <li>/rcdebug mode &lt;pos&gt; ssb|cw|off - radio mode buttons</li>
+ *     <li>/rcdebug transmit &lt;pos&gt; - send one frame of tone from an SSB radio, as if someone spoke into it</li>
+ *     <li>/rcdebug key &lt;pos&gt; - key one buffer of morse from a CW radio</li>
  * </ul>
  */
 public class DebugCommands {
@@ -70,7 +75,9 @@ public class DebugCommands {
 			.then(Commands.literal("mode").then(Commands.argument("pos", BlockPosArgument.blockPos())
 					.then(Commands.literal("ssb").executes(ctx -> mode(ctx, "ssb")))
 					.then(Commands.literal("cw").executes(ctx -> mode(ctx, "cw")))
-					.then(Commands.literal("off").executes(ctx -> mode(ctx, "off")))));
+					.then(Commands.literal("off").executes(ctx -> mode(ctx, "off")))))
+			.then(Commands.literal("transmit").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::transmit)))
+			.then(Commands.literal("key").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::key)));
 
 	private static RadioBlockEntity getRadio(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
@@ -130,6 +137,45 @@ public class DebugCommands {
 		return send(ctx, List.of("mode=" + mode));
 	}
 
+	/**
+	 * Pushes one 20 ms frame of a 440 Hz tone through the radio as if its operator had spoken into it. Other radios on
+	 * the frequency show it as lastSignal in {@code /rcdebug radio}; with a voice chat server running and a client in
+	 * earshot of the receiving radio, they also hear a blip.
+	 */
+	private static int transmit(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		RadioBlockEntity radio = getRadio(ctx);
+		if(radio == null)
+			return fail(ctx, "No radio there");
+		if(!radio.getSSBEnabled())
+			return fail(ctx, "Radio is not in SSB mode");
+		if(!(radio.getNetworkObject(ctx.getSource().getLevel(), radio.getBlockPos()) instanceof RadioNetworkObject net) || !net.isPowered)
+			return fail(ctx, "Radio is off");
+
+		short[] audio = new short[960]; // One Simple Voice Chat frame: 20 ms at 48 kHz.
+		for(int i = 0; i < audio.length; i++)
+			audio[i] = (short)(Math.sin(2 * Math.PI * 440 * i / 48000.0D) * 8000);
+		ServerLevel level = ctx.getSource().getLevel();
+		radio.acceptVoicePacket(() -> level, audio, UUID.nameUUIDFromBytes("rcdebug".getBytes(StandardCharsets.UTF_8)));
+		return send(ctx, List.of("transmitted one voice frame from " + radio.getBlockPos().toShortString() + " on "
+				+ String.format(Locale.ROOT, "%.3fMHz", radio.getFrequency() / 1e6) + " (check lastSignal on the other radio)"));
+	}
+
+	/** Keys one buffer of morse (a dit, a gap and a dah) from an HF radio in CW mode. */
+	private static int key(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		RadioBlockEntity radio = getRadio(ctx);
+		if(!(radio instanceof HFRadioBlockEntity hf))
+			return fail(ctx, "No HF radio there");
+		if(!hf.canTransmitCW())
+			return fail(ctx, "Radio must be on and in CW mode");
+
+		boolean[] key = new boolean[CWBuffer.BUFFER_LENGTH];
+		for(int i = 0; i < CWBuffer.BUFFER_LENGTH; i++)
+			key[i] = i < 3 || (i >= 6 && i < 15);
+		hf.transmitMorse(List.of(new CWBuffer(0, key), new CWBuffer(1, new boolean[CWBuffer.BUFFER_LENGTH])));
+		return send(ctx, List.of("keyed one morse buffer from " + hf.getBlockPos().toShortString() + " on "
+				+ String.format(Locale.ROOT, "%.3fMHz", hf.getFrequency() / 1e6) + " (check lastSignal on the other radio)"));
+	}
+
 	private static int radio(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		ServerLevel level = ctx.getSource().getLevel();
 		BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
@@ -150,6 +196,11 @@ public class DebugCommands {
 				net != null && net.isPowered, mode, radio.isPTTDown(), radio.canTransmitVoice(), radio.getVoiceReceiver().isReceiving()));
 		out.add(String.format(Locale.ROOT, "speakerGain=%.2f micGain=%.2f measuredSwr=%.2f staticFactor=%.3f syncedPowered=%s",
 				radio.getSpeakerGain(), radio.getMicGain(), radio.getAntennaSWR(), radio.getStaticVolume(), radio.wasPowered()));
+		if(radio.getLastSignalGameTime() < 0)
+			out.add("lastSignal=none");
+		else
+			out.add(String.format(Locale.ROOT, "lastSignal=%.3f receivedTicksAgo=%d", radio.getLastSignalStrength(),
+					level.getGameTime() - radio.getLastSignalGameTime()));
 
 		List<AntennaNetworkObject> antennas = net == null ? List.of() : net.getAntennas();
 		out.add("antennas=" + antennas.size() + (antennas.size() > 1 ? " (more than one antenna = overdraw)" : ""));

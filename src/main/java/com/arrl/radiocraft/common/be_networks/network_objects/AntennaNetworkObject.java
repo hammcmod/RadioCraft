@@ -50,7 +50,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
             if(level.isLoaded(checkPos)) {
                 if(level.getChunkAt(checkPos).getBlockEntity(checkPos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof RadioBlockEntity radio) {
                     if(BandUtils.areFrequenciesEqualWithTolerance(radio.getFrequency(), packet.getFrequency(), 1000.0F)) // Only receive if listening to correct frequency.
-                        radio.getVoiceReceiver().receive(packet);
+                        radio.receiveVoice(packet);
                 }
             }
         }
@@ -137,6 +137,18 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         this.antenna = antenna;
         network.addAntenna(this.antenna);
         antenna.setNetwork(network);
+    }
+
+    /** The block is gone: take the antenna off the air so transmissions stop being routed to this position. */
+    @Override
+    public void discard() {
+        super.discard();
+        if(antenna != null) {
+            AntennaNetwork network = AntennaNetworkManager.getNetwork(networkId);
+            if(network != null)
+                network.removeAntenna(antenna);
+            antenna = null;
+        }
     }
 
     @Override

@@ -1,12 +1,19 @@
 package com.arrl.radiocraft.common.radio.morse;
 
+import com.arrl.radiocraft.common.network.serverbound.SCWBufferPacket;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Client side: records the morse key state every tick while the radio's screen is open and ships it to the server in
+ * {@link CWBuffer}s ({@link SCWBufferPacket}). A buffer is sent as soon as it is full; once the key has been up for a
+ * whole buffer length the partial buffer is flushed, followed by an empty one so playback ends cleanly.
+ */
 public class CWSendBuffer {
 
-	private final ResourceKey<Level> dimension;
 	private final BlockPos pos;
 
 	private final boolean[] partialBuffer = new boolean[CWBuffer.BUFFER_LENGTH];
@@ -16,8 +23,7 @@ public class CWSendBuffer {
 
 	private boolean accumulateInput = false;
 
-	public CWSendBuffer(ResourceKey<Level> dimension, BlockPos pos) {
-		this.dimension = dimension;
+	public CWSendBuffer(BlockPos pos) {
 		this.pos = pos;
 	}
 
@@ -27,15 +33,16 @@ public class CWSendBuffer {
 
 			if(currentIndex == partialBuffer.length) {
 				currentIndex = 0;
-				//RadiocraftPackets.sendToServer(new CWBufferPacket(dimension, pos, List.of(new CWBuffer(currentId++, partialBuffer)), 1.0F));
+				PacketDistributor.sendToServer(new SCWBufferPacket(pos, List.of(new CWBuffer(currentId++, partialBuffer.clone()))));
 			}
 		}
 		else {
 			if(currentIndex != 0) {
-				/*RadiocraftPackets.sendToServer(new CWBufferPacket(dimension, pos, Arrays.asList(
-						new CWBuffer(currentId++, partialBuffer),
+				PacketDistributor.sendToServer(new SCWBufferPacket(pos, List.of(
+						new CWBuffer(currentId++, partialBuffer.clone()),
 						new CWBuffer(currentId++, new boolean[CWBuffer.BUFFER_LENGTH])
-				), 1.0F));*/
+				)));
+				Arrays.fill(partialBuffer, false);
 				currentIndex = 0;
 			}
 		}
@@ -43,6 +50,7 @@ public class CWSendBuffer {
 		accumulateInput = false;
 	}
 
+	/** Marks the key as down for the tick being recorded. */
 	public void setShouldAccumulate() {
 		accumulateInput = true;
 		ticksSinceInput = 0;

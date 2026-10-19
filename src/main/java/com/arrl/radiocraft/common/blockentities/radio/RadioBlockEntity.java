@@ -13,6 +13,7 @@ import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
+import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -49,6 +50,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
     protected boolean wasPowered; // Used for rendering clientside. The NetworkObject is the one actually controlling this.
 
+    // Last received signal, server side only. Written from the voice thread, read on the game thread.
+    protected volatile double lastSignalStrength = 0.0D;
+    protected volatile long lastSignalGameTime = -1L;
+
     protected final AtomicReference<BlockPos> micPos = new AtomicReference<>(); //thread safe position reference, overkill but makes purpose clear
 
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, Band band) {
@@ -67,6 +72,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
             if(be.wasPowered != powered) { // Tracked both ways, so the client also learns when the radio turns off.
                 be.wasPowered = powered;
+                be.updateIsReceiving(); // Power may have changed under us (network drained, reload), so re-arm or mute the receiver.
                 shouldUpdate = true;
             }
 
@@ -152,10 +158,40 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             }
             else {
                 networkObject.setTransmitting(false);
-                if(ssbEnabled)
-                    getVoiceReceiver().setReceiving(true);
+                getVoiceReceiver().setReceiving(ssbEnabled && networkObject.isPowered); // A radio that is off hears nothing.
             }
         }
+    }
+
+    /**
+     * Server side entry point for a voice transmission that reached this radio's antenna on its frequency. Called from
+     * the voice chat thread. Records the signal (so the server, debug tools and tests can see what arrived) and hands
+     * the audio to the {@link BEVoiceReceiver} for playback.
+     *
+     * @return True if the radio was listening and took the packet.
+     */
+    public boolean receiveVoice(AntennaVoicePacket packet) {
+        if(!getVoiceReceiver().isReceiving())
+            return false;
+        recordSignal(packet.getStrength());
+        getVoiceReceiver().receive(packet);
+        return true;
+    }
+
+    /** Remembers the strength and game time of the last signal that reached this radio. */
+    protected void recordSignal(double strength) {
+        lastSignalStrength = strength;
+        lastSignalGameTime = level == null ? 0L : level.getGameTime();
+    }
+
+    /** Strength (0-1) of the last voice or CW signal this radio received, 0 if it never received one. */
+    public double getLastSignalStrength() {
+        return lastSignalStrength;
+    }
+
+    /** Game time at which the last signal was received, -1 if none. */
+    public long getLastSignalGameTime() {
+        return lastSignalGameTime;
     }
 
     public float getFrequency() {
