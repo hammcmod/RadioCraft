@@ -4,6 +4,7 @@
 
 * See [InitialProposal](promotions/InitialProposal.md)
 * See [Todo](todo.md)
+* See [Model design bounty](doc/ModelDesignBounty.md) for models/textures to be drawn by someone else; code can ship with a placeholder box, and new blocks that need art go on that list.
 
 The Initial Proposal (2022) is the original inspiration and a guide to general goals. Much of it has since changed or
 was never accurate (mechanics, numbers, recipes). Treat it as background, not a spec: when it would decide a design

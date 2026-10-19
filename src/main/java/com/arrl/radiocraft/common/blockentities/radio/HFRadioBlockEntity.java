@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICWReceiver, ICWTransmitter {
 
@@ -27,6 +28,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 
 	protected CWReceiveBuffer cwReceiveBuffer;
 	protected CWSendBuffer cwSendBuffer;
+	protected final ConcurrentLinkedQueue<QueuedCW> parrotCWQueue = new ConcurrentLinkedQueue<>();
 
 	public HFRadioBlockEntity(BlockEntityType<? extends HFRadioBlockEntity> type, BlockPos pos, BlockState state, Band band) {
 		super(type, pos, state, band);
@@ -68,8 +70,11 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
 			if(antennas.size() == 1) {
 				recordSignal(packet.getStrength());
+				List<CWBuffer> buffers = List.copyOf(packet.getBuffers());
+				if(isParrot())
+					parrotCWQueue.add(new QueuedCW(buffers, lastSignalGameTime + parrotDelayTicks));
 				// Clients tracking this radio re-order the buffers and play them back through the morse sound instance.
-				CCWBufferPacket.sendToTracking(serverLevel, worldPosition, List.copyOf(packet.getBuffers()), (float)packet.getStrength());
+				CCWBufferPacket.sendToTracking(serverLevel, worldPosition, buffers, (float)packet.getStrength());
 			}
 			else if(antennas.size() > 1)
 				overdraw();
@@ -115,6 +120,26 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 		if(level.isClientSide)
 			getCWSendBuffer().tick();
 	}
+
+	@Override
+	protected void tickParrot(ServerLevel serverLevel) {
+		super.tickParrot(serverLevel);
+		long now = serverLevel.getGameTime();
+		for(QueuedCW next = parrotCWQueue.peek(); next != null && next.dueTick() <= now; next = parrotCWQueue.peek()) {
+			parrotCWQueue.poll();
+			transmitMorse(next.buffers());
+		}
+	}
+
+	@Override
+	public void setParrotDelay(int delayTicks) {
+		super.setParrotDelay(delayTicks);
+		if(!isParrot())
+			parrotCWQueue.clear();
+	}
+
+	/** Morse waiting to be echoed by a parrot. */
+	protected record QueuedCW(List<CWBuffer> buffers, long dueTick) {}
 
 	// -------------------- BE & SYNC IMPLEMENTATION --------------------
 

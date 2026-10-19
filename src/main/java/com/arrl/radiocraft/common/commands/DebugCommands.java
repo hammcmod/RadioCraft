@@ -55,6 +55,7 @@ import java.util.UUID;
  *     <li>/rcdebug mode &lt;pos&gt; ssb|cw|off - radio mode buttons</li>
  *     <li>/rcdebug transmit &lt;pos&gt; - send one frame of tone from an SSB radio, as if someone spoke into it</li>
  *     <li>/rcdebug key &lt;pos&gt; - key one buffer of morse from a CW radio</li>
+ *     <li>/rcdebug parrot &lt;pos&gt; &lt;seconds&gt;|off - make a radio echo what it receives after a delay</li>
  * </ul>
  */
 public class DebugCommands {
@@ -77,7 +78,11 @@ public class DebugCommands {
 					.then(Commands.literal("cw").executes(ctx -> mode(ctx, "cw")))
 					.then(Commands.literal("off").executes(ctx -> mode(ctx, "off")))))
 			.then(Commands.literal("transmit").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::transmit)))
-			.then(Commands.literal("key").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::key)));
+			.then(Commands.literal("key").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::key)))
+			.then(Commands.literal("parrot").then(Commands.argument("pos", BlockPosArgument.blockPos())
+					.then(Commands.literal("off").executes(ctx -> parrot(ctx, 0.0D)))
+					.then(Commands.argument("seconds", DoubleArgumentType.doubleArg(0.05D, 60.0D))
+							.executes(ctx -> parrot(ctx, DoubleArgumentType.getDouble(ctx, "seconds"))))));
 
 	private static RadioBlockEntity getRadio(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
@@ -176,6 +181,21 @@ public class DebugCommands {
 				+ String.format(Locale.ROOT, "%.3fMHz", hf.getFrequency() / 1e6) + " (check lastSignal on the other radio)"));
 	}
 
+	/**
+	 * Makes a radio echo everything it receives after a delay (a simplex "parrot" repeater), so one player can talk or
+	 * key into a station and hear it come back from another one. {@code off} stops it.
+	 */
+	private static int parrot(CommandContext<CommandSourceStack> ctx, double seconds) throws CommandSyntaxException {
+		RadioBlockEntity radio = getRadio(ctx);
+		if(radio == null)
+			return fail(ctx, "No radio there");
+		int ticks = (int)Math.round(seconds * 20);
+		radio.setParrotDelay(ticks);
+		return send(ctx, List.of(ticks == 0 ? "parrot off" : String.format(Locale.ROOT,
+				"parrot on: %s echoes what it receives after %.2fs (%d ticks). It must be on and in the mode you want echoed.",
+				radio.getBlockPos().toShortString(), ticks / 20.0D, ticks)));
+	}
+
 	private static int radio(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
 		ServerLevel level = ctx.getSource().getLevel();
 		BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
@@ -196,11 +216,12 @@ public class DebugCommands {
 				net != null && net.isPowered, mode, radio.isPTTDown(), radio.canTransmitVoice(), radio.getVoiceReceiver().isReceiving()));
 		out.add(String.format(Locale.ROOT, "speakerGain=%.2f micGain=%.2f measuredSwr=%.2f staticFactor=%.3f syncedPowered=%s",
 				radio.getSpeakerGain(), radio.getMicGain(), radio.getAntennaSWR(), radio.getStaticVolume(), radio.wasPowered()));
+		String parrot = radio.isParrot() ? String.format(Locale.ROOT, " parrot=%.2fs", radio.getParrotDelay() / 20.0D) : "";
 		if(radio.getLastSignalGameTime() < 0)
-			out.add("lastSignal=none");
+			out.add("lastSignal=none" + parrot);
 		else
-			out.add(String.format(Locale.ROOT, "lastSignal=%.3f receivedTicksAgo=%d", radio.getLastSignalStrength(),
-					level.getGameTime() - radio.getLastSignalGameTime()));
+			out.add(String.format(Locale.ROOT, "lastSignal=%.3f receivedTicksAgo=%d%s", radio.getLastSignalStrength(),
+					level.getGameTime() - radio.getLastSignalGameTime(), parrot));
 
 		List<AntennaNetworkObject> antennas = net == null ? List.of() : net.getAntennas();
 		out.add("antennas=" + antennas.size() + (antennas.size() > 1 ? " (more than one antenna = overdraw)" : ""));

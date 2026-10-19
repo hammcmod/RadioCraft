@@ -26,7 +26,7 @@ import java.util.UUID;
  *   z=3  ---balun A---  z=12 ---balun B---   (dipole arms 5 blocks west and east of each balun)
  * </pre>
  * The baluns are 9 blocks apart, well inside the 20m line of sight range (300 by default), so a voice packet should
- * arrive at strength 1 - 9/300 = 0.97 (both dipoles have 0 dBi gain and SWR 1 at 14.2 MHz). CW counts distance at
+ * arrive at strength 1 - 9/300 = 0.97 (both dipoles have 0 dBi gain and SWR 1 at 14.1-14.22 MHz). CW counts distance at
  * 1/1.5, giving 1 - 6/300 = 0.98.
  */
 @GameTestHolder(Radiocraft.MOD_ID)
@@ -38,7 +38,23 @@ public class TransmissionGameTests {
     private static final BlockPos RADIO_B = new BlockPos(8, 2, 14);
     private static final BlockPos BALUN_B = new BlockPos(8, 2, 12);
 
-    private static final int STEPS_TO_14_200 = 200; // 14.000 MHz + 200 x 1 kHz
+    /*
+     * Every test tunes its two radios to a frequency of its own (band bottom + N kHz). The GameTest server runs all
+     * tests at the same time in neighbouring plots, and antennas from every plot share the one HF antenna network, so
+     * two tests on the same frequency would hear each other. The dipole is matched (SWR 1) across the whole 20m band.
+     */
+    private static final int F_VOICE = 100;
+    private static final int F_BOTH_WAYS = 110;
+    private static final int F_OTHER_FREQ = 120;
+    private static final int F_UNPOWERED = 130;
+    private static final int F_CW_MODE_VOICE = 140;
+    private static final int F_NO_ANTENNA = 150;
+    private static final int F_CW = 160;
+    private static final int F_CW_SSB = 170;
+    private static final int F_CW_POWER = 180;
+    private static final int F_PARROT_VOICE = 200;
+    private static final int F_PARROT_CW = 210;
+    private static final int F_PARROT_OFF = 220;
     private static final double EXPECTED_VOICE_STRENGTH = 1.0D - 9.0D / 300.0D;
     private static final double EXPECTED_CW_STRENGTH = 1.0D - (9.0D / 1.5D) / 300.0D;
     private static final double TOLERANCE = 1e-6;
@@ -83,16 +99,18 @@ public class TransmissionGameTests {
         helper.assertTrue(GameTestUtil.networkObject(helper, pos, RadioNetworkObject.class).isPowered, "Radio at " + pos.toShortString() + " did not power on");
     }
 
-    private static void setupSsb(GameTestHelper helper, BlockPos pos) {
+    /** Powers the radio up in SSB on {@code steps} kHz above the band bottom. */
+    private static void setupSsb(GameTestHelper helper, BlockPos pos, int steps) {
         HFRadioBlockEntity radio = radio(helper, pos);
-        radio.updateFrequency(STEPS_TO_14_200);
+        radio.updateFrequency(steps);
         radio.setSSBEnabled(true);
         powerOn(helper, pos);
     }
 
-    private static void setupCw(GameTestHelper helper, BlockPos pos) {
+    /** Powers the radio up in CW on {@code steps} kHz above the band bottom. */
+    private static void setupCw(GameTestHelper helper, BlockPos pos, int steps) {
         HFRadioBlockEntity radio = radio(helper, pos);
-        radio.updateFrequency(STEPS_TO_14_200);
+        radio.updateFrequency(steps);
         radio.setCWEnabled(true);
         powerOn(helper, pos);
     }
@@ -138,8 +156,8 @@ public class TransmissionGameTests {
     public static void voiceReachesRadioOnSameFrequency(GameTestHelper helper) {
         stationsUp(helper)
                 .thenExecute(() -> {
-                    setupSsb(helper, RADIO_A);
-                    setupSsb(helper, RADIO_B);
+                    setupSsb(helper, RADIO_A, F_VOICE);
+                    setupSsb(helper, RADIO_B, F_VOICE);
                     helper.assertTrue(radio(helper, RADIO_B).getVoiceReceiver().isReceiving(), "B is not listening");
                     speakInto(helper, RADIO_A);
                     assertHeard(helper, RADIO_B, EXPECTED_VOICE_STRENGTH);
@@ -153,8 +171,8 @@ public class TransmissionGameTests {
     public static void voiceWorksInBothDirections(GameTestHelper helper) {
         stationsUp(helper)
                 .thenExecute(() -> {
-                    setupSsb(helper, RADIO_A);
-                    setupSsb(helper, RADIO_B);
+                    setupSsb(helper, RADIO_A, F_BOTH_WAYS);
+                    setupSsb(helper, RADIO_B, F_BOTH_WAYS);
                     speakInto(helper, RADIO_B);
                     assertHeard(helper, RADIO_A, EXPECTED_VOICE_STRENGTH);
                     assertHeardNothing(helper, RADIO_B);
@@ -167,9 +185,9 @@ public class TransmissionGameTests {
     public static void radioOnAnotherFrequencyHearsNothing(GameTestHelper helper) {
         stationsUp(helper)
                 .thenExecute(() -> {
-                    setupSsb(helper, RADIO_A);
-                    setupSsb(helper, RADIO_B);
-                    radio(helper, RADIO_B).updateFrequency(5);
+                    setupSsb(helper, RADIO_A, F_OTHER_FREQ);
+                    setupSsb(helper, RADIO_B, F_OTHER_FREQ);
+                    radio(helper, RADIO_B).updateFrequency(5); // 5 kHz above A
                     speakInto(helper, RADIO_A);
                     assertHeardNothing(helper, RADIO_B);
                 })
@@ -181,9 +199,9 @@ public class TransmissionGameTests {
     public static void unpoweredRadioHearsNothing(GameTestHelper helper) {
         stationsUp(helper)
                 .thenExecute(() -> {
-                    setupSsb(helper, RADIO_A);
+                    setupSsb(helper, RADIO_A, F_UNPOWERED);
                     HFRadioBlockEntity b = radio(helper, RADIO_B);
-                    b.updateFrequency(STEPS_TO_14_200);
+                    b.updateFrequency(F_UNPOWERED);
                     b.setSSBEnabled(true);
                     helper.assertFalse(b.getVoiceReceiver().isReceiving(), "An unpowered radio should not be listening");
                     speakInto(helper, RADIO_A);
@@ -197,8 +215,8 @@ public class TransmissionGameTests {
     public static void radioInCwModeDoesNotHearVoice(GameTestHelper helper) {
         stationsUp(helper)
                 .thenExecute(() -> {
-                    setupSsb(helper, RADIO_A);
-                    setupCw(helper, RADIO_B);
+                    setupSsb(helper, RADIO_A, F_CW_MODE_VOICE);
+                    setupCw(helper, RADIO_B, F_CW_MODE_VOICE);
                     speakInto(helper, RADIO_A);
                     assertHeardNothing(helper, RADIO_B);
                 })
@@ -210,8 +228,8 @@ public class TransmissionGameTests {
     public static void noAntennaMeansNoTransmission(GameTestHelper helper) {
         stationsUp(helper)
                 .thenExecute(() -> {
-                    setupSsb(helper, RADIO_A);
-                    setupSsb(helper, RADIO_B);
+                    setupSsb(helper, RADIO_A, F_NO_ANTENNA);
+                    setupSsb(helper, RADIO_B, F_NO_ANTENNA);
                     helper.setBlock(RADIO_A.south(), Blocks.AIR);
                 })
                 .thenWaitUntil(() -> helper.assertTrue(GameTestUtil.networkObject(helper, RADIO_A, RadioNetworkObject.class).getAntennas().isEmpty(), "A still has an antenna"))
@@ -227,8 +245,8 @@ public class TransmissionGameTests {
     public static void cwReachesRadioOnSameFrequency(GameTestHelper helper) {
         stationsUp(helper)
                 .thenExecute(() -> {
-                    setupCw(helper, RADIO_A);
-                    setupCw(helper, RADIO_B);
+                    setupCw(helper, RADIO_A, F_CW);
+                    setupCw(helper, RADIO_B, F_CW);
                     HFRadioBlockEntity a = radio(helper, RADIO_A);
                     helper.assertTrue(a.canTransmitCW(), "A cannot key CW");
                     boolean[] dit = new boolean[CWBuffer.BUFFER_LENGTH];
@@ -245,11 +263,80 @@ public class TransmissionGameTests {
     public static void cwIsNotHeardInSsbMode(GameTestHelper helper) {
         stationsUp(helper)
                 .thenExecute(() -> {
-                    setupCw(helper, RADIO_A);
-                    setupSsb(helper, RADIO_B);
+                    setupCw(helper, RADIO_A, F_CW_SSB);
+                    setupSsb(helper, RADIO_B, F_CW_SSB);
                     radio(helper, RADIO_A).transmitMorse(List.of(new CWBuffer(0, new boolean[] { true, true, true })));
                     assertHeardNothing(helper, RADIO_B);
                 })
+                .thenSucceed();
+    }
+
+    private static final int PARROT_DELAY = 10;
+
+    /** B set as a parrot echoes A's voice back after the delay, so A hears its own transmission at path strength. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
+    public static void parrotEchoesVoiceAfterDelay(GameTestHelper helper) {
+        long[] spokeAt = new long[1];
+        stationsUp(helper)
+                .thenExecute(() -> {
+                    setupSsb(helper, RADIO_A, F_PARROT_VOICE);
+                    setupSsb(helper, RADIO_B, F_PARROT_VOICE);
+                    radio(helper, RADIO_B).setParrotDelay(PARROT_DELAY);
+                    spokeAt[0] = helper.getLevel().getGameTime();
+                    speakInto(helper, RADIO_A);
+                    assertHeard(helper, RADIO_B, EXPECTED_VOICE_STRENGTH);
+                    assertHeardNothing(helper, RADIO_A);
+                })
+                .thenExecuteAfter(PARROT_DELAY / 2, () -> assertHeardNothing(helper, RADIO_A)) // Not yet: the parrot waits.
+                .thenWaitUntil(() -> helper.assertTrue(radio(helper, RADIO_A).getLastSignalGameTime() >= 0, "A has not heard the echo yet"))
+                .thenExecute(() -> {
+                    HFRadioBlockEntity a = radio(helper, RADIO_A);
+                    long waited = a.getLastSignalGameTime() - spokeAt[0];
+                    helper.assertTrue(waited >= PARROT_DELAY, "Echo came back after " + waited + " ticks, expected at least " + PARROT_DELAY);
+                    helper.assertTrue(Math.abs(a.getLastSignalStrength() - EXPECTED_VOICE_STRENGTH) < TOLERANCE,
+                            "Echo strength " + a.getLastSignalStrength() + ", expected " + EXPECTED_VOICE_STRENGTH);
+                })
+                .thenSucceed();
+    }
+
+    /** The same for morse: A keys, parrot B re-keys it after the delay, A hears it at CW path strength. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
+    public static void parrotEchoesCwAfterDelay(GameTestHelper helper) {
+        long[] keyedAt = new long[1];
+        stationsUp(helper)
+                .thenExecute(() -> {
+                    setupCw(helper, RADIO_A, F_PARROT_CW);
+                    setupCw(helper, RADIO_B, F_PARROT_CW);
+                    radio(helper, RADIO_B).setParrotDelay(PARROT_DELAY);
+                    keyedAt[0] = helper.getLevel().getGameTime();
+                    radio(helper, RADIO_A).transmitMorse(List.of(new CWBuffer(0, new boolean[] { true, true, true })));
+                    assertHeard(helper, RADIO_B, EXPECTED_CW_STRENGTH);
+                    assertHeardNothing(helper, RADIO_A);
+                })
+                .thenExecuteAfter(PARROT_DELAY / 2, () -> assertHeardNothing(helper, RADIO_A))
+                .thenWaitUntil(() -> helper.assertTrue(radio(helper, RADIO_A).getLastSignalGameTime() >= 0, "A has not heard the echo yet"))
+                .thenExecute(() -> {
+                    HFRadioBlockEntity a = radio(helper, RADIO_A);
+                    long waited = a.getLastSignalGameTime() - keyedAt[0];
+                    helper.assertTrue(waited >= PARROT_DELAY, "Echo came back after " + waited + " ticks, expected at least " + PARROT_DELAY);
+                    helper.assertTrue(Math.abs(a.getLastSignalStrength() - EXPECTED_CW_STRENGTH) < TOLERANCE,
+                            "Echo strength " + a.getLastSignalStrength() + ", expected " + EXPECTED_CW_STRENGTH);
+                })
+                .thenSucceed();
+    }
+
+    /** Switching the parrot off drops anything still waiting in its queue. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
+    public static void parrotOffDropsQueuedEcho(GameTestHelper helper) {
+        stationsUp(helper)
+                .thenExecute(() -> {
+                    setupSsb(helper, RADIO_A, F_PARROT_OFF);
+                    setupSsb(helper, RADIO_B, F_PARROT_OFF);
+                    radio(helper, RADIO_B).setParrotDelay(PARROT_DELAY);
+                    speakInto(helper, RADIO_A);
+                    radio(helper, RADIO_B).setParrotDelay(0);
+                })
+                .thenExecuteAfter(PARROT_DELAY * 2, () -> assertHeardNothing(helper, RADIO_A))
                 .thenSucceed();
     }
 
@@ -258,15 +345,15 @@ public class TransmissionGameTests {
     public static void cwNeedsPowerAndCwMode(GameTestHelper helper) {
         stationsUp(helper)
                 .thenExecute(() -> {
-                    setupCw(helper, RADIO_B);
+                    setupCw(helper, RADIO_B, F_CW_POWER);
                     HFRadioBlockEntity a = radio(helper, RADIO_A);
-                    a.updateFrequency(STEPS_TO_14_200);
+                    a.updateFrequency(F_CW_POWER);
                     a.setCWEnabled(true); // CW mode but off
                     helper.assertFalse(a.canTransmitCW(), "An unpowered radio should not key");
                     a.transmitMorse(List.of(new CWBuffer(0, new boolean[] { true })));
                     assertHeardNothing(helper, RADIO_B);
 
-                    setupSsb(helper, RADIO_A); // on, but SSB
+                    setupSsb(helper, RADIO_A, F_CW_POWER); // on, but SSB
                     helper.assertFalse(a.canTransmitCW(), "An SSB radio should not key CW");
                     a.transmitMorse(List.of(new CWBuffer(1, new boolean[] { true })));
                     assertHeardNothing(helper, RADIO_B);

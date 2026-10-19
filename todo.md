@@ -60,7 +60,11 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 
 ## Phase 3 – Extended Systems & Content
 
+Models and textures we want drawn by someone else are listed in [doc/ModelDesignBounty.md](doc/ModelDesignBounty.md).
+
 ### VHF/UHF Channel and Repeater Features
+- [ ] Parrot controller block: a device next to a radio that echoes what it receives after a delay (the `/rcdebug parrot`
+  dev tool as a real block, with linked/transmitting lights; model is bounty #1)
 - [ ] Implement VHF repeater block entity, callsign prompt, duplexer validation, and sleep/wake cycle
 - [ ] Add multi-channel scan indicator to VHF receiver UI
 

@@ -51,8 +51,11 @@ public class WorldSystemsGameTests {
         });
     }
 
-    /** The same chain at night: nothing should charge. */
-    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 60)
+    /**
+     * The same chain at night: nothing should charge. Runs in its own batch because the day time is a property of the
+     * whole level: tests in one batch run at the same time, and this one would turn the lights off on the daylight test.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 60, batch = "night")
     public static void solarPanelDoesNotChargeAtNight(GameTestHelper helper) {
         helper.getLevel().setDayTime(18000);
         BlockPos panel = new BlockPos(8, 1, 6);

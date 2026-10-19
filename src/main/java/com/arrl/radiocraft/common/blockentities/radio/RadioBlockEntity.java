@@ -19,6 +19,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.inventory.ContainerData;
@@ -34,6 +35,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class RadioBlockEntity extends BlockEntity implements ITogglableBE, IVoiceTransmitter, IBEVoiceReceiver, INetworkObjectProvider, MenuProvider {
@@ -53,6 +55,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     // Last received signal, server side only. Written from the voice thread, read on the game thread.
     protected volatile double lastSignalStrength = 0.0D;
     protected volatile long lastSignalGameTime = -1L;
+
+    // Parrot mode (dev tool, see setParrotDelay). The queue is filled from the voice thread and drained on the game thread.
+    protected volatile int parrotDelayTicks = 0;
+    protected final ConcurrentLinkedQueue<QueuedVoice> parrotVoiceQueue = new ConcurrentLinkedQueue<>();
 
     protected final AtomicReference<BlockPos> micPos = new AtomicReference<>(); //thread safe position reference, overkill but makes purpose clear
 
@@ -94,9 +100,46 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.setChanged();
                 be.updateBlock();
             }
+            if(level instanceof ServerLevel serverLevel)
+                be.tickParrot(serverLevel);
             be.additionalTick();
         }
     }
+
+    // -------------------- PARROT (DEV TOOL) --------------------
+
+    /**
+     * Turns the radio into a parrot (simplex repeater): whatever it receives is sent out again through its own antenna
+     * {@code delayTicks} later, so one player can hear their own transmission come back. 0 switches it off. Not saved
+     * with the world; it is a testing aid driven from {@code /rcdebug parrot}.
+     */
+    public void setParrotDelay(int delayTicks) {
+        parrotDelayTicks = Math.max(0, delayTicks);
+        if(parrotDelayTicks == 0)
+            parrotVoiceQueue.clear();
+    }
+
+    public int getParrotDelay() {
+        return parrotDelayTicks;
+    }
+
+    public boolean isParrot() {
+        return parrotDelayTicks > 0;
+    }
+
+    /** Sends out every queued transmission whose delay has run out. Server tick only. */
+    protected void tickParrot(ServerLevel serverLevel) {
+        if(parrotVoiceQueue.isEmpty())
+            return;
+        long now = serverLevel.getGameTime();
+        for(QueuedVoice next = parrotVoiceQueue.peek(); next != null && next.dueTick() <= now; next = parrotVoiceQueue.peek()) {
+            parrotVoiceQueue.poll();
+            acceptVoicePacket(() -> serverLevel, next.audio(), next.sourcePlayer());
+        }
+    }
+
+    /** One voice frame waiting to be echoed. */
+    protected record QueuedVoice(short[] audio, UUID sourcePlayer, long dueTick) {}
 
     /**
      * Network objects only live in memory, so after a world reload the radio's object comes back switched off. Put it
@@ -174,6 +217,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(!getVoiceReceiver().isReceiving())
             return false;
         recordSignal(packet.getStrength());
+        if(isParrot()) // Queue the audio as it arrived, before the receiver scales it, so the echo carries one path's loss, not two.
+            parrotVoiceQueue.add(new QueuedVoice(packet.getRawAudio().clone(), packet.getSourcePlayer(), lastSignalGameTime + parrotDelayTicks));
         getVoiceReceiver().receive(packet);
         return true;
     }

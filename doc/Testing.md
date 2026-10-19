@@ -96,9 +96,17 @@ Stand-ins for player actions (these change the world):
 | `rcdebug mode <pos> ssb\|cw\|off` | mode buttons |
 | `rcdebug transmit <pos>` | sends one 20 ms frame of tone from an SSB radio, as if its operator spoke (no PTT needed) |
 | `rcdebug key <pos>` | keys one buffer of morse (dit, gap, dah) from a CW radio |
+| `rcdebug parrot <pos> <seconds>\|off` | the radio echoes everything it receives after the delay (a simplex "parrot" repeater) |
 
 Whatever another radio receives shows up as `lastSignal=<strength> receivedTicksAgo=<n>` in `rcdebug radio`. With a
 client standing near the receiving radio you also hear it: voice through Simple Voice Chat, CW as the morse tone.
+
+**Testing voice and CW alone.** Build two stations, make the far one a parrot (`rcdebug parrot 20 -60 0 2`), stand at
+the near one, hold PTT and talk (or key morse in CW mode), let go. Two seconds later your transmission comes back from
+the far station at the strength the propagation model gives that path, and you hear it at your own radio. The echo
+carries the audio as the parrot heard it before its receiver scaled it, so what you hear has one path's loss, not two.
+Move the parrot further away or detune its dipole to hear the signal weaken. The parrot must be on and in the same mode
+as you (SSB echoes voice, CW echoes morse); its flag is not saved with the world.
 
 Example: a 20m station with a dipole between two poles, built in one call, then inspected:
 
