@@ -66,8 +66,11 @@ public class BENetworksCapability implements IBENetworks {
 
     @Override
     public void tickNetworkObjects(Level level) {
-        for(Entry<BlockPos, BENetworkObject> entry : networkObjects.entrySet())
-            entry.getValue().tick(level, entry.getKey());
+        // Objects stay registered while their chunk is unloaded, so only tick the ones whose block is actually loaded.
+        for(Entry<BlockPos, BENetworkObject> entry : networkObjects.entrySet()) {
+            if(level.isLoaded(entry.getKey()))
+                entry.getValue().tick(level, entry.getKey());
+        }
     }
 
     @Override

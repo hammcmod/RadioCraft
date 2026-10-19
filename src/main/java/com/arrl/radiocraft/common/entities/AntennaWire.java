@@ -46,6 +46,7 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
 
     private int checkInterval = 0;
     private boolean checkEnabled = true;
+    private boolean loadChecked = false;
 
     public AntennaWire(EntityType<AntennaWire> type, Level level) {
         this(level, new BlockPos(0, 0, 0));
@@ -132,6 +133,12 @@ public class AntennaWire extends Entity implements IAntennaWire, IEntityWithComp
     @Override
     public void tick() {
         if (!level().isClientSide) {
+            if (!loadChecked) {
+                // Wire entities load separately from (and usually after) the block entities at their ends, so a balun
+                // loaded from disk may have checked for its wires before they existed. Ask for a recheck once.
+                loadChecked = true;
+                updateAntennas();
+            }
             if (checkInterval++ == 60) {
                 checkInterval = 0;
                 Player holder = getWireHolder();

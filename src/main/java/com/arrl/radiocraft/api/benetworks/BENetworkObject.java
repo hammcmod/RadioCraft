@@ -78,10 +78,8 @@ public class BENetworkObject {
      */
     public void replaceNetwork(BENetwork original, BENetwork newNetwork) {
         for(Direction dir : networks.keySet()) {
-            if(networks.get(dir) == original) {
-                setNetwork(dir, newNetwork);
-                return;
-            }
+            if(networks.get(dir) == original)
+                setNetwork(dir, newNetwork); // The same run can touch more than one side, so replace every match.
         }
     }
 

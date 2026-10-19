@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.api.benetworks;
 
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.be_networks.WireUtils;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -20,7 +21,10 @@ public interface INetworkObjectProvider {
 
     /**
      * Attempt to grab the {@link BENetworkObject} for this {@link INetworkObjectProvider}. If one is not found on the
-     * cap, call {@link INetworkObjectProvider#initNetworkObject(IBENetworks, BlockPos)} and attempt to create a one.
+     * cap, call {@link INetworkObjectProvider#initNetworkObject(IBENetworks, BlockPos)} to create one, then connect it
+     * to any wire runs touching the block. Creation normally happens from {@code BlockEntity#onLoad}, which runs the
+     * tick after placement and again after a chunk or world reload, so this is also what re-links devices after a
+     * restart (networks are kept in memory only).
      *
      * @param level The {@link Level} this {@link INetworkObjectProvider} is in.
      * @param pos This {@link INetworkObjectProvider}'s position.
@@ -33,11 +37,26 @@ public interface INetworkObjectProvider {
 
         if(cap != null) {
             BENetworkObject networkObject = cap.getObject(pos);
-            return networkObject != null ? networkObject : initNetworkObject(cap, pos);
+            if(networkObject == null) {
+                networkObject = initNetworkObject(cap, pos);
+                onNetworkObjectCreated(level, pos, networkObject);
+                WireUtils.connectToWires(level, pos);
+            }
+            return networkObject;
         }
 
         return null;
     }
+
+    /**
+     * Called once for a freshly created {@link BENetworkObject}, before it is connected to any wires. Override to
+     * restore state that lives on the object (for example a radio's power switch) from the block entity's saved data.
+     *
+     * @param level The {@link Level} the object is in.
+     * @param pos The {@link BlockPos} of the object.
+     * @param networkObject The object that was just created.
+     */
+    default void onNetworkObjectCreated(Level level, BlockPos pos, BENetworkObject networkObject) {}
 
     /**
      * Initialize a new {@link BENetworkObject} for this {@link INetworkObjectProvider}.

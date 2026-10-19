@@ -3,11 +3,9 @@ package com.arrl.radiocraft.common.blocks;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
-import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
 import com.arrl.radiocraft.common.be_networks.WireUtils;
 import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
-import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -129,7 +127,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	/**
-	 * Checks if multiple {@link Block}s surrounding a given position are compatible connections.
+	 * Checks if multiple {@link Block}s surrounding a given position are compatible connections: wires of the same
+	 * kind, or devices this kind of wire connects to (the same rule as the wire's connection blockstate).
 	 *
 	 * @param level The {@link Level} to check.
 	 * @param pos The {@link BlockPos} to check around.
@@ -139,9 +138,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	public boolean checkMultipleSides(Level level, BlockPos pos) {
 		int count = 0;
 		for(Direction dir : Direction.values()) {
-			BlockPos checkPos = pos.relative(dir);
-			Block block = level.getBlockState(checkPos).getBlock();
-			if((block instanceof WireBlock wireBlock && wireBlock.isPower == isPower) || (isPower && IBENetworks.getObject(level, checkPos) instanceof PowerNetworkObject)) {
+			if(canConnectTo(level.getBlockState(pos.relative(dir)), isPower)) {
 				if(++count >= 2)
 					return true;
 			}
@@ -158,9 +155,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 		if(checkMultipleSides(level, pos)) { // Only bother running merge if this wire is actually connecting things.
 			if(isPower)
-				WireUtils.mergeNetworks(level, pos, no -> no instanceof PowerNetworkObject, PowerBENetwork::new, RadiocraftBlocks.WIRE.get());
+				WireUtils.mergeNetworks(level, pos, no -> no instanceof PowerNetworkObject, PowerBENetwork::new, WireUtils.powerWires());
 			else
-				WireUtils.mergeNetworks(level, pos, no -> no instanceof ICoaxNetworkObject, BENetwork::new, RadiocraftBlocks.COAX_WIRE.get());
+				WireUtils.mergeNetworks(level, pos, no -> no instanceof ICoaxNetworkObject, BENetwork::new, WireUtils.coaxWires());
 		}
 	}
 
@@ -173,9 +170,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 		if(checkMultipleSides(level, pos)) { // Only bother running split if this wire is actually connecting things.
 			if(isPower)
-				WireUtils.splitNetworks(level, pos, no -> no instanceof PowerNetworkObject, RadiocraftBlocks.WIRE.get());
+				WireUtils.splitNetworks(level, pos, no -> no instanceof PowerNetworkObject, WireUtils.powerWires());
 			else
-				WireUtils.splitNetworks(level, pos, no -> no instanceof ICoaxNetworkObject, RadiocraftBlocks.COAX_WIRE.get());
+				WireUtils.splitNetworks(level, pos, no -> no instanceof ICoaxNetworkObject, WireUtils.coaxWires());
 		}
 		super.onRemove(state, level, pos, newState, isMoving);
 	}

@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.blockentities.radio;
 
 import com.arrl.radiocraft.RadiocraftServerConfig;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.api.blockentities.radio.IBEVoiceReceiver;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
@@ -14,6 +15,7 @@ import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
@@ -26,6 +28,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -59,32 +62,44 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
         if(t instanceof RadioBlockEntity be) {
             RadioNetworkObject networkObject = (RadioNetworkObject)be.getNetworkObject(level, pos);
-            if(networkObject != null && networkObject.isPowered) {
-                boolean shouldUpdate = false;
+            boolean powered = networkObject != null && networkObject.isPowered;
+            boolean shouldUpdate = false;
 
-                if(be.wasPowered != networkObject.isPowered) {
-                    be.wasPowered = networkObject.isPowered;
-                    shouldUpdate = true;
-                }
+            if(be.wasPowered != powered) { // Tracked both ways, so the client also learns when the radio turns off.
+                be.wasPowered = powered;
+                shouldUpdate = true;
+            }
 
+            double newSWR = 0.0D; // No power, no SWR (and no static).
+            if(powered) {
                 List<AntennaNetworkObject> antennas = networkObject.getAntennas();
-
-                double newSWR = 0.0D;
                 if(antennas.size() == 1)
                     newSWR = antennas.get(0).getSWR(be.frequency);
                 else if(antennas.size() > 1)
                     newSWR = 10.0D;
+            }
 
-                if(newSWR != be.antennaSWR) {
-                    be.antennaSWR = newSWR;
-                    shouldUpdate = true; // If SWR has changed, notify the client about it.
-                }
+            if(newSWR != be.antennaSWR) {
+                be.antennaSWR = newSWR;
+                shouldUpdate = true; // If SWR has changed, notify the client about it.
+            }
 
-                if(shouldUpdate)
-                    be.updateBlock();
+            if(shouldUpdate) {
+                be.setChanged();
+                be.updateBlock();
             }
             be.additionalTick();
         }
+    }
+
+    /**
+     * Network objects only live in memory, so after a world reload the radio's object comes back switched off. Put it
+     * back the way the block entity last saw it.
+     */
+    @Override
+    public void onNetworkObjectCreated(Level level, BlockPos pos, BENetworkObject networkObject) {
+        if(wasPowered && networkObject instanceof RadioNetworkObject radio && radio.canPowerOn())
+            radio.isPowered = true;
     }
 
     // Override this for any additional ticks needed like CWSendBuffers
@@ -229,6 +244,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return this.micPos.get().getCenter();
     }
 
+    /** SWR the server last measured on the connected antenna, 0 when off or without an antenna. */
+    public double getAntennaSWR() {
+        return antennaSWR;
+    }
+
     public double getStaticVolume() {
         if(antennaSWR <= 0.01D)
             return 0.0D;
@@ -244,14 +264,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     // -------------------- BE & SYNC IMPLEMENTATION --------------------
 
     /**
-     * Use this to save data on radios instead of link BlockEntity#saveAdditional(CompoundTag) as this will also
-     * be called by link BlockEntity#getUpdateTag() and don't want to save caps on block updates.
-     *
-     * TODO probably needs rewrite for changes to codec based serialization
+     * Writes the radio's state. Used for both the world save ({@link #saveAdditional}) and the client sync tag
+     * ({@link #getUpdateTag}). Subclasses add their own fields by overriding this and calling super.
      */
     protected void setupSaveTag(CompoundTag nbt) {
         nbt.putBoolean("ssbEnabled", ssbEnabled);
-        nbt.putString("name", band.name());
+        if(band != null)
+            nbt.putString("band", band.name());
         nbt.putFloat("frequency", frequency);
         nbt.putFloat("speakerGain", speakerGain);
         nbt.putFloat("micGain", micGain);
@@ -260,17 +279,28 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     }
 
     /**
-     * Use this to read data on radios instead of link BlockEntity#load(CompoundTag) as this will also TODO fix link
-     * be called by link BlockEntity#handleUpdateTag(CompoundTag) and don't want to write two load methods.
+     * Reads the state written by {@link #setupSaveTag}. Used for both world load and client sync. Missing keys keep
+     * their current values, so a tag from an older save or a partial update is safe.
      */
     protected void readSaveTag(CompoundTag nbt) {
         ssbEnabled = nbt.getBoolean("ssbEnabled");
-        band = Band.getBand(nbt.getString("name"));
-        frequency = nbt.getFloat("frequency");
+        if(nbt.contains("band")) {
+            Band saved = Band.getBand(nbt.getString("band"));
+            if(saved != null)
+                band = saved;
+        }
+        if(nbt.contains("frequency"))
+            frequency = nbt.getFloat("frequency");
         speakerGain = nbt.contains("speakerGain") ? nbt.getFloat("speakerGain") : 1.0F;
         micGain = nbt.contains("micGain") ? nbt.getFloat("micGain") : 1.0F;
         antennaSWR = nbt.getDouble("antennaSWR");
         wasPowered = nbt.getBoolean("wasPowered");
+
+        if(band != null) { // Reset the frequency if the saved one is outside the band or not on a step.
+            int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
+            if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % step != 0)
+                frequency = band.minFrequency();
+        }
     }
 
     /**
@@ -279,23 +309,23 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      */
     protected void setupSoundInstances() {}
 
-    /*
     @Override
-    protected void saveAdditional(CompoundTag nbt) {
-        super.saveAdditional(nbt);
+    protected void saveAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider registries) {
+        super.saveAdditional(nbt, registries);
         setupSaveTag(nbt);
     }
 
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    protected void loadAdditional(@NotNull CompoundTag nbt, HolderLookup.@NotNull Provider registries) {
+        super.loadAdditional(nbt, registries);
         readSaveTag(nbt);
-        Band band = RadiocraftData.BANDS.getValue(name);
-        if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % RadiocraftServerConfig.HF_FREQUENCY_STEP.get() != 0)
-            frequency = band.minFrequency(); // Reset frequency if the saved one was either out of bands or not aligned to the correct step size.
     }
 
-     */
+    /** Sent to clients on chunk load and whenever {@link #updateBlock} fires; read back through {@link #loadAdditional}. */
+    @Override
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.@NotNull Provider registries) {
+        return saveWithoutMetadata(registries);
+    }
 
     @Override
     public void onLoad() {
@@ -306,6 +336,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             // If on server, register self to listen for voice packets & notify client of loaded data.
             VoiceTransmitters.addListener(level, this);
             getNetworkObject(level, worldPosition); // This forces the network object to get initialised.
+            updateIsReceiving(); // Re-arm voice receive for a radio that was saved switched on in SSB.
             updateBlock();
         }
     }
@@ -330,25 +361,6 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    /*
-    @Override
-    public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
-        CompoundTag nbt = pkt.getTag();
-        handleUpdateTag(nbt);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag() {
-        CompoundTag nbt = new CompoundTag();
-        setupSaveTag(nbt);
-        return nbt;
-    }
-
-    @Override
-    public void handleUpdateTag(CompoundTag nbt) {
-        readSaveTag(nbt);
-    }
-*/
     public ContainerData getDataSlots() {
         if(level.isClientSide)
             return new SimpleContainerData(1);

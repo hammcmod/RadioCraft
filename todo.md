@@ -1,5 +1,8 @@
 # Development Checklist
 
+The 2026-10 bug audit (save/load, network linking, power ticking, static, 40m band) and what is still open are
+listed in [doc/Testing.md](doc/Testing.md#bug-audit-2026-10); each fix has a test.
+
 ## Phase 1 – Core Gameplay Readiness
 
 ### Radios & Networking

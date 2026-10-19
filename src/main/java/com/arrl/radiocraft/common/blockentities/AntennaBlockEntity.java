@@ -84,6 +84,7 @@ public class AntennaBlockEntity extends BlockEntity implements INetworkObjectPro
 		if(!level.isClientSide()) {
 			getNetworkObject(level, worldPosition); // This forces the network object to get initialised.
 			updateAntenna();
+			markAntennaChanged(); // Recheck after the delay too: wire entities may load after this block entity does.
 		}
 	}
 

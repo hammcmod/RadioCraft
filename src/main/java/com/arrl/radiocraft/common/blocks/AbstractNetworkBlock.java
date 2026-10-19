@@ -1,15 +1,7 @@
 package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
-import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
-import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
-import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
-import com.arrl.radiocraft.common.be_networks.WireUtils;
-import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
-import com.arrl.radiocraft.common.init.RadiocraftBlocks;
-import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -26,22 +18,9 @@ public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 		super(properties);
 	}
 
-	@Override
-	public void onPlace(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean isMoving) {
-		if(!level.isClientSide) {
-			if(oldState.getBlock() != this) {
-
-				boolean isPower = state.is(RadiocraftTags.Blocks.POWER_BLOCKS);
-				boolean isCoax = state.is(RadiocraftTags.Blocks.COAX_BLOCKS) || this instanceof RadioBlock;
-
-				// This is awkward, but I don't see a good way to do it
-				if(isPower)
-					WireUtils.tryConnect(level, pos, no -> no instanceof PowerNetworkObject, PowerBENetwork::new, RadiocraftBlocks.WIRE.get());
-				if(isCoax)
-					WireUtils.tryConnect(level, pos, no -> no instanceof ICoaxNetworkObject, BENetwork::new, RadiocraftBlocks.COAX_WIRE.get());
-			}
-		}
-	}
+	// Connecting to adjacent wires is not done in onPlace: vanilla calls it before the block entity exists, so there is
+	// no network object to connect yet. It happens when the object is created instead, see
+	// INetworkObjectProvider#getNetworkObject and WireUtils#connectToWires.
 
 	@Override
 	public void onRemove(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {

@@ -3,3 +3,7 @@
 # are changed when only line endings change.
 src/generated/**/.cache/cache text eol=lf
 src/generated/**/*.json text eol=lf
+
+# Shell and Python tools must stay LF or bash/python choke on 
+tools/*.sh text eol=lf
+tools/*.py text eol=lf

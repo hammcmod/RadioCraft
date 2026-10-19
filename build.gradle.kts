@@ -85,6 +85,15 @@ base {
     archivesName = "radiocraft-neoforge-${mcVersion}"
 }
 
+// In-world GameTests live in their own source set so they never ship in the mod jar.
+// They are attached to the mod for dev runs only (see doc/Testing.md).
+val gametest: SourceSet = sourceSets.create("gametest") {
+    compileClasspath += sourceSets.main.get().output
+    runtimeClasspath += sourceSets.main.get().output
+}
+configurations[gametest.compileClasspathConfigurationName].extendsFrom(configurations.compileClasspath.get())
+configurations[gametest.runtimeClasspathConfigurationName].extendsFrom(configurations.runtimeClasspath.get())
+
 neoForge {
     version = libs.versions.neoforge.asProvider().get()
 
@@ -93,7 +102,13 @@ neoForge {
         mappingsVersion = libs.versions.parchment.asProvider().get()
     }
 
-    mods.create("radiocraft").sourceSet(project.sourceSets.getByName("main"))
+    mods.create("radiocraft") {
+        sourceSet(project.sourceSets.getByName("main"))
+        sourceSet(gametest)
+    }
+
+    // Puts Minecraft/NeoForge on the unit test classpath (plain JUnit, no game bootstrap).
+    addModdingDependenciesTo(sourceSets.test.get())
 
     runs {
         configureEach {
@@ -132,6 +147,16 @@ neoForge {
             )
         }
 
+        // Headless server that runs every @GameTest in the "radiocraft" namespace, then exits
+        // with a non-zero code if a required test failed. Use: ./gradlew runGameTestServer
+        create("gameTestServer") {
+            environment("RADIOCRAFT_DEV_ENV", "true")
+            type = "gameTestServer"
+            gameDirectory = file("runs/gametest")
+            systemProperty("neoforge.enabledGameTestNamespaces", "radiocraft")
+            logLevel = org.slf4j.event.Level.INFO
+        }
+
     }
 }
 
@@ -159,6 +184,22 @@ dependencies {
     implementation("maven.modrinth:jade:${jade_version}")
     // GeckoLib for block/entity geo models
     implementation("software.bernie.geckolib:geckolib-neoforge-${mcVersion}:${geckolib_version}")
+
+    testImplementation(platform("org.junit:junit-bom:5.10.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    // Loading Minecraft classes initializes log4j, which writes logs/ into the working directory.
+    val testRunDir = layout.buildDirectory.dir("test-run").get().asFile
+    workingDir = testRunDir
+    doFirst { testRunDir.mkdirs() }
+    testLogging {
+        events("failed", "skipped")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.SHORT
+    }
 }
 
 tasks.withType<ProcessResources>().configureEach {

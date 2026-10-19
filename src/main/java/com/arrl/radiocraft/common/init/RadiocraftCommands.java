@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.init;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.commands.AntennaNetworkCommands;
 import com.arrl.radiocraft.common.commands.CallsignCommands;
+import com.arrl.radiocraft.common.commands.DebugCommands;
 import com.arrl.radiocraft.common.commands.EnergyCommands;
 import com.arrl.radiocraft.common.commands.SolarWeatherCommands;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -18,5 +19,6 @@ public class RadiocraftCommands {
 		event.getDispatcher().register(SolarWeatherCommands.BUILDER);
 		event.getDispatcher().register(EnergyCommands.BUILDER);
         event.getDispatcher().register(AntennaNetworkCommands.BUILDER);
+        event.getDispatcher().register(DebugCommands.BUILDER);
 	}
 }

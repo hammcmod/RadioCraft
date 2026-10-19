@@ -1,5 +1,9 @@
 # Note: This is a local copy of the document for AI consumption only. Humans should follow the link below to the actual document.
 
+> Last checked against the published document on 2026-10-19: same revision ("Major Revision 2"), no text changes.
+> This proposal is the project's original inspiration and a guide to its general goals, not a spec. Much of it has
+> changed or was never accurate. Ask the maintainer before treating anything here as the deciding answer.
+
 https://docs.google.com/document/d/e/2PACX-1vQd1fckIrMKPCIMzikjnUJXj8BcSUgornQIC97nqVmv2SQJ25S-z2kYKaAMlZRcO88ntJBxjRx0q2nM/pub
 
 ---

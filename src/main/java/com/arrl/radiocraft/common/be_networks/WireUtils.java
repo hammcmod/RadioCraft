@@ -3,8 +3,13 @@ package com.arrl.radiocraft.common.be_networks;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.BENetworkRegistry;
+import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
+import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.blocks.WireBlock;
+import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
+import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -17,6 +22,16 @@ import java.util.function.Supplier;
 
 public class WireUtils {
 
+	/** The wire blocks a power network can run through. */
+	public static WireBlock[] powerWires() {
+		return new WireBlock[] { RadiocraftBlocks.WIRE.get(), (WireBlock)RadiocraftBlocks.WATERPROOF_WIRE.get() };
+	}
+
+	/** The wire blocks a coax network can run through. */
+	public static WireBlock[] coaxWires() {
+		return new WireBlock[] { RadiocraftBlocks.COAX_WIRE.get() };
+	}
+
 	/**
 	 * Merges all connections to a wire into a single network, or creates a new one.
 	 * @param level The {@link Level} to check.
@@ -26,25 +41,42 @@ public class WireUtils {
 	 */
 	public static void mergeNetworks(Level level, BlockPos pos, Predicate<BENetworkObject> connection, Supplier<BENetwork> fallbackSupplier, WireBlock... wires) {
 		Map<BENetworkObject, Direction> connections = getConnections(level, pos, connection, wires);
-		if(!connections.isEmpty()) {
-			Set<BENetwork> existingNetworks = new HashSet<>();
-			Set<BENetworkObject> nullItems = new HashSet<>(); // These network objects don't have a network.
+		if(!connections.isEmpty())
+			joinAll(level, connections, fallbackSupplier);
+	}
 
-			for(BENetworkObject networkObject : connections.keySet()) {
-				BENetwork network = networkObject.getNetwork(connections.get(networkObject));
+	/**
+	 * Puts every object in {@code connections} on one shared network: the networks they already have (on the given
+	 * sides) are merged into a new one, and objects without a network on that side are added to it. Objects that are
+	 * all already on the same single network are left alone.
+	 *
+	 * @param level The {@link Level} the objects are in.
+	 * @param connections Objects to join, each with the side of that object the wire run touches.
+	 * @param fallbackSupplier Creates the new network if none of the objects had one.
+	 * @return The network every object is now on.
+	 */
+	public static BENetwork joinAll(Level level, Map<BENetworkObject, Direction> connections, Supplier<BENetwork> fallbackSupplier) {
+		Set<BENetwork> existingNetworks = new HashSet<>();
+		Set<BENetworkObject> nullItems = new HashSet<>(); // These network objects don't have a network on that side.
 
-				if(network == null)
-					nullItems.add(networkObject);
-				else
-					existingNetworks.add(network);
-			}
+		for(BENetworkObject networkObject : connections.keySet()) {
+			BENetwork network = networkObject.getNetwork(connections.get(networkObject));
 
-			BENetwork newNetwork = BENetwork.merge(existingNetworks, fallbackSupplier, level);
-			for(BENetworkObject networkObject : nullItems) {
-				networkObject.setNetwork(connections.get(networkObject), newNetwork);
-				newNetwork.add(networkObject);
-			}
+			if(network == null)
+				nullItems.add(networkObject);
+			else
+				existingNetworks.add(network);
 		}
+
+		if(existingNetworks.size() == 1 && nullItems.isEmpty())
+			return existingNetworks.iterator().next(); // Already one network, nothing to merge.
+
+		BENetwork newNetwork = BENetwork.merge(existingNetworks, fallbackSupplier, level);
+		for(BENetworkObject networkObject : nullItems) {
+			networkObject.setNetwork(connections.get(networkObject), newNetwork);
+			newNetwork.add(networkObject);
+		}
+		return newNetwork;
 	}
 
 	/**
@@ -98,7 +130,27 @@ public class WireUtils {
 	}
 
 	/**
-	 * Attempts to connect a {@link BENetworkObject} to all valid networks around it.
+	 * Connects the {@link BENetworkObject} at {@code pos} to every wire run touching it, on both the power and coax
+	 * wire types its block supports. Called when a network object is created (see
+	 * {@link com.arrl.radiocraft.api.benetworks.INetworkObjectProvider}), which covers placing a block next to
+	 * existing wire as well as re-linking after a chunk or world reload, since networks are not persisted.
+	 *
+	 * @param level The {@link Level} to check in.
+	 * @param pos The {@link BlockPos} of the object to connect.
+	 */
+	public static void connectToWires(Level level, BlockPos pos) {
+		if(level.isClientSide)
+			return;
+		BlockState state = level.getBlockState(pos);
+		if(state.is(RadiocraftTags.Blocks.POWER_BLOCKS))
+			tryConnect(level, pos, no -> no instanceof PowerNetworkObject, PowerBENetwork::new, powerWires());
+		if(state.is(RadiocraftTags.Blocks.COAX_BLOCKS) || state.getBlock() instanceof RadioBlock)
+			tryConnect(level, pos, no -> no instanceof ICoaxNetworkObject, BENetwork::new, coaxWires());
+	}
+
+	/**
+	 * Attempts to connect a {@link BENetworkObject} to all valid networks around it. For each adjacent wire, every
+	 * object reachable through that wire run is collected and all of them (plus this object) are put on one network.
 	 *
 	 * @param level The {@link Level} to check in.
 	 * @param pos The {@link BlockPos} to check around.
@@ -109,7 +161,7 @@ public class WireUtils {
 	public static void tryConnect(Level level, BlockPos pos, Predicate<BENetworkObject> validConnection, Supplier<BENetwork> fallbackSupplier, WireBlock... wires) {
 		BENetworkObject networkObject = IBENetworks.getObject(level, pos);
 
-		if(networkObject == null)
+		if(networkObject == null || !validConnection.test(networkObject))
 			return;
 
 		Set<WireBlock> wireSet = Set.of(wires);
@@ -118,21 +170,14 @@ public class WireUtils {
 			if(!wireSet.contains(level.getBlockState(checkPos).getBlock()))
 				continue;
 
-			Pair<BENetworkObject, Direction> connection = getFirstConnection(level, checkPos, validConnection, wires);
-			if(connection == null)
-				return;
+			Set<BlockPos> blacklist = new HashSet<>();
+			blacklist.add(pos); // Don't walk back into ourselves through the wire.
+			Map<BENetworkObject, Direction> connections = getConnections(new HashMap<>(), blacklist, level, checkPos, validConnection, wireSet);
+			if(connections.isEmpty())
+				continue; // Nothing on the other end yet; whatever loads there later will connect to us.
 
-			BENetwork network = connection.getKey().getNetwork(connection.getValue());
-
-			if(network == null) { // It shouldn't be possible for network to be null here, but check anyway.
-				network = fallbackSupplier.get();
-				IBENetworks.addNetwork(level, network);
-				connection.getKey().setNetwork(connection.getValue(), network);
-				network.add(connection.getKey());
-			}
-
-			networkObject.setNetwork(dir, network);
-			network.add(networkObject);
+			connections.put(networkObject, dir);
+			joinAll(level, connections, fallbackSupplier);
 		}
 	}
 
