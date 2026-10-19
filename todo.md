@@ -3,6 +3,22 @@
 The 2026-10 bug audit (save/load, network linking, power ticking, static, 40m band) and what is still open are
 listed in [doc/Testing.md](doc/Testing.md#bug-audit-2026-10); each fix has a test.
 
+## Current plan (2026-10): HF radios fully working, with solar weather
+
+In order. Each step gets GameTests where the server side can be checked; audio still needs clients and ears.
+
+1. **Prove two HF radios can talk.** GameTests that push a synthetic audio packet radio -> antenna -> AntennaNetwork
+   -> other antenna -> receiving radio, checking what arrives and at what strength, and that a radio on another
+   frequency hears nothing. Fix CW receive (the packet in `HFRadioBlockEntity#receiveCW` is commented out).
+   Needs no design decisions.
+2. **Make solar weather shape propagation**, not just the static level: skip distance and strength per band, day vs
+   night, blackouts killing HF. Open questions for the maintainer: which bands each event helps or hurts and by how
+   much; per-dimension (as now) or global events; whether the solar weather station block should show the event now.
+3. **Static masking and squelch.** Send received strength with the audio; the client ducks the static sound so a
+   signal masks static and static wins as the signal weakens. Verify by ear.
+4. **Power.** Radios draw from batteries and switch off when drained; the charge controller switch does something.
+5. **VHF (FM) static model.** Mostly silent except on very weak signals. After the HF static work settles.
+
 ## Phase 1 – Core Gameplay Readiness
 
 ### Radios & Networking
