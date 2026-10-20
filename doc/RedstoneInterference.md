@@ -66,3 +66,21 @@ Code: `TransmitInterference`, `RfSignals`, `mixin/MixinRedStoneWireBlock`, `Radi
 Tests: `TransmitInterferenceGameTests` (dust level while keyed and release, lever and torch, bad SWR reach and level,
 QRP reach), `TransmitInterferenceTest` (reach, vertical rule, roll spread, seed). `/rcdebug radio <pos>` lists what a
 transmitting radio is inducing.
+
+## Lightning crashes (implemented 2026-10-20)
+
+Not redstone, but the same pipeline. A real strike radiates a broadband pulse that HF receivers hear for hundreds of
+kilometres as a crash of static, loudest on the long bands; the proposal asks for "static up for about a second".
+
+- **Trigger:** a lightning bolt entity joining a server level (weather, `/summon`, a channeling trident). Thunder
+  weather on its own adds nothing.
+- **Who hears it:** every station in the dimension with a registered pickup zone, which is exactly the set of loaded
+  radios that are powered with one antenna, i.e. the ones playing static. One distance per station, nothing else.
+- **How much:** `lightning_static_strength` (default 0.6) right on top of the station, falling linearly to 0 at
+  `lightning_static_range` blocks (default 512), times the redstone band factor (80/40m 1.0, 20m 0.5, 10m and VHF
+  0.1). It is added to the same decaying interference level and sent in the same packet, so it boosts the static
+  like a redstone pop does and is gone about a second later. The redstone enable, strength and SWR options do not
+  apply; `lightning_static_enabled` switches it off.
+
+Code: `LightningStatic`, `RadioBlockEntity.addDirectInterference`, `RedstoneInterference.getZones`. Tests:
+`LightningStaticGameTests` (own batch, since a bolt reaches every plot), `LightningStaticTest`.

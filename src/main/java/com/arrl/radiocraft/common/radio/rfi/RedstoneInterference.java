@@ -96,6 +96,15 @@ public class RedstoneInterference {
 		return byRadio == null ? null : byRadio.get(radioPos);
 	}
 
+	/**
+	 * Every station with a zone in {@code level}: the loaded radios that are powered with one antenna, which is also
+	 * the set that plays static. A snapshot, safe to iterate while radios register and unregister.
+	 */
+	public static List<PickupZone> getZones(Level level) {
+		Map<BlockPos, PickupZone> byRadio = ZONES_BY_RADIO.get(level.dimension());
+		return byRadio == null ? List.of() : List.copyOf(byRadio.values());
+	}
+
 	@SubscribeEvent
 	public static void levelUnload(LevelEvent.Unload event) {
 		if(event.getLevel() instanceof Level level) {

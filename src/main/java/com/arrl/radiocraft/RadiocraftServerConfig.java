@@ -27,6 +27,10 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Boolean> REDSTONE_INTERFERENCE_TRANSMIT_ENABLED;
 	public static final ModConfigSpec.ConfigValue<Double> REDSTONE_INTERFERENCE_TRANSMIT_CHANCE;
 
+	public static final ModConfigSpec.ConfigValue<Boolean> LIGHTNING_STATIC_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Double> LIGHTNING_STATIC_STRENGTH;
+	public static final ModConfigSpec.ConfigValue<Integer> LIGHTNING_STATIC_RANGE;
+
 	public record BandConfig(String name, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Float> minFrequency, ModConfigSpec.ConfigValue<Float> maxFrequency) {
 		public Band getBand() {
 			return new Band(name, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
@@ -85,6 +89,14 @@ public class RadiocraftServerConfig {
 				" levers, buttons and torches there. Which blocks are hit is fixed per station until the antenna or SWR changes.");
 		REDSTONE_INTERFERENCE_TRANSMIT_ENABLED = BUILDER.comment(" Set to false to stop transmitters affecting redstone").define("redstone_interference_transmit_enabled", true);
 		REDSTONE_INTERFERENCE_TRANSMIT_CHANCE = BUILDER.comment(" Fraction of the redstone components in reach that a station affects").defineInRange("redstone_interference_transmit_chance", 0.35, 0.0, 1.0);
+		BUILDER.pop();
+
+		BUILDER.push("Lightning Static");
+		BUILDER.comment(" A lightning strike puts a crash of static on every powered radio in the dimension, loudest close by and fading",
+				" with distance. Long HF bands hear the most, 20m half, 10m and VHF a tenth, like redstone noise.");
+		LIGHTNING_STATIC_ENABLED = BUILDER.comment(" Set to false to turn lightning crashes off").define("lightning_static_enabled", true);
+		LIGHTNING_STATIC_STRENGTH = BUILDER.comment(" How much static a strike right next to the radio adds (0 to 1, on top of the solar noise floor)").defineInRange("lightning_static_strength", 0.6, 0.0, 1.0);
+		LIGHTNING_STATIC_RANGE = BUILDER.comment(" Distance in blocks at which a strike is no longer heard").defineInRange("lightning_static_range", 512, 16, 8192);
 		BUILDER.pop();
 
 		SPEC = BUILDER.build();
