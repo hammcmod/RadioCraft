@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "M": {
+      "item": "radiocraft:hand_microphone"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
+    }
+  },
+  "pattern": [
+    "III",
+    "SCM",
+    "IRI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:parrot_controller"
+  }
+}

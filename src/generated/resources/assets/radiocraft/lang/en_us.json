@@ -18,6 +18,7 @@
   "block.radiocraft.j_pole_antenna": "J-Pole Antenna",
   "block.radiocraft.large_battery": "Large Battery",
   "block.radiocraft.microphone": "Microphone",
+  "block.radiocraft.parrot_controller": "Simplex Repeat Controller",
   "block.radiocraft.qrp_radio_20m": "QRP Radio (20m)",
   "block.radiocraft.qrp_radio_40m": "QRP Radio (40m)",
   "block.radiocraft.satellite_dish": "Satellite Dish",
@@ -84,6 +85,7 @@
   "message.radiocraft.antenna_analyzer.no_networks_at": "No antenna networks found at %s.",
   "message.radiocraft.antenna_analyzer.unknown_handheld_antenna": "You are holding a handheld radio, but it's using an antenna we know nothing about.",
   "message.radiocraft.battery_swapped": "Battery swapped",
+  "message.radiocraft.parrot_controller.delay": "Repeat delay: %ss",
   "message.radiocraft.radio_battery_empty": "Radio battery depleted",
   "screen.radiocraft.chargecontroller.power": "%s FE/s",
   "screen.radiocraft.desk_charger": "Desk Charger",
@@ -96,6 +98,7 @@
   "tooltip.radiocraft.energy_stored_joules": "Energy: %s / %s J",
   "tooltip.radiocraft.not_implemented": "§7Not Implemented (Decorative Only)§r",
   "tooltip.radiocraft.not_implemented_crafting_only": "§7Not Implemented (Crafting Ingredient Only)§r",
+  "tooltip.radiocraft.parrot_controller": "Repeats received messages back out the connected radio. Affectionately called a \"parrot\" repeater.",
   "tooltip.radiocraft.small_battery": "A common small battery, typically starts with 50-70% charge",
   "tooltip.radiocraft.vhf_handheld_battery_swap": "Click battery on VHF Handheld to swap batteries"
 }
