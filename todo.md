@@ -63,8 +63,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 Models and textures we want drawn by someone else are listed in [doc/ModelDesignBounty.md](doc/ModelDesignBounty.md).
 
 ### VHF/UHF Channel and Repeater Features
-- [x] Parrot controller block: links to the radio next to it and makes it echo what it receives after a delay, with
-  receive/transmit LEDs and a wire drawn to the radio (2026-10-20; model and textures by the maintainer)
+- [x] Simplex repeat controller ("parrot", id `parrot_controller`): links to the radio next to it and makes it echo
+  what it receives after a delay, with receive/transmit LEDs and a wire drawn to the radio (2026-10-20; model and
+  textures by the maintainer). Its recipe is a placeholder pending the recipe review below.
 - [ ] Parrot controller polish: a sound or chat line when the delay changes, a redstone comparator output, and a way
   to pick the linked radio when two are adjacent (currently the first side found, north-east-south-west)
 - [ ] Implement VHF repeater block entity, callsign prompt, duplexer validation, and sleep/wake cycle
@@ -83,4 +84,4 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Upgrade the solar weather station from a tooltip placeholder to a working block (paper consumption, coordinate calculator, comparator output)
 - [ ] Improve wire spool storage UX (bulk crafting/collapse)
 - [ ] Introduce random structures, auto-beacon radios, APRS Discord bridge, and external radio API hooks
-- [ ] Align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes
+- [ ] Review all recipes together (maintainer, 2026-10-20): align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes; decide the simplex repeat controller recipe
