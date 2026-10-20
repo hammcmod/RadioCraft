@@ -5,6 +5,7 @@ import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.data.*;
+import com.arrl.radiocraft.common.radio.antenna.types.InvertedVAntennaType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -72,6 +73,15 @@ public enum AntennaInfoProvider implements IBlockComponentProvider, IServerDataP
             data.putString("antennaDimension_" + index++, String.format("Arm 2: %.2f m", dipole.getArmLength2()));
             data.putString("antennaDimension_" + index++, String.format("Total: %.2f m", dipole.getArmLength1() + dipole.getArmLength2()));
         }
+        else if(antennaData instanceof InvertedVAntennaData v) {
+            data.putString("antennaDimension_" + index++, String.format("Arm 1: %.2f m, drops %d", v.getArmLength1(), v.getDrop1()));
+            data.putString("antennaDimension_" + index++, String.format("Arm 2: %.2f m, drops %d", v.getArmLength2(), v.getDrop2()));
+            data.putString("antennaDimension_" + index++, String.format("Total: %.2f m", v.getArmLength1() + v.getArmLength2()));
+        }
+        else if(antennaData instanceof RandomWireAntennaData wire) {
+            data.putString("antennaDimension_" + index++, String.format("Length: %.2f m in %d wire(s)", wire.getLength(), wire.getSegments()));
+            data.putString("antennaDimension_" + index++, "Needs an antenna tuner");
+        }
         else if(antennaData instanceof HorizontalQuadLoopAntennaData loop) {
             data.putString("antennaDimension_" + index++, "Side: " + loop.getSideLength() + " m");
             data.putString("antennaDimension_" + index++, "Perimeter: " + loop.getSideLength() * 4 + " m");
@@ -92,6 +102,8 @@ public enum AntennaInfoProvider implements IBlockComponentProvider, IServerDataP
             wavelengthMeters = vertical.getHeight() * 4.0D;
         else if(antennaData instanceof DipoleAntennaData dipole)
             wavelengthMeters = ((dipole.getArmLength1() + dipole.getArmLength2()) / 2.0D) * 4.0D;
+        else if(antennaData instanceof InvertedVAntennaData v)
+            wavelengthMeters = ((v.getArmLength1() + v.getArmLength2()) / 2.0D) * 4.0D / InvertedVAntennaType.LENGTH_FACTOR;
         else if(antennaData instanceof HorizontalQuadLoopAntennaData loop)
             wavelengthMeters = loop.getSideLength() * 4.0D;
         else if(antennaData instanceof VerticalQuadLoopAntennaData loop)

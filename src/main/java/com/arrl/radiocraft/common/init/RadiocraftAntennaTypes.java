@@ -14,6 +14,8 @@ public class RadiocraftAntennaTypes {
 	public static HorizontalQuadLoopAntennaType HORIZONTAL_QUAD_LOOP;
 	public static VerticalQuadLoopAntennaType VERTICAL_QUAD_LOOP;
 	public static QuarterWaveVerticalAntennaType QUARTER_WAVE_VERTICAL;
+	public static InvertedVAntennaType INVERTED_V;
+	public static RandomWireAntennaType RANDOM_WIRE;
 
 	// VHF Antennas
 	public static JPoleAntennaType J_POLE;
@@ -27,6 +29,8 @@ public class RadiocraftAntennaTypes {
 		HORIZONTAL_QUAD_LOOP = AntennaTypes.registerType(new HorizontalQuadLoopAntennaType());
 		VERTICAL_QUAD_LOOP = AntennaTypes.registerType(new VerticalQuadLoopAntennaType());
 		QUARTER_WAVE_VERTICAL = AntennaTypes.registerType(new QuarterWaveVerticalAntennaType());
+		INVERTED_V = AntennaTypes.registerType(new InvertedVAntennaType());
+		RANDOM_WIRE = AntennaTypes.registerType(new RandomWireAntennaType());
 
 		J_POLE = AntennaTypes.registerType(new JPoleAntennaType());
 		SLIM_JIM = AntennaTypes.registerType(new SlimJimAntennaType());

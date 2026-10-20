@@ -34,8 +34,19 @@ public class BalunBlock extends AntennaCenterBlock {
         SHAPES.put(Direction.DOWN, Block.box(4.0D, 8.0D, 4.0D, 12.0D, 16.0D, 12.0D));
     }
 
+    private final String tooltipKey;
+
     public BalunBlock(Properties properties) {
+        this(properties, null);
+    }
+
+    /**
+     * @param tooltipKey Suffix of the {@code tooltip.radiocraft.} key shown on the item, or null for the generic
+     *                   "not implemented" line the older baluns still carry.
+     */
+    public BalunBlock(Properties properties, String tooltipKey) {
         super(properties);
+        this.tooltipKey = tooltipKey;
     }
 
     @Override
@@ -61,6 +72,6 @@ public class BalunBlock extends AntennaCenterBlock {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented"));
+        tooltipComponents.add(Component.translatable(tooltipKey == null ? "tooltip.radiocraft.not_implemented" : "tooltip.radiocraft." + tooltipKey));
     }
 }

@@ -72,6 +72,7 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> ANTENNA_CONNECTOR = simpleBlockItem("antenna_connector", RadiocraftBlocks.ANTENNA_CONNECTOR);
 	public static final Supplier<BlockItem> BALUN_ONE_TO_ONE = simpleBlockItem("balun_one_to_one", RadiocraftBlocks.BALUN_ONE_TO_ONE);
 	public static final Supplier<BlockItem> BALUN_TWO_TO_ONE = simpleBlockItem("balun_two_to_one", RadiocraftBlocks.BALUN_TWO_TO_ONE);
+	public static final Supplier<BlockItem> BALUN_NINE_TO_ONE = simpleBlockItem("balun_nine_to_one", RadiocraftBlocks.BALUN_NINE_TO_ONE);
 	public static final Supplier<BlockItem> COAX_WIRE = simpleBlockItem("coax_wire", RadiocraftBlocks.COAX_WIRE);
 	public static final Supplier<BlockItem> YAGI_ANTENNA = simpleBlockItem("yagi_antenna", RadiocraftBlocks.YAGI_ANTENNA);
 	public static final Supplier<BlockItem> J_POLE_ANTENNA = simpleBlockItem("j_pole_antenna", RadiocraftBlocks.J_POLE_ANTENNA);

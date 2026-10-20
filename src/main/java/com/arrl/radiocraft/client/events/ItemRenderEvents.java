@@ -47,6 +47,7 @@ public class ItemRenderEvents {
             RadiocraftItems.ANTENNA_CONNECTOR,
             RadiocraftItems.BALUN_ONE_TO_ONE,
             RadiocraftItems.BALUN_TWO_TO_ONE,
+            RadiocraftItems.BALUN_NINE_TO_ONE,
             RadiocraftItems.COAX_WIRE,
             RadiocraftItems.DIGITAL_INTERFACE,
             RadiocraftItems.YAGI_ANTENNA,

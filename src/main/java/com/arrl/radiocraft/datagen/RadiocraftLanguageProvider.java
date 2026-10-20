@@ -62,6 +62,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.ANTENNA_CONNECTOR, "Antenna Connector");
 			provider.addBlock(RadiocraftBlocks.BALUN_ONE_TO_ONE, "Balun (1:1)");
 			provider.addBlock(RadiocraftBlocks.BALUN_TWO_TO_ONE, "Balun (2:1)");
+			provider.addBlock(RadiocraftBlocks.BALUN_NINE_TO_ONE, "Balun (9:1)");
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
 			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");
 			provider.addBlock(RadiocraftBlocks.PARROT_CONTROLLER, "Simplex Repeat Controller");
@@ -102,6 +103,21 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("container.radiocraft.digital_interface", "Digital Interface (TNC)");
 			provider.add("container.radiocraft.duplexer", "Duplexer");
 			provider.add("container.radiocraft.antenna_tuner", "Antenna Tuner");
+
+			// Antenna tuner readout (indices are AntennaTunerBlockEntity.STATUS_*)
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.0"), "No radio on this coax");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.1"), "Radio is off");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.2"), "No antenna recognized");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.3"), "Matched");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.4"), "Out of range: no match");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.5"), "Overdraw: too many radios or antennas");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.6"), "Tuners disabled on this server");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.antenna_swr"), "Antenna SWR: %s");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.radio_swr"), "Radio sees: %s");
+			provider.add(Radiocraft.translationKey("tooltip", "antenna_tuner"), "Put it anywhere on the coax between a radio and its antenna. Matches an antenna that is a little off resonance so the radio sees SWR 1; the further off, the more power is lost in the tuner.");
+			provider.add(Radiocraft.translationKey("tooltip", "balun_one_to_one"), "Feed point for dipoles, inverted Vs, end-feds and quarter wave verticals.");
+			provider.add(Radiocraft.translationKey("tooltip", "balun_two_to_one"), "Feed point for quad loops.");
+			provider.add(Radiocraft.translationKey("tooltip", "balun_nine_to_one"), "Feed point for a random wire: one wire of any shape, at least half a wavelength long. Needs an antenna tuner.");
 			provider.add("container.radiocraft.vhf_repeater", "VHF Repeater");
 			
 			// Digital Interface tab labels

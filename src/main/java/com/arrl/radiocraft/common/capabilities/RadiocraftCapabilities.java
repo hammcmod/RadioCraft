@@ -46,6 +46,7 @@ public class RadiocraftCapabilities {
 				RadiocraftBlocks.ANTENNA_TUNER.get(),
 				RadiocraftBlocks.BALUN_ONE_TO_ONE.get(),
 				RadiocraftBlocks.BALUN_TWO_TO_ONE.get(),
+				RadiocraftBlocks.BALUN_NINE_TO_ONE.get(),
 				RadiocraftBlocks.J_POLE_ANTENNA.get(),
 				RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
 				RadiocraftBlocks.YAGI_ANTENNA.get(),

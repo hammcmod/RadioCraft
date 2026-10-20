@@ -62,6 +62,7 @@ public class RadiocraftBlockEntities {
 			() -> BlockEntityType.Builder.of(AntennaBlockEntity::new,
 					RadiocraftBlocks.BALUN_ONE_TO_ONE.get(),
 					RadiocraftBlocks.BALUN_TWO_TO_ONE.get(),
+					RadiocraftBlocks.BALUN_NINE_TO_ONE.get(),
 					RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
 					RadiocraftBlocks.J_POLE_ANTENNA.get(),
 					RadiocraftBlocks.YAGI_ANTENNA.get()
