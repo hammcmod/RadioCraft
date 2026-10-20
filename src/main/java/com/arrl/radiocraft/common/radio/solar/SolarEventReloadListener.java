@@ -11,8 +11,11 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
 import org.antlr.v4.runtime.misc.Pair;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 public class SolarEventReloadListener extends SimpleJsonResourceReloadListener {
 
@@ -27,6 +30,7 @@ public class SolarEventReloadListener extends SimpleJsonResourceReloadListener {
 	@Override
 	protected void apply(Map<ResourceLocation, JsonElement> jsonMap, ResourceManager resourceManager, ProfilerFiller profiler) {
 		events.clear();
+		totalWeight = 0;
 		jsonMap.forEach((resourceLocation, jsonElement) -> {
 			try {
 				JsonObject jsonObject = jsonElement.getAsJsonObject();
@@ -36,7 +40,12 @@ public class SolarEventReloadListener extends SimpleJsonResourceReloadListener {
 
 				int weight = jsonObject.get("weight").getAsInt();
 
-				events.put(resourceLocation, new Pair<>(new SolarEvent(noise, minDuration, maxDuration), weight));
+				Set<String> openBands = new HashSet<>();
+				if(jsonObject.has("openBands")) // Optional: bands this weather opens that are otherwise closed, e.g. ["10m"].
+					for(JsonElement band : jsonObject.getAsJsonArray("openBands"))
+						openBands.add(band.getAsString());
+
+				events.put(resourceLocation, new Pair<>(new SolarEvent(noise, minDuration, maxDuration, openBands), weight));
 				totalWeight += weight;
 
 			} catch (IllegalArgumentException | JsonParseException jsonparseexception) {
@@ -55,6 +64,16 @@ public class SolarEventReloadListener extends SimpleJsonResourceReloadListener {
 
 	public SolarEvent getValue(ResourceLocation key) {
 		return events.get(key).a;
+	}
+
+	/** Every loaded event. */
+	public Collection<SolarEvent> getEvents() {
+		return events.values().stream().map(pair -> pair.a).toList();
+	}
+
+	/** {@code event}'s rank among the loaded events, 1 (noisiest) up; see {@link SolarEvent#conditionLevel}. */
+	public int conditionLevel(SolarEvent event) {
+		return SolarEvent.conditionLevel(getEvents(), event);
 	}
 
 	public SolarEvent getWeightedRandom() {

@@ -60,6 +60,9 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     // Last received signal, server side only. Written from the voice thread, read on the game thread.
     protected volatile double lastSignalStrength = 0.0D;
     protected volatile long lastSignalGameTime = -1L;
+    /** How long the S-meter (comparator output) keeps showing a signal after its last frame, like a meter's needle falling back. */
+    public static final int METER_HOLD_TICKS = 20;
+    private int lastMeterReading = 0; // What the comparators next to us last saw, so they are only told about changes.
 
     // Parrot mode (see setParrotDelay). The queue is filled from the voice thread and drained on the game thread.
     protected volatile int parrotDelayTicks = 0;
@@ -71,7 +74,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     // Redstone interference (see RedstoneInterference). The server gathers pops during a tick, scales them for the band
     // and config, and sends the result to clients, which keep their own decaying copy for the static volume.
     protected final InterferenceLevel interference = new InterferenceLevel();
-    private double pendingInterference = 0.0D;
+    private double pendingInterference = 0.0D; // Redstone pops, still to be scaled for band and config.
+    private double pendingDirectInterference = 0.0D; // Already scaled noise from other sources (lightning).
     private AntennaNetworkObject zoneAntenna = null;
     private int zoneRefreshTicks = 0;
     private static final int ZONE_REFRESH_TICKS = 100; // Antenna wires and coax can change without the antenna object changing.
@@ -124,8 +128,30 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             if(level instanceof ServerLevel serverLevel) {
                 be.tickParrot(serverLevel);
                 be.tickInterference(serverLevel, antenna);
+                be.tickMeter(serverLevel);
             }
             be.additionalTick();
+        }
+    }
+
+    // -------------------- S-METER (COMPARATOR OUTPUT) --------------------
+
+    /**
+     * The strength of the signal being received right now, 0 to 15, the way a comparator reads it: a signal meter on
+     * the front panel. It follows the last voice or CW frame for {@link #METER_HOLD_TICKS} and then falls back to 0.
+     */
+    public int getMeterReading() {
+        if(level == null || lastSignalGameTime < 0 || level.getGameTime() - lastSignalGameTime > METER_HOLD_TICKS)
+            return 0;
+        return Mth.clamp(Mth.ceil(lastSignalStrength * 15.0D), 1, 15);
+    }
+
+    /** Comparators only re-read a block when it tells them to, so do that whenever the meter moves. */
+    private void tickMeter(ServerLevel serverLevel) {
+        int reading = getMeterReading();
+        if(reading != lastMeterReading) {
+            lastMeterReading = reading;
+            serverLevel.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
         }
     }
 
@@ -146,9 +172,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 RedstoneInterference.register(serverLevel, RedstoneInterference.buildZone(serverLevel, worldPosition, antenna));
         }
 
-        if(pendingInterference > 0.0D) {
-            double scaled = pendingInterference * RedstoneInterference.bandFactor(band) * RedstoneInterference.configFactor(antennaSWR);
+        if(pendingInterference > 0.0D || pendingDirectInterference > 0.0D) {
+            double scaled = pendingInterference * RedstoneInterference.bandFactor(band) * RedstoneInterference.configFactor(antennaSWR) + pendingDirectInterference;
             pendingInterference = 0.0D;
+            pendingDirectInterference = 0.0D;
             if(scaled > 0.0D) {
                 interference.add(serverLevel.getGameTime(), scaled);
                 CInterferencePacket.sendToTracking(serverLevel, worldPosition, scaled);
@@ -198,6 +225,15 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     /** Called by {@link RedstoneInterference} on the server thread for each redstone switch coupled into this station. */
     public void addInterference(double amount) {
         pendingInterference += amount;
+    }
+
+    /**
+     * Adds noise that has already been scaled by its source (a lightning crash, see
+     * {@link com.arrl.radiocraft.common.radio.rfi.LightningStatic}): it skips the redstone band and config factors
+     * but goes out to the clients in the same packet. Server thread only.
+     */
+    public void addDirectInterference(double amount) {
+        pendingDirectInterference += Math.max(0.0D, amount);
     }
 
     /** The decaying interference level, 0 to 1, on whichever side this block entity lives. */

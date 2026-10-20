@@ -55,7 +55,7 @@ public class TransmissionGameTests {
     private static final int F_PARROT_VOICE = 200;
     private static final int F_PARROT_CW = 210;
     private static final int F_PARROT_OFF = 220;
-    // 230-250 are used by ParrotControllerGameTests.
+    // 230-260 are used by ParrotControllerGameTests, 270 by ComparatorGameTests.
     static final double EXPECTED_VOICE_STRENGTH = 1.0D - 9.0D / 300.0D;
     static final double EXPECTED_CW_STRENGTH = 1.0D - (9.0D / 1.5D) / 300.0D;
     static final double TOLERANCE = 1e-6;

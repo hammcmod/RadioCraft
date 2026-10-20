@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.compat;
 
+import com.arrl.radiocraft.common.blocks.SolarWeatherStationBlock;
 import com.arrl.radiocraft.common.blocks.antennas.AntennaCenterBlock;
 import com.arrl.radiocraft.common.blocks.WireBlock;
 import com.arrl.radiocraft.common.blocks.radios.*;
@@ -26,6 +27,8 @@ public class JadeCompat implements IWailaPlugin {
         registration.registerBlockDataProvider(RadioProvider.INSTANCE, QRPRadio40mBlock.class);
         registration.registerBlockDataProvider(RadioProvider.INSTANCE, VHFBaseStationBlock.class);
         registration.registerBlockDataProvider(RadioProvider.INSTANCE, VHFReceiverBlock.class);
+        registration.registerBlockDataProvider(ParrotControllerProvider.INSTANCE, ParrotControllerBlock.class);
+        registration.registerBlockDataProvider(SolarWeatherStationProvider.INSTANCE, SolarWeatherStationBlock.class);
     }
 
     @Override
@@ -34,5 +37,7 @@ public class JadeCompat implements IWailaPlugin {
         registration.registerBlockComponent(AntennaInfoProvider.INSTANCE, AntennaCenterBlock.class);
         registration.registerBlockComponent(CoaxWireProvider.INSTANCE, WireBlock.class);
         registration.registerBlockComponent(RadioProvider.INSTANCE, RadioBlock.class);
+        registration.registerBlockComponent(ParrotControllerProvider.INSTANCE, ParrotControllerBlock.class);
+        registration.registerBlockComponent(SolarWeatherStationProvider.INSTANCE, SolarWeatherStationBlock.class);
     }
 }

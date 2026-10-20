@@ -59,6 +59,16 @@ public enum RadioProvider implements IBlockComponentProvider, IServerDataProvide
         else {
             tooltip.add(Component.literal("Antennas: " + antennaCount + " connected"));
         }
+
+        int meter = data.getInt("meter");
+        if(meter > 0)
+            tooltip.add(Component.literal("Signal: " + meter + "/15"));
+        int interference = Math.round(data.getFloat("interference") * 100.0F);
+        if(interference > 0)
+            tooltip.add(Component.literal("Interference: " + interference + "%"));
+        int parrotDelay = data.getInt("parrotDelay");
+        if(parrotDelay > 0)
+            tooltip.add(Component.literal(String.format("Simplex repeat: %.1fs delay", parrotDelay / 20.0F)));
     }
 
     @Override
@@ -72,6 +82,9 @@ public enum RadioProvider implements IBlockComponentProvider, IServerDataProvide
         data.putFloat("frequency", radio.getFrequency());
         data.putFloat("micGain", radio.getMicGain());
         data.putFloat("speakerGain", radio.getSpeakerGain());
+        data.putInt("meter", radio.getMeterReading());
+        data.putFloat("interference", (float)radio.getInterference());
+        data.putInt("parrotDelay", radio.getParrotDelay());
 
         if(radio.getNetworkObject(level, pos) instanceof RadioNetworkObject radioNetworkObject) {
             data.putBoolean("radioPowered", radioNetworkObject.isPowered);

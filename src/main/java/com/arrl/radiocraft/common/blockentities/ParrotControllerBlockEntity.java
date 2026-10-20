@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -86,6 +87,13 @@ public class ParrotControllerBlockEntity extends BlockEntity {
 	public void setDelayTicks(int delayTicks) {
 		this.delayTicks = Math.max(1, delayTicks);
 		setChanged(); // The linked radio picks the new value up on the next tick.
+		if(level != null)
+			level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock()); // Comparators show the delay.
+	}
+
+	/** What a comparator reads off the unit: the delay in whole seconds, 1 to 15. */
+	public int getComparatorOutput() {
+		return Mth.clamp(Math.round(delayTicks / 20.0F), 1, 15);
 	}
 
 	/** Moves to the next entry of {@link #DELAY_STEPS_SECONDS} (wrapping), and returns the new delay in ticks. */

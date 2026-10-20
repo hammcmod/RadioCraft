@@ -6,6 +6,8 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -139,8 +141,21 @@ public class ParrotControllerBlock extends BaseEntityBlock {
 		if(!level.isClientSide && level.getBlockEntity(pos) instanceof ParrotControllerBlockEntity be) {
 			int delay = be.cycleDelay();
 			player.displayClientMessage(Component.translatable("message.radiocraft.parrot_controller.delay", delay / 20.0D), true);
+			level.playSound(null, pos, SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.4F, 0.8F); // A small front-panel button.
 		}
 		return InteractionResult.sidedSuccess(level.isClientSide);
+	}
+
+	// A comparator against the unit reads the delay in seconds (1 to 15).
+
+	@Override
+	protected boolean hasAnalogOutputSignal(@NotNull BlockState state) {
+		return true;
+	}
+
+	@Override
+	protected int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
+		return level.getBlockEntity(pos) instanceof ParrotControllerBlockEntity be ? be.getComparatorOutput() : 0;
 	}
 
 	@Override

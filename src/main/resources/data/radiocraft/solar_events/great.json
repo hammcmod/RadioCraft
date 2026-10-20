@@ -2,5 +2,8 @@
   "weight": 10,
   "noise": 0.1,
   "minDuration": 24000,
-  "maxDuration": 24000
+  "maxDuration": 24000,
+  "openBands": [
+    "10m"
+  ]
 }

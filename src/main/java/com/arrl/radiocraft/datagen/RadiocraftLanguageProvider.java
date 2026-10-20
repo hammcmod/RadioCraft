@@ -121,6 +121,19 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "parrot_controller"), "Repeats received messages back out the connected radio. Affectionately called a \"parrot\" repeater.");
             provider.add(Radiocraft.translationKey("message", "parrot_controller.delay"), "Repeat delay: %ss");
 
+            provider.add(Radiocraft.translationKey("tooltip", "solar_weather_station"), "Right click for the current solar conditions. A comparator reads 1 (blackout) to 6 (great).");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.report"), "Solar conditions: %s (noise floor %s%%). %s band: %s");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.no_data"), "No solar weather data yet");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.open"), "open");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.closed"), "closed");
+            provider.add(Radiocraft.translationKey("solar_event", "none"), "None");
+            provider.add(Radiocraft.translationKey("solar_event", "great"), "Great");
+            provider.add(Radiocraft.translationKey("solar_event", "good"), "Good");
+            provider.add(Radiocraft.translationKey("solar_event", "average"), "Average");
+            provider.add(Radiocraft.translationKey("solar_event", "fair"), "Fair");
+            provider.add(Radiocraft.translationKey("solar_event", "poor"), "Poor");
+            provider.add(Radiocraft.translationKey("solar_event", "blackout"), "Blackout");
+
             provider.add(Radiocraft.translationKey("tooltip", "not_implemented"), "§7Not Implemented (Decorative Only)§r");
             provider.add(Radiocraft.translationKey("tooltip", "not_implemented_crafting_only"), "§7Not Implemented (Crafting Ingredient Only)§r");
             provider.add(Radiocraft.translationKey("tooltip", "energy_stored"), "Energy: %s / %s FE");
@@ -138,6 +151,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("config.jade.plugin_radiocraft.antenna_info", "Antenna Info");
 			provider.add("config.jade.plugin_radiocraft.radio", "Radio");
 			provider.add("config.jade.plugin_radiocraft.coax_wire", "Coax Wire");
+			provider.add("config.jade.plugin_radiocraft.parrot_controller", "Simplex Repeat Controller");
+			provider.add("config.jade.plugin_radiocraft.solar_weather_station", "Solar Weather Station");
 
 			Arrays.stream(LicenseClass.values()).forEach((licenseClass) -> {
                 // I'm not going to bother pulling in the Apache Commons Text library, because I really don't want to shadow it in

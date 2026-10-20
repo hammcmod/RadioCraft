@@ -228,10 +228,10 @@ public class DebugCommands {
 					targets.dust().isEmpty() ? "" : " at " + targets.dust().keySet().stream().limit(6).map(BlockPos::toShortString).toList()));
 		String parrot = radio.isParrot() ? String.format(Locale.ROOT, " parrot=%.2fs", radio.getParrotDelay() / 20.0D) : "";
 		if(radio.getLastSignalGameTime() < 0)
-			out.add("lastSignal=none" + parrot);
+			out.add("lastSignal=none meter=0" + parrot);
 		else
-			out.add(String.format(Locale.ROOT, "lastSignal=%.3f receivedTicksAgo=%d%s", radio.getLastSignalStrength(),
-					level.getGameTime() - radio.getLastSignalGameTime(), parrot));
+			out.add(String.format(Locale.ROOT, "lastSignal=%.3f receivedTicksAgo=%d meter=%d%s", radio.getLastSignalStrength(),
+					level.getGameTime() - radio.getLastSignalGameTime(), radio.getMeterReading(), parrot));
 
 		List<AntennaNetworkObject> antennas = net == null ? List.of() : net.getAntennas();
 		out.add("antennas=" + antennas.size() + (antennas.size() > 1 ? " (more than one antenna = overdraw)" : ""));

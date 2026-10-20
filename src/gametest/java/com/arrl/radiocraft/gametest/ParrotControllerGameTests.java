@@ -7,6 +7,7 @@ import com.arrl.radiocraft.common.blocks.radios.ParrotControllerBlock;
 import com.arrl.radiocraft.common.blocks.radios.ParrotControllerBlock.LinkSide;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Blocks;
@@ -29,6 +30,7 @@ public class ParrotControllerGameTests {
     private static final int F_LINK = 230;
     private static final int F_ECHO = 240;
     private static final int F_REMOVE = 250;
+    private static final int F_COMPARATOR = 260;
 
     private static ParrotControllerBlockEntity controller(GameTestHelper helper) {
         return GameTestUtil.blockEntity(helper, CONTROLLER, ParrotControllerBlockEntity.class);
@@ -96,6 +98,23 @@ public class ParrotControllerGameTests {
                     helper.assertFalse(controllerState(helper).getValue(ParrotControllerBlock.RECEIVING), "Receive LED stayed on");
                     helper.assertFalse(controllerState(helper).getValue(ParrotControllerBlock.TRANSMITTING), "Transmit LED stayed on");
                 })
+                .thenSucceed();
+    }
+
+    /** A comparator against the controller reads the delay in seconds and follows it when it is cycled. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
+    public static void comparatorReadsDelayInSeconds(GameTestHelper helper) {
+        BlockPos comparator = CONTROLLER.east();
+        stationsUp(helper)
+                .thenExecute(() -> {
+                    setupSsb(helper, RADIO_B, F_COMPARATOR);
+                    ComparatorGameTests.placeComparator(helper, comparator, Direction.WEST); // Before the controller, so placing it updates the comparator.
+                    placeController(helper);
+                    helper.assertTrue(controller(helper).getComparatorOutput() == 2, "Default delay should read 2, got " + controller(helper).getComparatorOutput());
+                })
+                .thenWaitUntil(() -> helper.assertTrue(ComparatorGameTests.comparatorOutput(helper, comparator) == 2, "Comparator shows " + ComparatorGameTests.comparatorOutput(helper, comparator) + " for a 2 s delay"))
+                .thenExecute(() -> controller(helper).cycleDelay()) // 2s -> 3s
+                .thenWaitUntil(() -> helper.assertTrue(ComparatorGameTests.comparatorOutput(helper, comparator) == 3, "Comparator did not follow the delay to 3: " + ComparatorGameTests.comparatorOutput(helper, comparator)))
                 .thenSucceed();
     }
 
