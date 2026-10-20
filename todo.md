@@ -40,6 +40,12 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [ ] Implement administrative callsign commands (e.g., `/callsign set`) with permission checks
 - [ ] Extend server config to cover callsign digit pools, HF static squelch, modern/vintage toggles, and “talk everywhere” overrides promised in the proposal
 - [ ] Add `/bandcalculate` helper to complement antenna tuning
+- [x] Redstone interference, receive side (2026-10-20): redstone switching near the feedline/antenna boosts the
+  radio's static, band and distance dependent, server configurable. Design in doc/RedstoneInterference.md.
+- [ ] Redstone interference, transmit side: transmitting drives nearby redstone (reach by rig power and SWR,
+  verticals only sideways, predictable positions). Needs a way to inject a signal, see the design doc.
+- [ ] Redstone interference polish: a real buzz loop (asset bounty), chokes that cut feedline pickup, and the
+  interference term joining static masking once plan step 3 lands.
 
 ## Phase 2 – Power Systems
 

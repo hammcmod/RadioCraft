@@ -161,6 +161,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 		super.setupSoundInstances();
 		RadioBlockEntityClientHandler.startMorseSoundInstance(this);
 		RadioBlockEntityClientHandler.startStaticSoundInstance(this);
+		RadioBlockEntityClientHandler.startInterferenceHumSoundInstance(this);
 	}
 
 	@Override

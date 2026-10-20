@@ -15,6 +15,8 @@ import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
+import com.arrl.radiocraft.common.radio.rfi.PickupZone;
+import com.arrl.radiocraft.common.radio.rfi.RedstoneInterference;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -216,6 +218,9 @@ public class DebugCommands {
 				net != null && net.isPowered, mode, radio.isPTTDown(), radio.canTransmitVoice(), radio.getVoiceReceiver().isReceiving()));
 		out.add(String.format(Locale.ROOT, "speakerGain=%.2f micGain=%.2f measuredSwr=%.2f staticFactor=%.3f syncedPowered=%s",
 				radio.getSpeakerGain(), radio.getMicGain(), radio.getAntennaSWR(), radio.getStaticVolume(), radio.wasPowered()));
+		PickupZone zone = RedstoneInterference.getZone(level, pos);
+		out.add(String.format(Locale.ROOT, "interference=%.3f rfiZone=%s", radio.getInterference(),
+				zone == null ? "none" : zone.feedline().size() + " feedline + " + zone.antenna().size() + " antenna points, " + zone.min().toShortString() + " to " + zone.max().toShortString()));
 		String parrot = radio.isParrot() ? String.format(Locale.ROOT, " parrot=%.2fs", radio.getParrotDelay() / 20.0D) : "";
 		if(radio.getLastSignalGameTime() < 0)
 			out.add("lastSignal=none" + parrot);

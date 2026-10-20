@@ -199,7 +199,10 @@ Fixed, each with a GameTest or unit test that now runs as required:
 End to end, two stations talking (`TransmissionGameTests`): `voiceReachesRadioOnSameFrequency`,
 `voiceWorksInBothDirections`, `radioOnAnotherFrequencyHearsNothing`, `radioInCwModeDoesNotHearVoice`,
 `noAntennaMeansNoTransmission`. The parrot controller block (`ParrotControllerGameTests`): linking, delay follow,
-echo timing and strength, LED states, release on removal.
+echo timing and strength, LED states, release on removal. Redstone interference on receive
+(`RedstoneInterferenceGameTests`, design in [RedstoneInterference.md](RedstoneInterference.md)): pickup zone
+registration, pops by the feedline and antenna with distance fade, decay, a clock piling up, plain blocks and
+unpowered radios staying silent. `/rcdebug radio <pos>` prints the live `interference=` level and the zone.
 
 Still open:
 

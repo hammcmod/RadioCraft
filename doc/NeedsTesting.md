@@ -23,6 +23,21 @@ Place one next to an HF radio with a working antenna, and a second station in ea
 - [ ] Breaking the controller stops the echo. Breaking the radio and placing it back re-links.
 - [ ] Recipe shows up in the crafting table / JEI (placeholder recipe, to be reviewed with all recipes).
 
+## Redstone interference, receive side (added 2026-10-20)
+
+Power up an HF radio in SSB with an antenna, stand where you can hear its static.
+
+- [ ] Flip a lever or place a redstone block next to the radio or its coax: the static pops up for a quarter second.
+  Do the same 3 blocks from a dipole arm: a smaller pop. 10 blocks away: nothing.
+- [ ] Build a repeater clock next to the coax: the static stays louder and a low hum (the placeholder tone, pitched
+  down) fades in. Break the clock: both die away within a second.
+- [ ] Compare an 80m radio and a 20m radio with the same clock: 80m should be twice as affected, 10m barely.
+- [ ] A redstone lamp or a door being toggled (not a signal source) should be a much smaller pop than a lever.
+- [ ] Does the placeholder hum sound acceptable until a real buzz loop exists? Is the 0.25 threshold right, i.e. does
+  a slow clock (1 s) stay hum-free while a fast one hums?
+- [ ] Server config: `redstone_interference_enabled = false` silences it; `redstone_interference_only_bad_swr = true`
+  silences a matched station but not one tuned off its antenna.
+
 ## From the 2026-10-19 work (CW restored, transmission tests)
 
 - [ ] CW by ear between two stations: tone starts and stops cleanly, no stuck tone, sidetone on the sending radio.

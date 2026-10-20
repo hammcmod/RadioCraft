@@ -32,7 +32,15 @@ What was done for the parrot controller, as the pattern for the next one:
 
 ## Open bounties
 
-(none right now)
+### Sound: redstone interference buzz
+
+Not a model, but the same kind of ask. `RadioInterferenceHumSoundInstance` plays when redstone keeps switching near a
+station (a clock next to the coax). It currently reuses `morse.ogg` pitched down to a hum as a placeholder.
+
+- Wanted: `rfi_buzz.ogg`, a 1 to 2 second seamless loop of a mains-style buzz (50/60 Hz fundamental with harmonics,
+  a little crackle), mono OGG Vorbis like the existing `static.ogg`.
+- To wire it in: drop the file in `assets/radiocraft/sounds/`, add an `rfi_buzz` entry to `sounds.json`, register it
+  in `RadiocraftSoundEvents` next to `STATIC`, and point the hum sound instance at it (one line, pitch back to 1.0).
 
 ## Done
 

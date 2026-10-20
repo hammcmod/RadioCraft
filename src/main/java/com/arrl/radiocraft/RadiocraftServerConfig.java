@@ -20,6 +20,11 @@ public class RadiocraftServerConfig {
 
     public static final ModConfigSpec.ConfigValue<Boolean> CALLSIGN_PERMISSIONS_ENABLED;
 
+	public static final ModConfigSpec.ConfigValue<Boolean> REDSTONE_INTERFERENCE_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Double> REDSTONE_INTERFERENCE_STRENGTH;
+	public static final ModConfigSpec.ConfigValue<Boolean> REDSTONE_INTERFERENCE_ONLY_BAD_SWR;
+	public static final ModConfigSpec.ConfigValue<Double> REDSTONE_INTERFERENCE_BAD_SWR;
+
 	public record BandConfig(String name, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Float> minFrequency, ModConfigSpec.ConfigValue<Float> maxFrequency) {
 		public Band getBand() {
 			return new Band(name, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
@@ -65,6 +70,15 @@ public class RadiocraftServerConfig {
         BUILDER.push("Permissions");
         CALLSIGN_PERMISSIONS_ENABLED = BUILDER.comment(" Require op for callsign configuration").define("callsign_permissions_enabled", true);
         BUILDER.pop();
+
+		BUILDER.push("Redstone Interference");
+		BUILDER.comment(" Redstone components switching near a station's feedline or antenna add noise to that radio's static.",
+				" A single switch is a small pop; a redstone clock is a steady buzz. Long HF bands hear the most, 20m half, 10m and VHF a tenth.");
+		REDSTONE_INTERFERENCE_ENABLED = BUILDER.comment(" Set to false to turn redstone interference off entirely").define("redstone_interference_enabled", true);
+		REDSTONE_INTERFERENCE_STRENGTH = BUILDER.comment(" Multiplier on how much noise redstone adds (1.0 = default, 0.5 = half, 2.0 = double)").defineInRange("redstone_interference_strength", 1.0, 0.0, 10.0);
+		REDSTONE_INTERFERENCE_ONLY_BAD_SWR = BUILDER.comment(" If true, only stations whose antenna SWR is at or above redstone_interference_bad_swr pick up redstone noise").define("redstone_interference_only_bad_swr", false);
+		REDSTONE_INTERFERENCE_BAD_SWR = BUILDER.comment(" SWR from which an antenna counts as badly matched for the option above").defineInRange("redstone_interference_bad_swr", 2.0, 1.0, 100.0);
+		BUILDER.pop();
 
 		SPEC = BUILDER.build();
 	}

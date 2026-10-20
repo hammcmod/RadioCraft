@@ -13,7 +13,11 @@ import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
+import com.arrl.radiocraft.common.network.clientbound.CInterferencePacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
+import com.arrl.radiocraft.common.radio.rfi.InterferenceLevel;
+import com.arrl.radiocraft.common.radio.rfi.PickupZone;
+import com.arrl.radiocraft.common.radio.rfi.RedstoneInterference;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -63,6 +67,14 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     protected final AtomicReference<BlockPos> micPos = new AtomicReference<>(); //thread safe position reference, overkill but makes purpose clear
 
+    // Redstone interference (see RedstoneInterference). The server gathers pops during a tick, scales them for the band
+    // and config, and sends the result to clients, which keep their own decaying copy for the static volume.
+    protected final InterferenceLevel interference = new InterferenceLevel();
+    private double pendingInterference = 0.0D;
+    private AntennaNetworkObject zoneAntenna = null;
+    private int zoneRefreshTicks = 0;
+    private static final int ZONE_REFRESH_TICKS = 100; // Antenna wires and coax can change without the antenna object changing.
+
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, Band band) {
         super(type, pos, state);
         this.micPos.set(pos);
@@ -84,10 +96,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             }
 
             double newSWR = 0.0D; // No power, no SWR (and no static).
+            AntennaNetworkObject antenna = null;
             if(powered) {
                 List<AntennaNetworkObject> antennas = networkObject.getAntennas();
-                if(antennas.size() == 1)
-                    newSWR = antennas.get(0).getSWR(be.frequency);
+                if(antennas.size() == 1) {
+                    antenna = antennas.get(0);
+                    newSWR = antenna.getSWR(be.frequency);
+                }
                 else if(antennas.size() > 1)
                     newSWR = 10.0D;
             }
@@ -101,10 +116,53 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.setChanged();
                 be.updateBlock();
             }
-            if(level instanceof ServerLevel serverLevel)
+            if(level instanceof ServerLevel serverLevel) {
                 be.tickParrot(serverLevel);
+                be.tickInterference(serverLevel, antenna);
+            }
             be.additionalTick();
         }
+    }
+
+    // -------------------- REDSTONE INTERFERENCE --------------------
+
+    /**
+     * Keeps this radio's {@link PickupZone} registered while it is powered with one antenna, and sends the pops gathered
+     * this tick to the clients. The zone is rebuilt when the antenna changes and every {@link #ZONE_REFRESH_TICKS}, since
+     * wires and coax can change under the same antenna object.
+     */
+    private void tickInterference(ServerLevel serverLevel, @Nullable AntennaNetworkObject antenna) {
+        if(antenna != zoneAntenna || (antenna != null && --zoneRefreshTicks <= 0)) {
+            zoneAntenna = antenna;
+            zoneRefreshTicks = ZONE_REFRESH_TICKS;
+            if(antenna == null)
+                RedstoneInterference.unregister(serverLevel, worldPosition);
+            else
+                RedstoneInterference.register(serverLevel, RedstoneInterference.buildZone(serverLevel, worldPosition, antenna));
+        }
+
+        if(pendingInterference > 0.0D) {
+            double scaled = pendingInterference * RedstoneInterference.bandFactor(band) * RedstoneInterference.configFactor(antennaSWR);
+            pendingInterference = 0.0D;
+            if(scaled > 0.0D) {
+                interference.add(serverLevel.getGameTime(), scaled);
+                CInterferencePacket.sendToTracking(serverLevel, worldPosition, scaled);
+            }
+        }
+    }
+
+    /** Called by {@link RedstoneInterference} on the server thread for each redstone switch coupled into this station. */
+    public void addInterference(double amount) {
+        pendingInterference += amount;
+    }
+
+    /** The decaying interference level, 0 to 1, on whichever side this block entity lives. */
+    public double getInterference() {
+        return level == null ? 0.0D : interference.get(level.getGameTime());
+    }
+
+    public InterferenceLevel getInterferenceLevel() {
+        return interference;
     }
 
     // -------------------- PARROT --------------------
@@ -437,15 +495,21 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public void setRemoved() {
-        if(!level.isClientSide())
+        if(!level.isClientSide()) {
             VoiceTransmitters.removeListener(level, this); // Stop listening when removed.
+            RedstoneInterference.unregister(level, worldPosition);
+            zoneAntenna = null;
+        }
         super.setRemoved();
     }
 
     @Override
     public void onChunkUnloaded() {
-        if(!level.isClientSide())
+        if(!level.isClientSide()) {
             VoiceTransmitters.removeListener(level, this); // Stop listening when chunk unloads.
+            RedstoneInterference.unregister(level, worldPosition);
+            zoneAntenna = null;
+        }
         super.onChunkUnloaded();
     }
 

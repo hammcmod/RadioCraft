@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.network;
 
 import com.arrl.radiocraft.common.network.serverbound.SHandheldRadioUpdatePacket;
 import com.arrl.radiocraft.common.network.clientbound.CCWBufferPacket;
+import com.arrl.radiocraft.common.network.clientbound.CInterferencePacket;
 import com.arrl.radiocraft.common.network.clientbound.CNoisePacket;
 import com.arrl.radiocraft.common.network.serverbound.SCWBufferPacket;
 import com.arrl.radiocraft.common.network.clientbound.CWireEndPosUpdatePacket;
@@ -20,5 +21,6 @@ public class RadiocraftNetworking {
         registrar.playToServer(SPlayerClickHoldUpdate.TYPE, SPlayerClickHoldUpdate.STREAM_CODEC, SPlayerClickHoldUpdate::handle);
         registrar.playToServer(SCWBufferPacket.TYPE, SCWBufferPacket.STREAM_CODEC, SCWBufferPacket::handle);
         registrar.playToClient(CCWBufferPacket.TYPE, CCWBufferPacket.STREAM_CODEC, CCWBufferPacket::handle);
+        registrar.playToClient(CInterferencePacket.TYPE, CInterferencePacket.STREAM_CODEC, CInterferencePacket::handle);
     }
 }

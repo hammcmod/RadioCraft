@@ -100,6 +100,12 @@ public class TransmissionGameTests {
         helper.assertTrue(GameTestUtil.networkObject(helper, pos, RadioNetworkObject.class).isPowered, "Radio at " + pos.toShortString() + " did not power on");
     }
 
+    static void powerOff(GameTestHelper helper, BlockPos pos) {
+        if (GameTestUtil.networkObject(helper, pos, RadioNetworkObject.class).isPowered)
+            radio(helper, pos).toggle();
+        helper.assertFalse(GameTestUtil.networkObject(helper, pos, RadioNetworkObject.class).isPowered, "Radio at " + pos.toShortString() + " did not power off");
+    }
+
     /** Powers the radio up in SSB on {@code steps} kHz above the band bottom. */
     static void setupSsb(GameTestHelper helper, BlockPos pos, int steps) {
         HFRadioBlockEntity radio = radio(helper, pos);

@@ -27,8 +27,11 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 		if(radio.isRemoved())
 			stop();
 		else {
-			if(radio.wasPowered() && radio.shouldPlayStatic())
-				volume = (float)(RadiocraftClientValues.NOISE_VOLUME * radio.getStaticVolume());
+			if(radio.wasPowered() && radio.shouldPlayStatic()) {
+				// Solar noise floor plus whatever redstone is switching near the station, through the antenna match.
+				double noise = Math.min(1.0D, RadiocraftClientValues.NOISE_VOLUME + radio.getInterference());
+				volume = (float)(noise * radio.getStaticVolume());
+			}
 			else
 				volume = 0.0F;
 		}
