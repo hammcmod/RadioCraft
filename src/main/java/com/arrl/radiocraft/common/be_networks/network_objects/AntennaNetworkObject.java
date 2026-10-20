@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.be_networks.network_objects;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
@@ -11,6 +12,7 @@ import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
+import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
@@ -32,6 +34,8 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
     public static final ResourceLocation TYPE = Radiocraft.id("antenna");
 
     protected final Set<RadioNetworkObject> radios = Collections.synchronizedSet(new HashSet<>());
+    /** Antenna tuners sharing a coax run with this antenna; one is enough, more do not stack. */
+    protected final Set<AntennaTunerNetworkObject> tuners = Collections.synchronizedSet(new HashSet<>());
     protected StaticAntenna<?> antenna = null;
     protected ResourceLocation networkId;
 
@@ -88,40 +92,82 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
 
     @Override
     public void onNetworkUpdateAdd(BENetwork network, BENetworkObject object) {
-        if(object instanceof RadioNetworkObject radio)
-            radios.add(radio);
+        track(object, true);
     }
 
     @Override
     public void onNetworkUpdateRemove(BENetwork network, BENetworkObject object) {
-        if(object instanceof RadioNetworkObject radio)
-            radios.remove(radio);
+        track(object, false);
     }
 
     @Override
     public void onNetworkAdd(BENetwork network) {
         if(network.getType() == BENetwork.COAXIAL_TYPE) {
-            for(BENetworkObject object : network.getNetworkObjects()) {
-                if(object instanceof RadioNetworkObject radio)
-                    radios.add(radio);
-            }
+            for(BENetworkObject object : network.getNetworkObjects())
+                track(object, true);
         }
     }
 
     @Override
     public void onNetworkRemove(BENetwork network) {
         if(network.getType() == BENetwork.COAXIAL_TYPE) {
-            for(BENetworkObject object : network.getNetworkObjects()) {
-                if(object instanceof RadioNetworkObject radio)
-                    radios.remove(radio);
-            }
+            for(BENetworkObject object : network.getNetworkObjects())
+                track(object, false);
         }
     }
 
-    public double getSWR(float frequencyHertz) {
-        if(radios.size() > 1)
-            return 10.0D;
+    private void track(BENetworkObject object, boolean add) {
+        if(object instanceof RadioNetworkObject radio) {
+            if(add) radios.add(radio); else radios.remove(radio);
+        }
+        else if(object instanceof AntennaTunerNetworkObject tuner) {
+            if(add) tuners.add(tuner); else tuners.remove(tuner);
+        }
+    }
+
+    // -------------------- MATCHING --------------------
+
+    /** True when an antenna tuner shares this antenna's coax run and tuners are enabled in the server config. */
+    public boolean hasTuner() {
+        return !tuners.isEmpty() && RadiocraftServerConfig.ANTENNA_TUNER_ENABLED.get();
+    }
+
+    /** True when more than one radio shares the coax: the station is overdrawn and no match is possible. */
+    public boolean isOverdrawn() {
+        return radios.size() > 1;
+    }
+
+    /**
+     * The SWR the antenna itself presents at a frequency, before any tuner: 0 without a recognized antenna,
+     * {@link SWRHelper#OVERDRAW_SWR} when more than one radio shares the coax.
+     */
+    public double getRawSWR(float frequencyHertz) {
+        if(isOverdrawn())
+            return SWRHelper.OVERDRAW_SWR;
         return antenna == null ? 0 : antenna.getSWR(frequencyHertz);
+    }
+
+    /**
+     * The SWR a radio on this coax sees at a frequency. With a tuner on the run this is 1.0 for any antenna the tuner
+     * can match (see {@link SWRHelper#tunedSWR}); otherwise it is {@link #getRawSWR}. This is what the radio reports,
+     * what its static volume follows and what the redstone interference code treats as the station's match.
+     */
+    public double getSWR(float frequencyHertz) {
+        double raw = getRawSWR(frequencyHertz);
+        if(isOverdrawn() || !hasTuner())
+            return raw;
+        return SWRHelper.tunedSWR(raw, RadiocraftServerConfig.ANTENNA_TUNER_MAX_SWR.get());
+    }
+
+    /**
+     * Fraction of the transmit power that makes it to the antenna at a frequency: the plain mismatch loss, or the
+     * tuner's reduced loss when one is on the run (see {@link SWRHelper#tunedEfficiency}).
+     */
+    public double getMatchEfficiency(float frequencyHertz) {
+        double raw = getRawSWR(frequencyHertz);
+        if(isOverdrawn() || !hasTuner())
+            return SWRHelper.getEfficiencyMultiplier(raw);
+        return SWRHelper.tunedEfficiency(raw, RadiocraftServerConfig.ANTENNA_TUNER_MAX_SWR.get(), RadiocraftServerConfig.ANTENNA_TUNER_LOSS.get());
     }
 
     public StaticAntenna<?> getAntenna() {

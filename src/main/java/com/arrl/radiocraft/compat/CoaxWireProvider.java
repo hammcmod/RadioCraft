@@ -4,7 +4,9 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
+import com.arrl.radiocraft.common.be_networks.ICoaxPassThrough;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.AntennaTunerNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
@@ -42,6 +44,10 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
         tooltip.add(Component.literal("Connected Antennas: " + antennaCount));
         for(int i = 0; i < antennaCount; i++)
             tooltip.add(Component.literal(" - " + data.getString("coaxAntenna_" + i)));
+
+        int tunerCount = data.getInt("coaxTunerCount");
+        if(tunerCount > 0)
+            tooltip.add(Component.literal("Antenna Tuner: " + data.getString("coaxTuner_0") + (tunerCount > 1 ? " (+" + (tunerCount - 1) + " more, only one counts)" : "")));
     }
 
     @Override
@@ -56,6 +62,7 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
 
         int radioCount = 0;
         int antennaCount = 0;
+        int tunerCount = 0;
         for(BlockPos objectPos : visitedObjects) {
             BENetworkObject object = IBENetworks.getObject(level, objectPos);
             if(object instanceof RadioNetworkObject) {
@@ -64,10 +71,14 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
             else if(object instanceof AntennaNetworkObject antennaObject) {
                 data.putString("coaxAntenna_" + antennaCount++, describeAntenna(level, antennaObject));
             }
+            else if(object instanceof AntennaTunerNetworkObject) {
+                data.putString("coaxTuner_" + tunerCount++, "at " + formatPos(objectPos));
+            }
         }
 
         data.putInt("coaxRadioCount", radioCount);
         data.putInt("coaxAntennaCount", antennaCount);
+        data.putInt("coaxTunerCount", tunerCount);
     }
 
     public static void collectConnections(Level level, BlockPos pos, Set<BlockPos> visitedObjects) {
@@ -102,8 +113,13 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
             }
 
             BENetworkObject object = IBENetworks.getObject(level, checkPos);
-            if(object instanceof ICoaxNetworkObject)
-                visitedObjects.add(checkPos);
+            if(object instanceof ICoaxNetworkObject && visitedObjects.add(checkPos) && object instanceof ICoaxPassThrough) {
+                for(Direction beyond : Direction.values()) { // The run carries on through a tuner.
+                    BlockPos beyondPos = checkPos.relative(beyond);
+                    if(level.getBlockState(beyondPos).getBlock() == RadiocraftBlocks.COAX_WIRE.get())
+                        collectWireConnections(level, beyondPos, visitedWires, visitedObjects);
+                }
+            }
         }
     }
 

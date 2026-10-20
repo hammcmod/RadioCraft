@@ -68,13 +68,20 @@ public class WireUtils {
 				existingNetworks.add(network);
 		}
 
-		if(existingNetworks.size() == 1 && nullItems.isEmpty())
-			return existingNetworks.iterator().next(); // Already one network, nothing to merge.
+		BENetwork newNetwork = existingNetworks.size() == 1 && nullItems.isEmpty()
+				? existingNetworks.iterator().next() // Already one network, nothing to merge.
+				: BENetwork.merge(existingNetworks, fallbackSupplier, level);
 
-		BENetwork newNetwork = BENetwork.merge(existingNetworks, fallbackSupplier, level);
-		for(BENetworkObject networkObject : nullItems) {
-			networkObject.setNetwork(connections.get(networkObject), newNetwork);
-			newNetwork.add(networkObject);
+		// Objects without a network on that side join here. So does any object whose side still points at a network
+		// it is no longer a member of (a split removes an object from the whole network but only re-links the side
+		// the split came from; a pass-through device has several sides), otherwise merge would have skipped it.
+		for(BENetworkObject networkObject : connections.keySet()) {
+			boolean member = newNetwork.getNetworkObjects().contains(networkObject);
+			if(nullItems.contains(networkObject) || !member) {
+				networkObject.setNetwork(connections.get(networkObject), newNetwork);
+				if(!member)
+					newNetwork.add(networkObject);
+			}
 		}
 		return newNetwork;
 	}
@@ -97,8 +104,13 @@ public class WireUtils {
 			BlockPos checkPos = pos.relative(dir);
 
 			BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
-			if(networkObject != null && connection.test(networkObject))
-				connectionsPerSide.put(dir, Map.of(networkObject, dir.getOpposite()));
+			if(blacklist.contains(checkPos))
+				continue; // Already reached through another side (a loop), leave it with that side.
+			if(networkObject != null && connection.test(networkObject)) {
+				Map<BENetworkObject, Direction> side = new HashMap<>();
+				addConnection(side, blacklist, level, checkPos, networkObject, dir.getOpposite(), connection, wireSet); // Keeps what lies beyond a tuner with it.
+				connectionsPerSide.put(dir, side);
+			}
 			else if(wireSet.contains(level.getBlockState(checkPos).getBlock()))
 				connectionsPerSide.put(dir, getConnections(new HashMap<>(), blacklist, level, checkPos, connection, wireSet));
 		}
@@ -165,10 +177,26 @@ public class WireUtils {
 			return;
 
 		Set<WireBlock> wireSet = Set.of(wires);
+
+		// A pass-through device (antenna tuner) is one node for all its sides: everything reachable from any side goes
+		// on one network, otherwise the radio on one side and the antenna on the other would never meet.
+		boolean passThrough = networkObject instanceof ICoaxPassThrough;
+		Set<BlockPos> sharedBlacklist = new HashSet<>();
+		sharedBlacklist.add(pos);
+		Map<BENetworkObject, Direction> allConnections = new HashMap<>();
+		Direction firstSide = null;
+
 		for(Direction dir : Direction.values()) {
 			BlockPos checkPos = pos.relative(dir);
 			if(!wireSet.contains(level.getBlockState(checkPos).getBlock()))
 				continue;
+
+			if(passThrough) {
+				getConnections(allConnections, sharedBlacklist, level, checkPos, validConnection, wireSet);
+				if(firstSide == null)
+					firstSide = dir;
+				continue;
+			}
 
 			Set<BlockPos> blacklist = new HashSet<>();
 			blacklist.add(pos); // Don't walk back into ourselves through the wire.
@@ -178,6 +206,11 @@ public class WireUtils {
 
 			connections.put(networkObject, dir);
 			joinAll(level, connections, fallbackSupplier);
+		}
+
+		if(passThrough && !allConnections.isEmpty()) {
+			allConnections.put(networkObject, firstSide);
+			joinAll(level, allConnections, fallbackSupplier);
 		}
 	}
 
@@ -208,12 +241,28 @@ public class WireUtils {
 
 				BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
 				if(networkObject != null && connection.test(networkObject))
-					connections.put(networkObject, dir.getOpposite());
+					addConnection(connections, blackList, level, checkPos, networkObject, dir.getOpposite(), connection, wires);
 				else
 					getConnections(connections, blackList, level, checkPos, connection, wires);
 			}
 		}
 		return connections;
+	}
+
+	/**
+	 * Records a device the walk reached and, if it is an {@link ICoaxPassThrough}, keeps walking out of its other
+	 * sides, so devices beyond it join the same connection set.
+	 */
+	private static void addConnection(Map<BENetworkObject, Direction> connections, Set<BlockPos> blackList, Level level, BlockPos pos, BENetworkObject networkObject, Direction side, Predicate<BENetworkObject> connection, Set<WireBlock> wires) {
+		connections.put(networkObject, side);
+		if(!(networkObject instanceof ICoaxPassThrough) || !blackList.add(pos))
+			return;
+
+		for(Direction dir : Direction.values()) {
+			BlockPos checkPos = pos.relative(dir);
+			if(!blackList.contains(checkPos) && wires.contains(level.getBlockState(checkPos).getBlock()))
+				getConnections(connections, blackList, level, checkPos, connection, wires); // Devices only link through wire, as everywhere else.
+		}
 	}
 
 	/**

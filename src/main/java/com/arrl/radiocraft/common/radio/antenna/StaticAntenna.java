@@ -60,6 +60,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
+			double matchEfficiency = getMatchEfficiency(frequencyHertz);
 
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
@@ -73,7 +74,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 //					if(ssbSendCache.containsKey(antenna.getBlockPos())) // Recalculate if value wasn't already present.
 //						packet.setStrength(ssbSendCache.get(destination));
 //					else {
-					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * SWRHelper.getEfficiencyMultiplier(getSWR(frequencyHertz)));
+					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * matchEfficiency);
 //						ssbSendCache.put(destination, packet.getStrength());
 //					}
 
@@ -103,6 +104,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequencyHertz) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
+			double matchEfficiency = getMatchEfficiency(frequencyHertz);
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
 					AntennaCWPacket packet = new AntennaCWPacket(level, buffers, band, frequencyHertz, 1.0F, this);
@@ -116,7 +118,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 //						packet.setStrength(cwSendCache.get(destination));
 //					else {
 					// Same mismatch loss as voice: a badly matched antenna radiates less of the key-down power too.
-					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), true) * SWRHelper.getEfficiencyMultiplier(getSWR(frequencyHertz)));
+					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), true) * matchEfficiency);
 //						cwSendCache.put(destination, packet.getStrength());
 //					}
 
@@ -144,10 +146,17 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 	}
 
 	public AntennaNetworkObject getNetworkObj() {
-		//TODO remove when confirmed seeing the old implementation inline is not useful for reference
-		//return (AntennaNetworkObject)IBENetworks.getObject(network.getLevel(), pos);
 		AntennaPos p = this.getAntennaPos();
-		return (AntennaNetworkObject)IBENetworks.getObject(p.level(), p.position());
+		return IBENetworks.getObject(p.level(), p.position()) instanceof AntennaNetworkObject obj ? obj : null;
+	}
+
+	/**
+	 * Share of the transmit power that reaches this antenna at a frequency. The network object knows whether an
+	 * antenna tuner is on the coax; without one (or without a network object) it is the plain mismatch loss.
+	 */
+	public double getMatchEfficiency(float frequencyHertz) {
+		AntennaNetworkObject obj = getNetworkObj();
+		return obj != null ? obj.getMatchEfficiency(frequencyHertz) : SWRHelper.getEfficiencyMultiplier(getSWR(frequencyHertz));
 	}
 
 	@Override

@@ -31,6 +31,10 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> LIGHTNING_STATIC_STRENGTH;
 	public static final ModConfigSpec.ConfigValue<Integer> LIGHTNING_STATIC_RANGE;
 
+	public static final ModConfigSpec.ConfigValue<Boolean> ANTENNA_TUNER_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
+	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_LOSS;
+
 	public record BandConfig(String name, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Float> minFrequency, ModConfigSpec.ConfigValue<Float> maxFrequency) {
 		public Band getBand() {
 			return new Band(name, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
@@ -97,6 +101,15 @@ public class RadiocraftServerConfig {
 		LIGHTNING_STATIC_ENABLED = BUILDER.comment(" Set to false to turn lightning crashes off").define("lightning_static_enabled", true);
 		LIGHTNING_STATIC_STRENGTH = BUILDER.comment(" How much static a strike right next to the radio adds (0 to 1, on top of the solar noise floor)").defineInRange("lightning_static_strength", 0.6, 0.0, 1.0);
 		LIGHTNING_STATIC_RANGE = BUILDER.comment(" Distance in blocks at which a strike is no longer heard").defineInRange("lightning_static_range", 512, 16, 8192);
+		BUILDER.pop();
+
+		BUILDER.push("Antenna Tuner");
+		BUILDER.comment(" An antenna tuner anywhere on the coax between a radio and its antenna matches an antenna that is off resonance:",
+				" the radio sees SWR 1 and most of the power a mismatch would reflect reaches the antenna instead. The further",
+				" off resonance the antenna is, the more is still lost in the tuner; past antenna_tuner_max_swr it cannot match at all.");
+		ANTENNA_TUNER_ENABLED = BUILDER.comment(" Set to false to make tuners decorative again").define("antenna_tuner_enabled", true);
+		ANTENNA_TUNER_MAX_SWR = BUILDER.comment(" Highest antenna SWR a tuner can bring to 1:1 (a dipole 10 blocks off in total is SWR 6)").defineInRange("antenna_tuner_max_swr", 6.0, 1.0, 100.0);
+		ANTENNA_TUNER_LOSS = BUILDER.comment(" Share of the mismatch loss a tuner cannot recover: 0 = perfect tuner, 1 = tuner only quiets the radio").defineInRange("antenna_tuner_loss", 0.25, 0.0, 1.0);
 		BUILDER.pop();
 
 		SPEC = BUILDER.build();

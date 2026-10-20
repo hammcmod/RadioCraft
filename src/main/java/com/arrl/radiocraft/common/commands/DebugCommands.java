@@ -237,8 +237,9 @@ public class DebugCommands {
 		out.add("antennas=" + antennas.size() + (antennas.size() > 1 ? " (more than one antenna = overdraw)" : ""));
 		for(AntennaNetworkObject antenna : antennas) {
 			StaticAntenna<?> a = antenna.getAntenna();
-			out.add(String.format(Locale.ROOT, "  %s %s swr=%.2f", antenna.getPos().toShortString(),
-					a == null ? "unrecognized" : a.type.getId().toString(), a == null ? 0.0D : antenna.getSWR(radio.getFrequency())));
+			out.add(String.format(Locale.ROOT, "  %s %s swr=%.2f%s", antenna.getPos().toShortString(),
+					a == null ? "unrecognized" : a.type.getId().toString(), a == null ? 0.0D : antenna.getSWR(radio.getFrequency()),
+					antenna.hasTuner() ? String.format(Locale.ROOT, " (tuner: antenna swr=%.2f, power to antenna=%.0f%%)", antenna.getRawSWR(radio.getFrequency()), antenna.getMatchEfficiency(radio.getFrequency()) * 100.0D) : ""));
 		}
 		return send(ctx, out);
 	}

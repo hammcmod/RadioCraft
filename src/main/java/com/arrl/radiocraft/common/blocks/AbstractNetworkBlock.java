@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.blocks;
 
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.capabilities.BENetworksCapability;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -26,10 +27,13 @@ public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 	public void onRemove(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
 		if(!level.isClientSide) {
 			if(newState.getBlock() != this) {
-				BENetworkObject networkObject = IBENetworks.getObject(level, pos);
+				// The block capability is keyed by the block at pos, and the new block is already in the chunk when
+				// onRemove runs, so go to the level's capability directly or nothing would ever be cleaned up.
+				IBENetworks cap = BENetworksCapability.get(level);
+				BENetworkObject networkObject = cap.getObject(pos);
 				if(networkObject != null)
-					networkObject.clearNetworks();
-				IBENetworks.removeObject(level, pos);
+					networkObject.clearNetworks(); // Tells the other members (radio, antenna) this device is gone.
+				cap.removeObject(pos); // Discards it: an antenna also comes off the air here.
 			}
 		}
 		super.onRemove(state, level, pos, newState, isMoving);
