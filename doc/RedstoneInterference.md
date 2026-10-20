@@ -37,18 +37,32 @@ Code: `common/radio/rfi/` (`RedstoneInterference`, `PickupZone`, `InterferenceLe
 static and hum sound instances, `RadioBlockEntity.tickInterference`. Tests: `RedstoneInterferenceGameTests`,
 `PickupZoneTest`, `InterferenceLevelTest`. `/rcdebug radio <pos>` prints the current level and zone.
 
-## Transmit side (agreed, not built yet)
+## Transmit side (implemented)
 
-- Redstone near the antenna has a chance of being driven to a low signal level (about 4) when the station transmits:
-  within 2 blocks for QRP rigs, 6 blocks for full-power rigs.
-- With a bad SWR the reach grows to 10 blocks of the radio and 5 of the feedline, and the signal level rises with the
-  SWR.
-- Vertical antennas (the antenna type already knows its polarisation/shape) do not affect blocks more than 2 above or
-  below them.
-- Which blocks are hit must be **predictable**, not re-rolled every tick or every transmission. Proposal: decide the
-  affected positions deterministically from the station (antenna position, SWR bucket, power level) whenever the
-  network changes, so the same door opens every time you key up until you fix the antenna.
-- Config: enable/disable, strength, only with bad SWR (same section as receive).
-- Open implementation question: vanilla has no hook to inject a redstone signal into an arbitrary block. Options are a
-  mixin on the level's signal lookup (cleanest, invisible to other mods) or directly toggling the few block types
-  that can be set (levers, dust power, repeaters) for the duration of the transmission.
+- **Trigger:** the station is transmitting: PTT held in SSB, or morse keyed within the last two ticks.
+- **Reach:** redstone within 2 blocks of the antenna wire for QRP rigs, 6 for full-power rigs. With a bad SWR (at or
+  above the config threshold, default 2.0) the RF is on the feedline and in the shack too: 10 blocks of the radio and
+  5 of the coax. Vertical antennas (quarter wave vertical, J-pole, Slim Jim) only reach 2 blocks above or below their
+  wire.
+- **Dust** in reach reads an induced level for as long as the station transmits: 4, rising two per unit of SWR once
+  the match is bad, capped at 15. Dust recomputes its power from its neighbours on every update, so a level written
+  into its block state does not survive; `MixinRedStoneWireBlock` adds the induced level inside that calculation
+  (one `@Inject` at the return of `RedStoneWireBlock.calculateTargetStrength`, `require = 0`). If a Minecraft update
+  moves that method the injection is skipped with a warning, dust stops reacting and everything else keeps working.
+- **Switches:** levers get pulled, buttons pressed and redstone torches flickered (two ticks) when the transmission
+  starts. Switches mounted on a command block are never touched: RF must not fire an admin's command blocks. (The
+  GameTest framework bolts exactly such a button onto every test plot; a transmitting test pressed it and restarted
+  the test runner, which is how this rule was found.)
+- **Predictable:** which components are hit comes from a hash of the station (radio and antenna position, SWR bucket,
+  rig class) and the block position, compared against the config chance (default 0.35). The same door misbehaves
+  every time you key up until the antenna, its match or the contraption changes.
+- **Config:** `redstone_interference_transmit_enabled`, `redstone_interference_transmit_chance`; the master switch,
+  the only-bad-SWR option and the SWR threshold are shared with the receive side.
+- **Performance:** the scan happens once when a transmission starts, over the reachable box, reading only loaded
+  chunks (an unloaded chunk would be loaded synchronously from inside a block entity tick) and doing distance maths
+  only for redstone components. Dust levels live in `RfSignals`, whose fast path is a single volatile read.
+
+Code: `TransmitInterference`, `RfSignals`, `mixin/MixinRedStoneWireBlock`, `RadioBlockEntity.tickInterference`.
+Tests: `TransmitInterferenceGameTests` (dust level while keyed and release, lever and torch, bad SWR reach and level,
+QRP reach), `TransmitInterferenceTest` (reach, vertical rule, roll spread, seed). `/rcdebug radio <pos>` lists what a
+transmitting radio is inducing.

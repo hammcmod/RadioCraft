@@ -17,6 +17,7 @@ import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.rfi.PickupZone;
 import com.arrl.radiocraft.common.radio.rfi.RedstoneInterference;
+import com.arrl.radiocraft.common.radio.rfi.TransmitInterference;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -221,6 +222,10 @@ public class DebugCommands {
 		PickupZone zone = RedstoneInterference.getZone(level, pos);
 		out.add(String.format(Locale.ROOT, "interference=%.3f rfiZone=%s", radio.getInterference(),
 				zone == null ? "none" : zone.feedline().size() + " feedline + " + zone.antenna().size() + " antenna points, " + zone.min().toShortString() + " to " + zone.max().toShortString()));
+		TransmitInterference.Targets targets = radio.getTransmitTargets();
+		if(targets != null)
+			out.add(String.format(Locale.ROOT, "transmitting: inducing level in %d dust block(s), flipped %d switch(es)%s", targets.dust().size(), targets.switches().size(),
+					targets.dust().isEmpty() ? "" : " at " + targets.dust().keySet().stream().limit(6).map(BlockPos::toShortString).toList()));
 		String parrot = radio.isParrot() ? String.format(Locale.ROOT, " parrot=%.2fs", radio.getParrotDelay() / 20.0D) : "";
 		if(radio.getLastSignalGameTime() < 0)
 			out.add("lastSignal=none" + parrot);

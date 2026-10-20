@@ -42,10 +42,11 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [ ] Add `/bandcalculate` helper to complement antenna tuning
 - [x] Redstone interference, receive side (2026-10-20): redstone switching near the feedline/antenna boosts the
   radio's static, band and distance dependent, server configurable. Design in doc/RedstoneInterference.md.
-- [ ] Redstone interference, transmit side: transmitting drives nearby redstone (reach by rig power and SWR,
-  verticals only sideways, predictable positions). Needs a way to inject a signal, see the design doc.
-- [ ] Redstone interference polish: a real buzz loop (asset bounty), chokes that cut feedline pickup, and the
-  interference term joining static masking once plan step 3 lands.
+- [x] Redstone interference, transmit side (2026-10-20): transmitting induces a level in nearby dust (mixin on the
+  dust's power calculation) and flips levers, buttons and torches; reach by rig power and SWR, verticals only
+  sideways, predictable positions, never on command blocks. Design in doc/RedstoneInterference.md.
+- [ ] Redstone interference polish: a real buzz loop (asset bounty), chokes that cut feedline pickup, the
+  interference term joining static masking once plan step 3 lands, and handheld radios (no block antenna) on transmit.
 
 ## Phase 2 – Power Systems
 

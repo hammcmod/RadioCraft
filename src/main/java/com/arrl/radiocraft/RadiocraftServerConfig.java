@@ -24,6 +24,8 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> REDSTONE_INTERFERENCE_STRENGTH;
 	public static final ModConfigSpec.ConfigValue<Boolean> REDSTONE_INTERFERENCE_ONLY_BAD_SWR;
 	public static final ModConfigSpec.ConfigValue<Double> REDSTONE_INTERFERENCE_BAD_SWR;
+	public static final ModConfigSpec.ConfigValue<Boolean> REDSTONE_INTERFERENCE_TRANSMIT_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Double> REDSTONE_INTERFERENCE_TRANSMIT_CHANCE;
 
 	public record BandConfig(String name, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Float> minFrequency, ModConfigSpec.ConfigValue<Float> maxFrequency) {
 		public Band getBand() {
@@ -77,7 +79,12 @@ public class RadiocraftServerConfig {
 		REDSTONE_INTERFERENCE_ENABLED = BUILDER.comment(" Set to false to turn redstone interference off entirely").define("redstone_interference_enabled", true);
 		REDSTONE_INTERFERENCE_STRENGTH = BUILDER.comment(" Multiplier on how much noise redstone adds (1.0 = default, 0.5 = half, 2.0 = double)").defineInRange("redstone_interference_strength", 1.0, 0.0, 10.0);
 		REDSTONE_INTERFERENCE_ONLY_BAD_SWR = BUILDER.comment(" If true, only stations whose antenna SWR is at or above redstone_interference_bad_swr pick up redstone noise").define("redstone_interference_only_bad_swr", false);
-		REDSTONE_INTERFERENCE_BAD_SWR = BUILDER.comment(" SWR from which an antenna counts as badly matched for the option above").defineInRange("redstone_interference_bad_swr", 2.0, 1.0, 100.0);
+		REDSTONE_INTERFERENCE_BAD_SWR = BUILDER.comment(" SWR from which an antenna counts as badly matched, for the option above and for the transmit side").defineInRange("redstone_interference_bad_swr", 2.0, 1.0, 100.0);
+		BUILDER.comment(" Transmit side: RF from a transmitting station induces a redstone level (4, more with a bad SWR) in dust near the antenna",
+				" (2 blocks for QRP rigs, 6 for full power; with a bad SWR also 10 blocks of the radio and 5 of the coax) and can flip",
+				" levers, buttons and torches there. Which blocks are hit is fixed per station until the antenna or SWR changes.");
+		REDSTONE_INTERFERENCE_TRANSMIT_ENABLED = BUILDER.comment(" Set to false to stop transmitters affecting redstone").define("redstone_interference_transmit_enabled", true);
+		REDSTONE_INTERFERENCE_TRANSMIT_CHANCE = BUILDER.comment(" Fraction of the redstone components in reach that a station affects").defineInRange("redstone_interference_transmit_chance", 0.35, 0.0, 1.0);
 		BUILDER.pop();
 
 		SPEC = BUILDER.build();

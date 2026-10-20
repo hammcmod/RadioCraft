@@ -108,8 +108,10 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	public void transmitMorse(Collection<CWBuffer> buffers) {
 		if(level instanceof ServerLevel serverLevel && canTransmitCW()) {
 			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
-			if(antennas.size() == 1)
+			if(antennas.size() == 1) {
 				antennas.get(0).transmitCWPacket(serverLevel, buffers, band, frequency);
+				recordTransmit(); // Keying is RF on the air too, for the transmit side of redstone interference.
+			}
 			else if(antennas.size() > 1)
 				overdraw();
 		}

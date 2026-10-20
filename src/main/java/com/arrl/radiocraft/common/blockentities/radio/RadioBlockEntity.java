@@ -18,6 +18,7 @@ import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.rfi.InterferenceLevel;
 import com.arrl.radiocraft.common.radio.rfi.PickupZone;
 import com.arrl.radiocraft.common.radio.rfi.RedstoneInterference;
+import com.arrl.radiocraft.common.radio.rfi.TransmitInterference;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -74,6 +75,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     private AntennaNetworkObject zoneAntenna = null;
     private int zoneRefreshTicks = 0;
     private static final int ZONE_REFRESH_TICKS = 100; // Antenna wires and coax can change without the antenna object changing.
+    // Transmit side: what the current transmission is doing to nearby redstone, null while not transmitting.
+    @Nullable
+    private TransmitInterference.Targets transmitTargets = null;
+    protected volatile long lastTransmitGameTime = -1L; // Last tick anything went out the antenna (voice frame or CW), from any thread.
 
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, Band band) {
         super(type, pos, state);
@@ -149,6 +154,45 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 CInterferencePacket.sendToTracking(serverLevel, worldPosition, scaled);
             }
         }
+
+        boolean transmitting = antenna != null && isTransmittingNow(serverLevel);
+        if(transmitting && transmitTargets == null) {
+            PickupZone zone = RedstoneInterference.getZone(serverLevel, worldPosition);
+            boolean vertical = antenna.getAntenna() != null && TransmitInterference.VERTICAL_ANTENNAS.contains(antenna.getAntenna().type.getId());
+            transmitTargets = zone == null ? TransmitInterference.Targets.EMPTY : TransmitInterference.pick(serverLevel, zone, isQrp(), vertical, antennaSWR);
+            TransmitInterference.start(serverLevel, transmitTargets);
+        }
+        else if(!transmitting && transmitTargets != null)
+            stopTransmitInterference(serverLevel);
+    }
+
+    private void stopTransmitInterference(ServerLevel serverLevel) {
+        if(transmitTargets != null) {
+            TransmitInterference.stop(serverLevel, transmitTargets);
+            transmitTargets = null;
+        }
+    }
+
+    /** True while RF is going out: PTT held in SSB, or morse keyed within the last couple of ticks. */
+    protected boolean isTransmittingNow(ServerLevel serverLevel) {
+        return canTransmitVoice() || (lastTransmitGameTime >= 0 && serverLevel.getGameTime() - lastTransmitGameTime <= 2);
+    }
+
+    /** Subclasses call this whenever they put something on the air that PTT does not already cover (CW keying). */
+    protected void recordTransmit() {
+        if(level != null)
+            lastTransmitGameTime = level.getGameTime();
+    }
+
+    /** Low-power rigs reach less redstone when transmitting. */
+    public boolean isQrp() {
+        return false;
+    }
+
+    /** What the current transmission is doing to nearby redstone, null while not transmitting. */
+    @Nullable
+    public TransmitInterference.Targets getTransmitTargets() {
+        return transmitTargets;
     }
 
     /** Called by {@link RedstoneInterference} on the server thread for each redstone switch coupled into this station. */
@@ -499,6 +543,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             VoiceTransmitters.removeListener(level, this); // Stop listening when removed.
             RedstoneInterference.unregister(level, worldPosition);
             zoneAntenna = null;
+            if(level instanceof ServerLevel serverLevel)
+                stopTransmitInterference(serverLevel);
         }
         super.setRemoved();
     }
@@ -509,6 +555,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             VoiceTransmitters.removeListener(level, this); // Stop listening when chunk unloads.
             RedstoneInterference.unregister(level, worldPosition);
             zoneAntenna = null;
+            if(level instanceof ServerLevel serverLevel)
+                stopTransmitInterference(serverLevel);
         }
         super.onChunkUnloaded();
     }

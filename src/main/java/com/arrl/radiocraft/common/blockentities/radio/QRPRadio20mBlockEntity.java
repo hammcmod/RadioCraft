@@ -33,6 +33,11 @@ public class QRPRadio20mBlockEntity extends HFRadioBlockEntity {
     }
 
     @Override
+    public boolean isQrp() {
+        return true;
+    }
+
+    @Override
     public BENetworkObject createNetworkObject() {
         return new RadioNetworkObject(level, worldPosition, CommonConfig.QRP_RADIO_20M_TRANSMIT_TICK.get(), CommonConfig.QRP_RADIO_20M_RECEIVE_TICK.get());
     }

@@ -202,7 +202,12 @@ End to end, two stations talking (`TransmissionGameTests`): `voiceReachesRadioOn
 echo timing and strength, LED states, release on removal. Redstone interference on receive
 (`RedstoneInterferenceGameTests`, design in [RedstoneInterference.md](RedstoneInterference.md)): pickup zone
 registration, pops by the feedline and antenna with distance fade, decay, a clock piling up, plain blocks and
-unpowered radios staying silent. `/rcdebug radio <pos>` prints the live `interference=` level and the zone.
+unpowered radios staying silent. `/rcdebug radio <pos>` prints the live `interference=` level and the zone. Transmit
+side (`TransmitInterferenceGameTests`, hit chance forced to 1): dust reads level 4 while keyed and clears after, a
+lever flips and a torch flickers, a bad SWR reaches the shack with a higher level, a QRP rig reaches less. These prove
+the dust mixin applied. Note for test authors: the framework puts a stone button on a command block at the north-west
+corner of every plot; RF skips switches on command blocks, which is the only reason transmitting tests do not restart
+the runner.
 
 Still open:
 

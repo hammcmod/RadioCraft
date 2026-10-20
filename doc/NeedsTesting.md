@@ -38,6 +38,21 @@ Power up an HF radio in SSB with an antenna, stand where you can hear its static
 - [ ] Server config: `redstone_interference_enabled = false` silences it; `redstone_interference_only_bad_swr = true`
   silences a matched station but not one tuned off its antenna.
 
+## Redstone interference, transmit side (added 2026-10-20)
+
+Full-power HF rig with a matched dipole, redstone dust and a repeater or lamp within 6 blocks of the wire.
+
+- [ ] Key up (PTT or CW): dust near the wire lights to level 4, the lamp or repeater fed by it reacts. Let go: it
+  goes dark within a tick. Dust 8 blocks away does nothing.
+- [ ] Which dust blocks react is the same every key-up. Shorten or lengthen a dipole arm (SWR changes): a different
+  set, and with SWR 3 or worse the level is 8 or more and dust within 10 blocks of the radio or 5 of the coax joins in.
+- [ ] A QRP radio with the same antenna only reaches 2 blocks.
+- [ ] Levers and buttons within reach flip when you key up (about a third of them), torches blink off for two ticks.
+  A button on a command block never does.
+- [ ] A quarter wave vertical: dust 3 blocks above its base is unaffected, dust 3 blocks beside it is.
+- [ ] Does 0.35 feel right as the fraction of components hit? Does level 4 read as "a glitch" rather than a working
+  circuit? (Both are config values.)
+
 ## From the 2026-10-19 work (CW restored, transmission tests)
 
 - [ ] CW by ear between two stations: tone starts and stops cleanly, no stuck tone, sidetone on the sending radio.
