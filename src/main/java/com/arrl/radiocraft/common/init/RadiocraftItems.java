@@ -63,6 +63,7 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> QRP_RADIO_40M = simpleBlockItem("qrp_radio_40m", RadiocraftBlocks.QRP_RADIO_40M);
 
 	public static final Supplier<BlockItem> DIGITAL_INTERFACE = simpleBlockItem("digital_interface", RadiocraftBlocks.DIGITAL_INTERFACE);
+	public static final Supplier<BlockItem> PARROT_CONTROLLER = simpleBlockItem("parrot_controller", RadiocraftBlocks.PARROT_CONTROLLER);
 
 	// TODO: This may be supposed to be a BlockItem, but this compiles so meh?
 	public static final DeferredHolder<Item, AntennaPoleItem> ANTENNA_POLE = ITEMS.register("antenna_pole", () -> new AntennaPoleItem(RadiocraftBlocks.ANTENNA_POLE.get(), new Item.Properties()));

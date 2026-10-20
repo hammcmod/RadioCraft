@@ -128,6 +128,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 		for(QueuedCW next = parrotCWQueue.peek(); next != null && next.dueTick() <= now; next = parrotCWQueue.peek()) {
 			parrotCWQueue.poll();
 			transmitMorse(next.buffers());
+			recordParrotEcho(serverLevel);
 		}
 	}
 

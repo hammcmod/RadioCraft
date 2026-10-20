@@ -1,0 +1,71 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"0": "radiocraft:block/wire",
+		"particle": "radiocraft:block/parrot_controller"
+	},
+	"elements": [
+		{
+			"name": "link",
+			"from": [
+				10,
+				0,
+				0
+			],
+			"to": [
+				12,
+				2,
+				3
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						7,
+						0,
+						9,
+						2
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						0,
+						2,
+						3,
+						4
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						6,
+						3,
+						8
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						3,
+						2
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						0,
+						4,
+						3,
+						6
+					],
+					"rotation": 90,
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

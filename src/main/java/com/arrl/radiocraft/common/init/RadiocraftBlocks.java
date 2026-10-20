@@ -55,6 +55,7 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, QRPRadio20mBlock> QRP_RADIO_20M = BLOCKS.register("qrp_radio_20m", () -> new QRPRadio20mBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, QRPRadio40mBlock> QRP_RADIO_40M = BLOCKS.register("qrp_radio_40m", () -> new QRPRadio40mBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, DigitalInterfaceBlock> DIGITAL_INTERFACE = BLOCKS.register("digital_interface", () -> new DigitalInterfaceBlock(PROPERTIES_STONE));
+	public static final DeferredHolder<Block, ParrotControllerBlock> PARROT_CONTROLLER = BLOCKS.register("parrot_controller", () -> new ParrotControllerBlock(PROPERTIES_RADIO));
 
 	// Antenna blocks
 	public static final DeferredHolder<Block, DuplexerBlock> DUPLEXER = BLOCKS.register("duplexer", () -> new DuplexerBlock(PROPERTIES_STONE_NO_OCCLUDE));

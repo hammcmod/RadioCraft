@@ -1,0 +1,45 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "block/block",
+	"render_type": "minecraft:cutout",
+	"ambientocclusion": false,
+	"texture_size": [
+		32,
+		32
+	],
+	"textures": {
+		"led": "radiocraft:block/parrot_controller_rx",
+		"particle": "radiocraft:block/parrot_controller"
+	},
+	"elements": [
+		{
+			"name": "RXing",
+			"from": [
+				2,
+				0,
+				2.9
+			],
+			"to": [
+				14,
+				2,
+				12.9
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						6,
+						0,
+						12,
+						1
+					],
+					"texture": "#led"
+				}
+			},
+			"neoforge_data": {
+				"block_light": 15,
+				"sky_light": 15,
+				"ambient_occlusion": false
+			}
+		}
+	]
+}

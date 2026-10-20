@@ -17,20 +17,28 @@ as the existing radios and antennas.
 - Deliverables for a bounty: the `.bbmodel` source, the exported block model JSON, the texture PNG(s) including any
   emissive layer, and if the block has states, one model per state. Item models can usually reuse the block model.
 
+## How a model gets into the game
+
+What was done for the parrot controller, as the pattern for the next one:
+
+- Export the block model JSON from Blockbench, then split it by state: one model with the body, and one tiny model
+  per light holding only the lit face (`parrot_controller_rx.json` / `_tx.json`). The light models get
+  `"render_type": "minecraft:cutout"` (transparent pixels would render black otherwise) and
+  `"neoforge_data": {"block_light": 15, "sky_light": 15, "ambient_occlusion": false}` on the element so the LED is
+  full bright. No `_e` texture or glow mask is needed for a plain JSON block; those are for the GeckoLib models.
+- A multipart blockstate stacks them: body rotated by `facing`, each light when its property is true, and any
+  connection stubs (the parrot's wire towards its radio) by their own property.
+- Textures are lower-case files under `textures/block/`; the `.bbmodel` source goes in `doc/models/`.
+
 ## Open bounties
 
-### 1. Parrot controller
-
-A small device that sits next to a radio and turns it into a simplex "parrot" repeater: whatever the radio receives
-is re-transmitted after a short delay. Used for testing a station alone and later as a gameplay block.
-
-- Size: about 10 wide x 16 tall x 3 deep (in pixels, 16 = one block), a thin wall- or desk-mounted panel.
-- Lights: a couple of small indicator pixels showing it is linked to a radio (e.g. green when linked), and one red
-  light for "transmitting" while it echoes. Each light wants an emissive layer and probably its own blockstate so
-  it can switch (unlinked / linked / transmitting).
-- Style: match the HF radios and charge controller (dark metal case, light front panel detail).
-- States needed: `linked=false|true`, `transmitting=false|true`.
+(none right now)
 
 ## Done
 
-(none yet)
+### 1. Parrot controller
+
+A small desk unit (12 x 3 x 10 px) next to a radio that turns it into a simplex "parrot" repeater. Modelled and
+textured by the maintainer, 2026-10-20: `models/block/parrot_controller*.json`, `textures/block/parrot_controller*.png`,
+source in `doc/models/parrot_controller.bbmodel`. Green LED = the radio is receiving, red LED = it is echoing; the
+wire stub towards the linked radio reuses the coax wire texture.

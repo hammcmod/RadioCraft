@@ -38,6 +38,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         buildDuplexerRecipe(recipeOutput);
         buildSmallBatteryRecipe(recipeOutput);
         buildDigitalInterfaceRecipe(recipeOutput);
+        buildParrotControllerRecipe(recipeOutput);
         buildHandMicrophoneRecipe(recipeOutput);
         buildAntennaToolsRecipe(recipeOutput);
         buildAntennaAnalyzerRecipe(recipeOutput);
@@ -331,6 +332,20 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .define('S', RadiocraftItems.RADIO_SPEAKER.get())
                 .define('W', ItemTags.PLANKS)
                 .unlockedBy("has_radio_crystal", has(RadiocraftItems.RADIO_CRYSTAL.get()))
+                .save(recipeOutput);
+    }
+
+    private void buildParrotControllerRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.PARROT_CONTROLLER.get(), 1)
+                .pattern("III")
+                .pattern("SCM")
+                .pattern("IRI")
+                .define('I', Items.IRON_INGOT)
+                .define('S', RadiocraftItems.RADIO_SPEAKER.get())
+                .define('C', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('M', RadiocraftItems.HAND_MICROPHONE.get())
+                .define('R', Items.REDSTONE)
+                .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
                 .save(recipeOutput);
     }
 

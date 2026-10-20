@@ -33,10 +33,10 @@ import java.util.UUID;
 @PrefixGameTestTemplate(false)
 public class TransmissionGameTests {
 
-    private static final BlockPos RADIO_A = new BlockPos(8, 2, 1);
-    private static final BlockPos BALUN_A = new BlockPos(8, 2, 3);
-    private static final BlockPos RADIO_B = new BlockPos(8, 2, 14);
-    private static final BlockPos BALUN_B = new BlockPos(8, 2, 12);
+    static final BlockPos RADIO_A = new BlockPos(8, 2, 1);
+    static final BlockPos BALUN_A = new BlockPos(8, 2, 3);
+    static final BlockPos RADIO_B = new BlockPos(8, 2, 14);
+    static final BlockPos BALUN_B = new BlockPos(8, 2, 12);
 
     /*
      * Every test tunes its two radios to a frequency of its own (band bottom + N kHz). The GameTest server runs all
@@ -55,14 +55,15 @@ public class TransmissionGameTests {
     private static final int F_PARROT_VOICE = 200;
     private static final int F_PARROT_CW = 210;
     private static final int F_PARROT_OFF = 220;
-    private static final double EXPECTED_VOICE_STRENGTH = 1.0D - 9.0D / 300.0D;
-    private static final double EXPECTED_CW_STRENGTH = 1.0D - (9.0D / 1.5D) / 300.0D;
-    private static final double TOLERANCE = 1e-6;
+    // 230-250 are used by ParrotControllerGameTests.
+    static final double EXPECTED_VOICE_STRENGTH = 1.0D - 9.0D / 300.0D;
+    static final double EXPECTED_CW_STRENGTH = 1.0D - (9.0D / 1.5D) / 300.0D;
+    static final double TOLERANCE = 1e-6;
 
     private static final UUID OPERATOR = UUID.nameUUIDFromBytes("gametest-operator".getBytes());
 
     /** Radio, one coax block and a balun with a 5+5 dipole running east-west. */
-    private static void buildStation(GameTestHelper helper, BlockPos radio, BlockPos balun) {
+    static void buildStation(GameTestHelper helper, BlockPos radio, BlockPos balun) {
         helper.setBlock(radio, RadiocraftBlocks.HF_RADIO_20M.get());
         helper.setBlock(balun, RadiocraftBlocks.BALUN_ONE_TO_ONE.get());
         GameTestUtil.wire(helper, balun, balun.west(5));
@@ -77,7 +78,7 @@ public class TransmissionGameTests {
         buildStation(helper, RADIO_B, BALUN_B);
     }
 
-    private static HFRadioBlockEntity radio(GameTestHelper helper, BlockPos pos) {
+    static HFRadioBlockEntity radio(GameTestHelper helper, BlockPos pos) {
         return GameTestUtil.blockEntity(helper, pos, HFRadioBlockEntity.class);
     }
 
@@ -100,7 +101,7 @@ public class TransmissionGameTests {
     }
 
     /** Powers the radio up in SSB on {@code steps} kHz above the band bottom. */
-    private static void setupSsb(GameTestHelper helper, BlockPos pos, int steps) {
+    static void setupSsb(GameTestHelper helper, BlockPos pos, int steps) {
         HFRadioBlockEntity radio = radio(helper, pos);
         radio.updateFrequency(steps);
         radio.setSSBEnabled(true);
@@ -108,7 +109,7 @@ public class TransmissionGameTests {
     }
 
     /** Powers the radio up in CW on {@code steps} kHz above the band bottom. */
-    private static void setupCw(GameTestHelper helper, BlockPos pos, int steps) {
+    static void setupCw(GameTestHelper helper, BlockPos pos, int steps) {
         HFRadioBlockEntity radio = radio(helper, pos);
         radio.updateFrequency(steps);
         radio.setCWEnabled(true);
@@ -124,7 +125,7 @@ public class TransmissionGameTests {
     }
 
     /** Transmits one voice frame from the radio at pos, the way the voice plugin does once PTT is down. */
-    private static void speakInto(GameTestHelper helper, BlockPos pos) {
+    static void speakInto(GameTestHelper helper, BlockPos pos) {
         HFRadioBlockEntity radio = radio(helper, pos);
         radio.setPTTDown(true);
         helper.assertTrue(radio.canTransmitVoice(), "Radio at " + pos.toShortString() + " cannot transmit voice");
@@ -132,7 +133,7 @@ public class TransmissionGameTests {
         radio.setPTTDown(false);
     }
 
-    private static void assertHeard(GameTestHelper helper, BlockPos pos, double expectedStrength) {
+    static void assertHeard(GameTestHelper helper, BlockPos pos, double expectedStrength) {
         HFRadioBlockEntity radio = radio(helper, pos);
         helper.assertTrue(radio.getLastSignalGameTime() == helper.getLevel().getGameTime(),
                 "Radio at " + pos.toShortString() + " did not receive anything this tick (last signal tick " + radio.getLastSignalGameTime() + ")");
@@ -140,13 +141,13 @@ public class TransmissionGameTests {
                 "Radio at " + pos.toShortString() + " heard strength " + radio.getLastSignalStrength() + ", expected " + expectedStrength);
     }
 
-    private static void assertHeardNothing(GameTestHelper helper, BlockPos pos) {
+    static void assertHeardNothing(GameTestHelper helper, BlockPos pos) {
         HFRadioBlockEntity radio = radio(helper, pos);
         helper.assertTrue(radio.getLastSignalGameTime() < 0, "Radio at " + pos.toShortString() + " heard something at strength " + radio.getLastSignalStrength());
     }
 
     /** Builds both stations and waits until both antennas are recognized and linked. */
-    private static GameTestSequence stationsUp(GameTestHelper helper) {
+    static GameTestSequence stationsUp(GameTestHelper helper) {
         buildBothStations(helper);
         return helper.startSequence().thenWaitUntil(() -> assertStationsReady(helper));
     }

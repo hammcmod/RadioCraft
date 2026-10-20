@@ -64,6 +64,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.BALUN_TWO_TO_ONE, "Balun (2:1)");
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
 			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");
+			provider.addBlock(RadiocraftBlocks.PARROT_CONTROLLER, "Parrot Controller");
 			provider.addBlock(RadiocraftBlocks.CHARGE_CONTROLLER, "Charge Controller");
 			provider.addBlock(RadiocraftBlocks.MICROPHONE, "Microphone");
 			provider.addBlock(RadiocraftBlocks.YAGI_ANTENNA, "Yagi Antenna");
@@ -117,6 +118,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.development_summary"), "There are %s networks in the world: %s");
 
             provider.add(Radiocraft.translationKey("tooltip", "antenna_analyzer"), "Used for analyzing antenna networks and handheld radio antennas");
+            provider.add(Radiocraft.translationKey("tooltip", "parrot_controller"), "Place next to a radio: it repeats whatever the radio receives after a delay. Right click to change the delay.");
+            provider.add(Radiocraft.translationKey("message", "parrot_controller.delay"), "Parrot delay: %ss");
 
             provider.add(Radiocraft.translationKey("tooltip", "not_implemented"), "§7Not Implemented (Decorative Only)§r");
             provider.add(Radiocraft.translationKey("tooltip", "not_implemented_crafting_only"), "§7Not Implemented (Crafting Ingredient Only)§r");

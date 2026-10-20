@@ -1,0 +1,152 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "receiving": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_rx"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "transmitting": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_tx"
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "receiving": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_rx",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "transmitting": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_tx",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "receiving": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_rx",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "transmitting": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_tx",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "receiving": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_rx",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "transmitting": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_tx",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "link": "north"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_link"
+      }
+    },
+    {
+      "when": {
+        "link": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_link",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "link": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_link",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "link": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/parrot_controller_link",
+        "y": 270
+      }
+    }
+  ]
+}

@@ -106,7 +106,14 @@ the near one, hold PTT and talk (or key morse in CW mode), let go. Two seconds l
 the far station at the strength the propagation model gives that path, and you hear it at your own radio. The echo
 carries the audio as the parrot heard it before its receiver scaled it, so what you hear has one path's loss, not two.
 Move the parrot further away or detune its dipole to hear the signal weaken. The parrot must be on and in the same mode
-as you (SSB echoes voice, CW echoes morse); its flag is not saved with the world.
+as you (SSB echoes voice, CW echoes morse); the command's flag is not saved with the world.
+
+The same thing as a block: place a **parrot controller** (`radiocraft:parrot_controller`) next to the far radio. It
+links to the first radio on a horizontal side (a short wire is drawn towards it, `link=<side>` in the blockstate),
+keeps that radio parroting with the controller's delay (2 s by default, right click cycles 1/2/3/5/10 s, saved with the
+block), and its LEDs show what the radio is doing: green while it receives, red while it echoes. Breaking the controller
+or the radio stops the parroting. `rcdebug parrot` still works on radios without a controller; on a radio with one, the
+controller re-applies its own delay every tick.
 
 Example: a 20m station with a dipole between two poles, built in one call, then inspected:
 
@@ -191,7 +198,8 @@ Fixed, each with a GameTest or unit test that now runs as required:
 
 End to end, two stations talking (`TransmissionGameTests`): `voiceReachesRadioOnSameFrequency`,
 `voiceWorksInBothDirections`, `radioOnAnotherFrequencyHearsNothing`, `radioInCwModeDoesNotHearVoice`,
-`noAntennaMeansNoTransmission`.
+`noAntennaMeansNoTransmission`. The parrot controller block (`ParrotControllerGameTests`): linking, delay follow,
+echo timing and strength, LED states, release on removal.
 
 Still open:
 

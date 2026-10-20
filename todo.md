@@ -63,8 +63,10 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 Models and textures we want drawn by someone else are listed in [doc/ModelDesignBounty.md](doc/ModelDesignBounty.md).
 
 ### VHF/UHF Channel and Repeater Features
-- [ ] Parrot controller block: a device next to a radio that echoes what it receives after a delay (the `/rcdebug parrot`
-  dev tool as a real block, with linked/transmitting lights; model is bounty #1)
+- [x] Parrot controller block: links to the radio next to it and makes it echo what it receives after a delay, with
+  receive/transmit LEDs and a wire drawn to the radio (2026-10-20; model and textures by the maintainer)
+- [ ] Parrot controller polish: a sound or chat line when the delay changes, a redstone comparator output, and a way
+  to pick the linked radio when two are adjacent (currently the first side found, north-east-south-west)
 - [ ] Implement VHF repeater block entity, callsign prompt, duplexer validation, and sleep/wake cycle
 - [ ] Add multi-channel scan indicator to VHF receiver UI
 

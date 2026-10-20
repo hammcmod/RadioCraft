@@ -56,8 +56,9 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected volatile double lastSignalStrength = 0.0D;
     protected volatile long lastSignalGameTime = -1L;
 
-    // Parrot mode (dev tool, see setParrotDelay). The queue is filled from the voice thread and drained on the game thread.
+    // Parrot mode (see setParrotDelay). The queue is filled from the voice thread and drained on the game thread.
     protected volatile int parrotDelayTicks = 0;
+    protected volatile long lastParrotEchoGameTime = -1L;
     protected final ConcurrentLinkedQueue<QueuedVoice> parrotVoiceQueue = new ConcurrentLinkedQueue<>();
 
     protected final AtomicReference<BlockPos> micPos = new AtomicReference<>(); //thread safe position reference, overkill but makes purpose clear
@@ -106,12 +107,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         }
     }
 
-    // -------------------- PARROT (DEV TOOL) --------------------
+    // -------------------- PARROT --------------------
 
     /**
      * Turns the radio into a parrot (simplex repeater): whatever it receives is sent out again through its own antenna
      * {@code delayTicks} later, so one player can hear their own transmission come back. 0 switches it off. Not saved
-     * with the world; it is a testing aid driven from {@code /rcdebug parrot}.
+     * with the world: a {@link com.arrl.radiocraft.common.blockentities.ParrotControllerBlockEntity} next to the radio
+     * re-applies its delay every tick, and {@code /rcdebug parrot} sets it directly for testing.
      */
     public void setParrotDelay(int delayTicks) {
         parrotDelayTicks = Math.max(0, delayTicks);
@@ -135,7 +137,18 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         for(QueuedVoice next = parrotVoiceQueue.peek(); next != null && next.dueTick() <= now; next = parrotVoiceQueue.peek()) {
             parrotVoiceQueue.poll();
             acceptVoicePacket(() -> serverLevel, next.audio(), next.sourcePlayer());
+            recordParrotEcho(serverLevel);
         }
+    }
+
+    /** Remembers that an echo just went out, for the parrot controller's transmit light. */
+    protected void recordParrotEcho(ServerLevel serverLevel) {
+        lastParrotEchoGameTime = serverLevel.getGameTime();
+    }
+
+    /** Game time at which this radio last sent out a parrot echo, -1 if never. */
+    public long getLastParrotEchoGameTime() {
+        return lastParrotEchoGameTime;
     }
 
     /** One voice frame waiting to be echoed. */
