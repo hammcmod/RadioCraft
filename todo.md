@@ -26,6 +26,8 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [ ] Provide working SWR and propagation hooks so core HF radios are usable
 - [x] HF receiver, QRP radios, and the all-band radio shapeless combinations exist
 - [x] VHF handhelds have functional radios
+- [x] Comparator S-meter (2026-10-20): a comparator against any radio reads the received signal strength 0-15, falling
+  back to 0 a second after the signal ends. Jade shows the same reading, the interference level and the repeat delay.
 
 ### Antennas & Signal Model
 - [x] Dipole, end-fed, quarter-wave vertical, loop, wide-band receive, and VHF Yagi/J-pole/Slim Jim antennas are implemented
@@ -63,7 +65,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 
 ### Radios & Networking
 - [ ] Tie radio power draw, on/off state, and static playback into battery/solar networks via `RadioNetworkObject`
-- [ ] Implement HF static/grounding modifiers and lightning spikes so propagation feedback reaches the player
+- [ ] Implement HF static/grounding modifiers so propagation feedback reaches the player
+- [x] Lightning spikes (2026-10-20): a strike puts a crash of static on every powered radio in the dimension, fading
+  with distance and by band, server configurable (`Lightning Static`). Design in doc/RedstoneInterference.md.
 
 ## Phase 3 – Extended Systems & Content
 
@@ -73,8 +77,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [x] Simplex repeat controller ("parrot", id `parrot_controller`): links to the radio next to it and makes it echo
   what it receives after a delay, with receive/transmit LEDs and a wire drawn to the radio (2026-10-20; model and
   textures by the maintainer). Its recipe is a placeholder pending the recipe review below.
-- [ ] Parrot controller polish: a sound or chat line when the delay changes, a redstone comparator output, and a way
-  to pick the linked radio when two are adjacent (currently the first side found, north-east-south-west)
+- [x] Parrot controller polish (2026-10-20): a button click when the delay changes, a comparator output of the delay
+  in seconds, Jade lines (delay, linked side, state).
+- [ ] Parrot controller: a way to pick the linked radio when two are adjacent (currently the first side found,
+  north-east-south-west)
 - [ ] Implement VHF repeater block entity, callsign prompt, duplexer validation, and sleep/wake cycle
 - [ ] Add multi-channel scan indicator to VHF receiver UI
 
@@ -88,7 +94,11 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Add sag-varying visuals for long unsupported antenna wire runs
 
 ### World & Progression Additions
-- [ ] Upgrade the solar weather station from a tooltip placeholder to a working block (paper consumption, coordinate calculator, comparator output)
+- [x] Solar weather station, minimal (2026-10-20): right click reports the current conditions, noise floor and whether
+  10m is open (solar event JSONs carry an `openBands` list; good and great open 10m); a comparator reads 1 (blackout)
+  to 6 (great); Jade shows the same. Nothing uses "10m open" for propagation yet (plan step 2).
+- [ ] Solar weather station, rest of the proposal: printed paper report (consumes paper, hopper fed, redstone
+  activated), best-band calculator between two coordinates
 - [ ] Improve wire spool storage UX (bulk crafting/collapse)
 - [ ] Introduce random structures, auto-beacon radios, APRS Discord bridge, and external radio API hooks
 - [ ] Review all recipes together (maintainer, 2026-10-20): align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes; decide the simplex repeat controller recipe

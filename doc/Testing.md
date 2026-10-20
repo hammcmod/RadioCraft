@@ -48,6 +48,11 @@ Writing tests:
 - **Known bugs are encoded as `required = false` tests.** They show as "optional tests failed" without failing the
   run. When you fix one, it should start passing; then remove `required = false`.
 - The test server runs ticks as fast as it can, so a 200-tick timeout takes well under a second.
+- Comparators only compute their output when a neighbour tells them to. `ComparatorGameTests.placeComparator` puts
+  one on a stone block; place it *before* the block it reads (placing that block updates it) or change the block's
+  output afterwards, then read `ComparatorBlockEntity#getOutputSignal` with `thenWaitUntil`.
+- Anything level-wide that other plots would notice (day time, weather, a lightning bolt, config values) needs its own
+  `batch = "..."`: batches run one after another, plots in a batch run at the same time.
 
 In a dev client you can also run them interactively: `/test runall`, `/test run radiocraft:<name>`.
 
@@ -207,7 +212,10 @@ side (`TransmitInterferenceGameTests`, hit chance forced to 1): dust reads level
 lever flips and a torch flickers, a bad SWR reaches the shack with a higher level, a QRP rig reaches less. These prove
 the dust mixin applied. Note for test authors: the framework puts a stone button on a command block at the north-west
 corner of every plot; RF skips switches on command blocks, which is the only reason transmitting tests do not restart
-the runner.
+the runner. Lightning crashes (`LightningStaticGameTests`, batch `lightning`): a near bolt pops the level and it dies
+away, a far bolt is quieter, an unpowered radio hears nothing. Comparators (`ComparatorGameTests`,
+`ParrotControllerGameTests.comparatorReadsDelayInSeconds`): the radio S-meter follows a received signal and falls back,
+the solar weather station's level matches its event, the repeat controller reads its delay in seconds.
 
 Still open:
 

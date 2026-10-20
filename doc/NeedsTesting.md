@@ -53,6 +53,40 @@ Full-power HF rig with a matched dipole, redstone dust and a repeater or lamp wi
 - [ ] Does 0.35 feel right as the fraction of components hit? Does level 4 read as "a glitch" rather than a working
   circuit? (Both are config values.)
 
+## Comparator outputs (added 2026-10-20)
+
+- [ ] Comparator against a radio, lamp or dust chain behind it: the output follows the strength of what the radio is
+  receiving (a nearby strong station lights a long run, a weak one a short run) and goes dark about a second after
+  the other station stops talking or keying. Works for SSB voice and CW, and on VHF base stations.
+- [ ] Comparator against the Simplex Repeat Controller: reads 1, 2, 3, 5, 10 as the delay is cycled.
+- [ ] Right clicking the controller makes a button click; is the volume and pitch right for a desk unit?
+- [ ] Comparator against the Solar Weather Station: reads 1 to 6 (blackout to great) and changes when the event
+  changes (`/rcdebug solar` shows the event; `/solarweather` too). A strongly powered chain with the station at the
+  end makes a cheap conditions indicator.
+
+## Solar weather station (added 2026-10-20)
+
+- [ ] Right click: a chat line like "Solar conditions: Good (noise floor 20%). 10m band: open". The event name reads
+  as a word, not a key (needs `./gradlew runData` first). Tooltip replaced the "not implemented" one.
+- [ ] The block still renders and faces the right way (it became a block entity; existing placed ones keep working).
+
+## Lightning static (added 2026-10-20)
+
+Powered HF radio in SSB, a thunderstorm (`/weather thunder`) or `/summon lightning_bolt` a few blocks away.
+
+- [ ] Each strike: a sharp crash in the static, gone within a second. Compare 80m and 20m radios: 80m twice as loud,
+  10m barely. A strike 200 blocks away is still a small crash; beyond 512 blocks nothing.
+- [ ] Does the crash read as lightning? The proposal says 40% for a second; the default is 0.6 on top of the solar
+  noise floor, decaying with the same 0.8/tick as redstone pops. If it should rumble longer, say so.
+- [ ] `lightning_static_enabled = false` silences it.
+
+## Jade (added 2026-10-20)
+
+- [ ] Radio: "Signal: n/15" appears while receiving, "Interference: n%" while redstone or lightning noise is up,
+  "Simplex repeat: Ns delay" when a controller is linked.
+- [ ] Simplex Repeat Controller: delay, "Radio: linked to the west" (or none), "State: Idle/Receiving/Repeating".
+- [ ] Solar Weather Station: conditions with noise floor and level, 10m open or closed.
+
 ## From the 2026-10-19 work (CW restored, transmission tests)
 
 - [ ] CW by ear between two stations: tone starts and stops cleanly, no stuck tone, sidetone on the sending radio.
