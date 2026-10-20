@@ -87,6 +87,39 @@ Powered HF radio in SSB, a thunderstorm (`/weather thunder`) or `/summon lightni
 - [ ] Simplex Repeat Controller: delay, "Radio: linked to the west" (or none), "State: Idle/Receiving/Repeating".
 - [ ] Solar Weather Station: conditions with noise floor and level, 10m open or closed.
 
+## Antenna tuner (added 2026-10-20)
+
+HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks short per arm (SWR 2 to 3).
+
+- [ ] With the tuner in the run the radio's static comes up to full (as with a matched dipole) and `/rcdebug radio`
+  shows `swr=1.00 (tuner: antenna swr=3.00, power to antenna=94%)`. Break the tuner and bridge with coax: back to
+  SWR 3 and quieter static.
+- [ ] Tuner GUI: right click shows "Matched", "Antenna SWR: 3.0", "Radio sees: 1.0" in the panel right of the meter;
+  the readout follows the radio being switched off ("Radio is off"), the antenna being broken ("No antenna
+  recognized") and a 2+2 dipole on 40m ("Out of range: no match", SWR 10). Is the text placed and coloured
+  acceptably on the texture? The dials still do nothing; say if the tuner should become manual.
+- [ ] Jade on the coax lists "Antenna Tuner: at x, y, z" and still lists the antenna beyond the tuner.
+- [ ] Tooltips: the tuner and the three baluns now have a sentence each instead of "Not Implemented".
+- [ ] Redstone interference: with the tuner matching a SWR 3 dipole, the bad-SWR dust reach around the radio and
+  coax goes away (the station counts as matched). Is that the right call, or should the coax after the tuner still
+  count as badly matched?
+- [ ] `antenna_tuner_enabled = false`: the readout says "Tuners disabled on this server" and the SWR is the raw one.
+- [ ] Side effect of a bug fix (Testing.md audit item 13): breaking a radio, balun or tuner now really drops it from
+  its coax network. Break a radio next to live coax and place it back: it should re-link and keep its settings; break
+  a balun: the far station should stop hearing it at once (no ghost antenna).
+
+## Inverted V and random wire (added 2026-10-20)
+
+- [ ] Inverted V: 1:1 balun on a pole 3 high, two wires to poles on the ground 4 blocks out either side (each arm is
+  5 along the wire). Right clicking the balun names `radiocraft:inverted_v`; Jade shows arms and drops; a 20m radio
+  sees SWR 1. Raise one end above the balun: no longer recognized. Compare the strength heard at a far station with
+  a flat 5+5 dipole: the V should be 10% weaker (25% on 40m).
+- [ ] Random wire: Balun (9:1) (placeholder: looks like the 2:1 balun until the bounty is drawn), one wire to a pole,
+  a second wire on from that pole (12 blocks total, any shape). Right click names `radiocraft:random_wire`; Jade
+  shows the length and "Needs an antenna tuner". A 20m radio without a tuner sees SWR 2.6, with a tuner 1.0; a
+  wire shorter than 11 blocks on 20m is SWR 10. Fork the wire at the pole: not recognized.
+- [ ] Both new types need `./gradlew runData` first (9:1 balun tags, name and tooltips, tuner readout text).
+
 ## From the 2026-10-19 work (CW restored, transmission tests)
 
 - [ ] CW by ear between two stations: tone starts and stops cleanly, no stuck tone, sidetone on the sending radio.

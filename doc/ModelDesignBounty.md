@@ -32,6 +32,18 @@ What was done for the parrot controller, as the pattern for the next one:
 
 ## Open bounties
 
+### Balun (9:1) texture
+
+`balun_nine_to_one` is the feed point of the random wire antenna (added 2026-10-20). It ships as a straight copy of
+the 2:1 balun's model and texture (`models/block/balun_nine_to_one.json`, `textures/block/balun_nine_to_one.png`,
+32x32), so in game the two are told apart only by name.
+
+- Wanted: a 32x32 texture in the style of `balun_one_to_one.png` / `balun_two_to_one.png` that reads as "9:1" at a
+  glance (a different body colour or a painted ratio label on the box). The model can stay as it is unless the
+  artist prefers a different box; keep the 6x12x6 footprint so the placement shapes in `BalunBlock` still fit.
+- Deliverables: the PNG (and the `.bbmodel` if the model changes). Drop it over the placeholder file; nothing else
+  needs to change.
+
 ### Sound: redstone interference buzz
 
 Not a model, but the same kind of ask. `RadioInterferenceHumSoundInstance` plays when redstone keeps switching near a

@@ -148,7 +148,8 @@ Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug tra
   re-link themselves when their block entity loads: `INetworkObjectProvider#getNetworkObject` creates the object and
   calls `WireUtils.connectToWires`, which walks every wire run touching the block and merges whatever it finds onto
   one network. Placing a wire that touches two things (`WireBlock#onPlace`) merges from the wire's side; removing
-  one splits.
+  one splits. The walk normally stops at a device; a device that implements `ICoaxPassThrough` (the antenna tuner)
+  is walked through, so a radio and an antenna with a tuner between them share one coax network.
 - **Radios persist** frequency, mode, gains, last measured SWR and the power flag in their block entity tag. On load
   the flag switches the fresh network object back on, so a radio left on stays on across restarts.
 - **Power network objects tick** every server tick from `CommonEvents#onLevelTick` (only those in loaded chunks).
@@ -171,6 +172,18 @@ Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug tra
 - **Last received signal**: `RadioBlockEntity#getLastSignalStrength/GameTime` remember what last arrived (voice or
   CW). This is what the transmission GameTests and `rcdebug radio` read; the static-masking work will send it to
   the client.
+- **Antenna tuner**: `AntennaTunerBlockEntity` puts an `AntennaTunerNetworkObject` on the coax; `AntennaNetworkObject`
+  tracks tuners like it tracks radios and answers `getRawSWR` (the antenna's own), `getSWR` (what the radio sees,
+  1.0 within `antenna_tuner_max_swr`) and `getMatchEfficiency` (power reaching the antenna, `SWRHelper#tunedEfficiency`).
+  `StaticAntenna` asks its network object for the match efficiency when transmitting, so the tuner changes both the
+  radio's measured SWR and the strength others hear. `AntennaTunerGameTests` cover matched, out of range, removed and
+  the heard strength with and without a tuner; `AntennaTunerTest` covers the maths. The tuner's screen reads
+  `AntennaTunerBlockEntity#read` through menu data slots.
+- **New antenna types** go in `RadiocraftAntennaTypes`. `AntennaTypes.match` tries every type in registry order, so
+  match rules must be disjoint (the inverted V needs both ends below the balun, the dipole needs them level; the
+  random wire needs the 9:1 balun). `AntennaGameTests` has a recognition test per type; `AntennaSwrTest` the SWR
+  rule. A new feed-point block needs the three block tags in `RadiocraftBlockTagsProvider` (coax, antenna, wire
+  holder) and therefore `./gradlew runData` before GameTests that connect it to coax can pass.
 
 ## Bug audit (2026-10)
 
@@ -200,6 +213,10 @@ Fixed, each with a GameTest or unit test that now runs as required:
 11. A broken balun's antenna stayed on the air (ghost receiver in the `AntennaNetwork`) - removed in
     `AntennaNetworkObject#discard`.
 12. CW ignored antenna mismatch while voice did not - both now apply the SWR efficiency.
+13. Breaking a network block (radio, balun, tuner) never told its networks: `AbstractNetworkBlock#onRemove` looked
+    the object up through the block capability, which is keyed by the block at that position, and the block is
+    already gone when `onRemove` runs. It now uses the level's `BENetworksCapability` directly, so the other members
+    hear about the removal and the object is discarded - `removingTunerRestoresRawSwr`.
 
 End to end, two stations talking (`TransmissionGameTests`): `voiceReachesRadioOnSameFrequency`,
 `voiceWorksInBothDirections`, `radioOnAnotherFrequencyHearsNothing`, `radioInCwModeDoesNotHearVoice`,

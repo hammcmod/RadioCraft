@@ -31,7 +31,20 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 
 ### Antennas & Signal Model
 - [x] Dipole, end-fed, quarter-wave vertical, loop, wide-band receive, and VHF Yagi/J-pole/Slim Jim antennas are implemented
-- [ ] Add runtime effects for antenna tuner and duplexer blocks (matching, losses, repeater protection) to unblock repeater work
+- [x] Antenna tuner runtime effect (2026-10-20): a tuner anywhere on the coax between a radio and its antenna is an
+  automatic tuner. Within `antenna_tuner_max_swr` (default 6) the radio sees SWR 1 (static, interference and the
+  radio's SWR all follow) and transmit keeps `1 - mismatchLoss * antenna_tuner_loss` (default 0.25, so a SWR 3
+  antenna goes from 75% to 94% power); beyond it the tuner does nothing. The tuner GUI shows antenna SWR, what the
+  radio sees and the state; the dials are still decorative. Overdraw (two radios or two antennas) is not tunable.
+  Deviation from the proposal: the tuner may sit anywhere on the run, not only radio-side of the balun.
+- [x] Inverted V dipole (2026-10-20): 1:1 balun up high, two opposite arms sloping down to lower ends (apex 90° or
+  wider, ends may differ in height). Resonant arm length is 5% under a quarter wave, measured along the wire; SWR
+  rises 0.5 per block like the dipole; transmit is 0.9 of a dipole's, 0.75 on 40m (proposal numbers).
+- [x] Random wire (2026-10-20): new 9:1 balun block (placeholder texture, see the bounty) with one wire run of any
+  shape, bending at poles/connectors, no forks or loops. Usable on any band where the run is at least a half wave;
+  SWR is 2 + 0.5 per block off a half-wave multiple, so it always needs the tuner; gain -3 dBi both ways. Deviation
+  from the proposal: fed straight from the 9:1 balun (a 1:1 balun in series would count as a second antenna).
+- [ ] Duplexer runtime effect (repeater protection, losses) to unblock repeater work
 - [ ] Implement antenna analyzer UI and data capture
 - [ ] Implement shared antenna behavior hooks so antenna blocks drive propagation
 - [ ] Hook SWR consequences (fire/destruction) into `RadioBlockEntity`
