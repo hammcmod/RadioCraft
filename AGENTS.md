@@ -29,7 +29,7 @@ See [doc/Testing.md](doc/Testing.md) for the full guide and the list of known bu
 - `./gradlew runGameTestServer`: in-world GameTests in `src/gametest` (a dev-only source set, never shipped). Known bugs are `required = false` tests; make them required once fixed.
 - `tools/devserver.sh start` + `python tools/rcon.py "<command>"`: a live headless dev server driven over RCON. Use `/rcdebug` to inspect and drive radios, antennas, networks and solar weather.
 
-Run the unit tests and GameTests before committing. Add a GameTest when fixing a bug or adding gameplay behavior that can be checked server-side. Rendering, GUIs and audio still need `runClient` and a human.
+Run the unit tests and GameTests before committing. Add a GameTest when fixing a bug or adding gameplay behavior that can be checked server-side. Rendering, GUIs and audio still need `runClient` and a human: list anything that needs that in [doc/NeedsTesting.md](doc/NeedsTesting.md) for the maintainer's next playtest.
 
 ## Commit & Pull Request Guidelines
 Use concise, present-tense commit messages (`Fix antenna wire sync`) and keep related changes in a single commit when practical. PRs should outline the player-facing impact, list testing done (`runClient`, `test`), and reference any linked GitHub issues or design docs. Screenshots or clips help reviewers validate UI or in-game changes. Confirm the build is clean and data generator output is committed before requesting review.
