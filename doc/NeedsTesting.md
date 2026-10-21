@@ -4,6 +4,58 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## VHF repeater, duplexer, CTCSS and offsets (added 2026-10-21)
+
+The repeater is now a working 2m repeater (`VHFRepeaterBlockEntity`). It needs a duplexer on its back, top or bottom,
+with coax from the duplexer to the antenna. Handhelds and the VHF base station gained a CTCSS tone and a ±600 kHz
+repeater offset. Every radio with nothing on its coax now works through its bare connector over a few blocks
+(`bare_connector_range`, default 8). Run `./gradlew runData` first: the repeater screen's text is new.
+
+- [ ] Repeater face: POWER toggles it; the RX/TX windows show input/output MHz; the four bottom windows show
+  ON/OFF/PWR, DUP / NO DUP / NO ANT, RX (red TOT when timed out), TX (amber while transmitting).
+- [ ] PRT RX / PRT TX open a panel over the face: type MHz, Enter or Done applies, Esc or Cancel leaves it without
+  closing the repeater. "OUT -600 / +600" fill in the usual input. The RX/TX knobs step 20 kHz.
+- [ ] CW ID: callsign (letters, digits, /) and "ID every" (off/5/10/15/30 min). After an over the repeater sends the
+  courtesy beep, then the callsign in Morse tone if an ID is due.
+- [ ] CTC RX / CTC TX: < > through the standard tones. With an access tone set, a handheld without that tone gets
+  no repeat; with it, it does.
+- [ ] MIC: with TX on, talking next to the repeater goes out on the output. TX off: it listens but does not repeat.
+  SPEAKER: plays the input at the block.
+- [ ] Knobs under the buttons: hang time (0-5 s) and timeout (off to 10 min), shown in a tooltip while turning.
+  Talking longer than the timeout drops the repeat until you let go.
+- [ ] Duplexer behind / on top of / under the repeater: coax wire draws a connection to it and the repeater works
+  through it. A duplexer on the front or side does nothing (NO DUP).
+- [ ] Antenna on the repeater but no duplexer, TX on: someone talking into it gives "psht ... psht ... psht" on
+  the output instead of their voice. With TX off, receiving works normally.
+- [ ] No antenna at all: the repeater (and any radio) works only within about 8 blocks.
+- [ ] Handheld: ENTER from the frequency screen pages Tone, then Offset, then back; the arrows change the value; "-"
+  / "+" and "T" show on the main screen when set. Handheld on 146.940 with -600 and the repeater's tone talks
+  through a repeater on 146.340 in / 146.940 out.
+- [ ] VHF base station: the right-hand display shows OFS and TONE; its three soft buttons (offset, tone down, tone
+  up) and the two big knobs (tone, offset) change them.
+- [ ] Simplex repeat controller (parrot): after it finishes echoing an over it sends a courtesy beep.
+- [ ] The settings panel is a plain dark box (placeholder): say if it needs art.
+
+## Off-frequency signals and the 2m tuning fix (added 2026-10-21)
+
+The all-band on 144 MHz was stuck at 144.000: frequencies are floats, 144.001 MHz does not fit one exactly, and the
+"not on a step" check reset every step. Steps are now counted from the band bottom. Off-frequency voice
+(`Detuning`, `RadioVoiceProcessor`) is new: SSB is heard up to 10 kHz off, weaker, pitch-shifted (0.15 Hz per Hz off,
+so 1.5 kHz at 10 kHz off) with the top or bottom of the voice cut, and splatter from 7 kHz out. FM is heard as usual
+up to 2 kHz off (weaker). From 3 to 10 kHz off, or one VHF channel step (20 kHz) off, FM stays squelched but
+crackles over a signal you are hearing on frequency.
+
+- [ ] All-band on 2m: the frequency knob steps 144.001, 144.002 ... and the display follows; reload keeps it.
+- [ ] SSB 1-2 kHz off (two 20m radios): voice is clear but a little higher or lower; tuning above on 20m sounds
+  lower, on 40m/80m (LSB) higher.
+- [ ] SSB 5-10 kHz off: "Donald Duck" voice, thin (bass or treble cut off), quieter; garbled splatter rises near
+  10 kHz. 11 kHz off: nothing.
+- [ ] FM (all-band FM, VHF base station, handhelds) 1-2 kHz off: sounds normal, a bit quieter. 3+ kHz off: silent,
+  no squelch opening.
+- [ ] FM splatter: listen to a station on frequency while a second one talks 5 kHz (HF all-band FM) or one 20 kHz
+  step (handhelds/VHF) away: bursts of crackle over the wanted voice, gone when the second one stops.
+- [ ] Tune the numbers if needed: constants at the top of `Detuning` (strengths, shift per Hz, splatter levels).
+
 ## Mode buttons and the all-band radio (added 2026-10-21)
 
 Mode buttons now work like a radio's selector: the active mode is pressed in, the others are out, and pressing the

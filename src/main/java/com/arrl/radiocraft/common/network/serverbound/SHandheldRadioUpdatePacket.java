@@ -22,24 +22,41 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
     float gain;
     float micGain;
     float frequencyHertz; //TODO change to allow server to control frequency steps
+    float ctcssTone;
+    int offsetHz;
 
-    public SHandheldRadioUpdatePacket(int index, boolean powered, boolean ptt, float gain, float micGain, float frequencyHertz) {
+    public SHandheldRadioUpdatePacket(int index, boolean powered, boolean ptt, float gain, float micGain, float frequencyHertz, float ctcssTone, int offsetHz) {
         this.index = index;
         this.powered = powered;
         this.ptt = ptt;
         this.gain = gain;
         this.micGain = micGain;
         this.frequencyHertz = frequencyHertz;
+        this.ctcssTone = ctcssTone;
+        this.offsetHz = offsetHz;
     }
 
     //constructor for StreamCodec decoding
-    private SHandheldRadioUpdatePacket(Integer index, Byte packed, Float gain, Float micGain, Float frequencyHertz) {
-        this.index = index;
+    private SHandheldRadioUpdatePacket(ByteBuf buf) {
+        this.index = buf.readInt();
+        byte packed = buf.readByte();
         this.powered = (packed&0x1)==0x1;
         this.ptt = (packed&0x2)==0x2;
-        this.gain = gain;
-        this.micGain = micGain;
-        this.frequencyHertz = frequencyHertz;
+        this.gain = buf.readFloat();
+        this.micGain = buf.readFloat();
+        this.frequencyHertz = buf.readFloat();
+        this.ctcssTone = buf.readFloat();
+        this.offsetHz = buf.readInt();
+    }
+
+    private void write(ByteBuf buf) {
+        buf.writeInt(index);
+        buf.writeByte(packBools());
+        buf.writeFloat(gain);
+        buf.writeFloat(micGain);
+        buf.writeFloat(frequencyHertz);
+        buf.writeFloat(ctcssTone);
+        buf.writeInt(offsetHz);
     }
 
     public float getFrequencyHertz() {
@@ -62,18 +79,7 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
         return this.micGain;
     }
 
-    public static final StreamCodec<ByteBuf, SHandheldRadioUpdatePacket> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.INT,
-            SHandheldRadioUpdatePacket::getIndex,
-            ByteBufCodecs.BYTE,
-            SHandheldRadioUpdatePacket::packBools,
-            ByteBufCodecs.FLOAT,
-            SHandheldRadioUpdatePacket::getGain,
-            ByteBufCodecs.FLOAT,
-            SHandheldRadioUpdatePacket::getMicGain,
-            ByteBufCodecs.FLOAT,
-            SHandheldRadioUpdatePacket::getFrequencyHertz,
-            SHandheldRadioUpdatePacket::new);
+    public static final StreamCodec<ByteBuf, SHandheldRadioUpdatePacket> STREAM_CODEC = StreamCodec.of((buf, packet) -> packet.write(buf), SHandheldRadioUpdatePacket::new);
 
 
     @Override
@@ -103,11 +109,13 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
             cap.setGain(this.gain);
             cap.setMicGain(this.micGain);
             cap.setFrequencyHertz(this.frequencyHertz); //TODO server should handle frequency steps
+            cap.setCtcssTone(this.ctcssTone);
+            cap.setOffsetHz(this.offsetHz);
 
         });
     }
 
     public static void updateServer(int inventoryIndex, IVHFHandheldCapability cap) {
-        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(inventoryIndex, cap.isPowered(), cap.isPTTDown(), cap.getGain(), cap.getMicGain(), cap.getFrequencyHertz()));
+        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(inventoryIndex, cap.isPowered(), cap.isPTTDown(), cap.getGain(), cap.getMicGain(), cap.getFrequencyHertz(), cap.getCtcssTone(), cap.getOffsetHz()));
     }
 }

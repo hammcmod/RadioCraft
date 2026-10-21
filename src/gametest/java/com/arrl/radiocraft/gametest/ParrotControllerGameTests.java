@@ -27,9 +27,9 @@ import static com.arrl.radiocraft.gametest.TransmissionGameTests.*;
 public class ParrotControllerGameTests {
 
     private static final BlockPos CONTROLLER = RADIO_B.east();
-    private static final int F_LINK = 230;
-    private static final int F_ECHO = 240;
-    private static final int F_REMOVE = 250;
+    private static final int F_LINK = 215;
+    private static final int F_ECHO = 230;
+    private static final int F_REMOVE = 245;
     private static final int F_COMPARATOR = 260;
 
     private static ParrotControllerBlockEntity controller(GameTestHelper helper) {
@@ -94,8 +94,10 @@ public class ParrotControllerGameTests {
                     helper.assertTrue(Math.abs(a.getLastSignalStrength() - EXPECTED_VOICE_STRENGTH) < TOLERANCE, "Echo strength " + a.getLastSignalStrength());
                 })
                 .thenExecuteAfter(2, () -> helper.assertTrue(controllerState(helper).getValue(ParrotControllerBlock.TRANSMITTING), "Transmit LED did not light for the echo"))
-                .thenExecuteAfter(ParrotControllerBlockEntity.LED_HOLD_TICKS + 2, () -> {
-                    helper.assertFalse(controllerState(helper).getValue(ParrotControllerBlock.RECEIVING), "Receive LED stayed on");
+                .thenExecuteAfter(ParrotControllerBlockEntity.LED_HOLD_TICKS + 2, () ->
+                        helper.assertFalse(controllerState(helper).getValue(ParrotControllerBlock.RECEIVING), "Receive LED stayed on"))
+                // The transmit LED stays on through the courtesy beep after the echo, then goes out.
+                .thenWaitUntil(() -> {
                     helper.assertFalse(controllerState(helper).getValue(ParrotControllerBlock.TRANSMITTING), "Transmit LED stayed on");
                 })
                 .thenSucceed();

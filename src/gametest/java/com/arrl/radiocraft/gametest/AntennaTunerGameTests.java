@@ -40,11 +40,11 @@ public class AntennaTunerGameTests {
     private static final BlockPos RADIO_B = new BlockPos(8, 2, 14);
 
     // Frequencies (kHz above the band bottom), see TransmissionGameTests for why each test needs its own.
-    private static final int F_TUNED_VOICE = 280;
-    private static final int F_UNTUNED_VOICE = 290;
-    private static final int F_SWR = 300;
+    private static final int F_TUNED_VOICE = 290;
+    private static final int F_UNTUNED_VOICE = 305;
+    private static final int F_SWR = 320;
     private static final int F_OUT_OF_RANGE = 50; // On 40m (7.05 MHz, quarter wave 10.6 -> 11 blocks); nobody else uses 40m.
-    private static final int F_REMOVED = 310;
+    private static final int F_REMOVED = 335;
 
     private static final double BARE_EFFICIENCY = SWRHelper.getEfficiencyMultiplier(3.0);  // 0.75
     private static final double TUNED_EFFICIENCY = 1.0 - (1.0 - BARE_EFFICIENCY) * 0.25;   // 0.9375

@@ -34,6 +34,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Boolean> ANTENNA_TUNER_ENABLED;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> RADIO_POWER_REQUIRED;
+	public static final ModConfigSpec.ConfigValue<Double> BARE_CONNECTOR_RANGE;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_LOSS;
 
@@ -65,7 +66,7 @@ public class RadiocraftServerConfig {
 
 		BUILDER.push("Band Options ( * = Restart game to take effect)");
 		HF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a HF frequency, in Hz #default 1000").define("hf_frequency_step", 1_000);
-		VHF_FREQUENCY_STEP = BUILDER.comment(" The minimum step size for a VHF frequency, in Hz #default 100000").define("vhf_frequency_step", 20_000);
+		VHF_FREQUENCY_STEP = BUILDER.comment(" The channel step of VHF radios (handhelds, base stations, receivers), in Hz #default 20000").define("vhf_frequency_step", 20_000);
 		BUILDER.pop();
 
 		BUILDER.comment(" While name and frequency are to measures of the same principle, when we refer to a band like say 10m, we mean a range of actual frequencies that aren't exactly 10m in name");
@@ -123,6 +124,11 @@ public class RadiocraftServerConfig {
 				" receive and transmit draw per tick is in the common config. A radio that cannot get its draw browns out:",
 				" it stays silent and its panel cycles on / PWR / dark until the power comes back.");
 		RADIO_POWER_REQUIRED = BUILDER.comment(" Set to false to let block radios run without any power (the pre-2026-10-21 behaviour)").define("radios_need_power", true);
+		BUILDER.pop();
+
+		BUILDER.push("No Antenna");
+		BARE_CONNECTOR_RANGE = BUILDER.comment(" A radio with nothing on its coax still sends and hears a little through the bare connector: the",
+				" distance in blocks at which that fades to nothing, both ways").defineInRange("bare_connector_range", 8.0D, 1.0D, 64.0D);
 		BUILDER.pop();
 
 		BUILDER.push("Antenna Tuner");

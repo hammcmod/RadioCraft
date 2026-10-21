@@ -35,6 +35,14 @@ public interface IAntenna {
 	void transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer);
 
 	/**
+	 * As {@link #transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel, short[], Band, float, UUID)}, with a CTCSS
+	 * tone under the voice (0 for none). Antennas that can carry a tone override this; the default drops it.
+	 */
+	default void transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer, float ctcssTone) {
+		transmitAudioPacket(level, rawAudio, band, frequencyHertz, sourcePlayer);
+	}
+
+	/**
 	 * Handle receiving an audio packet from another {@link IAntenna} on the network.
 	 * @param packet The {@link AntennaVoicePacket} being received.
 	 */

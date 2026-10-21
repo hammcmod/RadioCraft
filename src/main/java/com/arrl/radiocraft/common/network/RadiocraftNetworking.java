@@ -9,6 +9,7 @@ import com.arrl.radiocraft.common.network.serverbound.SCWBufferPacket;
 import com.arrl.radiocraft.common.network.clientbound.CWireEndPosUpdatePacket;
 import com.arrl.radiocraft.common.network.serverbound.SBlockRadioControlPacket;
 import com.arrl.radiocraft.common.network.serverbound.SPlayerClickHoldUpdate;
+import com.arrl.radiocraft.common.network.serverbound.SRepeaterSettingsPacket;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
 public class RadiocraftNetworking {
@@ -24,5 +25,6 @@ public class RadiocraftNetworking {
         registrar.playToClient(CCWBufferPacket.TYPE, CCWBufferPacket.STREAM_CODEC, CCWBufferPacket::handle);
         registrar.playToClient(CAuroraPacket.TYPE, CAuroraPacket.STREAM_CODEC, CAuroraPacket::handle);
         registrar.playToClient(CInterferencePacket.TYPE, CInterferencePacket.STREAM_CODEC, CInterferencePacket::handle);
+        registrar.playToServer(SRepeaterSettingsPacket.TYPE, SRepeaterSettingsPacket.STREAM_CODEC, SRepeaterSettingsPacket::handle);
     }
 }

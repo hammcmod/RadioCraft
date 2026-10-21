@@ -58,13 +58,18 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 
 	@Override
 	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer) {
+		transmitAudioPacket(level, rawAudio, band, frequencyHertz, sourcePlayer, 0.0F);
+	}
+
+	@Override
+	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer, float ctcssTone) {
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
 			double matchEfficiency = getMatchEfficiency(frequencyHertz);
 
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
-					AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), band, frequencyHertz, 1.0F, this, sourcePlayer);
+					AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), band, frequencyHertz, 1.0F, this, sourcePlayer, ctcssTone);
 
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();

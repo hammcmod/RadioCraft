@@ -20,6 +20,8 @@ import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
+import com.arrl.radiocraft.common.radio.voice.Ctcss;
+import com.arrl.radiocraft.common.radio.voice.Detuning;
 import com.arrl.radiocraft.common.radio.voice.RadioVoiceProcessor;
 import com.arrl.radiocraft.common.radio.voice.ReceiverMix;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
@@ -112,11 +114,20 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         final float gain;
         final float micGain;
 
+        final float ctcssTone; // Sent under the voice, and needed to open the squelch; 0 for none.
+        final int offsetHz; // Repeater offset: transmits this far from frequency.
+
         //used for calculating average amplitude for power meter
         volatile long runningSampleSum=0; //stores the sum of the square of every sample since last tick
         volatile long runningSampleCount=0; //number of samples since last tick
 
         public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, float frequency, HandheldLocation itemLocation, float gain, float micGain){
+            this(item, canReceive, canTransmit, frequency, itemLocation, gain, micGain, 0.0f, 0);
+        }
+
+        public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, float frequency, HandheldLocation itemLocation, float gain, float micGain, float ctcssTone, int offsetHz){
+            this.ctcssTone = ctcssTone;
+            this.offsetHz = offsetHz;
             this.item = item;
             this.canReceive = canReceive;
             this.canTransmit = canTransmit;
@@ -127,7 +138,14 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         }
 
         public SynchronousRadioState(ItemStack item, IVHFHandheldCapability cap, HandheldLocation itemLocation) {
-            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), cap.getFrequencyHertz(), itemLocation, cap.getGain(), cap.getMicGain());
+            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), cap.getFrequencyHertz(), itemLocation, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz());
+        }
+
+        /** Where this radio transmits: its frequency plus the repeater offset, kept inside 2m. */
+        float transmitFrequency() {
+            Band band = Band.getBand("2m");
+            float tx = frequency + offsetHz;
+            return band == null ? tx : Math.max(band.minFrequency(), Math.min(band.maxFrequency(), tx));
         }
     }
 
@@ -151,7 +169,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     //if the current radio is the held item, put it before the offhand and other radios
                     //otherwise add the radio to the end of the list, so the order is held, then offhand, then all others
                     if (i == playerInventory.selected) {
-                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyHertz(), HandheldLocation.HELD, cap.getGain(), cap.getMicGain()));
+                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyHertz(), HandheldLocation.HELD, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz()));
                     } else {
                         out.addLast(new SynchronousRadioState(itemStack, cap, Inventory.isHotbarSlot(i) ? HandheldLocation.HOT_BAR : HandheldLocation.BACKPACK));
                     }
@@ -204,6 +222,11 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
     @Override
     public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer) {
+        transmitAudioPacket(level, rawAudio, band, frequencyHertz, sourcePlayer, 0.0F);
+    }
+
+    @Override
+    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer, float ctcssTone) {
 
         AntennaNetwork network;
         synchronized (this) {
@@ -227,7 +250,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
             for(IAntenna antenna : antennas) {
                 if(antenna != this) {
-                    AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), band, frequencyHertz, 1.0F, this, sourcePlayer);
+                    AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), band, frequencyHertz, 1.0F, this, sourcePlayer, ctcssTone);
 
                     AntennaPos pos = antenna.getAntennaPos();
 
@@ -275,7 +298,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             for (int i = 0; i < audio.length; i++) {
                 audio[i] = (short)Math.round(audio[i] * radio.micGain);
             }
-            transmitAudioPacket(level, audio, Band.getBand("2m"), radio.frequency, sourcePlayer);
+            transmitAudioPacket(level, audio, Band.getBand("2m"), radio.transmitFrequency(), sourcePlayer, radio.ctcssTone);
         }
     }
 
@@ -285,6 +308,11 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             receive(packet);
         }
     }
+
+    /** How long splatter from a signal just off frequency is remembered: a few 20 ms voice frames. */
+    private static final long ADJACENT_QRM_HOLD_NANOS = 100_000_000L;
+    private double adjacentQrm = 0.0D;
+    private long adjacentQrmNanos = Long.MIN_VALUE / 2;
 
     @Override
     public synchronized void receive(AntennaVoicePacket antennaPacket) {
@@ -307,18 +335,36 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             boolean isHeld = false;
             boolean shouldRecieve = false;
             float gain = 1.0f;
+            double detuneStrength = 0.0D; // Best of the handhelds that hear it (FM: up to 2 kHz off, weaker).
+            double qrm = 0.0D; // Splatter it puts on the handhelds it is only near (3-10 kHz or one channel step off).
+            int channelStep = RadiocraftServerConfig.VHF_FREQUENCY_STEP.get();
             for(SynchronousRadioState state : this.radios) {
-                boolean inReasonableRange = BandUtils.areFrequenciesEqualWithTolerance(state.frequency, packetFrequency, 1000);
-                if (state.canReceive && inReasonableRange) {
-                    shouldRecieve = true;
-                    if(state.itemLocation == HandheldLocation.HELD) {
-                        isHeld = true;
+                if(state.canReceive) {
+                    Detuning.Effect effect = Detuning.fm(state.frequency, packetFrequency, channelStep);
+                    if(effect.audible() && !Ctcss.opens(state.ctcssTone, antennaPacket.getCtcssTone()))
+                        continue; // Tone squelch: not this radio's tone.
+                    if(effect.audible()) {
+                        shouldRecieve = true;
+                        detuneStrength = Math.max(detuneStrength, effect.strength());
+                        if(state.itemLocation == HandheldLocation.HELD) {
+                            isHeld = true;
+                        }
                     }
+                    else
+                        qrm = Math.max(qrm, effect.qrm());
                 }
                 gain = state.gain;
             }
 
-            if(!shouldRecieve) return;
+            if(!shouldRecieve) { // FM squelch stays shut; remember the splatter for the signal that is on frequency.
+                if(qrm > 0.0D) {
+                    adjacentQrm = qrm * packetStrength;
+                    adjacentQrmNanos = System.nanoTime();
+                }
+                return;
+            }
+            packetStrength *= detuneStrength;
+            double splatter = System.nanoTime() - adjacentQrmNanos <= ADJACENT_QRM_HOLD_NANOS ? Detuning.splatterOn(1.0D, adjacentQrm, packetStrength) : 0.0D;
 
             // FM receiver: AGC against the receiver's own noise, voice band, overdrive; aurora rasp beyond line of sight.
             AntennaPos source = antennaPacket.getSource() == null ? null : antennaPacket.getSource().getAntennaPos();
@@ -326,15 +372,14 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             boolean beyondLos = source != null && here != null && antennaPacket.getBand() != null
                     && source.position().distSqr(here.position()) > (double)antennaPacket.getBand().losRange() * antennaPacket.getBand().losRange();
             double level = ReceiverMix.voiceLevel(packetStrength, RadiocraftServerConfig.VHF_NOISE_FLOOR.get()) * (isHeld ? 1.0D : 0.5D) * gain;
-            short[] rawAudio = processor.process(antennaPacket.getRawAudio(), RadioVoiceProcessor.currentSettings(), level, beyondLos ? 1.0D : 0.0D);
+            short[] rawAudio = processor.process(antennaPacket.getRawAudio(), RadioVoiceProcessor.currentSettings(), level, beyondLos ? 1.0D : 0.0D, 0.0D, 0.0D, splatter);
             long runningTotal = 0;
             for(short sample : rawAudio)
                 runningTotal = sample * sample;
 
             //TODO rework receiving to be per handheld, when frequency support is added
             for(SynchronousRadioState state : this.radios) {
-                boolean inReasonableRange = BandUtils.areFrequenciesEqualWithTolerance(state.frequency, packetFrequency, 1000);
-                if(state.canReceive && inReasonableRange) {
+                if(state.canReceive && Detuning.fm(state.frequency, packetFrequency, channelStep).audible() && Ctcss.opens(state.ctcssTone, antennaPacket.getCtcssTone())) {
                     state.runningSampleCount += rawAudio.length;
                     state.runningSampleSum += runningTotal;
                 }

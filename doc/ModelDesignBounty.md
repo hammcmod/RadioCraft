@@ -58,6 +58,15 @@ is in the file itself: its start and end do not line up. Found in the 2026-10-21
   zero crossings), mono OGG Vorbis, same name. A few seconds is plenty.
 - Deliverables: the OGG. Drop it over `assets/radiocraft/sounds/static.ogg`; nothing else changes.
 
+### Hustler 5-BTV vertical antenna
+
+A model of the Hustler 5-BTV: a multiband HF trap vertical (80/40/30/20/15/10m), an aluminium tube with the
+trap coils along it, standing on a ground mount. Requested by the maintainer 2026-10-21.
+
+- Wanted: a 3D block model and texture, about 7.5 blocks tall (a multi-block or tall-rendered model; the base
+  block is where the coax connects), with the traps visible as thicker coil sections up the tube.
+- No antenna type for it yet; it will need one (multiband vertical) when the model lands.
+
 ## Done
 
 ### Balun (9:1) texture

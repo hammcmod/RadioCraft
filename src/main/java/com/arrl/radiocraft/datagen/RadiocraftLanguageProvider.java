@@ -122,6 +122,26 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("tooltip", "balun_two_to_one"), "Feed point for quad loops.");
 			provider.add(Radiocraft.translationKey("tooltip", "balun_nine_to_one"), "Feed point for a random wire: one wire of any shape, at least half a wavelength long. Needs an antenna tuner.");
 			provider.add("container.radiocraft.vhf_repeater", "VHF Repeater");
+			provider.add(Radiocraft.translationKey("screen", "repeater.rx_frequency"), "Input (receive) frequency, MHz");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tx_frequency"), "Output (transmit) frequency, MHz");
+			provider.add(Radiocraft.translationKey("screen", "repeater.frequency"), "Frequency");
+			provider.add(Radiocraft.translationKey("screen", "repeater.callsign"), "Callsign, sent in Morse");
+			provider.add(Radiocraft.translationKey("screen", "repeater.rx_tone"), "Access tone (CTCSS RX)");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tx_tone"), "Output tone (CTCSS TX)");
+			provider.add(Radiocraft.translationKey("screen", "repeater.id_off"), "ID: off");
+			provider.add(Radiocraft.translationKey("screen", "repeater.id_every"), "ID every %s min");
+			provider.add(Radiocraft.translationKey("screen", "repeater.hang"), "Hang time: %s s");
+			provider.add(Radiocraft.translationKey("screen", "repeater.timeout"), "Timeout: %s");
+			provider.add(Radiocraft.translationKey("screen", "repeater.timeout_off"), "Timeout: off");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tip.power"), "Power");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tip.prt_rx"), "Input frequency: %s MHz");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tip.prt_tx"), "Output frequency: %s MHz");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tip.cw_id"), "Callsign ID: %s");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tip.ctc_rx"), "Access tone: %s");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tip.ctc_tx"), "Output tone: %s");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tip.mic"), "Mic: talk out through the repeater from here");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tip.tx"), "Transmitter: repeat what comes in");
+			provider.add(Radiocraft.translationKey("screen", "repeater.tip.speaker"), "Speaker: listen to the input here");
 			
 			// Digital Interface tab labels
 			provider.add(Radiocraft.translationKey("gui", "tab.arps"), "ARPS");

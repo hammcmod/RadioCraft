@@ -27,7 +27,7 @@ import static com.arrl.radiocraft.gametest.TransmissionGameTests.*;
 @PrefixGameTestTemplate(false)
 public class ComparatorGameTests {
 
-    private static final int F_METER = 270;
+    private static final int F_METER = 275;
 
     /**
      * Puts a comparator at {@code pos} reading the block in direction {@code input}, on a stone block so it survives

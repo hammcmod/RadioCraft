@@ -56,6 +56,14 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 	 * @param rasp  Aurora rasp, 0 to 1.
 	 */
 	public void receive(AntennaVoicePacket antennaPacket, double level, double rasp) {
+		receive(antennaPacket, level, rasp, 0.0D, 0.0D, 0.0D);
+	}
+
+	/**
+	 * As {@link #receive(AntennaVoicePacket, double, double)}, for a signal that is off frequency or has a neighbour
+	 * splattering onto it; see {@link RadioVoiceProcessor#process(short[], RadioVoiceProcessor.Settings, double, double, double, double, double)}.
+	 */
+	public void receive(AntennaVoicePacket antennaPacket, double level, double rasp, double pitchShiftHz, double splatter, double qrm) {
 		if(!isReceiving)
 			return;
 		if(RadiocraftVoicePlugin.API == null) {
@@ -71,7 +79,7 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 		if(receiveChannel == null)
 			return;
 
-		short[] rawAudio = processor.process(antennaPacket.getRawAudio(), RadioVoiceProcessor.currentSettings(), level, rasp);
+		short[] rawAudio = processor.process(antennaPacket.getRawAudio(), RadioVoiceProcessor.currentSettings(), level, rasp, pitchShiftHz, splatter, qrm);
 		byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
 		receiveChannel.send(opusAudio);
 	}

@@ -51,6 +51,11 @@ In order. Each step gets GameTests where the server side can be checked; audio s
   SWR is 2 + 0.5 per block off a half-wave multiple, so it always needs the tuner; gain -3 dBi both ways. Deviation
   from the proposal: fed straight from the 9:1 balun (a 1:1 balun in series would count as a second antenna).
 - [ ] Duplexer runtime effect (repeater protection, losses) to unblock repeater work
+- [ ] Add in SWR consequences (maintainer, 2026-10-21): high SWR, and any long transmission with no antenna, should
+  damage the radio. For now a radio with no antenna just works at a few blocks' range.
+- [ ] Dummy load block (maintainer, 2026-10-21): a coax load to transmit into safely, once SWR has consequences
+- [ ] Implement duplexer tuning (maintainer, 2026-10-21): the six screws on the duplexer screen tune the RX and TX
+  cavities; a badly tuned duplexer loses signal and lets the transmitter desense the receiver
 - [ ] Implement antenna analyzer UI and data capture
 - [ ] Implement shared antenna behavior hooks so antenna blocks drive propagation
 - [ ] Hook SWR consequences (fire/destruction) into `RadioBlockEntity`
@@ -100,7 +105,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   in seconds, Jade lines (delay, linked side, state).
 - [ ] Parrot controller: a way to pick the linked radio when two are adjacent (currently the first side found,
   north-east-south-west)
-- [ ] Implement VHF repeater block entity, callsign prompt, duplexer validation, and sleep/wake cycle
+- [x] VHF repeater (2026-10-21): input/output frequencies, CTCSS access and output tones, CW ID in Morse tone, hang
+  time with courtesy beep, timeout timer, MIC/TX/SPEAKER, duplexer on the back/top/bottom (kerchunks without one),
+  bare connector without an antenna. Handhelds and the base station got a tone and a ±600 kHz offset.
+- [ ] Repeater: sleep/wake cycle (from the original plan) not done; the repeater is not in the release creative tab yet.
 - [ ] Add multi-channel scan indicator to VHF receiver UI
 
 ### Digital & APRS Features
@@ -109,6 +117,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 
 ### Antenna Expansions
 - [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types
+- [ ] Figure out how we'll allow building of HF yagis (maintainer, 2026-10-21)
+- [ ] Hustler 5-BTV multiband vertical: antenna type once the model is drawn (bounty, 2026-10-21)
 - [ ] Revisit delta loop construction to support triangular build flow and align analyzer messaging
 - [ ] Add sag-varying visuals for long unsupported antenna wire runs
 - [x] 4:1 balun and off-centre-fed dipole (2026-10-21, maintainer): new `balun_four_to_one` feeding an OCFD
@@ -136,6 +146,7 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   to 6 (great); Jade shows the same. Nothing uses "10m open" for propagation yet (plan step 2).
 - [ ] Solar weather station, rest of the proposal: printed paper report (consumes paper, hopper fed, redstone
   activated), best-band calculator between two coordinates
+- [ ] Server setting to make the solar weather station require a powered VHF radio (maintainer, 2026-10-21)
 - [ ] Improve wire spool storage UX (bulk crafting/collapse)
 - [ ] Introduce random structures, auto-beacon radios, APRS Discord bridge, and external radio API hooks
 - [ ] Review all recipes together (maintainer, 2026-10-20): align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes; decide the simplex repeat controller recipe

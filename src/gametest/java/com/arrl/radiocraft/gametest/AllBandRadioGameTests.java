@@ -25,7 +25,7 @@ public class AllBandRadioGameTests {
 
     private static final BlockPos RADIO = new BlockPos(8, 2, 8);
     /** Frequency offset of its own (see TransmissionGameTests), so this contact is not heard by other tests. */
-    private static final int F_ALL_BAND = 300;
+    private static final int F_ALL_BAND = 320;
 
     private static HFRadioAllBandBlockEntity allBand(GameTestHelper helper, BlockPos pos) {
         return GameTestUtil.blockEntity(helper, pos, HFRadioAllBandBlockEntity.class);
@@ -50,6 +50,30 @@ public class AllBandRadioGameTests {
         HFRadioAllBandBlockEntity copy = new HFRadioAllBandBlockEntity(helper.absolutePos(RADIO.east()), radio.getBlockState());
         copy.loadWithComponents(saved, helper.getLevel().registryAccess());
         helper.assertTrue(copy.getBandIndex() == 1, "The band should survive a save, got position " + copy.getBandIndex());
+        helper.succeed();
+    }
+
+    /**
+     * On 2m the frequency steps like on any other band (it used to stick at 144.000: 144.001 MHz does not fit a float
+     * exactly, so the off-grid check threw every step away), and the stepped frequency survives a save.
+     */
+    @GameTest(template = GameTestUtil.EMPTY)
+    public static void tuningWorksOn2m(GameTestHelper helper) {
+        helper.setBlock(RADIO, RadiocraftBlocks.ALL_BAND_RADIO.get());
+        HFRadioAllBandBlockEntity radio = allBand(helper, RADIO);
+        radio.setBandIndex(4);
+        radio.updateFrequency(3);
+        helper.assertTrue(Math.abs(radio.getFrequency() - 144_003_000.0D) < 20.0D, "Three steps up should be 144.003 MHz, was " + radio.getFrequency());
+        radio.updateFrequency(-1);
+        helper.assertTrue(Math.abs(radio.getFrequency() - 144_002_000.0D) < 20.0D, "One step down should be 144.002 MHz, was " + radio.getFrequency());
+
+        CompoundTag saved = radio.saveWithoutMetadata(helper.getLevel().registryAccess());
+        HFRadioAllBandBlockEntity copy = new HFRadioAllBandBlockEntity(helper.absolutePos(RADIO.east()), radio.getBlockState());
+        copy.loadWithComponents(saved, helper.getLevel().registryAccess());
+        helper.assertTrue(copy.getFrequency() == radio.getFrequency(), "The 2m frequency should survive a save, got " + copy.getFrequency());
+
+        radio.updateFrequency(1_000_000);
+        helper.assertTrue(radio.getFrequency() == radio.getBand().maxFrequency(), "Should stop at the top of 2m, was " + radio.getFrequency());
         helper.succeed();
     }
 

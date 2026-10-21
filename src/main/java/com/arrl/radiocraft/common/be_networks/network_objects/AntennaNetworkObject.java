@@ -46,9 +46,14 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
 
     /** Sends voice out of the antenna. Nothing goes out while the balun has no recognized antenna yet. */
     public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequency, UUID sourcePlayer) {
+        transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer, 0.0F);
+    }
+
+    /** As above, with a CTCSS tone under the voice (0 for none). */
+    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequency, UUID sourcePlayer, float ctcssTone) {
         StaticAntenna<?> antenna = this.antenna; // Read once: voice arrives on Simple Voice Chat's thread.
         if(antenna != null)
-            antenna.transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer);
+            antenna.transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer, ctcssTone);
     }
 
     public void receiveAudioPacket(AntennaVoicePacket packet) {
@@ -56,8 +61,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
             BlockPos checkPos = radios.iterator().next().getPos();
             if(level.isLoaded(checkPos)) {
                 if(level.getChunkAt(checkPos).getBlockEntity(checkPos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof RadioBlockEntity radio) {
-                    if(BandUtils.areFrequenciesEqualWithTolerance(radio.getFrequency(), packet.getFrequency(), 1000.0F)) // Only receive if listening to correct frequency.
-                        radio.receiveVoice(packet);
+                    radio.receiveVoice(packet); // The radio decides whether it is close enough in frequency (Detuning).
                 }
             }
         }

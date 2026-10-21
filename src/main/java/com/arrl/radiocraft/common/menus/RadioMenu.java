@@ -16,7 +16,7 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
 	private final Block validBlock;
 	private final ContainerLevelAccess canInteractWithCallable;
 
-	private final ContainerData data;
+	protected final ContainerData data;
 
     @SuppressWarnings("this-escape")
 	public RadioMenu(MenuType<?> type, int id, T blockEntity, Block validBlock) {

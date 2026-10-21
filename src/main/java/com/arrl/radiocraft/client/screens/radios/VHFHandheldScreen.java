@@ -8,6 +8,7 @@ import com.arrl.radiocraft.client.screens.widgets.*;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
 import com.arrl.radiocraft.common.network.serverbound.SHandheldRadioUpdatePacket;
 import com.arrl.radiocraft.common.radio.Band;
+import com.arrl.radiocraft.common.radio.voice.Ctcss;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
@@ -117,9 +118,12 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(POWER_METER);
     }
 
+    /** DEFAULT shows the frequency; ENTER steps through the TONE and OFFSET pages, where the arrows change the setting. */
     protected enum MenuState{
         DEFAULT,
-        SET_FREQ
+        SET_FREQ,
+        TONE,
+        OFFSET
     }
 
     @Override
@@ -175,9 +179,18 @@ public class VHFHandheldScreen extends Screen {
         if (cap.isPowered()) {
             if (menuState == MenuState.DEFAULT) {
                 pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyHertz() / 1000_000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
+                String settings = (cap.getOffsetHz() == 0 ? "" : cap.getOffsetHz() < 0 ? "- " : "+ ") + (cap.getCtcssTone() > 0 ? "T" : "");
+                if (!settings.isEmpty()) // Offset and tone markers, left of the battery reading.
+                    pGuiGraphics.drawString(this.font, settings, leftPos + 80, topPos + 133, 0xFFFFFF);
             } else if (menuState == MenuState.SET_FREQ) {
                 pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);
                 pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", frequencyEntryState.getFrequencyHz() / 1000_000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
+            } else if (menuState == MenuState.TONE) {
+                pGuiGraphics.drawString(this.font, "Tone", leftPos + 80, topPos + 119, 0xFFFFFF);
+                pGuiGraphics.drawString(this.font, Ctcss.format(cap.getCtcssTone()), leftPos + 80, topPos + 133, 0xFFFFFF);
+            } else if (menuState == MenuState.OFFSET) {
+                pGuiGraphics.drawString(this.font, "Offset", leftPos + 80, topPos + 119, 0xFFFFFF);
+                pGuiGraphics.drawString(this.font, Ctcss.formatOffset(cap.getOffsetHz()), leftPos + 80, topPos + 133, 0xFFFFFF);
             }
         }
 
@@ -234,7 +247,7 @@ public class VHFHandheldScreen extends Screen {
             String percentText = String.format("%d%%", (int)(percentage * 100));
             int textWidth = this.font.width(percentText);
             int textX = leftPos + 140 - textWidth; // Right-aligned, within screen bounds
-            int textY = topPos + (menuState == MenuState.SET_FREQ ? 119 : 133);
+            int textY = topPos + (menuState == MenuState.DEFAULT ? 133 : 119);
             graphics.drawString(this.font, percentText, textX, textY, 0xFFFFFF);
         }
     }
@@ -291,7 +304,7 @@ public class VHFHandheldScreen extends Screen {
     protected void onNum(int num){
         if(!cap.isPowered()) return;
 
-        if (menuState == MenuState.DEFAULT) {
+        if (menuState != MenuState.SET_FREQ) {
             menuState = MenuState.SET_FREQ;
             frequencyEntryState.reset();
         }
@@ -306,6 +319,18 @@ public class VHFHandheldScreen extends Screen {
      */
     private void onPressEnter(Button button) {
         if(!cap.isPowered()) return;
+        if(menuState == MenuState.DEFAULT) { // ENTER pages through the settings and back.
+            menuState = MenuState.TONE;
+            return;
+        }
+        if(menuState == MenuState.TONE) {
+            menuState = MenuState.OFFSET;
+            return;
+        }
+        if(menuState == MenuState.OFFSET) {
+            menuState = MenuState.DEFAULT;
+            return;
+        }
         if(menuState == MenuState.SET_FREQ) {
             float requestedFrequency = frequencyEntryState.getFrequencyHz();
             if(requestedFrequency >= Band.getBand(2).minFrequency() && requestedFrequency <= Band.getBand(2).maxFrequency()) {
@@ -319,11 +344,24 @@ public class VHFHandheldScreen extends Screen {
         }
     }
 
+    /** On the TONE or OFFSET page the arrows change that setting instead of the frequency; true if they did. */
+    private boolean changeSetting(int direction) {
+        if(menuState == MenuState.TONE)
+            cap.setCtcssTone(Ctcss.step(cap.getCtcssTone(), direction));
+        else if(menuState == MenuState.OFFSET)
+            cap.setOffsetHz(Ctcss.nextOffset(cap.getOffsetHz()));
+        else
+            return false;
+        updateServer();
+        return true;
+    }
+
     /**
      * Callback for frequency up buttons.
      */
     protected void onFrequencyButtonUp(Button button) {
         if(!cap.isPowered()) return;
+        if(changeSetting(1)) return;
         cap.setFrequencyHertz(
                 Math.min( //ServerConfig is synced on game join, so no further checking is necessary
                         cap.getFrequencyHertz() + RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),
@@ -338,6 +376,7 @@ public class VHFHandheldScreen extends Screen {
      */
     protected void onFrequencyButtonDown(Button button) {
         if(!cap.isPowered()) return;
+        if(changeSetting(-1)) return;
         cap.setFrequencyHertz(
                 Math.max(  //ServerConfig is synced on game join, so no further checking is necessary
                         cap.getFrequencyHertz() - RadiocraftServerConfig.VHF_FREQUENCY_STEP.get(),

@@ -68,7 +68,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 	public void receiveCW(AntennaCWPacket packet) {
 		if(level instanceof ServerLevel serverLevel && canReceiveCW()) {
 			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
-			if(antennas.size() == 1) {
+			if(antennas.size() <= 1) { // None: it came in through the bare connector.
 				recordSignal(packet.getStrength());
 				List<CWBuffer> buffers = List.copyOf(packet.getBuffers());
 				if(isParrot())
@@ -114,6 +114,8 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 			}
 			else if(antennas.size() > 1)
 				overdraw();
+			else if(bareConnector != null) // No antenna: a few blocks out of the bare connector.
+				bareConnector.transmitCWPacket(serverLevel, buffers, band, frequency);
 		}
 	}
 

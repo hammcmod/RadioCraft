@@ -23,6 +23,10 @@ import com.arrl.radiocraft.common.radio.rfi.TransmitInterference;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
+import com.arrl.radiocraft.common.radio.antenna.BareConnectorAntenna;
+import com.arrl.radiocraft.common.radio.voice.Ctcss;
+import com.arrl.radiocraft.common.radio.voice.Detuning;
+import com.arrl.radiocraft.common.radio.voice.RepeaterAudio;
 import com.arrl.radiocraft.common.radio.voice.ReceiverMix;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
@@ -44,6 +48,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayDeque;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.atomic.AtomicReference;
@@ -88,6 +94,9 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     @Nullable
     private TransmitInterference.Targets transmitTargets = null;
     protected volatile long lastTransmitGameTime = -1L; // Last tick anything went out the antenna (voice frame or CW), from any thread.
+    // The antenna socket while nothing is on the coax: a few blocks of range (server only, see BareConnectorAntenna).
+    @Nullable
+    protected volatile BareConnectorAntenna bareConnector = null;
 
     public RadioBlockEntity(BlockEntityType<? extends RadioBlockEntity> type, BlockPos pos, BlockState state, Band band) {
         super(type, pos, state);
@@ -117,6 +126,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
             double newSWR = 0.0D; // No power, no SWR (and no static).
             AntennaNetworkObject antenna = null;
+            if(!level.isClientSide)
+                be.tickBareConnector(powered && networkObject.getAntennas().isEmpty());
             if(powered) {
                 List<AntennaNetworkObject> antennas = networkObject.getAntennas();
                 if(antennas.size() == 1) {
@@ -145,6 +156,33 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             }
             be.additionalTick();
         }
+    }
+
+    // -------------------- BARE CONNECTOR (NO ANTENNA) --------------------
+
+    /** Keeps the bare connector on the antenna network of this radio's band while it is wanted, and off it otherwise. */
+    private void tickBareConnector(boolean wanted) {
+        if(wanted) {
+            if(bareConnector == null)
+                bareConnector = new BareConnectorAntenna(this);
+            bareConnector.register(band);
+        }
+        else
+            dropBareConnector();
+    }
+
+    private void dropBareConnector() {
+        BareConnectorAntenna bare = bareConnector;
+        if(bare != null) {
+            bare.unregister();
+            bareConnector = null;
+        }
+    }
+
+    /** The bare connector, while the radio is on with nothing on its coax; null otherwise. */
+    @Nullable
+    public BareConnectorAntenna getBareConnector() {
+        return bareConnector;
     }
 
     // -------------------- S-METER (COMPARATOR OUTPUT) --------------------
@@ -280,16 +318,46 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return parrotDelayTicks > 0;
     }
 
-    /** Sends out every queued transmission whose delay has run out. Server tick only. */
+    /** Ticks of quiet after the last echoed frame before the parrot counts the over as finished and beeps. */
+    public static final int PARROT_BEEP_GAP_TICKS = 3;
+    private final ArrayDeque<short[]> parrotBeep = new ArrayDeque<>();
+    private boolean parrotBeepPending = false;
+    private UUID parrotVoiceId = null;
+
+    /**
+     * Sends out every queued transmission whose delay has run out, and once an echoed voice over has finished, a
+     * courtesy beep like a repeater's. Server tick only.
+     */
     protected void tickParrot(ServerLevel serverLevel) {
-        if(parrotVoiceQueue.isEmpty())
-            return;
         long now = serverLevel.getGameTime();
+        boolean echoed = false;
         for(QueuedVoice next = parrotVoiceQueue.peek(); next != null && next.dueTick() <= now; next = parrotVoiceQueue.peek()) {
             parrotVoiceQueue.poll();
             acceptVoicePacket(() -> serverLevel, next.audio(), next.sourcePlayer());
             recordParrotEcho(serverLevel);
+            echoed = true;
         }
+        if(echoed)
+            parrotBeepPending = true;
+        else if(parrotBeepPending && parrotVoiceQueue.isEmpty() && now - lastParrotEchoGameTime >= PARROT_BEEP_GAP_TICKS) {
+            parrotBeepPending = false;
+            if(isParrot())
+                parrotBeep.addAll(RepeaterAudio.courtesyBeep());
+        }
+        if(parrotBeep.isEmpty())
+            return;
+        if(parrotVoiceId == null)
+            parrotVoiceId = UUID.nameUUIDFromBytes(("radiocraft-parrot-" + worldPosition.asLong()).getBytes(StandardCharsets.UTF_8));
+        int frames = now % 2 == 0 ? 3 : 2; // 2.5 frames of 20 ms per 50 ms tick.
+        for(int i = 0; i < frames && !parrotBeep.isEmpty(); i++) {
+            acceptVoicePacket(() -> serverLevel, parrotBeep.poll(), parrotVoiceId);
+            recordParrotEcho(serverLevel);
+        }
+    }
+
+    /** True while the parrot has a courtesy beep still to send, for tests. */
+    public boolean isParrotBeeping() {
+        return !parrotBeep.isEmpty();
     }
 
     /** Remembers that an echo just went out, for the parrot controller's transmit light. */
@@ -367,25 +435,81 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     }
 
     /**
-     * Server side entry point for a voice transmission that reached this radio's antenna on its frequency. Called from
-     * the voice chat thread. Records the signal (so the server, debug tools and tests can see what arrived) and hands
-     * the audio to the {@link BEVoiceReceiver} for playback.
+     * Server side entry point for a voice transmission that reached this radio's antenna, on its frequency or near it
+     * ({@link Detuning}). Called from the voice chat thread. A signal the radio can hear is recorded (so the server,
+     * debug tools and tests can see what arrived) and handed to the {@link BEVoiceReceiver} for playback; one that is
+     * only close enough to splatter (FM) is remembered and roughens what the radio hears on its own frequency.
      *
-     * @return True if the radio was listening and took the packet.
+     * @return True if the radio was listening and the packet is heard.
      */
     public boolean receiveVoice(AntennaVoicePacket packet) {
-        if(!getVoiceReceiver().isReceiving())
+        if(!isListening())
+            return false;
+        Detuning.Effect effect = getDetuning(packet.getFrequency());
+        if(effect.isNone())
             return false;
         boolean skip = isSkipPath(packet);
         double strength = packet.getStrength();
         if(skip && level != null) // Skip signals swell and fade (QSB); line of sight holds steady.
             strength *= ReceiverMix.fading(level.getGameTime() / 20.0D, pathSeed(packet), RadiocraftServerConfig.SKIP_FADING_DEPTH.get());
+        if(!effect.audible()) { // The squelch stays shut; the splatter waits for a signal on frequency.
+            adjacentQrm = effect.qrm() * strength;
+            adjacentQrmGameTime = level == null ? 0L : level.getGameTime();
+            return false;
+        }
+        if(!Ctcss.opens(getToneSquelch(), packet.getCtcssTone()))
+            return false; // Tone squelch: not our tone, the speaker stays quiet.
+        strength *= effect.strength();
         recordSignal(strength);
         if(isParrot()) // Queue the audio as it arrived, before the receiver scales it, so the echo carries one path's loss, not two.
             parrotVoiceQueue.add(new QueuedVoice(packet.getRawAudio().clone(), packet.getSourcePlayer(), lastSignalGameTime + parrotDelayTicks));
         double rasp = skip && band != null && band.isVhf() ? 1.0D : 0.0D; // A VHF signal beyond line of sight came off the aurora.
-        getVoiceReceiver().receive(packet, ReceiverMix.voiceLevel(strength, getNoiseFloor()), rasp);
+        getVoiceReceiver().receive(packet, ReceiverMix.voiceLevel(strength, getNoiseFloor()), rasp,
+                effect.pitchShiftHz(), effect.splatter(), Detuning.splatterOn(1.0D, getAdjacentQrm(), strength));
         return true;
+    }
+
+    /**
+     * True while the receiver takes signals in. Normally that is when it plays them (switched on, voice mode, not
+     * transmitting); a repeater listens whenever it is on, and its speaker is a separate switch.
+     */
+    protected boolean isListening() {
+        return getVoiceReceiver().isReceiving();
+    }
+
+    /** Ticks a splattering neighbour is remembered for (it sends a frame every 20 ms, so it is still talking). */
+    public static final int ADJACENT_QRM_HOLD_TICKS = 2;
+
+    // Splatter from a signal a few kHz off (FM), already scaled by its strength. Written on the voice chat thread.
+    private volatile double adjacentQrm = 0.0D;
+    private volatile long adjacentQrmGameTime = -1L;
+
+    /** Splatter (scaled by the neighbour's strength) a signal just off frequency is putting on this radio, 0 if none lately. */
+    public double getAdjacentQrm() {
+        long now = level == null ? 0L : level.getGameTime();
+        return adjacentQrmGameTime >= 0 && now - adjacentQrmGameTime <= ADJACENT_QRM_HOLD_TICKS ? adjacentQrm : 0.0D;
+    }
+
+    /** Game time a signal just off frequency last splattered onto this radio, -1 if never. */
+    public long getAdjacentQrmGameTime() {
+        return adjacentQrmGameTime;
+    }
+
+    /** How this radio's receiver takes a signal on {@code txHz}: as SSB, or as FM for {@link #isFM() FM} radios. */
+    public Detuning.Effect getDetuning(float txHz) {
+        if(isFM())
+            return Detuning.fm(frequency, txHz, band != null && band.isVhf() ? RadiocraftServerConfig.VHF_FREQUENCY_STEP.get() : 0);
+        return Detuning.ssb(frequency, txHz, isLowerSideband());
+    }
+
+    /** True if the radio receives voice as FM (VHF radios); SSB otherwise. */
+    public boolean isFM() {
+        return false;
+    }
+
+    /** SSB on bands below 10 MHz (80 and 40m) is lower sideband, above it upper, as hams use it. */
+    public boolean isLowerSideband() {
+        return band != null && band.minFrequency() < 10_000_000;
     }
 
     /** True if the packet came from further away than line of sight on this band: by skip (or, on VHF, the aurora). */
@@ -528,22 +652,65 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * @param stepCount The number of steps to increment by.
      */
     public void updateFrequency(int stepCount) {
-        int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
-        float min = band.minFrequency();
-        float max = (band.maxFrequency() - band.minFrequency()) / step * step + min; // This calc looks weird, but it's integer division, throws away remainder to ensure the freq doesn't do a "half step" to max.
-
-        frequency = Mth.clamp(frequency + step * stepCount, min, max);
+        frequency = snapToStep(band, frequency, getFrequencyStep(), stepCount);
         setChanged();
         updateBlock();
     }
 
+    /** Hz the frequency dial moves per click: the HF step, or the VHF channel step on VHF radios. */
+    public int getFrequencyStep() {
+        return RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
+    }
+
+    /**
+     * {@code frequency} moved {@code stepCount} steps and put back on the band's step grid, inside the band. Counted in
+     * whole steps from the bottom of the band, because a float cannot hold every step exactly at 2m (144.001 MHz is
+     * stored as 144.001008): adding steps to the float and checking it against the grid would never land on it.
+     */
+    public static float snapToStep(Band band, float frequency, int step, int stepCount) {
+        long maxSteps = (long)((band.maxFrequency() - band.minFrequency()) / step); // Whole steps only, so the top never takes a half step.
+        long steps = Math.round(((double)frequency - band.minFrequency()) / step) + stepCount;
+        steps = Math.max(0L, Math.min(maxSteps, steps));
+        return (float)(band.minFrequency() + (double)steps * step);
+    }
+
     @Override
     public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
-        List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
+        transmitVoice(level, rawAudio, getTransmitFrequency(), sourcePlayer, getTransmitTone());
+    }
+
+    /**
+     * Puts one voice frame on the air on {@code txHz}: out of the antenna, or out of the bare connector (a few blocks)
+     * when nothing is on the coax. More than one antenna overdraws the radio instead.
+     */
+    protected void transmitVoice(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, float txHz, UUID sourcePlayer, float ctcssTone) {
+        if(!(IBENetworks.getObject(this.level, worldPosition) instanceof RadioNetworkObject networkObject))
+            return;
+        List<AntennaNetworkObject> antennas = networkObject.getAntennas();
         if(antennas.size() == 1)
-            antennas.get(0).transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer);
+            antennas.get(0).transmitAudioPacket(level, rawAudio, band, txHz, sourcePlayer, ctcssTone);
         else if(antennas.size() > 1)
             overdraw();
+        else {
+            BareConnectorAntenna bare = bareConnector;
+            if(bare != null)
+                bare.transmitAudioPacket(level, rawAudio, band, txHz, sourcePlayer, ctcssTone);
+        }
+    }
+
+    /** Where the radio transmits: its frequency, or with a repeater offset on VHF radios. */
+    public float getTransmitFrequency() {
+        return frequency;
+    }
+
+    /** CTCSS tone the radio sends under its voice, 0 for none. */
+    public float getTransmitTone() {
+        return 0.0F;
+    }
+
+    /** CTCSS tone the receiver needs to open its squelch, 0 for none (it opens for anything). */
+    public float getToneSquelch() {
+        return 0.0F;
     }
 
     @Override
@@ -622,10 +789,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         isPTTDown = nbt.getBoolean("pttDown");
         syncedSignal = nbt.getDouble("signal");
 
-        if(band != null) { // Reset the frequency if the saved one is outside the band or not on a step.
-            int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
-            if(frequency > band.maxFrequency() || frequency < band.minFrequency() || (frequency - band.minFrequency()) % step != 0)
+        if(band != null) { // Reset the frequency if the saved one is outside the band, and put it back on a step.
+            if(frequency > band.maxFrequency() || frequency < band.minFrequency())
                 frequency = band.minFrequency();
+            else
+                frequency = snapToStep(band, frequency, getFrequencyStep(), 0);
         }
     }
 
@@ -672,6 +840,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void setRemoved() {
         if(!level.isClientSide()) {
             VoiceTransmitters.removeListener(level, this); // Stop listening when removed.
+            dropBareConnector();
             RedstoneInterference.unregister(level, worldPosition);
             zoneAntenna = null;
             if(level instanceof ServerLevel serverLevel)
@@ -684,6 +853,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void onChunkUnloaded() {
         if(!level.isClientSide()) {
             VoiceTransmitters.removeListener(level, this); // Stop listening when chunk unloads.
+            dropBareConnector();
             RedstoneInterference.unregister(level, worldPosition);
             zoneAntenna = null;
             if(level instanceof ServerLevel serverLevel)

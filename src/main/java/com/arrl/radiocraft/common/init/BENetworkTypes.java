@@ -20,6 +20,8 @@ public class BENetworkTypes {
         BENetworkRegistry.registerObject(AntennaNetworkObject.TYPE, (level, pos) -> new AntennaNetworkObject(level, pos, AntennaNetworkManager.HF_ID));
         BENetworkRegistry.registerObject(ChargeControllerNetworkObject.TYPE, ChargeControllerNetworkObject::new);
         BENetworkRegistry.registerObject(AntennaTunerNetworkObject.TYPE, AntennaTunerNetworkObject::new);
+        BENetworkRegistry.registerObject(DuplexerNetworkObject.TYPE, DuplexerNetworkObject::new);
+        BENetworkRegistry.registerObject(RepeaterNetworkObject.TYPE, (level, pos) -> new RepeaterNetworkObject(level, pos, 0, 0));
     }
 
 }

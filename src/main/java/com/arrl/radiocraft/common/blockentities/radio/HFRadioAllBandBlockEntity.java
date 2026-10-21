@@ -86,6 +86,11 @@ public class HFRadioAllBandBlockEntity extends HFRadioBlockEntity {
     }
 
     @Override
+    public boolean isFM() {
+        return fmEnabled;
+    }
+
+    @Override
     public boolean shouldPlayStatic() {
         return !fmEnabled && super.shouldPlayStatic(); // FM is squelched.
     }

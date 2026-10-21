@@ -3,6 +3,7 @@ package com.arrl.radiocraft.gametest;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import net.minecraft.core.BlockPos;
@@ -41,23 +42,24 @@ public class TransmissionGameTests {
     /*
      * Every test tunes its two radios to a frequency of its own (band bottom + N kHz). The GameTest server runs all
      * tests at the same time in neighbouring plots, and antennas from every plot share the one HF antenna network, so
-     * two tests on the same frequency would hear each other. The dipole is matched (SWR 1) across the whole 20m band.
+     * two tests on the same frequency would hear each other. SSB is heard up to 10 kHz off (Detuning), so they sit 15 kHz
+     * apart. The dipole is matched (SWR 1) across the whole 20m band.
      */
-    private static final int F_VOICE = 100;
-    private static final int F_BOTH_WAYS = 110;
-    private static final int F_OTHER_FREQ = 120;
-    private static final int F_UNPOWERED = 130;
-    private static final int F_CW_MODE_VOICE = 140;
-    private static final int F_NO_ANTENNA = 150;
-    private static final int F_CW = 160;
-    private static final int F_CW_SSB = 170;
-    private static final int F_CW_POWER = 180;
-    private static final int F_BARE_BALUN = 190;
-    private static final int F_SIGNAL_SYNC = 290;
-    private static final int F_PARROT_VOICE = 200;
-    private static final int F_PARROT_CW = 210;
-    private static final int F_PARROT_OFF = 220;
-    // 230-260 are used by ParrotControllerGameTests, 270 by ComparatorGameTests.
+    private static final int F_VOICE = 20;
+    private static final int F_BOTH_WAYS = 35;
+    private static final int F_UNPOWERED = 65;
+    private static final int F_CW_MODE_VOICE = 80;
+    private static final int F_NO_ANTENNA = 95;
+    private static final int F_CW = 110;
+    private static final int F_CW_SSB = 125;
+    private static final int F_CW_POWER = 140;
+    private static final int F_BARE_BALUN = 155;
+    private static final int F_SIGNAL_SYNC = 305;
+    private static final int F_PARROT_VOICE = 170;
+    private static final int F_PARROT_CW = 185;
+    private static final int F_PARROT_OFF = 200;
+    // 215-260 are used by ParrotControllerGameTests, 275 by ComparatorGameTests, 290-335 by AntennaTunerGameTests;
+    // DetuningGameTests run in a batch of their own.
     static final double EXPECTED_VOICE_STRENGTH = 1.0D - 9.0D / 300.0D;
     static final double EXPECTED_CW_STRENGTH = 1.0D - (9.0D / 1.5D) / 300.0D;
     static final double TOLERANCE = 1e-6;
@@ -190,19 +192,6 @@ public class TransmissionGameTests {
     }
 
     /** A radio tuned 5 kHz away hears nothing. */
-    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
-    public static void radioOnAnotherFrequencyHearsNothing(GameTestHelper helper) {
-        stationsUp(helper)
-                .thenExecute(() -> {
-                    setupSsb(helper, RADIO_A, F_OTHER_FREQ);
-                    setupSsb(helper, RADIO_B, F_OTHER_FREQ);
-                    radio(helper, RADIO_B).updateFrequency(5); // 5 kHz above A
-                    speakInto(helper, RADIO_A);
-                    assertHeardNothing(helper, RADIO_B);
-                })
-                .thenSucceed();
-    }
-
     /** A radio that is switched off hears nothing, even in SSB mode on the right frequency. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
     public static void unpoweredRadioHearsNothing(GameTestHelper helper) {
@@ -354,7 +343,11 @@ public class TransmissionGameTests {
                     helper.assertTrue(waited >= PARROT_DELAY, "Echo came back after " + waited + " ticks, expected at least " + PARROT_DELAY);
                     helper.assertTrue(Math.abs(a.getLastSignalStrength() - EXPECTED_VOICE_STRENGTH) < TOLERANCE,
                             "Echo strength " + a.getLastSignalStrength() + ", expected " + EXPECTED_VOICE_STRENGTH);
+                    spokeAt[0] = a.getLastSignalGameTime(); // Now: when the echo ended.
                 })
+                // Once the echo has finished, the parrot sends a courtesy beep.
+                .thenWaitUntil(() -> helper.assertTrue(radio(helper, RADIO_A).getLastSignalGameTime() >= spokeAt[0] + RadioBlockEntity.PARROT_BEEP_GAP_TICKS,
+                        "A has not heard the courtesy beep yet"))
                 .thenSucceed();
     }
 

@@ -4,6 +4,8 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioAllBandBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.VHFRadioBlockEntity;
+import com.arrl.radiocraft.common.radio.voice.Ctcss;
 import com.arrl.radiocraft.common.menus.RadioMenu;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.BlockPos;
@@ -24,7 +26,9 @@ public record SBlockRadioControlPacket(long pos, int actionId, int stepCount, bo
         STEP_FREQUENCY,
         SET_CW,
         SET_FM,
-        SET_BAND
+        SET_BAND,
+        SET_TONE, // stepCount: CTCSS tone list position (Ctcss.index), 0 for none
+        SET_OFFSET // stepCount: repeater offset in Hz
     }
 
     public static final CustomPacketPayload.Type<SBlockRadioControlPacket> TYPE = new CustomPacketPayload.Type<>(Radiocraft.id("s_block_radio_control"));
@@ -76,6 +80,14 @@ public record SBlockRadioControlPacket(long pos, int actionId, int stepCount, bo
                 case SET_BAND -> {
                     if(radio instanceof HFRadioAllBandBlockEntity allBand)
                         allBand.setBandIndex(stepCount);
+                }
+                case SET_TONE -> {
+                    if(radio instanceof VHFRadioBlockEntity vhf)
+                        vhf.setCtcssTone(Ctcss.fromIndex(stepCount));
+                }
+                case SET_OFFSET -> {
+                    if(radio instanceof VHFRadioBlockEntity vhf)
+                        vhf.setOffsetHz(stepCount);
                 }
             }
         });

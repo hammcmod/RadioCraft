@@ -301,8 +301,20 @@ public class RadioGameTests {
         helper.setBlock(RADIO, RadiocraftBlocks.VHF_REPEATER.get());
         helper.runAfterDelay(10, () -> {
             helper.assertTrue(helper.getBlockEntity(RADIO) != null, "Repeater block entity missing");
-            helper.assertTrue(IBENetworks.getObject(helper.getLevel(), helper.absolutePos(RADIO)) == null, "Repeater should have no network object");
+            helper.assertTrue(IBENetworks.getObject(helper.getLevel(), helper.absolutePos(RADIO)) instanceof com.arrl.radiocraft.common.be_networks.network_objects.RepeaterNetworkObject, "Repeater should have its network object");
             helper.succeed();
         });
+    }
+
+    /** The VHF base station steps by the VHF channel step (20 kHz), like the handhelds. */
+    @GameTest(template = GameTestUtil.EMPTY)
+    public static void vhfBaseStationStepsByChannel(GameTestHelper helper) {
+        helper.setBlock(RADIO, RadiocraftBlocks.VHF_BASE_STATION.get());
+        RadioBlockEntity radio = GameTestUtil.blockEntity(helper, RADIO, RadioBlockEntity.class);
+        float bottom = radio.getFrequency();
+        radio.updateFrequency(2);
+        double expected = bottom + 2.0D * com.arrl.radiocraft.RadiocraftServerConfig.VHF_FREQUENCY_STEP.get();
+        helper.assertTrue(Math.abs(radio.getFrequency() - expected) < 20.0D, "Two clicks should be " + expected + " Hz, was " + radio.getFrequency());
+        helper.succeed();
     }
 }

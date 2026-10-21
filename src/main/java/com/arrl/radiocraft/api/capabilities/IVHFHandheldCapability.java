@@ -92,4 +92,14 @@ public interface IVHFHandheldCapability {
      * @param micGain The gain of the microphone (1.0 is 100% gain)
      */
     void setMicGain(float micGain);
+
+    /** CTCSS tone sent under the voice and needed to open the squelch, 0 for none. */
+    float getCtcssTone();
+
+    void setCtcssTone(float tone);
+
+    /** Repeater offset in Hz: the radio transmits this far from its frequency (0 for simplex). */
+    int getOffsetHz();
+
+    void setOffsetHz(int offsetHz);
 }

@@ -16,9 +16,15 @@ public class AntennaVoicePacket implements IAntennaPacket {
 	private double strength;
 	private final IAntenna source;
 	private final UUID sourcePlayer;
+	private final float ctcssTone; // Sub-audible tone under the voice, 0 for none (see Ctcss).
 
 
 	public AntennaVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, Band band, float frequency, double strength, IAntenna source, UUID sourcePlayer) {
+		this(level, rawAudio, band, frequency, strength, source, sourcePlayer, 0.0F);
+	}
+
+	public AntennaVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, Band band, float frequency, double strength, IAntenna source, UUID sourcePlayer, float ctcssTone) {
+		this.ctcssTone = ctcssTone;
 		this.level = level;
 		this.rawAudio = rawAudio;
 		this.band = band;
@@ -62,6 +68,11 @@ public class AntennaVoicePacket implements IAntennaPacket {
 
 	public UUID getSourcePlayer() {
 		return sourcePlayer;
+	}
+
+	/** The CTCSS tone the transmitter sent, 0 for none. */
+	public float getCtcssTone() {
+		return ctcssTone;
 	}
 
 }

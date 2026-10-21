@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.DuplexerNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.DuplexerMenu;
 import net.minecraft.core.BlockPos;
@@ -31,6 +32,6 @@ public class DuplexerBlockEntity extends PowerBlockEntity {
 
 	@Override
 	public BENetworkObject createNetworkObject() {
-		return null; // Duplexer doesn't need a network object for now
+		return new DuplexerNetworkObject(level, worldPosition); // Passes the coax through; see VHFRepeaterBlockEntity.
 	}
 }
