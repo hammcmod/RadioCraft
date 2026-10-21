@@ -34,6 +34,12 @@ public abstract class HFRadioScreen<T extends RadioMenu<? extends HFRadioBlockEn
 		super.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 	}
 
+	/** CW has no PTT on the server: keying is local, so the readout follows our own key while in CW. */
+	@Override
+	protected boolean isTransmitting() {
+		return super.isTransmitting() || (menu.blockEntity.getCWEnabled() && RadiocraftClientValues.SCREEN_PTT_PRESSED);
+	}
+
 	/**
 	 * Callback for CW toggle buttons.
 	 */

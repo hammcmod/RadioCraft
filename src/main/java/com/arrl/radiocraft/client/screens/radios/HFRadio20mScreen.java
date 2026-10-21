@@ -46,16 +46,7 @@ public class HFRadio20mScreen extends HFRadioScreen<HFRadio20mMenu> {
 
 	@Override
 	protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-		/*
-		if(menu.isPowered()) {
-			poseStack.pushPose(); // Push/pop allows you to add a set of transformations to the stack. Pushing starts a new set and popping reverts to the previous set.
-
-			poseStack.scale(1.5F, 1.5F, 1.5F);
-			float freqMhz = menu.getFrequency() / 1_000_000.0F;
-			font.draw(poseStack, String.format("%.3f", freqMhz) + "MHz", (leftPos + 85) / 1.5F, (topPos + 16) / 1.5F, 0xFFFFFF); // Divide the positions rendered at by 1.5F as the entire pose was scaled by 1.5F.
-
-			poseStack.popPose(); // Reset pose stack. Will cause a memory leak if you push without popping.
-		}*/
+		renderDisplay(pGuiGraphics, 81, 7, 106, 32, 1.5F, 0xFFFFFF); // Display window on the texture
 	}
 
 	@Override

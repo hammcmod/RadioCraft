@@ -39,7 +39,7 @@ public class RadioInterferenceHumSoundInstance extends AbstractTickableSoundInst
 			stop();
 			return;
 		}
-		if(radio.wasPowered() && radio.shouldPlayStatic()) {
+		if(radio.wasPowered() && radio.shouldPlayStatic() && !radio.isReceiverMuted()) {
 			double sustained = Math.max(0.0D, radio.getInterference() - THRESHOLD) / (1.0D - THRESHOLD);
 			volume = (float)(sustained * MAX_VOLUME * radio.getStaticVolume());
 		}

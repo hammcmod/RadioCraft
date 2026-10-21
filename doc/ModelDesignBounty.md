@@ -54,6 +54,15 @@ station (a clock next to the coax). It currently reuses `morse.ogg` pitched down
 - To wire it in: drop the file in `assets/radiocraft/sounds/`, add an `rfi_buzz` entry to `sounds.json`, register it
   in `RadiocraftSoundEvents` next to `STATIC`, and point the hum sound instance at it (one line, pitch back to 1.0).
 
+### Sound: seamless static loop
+
+`static.ogg` is played as a looping buffer, which OpenAL loops without a gap, so the audible hiccup every few seconds
+is in the file itself: its start and end do not line up. Found in the 2026-10-21 playtest.
+
+- Wanted: the same static re-exported as a seamless loop (crossfade the tail into the head, or cut at matching
+  zero crossings), mono OGG Vorbis, same name. A few seconds is plenty.
+- Deliverables: the OGG. Drop it over `assets/radiocraft/sounds/static.ogg`; nothing else changes.
+
 ## Done
 
 ### 1. Parrot controller

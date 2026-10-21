@@ -45,8 +45,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class RadioBlockEntity extends BlockEntity implements ITogglableBE, IVoiceTransmitter, IBEVoiceReceiver, INetworkObjectProvider, MenuProvider {
 
-    protected boolean ssbEnabled = false;
-    protected boolean isPTTDown = false; // Used by PTT button packets
+    protected boolean ssbEnabled = true; // A fresh radio comes up in SSB, so it plays static and hears voice as soon as it is powered.
+    protected boolean isPTTDown = false; // Set by PTT button packets; synced to clients so the receiver sounds can go quiet while transmitting.
 
     protected Band band; // Band the radio is configured for, usually not changed.
     protected float frequency; // Frequency the radio is currently using (in Hz)
@@ -493,6 +493,14 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return getSSBEnabled();
     }
 
+    /**
+     * True while the receiver side of the radio is muted because it is transmitting: a rig cannot hear while PTT is
+     * down. Clientside this follows the synced PTT flag, so every player near the radio hears it go quiet.
+     */
+    public boolean isReceiverMuted() {
+        return isPTTDown;
+    }
+
     // -------------------- BE & SYNC IMPLEMENTATION --------------------
 
     /**
@@ -508,6 +516,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putFloat("micGain", micGain);
         nbt.putDouble("antennaSWR", antennaSWR);
         nbt.putBoolean("wasPowered", wasPowered);
+        nbt.putBoolean("pttDown", isPTTDown);
     }
 
     /**
@@ -527,6 +536,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         micGain = nbt.contains("micGain") ? nbt.getFloat("micGain") : 1.0F;
         antennaSWR = nbt.getDouble("antennaSWR");
         wasPowered = nbt.getBoolean("wasPowered");
+        isPTTDown = nbt.getBoolean("pttDown");
 
         if(band != null) { // Reset the frequency if the saved one is outside the band or not on a step.
             int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
@@ -568,6 +578,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             // If on server, register self to listen for voice packets & notify client of loaded data.
             VoiceTransmitters.addListener(level, this);
             getNetworkObject(level, worldPosition); // This forces the network object to get initialised.
+            isPTTDown = false; // Nobody has the GUI open on a freshly loaded radio, whatever a crash mid-transmission saved.
             updateIsReceiving(); // Re-arm voice receive for a radio that was saved switched on in SSB.
             updateBlock();
         }

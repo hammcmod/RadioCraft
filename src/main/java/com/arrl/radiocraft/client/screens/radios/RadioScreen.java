@@ -54,6 +54,41 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 */
 	protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) { }
 
+	/** Colour of the frequency readout while the radio is transmitting. */
+	protected static final int DISPLAY_TX_COLOUR = 0xFF5533;
+
+	/**
+	 * Draws the frequency readout centred in the radio's display window, which is the box {@code x, y, w, h} in
+	 * texture coordinates. Nothing is drawn while the radio is off. While transmitting the text turns
+	 * {@link #DISPLAY_TX_COLOUR} and, if the window is tall enough, a "TX" marker sits in its top right corner.
+	 */
+	protected void renderDisplay(GuiGraphics guiGraphics, int x, int y, int w, int h, float scale, int colour) {
+		if(!menu.isPowered())
+			return;
+		boolean transmitting = isTransmitting();
+		String text = String.format("%.3f MHz", menu.getFrequency() / 1_000_000.0F);
+		drawScaled(guiGraphics, text, leftPos + x + w / 2.0F, topPos + y + h / 2.0F, scale, transmitting ? DISPLAY_TX_COLOUR : colour);
+		if(transmitting && h >= 20) {
+			float markerScale = Math.min(1.0F, scale * 0.6F);
+			float markerWidth = font.width("TX") * markerScale;
+			drawScaled(guiGraphics, "TX", leftPos + x + w - 2 - markerWidth / 2.0F, topPos + y + 2 + font.lineHeight * markerScale / 2.0F, markerScale, DISPLAY_TX_COLOUR);
+		}
+	}
+
+	/** Draws {@code text} centred on {@code cx, cy} at {@code scale}, no shadow. */
+	protected void drawScaled(GuiGraphics guiGraphics, String text, float cx, float cy, float scale, int colour) {
+		guiGraphics.pose().pushPose();
+		guiGraphics.pose().translate(cx, cy, 0.0F);
+		guiGraphics.pose().scale(scale, scale, 1.0F);
+		guiGraphics.drawString(font, text, -font.width(text) / 2, -font.lineHeight / 2, colour, false);
+		guiGraphics.pose().popPose();
+	}
+
+	/** True while this radio is putting RF out, as far as the client knows: the PTT state synced from the server. */
+	protected boolean isTransmitting() {
+		return menu.blockEntity.isPTTDown();
+	}
+
 
 	@Override
 	public void renderBackground(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {

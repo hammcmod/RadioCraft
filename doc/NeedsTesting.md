@@ -76,8 +76,9 @@ Powered HF radio in SSB, a thunderstorm (`/weather thunder`) or `/summon lightni
 
 - [ ] Each strike: a sharp crash in the static, gone within a second. Compare 80m and 20m radios: 80m twice as loud,
   10m barely. A strike 200 blocks away is still a small crash; beyond 512 blocks nothing.
-- [ ] Does the crash read as lightning? The proposal says 40% for a second; the default is 0.6 on top of the solar
-  noise floor, decaying with the same 0.8/tick as redstone pops. If it should rumble longer, say so.
+- [ ] Does the crash read as lightning? The proposal says 40% for a second; the default is 1.2 (doubled on
+  2026-10-21 at the maintainer's request, so nearby strikes saturate the static) on top of the solar noise floor,
+  decaying with the same 0.8/tick as redstone pops. If it should rumble longer, say so.
 - [ ] `lightning_static_enabled = false` silences it.
 
 ## Jade (added 2026-10-20)
@@ -119,6 +120,17 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
   shows the length and "Needs an antenna tuner". A 20m radio without a tuner sees SWR 2.6, with a tuner 1.0; a
   wire shorter than 11 blocks on 20m is SWR 10. Fork the wire at the pole: not recognized.
 - [ ] Both new types need `./gradlew runData` first (9:1 balun tags, name and tooltips, tuner readout text).
+
+## Radio screen fixes (added 2026-10-21, from the first playtest)
+
+- [ ] Frequency readout: every HF screen (10m, 20m, 40m, 80m, all band, receiver) and the VHF base station shows
+  "14.000 MHz" (or the band's bottom) in its display window while powered, nothing while off. The box positions were
+  measured off the textures, not seen in game: say where it sits wrong or is the wrong size (the 40m and receiver
+  LCDs are tiny, so the text there is half size). Dial and buttons move it.
+- [ ] A freshly placed radio comes up in SSB: static as soon as it is powered, no button press.
+- [ ] PTT: hold it and the static (and any interference hum) stops for everyone near the radio, the readout turns
+  orange-red and larger displays show "TX" top right. Let go: static back. In CW the readout follows your own key.
+- [ ] Is the TX colour and marker enough feedback, or do you want proper TX/RX lights drawn on the panels?
 
 ## From the 2026-10-19 work (CW restored, transmission tests)
 

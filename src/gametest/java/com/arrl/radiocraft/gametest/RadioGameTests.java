@@ -258,4 +258,37 @@ public class RadioGameTests {
                 })
                 .thenSucceed();
     }
+
+    /** A radio fresh out of the box is in SSB: power it and it listens and plays static, no button needed. */
+    @GameTest(template = GameTestUtil.EMPTY)
+    public static void freshRadioStartsInSsb(GameTestHelper helper) {
+        helper.setBlock(RADIO, RadiocraftBlocks.HF_RADIO_20M.get());
+        HFRadioBlockEntity radio = GameTestUtil.blockEntity(helper, RADIO, HFRadioBlockEntity.class);
+        helper.assertTrue(radio.getSSBEnabled() && !radio.getCWEnabled(), "A new radio should come up in SSB");
+        helper.assertFalse(radio.getVoiceReceiver().isReceiving(), "An unpowered radio should not listen");
+        radio.toggle();
+        helper.assertTrue(radio.getVoiceReceiver().isReceiving(), "A new radio should listen as soon as it is powered");
+        helper.assertTrue(radio.shouldPlayStatic(), "A new powered radio should play static");
+        helper.succeed();
+    }
+
+    /** Pressing PTT mutes the receiver, and the clients are told so their static can go quiet too. */
+    @GameTest(template = GameTestUtil.EMPTY)
+    public static void pttMutesTheReceiverAndIsSynced(GameTestHelper helper) {
+        helper.setBlock(RADIO, RadiocraftBlocks.HF_RADIO_20M.get());
+        HFRadioBlockEntity radio = GameTestUtil.blockEntity(helper, RADIO, HFRadioBlockEntity.class);
+        radio.toggle();
+        helper.assertTrue(radio.getVoiceReceiver().isReceiving(), "Radio should listen before PTT");
+
+        radio.setPTTDown(true);
+        helper.assertTrue(radio.isReceiverMuted(), "Receiver should be muted while PTT is down");
+        helper.assertFalse(radio.getVoiceReceiver().isReceiving(), "Voice receive should stop while PTT is down");
+        helper.assertTrue(radio.getUpdateTag(helper.getLevel().registryAccess()).getBoolean("pttDown"), "PTT state should be in the client sync tag");
+
+        radio.setPTTDown(false);
+        helper.assertFalse(radio.isReceiverMuted(), "Receiver should be live again after PTT");
+        helper.assertTrue(radio.getVoiceReceiver().isReceiving(), "Voice receive should resume after PTT");
+        helper.assertFalse(radio.getUpdateTag(helper.getLevel().registryAccess()).getBoolean("pttDown"), "PTT release should be synced too");
+        helper.succeed();
+    }
 }
