@@ -45,7 +45,7 @@ public class ValueButton extends AbstractWidget {
 	protected void renderWidget(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		boolean value = valueSupplier.get();
 		int xBlit = !isHovered() ? u : u + width;
-		int yBlit = !value ? v : v + height;
+		int yBlit = value ? v : v + height; // The sheets draw a button pressed in on the first row, out on the second.
 		pGuiGraphics.blit(this.resourceLocation, this.getX(), this.getY(), xBlit, yBlit, width, height, textureWidth, textureHeight);
 		if(lastState != value)
 			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)); // Will play toggle click by itself when the value changes externally.

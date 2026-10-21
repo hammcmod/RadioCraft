@@ -180,10 +180,15 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * Callback for SSB toggle buttons.
 	 */
 	protected void onPressSSB(ValueButton button) {
-		boolean ssbEnabled = menu.blockEntity.getSSBEnabled();
+		if(isSSBSelected())
+			return; // Mode buttons select, like a radio's: pressing the active one does nothing.
+		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_SSB, true);
+		menu.blockEntity.setSSBEnabled(true); // Update instantly for GUI (this also releases the other mode), server will re-sync this value though.
+	}
 
-		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_SSB, !ssbEnabled);
-		menu.blockEntity.setSSBEnabled(!ssbEnabled); // Update instantly for GUI, server will re-sync this value though.
+	/** True when the SSB button should show pressed in. */
+	protected boolean isSSBSelected() {
+		return menu.blockEntity.getSSBEnabled();
 	}
 
 	/**

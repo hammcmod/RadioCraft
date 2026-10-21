@@ -510,6 +510,19 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     }
 
     /**
+     * Switches the radio to another band (radios with a band switch): the frequency goes to the bottom of the new band,
+     * and the antenna match is re-measured on the next tick.
+     */
+    protected void changeBand(Band newBand) {
+        band = newBand;
+        frequency = newBand.minFrequency();
+        if(level != null && !level.isClientSide())
+            updateIsReceiving();
+        updateBlock();
+        setChanged();
+    }
+
+    /**
      * Move the current frequency by the specified number of steps as defined in {@link RadiocraftServerConfig}.
      *
      * @param stepCount The number of steps to increment by.

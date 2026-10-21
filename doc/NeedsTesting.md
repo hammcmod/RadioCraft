@@ -4,6 +4,27 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Mode buttons and the all-band radio (added 2026-10-21)
+
+Mode buttons now work like a radio's selector: the active mode is pressed in, the others are out, and pressing the
+active one does nothing (the button art rows were swapped before, so "on" looked popped out).
+
+- [ ] Every HF radio (10m, 20m, 40m, 80m, all-band): exactly one of SSB / CW (/ FM) is pressed in at all times, and it
+  is the one the display shows. Clicking the pressed one changes nothing; clicking another swaps them instantly.
+- [ ] All-band: the square button bottom-left switches it on and off (faint highlight on hover); the lamp by the light
+  bulb comes on with power.
+- [ ] All-band band knob: left click or scroll up turns it clockwise 3 > 7 > 14 > 28 > 144, right click or scroll down
+  back; it stops at both ends. The knob art points at the label each time (sprites were lined up on a copy of the
+  panel, so check them at real size), the frequency jumps to the bottom of the new band and the band survives a
+  reload.
+- [ ] All-band FM: pressed in alone, display shows "FM", voice works, and there is no background static (FM is
+  squelched). SSB and CW still have static.
+- [ ] All-band lamps under the brand plate: left green = a signal coming in, middle green = antenna matched (SWR 2 or
+  better), right amber = transmitting.
+- [ ] All-band on 144 (2m) in FM with a J-pole or slim jim on its coax: talks to a VHF base station and handhelds on the
+  same frequency.
+- [ ] MIC / SPK buttons and the two small knobs still do nothing (as on the other radios).
+
 ## Improvised antennas (added 2026-10-21)
 
 Any wires on any balun now work: when no proper antenna type recognizes the build, it becomes an "Improvised" antenna

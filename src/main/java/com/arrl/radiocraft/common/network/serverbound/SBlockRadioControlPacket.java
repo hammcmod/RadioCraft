@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.network.serverbound;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.blockentities.radio.HFRadioAllBandBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.menus.RadioMenu;
@@ -21,7 +22,9 @@ public record SBlockRadioControlPacket(long pos, int actionId, int stepCount, bo
         SET_SSB,
         SET_PTT,
         STEP_FREQUENCY,
-        SET_CW
+        SET_CW,
+        SET_FM,
+        SET_BAND
     }
 
     public static final CustomPacketPayload.Type<SBlockRadioControlPacket> TYPE = new CustomPacketPayload.Type<>(Radiocraft.id("s_block_radio_control"));
@@ -65,6 +68,14 @@ public record SBlockRadioControlPacket(long pos, int actionId, int stepCount, bo
                 case SET_CW -> {
                     if(radio instanceof HFRadioBlockEntity hf)
                         hf.setCWEnabled(value);
+                }
+                case SET_FM -> {
+                    if(radio instanceof HFRadioAllBandBlockEntity allBand)
+                        allBand.setFMEnabled(value);
+                }
+                case SET_BAND -> {
+                    if(radio instanceof HFRadioAllBandBlockEntity allBand)
+                        allBand.setBandIndex(stepCount);
                 }
             }
         });

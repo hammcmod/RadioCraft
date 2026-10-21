@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.sounds;
 
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftSoundEvents;
@@ -35,7 +36,9 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 		else {
 			if(radio.wasPowered() && radio.shouldPlayStatic() && !radio.isReceiverMuted()) {
 				// Solar noise floor, plus whatever redstone is switching near the station and any aurora overhead, through the antenna match.
-				double noise = Math.min(1.0D, RadiocraftClientValues.NOISE_VOLUME + radio.getInterference() + auroraNoise());
+				// VHF has no solar noise, only the receiver's own (an all-band radio in SSB on 2m).
+				double floor = radio.getBand() != null && radio.getBand().isVhf() ? RadiocraftServerConfig.VHF_NOISE_FLOOR.get() : RadiocraftClientValues.NOISE_VOLUME;
+				double noise = Math.min(1.0D, floor + radio.getInterference() + auroraNoise());
 				// The receiver's AGC: a signal well above the noise pushes the static down, fast in and slower back out.
 				double wanted = ReceiverMix.noiseDuck(radio.getSyncedSignal(), noise);
 				duck += (wanted - duck) * (wanted < duck ? DUCK_ATTACK : DUCK_RELEASE);

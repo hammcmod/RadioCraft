@@ -51,10 +51,10 @@ public abstract class HFRadioScreen<T extends RadioMenu<? extends HFRadioBlockEn
 	 * Callback for CW toggle buttons.
 	 */
 	protected void onPressCW(ValueButton button) {
-		boolean cwEnabled = menu.blockEntity.getCWEnabled();
-
-		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_CW, !cwEnabled);
-		menu.blockEntity.setCWEnabled(!cwEnabled); // Update instantly for GUI, server will re-sync this value though.
+		if(menu.blockEntity.getCWEnabled())
+			return; // Mode buttons select, like a radio's: pressing the active one does nothing.
+		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_CW, true);
+		menu.blockEntity.setCWEnabled(true); // Update instantly for GUI (this also releases SSB), server will re-sync this value though.
 	}
 
 }
