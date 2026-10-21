@@ -37,6 +37,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -140,7 +141,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		}
 	}
 
-	private static final double SHAPE_PADDING = 3.0D;
+	private static final double SHAPE_PADDING = 1.0D; // A 2 px cable with 1 px either side: enough to click, tight enough to read as the cable.
 	private static final VoxelShape MIDDLE_SHAPE =
 			makePaddedBox(7.0D, 0.0D, 7.0D, 9.0D, 2.0D, 9.0D);
 	private static final VoxelShape CENTRE_VERTICAL_SHAPE = makePaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D);
@@ -453,24 +454,40 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return fresh;
 	}
 
+	private static final Map<BlockState, VoxelShape> SHAPE_CACHE = new ConcurrentHashMap<>();
+
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-		VoxelShape result = MIDDLE_SHAPE;
+		return SHAPE_CACHE.computeIfAbsent(state, WireBlock::buildShape);
+	}
 
-		for (Map.Entry<Direction, VoxelShape> entry : STUB_SHAPES.entrySet()) {
-			if (state.getValue(PROPERTY_BY_DIRECTION.get(entry.getKey())))
+	/**
+	 * The outline follows the cable: the same pieces the blockstate draws (see tools/wire_assets.py), except the
+	 * overhangs, which lie outside the block. The middle only counts when something is drawn there.
+	 */
+	private static VoxelShape buildShape(BlockState state) {
+		boolean anyHorizontal = false;
+		for(Direction dir : Direction.Plane.HORIZONTAL)
+			anyHorizontal |= state.getValue(PROPERTY_BY_DIRECTION.get(dir));
+		Direction hug = state.getValue(HUG).direction();
+		Direction arrive = state.getValue(ARRIVE).direction();
+		boolean middle = anyHorizontal || hug == null || arrive == null || hug != arrive;
+
+		VoxelShape result = middle ? MIDDLE_SHAPE : Shapes.empty();
+		for(Map.Entry<Direction, VoxelShape> entry : STUB_SHAPES.entrySet()) {
+			if(state.getValue(PROPERTY_BY_DIRECTION.get(entry.getKey())))
 				result = Shapes.or(result, entry.getValue());
 		}
-		Direction hug = state.getValue(HUG).direction();
-		if (hug != null) // Stub to the edge, then up it.
-			result = Shapes.or(result, STUB_SHAPES.get(hug), EDGE_SHAPES.get(hug));
-		else if (state.getValue(UP))
+		if(hug != null) {
+			if(middle && arrive != hug && !state.getValue(PROPERTY_BY_DIRECTION.get(hug)))
+				result = Shapes.or(result, STUB_SHAPES.get(hug)); // From the middle out to the edge.
+			result = Shapes.or(result, EDGE_SHAPES.get(hug)); // Then up it.
+		}
+		else if(state.getValue(UP))
 			result = Shapes.or(result, CENTRE_VERTICAL_SHAPE);
-		Direction arrive = state.getValue(ARRIVE).direction();
-		if (arrive != null) // The run from below comes in at that edge.
-			result = Shapes.or(result, STUB_SHAPES.get(arrive));
-
-		return result;
+		if(arrive != null && middle && !state.getValue(PROPERTY_BY_DIRECTION.get(arrive)))
+			result = Shapes.or(result, STUB_SHAPES.get(arrive)); // The run from below comes in at that edge and turns in.
+		return result.isEmpty() ? MIDDLE_SHAPE : result;
 	}
 
 	private static boolean canConnectTo(BlockState state, boolean isPower) {
