@@ -9,6 +9,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
@@ -31,9 +32,10 @@ public interface IBENetworks extends INBTSerializable<CompoundTag> {
      * Set the {@link BENetworkObject} present at a given {@link BlockPos}.
      *
      * @param pos The {@link BlockPos} to set.
-     * @param object The {@link BENetworkObject} to place in that position.
+     * @param object The {@link BENetworkObject} to place in that position; null clears the position, for providers
+     *               that have no object (yet).
      */
-    void setObject(@NotNull BlockPos pos, @NotNull BENetworkObject object);
+    void setObject(@NotNull BlockPos pos, @Nullable BENetworkObject object);
 
     /**
      * Remove a {@link BENetworkObject} from this level and remove it from all of it's {@link BENetwork}s.

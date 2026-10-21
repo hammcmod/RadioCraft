@@ -291,4 +291,18 @@ public class RadioGameTests {
         helper.assertFalse(radio.getUpdateTag(helper.getLevel().registryAccess()).getBoolean("pttDown"), "PTT release should be synced too");
         helper.succeed();
     }
+
+    /**
+     * The VHF repeater has no network object yet (its provider returns null). Placing one used to store that null and
+     * crash the server on the next network tick.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 60)
+    public static void placingVhfRepeaterDoesNotCrash(GameTestHelper helper) {
+        helper.setBlock(RADIO, RadiocraftBlocks.VHF_REPEATER.get());
+        helper.runAfterDelay(10, () -> {
+            helper.assertTrue(helper.getBlockEntity(RADIO) != null, "Repeater block entity missing");
+            helper.assertTrue(IBENetworks.getObject(helper.getLevel(), helper.absolutePos(RADIO)) == null, "Repeater should have no network object");
+            helper.succeed();
+        });
+    }
 }

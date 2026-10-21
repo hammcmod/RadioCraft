@@ -10,6 +10,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.HashMap;
@@ -37,7 +38,11 @@ public class BENetworksCapability implements IBENetworks {
     }
 
     @Override
-    public void setObject(@NotNull BlockPos pos, @NotNull BENetworkObject object) {
+    public void setObject(@NotNull BlockPos pos, @Nullable BENetworkObject object) {
+        if(object == null) { // Providers without an object yet (the VHF repeater) hand back null: store nothing.
+            networkObjects.remove(pos);
+            return;
+        }
         networkObjects.put(pos, object);
     }
 
@@ -68,7 +73,7 @@ public class BENetworksCapability implements IBENetworks {
     public void tickNetworkObjects(Level level) {
         // Objects stay registered while their chunk is unloaded, so only tick the ones whose block is actually loaded.
         for(Entry<BlockPos, BENetworkObject> entry : networkObjects.entrySet()) {
-            if(level.isLoaded(entry.getKey()))
+            if(entry.getValue() != null && level.isLoaded(entry.getKey()))
                 entry.getValue().tick(level, entry.getKey());
         }
     }
