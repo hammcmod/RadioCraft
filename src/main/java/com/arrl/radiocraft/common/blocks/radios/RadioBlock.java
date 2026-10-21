@@ -29,7 +29,7 @@ public abstract class RadioBlock extends AbstractPowerNetworkBlock {
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
-		return !level.isClientSide ? RadioBlockEntity::tick : null;
+		return level.isClientSide ? RadioBlockEntity::clientTick : RadioBlockEntity::tick;
 	}
 
 	@Override

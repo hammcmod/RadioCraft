@@ -4,6 +4,15 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Radio static comes back after the sound engine drops it (added 2026-10-21)
+
+A radio's static, morse and hum loops are now restarted within a second if Minecraft's sound engine drops them.
+
+- [ ] Power an HF radio in SSB with a matched antenna and hear the static. Then each of these, and the static should
+  come back within about a second: drag Voice/Speech to 0 and back; F3+T; switch the Windows output device (or plug
+  in headphones); leave the area until the chunk unloads and walk back.
+- [ ] No doubled static (louder than before) after any of the above.
+
 ## Simplex Repeat Controller ("parrot", added 2026-10-20)
 
 Place one next to an HF radio with a working antenna, and a second station in earshot.

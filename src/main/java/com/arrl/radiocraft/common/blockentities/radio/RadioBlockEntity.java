@@ -6,6 +6,7 @@ import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.api.blockentities.radio.IBEVoiceReceiver;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.client.blockentity.RadioBlockEntityClientHandler;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.ITogglableBE;
@@ -90,6 +91,12 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         this.band = band;
         this.frequency = band == null ? 0 : band.minFrequency();
         this.voiceReceiver = new BEVoiceReceiver(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    /** Once a second, starts any of the radio's looping sounds that the client's sound engine dropped. */
+    public static <T extends BlockEntity> void clientTick(Level level, BlockPos pos, BlockState state, T t) {
+        if(t instanceof RadioBlockEntity be && level.getGameTime() % 20 == 0)
+            RadioBlockEntityClientHandler.keepSoundsPlaying(be);
     }
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
