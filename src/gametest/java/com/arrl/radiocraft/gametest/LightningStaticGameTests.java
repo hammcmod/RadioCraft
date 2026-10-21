@@ -48,6 +48,9 @@ public class LightningStaticGameTests {
 
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = "lightning")
     public static void lightningCrashesOnPoweredRadioAndFadeWithDistance(GameTestHelper helper) {
+        // The default strength saturates the (capped) interference level for anything closer than half the range, so
+        // use a small one here: the test is about the distance and band maths, not the loudness.
+        RadiocraftServerConfig.LIGHTNING_STATIC_STRENGTH.set(0.5D);
         buildStation(helper, RADIO_A, BALUN_A);
         helper.runAfterDelay(5, () -> setupSsb(helper, RADIO_A, 0));
         double[] near = new double[1];

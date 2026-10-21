@@ -18,6 +18,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
    signal masks static and static wins as the signal weakens. Verify by ear.
 4. **Power.** Radios draw from batteries and switch off when drained; the charge controller switch does something.
 5. **VHF (FM) static model.** Mostly silent except on very weak signals. After the HF static work settles.
+6. **Update to Minecraft 26.3** and the matching NeoForge (maintainer, 2026-10-21), once the HF work above settles.
+   Expect the usual port churn: GUI and render APIs, registries, mixin targets, and new Simple Voice Chat, Jade,
+   TOP and GeckoLib versions.
 
 ## Phase 1 – Core Gameplay Readiness
 

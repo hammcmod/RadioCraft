@@ -99,7 +99,7 @@ public class RadiocraftServerConfig {
 		BUILDER.comment(" A lightning strike puts a crash of static on every powered radio in the dimension, loudest close by and fading",
 				" with distance. Long HF bands hear the most, 20m half, 10m and VHF a tenth, like redstone noise.");
 		LIGHTNING_STATIC_ENABLED = BUILDER.comment(" Set to false to turn lightning crashes off").define("lightning_static_enabled", true);
-		LIGHTNING_STATIC_STRENGTH = BUILDER.comment(" How much static a strike right next to the radio adds (0 to 1, on top of the solar noise floor)").defineInRange("lightning_static_strength", 0.6, 0.0, 1.0);
+		LIGHTNING_STATIC_STRENGTH = BUILDER.comment(" How much static a strike right next to the radio adds, on top of the solar noise floor (the total is capped at 1, so above 1 nearby strikes saturate and distant ones are still heard)").defineInRange("lightning_static_strength", 1.2, 0.0, 4.0);
 		LIGHTNING_STATIC_RANGE = BUILDER.comment(" Distance in blocks at which a strike is no longer heard").defineInRange("lightning_static_range", 512, 16, 8192);
 		BUILDER.pop();
 
