@@ -228,11 +228,13 @@ public class VHFHandheldScreen extends Screen {
             int max = energyStorage.getMaxEnergyStored();
             float percentage = max > 0 ? (float) stored / max : 0.0f;
             
-            // Battery percentage text (bottom right corner of green screen, right-aligned)
+            // Battery percentage text, right-aligned in the green screen. It shares the second line with the
+            // frequency in DEFAULT mode, where that line is empty; while a frequency is being entered the second
+            // line holds the new frequency (which fills the screen's width), so move up next to "Set Freq".
             String percentText = String.format("%d%%", (int)(percentage * 100));
             int textWidth = this.font.width(percentText);
             int textX = leftPos + 140 - textWidth; // Right-aligned, within screen bounds
-            int textY = topPos + 133; // Same line as second frequency display
+            int textY = topPos + (menuState == MenuState.SET_FREQ ? 119 : 133);
             graphics.drawString(this.font, percentText, textX, textY, 0xFFFFFF);
         }
     }

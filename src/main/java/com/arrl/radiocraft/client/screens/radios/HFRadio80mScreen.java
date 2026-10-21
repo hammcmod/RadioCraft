@@ -46,7 +46,7 @@ public class HFRadio80mScreen extends HFRadioScreen<HFRadio80mMenu> {
 
     @Override
     protected void renderAdditionalTooltips(GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        renderDisplay(pGuiGraphics, 13, 14, 47, 23, 0.75F, 0xFFFFFF); // Display window on the texture
+        renderDisplay(pGuiGraphics, 26, 117, 62, 21, 1.0F, 0x7A1A1A); // The tan panel above the brown box, dark red text (maintainer's choice)
     }
 
 
