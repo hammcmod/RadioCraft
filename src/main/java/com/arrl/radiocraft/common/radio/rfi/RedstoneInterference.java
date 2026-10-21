@@ -219,8 +219,7 @@ public class RedstoneInterference {
 			if(!coax.contains(state.getBlock()))
 				continue;
 			out.add(pos);
-			for(Direction dir : ((WireBlock)state.getBlock()).getConnections(level, pos)) {
-				BlockPos next = pos.relative(dir);
+			for(BlockPos next : ((WireBlock)state.getBlock()).getLinks(level, pos, state).keySet()) { // Includes climb links.
 				BENetworkObject obj = IBENetworks.getObject(level, next);
 				if(obj == null)
 					queue.add(next); // Wires end at network objects (radio, antenna, tuner); don't walk through them.

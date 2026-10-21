@@ -108,6 +108,9 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types
 - [ ] Revisit delta loop construction to support triangular build flow and align analyzer messaging
 - [ ] Add sag-varying visuals for long unsupported antenna wire runs
+- [x] Wires hug walls (2026-10-21, maintainer request): wire, waterproof wire and coax climb a solid block like
+  redstone dust and link diagonally to the wire or device on top, instead of a floating vertical piece. Also gave the
+  waterproof wire the blockstate it never had.
 
 ### World & Progression Additions
 - [x] Solar weather station, minimal (2026-10-20): right click reports the current conditions, noise floor and whether

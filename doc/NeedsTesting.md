@@ -131,6 +131,26 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
 - [ ] PTT: hold it and the static (and any interference hum) stops for everyone near the radio, the readout turns
   orange-red and larger displays show "TX" top right. Let go: static back. In CW the readout follows your own key.
 - [ ] Is the TX colour and marker enough feedback, or do you want proper TX/RX lights drawn on the panels?
+- [ ] 80m: the readout now sits on the tan panel above the brown box, in dark red (maintainer's choice, 2026-10-21).
+- [ ] VHF handheld: while entering a frequency the battery percentage moves up next to "Set Freq" instead of
+  overprinting "MHz". The item is held upright now (plain item pose instead of the sword grip); first person too.
+- [ ] Lightning: reported silent once, then fine after a client restart (maintainer, 2026-10-21; "audio and decay
+  sounded good"). If it goes quiet again, note what happened just before (world reload, far travel, config change)
+  and whether a lever next to the coax still pops, since both use the same client path.
+
+## Wires climb walls (added 2026-10-21)
+
+Lay coax (or power wire) along the ground up to a one-block step with more wire on top of the step.
+
+- [ ] The wire at the foot runs up the face of the step and meets the wire on top at its edge; no floating vertical
+  piece, no gap at the top edge. Same for all four directions and for wire, waterproof wire and coax. Does the
+  climb piece look right against the horizontal stub (no z-fighting at the bottom corner)?
+- [ ] Order does not matter: foot first then top, or top first then foot, and the radio sees the antenna either way
+  (`/rcdebug radio`). Break the step: the climb vanishes and the radio loses the antenna; put it back: it returns.
+- [ ] A climb straight into a device on the step (battery on a ledge, balun on a post): the wire reaches it.
+- [ ] A wire directly above the foot wire wins: with coax at the foot, on the step and also floating above the foot,
+  the foot does not climb (the vertical piece carries the run). Removing the floating piece makes it climb.
+- [ ] Waterproof wire now has a blockstate and renders like wire (it had none and showed the missing-model box).
 
 ## From the 2026-10-19 work (CW restored, transmission tests)
 

@@ -1,0 +1,122 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_middle"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_horizontal"
+      },
+      "when": {
+        "north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_horizontal",
+        "y": 90
+      },
+      "when": {
+        "east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_horizontal",
+        "y": 180
+      },
+      "when": {
+        "south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_horizontal",
+        "y": 270
+      },
+      "when": {
+        "west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_vertical"
+      },
+      "when": {
+        "up": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_horizontal"
+      },
+      "when": {
+        "climb_north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_climb"
+      },
+      "when": {
+        "climb_north": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_horizontal",
+        "y": 90
+      },
+      "when": {
+        "climb_east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_climb",
+        "y": 90
+      },
+      "when": {
+        "climb_east": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_horizontal",
+        "y": 180
+      },
+      "when": {
+        "climb_south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_climb",
+        "y": 180
+      },
+      "when": {
+        "climb_south": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_horizontal",
+        "y": 270
+      },
+      "when": {
+        "climb_west": "true"
+      }
+    },
+    {
+      "apply": {
+        "model": "radiocraft:block/wire_climb",
+        "y": 270
+      },
+      "when": {
+        "climb_west": "true"
+      }
+    }
+  ]
+}

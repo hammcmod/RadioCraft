@@ -87,36 +87,42 @@ public class WireUtils {
 	}
 
 	/**
-	 * Splits connections on each side of a wire into separate networks.
+	 * Splits what a wire used to join into separate networks: the blocks in {@code links} are walked (without passing
+	 * through the wire at {@code pos} if it is gone) and every group that is still connected to each other gets a
+	 * network of its own.
 	 *
 	 * @param level The {@link Level} to check.
 	 * @param pos The {@link BlockPos} of the wire being split.
+	 * @param links The blocks the wire was linked to, with the side of each it touched ({@link WireBlock#getLinks}).
+	 * @param wireGone True if the wire at {@code pos} has been removed; false if it is still there but lost a link
+	 *                 (a climb that ended), in which case the walk may still pass through it.
 	 * @param connection A {@link Predicate} determining if a {@link BENetworkObject} is a valid connection or not.
 	 * @param wires List of valid {@link WireBlock}s.
 	 */
-	public static void splitNetworks(Level level, BlockPos pos, Predicate<BENetworkObject> connection, WireBlock... wires) {
-		Map<Direction, Map<BENetworkObject, Direction>> connectionsPerSide = new HashMap<>();
+	public static void splitNetworks(Level level, BlockPos pos, Map<BlockPos, Direction> links, boolean wireGone, Predicate<BENetworkObject> connection, WireBlock... wires) {
+		Map<BlockPos, Map<BENetworkObject, Direction>> connectionsPerSide = new LinkedHashMap<>();
 		Set<WireBlock> wireSet = Set.of(wires);
 		Set<BlockPos> blacklist = new HashSet<>(); // Sharing a set means sides connected to each other actually won't get double processed.
-		blacklist.add(pos);
+		if(wireGone)
+			blacklist.add(pos);
 
-		for(Direction dir : Direction.values()) {
-			BlockPos checkPos = pos.relative(dir);
+		for(Map.Entry<BlockPos, Direction> link : links.entrySet()) {
+			BlockPos checkPos = link.getKey();
 
 			BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
 			if(blacklist.contains(checkPos))
 				continue; // Already reached through another side (a loop), leave it with that side.
 			if(networkObject != null && connection.test(networkObject)) {
 				Map<BENetworkObject, Direction> side = new HashMap<>();
-				addConnection(side, blacklist, level, checkPos, networkObject, dir.getOpposite(), connection, wireSet); // Keeps what lies beyond a tuner with it.
-				connectionsPerSide.put(dir, side);
+				addConnection(side, blacklist, level, checkPos, networkObject, link.getValue(), connection, wireSet); // Keeps what lies beyond a tuner with it.
+				connectionsPerSide.put(checkPos, side);
 			}
 			else if(wireSet.contains(level.getBlockState(checkPos).getBlock()))
-				connectionsPerSide.put(dir, getConnections(new HashMap<>(), blacklist, level, checkPos, connection, wireSet));
+				connectionsPerSide.put(checkPos, getConnections(new HashMap<>(), blacklist, level, checkPos, connection, wireSet));
 		}
 
-		for(Direction dir : connectionsPerSide.keySet()) {
-			Map<BENetworkObject, Direction> connections = connectionsPerSide.get(dir);
+		for(BlockPos side : connectionsPerSide.keySet()) {
+			Map<BENetworkObject, Direction> connections = connectionsPerSide.get(side);
 
 			BENetwork networkToReplace = null; // Search for a network on the wire first. Just in case there isn't one for some reason.
 			for(BENetworkObject networkObject : connections.keySet()) {
@@ -186,10 +192,10 @@ public class WireUtils {
 		Map<BENetworkObject, Direction> allConnections = new HashMap<>();
 		Direction firstSide = null;
 
-		for(Direction dir : Direction.values()) {
-			BlockPos checkPos = pos.relative(dir);
-			if(!wireSet.contains(level.getBlockState(checkPos).getBlock()))
-				continue;
+		// The wires touching this device: its neighbours and any climber coming up the block below-diagonal.
+		for(Map.Entry<BlockPos, Direction> link : WireBlock.wireLinksAround(level, pos, wireSet).entrySet()) {
+			BlockPos checkPos = link.getKey();
+			Direction dir = link.getValue();
 
 			if(passThrough) {
 				getConnections(allConnections, sharedBlacklist, level, checkPos, validConnection, wireSet);
@@ -234,14 +240,14 @@ public class WireUtils {
 		if(wires.contains(state.getBlock())) {
 			WireBlock wire = (WireBlock)state.getBlock();
 
-			for(Direction dir : wire.getConnections(level, pos)) {
-				BlockPos checkPos = pos.relative(dir);
+			for(Map.Entry<BlockPos, Direction> link : wire.getLinks(level, pos, state).entrySet()) {
+				BlockPos checkPos = link.getKey();
 				if(blackList.contains(checkPos))
 					continue;
 
 				BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
 				if(networkObject != null && connection.test(networkObject))
-					addConnection(connections, blackList, level, checkPos, networkObject, dir.getOpposite(), connection, wires);
+					addConnection(connections, blackList, level, checkPos, networkObject, link.getValue(), connection, wires);
 				else
 					getConnections(connections, blackList, level, checkPos, connection, wires);
 			}
@@ -258,9 +264,8 @@ public class WireUtils {
 		if(!(networkObject instanceof ICoaxPassThrough) || !blackList.add(pos))
 			return;
 
-		for(Direction dir : Direction.values()) {
-			BlockPos checkPos = pos.relative(dir);
-			if(!blackList.contains(checkPos) && wires.contains(level.getBlockState(checkPos).getBlock()))
+		for(BlockPos checkPos : WireBlock.wireLinksAround(level, pos, wires).keySet()) {
+			if(!blackList.contains(checkPos))
 				getConnections(connections, blackList, level, checkPos, connection, wires); // Devices only link through wire, as everywhere else.
 		}
 	}
@@ -284,14 +289,14 @@ public class WireUtils {
 		if(wires.contains(state.getBlock())) { // This call is fine, IntelliJ just dislikes the type mismatch.
 			WireBlock wire = (WireBlock)state.getBlock();
 
-			for(Direction dir : wire.getConnections(level, pos)) {
-				BlockPos checkPos = pos.relative(dir);
+			for(Map.Entry<BlockPos, Direction> link : wire.getLinks(level, pos, state).entrySet()) {
+				BlockPos checkPos = link.getKey();
 				if(blackList.contains(checkPos))
 					continue;
 
 				BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
 				if(networkObject != null && connection.test(networkObject))
-					return Pair.of(networkObject, dir.getOpposite());
+					return Pair.of(networkObject, link.getValue());
 				else {
 					Pair<BENetworkObject, Direction> next = getFirstConnection(blackList, level, checkPos, connection, wires);
 					if(next != null)

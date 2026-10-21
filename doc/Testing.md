@@ -184,6 +184,15 @@ Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug tra
   random wire needs the 9:1 balun). `AntennaGameTests` has a recognition test per type; `AntennaSwrTest` the SWR
   rule. A new feed-point block needs the three block tags in `RadiocraftBlockTagsProvider` (coax, antenna, wire
   holder) and therefore `./gradlew runData` before GameTests that connect it to coax can pass.
+- **Wire links and climbs** (2026-10-21): `WireBlock#getLinks` is the one place that says what a wire is joined to:
+  its six neighbours plus, like redstone dust, a climb up a solid block to the wire or device on top of it
+  (`climb_<dir>` blockstate flags; the wire on top shows a stub towards the climber). `WireUtils`, the Jade coax
+  overlay and the redstone pickup zone all walk links, and `WireBlock.wireLinksAround` finds the wires touching a
+  device, climbers included. Climbs depend on blocks that are not direct neighbours, so `WireClimbUpdater` listens
+  to `BlockEvent.NeighborNotifyEvent` and calls `WireBlock#refresh` on every wire around a changed block; `refresh`
+  merges or splits the networks itself when a climb link comes or goes (`splitNetworks` takes the old links and a
+  `wireGone` flag for that). `WireClimbGameTests` cover foot-first, top-first, breaking the step and climbing straight
+  into a balun.
 
 ## Bug audit (2026-10)
 
