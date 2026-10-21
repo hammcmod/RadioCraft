@@ -143,8 +143,15 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "solar_weather_station"), "Right click for the current solar conditions. A comparator reads 1 (blackout) to 6 (great).");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.report"), "Solar conditions: %s (noise floor %s%%). %s band: %s");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.no_data"), "No solar weather data yet");
-            provider.add(Radiocraft.translationKey("message", "solar_weather_station.open"), "open");
-            provider.add(Radiocraft.translationKey("message", "solar_weather_station.closed"), "closed");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.open"), "Open");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.closed"), "Closed");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.normal"), "Normal");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.header"), "Solar Conditions:");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.overall"), "Overall: %s");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.noise"), "Noise Floor: %s%%");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.band"), "%s Band: %s");
+            provider.add("subtitles.radiocraft.teletype", "Teletype printing");
+            provider.add("subtitles.radiocraft.teletype_ding", "Teletype bell");
             provider.add(Radiocraft.translationKey("solar_event", "none"), "None");
             provider.add(Radiocraft.translationKey("solar_event", "great"), "Great");
             provider.add(Radiocraft.translationKey("solar_event", "good"), "Good");

@@ -13,5 +13,11 @@ public class RadiocraftSoundEvents {
 
 	public static Supplier<SoundEvent> STATIC = SOUND_EVENTS.register("static", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("static"), 32.0F));
 	public static Supplier<SoundEvent> MORSE = SOUND_EVENTS.register("morse", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("morse"), 32.0F));
+	/** The solar weather station printing its report (maintainer's sound, 2026-10-21). */
+	public static Supplier<SoundEvent> TELETYPE = SOUND_EVENTS.register("teletype", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("teletype"), 16.0F));
+	/** The bell at the end of the report, and on placing the station. */
+	public static Supplier<SoundEvent> TELETYPE_DING = SOUND_EVENTS.register("teletype_ding", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("teletype_ding"), 16.0F));
+	/** The printing sound with a fade at the end; not used yet. */
+	public static Supplier<SoundEvent> TELETYPE_FADEOUT = SOUND_EVENTS.register("teletype_fadeout", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("teletype_fadeout"), 16.0F));
 
 }

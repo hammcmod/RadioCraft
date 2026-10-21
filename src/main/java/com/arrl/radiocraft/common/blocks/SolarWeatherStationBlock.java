@@ -77,9 +77,17 @@ public class SolarWeatherStationBlock extends BaseEntityBlock {
 
 	@Override
 	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
-		if(!level.isClientSide && level.getBlockEntity(pos) instanceof SolarWeatherStationBlockEntity be)
-			player.displayClientMessage(be.getReport(), false);
+		if(!level.isClientSide && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof SolarWeatherStationBlockEntity be)
+			be.startReport(serverPlayer);
 		return InteractionResult.sidedSuccess(level.isClientSide);
+	}
+
+	/** A fresh station rings its bell once. */
+	@Override
+	protected void onPlace(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean isMoving) {
+		super.onPlace(state, level, pos, oldState, isMoving);
+		if(!level.isClientSide && !oldState.is(this))
+			level.playSound(null, pos, com.arrl.radiocraft.common.init.RadiocraftSoundEvents.TELETYPE_DING.get(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
 	}
 
 	@Override

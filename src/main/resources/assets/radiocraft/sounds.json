@@ -8,5 +8,23 @@
     "sounds": [
       "radiocraft:morse"
     ]
+  },
+  "teletype": {
+    "subtitle": "subtitles.radiocraft.teletype",
+    "sounds": [
+      "radiocraft:teletype"
+    ]
+  },
+  "teletype_ding": {
+    "subtitle": "subtitles.radiocraft.teletype_ding",
+    "sounds": [
+      "radiocraft:teletypeding"
+    ]
+  },
+  "teletype_fadeout": {
+    "subtitle": "subtitles.radiocraft.teletype",
+    "sounds": [
+      "radiocraft:teletypefadeout"
+    ]
   }
 }

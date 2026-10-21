@@ -255,9 +255,31 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		Direction arrive = state.getValue(ARRIVE).direction();
 		if(arrive != null)
 			return arrive;
-		for(Direction dir : Direction.Plane.HORIZONTAL)
+		// Of the solid walls around, prefer the one on the side the run leads to at the top, so the cable goes
+		// straight up to the wire it joins instead of up the nearest wall and across.
+		for(Direction dir : wallOrder(Edge.of(destinationSide(level, pos))))
 			if(isWall(level, pos.relative(dir), dir.getOpposite()))
 				return dir;
+		return null;
+	}
+
+	/**
+	 * The side the run above this block eventually leaves towards: the first horizontal connection found going up
+	 * the column of wires of this kind, within a few blocks. Null if it goes nowhere sideways or ends.
+	 */
+	@Nullable
+	private Direction destinationSide(BlockGetter level, BlockPos pos) {
+		BlockPos cursor = pos.above();
+		for(int i = 0; i < 8; i++, cursor = cursor.above()) {
+			BlockState above = level.getBlockState(cursor);
+			if(!isSameKind(above))
+				return null;
+			for(Direction dir : Direction.Plane.HORIZONTAL)
+				if(above.getValue(PROPERTY_BY_DIRECTION.get(dir)))
+					return dir;
+			if(!above.getValue(UP))
+				return null;
+		}
 		return null;
 	}
 

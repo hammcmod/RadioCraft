@@ -5,7 +5,17 @@ import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
+import com.arrl.radiocraft.common.init.RadiocraftSoundEvents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -28,11 +38,23 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 	@Nullable
 	private SolarEventInstance lastSeenEvent;
 
+	/** Ticks the printing sound lasts (2.79 s); the lines are spread over it and the bell rings at the end. */
+	public static final int PRINT_TICKS = 56;
+	/** The HF bands reported, in order. VHF is reported first as "Normal" since the sun does not touch it. */
+	public static final List<String> REPORTED_BANDS = List.of("10m", "20m", "40m", "80m");
+	/** Bands no solar event closes (the data packs only list 10m as opening and closing); the propagation work will change this. */
+	public static final Set<String> ALWAYS_OPEN_BANDS = Set.of("20m", "40m", "80m");
+
+	/** A chat line waiting to be printed for a player, with the game time to print it at; a ding instead of a line rings the bell. */
+	private record PendingLine(UUID player, @Nullable Component line, long at, boolean ding) {}
+	private final List<PendingLine> pending = new ArrayList<>();
+
 	public SolarWeatherStationBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.SOLAR_WEATHER_STATION.get(), pos, state);
 	}
 
 	public static void tick(Level level, BlockPos pos, BlockState state, SolarWeatherStationBlockEntity be) {
+		be.printPending(level);
 		SolarEventInstance current = SolarEventManager.getEvent(level);
 		if(current != be.lastSeenEvent) {
 			be.lastSeenEvent = current;
@@ -76,7 +98,63 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 		return Component.translatableWithFallback("solar_event." + key.getNamespace() + "." + path, fallback);
 	}
 
-	/** The one-line report the block shows on right click. */
+	/**
+	 * Starts the report for {@code player}: the teletype starts printing at the block and the lines of the report
+	 * appear in chat one by one over the length of the sound, then the bell rings.
+	 */
+	public void startReport(ServerPlayer player) {
+		if(!(level instanceof ServerLevel serverLevel))
+			return;
+		List<Component> lines = getReportLines();
+		serverLevel.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+		long now = serverLevel.getGameTime();
+		int spacing = Math.max(1, PRINT_TICKS / lines.size());
+		for(int i = 0; i < lines.size(); i++)
+			pending.add(new PendingLine(player.getUUID(), lines.get(i), now + (long)i * spacing, false));
+		pending.add(new PendingLine(player.getUUID(), null, now + PRINT_TICKS, true));
+	}
+
+	/** How many lines are still to be printed (for tests). */
+	public int getPendingCount() {
+		return pending.size();
+	}
+
+	private void printPending(Level level) {
+		if(pending.isEmpty() || !(level instanceof ServerLevel serverLevel))
+			return;
+		long now = serverLevel.getGameTime();
+		for(Iterator<PendingLine> it = pending.iterator(); it.hasNext(); ) {
+			PendingLine next = it.next();
+			if(next.at() > now)
+				continue;
+			it.remove();
+			if(next.ding())
+				serverLevel.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE_DING.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+			ServerPlayer player = serverLevel.getServer().getPlayerList().getPlayer(next.player());
+			if(player != null && next.line() != null)
+				player.displayClientMessage(next.line(), false);
+		}
+	}
+
+	/** The report, one chat line per entry: header, overall conditions, noise floor, then each band. */
+	public List<Component> getReportLines() {
+		SolarEvent event = getCurrentEvent();
+		if(event == null)
+			return List.of(Component.translatable("message.radiocraft.solar_weather_station.no_data"));
+		List<Component> lines = new ArrayList<>();
+		lines.add(Component.translatable("message.radiocraft.solar_weather_station.header").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
+		lines.add(Component.translatable("message.radiocraft.solar_weather_station.overall", eventName(getCurrentEventKey())));
+		lines.add(Component.translatable("message.radiocraft.solar_weather_station.noise", Math.round(event.getNoise() * 100.0F)));
+		lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", "VHF", Component.translatable("message.radiocraft.solar_weather_station.normal")));
+		for(String band : REPORTED_BANDS) {
+			boolean open = ALWAYS_OPEN_BANDS.contains(band) || event.isBandOpen(band);
+			lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", band,
+					Component.translatable(open ? "message.radiocraft.solar_weather_station.open" : "message.radiocraft.solar_weather_station.closed")));
+		}
+		return lines;
+	}
+
+	/** The one-line report, kept for tools and tests; the block itself prints {@link #getReportLines()}. */
 	public Component getReport() {
 		SolarEvent event = getCurrentEvent();
 		if(event == null)

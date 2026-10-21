@@ -179,6 +179,26 @@ public class WireClimbGameTests {
                 .thenSucceed();
     }
 
+    /**
+     * In a trench with walls both sides, the run up picks the wall on the side the wire above leaves towards (west
+     * here, although east comes first in the search order), so it meets that wire head on.
+     */
+    @GameTest(template = GameTestUtil.EMPTY)
+    public static void runGoesUpTheWallOnTheSideItLeaves(GameTestHelper helper) {
+        BlockPos foot = new BlockPos(8, 2, 8);
+        helper.setBlock(foot.west(), Blocks.STONE);
+        helper.setBlock(foot.east(), Blocks.STONE);
+        coax(helper, foot.west().above()); // The run's destination: on top of the west wall.
+        coax(helper, foot.above());
+        coax(helper, foot);
+        helper.runAfterDelay(2, () -> {
+            helper.assertTrue(helper.getBlockState(foot).getValue(WireBlock.HUG) == WireBlock.Edge.WEST,
+                    "Foot should hug the west wall, the side the run leaves on, but hugs " + helper.getBlockState(foot).getValue(WireBlock.HUG));
+            helper.assertTrue(helper.getBlockState(foot.above()).getValue(WireBlock.ARRIVE) == WireBlock.Edge.WEST, "The wire above arrives on the west edge");
+            helper.succeed();
+        });
+    }
+
     /** A climb can end straight at a device: the balun sits on the step itself. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
     public static void coaxClimbsStraightIntoABalun(GameTestHelper helper) {

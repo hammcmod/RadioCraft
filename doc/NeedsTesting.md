@@ -138,6 +138,18 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
   sounded good"). If it goes quiet again, note what happened just before (world reload, far travel, config change)
   and whether a lever next to the coax still pops, since both use the same client path.
 
+## Solar weather station teletype (added 2026-10-21, maintainer request; sounds by the maintainer)
+
+- [ ] Right click: the teletype starts at the block and the report prints in chat one line at a time over about
+  3 seconds (header, Overall, Noise Floor, VHF, 10m, 20m, 40m, 80m), with the bell at the end. Does the spacing feel
+  right against the sound? Two players clicking at once each get their own lines.
+- [ ] Placing the station rings the bell once.
+- [ ] Band words: VHF is always "Normal"; 10m "Open" only in good or great conditions; 20m, 40m and 80m always
+  "Open" for now (the propagation-shaping step will make a blackout close them). Say if the words should differ.
+- [ ] `teletypefadeout.ogg` is registered but unused; say where you want it.
+- [ ] Wire: at the foot of a trench or pit the run now goes up the wall on the side the wire above continues over,
+  so it meets that wire head on instead of going up the nearest wall and across. Check the screenshot build.
+
 ## Solar panels join by touching (added 2026-10-21, maintainer request)
 
 - [ ] A row of solar panels with a charge controller touching the end panel and a battery wired to the controller:
