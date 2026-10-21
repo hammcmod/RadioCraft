@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.radio.voice.handheld;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.api.blockentities.radio.IVoiceTransmitter;
@@ -19,6 +20,8 @@ import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
+import com.arrl.radiocraft.common.radio.voice.RadioVoiceProcessor;
+import com.arrl.radiocraft.common.radio.voice.ReceiverMix;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
@@ -38,6 +41,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna {
 
     private EntityAudioChannel receiveChannel = null;
+    private final RadioVoiceProcessor processor = new RadioVoiceProcessor(); // Used under this object's lock (receive is synchronized).
     private WeakReference<Player> playerRef = null; // Use a weak ref here, so it isn't able to permanently load the entity.
     private volatile AntennaNetwork network = null;
 
@@ -316,13 +320,16 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
             if(!shouldRecieve) return;
 
+            // FM receiver: AGC against the receiver's own noise, voice band, overdrive; aurora rasp beyond line of sight.
+            AntennaPos source = antennaPacket.getSource() == null ? null : antennaPacket.getSource().getAntennaPos();
+            AntennaPos here = getAntennaPos();
+            boolean beyondLos = source != null && here != null && antennaPacket.getBand() != null
+                    && source.position().distSqr(here.position()) > (double)antennaPacket.getBand().losRange() * antennaPacket.getBand().losRange();
+            double level = ReceiverMix.voiceLevel(packetStrength, RadiocraftServerConfig.VHF_NOISE_FLOOR.get()) * (isHeld ? 1.0D : 0.5D) * gain;
+            short[] rawAudio = processor.process(antennaPacket.getRawAudio(), RadioVoiceProcessor.currentSettings(), level, beyondLos ? 1.0D : 0.0D);
             long runningTotal = 0;
-            short[] rawAudio = antennaPacket.getRawAudio();
-            for(int i = 0; i < rawAudio.length; i++) {
-                short sample = (short) Math.round(rawAudio[i] * packetStrength * (isHeld ? 1f : 0.5f) * gain); // Apply appropriate gain for signal strength
+            for(short sample : rawAudio)
                 runningTotal = sample * sample;
-                rawAudio[i] = sample;
-            }
 
             //TODO rework receiving to be per handheld, when frequency support is added
             for(SynchronousRadioState state : this.radios) {

@@ -4,6 +4,28 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Radio-sounding voice and static ducking (added 2026-10-21)
+
+Received voice now goes through `RadioVoiceProcessor` on the server (band-pass 300-2700 Hz, AGC, soft overdrive) and
+plays at `ReceiverMix.voiceLevel(S, N)`; the client's static is multiplied by `ReceiverMix.noiseDuck(S, N)`, so a strong
+signal pushes the static down and a weak one stays buried. Skip signals fade in and out slowly (QSB), VHF heard off an
+aurora gets a raspy buzz. Settings: "Receiver Audio" in `radiocraft-server.toml` (band edges, drive, VHF noise, fading
+depth, an off switch). Cost measured at 35-55 microseconds per 20 ms frame per receiving radio.
+
+- [ ] Voice sounds like a radio: thin, no deep bass or airy highs, steady loudness whether the talker whispers or
+  shouts, a little crunch on peaks. Compare with `voice_processing_enabled = false`.
+- [ ] Strong nearby station on a quiet band: the static drops away while they talk and comes back up within about half
+  a second after they stop, smoothly (no clicks, no pumping on every word).
+- [ ] Weak or distant station, or a blackout (`/rcdebug solar set blackout`): the voice is quieter and the static stays
+  loud over it; hard to copy, as on a real rig.
+- [ ] Skip contact (HF beyond line of sight): the voice swells and fades over several seconds, and the static rises as it
+  fades.
+- [ ] Handhelds (VHF): same band-pass and AGC; a handheld at the edge of range is quieter but not buried (no static on
+  VHF). Off-hotbar handhelds are still half volume.
+- [ ] Aurora VHF (see Aurora below): buzzy, raspy voice. Too much / too little?
+- [ ] Tune by ear: `voice_band_low/high`, `voice_drive`, `skip_fading_depth`, `vhf_noise_floor`. Say which numbers
+  sound right.
+
 ## Aurora (added 2026-10-21)
 
 A blackout has a 30% chance (`aurora` in `solar_events/blackout.json`) of an aurora three days after it starts, lasting

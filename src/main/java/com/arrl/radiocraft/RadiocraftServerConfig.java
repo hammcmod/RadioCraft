@@ -37,6 +37,13 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_LOSS;
 
+	public static final ModConfigSpec.ConfigValue<Boolean> VOICE_PROCESSING_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Integer> VOICE_BAND_LOW;
+	public static final ModConfigSpec.ConfigValue<Integer> VOICE_BAND_HIGH;
+	public static final ModConfigSpec.ConfigValue<Double> VOICE_DRIVE;
+	public static final ModConfigSpec.ConfigValue<Double> VHF_NOISE_FLOOR;
+	public static final ModConfigSpec.ConfigValue<Double> SKIP_FADING_DEPTH;
+
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_LATITUDE;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MIN_RANGE;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MAX_RANGE;
@@ -125,6 +132,17 @@ public class RadiocraftServerConfig {
 		ANTENNA_TUNER_ENABLED = BUILDER.comment(" Set to false to make tuners decorative again").define("antenna_tuner_enabled", true);
 		ANTENNA_TUNER_MAX_SWR = BUILDER.comment(" Highest antenna SWR a tuner can bring to 1:1 (a dipole 10 blocks off in total is SWR 6)").defineInRange("antenna_tuner_max_swr", 6.0, 1.0, 100.0);
 		ANTENNA_TUNER_LOSS = BUILDER.comment(" Share of the mismatch loss a tuner cannot recover: 0 = perfect tuner, 1 = tuner only quiets the radio").defineInRange("antenna_tuner_loss", 0.25, 0.0, 1.0);
+		BUILDER.pop();
+
+		BUILDER.push("Receiver Audio");
+		BUILDER.comment(" How received voice is shaped before it plays from the radio, and how it sits against the static. The",
+				" receiver's AGC balances signal against noise: a strong signal ducks the static, a weak one stays under it.");
+		VOICE_PROCESSING_ENABLED = BUILDER.comment(" Set to false to play received voice clean (only its level follows the signal)").define("voice_processing_enabled", true);
+		VOICE_BAND_LOW = BUILDER.comment(" Lowest voice frequency the radio passes, in Hz").defineInRange("voice_band_low", 300, 20, 4000);
+		VOICE_BAND_HIGH = BUILDER.comment(" Highest voice frequency the radio passes, in Hz").defineInRange("voice_band_high", 2700, 500, 20000);
+		VOICE_DRIVE = BUILDER.comment(" Speaker overdrive on voice peaks: 1 is barely there, 3 is crunchy").defineInRange("voice_drive", 1.6, 0.1, 10.0);
+		VHF_NOISE_FLOOR = BUILDER.comment(" Receiver noise on VHF (FM), which has no solar noise: how far a weak VHF signal is pushed down").defineInRange("vhf_noise_floor", 0.15, 0.0, 1.0);
+		SKIP_FADING_DEPTH = BUILDER.comment(" How deep skip signals fade in and out (QSB): 0 steady, 1 fades to nothing").defineInRange("skip_fading_depth", 0.5, 0.0, 1.0);
 		BUILDER.pop();
 
 		BUILDER.push("Aurora");

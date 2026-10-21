@@ -53,6 +53,7 @@ public class TransmissionGameTests {
     private static final int F_CW_SSB = 170;
     private static final int F_CW_POWER = 180;
     private static final int F_BARE_BALUN = 190;
+    private static final int F_SIGNAL_SYNC = 290;
     private static final int F_PARROT_VOICE = 200;
     private static final int F_PARROT_CW = 210;
     private static final int F_PARROT_OFF = 220;
@@ -274,6 +275,27 @@ public class TransmissionGameTests {
                     radio(helper, RADIO_A).transmitMorse(List.of(new CWBuffer(0, new boolean[] { true })));
                     assertHeardNothing(helper, RADIO_B);
                 })
+                .thenSucceed();
+    }
+
+    /**
+     * The receiving radio tells its clients how strong the signal is while it comes in, so their static can duck under
+     * it, and drops back to 0 a moment after it stops.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
+    public static void receivedSignalIsSyncedForStaticDucking(GameTestHelper helper) {
+        stationsUp(helper)
+                .thenExecute(() -> {
+                    setupSsb(helper, RADIO_A, F_SIGNAL_SYNC);
+                    setupSsb(helper, RADIO_B, F_SIGNAL_SYNC);
+                    helper.assertTrue(radio(helper, RADIO_B).getSyncedSignal() == 0.0D, "B reports a signal before anyone spoke");
+                    speakInto(helper, RADIO_A);
+                })
+                .thenWaitUntil(() -> {
+                    double synced = radio(helper, RADIO_B).getSyncedSignal();
+                    helper.assertTrue(Math.abs(synced - Math.round(EXPECTED_VOICE_STRENGTH * 20.0D) / 20.0D) < 1e-9, "B synced " + synced);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(radio(helper, RADIO_B).getSyncedSignal() == 0.0D, "B still reports a signal after it stopped"))
                 .thenSucceed();
     }
 

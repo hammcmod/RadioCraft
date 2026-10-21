@@ -20,6 +20,10 @@ import com.arrl.radiocraft.common.radio.rfi.InterferenceLevel;
 import com.arrl.radiocraft.common.radio.rfi.PickupZone;
 import com.arrl.radiocraft.common.radio.rfi.RedstoneInterference;
 import com.arrl.radiocraft.common.radio.rfi.TransmitInterference;
+import com.arrl.radiocraft.common.radio.solar.Aurora;
+import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
+import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
+import com.arrl.radiocraft.common.radio.voice.ReceiverMix;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -127,6 +131,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.antennaSWR = newSWR;
                 shouldUpdate = true; // If SWR has changed, notify the client about it.
             }
+            if(be.tickSyncedSignal(level.getGameTime()))
+                shouldUpdate = true; // The client ducks its static under the signal.
 
             if(shouldUpdate) {
                 be.setChanged();
@@ -370,10 +376,70 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public boolean receiveVoice(AntennaVoicePacket packet) {
         if(!getVoiceReceiver().isReceiving())
             return false;
-        recordSignal(packet.getStrength());
+        boolean skip = isSkipPath(packet);
+        double strength = packet.getStrength();
+        if(skip && level != null) // Skip signals swell and fade (QSB); line of sight holds steady.
+            strength *= ReceiverMix.fading(level.getGameTime() / 20.0D, pathSeed(packet), RadiocraftServerConfig.SKIP_FADING_DEPTH.get());
+        recordSignal(strength);
         if(isParrot()) // Queue the audio as it arrived, before the receiver scales it, so the echo carries one path's loss, not two.
             parrotVoiceQueue.add(new QueuedVoice(packet.getRawAudio().clone(), packet.getSourcePlayer(), lastSignalGameTime + parrotDelayTicks));
-        getVoiceReceiver().receive(packet);
+        double rasp = skip && band != null && band.isVhf() ? 1.0D : 0.0D; // A VHF signal beyond line of sight came off the aurora.
+        getVoiceReceiver().receive(packet, ReceiverMix.voiceLevel(strength, getNoiseFloor()), rasp);
+        return true;
+    }
+
+    /** True if the packet came from further away than line of sight on this band: by skip (or, on VHF, the aurora). */
+    protected boolean isSkipPath(AntennaVoicePacket packet) {
+        if(band == null || packet.getSource() == null || packet.getSource().getAntennaPos() == null)
+            return false;
+        return packet.getSource().getAntennaPos().position().distSqr(worldPosition) > (double)band.losRange() * band.losRange();
+    }
+
+    /** A number for the path between the sender and this radio, so each path fades on its own. */
+    private long pathSeed(AntennaVoicePacket packet) {
+        return packet.getSource().getAntennaPos().position().asLong() * 31L + worldPosition.asLong();
+    }
+
+    /**
+     * The noise this radio's receiver hears, 0 to 1: on HF the solar noise floor plus redstone and lightning noise and
+     * any aurora overhead, on VHF the fixed receiver noise ({@link RadiocraftServerConfig#VHF_NOISE_FLOOR}). The client
+     * plays the same sum as static ({@link com.arrl.radiocraft.common.sounds.RadioStaticSoundInstance}).
+     */
+    public double getNoiseFloor() {
+        if(level == null)
+            return 0.0D;
+        if(band != null && band.isVhf())
+            return RadiocraftServerConfig.VHF_NOISE_FLOOR.get();
+        SolarEventInstance event = SolarEventManager.getEvent(level);
+        double noise = (event == null ? 0.0D : event.getEvent().getNoise()) + getInterference();
+        if(Aurora.affects(level, worldPosition))
+            noise += RadiocraftServerConfig.AURORA_STATIC.get();
+        return Math.min(1.0D, noise);
+    }
+
+    // -------------------- RECEIVED SIGNAL (CLIENT SYNC) --------------------
+
+    /** Ticks the synced signal holds after the last frame, so the static comes back up gently between words. */
+    public static final int SIGNAL_SYNC_HOLD_TICKS = 6;
+
+    /**
+     * Signal strength the client uses to duck the static under a received signal ({@link ReceiverMix#noiseDuck}),
+     * rounded to 1/20 so it is only resent when it really moves.
+     */
+    protected double syncedSignal = 0.0D;
+
+    public double getSyncedSignal() {
+        return syncedSignal;
+    }
+
+    private boolean tickSyncedSignal(long gameTime) {
+        double current = lastSignalGameTime >= 0 && gameTime - lastSignalGameTime <= SIGNAL_SYNC_HOLD_TICKS ? lastSignalStrength : 0.0D;
+        double rounded = Math.round(current * 20.0D) / 20.0D;
+        if(current > 0.0D && rounded == 0.0D)
+            rounded = 0.05D; // A faint signal still counts.
+        if(rounded == syncedSignal)
+            return false;
+        syncedSignal = rounded;
         return true;
     }
 
@@ -520,6 +586,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putDouble("antennaSWR", antennaSWR);
         nbt.putBoolean("wasPowered", wasPowered);
         nbt.putBoolean("pttDown", isPTTDown);
+        nbt.putDouble("signal", syncedSignal);
     }
 
     /**
@@ -540,6 +607,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         antennaSWR = nbt.getDouble("antennaSWR");
         wasPowered = nbt.getBoolean("wasPowered");
         isPTTDown = nbt.getBoolean("pttDown");
+        syncedSignal = nbt.getDouble("signal");
 
         if(band != null) { // Reset the frequency if the saved one is outside the band or not on a step.
             int step = RadiocraftServerConfig.HF_FREQUENCY_STEP.get();
