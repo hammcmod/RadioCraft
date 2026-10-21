@@ -92,6 +92,14 @@ public class BENetworkObject {
     /**
      * Clears all networks this {@link BENetworkObject} is in.
      */
+    /**
+     * Whether this object joins {@code other} just by touching it, with no wire in between. Solar panels link to each
+     * other and to a charge controller this way; everything else needs wire. Either side saying yes is enough.
+     */
+    public boolean linksDirectlyTo(BENetworkObject other) {
+        return false;
+    }
+
     public void clearNetworks() {
         for(BENetwork network : networks.values())
             network.remove(this, true);

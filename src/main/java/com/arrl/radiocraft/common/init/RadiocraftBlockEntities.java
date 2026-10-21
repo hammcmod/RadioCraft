@@ -43,6 +43,9 @@ public class RadiocraftBlockEntities {
 	public static final Supplier<BlockEntityType<VHFReceiverBlockEntity>> VHF_RECEIVER = BLOCK_ENTITY_TYPES.register("vhf_receiver",
 			() -> BlockEntityType.Builder.of(VHFReceiverBlockEntity::new, RadiocraftBlocks.VHF_RECEIVER.get()).build(null));
 
+	public static final Supplier<BlockEntityType<PassthroughBlockEntity>> PASSTHROUGH = BLOCK_ENTITY_TYPES.register("passthrough",
+			() -> BlockEntityType.Builder.of(PassthroughBlockEntity::new, RadiocraftBlocks.PASSTHROUGH.get()).build(null));
+
 	public static final Supplier<BlockEntityType<ParrotControllerBlockEntity>> PARROT_CONTROLLER = BLOCK_ENTITY_TYPES.register("parrot_controller",
 			() -> BlockEntityType.Builder.of(ParrotControllerBlockEntity::new, RadiocraftBlocks.PARROT_CONTROLLER.get()).build(null));
 

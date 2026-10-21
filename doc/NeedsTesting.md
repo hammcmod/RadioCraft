@@ -138,6 +138,33 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
   sounded good"). If it goes quiet again, note what happened just before (world reload, far travel, config change)
   and whether a lever next to the coax still pops, since both use the same client path.
 
+## Solar panels join by touching (added 2026-10-21, maintainer request)
+
+- [ ] A row of solar panels with a charge controller touching the end panel and a battery wired to the controller:
+  the battery charges in daylight with no wire between the panels. Panels placed before or after the controller
+  both work. A battery touching the controller with no wire does not charge (batteries need wire).
+- [ ] Jade on a panel: "Making: N FE/tick" (0 with a reason at night or under a roof), the row's panel count and
+  total, and whether a charge controller is connected.
+- [ ] Known gap: breaking a panel in the middle of a row leaves the two halves on one network until something
+  re-links (networks are not split when a device goes, only when wire does). Say if that matters.
+
+## Wire Passthrough (added 2026-10-21, maintainer request; item model and texture by the maintainer)
+
+Use the Wire Passthrough item on a plain solid block (stone, planks, bricks; not a device, wire or block with a
+block entity). The block keeps its look but now conducts power wire and coax between all six sides.
+
+- [ ] Click a wall block with the item: no visible change except the sound; wire or coax on either side now draws its
+  stub into the wall face and the run connects through (`/rcdebug radio` sees the antenna, a battery feeds a radio).
+- [ ] The converted block renders exactly like its neighbours in daylight and in the dark (it is lit from its
+  brightest neighbour, since there is no light inside a wall). Check at a chunk border and with a glass or leaves
+  block converted (transparent blocks are not allowed; the item should do nothing on them).
+- [ ] Breaking it in survival drops the passthrough and the original block; creative drops nothing. Middle click
+  gives the passthrough item.
+- [ ] Jade on the coax lists what is beyond the wall. Jade on the passthrough itself shows the wall block's name
+  (Jade reads the block state, which is the passthrough; say if it should show the mimicked block instead).
+- [ ] Both kinds at once: a power wire and a coax into the same passthrough from different sides stay separate
+  networks (the radio on the coax side does not end up on the battery's wire).
+
 ## Radios draw power (added 2026-10-21, maintainer request)
 
 Block radios now need power (`radios_need_power`, server config, default on). A radio with no power, or on a

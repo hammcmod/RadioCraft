@@ -29,6 +29,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 		TRANSLATION_PROVIDERS.put("en_us", (provider) -> {
 			provider.add(Radiocraft.translationKey("tabs", "main_tab"), "RadioCraft");
 
+			provider.addItem(RadiocraftItems.PASSTHROUGH, "Wire Passthrough");
 			provider.addItem(RadiocraftItems.RADIO_CRYSTAL, "Radio Crystal");
 			provider.addItem(RadiocraftItems.RADIO_SPEAKER, "Radio Speaker");
 			provider.addItem(RadiocraftItems.HAND_MICROPHONE, "Hand Microphone");
@@ -154,6 +155,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 
             provider.add(Radiocraft.translationKey("tooltip", "not_implemented"), "§7Not Implemented (Decorative Only)§r");
             provider.add(Radiocraft.translationKey("tooltip", "not_implemented_crafting_only"), "§7Not Implemented (Crafting Ingredient Only)§r");
+            provider.add(Radiocraft.translationKey("tooltip", "passthrough"), "Use on a plain solid block: it keeps its look but lets wire and coax run straight through it. Break it to get both back.");
             provider.add(Radiocraft.translationKey("tooltip", "wire"), "Carries power between solar panels, charge controllers, batteries and radios. Runs along the ground, up walls and over steps.");
             provider.add(Radiocraft.translationKey("tooltip", "waterproof_wire"), "Power wire that can be laid under water. Runs along the ground, up walls and over steps.");
             provider.add(Radiocraft.translationKey("tooltip", "coax_wire"), "Carries the signal between a radio and its antenna's balun. Runs along the ground, up walls and over steps.");
@@ -191,6 +193,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("config.jade.plugin_radiocraft.coax_wire", "Coax Wire");
 			provider.add("config.jade.plugin_radiocraft.parrot_controller", "Simplex Repeat Controller");
 			provider.add("config.jade.plugin_radiocraft.solar_weather_station", "Solar Weather Station");
+			provider.add("config.jade.plugin_radiocraft.battery", "Battery Charge");
+			provider.add("config.jade.plugin_radiocraft.solar_panel", "Solar Panel Output");
 
 			Arrays.stream(LicenseClass.values()).forEach((licenseClass) -> {
                 // I'm not going to bother pulling in the Apache Commons Text library, because I really don't want to shadow it in

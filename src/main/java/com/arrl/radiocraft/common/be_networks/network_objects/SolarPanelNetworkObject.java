@@ -3,15 +3,27 @@ package com.arrl.radiocraft.common.be_networks.network_objects;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.be_networks.IPassThroughNetworkObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
-public class SolarPanelNetworkObject extends PowerNetworkObject {
+/**
+ * A solar panel. Panels join each other and a charge controller just by touching (no wire), and a panel is one node
+ * for all its sides, so a row of panels is one network with the controller at its end.
+ */
+public class SolarPanelNetworkObject extends PowerNetworkObject implements IPassThroughNetworkObject {
+
+    @Override
+    public boolean linksDirectlyTo(BENetworkObject other) {
+        return other instanceof SolarPanelNetworkObject || other instanceof ChargeControllerNetworkObject;
+    }
+
 
     public static final ResourceLocation TYPE = Radiocraft.id("solar_panel");
 

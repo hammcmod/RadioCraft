@@ -24,12 +24,12 @@ public class WireUtils {
 
 	/** The wire blocks a power network can run through. */
 	public static WireBlock[] powerWires() {
-		return new WireBlock[] { RadiocraftBlocks.WIRE.get(), (WireBlock)RadiocraftBlocks.WATERPROOF_WIRE.get() };
+		return new WireBlock[] { RadiocraftBlocks.WIRE.get(), (WireBlock)RadiocraftBlocks.WATERPROOF_WIRE.get(), RadiocraftBlocks.PASSTHROUGH.get() };
 	}
 
 	/** The wire blocks a coax network can run through. */
 	public static WireBlock[] coaxWires() {
-		return new WireBlock[] { RadiocraftBlocks.COAX_WIRE.get() };
+		return new WireBlock[] { RadiocraftBlocks.COAX_WIRE.get(), RadiocraftBlocks.PASSTHROUGH.get() };
 	}
 
 	/**
@@ -186,7 +186,7 @@ public class WireUtils {
 
 		// A pass-through device (antenna tuner) is one node for all its sides: everything reachable from any side goes
 		// on one network, otherwise the radio on one side and the antenna on the other would never meet.
-		boolean passThrough = networkObject instanceof ICoaxPassThrough;
+		boolean passThrough = networkObject instanceof IPassThroughNetworkObject;
 		Set<BlockPos> sharedBlacklist = new HashSet<>();
 		sharedBlacklist.add(pos);
 		Map<BENetworkObject, Direction> allConnections = new HashMap<>();
@@ -210,6 +210,26 @@ public class WireUtils {
 			if(connections.isEmpty())
 				continue; // Nothing on the other end yet; whatever loads there later will connect to us.
 
+			connections.put(networkObject, dir);
+			joinAll(level, connections, fallbackSupplier);
+		}
+
+		// Devices that link by touching (solar panels to each other and to a charge controller): no wire needed.
+		for(Direction dir : Direction.values()) {
+			BlockPos checkPos = pos.relative(dir);
+			BENetworkObject other = IBENetworks.getObject(level, checkPos);
+			if(other == null || !validConnection.test(other) || !linksDirectly(networkObject, other) || sharedBlacklist.contains(checkPos))
+				continue;
+			if(passThrough) {
+				addConnection(allConnections, sharedBlacklist, level, checkPos, other, dir.getOpposite(), validConnection, wireSet);
+				if(firstSide == null)
+					firstSide = dir;
+				continue;
+			}
+			Set<BlockPos> blacklist = new HashSet<>();
+			blacklist.add(pos);
+			Map<BENetworkObject, Direction> connections = new HashMap<>();
+			addConnection(connections, blacklist, level, checkPos, other, dir.getOpposite(), validConnection, wireSet);
 			connections.put(networkObject, dir);
 			joinAll(level, connections, fallbackSupplier);
 		}
@@ -256,18 +276,30 @@ public class WireUtils {
 	}
 
 	/**
-	 * Records a device the walk reached and, if it is an {@link ICoaxPassThrough}, keeps walking out of its other
+	 * Records a device the walk reached and, if it is an {@link IPassThroughNetworkObject}, keeps walking out of its other
 	 * sides, so devices beyond it join the same connection set.
 	 */
 	private static void addConnection(Map<BENetworkObject, Direction> connections, Set<BlockPos> blackList, Level level, BlockPos pos, BENetworkObject networkObject, Direction side, Predicate<BENetworkObject> connection, Set<WireBlock> wires) {
 		connections.put(networkObject, side);
-		if(!(networkObject instanceof ICoaxPassThrough) || !blackList.add(pos))
+		if(!(networkObject instanceof IPassThroughNetworkObject) || !blackList.add(pos))
 			return;
 
 		for(BlockPos checkPos : WireBlock.wireLinksAround(level, pos, wires).keySet()) {
 			if(!blackList.contains(checkPos))
-				getConnections(connections, blackList, level, checkPos, connection, wires); // Devices only link through wire, as everywhere else.
+				getConnections(connections, blackList, level, checkPos, connection, wires);
 		}
+		// ...and into devices it links to by touching (the next solar panel in a row, the charge controller at its end).
+		for(Direction dir : Direction.values()) {
+			BlockPos checkPos = pos.relative(dir);
+			BENetworkObject other = IBENetworks.getObject(level, checkPos);
+			if(other != null && connection.test(other) && linksDirectly(networkObject, other) && !blackList.contains(checkPos))
+				addConnection(connections, blackList, level, checkPos, other, dir.getOpposite(), connection, wires);
+		}
+	}
+
+	/** True if either object says it joins the other by touching, see {@link BENetworkObject#linksDirectlyTo}. */
+	private static boolean linksDirectly(BENetworkObject a, BENetworkObject b) {
+		return a.linksDirectlyTo(b) || b.linksDirectlyTo(a);
 	}
 
 	/**

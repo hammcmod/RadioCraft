@@ -5,5 +5,5 @@ package com.arrl.radiocraft.common.be_networks;
  * something). The wire walk in {@link WireUtils} carries on out of the other sides of such a block, so a radio and an
  * antenna with one of these in between still end up on one coax network, with the device as a member.
  */
-public interface ICoaxPassThrough extends ICoaxNetworkObject {
+public interface ICoaxPassThrough extends ICoaxNetworkObject, IPassThroughNetworkObject {
 }

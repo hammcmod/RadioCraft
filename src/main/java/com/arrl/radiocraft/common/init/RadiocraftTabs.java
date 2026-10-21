@@ -54,6 +54,7 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.BALUN_TWO_TO_ONE.get());
         output.accept(RadiocraftItems.BALUN_NINE_TO_ONE.get());
         output.accept(RadiocraftItems.COAX_WIRE.get());
+        output.accept(RadiocraftItems.PASSTHROUGH.get());
         output.accept(RadiocraftItems.PARROT_CONTROLLER.get());
         output.accept(RadiocraftItems.YAGI_ANTENNA.get());
         output.accept(RadiocraftItems.J_POLE_ANTENNA.get());

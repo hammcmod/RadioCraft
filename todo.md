@@ -120,6 +120,12 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [x] Release creative tab (2026-10-21, maintainer): the HF station (radios, receivers, VHF base station, coax,
   wire holders, baluns, tuner, VHF antennas, parrot controller, weather station) moved out of the dev-only list
   and lost the dev watermark. Still dev-only: duplexer, repeater, digital interface, dish, microphone block, power.
+- [x] Solar panels join by touching (2026-10-21, maintainer request): a row of panels and the charge controller at
+  its end are one network without wire; batteries still need wire. Jade shows a panel's output and the row's.
+  Open: a device removed from the middle of a touching row does not split the row (wire removal does).
+- [x] Wire Passthrough (2026-10-21, maintainer request): an item that turns a plain solid block into a conductor
+  for both wire kinds while keeping its look (`PassthroughBlock` + mimic block entity + renderer). Open: should
+  Jade name the mimicked block; a 2-thick wall needs two of them.
 - [x] Wires hug walls (2026-10-21, maintainer request): wire, waterproof wire and coax climb a solid block like
   redstone dust and link diagonally to the wire or device on top, instead of a floating vertical piece. Also gave the
   waterproof wire the blockstate it never had.

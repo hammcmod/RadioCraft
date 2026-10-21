@@ -148,8 +148,12 @@ Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug tra
   re-link themselves when their block entity loads: `INetworkObjectProvider#getNetworkObject` creates the object and
   calls `WireUtils.connectToWires`, which walks every wire run touching the block and merges whatever it finds onto
   one network. Placing a wire that touches two things (`WireBlock#onPlace`) merges from the wire's side; removing
-  one splits. The walk normally stops at a device; a device that implements `ICoaxPassThrough` (the antenna tuner)
-  is walked through, so a radio and an antenna with a tuner between them share one coax network.
+  one splits. The walk normally stops at a device; a device that implements `IPassThroughNetworkObject` (the
+  antenna tuner on coax via `ICoaxPassThrough`, solar panels on power) is walked through, so a radio and an antenna
+  with a tuner between them share one coax network. Devices only link through wire, except where
+  `BENetworkObject#linksDirectlyTo` says two touching devices join (solar panel to solar panel or to a charge
+  controller, 2026-10-21). The `PassthroughBlock` is a `WireBlock` in both wire sets, so wire of either kind runs
+  through it.
 - **Radios persist** frequency, mode, gains, last measured SWR and the power flag in their block entity tag. On load
   the flag switches the fresh network object back on, so a radio left on stays on across restarts.
 - **Power network objects tick** every server tick from `CommonEvents#onLevelTick` (only those in loaded chunks).

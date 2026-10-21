@@ -288,7 +288,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	private boolean isSameKind(BlockState state) {
-		return state.getBlock() instanceof WireBlock wire && wire.isPower == isPower;
+		return state.getBlock() instanceof WireBlock wire && !wire.conductsAll() && wire.isPower == isPower;
 	}
 
 	/**
@@ -515,8 +515,13 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	private static boolean canConnectTo(BlockState state, boolean isPower) {
 		if(state.getBlock() instanceof WireBlock wire)
-			return wire.isPower == isPower; // If identical wire, OR if valid connection
+			return wire.conductsAll() || wire.isPower == isPower; // The same kind of wire, a passthrough, or a device.
 		return isValidConnection(state, isPower);
+	}
+
+	/** True for a conductor every kind of wire runs through (the passthrough block). */
+	public boolean conductsAll() {
+		return false;
 	}
 
 	private static VoxelShape makePaddedBox(double x, double y, double z, double x2, double y2, double z2) {

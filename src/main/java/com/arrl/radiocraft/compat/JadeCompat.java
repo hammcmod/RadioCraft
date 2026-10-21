@@ -4,6 +4,7 @@ import com.arrl.radiocraft.common.blocks.SolarWeatherStationBlock;
 import com.arrl.radiocraft.common.blocks.antennas.AntennaCenterBlock;
 import com.arrl.radiocraft.common.blocks.WireBlock;
 import com.arrl.radiocraft.common.blocks.power.LargeBatteryBlock;
+import com.arrl.radiocraft.common.blocks.power.SolarPanelBlock;
 import com.arrl.radiocraft.common.blocks.radios.*;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
@@ -31,6 +32,7 @@ public class JadeCompat implements IWailaPlugin {
         registration.registerBlockDataProvider(ParrotControllerProvider.INSTANCE, ParrotControllerBlock.class);
         registration.registerBlockDataProvider(SolarWeatherStationProvider.INSTANCE, SolarWeatherStationBlock.class);
         registration.registerBlockDataProvider(BatteryProvider.INSTANCE, LargeBatteryBlock.class);
+        registration.registerBlockDataProvider(SolarPanelProvider.INSTANCE, SolarPanelBlock.class);
     }
 
     @Override
@@ -42,5 +44,6 @@ public class JadeCompat implements IWailaPlugin {
         registration.registerBlockComponent(ParrotControllerProvider.INSTANCE, ParrotControllerBlock.class);
         registration.registerBlockComponent(SolarWeatherStationProvider.INSTANCE, SolarWeatherStationBlock.class);
         registration.registerBlockComponent(BatteryProvider.INSTANCE, LargeBatteryBlock.class);
+        registration.registerBlockComponent(SolarPanelProvider.INSTANCE, SolarPanelBlock.class);
     }
 }
