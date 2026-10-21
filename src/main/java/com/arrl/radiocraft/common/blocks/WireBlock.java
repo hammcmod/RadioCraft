@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -26,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -40,16 +42,19 @@ import java.util.function.Supplier;
 
 /**
  * Power wire, waterproof wire and coax. A wire links to the six blocks around it (other wires of its kind and the
- * devices its kind connects to) and, like redstone dust, can <em>climb</em>: a wire at the foot of a solid block
- * whose top carries a wire or device of its kind runs up that block's face and links diagonally to what is on top
- * ({@link #CLIMB_BY_DIRECTION}). The wire on top shows a stub towards the climber (its horizontal connection flag
- * is set) so the cable reads as one run. {@link #getLinks} is the single source of truth for what a wire is linked
- * to; the network code and the Jade overlay walk those links rather than the six neighbours.
+ * devices its kind connects to). Vertical runs hug a wall: when a wire goes up and a solid block stands beside it,
+ * the vertical piece runs up that block's face ({@link #HUG}) instead of floating in the middle of the block, the
+ * wire above arrives on the same face ({@link #DOWN_HUG}) and only then turns towards its own connections. Like
+ * redstone dust, a wire at the foot of a wall with nothing above it but a wire or device on top of the wall
+ * <em>climbs</em>: the hugging run continues to the block on top and links to it diagonally ({@link #CLIMB}); the
+ * wire on top shows a stub towards the climber. {@link #getLinks} is the single source of truth for what a wire is
+ * linked to; the network code and the Jade overlay walk those links rather than the six neighbours.
  * <p>
- * Climb flags are only computed when the wire is placed and in {@link #refresh}, which is driven by
- * {@link WireClimbUpdater} whenever a block near the wire changes, because the blocks a climb depends on (the one on
- * top of the step) are not direct neighbours and so never reach {@link #updateShape}. {@link #refresh} also merges
- * or splits the networks when a climb link appears or disappears, since the wire itself is not placed or removed then.
+ * The climb flag depends on a block that is not a direct neighbour (the one on top of the wall), so it is only
+ * computed on placement and in {@link #refresh}, which {@link WireClimbUpdater} runs for every wire near a changed
+ * block. {@link #refresh} also merges or splits the networks when a climb link appears or disappears, since no wire
+ * is placed or removed then. Everything else (stubs, which wall is hugged) follows direct neighbours and is kept up
+ * to date by {@link #updateShape} as well.
  */
 public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
@@ -62,39 +67,69 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	public static final BooleanProperty WEST = BooleanProperty.create("west");
 	public static final BooleanProperty UP = BooleanProperty.create("up");
 	public static final BooleanProperty DOWN = BooleanProperty.create("down");
-	public static final BooleanProperty ON_GROUND = BooleanProperty.create("on_ground");
-	public static final BooleanProperty CLIMB_NORTH = BooleanProperty.create("climb_north");
-	public static final BooleanProperty CLIMB_EAST = BooleanProperty.create("climb_east");
-	public static final BooleanProperty CLIMB_SOUTH = BooleanProperty.create("climb_south");
-	public static final BooleanProperty CLIMB_WEST = BooleanProperty.create("climb_west");
+	/** The wall this wire's run upwards follows (none: up the middle of the block, or no run upwards). */
+	public static final EnumProperty<WallSide> HUG = EnumProperty.create("hug", WallSide.class);
+	/** The wall the wire below follows, i.e. where a run from below arrives in this block (none: the middle). */
+	public static final EnumProperty<WallSide> DOWN_HUG = EnumProperty.create("down_hug", WallSide.class);
+	/** The run up the {@link #HUG} wall continues to the wire or device on top of that wall (a diagonal link). */
+	public static final BooleanProperty CLIMB = BooleanProperty.create("climb");
 
 	public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.of(
 			Direction.NORTH, NORTH, Direction.EAST, EAST,
 			Direction.SOUTH, SOUTH, Direction.WEST, WEST,
 			Direction.UP, UP, Direction.DOWN, DOWN));
 
-	/** The wire runs up the face of the solid block in that direction and links to the block on top of it. */
-	public static final Map<Direction, BooleanProperty> CLIMB_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.of(
-			Direction.NORTH, CLIMB_NORTH, Direction.EAST, CLIMB_EAST,
-			Direction.SOUTH, CLIMB_SOUTH, Direction.WEST, CLIMB_WEST));
+	/** A horizontal side of the block, or none. */
+	public enum WallSide implements StringRepresentable {
+		NONE(null), NORTH(Direction.NORTH), EAST(Direction.EAST), SOUTH(Direction.SOUTH), WEST(Direction.WEST);
+
+		@Nullable
+		private final Direction direction;
+
+		WallSide(@Nullable Direction direction) {
+			this.direction = direction;
+		}
+
+		@Nullable
+		public Direction direction() {
+			return direction;
+		}
+
+		public static WallSide of(@Nullable Direction direction) {
+			if(direction == null)
+				return NONE;
+			return switch(direction) {
+				case NORTH -> NORTH;
+				case EAST -> EAST;
+				case SOUTH -> SOUTH;
+				case WEST -> WEST;
+				default -> NONE;
+			};
+		}
+
+		@Override
+		public @NotNull String getSerializedName() {
+			return name().toLowerCase(Locale.ROOT);
+		}
+	}
 
 	private static final double SHAPE_PADDING = 3.0D;
 	private static final VoxelShape MIDDLE_SHAPE =
 			makePaddedBox(7.0D, 0.0D, 7.0D, 9.0D, 2.0D, 9.0D);
-	private static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
-	private static final HashMap<Direction, VoxelShape> CLIMB_SHAPES = new HashMap<>();
+	private static final VoxelShape CENTRE_VERTICAL_SHAPE = makePaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D);
+	private static final HashMap<Direction, VoxelShape> STUB_SHAPES = new HashMap<>();
+	private static final HashMap<Direction, VoxelShape> WALL_SHAPES = new HashMap<>();
 
 	static {
-		SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 7.0D));
-		SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 9.0D, 9.0D, 2.0D, 16.0D));
-		SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 7.0D, 2.0D, 9.0D));
-		SHAPES.put(Direction.EAST, makePaddedBox(9.0D, 0.0D, 7.0D, 16.0D, 2.0D, 9.0D));
-		SHAPES.put(Direction.UP, makePaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D));
-		// The vertical run up the wall, on top of the horizontal stub to that wall.
-		CLIMB_SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 2.0D, 0.0D, 9.0D, 16.0D, 2.0D));
-		CLIMB_SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 2.0D, 14.0D, 9.0D, 16.0D, 16.0D));
-		CLIMB_SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 2.0D, 7.0D, 2.0D, 16.0D, 9.0D));
-		CLIMB_SHAPES.put(Direction.EAST, makePaddedBox(14.0D, 2.0D, 7.0D, 16.0D, 16.0D, 9.0D));
+		STUB_SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 7.0D));
+		STUB_SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 9.0D, 9.0D, 2.0D, 16.0D));
+		STUB_SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 7.0D, 2.0D, 9.0D));
+		STUB_SHAPES.put(Direction.EAST, makePaddedBox(9.0D, 0.0D, 7.0D, 16.0D, 2.0D, 9.0D));
+		// The vertical run up a wall, floor to ceiling.
+		WALL_SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 16.0D, 2.0D));
+		WALL_SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 14.0D, 9.0D, 16.0D, 16.0D));
+		WALL_SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 2.0D, 16.0D, 9.0D));
+		WALL_SHAPES.put(Direction.EAST, makePaddedBox(14.0D, 0.0D, 7.0D, 16.0D, 16.0D, 9.0D));
 	}
 
     @SuppressWarnings("this-escape")
@@ -105,16 +140,15 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				.setValue(NORTH, false).setValue(EAST, false)
 				.setValue(SOUTH, false).setValue(WEST, false)
 				.setValue(UP, false).setValue(DOWN, false)
-				.setValue(CLIMB_NORTH, false).setValue(CLIMB_EAST, false)
-				.setValue(CLIMB_SOUTH, false).setValue(CLIMB_WEST, false)
-				.setValue(ON_GROUND, false));
+				.setValue(HUG, WallSide.NONE).setValue(DOWN_HUG, WallSide.NONE)
+				.setValue(CLIMB, false));
 		this.isPower = isPower;
         this.isWaterproof = isWaterproof;
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, CLIMB_NORTH, CLIMB_EAST, CLIMB_SOUTH, CLIMB_WEST, ON_GROUND, BlockStateProperties.WATERLOGGED);
+		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, HUG, DOWN_HUG, CLIMB, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Nullable
@@ -124,19 +158,58 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	/**
-	 * Calculate desired blockstate for a wire given its connections, climbs and the fluid at its location.
+	 * Calculate desired blockstate for a wire given its connections, the walls around it and the fluid at its location.
 	 */
 	public BlockState getBlockState(BlockGetter level, BlockPos pos) {
 		BlockState state = defaultBlockState()
-				.setValue(BlockStateProperties.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER)
-				.setValue(ON_GROUND, isSturdyTop(level, pos.below()));
+				.setValue(BlockStateProperties.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
 
 		for(Direction direction : Direction.values())
 			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), connectsTowards(level, pos, direction));
-		for(Direction direction : Direction.Plane.HORIZONTAL)
-			state = state.setValue(CLIMB_BY_DIRECTION.get(direction), canClimb(level, pos, direction));
+		state = state.setValue(DOWN_HUG, downHug(level, pos, state));
 
-		return state;
+		// A climb if there is one, trying the wall the run from below is already on first so the cable stays on one wall.
+		for(Direction dir : wallOrder(state.getValue(DOWN_HUG))) {
+			if(canClimb(level, pos, dir))
+				return state.setValue(HUG, WallSide.of(dir)).setValue(CLIMB, true);
+		}
+		return state.setValue(HUG, WallSide.of(hugWall(level, pos, state))).setValue(CLIMB, false);
+	}
+
+	/** The four walls, with {@code first} (if any) ahead of the others. */
+	private static List<Direction> wallOrder(WallSide first) {
+		List<Direction> order = new ArrayList<>(4);
+		if(first.direction() != null)
+			order.add(first.direction());
+		for(Direction dir : Direction.Plane.HORIZONTAL)
+			if(!order.contains(dir))
+				order.add(dir);
+		return order;
+	}
+
+	/** Which wall the wire below us follows, so a run from below arrives on the same face. */
+	private WallSide downHug(BlockGetter level, BlockPos pos, BlockState state) {
+		if(!state.getValue(DOWN))
+			return WallSide.NONE;
+		BlockState below = level.getBlockState(pos.below());
+		return isSameKind(below) ? below.getValue(HUG) : WallSide.NONE;
+	}
+
+	/** The wall our run upwards (if any, and not a climb) follows: the one the run from below is on if solid, else the first solid one. */
+	@Nullable
+	private Direction hugWall(BlockGetter level, BlockPos pos, BlockState state) {
+		if(!state.getValue(UP))
+			return null;
+		for(Direction dir : wallOrder(state.getValue(DOWN_HUG)))
+			if(isWall(level, pos.relative(dir), dir.getOpposite()))
+				return dir;
+		return null;
+	}
+
+	/** A solid face we can run a cable up: sturdy towards us and not something the wire links to instead. */
+	private boolean isWall(BlockGetter level, BlockPos wallPos, Direction faceTowardsUs) {
+		BlockState wall = level.getBlockState(wallPos);
+		return !canConnectTo(wall, isPower) && wall.isFaceSturdy(level, wallPos, faceTowardsUs);
 	}
 
 	/**
@@ -150,21 +223,20 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return direction.getAxis().isHorizontal() && climbsTowards(level, next.below(), direction.getOpposite());
 	}
 
-	/** True if the block at {@code climberPos} is a wire of this kind whose climb flag towards {@code towards} is set. */
+	/** True if the block at {@code climberPos} is a wire of this kind climbing the wall in direction {@code towards}. */
 	public boolean climbsTowards(BlockGetter level, BlockPos climberPos, Direction towards) {
 		BlockState state = level.getBlockState(climberPos);
-		return state.getBlock() instanceof WireBlock wire && wire.isPower == isPower && state.getValue(CLIMB_BY_DIRECTION.get(towards));
+		return isSameKind(state) && state.getValue(CLIMB) && state.getValue(HUG).direction() == towards;
 	}
 
 	/**
-	 * Whether a wire at {@code pos} climbs the block in {@code direction}: that block is not itself something we link
-	 * to, its face towards us is solid, a wire or device of our kind sits on top of it, and no wire of our kind sits
-	 * directly above us (that one already carries the run up, so the climb would double it).
+	 * Whether a wire at {@code pos} climbs the block in {@code direction}: that block is a wall, a wire or device of
+	 * our kind sits on top of it, and no wire of our kind sits directly above us (that one carries the run up
+	 * instead, hugging the same wall).
 	 */
 	public boolean canClimb(BlockGetter level, BlockPos pos, Direction direction) {
 		BlockPos wall = pos.relative(direction);
-		BlockState wallState = level.getBlockState(wall);
-		if(canConnectTo(wallState, isPower) || !wallState.isFaceSturdy(level, wall, direction.getOpposite()))
+		if(!isWall(level, wall, direction.getOpposite()))
 			return false;
 		if(!canConnectTo(level.getBlockState(wall.above()), isPower))
 			return false;
@@ -206,12 +278,11 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			else if(dir.getAxis().isHorizontal() && climbsTowards(level, next.below(), dir.getOpposite()))
 				out.put(next.below(), dir); // The stub reaches the top of a climb coming up the block below-diagonal.
 		}
-		for(Direction dir : Direction.Plane.HORIZONTAL) {
-			if(state.getValue(CLIMB_BY_DIRECTION.get(dir))) {
-				BlockPos top = pos.relative(dir).above();
-				if(canConnectTo(level.getBlockState(top), isPower))
-					out.put(top, dir.getOpposite());
-			}
+		Direction climb = state.getValue(CLIMB) ? state.getValue(HUG).direction() : null;
+		if(climb != null) {
+			BlockPos top = pos.relative(climb).above();
+			if(canConnectTo(level.getBlockState(top), isPower))
+				out.put(top, climb.getOpposite());
 		}
 		return out;
 	}
@@ -233,7 +304,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			if(dir.getAxis().isHorizontal()) {
 				BlockPos foot = next.below();
 				BlockState footState = level.getBlockState(foot);
-				if(footState.getBlock() instanceof WireBlock wire && wires.contains(wire) && footState.getValue(CLIMB_BY_DIRECTION.get(dir.getOpposite())))
+				if(footState.getBlock() instanceof WireBlock wire && wires.contains(wire)
+						&& footState.getValue(CLIMB) && footState.getValue(HUG).direction() == dir.getOpposite())
 					out.put(foot, dir);
 			}
 		}
@@ -290,9 +362,16 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
+	/** The block a climb in {@code state} links to, or null when not climbing. */
+	@Nullable
+	private static BlockPos climbTarget(BlockPos pos, BlockState state) {
+		Direction dir = state.getValue(CLIMB) ? state.getValue(HUG).direction() : null;
+		return dir == null ? null : pos.relative(dir).above();
+	}
+
 	/**
-	 * Recomputes this wire's state from its surroundings (server side). If a climb link appeared or disappeared the
-	 * networks are merged or split to match, since no wire was placed or removed to do that. Called by
+	 * Recomputes this wire's state from its surroundings (server side). If the climb link appeared, disappeared or
+	 * moved, the networks are merged or split to match, since no wire was placed or removed to do that. Called by
 	 * {@link WireClimbUpdater} for every wire near a changed block; a no-op when nothing changed.
 	 */
 	public void refresh(Level level, BlockPos pos) {
@@ -305,9 +384,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		if(fresh == old)
 			return;
 
-		boolean climbChanged = false;
-		for(BooleanProperty climb : CLIMB_BY_DIRECTION.values())
-			climbChanged |= old.getValue(climb) != fresh.getValue(climb);
+		boolean climbChanged = !Objects.equals(climbTarget(pos, old), climbTarget(pos, fresh));
 		Map<BlockPos, Direction> oldLinks = climbChanged ? getLinks(level, pos, old) : Map.of();
 
 		level.setBlock(pos, fresh, Block.UPDATE_ALL);
@@ -329,30 +406,32 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 										   @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
 		if (state.getValue(BlockStateProperties.WATERLOGGED))
 			level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
-		boolean connects = canConnectTo(neighborState, isPower)
-				|| (direction.getAxis().isHorizontal() && climbsTowards(level, neighborPos.below(), direction.getOpposite()));
-		return state.setValue(PROPERTY_BY_DIRECTION.get(direction), connects); // Climb flags are handled by refresh().
+		// Everything that follows direct neighbours is recomputed; the climb (which depends on a diagonal block and
+		// carries network bookkeeping) is left to refresh().
+		BlockState fresh = getBlockState(level, pos).setValue(BlockStateProperties.WATERLOGGED, state.getValue(BlockStateProperties.WATERLOGGED));
+		if(state.getValue(CLIMB))
+			return fresh.setValue(CLIMB, true).setValue(HUG, state.getValue(HUG));
+		return fresh.setValue(CLIMB, false).setValue(HUG, fresh.getValue(CLIMB) ? WallSide.of(hugWall(level, pos, fresh)) : fresh.getValue(HUG));
 	}
 
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
 		VoxelShape result = MIDDLE_SHAPE;
 
-		for (Map.Entry<Direction, VoxelShape> entry : SHAPES.entrySet()) {
-			BooleanProperty property = PROPERTY_BY_DIRECTION.get(entry.getKey());
-			if (state.getValue(property))
+		for (Map.Entry<Direction, VoxelShape> entry : STUB_SHAPES.entrySet()) {
+			if (state.getValue(PROPERTY_BY_DIRECTION.get(entry.getKey())))
 				result = Shapes.or(result, entry.getValue());
 		}
-		for (Map.Entry<Direction, VoxelShape> entry : CLIMB_SHAPES.entrySet()) {
-			if (state.getValue(CLIMB_BY_DIRECTION.get(entry.getKey())))
-				result = Shapes.or(result, SHAPES.get(entry.getKey()), entry.getValue()); // Stub to the wall, then up it.
-		}
+		Direction hug = state.getValue(HUG).direction();
+		if (hug != null) // Stub to the wall, then up it.
+			result = Shapes.or(result, STUB_SHAPES.get(hug), WALL_SHAPES.get(hug));
+		else if (state.getValue(UP))
+			result = Shapes.or(result, CENTRE_VERTICAL_SHAPE);
+		Direction downHug = state.getValue(DOWN_HUG).direction();
+		if (downHug != null) // The run from below arrives at that edge.
+			result = Shapes.or(result, STUB_SHAPES.get(downHug));
 
 		return result;
-	}
-
-	private boolean isSturdyTop(BlockGetter level, BlockPos pos) {
-		return level.getBlockState(pos).isFaceSturdy(level, pos, Direction.UP);
 	}
 
 	private static boolean canConnectTo(BlockState state, boolean isPower) {

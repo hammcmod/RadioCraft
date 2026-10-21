@@ -149,7 +149,11 @@ Lay coax (or power wire) along the ground up to a one-block step with more wire 
   (`/rcdebug radio`). Break the step: the climb vanishes and the radio loses the antenna; put it back: it returns.
 - [ ] A climb straight into a device on the step (battery on a ledge, balun on a post): the wire reaches it.
 - [ ] A wire directly above the foot wire wins: with coax at the foot, on the step and also floating above the foot,
-  the foot does not climb (the vertical piece carries the run). Removing the floating piece makes it climb.
+  the foot does not climb (the column carries the run) but still hugs the step, and the piece above arrives at the
+  step's face before turning onto the step. Removing the floating piece makes it climb; both look the same.
+- [ ] A wire column straight up beside a post or wall (maintainer's screenshot, 2026-10-21): every piece hugs the
+  post, the bottom piece turns from its floor run to the post, the top piece arrives on the post's face and turns
+  towards its own connection. Where the post has a gap the run jogs back to the middle for that block.
 - [ ] Waterproof wire now has a blockstate and renders like wire (it had none and showed the missing-model box).
 
 ## From the 2026-10-19 work (CW restored, transmission tests)
