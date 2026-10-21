@@ -221,7 +221,7 @@ public class WireClimbGameTests {
                     coax(helper, floor);
                 })
                 .thenWaitUntil(() -> {
-                    helper.assertTrue(helper.getBlockState(floor).getValue(WireBlock.CLIMB_BACK), "Floor coax should climb both walls");
+                    helper.assertTrue(helper.getBlockState(floor).getValue(WireBlock.END).isBack(), "Floor coax should climb both walls");
                     helper.assertTrue(helper.getBlockState(floor.west().above()).getValue(WireBlock.ARRIVE) != WireBlock.Edge.NONE, "West top coax takes the climb in");
                     helper.assertTrue(helper.getBlockState(floor.east().above()).getValue(WireBlock.ARRIVE) != WireBlock.Edge.NONE, "East top coax takes the climb in");
                     List<AntennaNetworkObject> antennas = GameTestUtil.networkObject(helper, radio, RadioNetworkObject.class).getAntennas();

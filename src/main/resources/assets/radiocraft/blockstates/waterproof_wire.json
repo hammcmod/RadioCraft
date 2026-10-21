@@ -84,7 +84,7 @@
             "hug": "none"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north|east|south|west"
           },
           {
@@ -161,7 +161,7 @@
             "north": "true",
             "arrive": "none|east|south|west",
             "hug": "south",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "east": "true",
@@ -183,7 +183,7 @@
             "east": "true",
             "arrive": "none|north|south|west",
             "hug": "south",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "south": "true",
@@ -221,7 +221,7 @@
             "west": "true",
             "arrive": "none|north|east|south",
             "hug": "south",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "up": "true",
@@ -247,7 +247,7 @@
             "down": "true",
             "arrive": "none",
             "hug": "south",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "north",
@@ -270,7 +270,7 @@
           {
             "arrive": "north",
             "hug": "south",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "north",
@@ -298,7 +298,7 @@
           {
             "arrive": "east",
             "hug": "south",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "east",
@@ -346,7 +346,7 @@
           {
             "arrive": "west",
             "hug": "south",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "none",
@@ -354,21 +354,21 @@
             "north": "true"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north|east|south|west",
             "north": "true"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north|east|south|west",
             "arrive": "north"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north"
           },
           {
-            "climb_back": "true",
+            "end": "climb_device_back|climb_wire_back",
             "hug": "south"
           },
           {
@@ -390,7 +390,7 @@
             "down": "false",
             "arrive": "none",
             "hug": "south",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "north": "false",
@@ -411,17 +411,6 @@
             "down": "false",
             "end": "none|up_device",
             "hug": "north"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "up": "false",
-            "down": "false",
-            "end": "none|up_device",
-            "hug": "south",
-            "climb_back": "true"
           },
           {
             "north": "false",
@@ -447,17 +436,6 @@
             "east": "false",
             "south": "false",
             "west": "false",
-            "up": "false",
-            "arrive": "north|east|south|west",
-            "end": "none|up_device",
-            "hug": "south",
-            "climb_back": "true"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
             "hug": "north",
             "down": "false",
             "arrive": "none"
@@ -470,7 +448,7 @@
             "hug": "south",
             "down": "false",
             "arrive": "none",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "north": "false",
@@ -522,7 +500,7 @@
             "north": "true",
             "arrive": "none|east|south|west",
             "hug": "west",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "east": "true",
@@ -533,7 +511,7 @@
             "east": "true",
             "arrive": "none|north|south|west",
             "hug": "west",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "south": "true",
@@ -555,7 +533,7 @@
             "south": "true",
             "arrive": "none|north|east|west",
             "hug": "west",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "west": "true",
@@ -597,7 +575,7 @@
             "down": "true",
             "arrive": "none",
             "hug": "west",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "north",
@@ -621,7 +599,7 @@
           {
             "arrive": "north",
             "hug": "west",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "east",
@@ -653,7 +631,7 @@
           {
             "arrive": "east",
             "hug": "west",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "south",
@@ -677,7 +655,7 @@
           {
             "arrive": "south",
             "hug": "west",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "west",
@@ -704,21 +682,21 @@
             "east": "true"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north|east|south|west",
             "east": "true"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north|east|south|west",
             "arrive": "east"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "east"
           },
           {
-            "climb_back": "true",
+            "end": "climb_device_back|climb_wire_back",
             "hug": "west"
           },
           {
@@ -740,7 +718,7 @@
             "down": "false",
             "arrive": "none",
             "hug": "west",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "north": "false",
@@ -761,17 +739,6 @@
             "down": "false",
             "end": "none|up_device",
             "hug": "east"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "up": "false",
-            "down": "false",
-            "end": "none|up_device",
-            "hug": "west",
-            "climb_back": "true"
           },
           {
             "north": "false",
@@ -797,17 +764,6 @@
             "east": "false",
             "south": "false",
             "west": "false",
-            "up": "false",
-            "arrive": "north|east|south|west",
-            "end": "none|up_device",
-            "hug": "west",
-            "climb_back": "true"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
             "hug": "east",
             "down": "false",
             "arrive": "none"
@@ -820,7 +776,7 @@
             "hug": "west",
             "down": "false",
             "arrive": "none",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "north": "false",
@@ -889,7 +845,7 @@
             "east": "true",
             "arrive": "none|north|south|west",
             "hug": "north",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "south": "true",
@@ -900,7 +856,7 @@
             "south": "true",
             "arrive": "none|north|east|west",
             "hug": "north",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "west": "true",
@@ -922,7 +878,7 @@
             "west": "true",
             "arrive": "none|north|east|south",
             "hug": "north",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "up": "true",
@@ -948,7 +904,7 @@
             "down": "true",
             "arrive": "none",
             "hug": "north",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "north",
@@ -977,7 +933,7 @@
           {
             "arrive": "east",
             "hug": "north",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "east",
@@ -1005,7 +961,7 @@
           {
             "arrive": "south",
             "hug": "north",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "south",
@@ -1033,7 +989,7 @@
           {
             "arrive": "west",
             "hug": "north",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "west",
@@ -1055,21 +1011,21 @@
             "south": "true"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north|east|south|west",
             "south": "true"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north|east|south|west",
             "arrive": "south"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "south"
           },
           {
-            "climb_back": "true",
+            "end": "climb_device_back|climb_wire_back",
             "hug": "north"
           },
           {
@@ -1091,7 +1047,7 @@
             "down": "false",
             "arrive": "none",
             "hug": "north",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "north": "false",
@@ -1112,17 +1068,6 @@
             "down": "false",
             "end": "none|up_device",
             "hug": "south"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "up": "false",
-            "down": "false",
-            "end": "none|up_device",
-            "hug": "north",
-            "climb_back": "true"
           },
           {
             "north": "false",
@@ -1148,17 +1093,6 @@
             "east": "false",
             "south": "false",
             "west": "false",
-            "up": "false",
-            "arrive": "north|east|south|west",
-            "end": "none|up_device",
-            "hug": "north",
-            "climb_back": "true"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
             "hug": "south",
             "down": "false",
             "arrive": "none"
@@ -1171,7 +1105,7 @@
             "hug": "north",
             "down": "false",
             "arrive": "none",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "north": "false",
@@ -1224,7 +1158,7 @@
             "north": "true",
             "arrive": "none|east|south|west",
             "hug": "east",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "east": "true",
@@ -1262,7 +1196,7 @@
             "south": "true",
             "arrive": "none|north|east|west",
             "hug": "east",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "west": "true",
@@ -1273,7 +1207,7 @@
             "west": "true",
             "arrive": "none|north|east|south",
             "hug": "east",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "up": "true",
@@ -1299,7 +1233,7 @@
             "down": "true",
             "arrive": "none",
             "hug": "east",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "north",
@@ -1309,7 +1243,7 @@
           {
             "arrive": "north",
             "hug": "east",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "north",
@@ -1357,7 +1291,7 @@
           {
             "arrive": "south",
             "hug": "east",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "south",
@@ -1389,7 +1323,7 @@
           {
             "arrive": "west",
             "hug": "east",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "arrive": "west",
@@ -1406,21 +1340,21 @@
             "west": "true"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north|east|south|west",
             "west": "true"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "north|east|south|west",
             "arrive": "west"
           },
           {
-            "climb_back": "true",
+            "end": "climb_wire_back|climb_device_back",
             "hug": "west"
           },
           {
-            "climb_back": "true",
+            "end": "climb_device_back|climb_wire_back",
             "hug": "east"
           },
           {
@@ -1442,7 +1376,7 @@
             "down": "false",
             "arrive": "none",
             "hug": "east",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "north": "false",
@@ -1463,17 +1397,6 @@
             "down": "false",
             "end": "none|up_device",
             "hug": "west"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "up": "false",
-            "down": "false",
-            "end": "none|up_device",
-            "hug": "east",
-            "climb_back": "true"
           },
           {
             "north": "false",
@@ -1499,17 +1422,6 @@
             "east": "false",
             "south": "false",
             "west": "false",
-            "up": "false",
-            "arrive": "north|east|south|west",
-            "end": "none|up_device",
-            "hug": "east",
-            "climb_back": "true"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
             "hug": "west",
             "down": "false",
             "arrive": "none"
@@ -1522,7 +1434,7 @@
             "hug": "east",
             "down": "false",
             "arrive": "none",
-            "climb_back": "true"
+            "end": "climb_wire_back|climb_device_back"
           },
           {
             "north": "false",
@@ -1641,7 +1553,7 @@
     {
       "when": {
         "hug": "north",
-        "climb_back": "true",
+        "end": "climb_wire_back|climb_device_back",
         "arrive": "south"
       },
       "apply": {
@@ -1652,7 +1564,7 @@
     {
       "when": {
         "hug": "north",
-        "climb_back": "true",
+        "end": "climb_wire_back|climb_device_back",
         "arrive": "none|north|east|west"
       },
       "apply": {
@@ -1683,7 +1595,7 @@
     {
       "when": {
         "hug": "east",
-        "climb_back": "true",
+        "end": "climb_wire_back|climb_device_back",
         "arrive": "west"
       },
       "apply": {
@@ -1694,7 +1606,7 @@
     {
       "when": {
         "hug": "east",
-        "climb_back": "true",
+        "end": "climb_wire_back|climb_device_back",
         "arrive": "none|north|east|south"
       },
       "apply": {
@@ -1725,7 +1637,7 @@
     {
       "when": {
         "hug": "south",
-        "climb_back": "true",
+        "end": "climb_wire_back|climb_device_back",
         "arrive": "north"
       },
       "apply": {
@@ -1735,7 +1647,7 @@
     {
       "when": {
         "hug": "south",
-        "climb_back": "true",
+        "end": "climb_wire_back|climb_device_back",
         "arrive": "none|east|south|west"
       },
       "apply": {
@@ -1765,7 +1677,7 @@
     {
       "when": {
         "hug": "west",
-        "climb_back": "true",
+        "end": "climb_wire_back|climb_device_back",
         "arrive": "east"
       },
       "apply": {
@@ -1776,7 +1688,7 @@
     {
       "when": {
         "hug": "west",
-        "climb_back": "true",
+        "end": "climb_wire_back|climb_device_back",
         "arrive": "none|north|south|west"
       },
       "apply": {
@@ -1787,7 +1699,7 @@
     {
       "when": {
         "hug": "north",
-        "end": "climb_device"
+        "end": "climb_device|climb_device_back"
       },
       "apply": {
         "model": "radiocraft:block/wire_climb_overhang"
@@ -1805,7 +1717,7 @@
     {
       "when": {
         "hug": "east",
-        "end": "climb_device"
+        "end": "climb_device|climb_device_back"
       },
       "apply": {
         "model": "radiocraft:block/wire_climb_overhang",
@@ -1825,7 +1737,7 @@
     {
       "when": {
         "hug": "south",
-        "end": "climb_device"
+        "end": "climb_device|climb_device_back"
       },
       "apply": {
         "model": "radiocraft:block/wire_climb_overhang",
@@ -1845,7 +1757,7 @@
     {
       "when": {
         "hug": "west",
-        "end": "climb_device"
+        "end": "climb_device|climb_device_back"
       },
       "apply": {
         "model": "radiocraft:block/wire_climb_overhang",

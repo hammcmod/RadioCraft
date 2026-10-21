@@ -44,6 +44,25 @@ public class PassthroughBlock extends WireBlock implements EntityBlock {
 		super(properties, false, false);
 	}
 
+	/** Only the six connections: no cable is drawn, so none of the wire's look properties (keeps the state count tiny). */
+	@Override
+	protected void createBlockStateDefinition(net.minecraft.world.level.block.state.StateDefinition.Builder<Block, BlockState> builder) {
+		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN);
+	}
+
+	/** No climbs to settle: just follow the neighbours. */
+	@Override
+	public void refresh(Level level, BlockPos pos) {
+		if(level.isClientSide)
+			return;
+		BlockState old = level.getBlockState(pos);
+		if(!old.is(this))
+			return;
+		BlockState fresh = getBlockState(level, pos);
+		if(fresh != old)
+			level.setBlock(pos, fresh, Block.UPDATE_ALL);
+	}
+
 	@Override
 	public boolean conductsAll() {
 		return true;
@@ -125,7 +144,7 @@ public class PassthroughBlock extends WireBlock implements EntityBlock {
 
 	@Override
 	public @NotNull FluidState getFluidState(@NotNull BlockState state) {
-		return super.getFluidState(defaultBlockState()); // Never waterlogged: it is a solid wall block.
+		return net.minecraft.world.level.material.Fluids.EMPTY.defaultFluidState(); // A solid wall block, never waterlogged.
 	}
 
 	@Override
