@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.commands;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
@@ -13,13 +14,13 @@ import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftData;
-import com.arrl.radiocraft.common.network.clientbound.CNoisePacket;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.rfi.PickupZone;
 import com.arrl.radiocraft.common.radio.rfi.RedstoneInterference;
 import com.arrl.radiocraft.common.radio.rfi.TransmitInterference;
+import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
@@ -76,7 +77,10 @@ public class DebugCommands {
 			.then(Commands.literal("solar").executes(DebugCommands::solar)
 					.then(Commands.literal("set").then(Commands.argument("event", StringArgumentType.word())
 							.suggests((ctx, builder) -> SharedSuggestionProvider.suggest(RadiocraftData.SOLAR_EVENTS.getKeys().stream().map(ResourceLocation::getPath), builder))
-							.executes(DebugCommands::setSolar))))
+							.executes(DebugCommands::setSolar)))
+					.then(Commands.literal("aurora")
+							.then(Commands.literal("on").executes(ctx -> aurora(ctx, true)))
+							.then(Commands.literal("off").executes(ctx -> aurora(ctx, false)))))
 			.then(Commands.literal("wire").then(Commands.argument("from", BlockPosArgument.blockPos())
 					.then(Commands.argument("to", BlockPosArgument.blockPos()).executes(DebugCommands::wire))))
 			.then(Commands.literal("power").then(Commands.argument("pos", BlockPosArgument.blockPos())
@@ -317,6 +321,14 @@ public class DebugCommands {
 				bands.append(' ').append(band).append('=').append(event.getEvent().getCondition(band, level.isDay()).getSerializedName());
 			out.add(bands.toString());
 		}
+		Aurora.Window aurora = Aurora.getWindow(level);
+		long now = level.getGameTime();
+		if(aurora == null || aurora.end() <= now)
+			out.add("aurora=none");
+		else if(aurora.start() > now)
+			out.add("aurora=expected in " + (aurora.start() - now) + " ticks, lasts " + (aurora.end() - aurora.start()));
+		else
+			out.add("aurora=active for " + (aurora.end() - now) + " more ticks, past |Z| " + RadiocraftServerConfig.AURORA_LATITUDE.get());
 		return send(ctx, out);
 	}
 
@@ -328,8 +340,17 @@ public class DebugCommands {
 			ctx.getSource().sendFailure(Component.literal("No solar event " + id));
 			return 0;
 		}
-		SolarEventManager.setEvent(level, RadiocraftData.SOLAR_EVENTS.getValue(id).getInstance());
-		CNoisePacket.sendToLevel(level);
+		SolarEventManager.startEvent(level, RadiocraftData.SOLAR_EVENTS.getValue(id));
+		return solar(ctx);
+	}
+
+	/** Lights an aurora for a day right now, or puts it out (also cancels a forecast one). */
+	private static int aurora(CommandContext<CommandSourceStack> ctx, boolean on) {
+		ServerLevel level = ctx.getSource().getLevel();
+		if(on)
+			Aurora.schedule(level, level.getGameTime(), 24000);
+		else
+			Aurora.clear(level);
 		return solar(ctx);
 	}
 

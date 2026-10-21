@@ -25,6 +25,11 @@ public enum BandCondition {
 		return skipMultiplier;
 	}
 
+	/** One step worse (good becomes fair, ... closed stays closed): what an aurora does to the HF bands near the poles. */
+	public BandCondition worse() {
+		return this == CLOSED ? CLOSED : values()[ordinal() + 1];
+	}
+
 	/** Lower-case name, as written in the solar event data and used in translation keys ("good", "closed"). */
 	public String getSerializedName() {
 		return name().toLowerCase(Locale.ROOT);

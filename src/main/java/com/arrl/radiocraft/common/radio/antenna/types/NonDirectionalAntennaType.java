@@ -4,9 +4,11 @@ import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
+import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.Level;
 
 public abstract class NonDirectionalAntennaType<T extends AntennaData> implements IAntennaType<T> {
 
@@ -39,7 +41,7 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
     public double getTransmitEfficiency(IAntennaPacket packet, T data, BlockPos destination, boolean isCW) {
         double distance = computeDistance(packet, destination);
         double adjustedDistance = modifyDistanceForTransmit(packet, data, destination, distance);
-        double propagation = getPropagationStrength(packet, adjustedDistance, isCW);
+        double propagation = getPropagationStrength(packet, destination, adjustedDistance, isCW);
         return propagation * getTransmitGainLinear();
     }
 
@@ -56,11 +58,15 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
         return distance;
     }
 
-    protected double getPropagationStrength(IAntennaPacket packet, double distance, boolean isCW) {
+    protected double getPropagationStrength(IAntennaPacket packet, BlockPos destination, double distance, boolean isCW) {
         double effectiveDistance = isCW ? distance / CW_RANGE_MULTIPLIER : distance;
-        // Solar weather only touches the sky wave: a poor or closed band weakens skip, line of sight is unchanged.
-        double skip = getSkipEfficiency() * SolarEventManager.getCondition(packet.getLevel(), packet.getBand()).getSkipMultiplier();
-        return BandUtils.getBaseStrength(packet.getBand(), effectiveDistance, getLosEfficiency(), skip, packet.getLevel().isDay());
+        Level level = packet.getLevel();
+        BlockPos source = packet.getSource().getAntennaPos().position();
+        // Solar weather only touches the sky wave: a poor or closed band weakens skip, line of sight is unchanged. An
+        // aurora over either end costs HF a condition step, and lets VHF skip between two stations under it.
+        double skip = getSkipEfficiency() * SolarEventManager.getCondition(level, packet.getBand(), source, destination).getSkipMultiplier();
+        double strength = BandUtils.getBaseStrength(packet.getBand(), effectiveDistance, getLosEfficiency(), skip, level.isDay());
+        return Math.max(strength, Aurora.vhfStrength(level, packet.getBand(), source, destination, effectiveDistance));
     }
 
     protected double getLosEfficiency() {

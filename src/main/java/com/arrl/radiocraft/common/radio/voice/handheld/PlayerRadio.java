@@ -18,6 +18,7 @@ import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
+import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
@@ -229,7 +230,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     if(pos == null) continue;
 
                     double distance = Math.sqrt(thisPos.position().distSqr(pos.position()));
-                    packet.setStrength(BandUtils.getBaseStrength(packet.getBand(), distance, 1.0F, 0.0F, packet.getLevel().isDay()));
+                    packet.setStrength(Math.max(BandUtils.getBaseStrength(packet.getBand(), distance, 1.0F, 0.0F, packet.getLevel().isDay()),
+                            Aurora.vhfStrength(packet.getLevel(), packet.getBand(), thisPos.position(), pos.position(), distance)));
 
                     antenna.receiveAudioPacket(packet);
                 }

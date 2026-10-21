@@ -27,6 +27,18 @@ public class BandUtils {
 		return 0.0D;
 	}
 
+	/**
+	 * Strength of a VHF signal scattered off an aurora: {@code peak} across most of the zone from {@code minRange} to
+	 * {@code maxRange} blocks, fading to 0 over the outer 15% at each edge. 0 outside the zone.
+	 */
+	public static double getAuroraStrength(double distance, double minRange, double maxRange, double peak) {
+		if(distance <= minRange || distance >= maxRange)
+			return 0.0D;
+		double fade = (maxRange - minRange) * 0.15D;
+		double edge = Math.min(distance - minRange, maxRange - distance);
+		return peak * Math.min(1.0D, edge / fade);
+	}
+
     public static double getWavelengthMetersFromFrequencyHertz(double frequencyHertz) {
         // The constant c represents the speed of light in a vacuum, which is exactly 299,792,458 meters per second.
         final double SPEED_OF_LIGHT_METERS_PER_SECOND = 299792458D;

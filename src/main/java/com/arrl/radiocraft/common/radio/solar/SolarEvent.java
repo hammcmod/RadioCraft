@@ -5,6 +5,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +22,8 @@ public class SolarEvent {
 	private final int maxDuration;
 	private final Map<String, BandCondition> dayConditions;
 	private final Map<String, BandCondition> nightConditions;
+	@Nullable
+	private final AuroraForecast aurora;
 
 	/** An event that leaves every band {@link BandCondition#GOOD}. */
 	public SolarEvent(float noise, int minDuration, int maxDuration) {
@@ -32,6 +35,12 @@ public class SolarEvent {
 	 * @param nightConditions The same for the night.
 	 */
 	public SolarEvent(float noise, int minDuration, int maxDuration, Map<String, BandCondition> dayConditions, Map<String, BandCondition> nightConditions) {
+		this(noise, minDuration, maxDuration, dayConditions, nightConditions, null);
+	}
+
+	/** @param aurora The chance of an aurora some days after this event starts, null for none. */
+	public SolarEvent(float noise, int minDuration, int maxDuration, Map<String, BandCondition> dayConditions, Map<String, BandCondition> nightConditions, @Nullable AuroraForecast aurora) {
+		this.aurora = aurora;
 		this.noise = noise;
 		this.minDuration = minDuration;
 		this.maxDuration = maxDuration;
@@ -41,6 +50,12 @@ public class SolarEvent {
 
 	public float getNoise() {
 		return noise;
+	}
+
+	/** The chance of an aurora following this event, null if it never brings one. */
+	@Nullable
+	public AuroraForecast getAurora() {
+		return aurora;
 	}
 
 	/** How {@code band} ("20m") carries skip during this event, by day or by night. Bands the data leaves out are good. */

@@ -37,6 +37,12 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_LOSS;
 
+	public static final ModConfigSpec.ConfigValue<Integer> AURORA_LATITUDE;
+	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MIN_RANGE;
+	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MAX_RANGE;
+	public static final ModConfigSpec.ConfigValue<Double> AURORA_VHF_STRENGTH;
+	public static final ModConfigSpec.ConfigValue<Double> AURORA_STATIC;
+
 	public record BandConfig(String name, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Float> minFrequency, ModConfigSpec.ConfigValue<Float> maxFrequency) {
 		public Band getBand() {
 			return new Band(name, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
@@ -119,6 +125,17 @@ public class RadiocraftServerConfig {
 		ANTENNA_TUNER_ENABLED = BUILDER.comment(" Set to false to make tuners decorative again").define("antenna_tuner_enabled", true);
 		ANTENNA_TUNER_MAX_SWR = BUILDER.comment(" Highest antenna SWR a tuner can bring to 1:1 (a dipole 10 blocks off in total is SWR 6)").defineInRange("antenna_tuner_max_swr", 6.0, 1.0, 100.0);
 		ANTENNA_TUNER_LOSS = BUILDER.comment(" Share of the mismatch loss a tuner cannot recover: 0 = perfect tuner, 1 = tuner only quiets the radio").defineInRange("antenna_tuner_loss", 0.25, 0.0, 1.0);
+		BUILDER.pop();
+
+		BUILDER.push("Aurora");
+		BUILDER.comment(" An aurora can follow a solar blackout (chance and timing are in the solar event data). It only reaches",
+				" stations far from the equator (Z = 0): there VHF gains a long skip off the aurora, and every HF band drops one",
+				" condition step (good to fair, ...) and picks up extra static.");
+		AURORA_LATITUDE = BUILDER.comment(" Distance from Z = 0, north or south, from which a station is under the aurora").defineInRange("aurora_latitude", 10000, 0, 30000000);
+		AURORA_VHF_MIN_RANGE = BUILDER.comment(" Shortest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_min_range", 500, 0, 1000000);
+		AURORA_VHF_MAX_RANGE = BUILDER.comment(" Longest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_max_range", 4000, 1, 1000000);
+		AURORA_VHF_STRENGTH = BUILDER.comment(" Strength (0 to 1) of a VHF signal carried by the aurora").defineInRange("aurora_vhf_strength", 0.8, 0.0, 1.0);
+		AURORA_STATIC = BUILDER.comment(" Extra static on HF radios under the aurora, on top of the solar noise floor").defineInRange("aurora_static", 0.25, 0.0, 1.0);
 		BUILDER.pop();
 
 		SPEC = BUILDER.build();

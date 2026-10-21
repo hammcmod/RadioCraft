@@ -4,6 +4,31 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Aurora (added 2026-10-21)
+
+A blackout has a 30% chance (`aurora` in `solar_events/blackout.json`) of an aurora three days after it starts, lasting
+a day. It only reaches stations with |Z| >= 10000 (`aurora_latitude` in the server config). There VHF skips 500-4000
+blocks off the aurora, every HF band drops one condition step and HF static rises by `aurora_static`. Force one with
+`/rcdebug solar aurora on` (`off` ends it), `/rcdebug solar` shows its state, `/tp @s ~ ~ 10500` to get under it, and
+`/time set midnight`.
+
+Graphics (procedural, `AuroraRenderer`, no textures):
+- [ ] At night past Z 10000 (or -10000): green curtains low over the pole side of the sky (north at -Z, south at +Z),
+  bright lower edge fading up through teal to violet, vertical rays drifting slowly, the curtains folding over time.
+- [ ] It fades in over Z 9000-10000 (walk across), with dusk, and over a few seconds when it starts or ends. Gone by day,
+  in rain, underwater and in the Nether/End.
+- [ ] Looks right with shaders off at several render distances (2, 8, 16+ chunks), does not show through terrain or
+  draw over the moon oddly, and does not hurt the frame rate.
+- [ ] Say how it should look instead: colours, height, how much of the sky, how fast it moves. All are numbers in
+  `AuroraRenderer#curtain`.
+
+Radio:
+- [ ] Two VHF stations (or handhelds) 2000 blocks apart, both past Z 10000: they hear each other only while the aurora
+  is on. One of them below Z 10000: nothing.
+- [ ] HF past Z 10000: the station's bands read one step worse than the same event further south; the static is louder.
+- [ ] Weather station anywhere: "Aurora expected: storm on the way..." after a lucky blackout, "Aurora: active beyond
+  Z +/-10000" while on (purple / green line). VHF reads "Aurora" for a station past the latitude, "Normal" elsewhere.
+
 ## Solar weather shapes HF skip (added 2026-10-21)
 
 Each solar event now rates every HF band Good / Fair / Poor / Closed, separately by day and night

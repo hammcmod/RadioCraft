@@ -43,7 +43,10 @@ public class SolarEventReloadListener extends SimpleJsonResourceReloadListener {
 				Map<String, BandCondition> day = bands.has("day") ? SolarEvent.parseConditions(bands.getAsJsonObject("day")) : Map.of();
 				Map<String, BandCondition> night = bands.has("night") ? SolarEvent.parseConditions(bands.getAsJsonObject("night")) : Map.of();
 
-				events.put(resourceLocation, new Pair<>(new SolarEvent(noise, minDuration, maxDuration, day, night), weight));
+				// Optional: {"chance": 0.3, "delay": 72000, "duration": 24000}, an aurora some time after the event starts.
+				AuroraForecast aurora = jsonObject.has("aurora") ? AuroraForecast.parse(jsonObject.getAsJsonObject("aurora")) : null;
+
+				events.put(resourceLocation, new Pair<>(new SolarEvent(noise, minDuration, maxDuration, day, night, aurora), weight));
 				totalWeight += weight;
 
 			} catch (IllegalArgumentException | JsonParseException jsonparseexception) {

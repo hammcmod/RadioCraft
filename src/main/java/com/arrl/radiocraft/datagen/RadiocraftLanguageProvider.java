@@ -148,6 +148,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.poor"), "Poor");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.closed"), "Closed");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.normal"), "Normal");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.aurora"), "Aurora");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.aurora_active"), "Aurora: active beyond Z ±%s");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.aurora_expected"), "Aurora expected: storm on the way, watch beyond Z ±%s");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.header"), "Solar Conditions:");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.overall"), "Overall: %s");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.noise"), "Noise Floor: %s%%");

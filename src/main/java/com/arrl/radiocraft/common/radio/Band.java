@@ -58,6 +58,11 @@ public record Band(String name, int losRange, int minSkipDay, int maxSkipDay, in
         return bandConfig.getBand();
     }
 
+    /** True for the VHF band (2m), which normally has no skip at all; see {@link com.arrl.radiocraft.common.radio.solar.Aurora}. */
+    public boolean isVhf() {
+        return "2m".equals(name);
+    }
+
     //used to init the defaults in RadiocraftServerConfig
     public static Collection<Band> getDefaults(){
         return List.of(

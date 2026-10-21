@@ -2,9 +2,11 @@ package com.arrl.radiocraft.common.radio.solar;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.init.RadiocraftData;
+import com.arrl.radiocraft.common.network.clientbound.CAuroraPacket;
 import com.arrl.radiocraft.common.network.clientbound.CNoisePacket;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
+import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,6 +14,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
+import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,31 +57,58 @@ public class SolarEventManager {
 		return event.getEvent().getCondition(band.name(), level.isDay());
 	}
 
+	/**
+	 * How {@code band} carries skip between stations at {@code positions}: {@link #getCondition(Level, Band)}, one step
+	 * worse if any of them is under an aurora.
+	 */
+	public static BandCondition getCondition(Level level, @Nullable Band band, BlockPos... positions) {
+		BandCondition condition = getCondition(level, band);
+		if(Aurora.isActive(level))
+			for(BlockPos pos : positions)
+				if(Aurora.inZone(pos))
+					return condition.worse();
+		return condition;
+	}
+
+	/** Starts a fresh spell of {@code event} in {@code level}, tells its players the new noise and rolls for an aurora. */
+	public static void startEvent(ServerLevel level, SolarEvent event) {
+		setEvent(level, event.getInstance());
+		CNoisePacket.sendToLevel(level); // Update noise value for all players in that level
+		Aurora.onEventStarted(level, event);
+		Radiocraft.LOGGER.info("Dimension: {} Solar Event Noise: {}", level.dimension(), event.getNoise());
+	}
+
 	@SubscribeEvent
 	public static void tick(LevelTickEvent.Pre event) {
 		if(event.getLevel() instanceof ServerLevel level) {
 			SolarEventInstance solarEvent = getEvent(level);
 
-			if(solarEvent == null || solarEvent.isFinished()) {
-				solarEvent = RadiocraftData.SOLAR_EVENTS.getWeightedRandom().getInstance(); // Keep picking new event if the current one is finished
-				setEvent(level, solarEvent);
-				CNoisePacket.sendToLevel(level); // Update noise value for all players in that level
-				Radiocraft.LOGGER.info("Dimension: {} Solar Event Noise: {}", level.dimension(), solarEvent.getEvent().getNoise());
-			}
-			solarEvent.tick();
+			if(solarEvent == null || solarEvent.isFinished()) // Keep picking new event if the current one is finished
+				startEvent(level, RadiocraftData.SOLAR_EVENTS.getWeightedRandom());
+			getEvent(level).tick();
+			Aurora.tick(level);
 		}
 	}
 
 	@SubscribeEvent
+	public static void serverStopped(ServerStoppedEvent event) { // In single player the next world must not inherit this one's aurora.
+		Aurora.clearAll();
+	}
+
+	@SubscribeEvent
 	public static void playerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) { // Update noise every time player changes dimension
-		if(event.getEntity() instanceof ServerPlayer player)
+		if(event.getEntity() instanceof ServerPlayer player) {
 			CNoisePacket.sendToPlayer(player);
+			CAuroraPacket.sendToPlayer(player);
+		}
 	}
 
 	@SubscribeEvent
 	public static void playerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-		if(event.getEntity() instanceof ServerPlayer player)
+		if(event.getEntity() instanceof ServerPlayer player) {
 			CNoisePacket.sendToPlayer(player);
+			CAuroraPacket.sendToPlayer(player);
+		}
 	}
 
 }

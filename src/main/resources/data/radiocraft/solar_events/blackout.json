@@ -16,5 +16,10 @@
       "40m": "poor",
       "80m": "poor"
     }
+  },
+  "aurora": {
+    "chance": 0.3,
+    "delay": 72000,
+    "duration": 24000
   }
 }

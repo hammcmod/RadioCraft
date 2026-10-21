@@ -1,7 +1,9 @@
 package com.arrl.radiocraft.common.blockentities;
 
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.init.RadiocraftData;
+import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.solar.BandCondition;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
@@ -81,17 +83,36 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 		return RadiocraftData.SOLAR_EVENTS.conditionLevel(getCurrentEvent());
 	}
 
-	/** How {@code band} carries skip right now, from the event and the time of day; null with no event. */
+	/**
+	 * How {@code band} carries skip here right now, from the event and the time of day, one step worse under an aurora;
+	 * null with no event.
+	 */
 	@Nullable
 	public BandCondition getBandCondition(String band) {
 		SolarEvent event = getCurrentEvent();
-		return event == null || level == null ? null : event.getCondition(band, level.isDay());
+		if(event == null || level == null)
+			return null;
+		BandCondition condition = event.getCondition(band, level.isDay());
+		return Aurora.affects(level, worldPosition) ? condition.worse() : condition;
 	}
 
 	/** Whether {@link #REPORTED_BAND} propagates at all right now (any condition but closed). */
 	public boolean isReportedBandOpen() {
 		BandCondition condition = getBandCondition(REPORTED_BAND);
 		return condition != null && condition != BandCondition.CLOSED;
+	}
+
+	/** "Aurora: active beyond Z ±10000" or "Aurora expected ...", null when there is none. */
+	@Nullable
+	public Component auroraLine() {
+		if(level == null)
+			return null;
+		int latitude = RadiocraftServerConfig.AURORA_LATITUDE.get();
+		if(Aurora.isActive(level))
+			return Component.translatable("message.radiocraft.solar_weather_station.aurora_active", latitude).withStyle(ChatFormatting.GREEN);
+		if(Aurora.isExpected(level))
+			return Component.translatable("message.radiocraft.solar_weather_station.aurora_expected", latitude).withStyle(ChatFormatting.LIGHT_PURPLE);
+		return null;
 	}
 
 	/** "Good", "Fair", "Poor" or "Closed". */
@@ -155,10 +176,14 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 		lines.add(Component.translatable("message.radiocraft.solar_weather_station.header").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 		lines.add(Component.translatable("message.radiocraft.solar_weather_station.overall", eventName(getCurrentEventKey())));
 		lines.add(Component.translatable("message.radiocraft.solar_weather_station.noise", Math.round(event.getNoise() * 100.0F)));
-		lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", "VHF", Component.translatable("message.radiocraft.solar_weather_station.normal")));
-		boolean isDay = level != null && level.isDay();
+		boolean underAurora = level != null && Aurora.affects(level, worldPosition);
+		lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", "VHF",
+				Component.translatable(underAurora ? "message.radiocraft.solar_weather_station.aurora" : "message.radiocraft.solar_weather_station.normal")));
 		for(String band : REPORTED_BANDS)
-			lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", band, conditionName(event.getCondition(band, isDay))));
+			lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", band, conditionName(getBandCondition(band))));
+		Component aurora = auroraLine();
+		if(aurora != null)
+			lines.add(aurora);
 		return lines;
 	}
 

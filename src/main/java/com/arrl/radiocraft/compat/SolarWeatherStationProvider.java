@@ -33,6 +33,8 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
             if(condition != null)
                 tooltip.add(Component.literal(band + " band: ").append(SolarWeatherStationBlockEntity.conditionName(condition)));
         }
+        if(data.contains("aurora"))
+            tooltip.add(Component.Serializer.fromJson(data.getString("aurora"), accessor.getLevel().registryAccess()));
     }
 
     @Override
@@ -53,6 +55,9 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
                 bands.putString(band, condition.getSerializedName());
         }
         data.put("bands", bands);
+        Component aurora = be.auroraLine();
+        if(aurora != null)
+            data.putString("aurora", Component.Serializer.toJson(aurora, accessor.getLevel().registryAccess()));
     }
 
     @Override

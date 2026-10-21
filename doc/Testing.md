@@ -91,6 +91,7 @@ Read-only:
 | `rcdebug network <pos>` | network object, energy, and every network it is on with its members |
 | `rcdebug solar` | current solar event, noise, progress, time of day, weather, each HF band's condition |
 | `rcdebug solar set <event>` | start a fresh spell of an event (`blackout`, `great`, ...) in this dimension |
+| `rcdebug solar aurora on\|off` | light an aurora for a day now, or end / cancel one (state shows in `rcdebug solar`) |
 
 Stand-ins for player actions (these change the world):
 
