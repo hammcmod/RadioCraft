@@ -2,8 +2,8 @@
 
     python tools/wirestate.py <x> <y> <z> [<x> <y> <z> ...]
 
-Prints one line per position: the wire kind and every property that is set (flags that are true, hug/arrive/end
-when not none). Uses `execute if block` probes, so it needs no mod support; a non-wire block prints as such.
+Prints one line per position: the wire kind and every stored property that is set (flags that are true, hug and
+climb when not none). The arrival edge and how a run ends are worked out from the neighbours, not stored. Uses `execute if block` probes, so it needs no mod support; a non-wire block prints as such.
 """
 import os
 import subprocess
@@ -13,7 +13,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 WIRES = ["coax_wire", "wire", "waterproof_wire"]
 FLAGS = ["north", "east", "south", "west", "up", "down"]
 EDGES = ["north", "east", "south", "west"]
-ENDS = ["climb_wire", "climb_device", "up_device"]
+ENDS = []
 
 
 def rcon(cmd):
@@ -31,10 +31,13 @@ def describe(x, y, z):
     if kind is None:
         return f"{pos}: not a wire"
     parts = [f for f in FLAGS if is_block(pos, f"radiocraft:{kind}[{f}=true]")]
-    for prop in ("hug", "arrive"):
+    for prop in ("hug",):
         for e in EDGES:
             if is_block(pos, f"radiocraft:{kind}[{prop}={e}]"):
                 parts.append(f"{prop}={e}")
+    for c in ("one", "both"):
+        if is_block(pos, f"radiocraft:{kind}[climb={c}]"):
+            parts.append(f"climb={c}")
     for e in ENDS:
         if is_block(pos, f"radiocraft:{kind}[end={e}]"):
             parts.append(f"end={e}")

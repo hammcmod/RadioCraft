@@ -1,5 +1,5 @@
 {
-  "parent": "radiocraft:block/wire_middle",
+  "parent": "radiocraft:block/coax_wire_middle",
   "elements": [
     {
       "name": "wire",

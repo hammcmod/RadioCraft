@@ -1,4 +1,4 @@
-"""Generates the wire models that depend on each other and the three identical wire blockstates.
+"""Generates the wire part models (both textures), the dynamic block models and the three wire blockstates.
 
 Model coordinate convention: every edge model is authored for the NORTH edge and rotated in the blockstate. An
 edge run straddles the block face (z = -1..1): one pixel inside the wall it hugs (hidden) and one outside, so the
@@ -97,105 +97,12 @@ for prefix, texture in VARIANTS.items():
         for base in BASE_MODELS:
             dump(retextured(json.load(open(f"{BASE}models/block/wire_{base}.json")), texture), f"{prefix}_{base}")
 
-H = {"north": None, "east": 90, "south": 180, "west": 270}
-SIDES = list(H)
-ALL_EDGE = ["none"] + SIDES
-OPP = {"north": "south", "south": "north", "east": "west", "west": "east"}
-
-
-def model(name, y=None):
-    m = {"model": "radiocraft:block/" + name}
-    if y:
-        m["y"] = y
-    return m
-
-
-def alt(values):
-    return "|".join(values)
-
-
-def merge(a, b):
-    """AND of two multipart condition objects, or None if they contradict (each value is a set of alternatives)."""
-    out = dict(a)
-    for k, v in b.items():
-        if k in out:
-            common = set(out[k].split("|")) & set(v.split("|"))
-            if not common:
-                return None
-            out[k] = alt(sorted(common))
-        else:
-            out[k] = v
-    return out
-
-
-def cross(or_a, or_b):
-    out = []
-    for a in or_a:
-        for b in or_b:
-            m = merge(a, b)
-            if m is not None and m not in out:
-                out.append(m)
-    return out
-
-
-def when(items):
-    return items[0] if len(items) == 1 else {"OR": items}
-
-
-# The rendering rule (mirrored by WireBlock#buildShape). Cable already lies on the edges in S = {arrive, hug}. The
-# "ports" the cable must reach are the connected neighbours (at their edges), the top of the block when the run up
-# goes through the middle (up and no hug), and the bottom when the run from below comes up the middle (down and no
-# arrival). The middle piece is drawn only when the cable has to pass through the middle: a port that is not on an
-# edge in S, two different edges in S (the run crosses from one to the other), no edge cable at all, or a dead end
-# (nothing but the edge cable: a nub so the block is visible).
-middle_or = []
-for d in SIDES:
-    middle_or.append({d: "true", "arrive": alt([e for e in ALL_EDGE if e != d]), "hug": alt([e for e in ALL_EDGE if e != d])})
-middle_or.append({"up": "true", "hug": "none"})
-middle_or.append({"down": "true", "arrive": "none"})
-for a in SIDES:
-    for h in SIDES:
-        if a != h:
-            middle_or.append({"arrive": a, "hug": h})
-middle_or.append({"arrive": "none", "hug": "none"})
-# Climbing both walls of a one-wide trench: cable on two opposite edges, so through the middle.
-middle_or.append({"end": "climb_wire_back|climb_device_back", "hug": alt(SIDES)})
-noflags = {s: "false" for s in SIDES}
-# ... a dead end being: no ports, and the cable does not pass straight through along an edge (it passes through when
-# it arrives on an edge and goes on up or climbs).
-dead = [dict(noflags, up="false", down="false"),
-        dict(noflags, up="false", arrive=alt(SIDES)),
-        dict(noflags, hug=alt(SIDES), down="false"),
-        dict(noflags, hug=alt(SIDES), arrive=alt(SIDES))]
-not_through = [{"arrive": "none"}, {"up": "false", "end": "none|up_device"}]
-middle_or += cross(dead, not_through)
-
-cases = [{"when": when(middle_or), "apply": model("wire_middle")}]
-# A stub from the middle to an edge: when the middle is drawn and that edge has cable (in S) or a neighbour.
-for e, y in H.items():
-    triggers = [{e: "true"}, {"arrive": e}, {"hug": e}, {"hug": OPP[e], "end": "climb_wire_back|climb_device_back"}]
-    cases.append({"when": when(cross(middle_or, triggers)), "apply": model("wire_horizontal", y)})
-# A corner at an edge: the run from below arrives there and the cable leaves sideways on that same edge, nothing
-# else to reach, so no middle: just the cube that joins the top of the run to the neighbour's stub.
-for e, y in H.items():
-    cond = {"arrive": e, "hug": "none", e: "true", "up": "false"}
-    cond.update({s: "false" for s in SIDES if s != e})
-    cases.append({"when": cond, "apply": model("wire_corner", y)})
-# The run up: through the middle, or along an edge (full height when the run from below is on that edge too).
-cases.append({"when": {"hug": "none", "up": "true"}, "apply": model("wire_vertical")})
-for h, y in H.items():
-    cases.append({"when": {"hug": h, "arrive": h}, "apply": model("wire_edge_full", y)})
-    cases.append({"when": {"hug": h, "arrive": alt([e for e in ALL_EDGE if e != h])}, "apply": model("wire_edge", y)})
-    # The second climb, up the opposite wall.
-    o = OPP[h]
-    cases.append({"when": {"hug": h, "end": "climb_wire_back|climb_device_back", "arrive": o}, "apply": model("wire_edge_full", H[o])})
-    cases.append({"when": {"hug": h, "end": "climb_wire_back|climb_device_back", "arrive": alt([e for e in ALL_EDGE if e != o])}, "apply": model("wire_edge", H[o])})
-# The ends that draw their own last piece.
-for h, y in H.items():
-    cases.append({"when": {"hug": h, "end": "climb_device|climb_device_back"}, "apply": model("wire_climb_overhang", y)})
-    cases.append({"when": {"hug": h, "end": "up_device"}, "apply": model("wire_up_overhang", y)})
-
-text = json.dumps({"multipart": cases}, indent=2) + "\n"
+# The block model: one dynamic model per texture that picks the parts above in code (client/model/WireModel.java,
+# rule in common/blocks/WireLook.java), and a blockstate with a single variant for every state.
+for prefix in VARIANTS:
+    json.dump({"loader": "radiocraft:wire", "prefix": f"radiocraft:block/{prefix}_"},
+              open(f"{BASE}models/block/{prefix}_dynamic.json", "w", newline="\n"), indent="\t")
 for name, prefix in [("wire", "wire"), ("waterproof_wire", "wire"), ("coax_wire", "coax_wire")]:
-    open(f"{BASE}blockstates/{name}.json", "w", newline="\n").write(text.replace("radiocraft:block/wire_", f"radiocraft:block/{prefix}_"))
-print("models:", ", ".join(models), "x", len(VARIANTS), "textures | blockstate cases:", len(cases), "| bytes:", len(text))
+    json.dump({"variants": {"": {"model": f"radiocraft:block/{prefix}_dynamic"}}},
+              open(f"{BASE}blockstates/{name}.json", "w", newline="\n"), indent=2)
+print("part models:", ", ".join(models), "x", len(VARIANTS), "textures; dynamic block models and blockstates written")

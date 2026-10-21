@@ -53,4 +53,10 @@ public class ClientSetupEvents {
 		// Satellite dish geo renderer
 		event.registerBlockEntityRenderer((net.minecraft.world.level.block.entity.BlockEntityType) RadiocraftBlockEntities.SATELLITE_DISH.get(), ctx -> new com.arrl.radiocraft.client.render.SatelliteDishRenderer(ctx));
 	}
+
+	/** The wire model works its look out from the neighbours, see {@link com.arrl.radiocraft.client.model.WireModel}. */
+	@net.neoforged.bus.api.SubscribeEvent
+	public static void registerGeometryLoaders(net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders event) {
+		event.register(com.arrl.radiocraft.client.model.WireModel.LOADER_ID, com.arrl.radiocraft.client.model.WireModel.Loader.INSTANCE);
+	}
 }

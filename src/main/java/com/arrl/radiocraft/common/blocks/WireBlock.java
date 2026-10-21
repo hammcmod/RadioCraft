@@ -45,11 +45,11 @@ import java.util.function.Supplier;
  * Power wire, waterproof wire and coax. A wire links to the six blocks around it (other wires of its kind and the
  * devices its kind connects to). Horizontal runs lie on the floor of the block through its middle. Vertical runs
  * follow an <em>edge</em> of the block: a run going up picks a solid wall to hug ({@link #HUG}), and the wire above
- * keeps the run on that same edge ({@link #ARRIVE} says where a run from below comes in) whether or not there is
+ * keeps the run on that same edge (see {@link #look}) whether or not there is
  * still a wall there, so a cable going up a post keeps its line above the post. Only where the run must reach
  * something in the middle of a block (a device above it, or a horizontal branch) does it turn in from the edge.
  * Like redstone dust, a wire at the foot of a wall with nothing above it but a wire or device on top of the wall
- * <em>climbs</em>: the run up the wall continues to the block on top and links to it diagonally ({@link #END}).
+ * <em>climbs</em>: the run up the wall continues to the block on top and links to it diagonally ({@link #CLIMB}).
  * {@link #getLinks} is the single source of truth for what a wire is linked to; the network code and the Jade
  * overlay walk those links rather than the six neighbours.
  * <p>
@@ -73,13 +73,21 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	/** The edge this wire's run upwards follows (none: up the middle of the block, or no run upwards). */
 	public static final EnumProperty<Edge> HUG = EnumProperty.create("hug", Edge.class);
 	/**
-	 * The edge where a run from below comes into this block: the edge the wire below follows, or the side a climber
-	 * at the foot of the block below-diagonal comes up on. None: from the middle (a wire below running up its
-	 * middle), or no run from below.
+	 * Whether the run up the {@link #HUG} wall is a climb to the block on top of that wall (a diagonal network link),
+	 * and in a one-wide trench also up the opposite wall. Stored because the network has to notice when it changes;
+	 * everything else about the look is worked out from the neighbours ({@link #look}).
 	 */
-	public static final EnumProperty<Edge> ARRIVE = EnumProperty.create("arrive", Edge.class);
-	/** How the run upwards ends, when it ends at something that draws nothing towards us. */
-	public static final EnumProperty<End> END = EnumProperty.create("end", End.class);
+	public static final EnumProperty<Climb> CLIMB = EnumProperty.create("climb", Climb.class);
+
+	/** See {@link #CLIMB}. */
+	public enum Climb implements StringRepresentable {
+		NONE, ONE, BOTH;
+
+		@Override
+		public @NotNull String getSerializedName() {
+			return name().toLowerCase(Locale.ROOT);
+		}
+	}
 
 	public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.of(
 			Direction.NORTH, NORTH, Direction.EAST, EAST,
@@ -112,36 +120,6 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				case WEST -> WEST;
 				default -> NONE;
 			};
-		}
-
-		@Override
-		public @NotNull String getSerializedName() {
-			return name().toLowerCase(Locale.ROOT);
-		}
-	}
-
-	/** What the run up the {@link #HUG} edge ends at. */
-	public enum End implements StringRepresentable {
-		/** Nothing special: a wire above continues it, or there is no run upwards. */
-		NONE,
-		/** A climb up the hugged wall to the wire on top of it; that wire draws the arrival. */
-		CLIMB_WIRE,
-		/** A climb up the hugged wall to a device on top of it; we draw the cable over the wall's top to its middle. */
-		CLIMB_DEVICE,
-		/** The run up the hugged edge ends at a device directly above; we draw the cable in to its middle. */
-		UP_DEVICE,
-		/** {@link #CLIMB_WIRE}, and in a one-wide trench also up the opposite wall to the wire on top of that one. */
-		CLIMB_WIRE_BACK,
-		/** {@link #CLIMB_DEVICE}, and also up the opposite wall to a wire. */
-		CLIMB_DEVICE_BACK;
-
-		public boolean isClimb() {
-			return this != NONE && this != UP_DEVICE;
-		}
-
-		/** True for a climb that also goes up the wall opposite the hugged one. */
-		public boolean isBack() {
-			return this == CLIMB_WIRE_BACK || this == CLIMB_DEVICE_BACK;
 		}
 
 		@Override
@@ -183,15 +161,14 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				.setValue(NORTH, false).setValue(EAST, false)
 				.setValue(SOUTH, false).setValue(WEST, false)
 				.setValue(UP, false).setValue(DOWN, false)
-				.trySetValue(HUG, Edge.NONE).trySetValue(ARRIVE, Edge.NONE)
-				.trySetValue(END, End.NONE));
+				.trySetValue(HUG, Edge.NONE).trySetValue(CLIMB, Climb.NONE));
 		this.isPower = isPower;
         this.isWaterproof = isWaterproof;
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, HUG, ARRIVE, END, BlockStateProperties.WATERLOGGED);
+		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, HUG, CLIMB, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Nullable
@@ -209,26 +186,47 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 		for(Direction direction : Direction.values())
 			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(level.getBlockState(pos.relative(direction)), isPower));
-		state = state.setValue(ARRIVE, Edge.of(arrival(level, pos, state)));
+		Direction arrive = arrival(level, pos, state);
 
 		// A climb if there is one, trying the edge the run from below is already on first so the cable keeps its line.
-		for(Direction dir : wallOrder(state.getValue(ARRIVE))) {
+		for(Direction dir : wallOrder(Edge.of(arrive))) {
 			if(canClimb(level, pos, dir)) {
-				boolean toWire = isSameKind(level.getBlockState(pos.relative(dir).above()));
 				Direction back = dir.getOpposite();
 				boolean climbBack = canClimb(level, pos, back) && isSameKind(level.getBlockState(pos.relative(back).above()));
-				End end = toWire ? (climbBack ? End.CLIMB_WIRE_BACK : End.CLIMB_WIRE) : (climbBack ? End.CLIMB_DEVICE_BACK : End.CLIMB_DEVICE);
-				return state.setValue(HUG, Edge.of(dir)).setValue(END, end);
+				return state.setValue(HUG, Edge.of(dir)).setValue(CLIMB, climbBack ? Climb.BOTH : Climb.ONE);
 			}
 		}
-		Direction hug = hugEdge(level, pos, state);
-		End end = End.NONE;
-		if(hug != null) {
+		return state.setValue(HUG, Edge.of(hugEdge(level, pos, state, arrive))).setValue(CLIMB, Climb.NONE);
+	}
+
+	/**
+	 * The look of the wire at {@code pos} in {@code state}: the stored climb and hugged edge, plus the edge a run
+	 * from below arrives on and how the run up ends, both worked out from the neighbours. Called by the client model
+	 * while a chunk is drawn (with a render region as {@code level}) and by the hitbox.
+	 */
+	public WireLook.Look look(BlockGetter level, BlockPos pos, BlockState state) {
+		if(!state.hasProperty(HUG))
+			return WireLook.Look.NONE;
+		Direction hug = state.getValue(HUG).direction();
+		Climb climb = state.getValue(CLIMB);
+		WireLook.End end = WireLook.End.NONE;
+		if(hug != null && climb != Climb.NONE)
+			end = isSameKind(level.getBlockState(pos.relative(hug).above())) ? WireLook.End.CLIMB_WIRE : WireLook.End.CLIMB_DEVICE;
+		else if(hug != null) {
 			BlockState above = level.getBlockState(pos.above());
 			if(!isSameKind(above) && canConnectTo(above, isPower))
-				end = End.UP_DEVICE; // The run up the edge ends at a device above: turn in to its middle.
+				end = WireLook.End.UP_DEVICE; // The run up the edge ends at a device above: turn in to its middle.
 		}
-		return state.setValue(HUG, Edge.of(hug)).setValue(END, end);
+		return new WireLook.Look(hug, arrival(level, pos, state), end, climb == Climb.BOTH);
+	}
+
+	/** The six connections of {@code state} as a set. */
+	public static Set<Direction> connected(BlockState state) {
+		Set<Direction> out = java.util.EnumSet.noneOf(Direction.class);
+		for(Direction dir : Direction.values())
+			if(state.getValue(PROPERTY_BY_DIRECTION.get(dir)))
+				out.add(dir);
+		return out;
 	}
 
 	/** The four sides, with {@code first} (if any) ahead of the others. */
@@ -262,10 +260,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 * keeps its line; else the first solid wall; else null for up the middle.
 	 */
 	@Nullable
-	private Direction hugEdge(BlockGetter level, BlockPos pos, BlockState state) {
+	private Direction hugEdge(BlockGetter level, BlockPos pos, BlockState state, @Nullable Direction arrive) {
 		if(!state.getValue(UP))
 			return null;
-		Direction arrive = state.getValue(ARRIVE).direction();
 		if(arrive != null)
 			return arrive;
 		// Of the solid walls around, prefer the one on the side the run leads to at the top, so the cable goes
@@ -277,22 +274,17 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	/**
-	 * The side the run above this block eventually leaves towards: the first horizontal connection found going up
-	 * the column of wires of this kind, within a few blocks. Null if it goes nowhere sideways or ends.
+	 * The side the wire directly above leaves towards (its first horizontal connection), null if none. Only one block
+	 * up: the client only redraws blocks next to a change, so a look must not depend on anything further away.
 	 */
 	@Nullable
 	private Direction destinationSide(BlockGetter level, BlockPos pos) {
-		BlockPos cursor = pos.above();
-		for(int i = 0; i < 8; i++, cursor = cursor.above()) {
-			BlockState above = level.getBlockState(cursor);
-			if(!isSameKind(above))
-				return null;
-			for(Direction dir : Direction.Plane.HORIZONTAL)
-				if(above.getValue(PROPERTY_BY_DIRECTION.get(dir)))
-					return dir;
-			if(!above.getValue(UP))
-				return null;
-		}
+		BlockState above = level.getBlockState(pos.above());
+		if(!isSameKind(above))
+			return null;
+		for(Direction dir : Direction.Plane.HORIZONTAL)
+			if(above.getValue(PROPERTY_BY_DIRECTION.get(dir)))
+				return dir;
 		return null;
 	}
 
@@ -310,20 +302,20 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	/** True if a wire in {@code state} climbs the wall in direction {@code towards} (its main climb or the second one). */
 	public static boolean climbsTowards(BlockState state, Direction towards) {
-		if(!state.hasProperty(END) || !state.getValue(END).isClimb())
+		if(!state.hasProperty(CLIMB) || state.getValue(CLIMB) == Climb.NONE)
 			return false;
 		Direction hug = state.getValue(HUG).direction();
-		return hug == towards || (state.getValue(END).isBack() && hug != null && hug.getOpposite() == towards);
+		return hug == towards || (state.getValue(CLIMB) == Climb.BOTH && hug != null && hug.getOpposite() == towards);
 	}
 
 	/** The blocks a climb in {@code state} links to: the top of the climbed wall, and of the opposite one for a second climb. */
 	private static Set<BlockPos> climbTargets(BlockPos pos, BlockState state) {
-		if(!state.hasProperty(END) || !state.getValue(END).isClimb())
+		if(!state.hasProperty(CLIMB) || state.getValue(CLIMB) == Climb.NONE)
 			return Set.of();
 		Direction hug = state.getValue(HUG).direction();
 		Set<BlockPos> out = new HashSet<>();
 		out.add(pos.relative(hug).above());
-		if(state.getValue(END).isBack())
+		if(state.getValue(CLIMB) == Climb.BOTH)
 			out.add(pos.relative(hug.getOpposite()).above());
 		return out;
 	}
@@ -372,18 +364,18 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			if(state.getValue(PROPERTY_BY_DIRECTION.get(dir)))
 				out.put(pos.relative(dir), dir.getOpposite());
 		}
-		Direction arrive = state.getValue(ARRIVE).direction();
+		Direction arrive = arrival(level, pos, state);
 		if(arrive != null && !state.getValue(DOWN)) { // Not from the wire below, so from a climber on that side.
 			BlockPos climber = pos.relative(arrive).below();
 			if(climbsTowards(level, climber, arrive.getOpposite()))
 				out.put(climber, arrive);
 		}
-		if(state.getValue(END).isClimb()) {
+		if(state.getValue(CLIMB) != Climb.NONE) {
 			Direction hug = state.getValue(HUG).direction();
 			BlockPos top = pos.relative(hug).above();
 			if(canConnectTo(level.getBlockState(top), isPower))
 				out.put(top, hug.getOpposite());
-			if(state.getValue(END).isBack()) {
+			if(state.getValue(CLIMB) == Climb.BOTH) {
 				BlockPos back = pos.relative(hug.getOpposite()).above();
 				if(canConnectTo(level.getBlockState(back), isPower))
 					out.put(back, hug);
@@ -507,81 +499,44 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		// Everything that follows direct neighbours is recomputed; the climb (which depends on a diagonal block and
 		// carries network bookkeeping) is left to refresh().
 		BlockState fresh = getBlockState(level, pos).setValue(BlockStateProperties.WATERLOGGED, state.getValue(BlockStateProperties.WATERLOGGED));
-		if(state.getValue(END).isClimb())
-			return fresh.setValue(END, state.getValue(END)).setValue(HUG, state.getValue(HUG));
-		if(fresh.getValue(END).isClimb())
-			fresh = fresh.setValue(END, End.NONE).setValue(HUG, Edge.of(hugEdge(level, pos, fresh)));
+		if(state.getValue(CLIMB) != Climb.NONE)
+			return fresh.setValue(CLIMB, state.getValue(CLIMB)).setValue(HUG, state.getValue(HUG));
+		if(fresh.getValue(CLIMB) != Climb.NONE)
+			fresh = fresh.setValue(CLIMB, Climb.NONE).setValue(HUG, Edge.of(hugEdge(level, pos, fresh, arrival(level, pos, fresh))));
 		return fresh;
 	}
 
-	private static final Map<BlockState, VoxelShape> SHAPE_CACHE = new ConcurrentHashMap<>();
+	private static final Map<List<WireLook.Placed>, VoxelShape> SHAPE_CACHE = new ConcurrentHashMap<>();
 
 	/**
-	 * Wires have many block states (their look lives in the state), and Minecraft builds a cache of shapes for every
-	 * state of every block whenever a world's tags load, on the server and the client. For wires that cost minutes and
-	 * gigabytes once the states passed 100,000. A dynamic shape skips that cache; {@link #getShape} answers from
-	 * {@link #SHAPE_CACHE} instead, built only for states actually placed. Wires have no collision and do not occlude,
-	 * so the per-call lookup is only hit for outlines and lighting.
+	 * The shape depends on the neighbours (the look is not stored), so Minecraft must not cache it per state. A
+	 * dynamic shape also keeps Minecraft from building a shape cache for every possible state when a world loads.
 	 */
 	@Override
 	public boolean hasDynamicShape() {
 		return true;
 	}
 
+	/** The outline follows the cable: the pieces {@link WireLook#parts} picks, except the overhangs outside the block. */
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-		return SHAPE_CACHE.computeIfAbsent(state, WireBlock::buildShape);
+		List<WireLook.Placed> parts = WireLook.parts(look(level, pos, state), connected(state));
+		return SHAPE_CACHE.computeIfAbsent(parts, WireBlock::buildShape);
 	}
 
-	/**
-	 * The outline follows the cable: the same pieces the blockstate draws, by the same rule (tools/wire_assets.py
-	 * generates the blockstate from it), except the overhangs, which lie outside the block.
-	 * <p>
-	 * Cable already lies on the edges in S = {arrive, hug}. The "ports" it must reach are the connected neighbours
-	 * (at their edges), the top of the block when the run up goes through the middle, and the bottom when the run
-	 * from below comes up the middle. The middle piece is drawn only when the cable has to pass through the middle:
-	 * a port not on an edge in S, two different edges in S, no edge cable at all, or a dead end (a nub so the block
-	 * is visible). A stub joins the middle to every edge that has cable or a neighbour. A run arriving at an edge
-	 * and leaving sideways on that same edge, with nothing else to reach, is just a corner cube on that edge.
-	 */
-	private static VoxelShape buildShape(BlockState state) {
-		Direction hug = state.getValue(HUG).direction();
-		Direction arrive = state.getValue(ARRIVE).direction();
-		Set<Direction> edgeCable = new HashSet<>();
-		if(hug != null)
-			edgeCable.add(hug);
-		if(arrive != null)
-			edgeCable.add(arrive);
-		Direction back = hug != null && state.getValue(END).isBack() ? hug.getOpposite() : null;
-		if(back != null)
-			edgeCable.add(back);
-
-		boolean portOffEdge = (state.getValue(UP) && hug == null) || (state.getValue(DOWN) && arrive == null);
-		boolean anyPort = portOffEdge;
-		for(Direction dir : Direction.Plane.HORIZONTAL) {
-			if(state.getValue(PROPERTY_BY_DIRECTION.get(dir))) {
-				anyPort = true;
-				portOffEdge |= !edgeCable.contains(dir);
-			}
+	private static VoxelShape buildShape(List<WireLook.Placed> parts) {
+		VoxelShape result = Shapes.empty();
+		for(WireLook.Placed placed : parts) {
+			VoxelShape piece = switch(placed.part()) {
+				case MIDDLE -> MIDDLE_SHAPE;
+				case HORIZONTAL -> STUB_SHAPES.get(placed.dir());
+				case CORNER -> CORNER_SHAPES.get(placed.dir());
+				case VERTICAL -> CENTRE_VERTICAL_SHAPE;
+				case EDGE, EDGE_FULL -> EDGE_SHAPES.get(placed.dir());
+				case CLIMB_OVERHANG, UP_OVERHANG -> Shapes.empty();
+			};
+			result = Shapes.or(result, piece);
 		}
-		// The cable passes straight through along an edge when it arrives there and goes on up (or climbs).
-		boolean through = arrive != null && (state.getValue(UP) || state.getValue(END).isClimb());
-		boolean middle = portOffEdge || edgeCable.size() != 1 || (!anyPort && !through);
-
-		VoxelShape result = middle ? MIDDLE_SHAPE : Shapes.empty();
-		for(Direction dir : Direction.Plane.HORIZONTAL) {
-			boolean connected = state.getValue(PROPERTY_BY_DIRECTION.get(dir));
-			if(middle && (connected || edgeCable.contains(dir)))
-				result = Shapes.or(result, STUB_SHAPES.get(dir));
-			else if(connected && arrive == dir && hug == null)
-				result = Shapes.or(result, CORNER_SHAPES.get(dir)); // The corner case: only reachable with no middle.
-		}
-		if(hug != null)
-			result = Shapes.or(result, EDGE_SHAPES.get(hug));
-		if(back != null)
-			result = Shapes.or(result, EDGE_SHAPES.get(back));
-		if(hug == null && state.getValue(UP))
-			result = Shapes.or(result, CENTRE_VERTICAL_SHAPE);
 		return result.isEmpty() ? MIDDLE_SHAPE : result;
 	}
 
