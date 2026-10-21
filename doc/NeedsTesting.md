@@ -138,6 +138,13 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
   sounded good"). If it goes quiet again, note what happened just before (world reload, far travel, config change)
   and whether a lever next to the coax still pops, since both use the same client path.
 
+## Tooltips (added 2026-10-21)
+
+- [ ] The blanket "Not Implemented (Decorative Only)" line is gone from everything that works: the HF radios, QRP
+  radios, both receivers, the VHF base station, the three wires, poles and connectors, the VHF antennas, solar panel,
+  charge controller and large battery each have a sentence instead (needs `./gradlew runData`). Only the microphone
+  block and the satellite dish still say not implemented. Read the sentences: anything wrong or missing?
+
 ## Wires climb walls (added 2026-10-21)
 
 Lay coax (or power wire) along the ground up to a one-block step with more wire on top of the step.

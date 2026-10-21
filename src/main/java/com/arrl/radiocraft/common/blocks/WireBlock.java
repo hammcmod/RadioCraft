@@ -537,10 +537,6 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        if (isPower && !isWaterproof) {
-            tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented_crafting_only"));
-        } else {
-            tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented"));
-        }
+        tooltipComponents.add(Component.translatable("tooltip.radiocraft." + (isPower ? (isWaterproof ? "waterproof_wire" : "wire") : "coax_wire")));
     }
 }
