@@ -65,6 +65,13 @@ models = {
     # Top of a climb up the north face ending at a device: on over the wall's top to the middle of the block on top of it.
     "wire_climb_overhang": flat_run(-7, 1, 16, "Climb up the north face ending at a device: the cable runs on over the wall's top to the device's middle"),
     # Run up the north edge ending at a device directly above: in along that block's floor to its middle.
+    "wire_corner": {
+        "credit": "Corner on the north edge: joins the top of a run coming up that edge to the neighbour's stub",
+        "parent": "block/block",
+        "textures": TEX,
+        "elements": [{"name": "wire", "from": [7, 0, -1], "to": [9, 2, 1], "faces": {
+            f: {"uv": [7, 0, 9, 2], "texture": "#0"} for f in ("north", "south", "east", "west", "up", "down")}}],
+    },
     "wire_up_overhang": flat_run(-1, 7, 16, "Run up the north edge ending at a device above: the cable turns in to the device's middle"),
 }
 for name, model in models.items():
@@ -72,6 +79,7 @@ for name, model in models.items():
 
 H = {"north": None, "east": 90, "south": 180, "west": 270}
 SIDES = list(H)
+ALL_EDGE = ["none"] + SIDES
 
 
 def model(name, y=None):
@@ -81,36 +89,77 @@ def model(name, y=None):
     return m
 
 
-def others(h):
-    return "|".join(["none"] + [s for s in SIDES if s != h])
+def alt(values):
+    return "|".join(values)
 
 
-cases = []
-# A. middle piece: whenever the block is not just an edge run passing straight through
-middle_or = [{d: "true"} for d in SIDES] + [{"hug": "none"}, {"arrive": "none"}]
-for h in SIDES:
-    middle_or.append({"hug": h, "arrive": "|".join(s for s in SIDES if s != h)})
-cases.append({"when": {"OR": middle_or}, "apply": model("wire_middle")})
-# B. horizontal stubs to connected neighbours
-for d, y in H.items():
-    cases.append({"when": {d: "true"}, "apply": model("wire_horizontal", y)})
-# C. stub from the middle to the hugged edge, when the middle is drawn, the arrival is not on that edge already
-#    and no neighbour stub goes that way
-for h, y in H.items():
-    cases.append({"when": {"hug": h, h: "false", "arrive": others(h)}, "apply": model("wire_horizontal", y)})
-# D. stub from the arrival edge to the middle, when the middle is drawn (a branch, or the run does not go on up
-#    that edge) and no neighbour stub goes that way
-for h, y in H.items():
-    or_list = [{"arrive": h, h: "false", d: "true"} for d in SIDES if d != h]
-    or_list.append({"arrive": h, h: "false", "hug": others(h)})
-    cases.append({"when": {"OR": or_list}, "apply": model("wire_horizontal", y)})
-# E. vertical up the middle
+def merge(a, b):
+    """AND of two multipart condition objects, or None if they contradict (each value is a set of alternatives)."""
+    out = dict(a)
+    for k, v in b.items():
+        if k in out:
+            common = set(out[k].split("|")) & set(v.split("|"))
+            if not common:
+                return None
+            out[k] = alt(sorted(common))
+        else:
+            out[k] = v
+    return out
+
+
+def cross(or_a, or_b):
+    out = []
+    for a in or_a:
+        for b in or_b:
+            m = merge(a, b)
+            if m is not None and m not in out:
+                out.append(m)
+    return out
+
+
+def when(items):
+    return items[0] if len(items) == 1 else {"OR": items}
+
+
+# The rendering rule (mirrored by WireBlock#buildShape). Cable already lies on the edges in S = {arrive, hug}. The
+# "ports" the cable must reach are the connected neighbours (at their edges), the top of the block when the run up
+# goes through the middle (up and no hug), and the bottom when the run from below comes up the middle (down and no
+# arrival). The middle piece is drawn only when the cable has to pass through the middle: a port that is not on an
+# edge in S, two different edges in S (the run crosses from one to the other), no edge cable at all, or a dead end
+# (nothing but the edge cable: a nub so the block is visible).
+middle_or = []
+for d in SIDES:
+    middle_or.append({d: "true", "arrive": alt([e for e in ALL_EDGE if e != d]), "hug": alt([e for e in ALL_EDGE if e != d])})
+middle_or.append({"up": "true", "hug": "none"})
+middle_or.append({"down": "true", "arrive": "none"})
+for a in SIDES:
+    for h in SIDES:
+        if a != h:
+            middle_or.append({"arrive": a, "hug": h})
+middle_or.append({"arrive": "none", "hug": "none"})
+noflags = {s: "false" for s in SIDES}
+middle_or += [dict(noflags, up="false", down="false"),
+              dict(noflags, up="false", arrive=alt(SIDES)),
+              dict(noflags, hug=alt(SIDES), down="false"),
+              dict(noflags, hug=alt(SIDES), arrive=alt(SIDES))]
+
+cases = [{"when": when(middle_or), "apply": model("wire_middle")}]
+# A stub from the middle to an edge: when the middle is drawn and that edge has cable (in S) or a neighbour.
+for e, y in H.items():
+    triggers = [{e: "true"}, {"arrive": e}, {"hug": e}]
+    cases.append({"when": when(cross(middle_or, triggers)), "apply": model("wire_horizontal", y)})
+# A corner at an edge: the run from below arrives there and the cable leaves sideways on that same edge, nothing
+# else to reach, so no middle: just the cube that joins the top of the run to the neighbour's stub.
+for e, y in H.items():
+    cond = {"arrive": e, "hug": "none", e: "true", "up": "false"}
+    cond.update({s: "false" for s in SIDES if s != e})
+    cases.append({"when": cond, "apply": model("wire_corner", y)})
+# The run up: through the middle, or along an edge (full height when the run from below is on that edge too).
 cases.append({"when": {"hug": "none", "up": "true"}, "apply": model("wire_vertical")})
-# F. vertical up an edge: full height when the run from below is on the same edge, else from the stub level
 for h, y in H.items():
     cases.append({"when": {"hug": h, "arrive": h}, "apply": model("wire_edge_full", y)})
-    cases.append({"when": {"hug": h, "arrive": others(h)}, "apply": model("wire_edge", y)})
-# G. the ends that draw their own last piece
+    cases.append({"when": {"hug": h, "arrive": alt([e for e in ALL_EDGE if e != h])}, "apply": model("wire_edge", y)})
+# The ends that draw their own last piece.
 for h, y in H.items():
     cases.append({"when": {"hug": h, "end": "climb_device"}, "apply": model("wire_climb_overhang", y)})
     cases.append({"when": {"hug": h, "end": "up_device"}, "apply": model("wire_up_overhang", y)})
@@ -118,4 +167,4 @@ for h, y in H.items():
 text = json.dumps({"multipart": cases}, indent=2) + "\n"
 for name in ["wire", "coax_wire", "waterproof_wire"]:
     open(f"{BASE}blockstates/{name}.json", "w", newline="\n").write(text)
-print("models:", ", ".join(models), "| blockstate cases:", len(cases))
+print("models:", ", ".join(models), "| blockstate cases:", len(cases), "| bytes:", len(text))

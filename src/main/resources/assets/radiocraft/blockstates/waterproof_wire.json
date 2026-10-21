@@ -4,38 +4,116 @@
       "when": {
         "OR": [
           {
-            "north": "true"
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "none|east|south|west"
           },
           {
-            "east": "true"
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "none|north|south|west"
           },
           {
-            "south": "true"
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "none|north|east|west"
           },
           {
-            "west": "true"
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "none|north|east|south"
           },
           {
+            "up": "true",
             "hug": "none"
           },
           {
+            "down": "true",
             "arrive": "none"
           },
           {
-            "hug": "north",
-            "arrive": "east|south|west"
+            "arrive": "north",
+            "hug": "east"
           },
           {
-            "hug": "east",
-            "arrive": "north|south|west"
+            "arrive": "north",
+            "hug": "south"
           },
           {
-            "hug": "south",
-            "arrive": "north|east|west"
+            "arrive": "north",
+            "hug": "west"
           },
           {
-            "hug": "west",
-            "arrive": "north|east|south"
+            "arrive": "east",
+            "hug": "north"
+          },
+          {
+            "arrive": "east",
+            "hug": "south"
+          },
+          {
+            "arrive": "east",
+            "hug": "west"
+          },
+          {
+            "arrive": "south",
+            "hug": "north"
+          },
+          {
+            "arrive": "south",
+            "hug": "east"
+          },
+          {
+            "arrive": "south",
+            "hug": "west"
+          },
+          {
+            "arrive": "west",
+            "hug": "north"
+          },
+          {
+            "arrive": "west",
+            "hug": "east"
+          },
+          {
+            "arrive": "west",
+            "hug": "south"
+          },
+          {
+            "arrive": "none",
+            "hug": "none"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "down": "false"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "arrive": "north|east|south|west"
           }
         ]
       },
@@ -45,104 +123,236 @@
     },
     {
       "when": {
-        "north": "true"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_horizontal"
-      }
-    },
-    {
-      "when": {
-        "east": "true"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_horizontal",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "south": "true"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_horizontal",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "west": "true"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_horizontal",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "hug": "north",
-        "north": "false",
-        "arrive": "none|east|south|west"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_horizontal"
-      }
-    },
-    {
-      "when": {
-        "hug": "east",
-        "east": "false",
-        "arrive": "none|north|south|west"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_horizontal",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "hug": "south",
-        "south": "false",
-        "arrive": "none|north|east|west"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_horizontal",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "hug": "west",
-        "west": "false",
-        "arrive": "none|north|east|south"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_horizontal",
-        "y": 270
-      }
-    },
-    {
-      "when": {
         "OR": [
           {
-            "arrive": "north",
-            "north": "false",
-            "east": "true"
-          },
-          {
-            "arrive": "north",
-            "north": "false",
-            "south": "true"
-          },
-          {
-            "arrive": "north",
-            "north": "false",
-            "west": "true"
-          },
-          {
-            "arrive": "north",
-            "north": "false",
+            "north": "true",
+            "arrive": "none|east|south|west",
             "hug": "none|east|south|west"
+          },
+          {
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "none|north|south|west",
+            "north": "true"
+          },
+          {
+            "east": "true",
+            "arrive": "north",
+            "hug": "none|north|south|west"
+          },
+          {
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "north"
+          },
+          {
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "none|north|east|west",
+            "north": "true"
+          },
+          {
+            "south": "true",
+            "arrive": "north",
+            "hug": "none|north|east|west"
+          },
+          {
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "north"
+          },
+          {
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "none|north|east|south",
+            "north": "true"
+          },
+          {
+            "west": "true",
+            "arrive": "north",
+            "hug": "none|north|east|south"
+          },
+          {
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "north"
+          },
+          {
+            "up": "true",
+            "hug": "none",
+            "north": "true"
+          },
+          {
+            "up": "true",
+            "hug": "none",
+            "arrive": "north"
+          },
+          {
+            "down": "true",
+            "arrive": "none",
+            "north": "true"
+          },
+          {
+            "down": "true",
+            "arrive": "none",
+            "hug": "north"
+          },
+          {
+            "arrive": "north",
+            "hug": "east",
+            "north": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "east"
+          },
+          {
+            "arrive": "north",
+            "hug": "south",
+            "north": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "south"
+          },
+          {
+            "arrive": "north",
+            "hug": "west",
+            "north": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "west"
+          },
+          {
+            "arrive": "east",
+            "hug": "north",
+            "north": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "north"
+          },
+          {
+            "arrive": "east",
+            "hug": "south",
+            "north": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "west",
+            "north": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "north",
+            "north": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "north"
+          },
+          {
+            "arrive": "south",
+            "hug": "east",
+            "north": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "west",
+            "north": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "north",
+            "north": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "north"
+          },
+          {
+            "arrive": "west",
+            "hug": "east",
+            "north": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "south",
+            "north": "true"
+          },
+          {
+            "arrive": "none",
+            "hug": "none",
+            "north": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "arrive": "north"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "hug": "north"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "north"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west",
+            "hug": "north"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "down": "false",
+            "arrive": "north"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north",
+            "down": "false"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "arrive": "north"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north",
+            "arrive": "north|east|south|west"
           }
         ]
       },
@@ -154,24 +364,234 @@
       "when": {
         "OR": [
           {
-            "arrive": "east",
-            "east": "false",
-            "north": "true"
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "none|east|south|west",
+            "east": "true"
           },
           {
+            "north": "true",
             "arrive": "east",
-            "east": "false",
-            "south": "true"
+            "hug": "none|east|south|west"
           },
           {
-            "arrive": "east",
-            "east": "false",
-            "west": "true"
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "east"
           },
           {
-            "arrive": "east",
-            "east": "false",
+            "east": "true",
+            "arrive": "none|north|south|west",
             "hug": "none|north|south|west"
+          },
+          {
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "none|north|east|west",
+            "east": "true"
+          },
+          {
+            "south": "true",
+            "arrive": "east",
+            "hug": "none|north|east|west"
+          },
+          {
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "east"
+          },
+          {
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "none|north|east|south",
+            "east": "true"
+          },
+          {
+            "west": "true",
+            "arrive": "east",
+            "hug": "none|north|east|south"
+          },
+          {
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "east"
+          },
+          {
+            "up": "true",
+            "hug": "none",
+            "east": "true"
+          },
+          {
+            "up": "true",
+            "hug": "none",
+            "arrive": "east"
+          },
+          {
+            "down": "true",
+            "arrive": "none",
+            "east": "true"
+          },
+          {
+            "down": "true",
+            "arrive": "none",
+            "hug": "east"
+          },
+          {
+            "arrive": "north",
+            "hug": "east",
+            "east": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "east"
+          },
+          {
+            "arrive": "north",
+            "hug": "south",
+            "east": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "west",
+            "east": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "north",
+            "east": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "north"
+          },
+          {
+            "arrive": "east",
+            "hug": "south",
+            "east": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "south"
+          },
+          {
+            "arrive": "east",
+            "hug": "west",
+            "east": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "west"
+          },
+          {
+            "arrive": "south",
+            "hug": "north",
+            "east": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "east",
+            "east": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "east"
+          },
+          {
+            "arrive": "south",
+            "hug": "west",
+            "east": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "north",
+            "east": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "east",
+            "east": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "east"
+          },
+          {
+            "arrive": "west",
+            "hug": "south",
+            "east": "true"
+          },
+          {
+            "arrive": "none",
+            "hug": "none",
+            "east": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "arrive": "east"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "hug": "east"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "east"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west",
+            "hug": "east"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "down": "false",
+            "arrive": "east"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "east",
+            "down": "false"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "arrive": "east"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "east",
+            "arrive": "north|east|south|west"
           }
         ]
       },
@@ -184,24 +604,234 @@
       "when": {
         "OR": [
           {
-            "arrive": "south",
-            "south": "false",
-            "north": "true"
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "none|east|south|west",
+            "south": "true"
           },
           {
+            "north": "true",
             "arrive": "south",
-            "south": "false",
-            "east": "true"
+            "hug": "none|east|south|west"
           },
           {
-            "arrive": "south",
-            "south": "false",
-            "west": "true"
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "south"
           },
           {
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "none|north|south|west",
+            "south": "true"
+          },
+          {
+            "east": "true",
             "arrive": "south",
-            "south": "false",
+            "hug": "none|north|south|west"
+          },
+          {
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "south"
+          },
+          {
+            "south": "true",
+            "arrive": "none|north|east|west",
             "hug": "none|north|east|west"
+          },
+          {
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "none|north|east|south",
+            "south": "true"
+          },
+          {
+            "west": "true",
+            "arrive": "south",
+            "hug": "none|north|east|south"
+          },
+          {
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "south"
+          },
+          {
+            "up": "true",
+            "hug": "none",
+            "south": "true"
+          },
+          {
+            "up": "true",
+            "hug": "none",
+            "arrive": "south"
+          },
+          {
+            "down": "true",
+            "arrive": "none",
+            "south": "true"
+          },
+          {
+            "down": "true",
+            "arrive": "none",
+            "hug": "south"
+          },
+          {
+            "arrive": "north",
+            "hug": "east",
+            "south": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "south",
+            "south": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "south"
+          },
+          {
+            "arrive": "north",
+            "hug": "west",
+            "south": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "north",
+            "south": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "south",
+            "south": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "south"
+          },
+          {
+            "arrive": "east",
+            "hug": "west",
+            "south": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "north",
+            "south": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "north"
+          },
+          {
+            "arrive": "south",
+            "hug": "east",
+            "south": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "east"
+          },
+          {
+            "arrive": "south",
+            "hug": "west",
+            "south": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "west"
+          },
+          {
+            "arrive": "west",
+            "hug": "north",
+            "south": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "east",
+            "south": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "south",
+            "south": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "south"
+          },
+          {
+            "arrive": "none",
+            "hug": "none",
+            "south": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "arrive": "south"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "hug": "south"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "south"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west",
+            "hug": "south"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "down": "false",
+            "arrive": "south"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "south",
+            "down": "false"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "arrive": "south"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "south",
+            "arrive": "north|east|south|west"
           }
         ]
       },
@@ -214,29 +844,298 @@
       "when": {
         "OR": [
           {
-            "arrive": "west",
-            "west": "false",
-            "north": "true"
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "none|east|south|west",
+            "west": "true"
           },
           {
+            "north": "true",
             "arrive": "west",
-            "west": "false",
-            "east": "true"
+            "hug": "none|east|south|west"
           },
           {
-            "arrive": "west",
-            "west": "false",
-            "south": "true"
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "west"
           },
           {
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "none|north|south|west",
+            "west": "true"
+          },
+          {
+            "east": "true",
             "arrive": "west",
-            "west": "false",
+            "hug": "none|north|south|west"
+          },
+          {
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "west"
+          },
+          {
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "none|north|east|west",
+            "west": "true"
+          },
+          {
+            "south": "true",
+            "arrive": "west",
+            "hug": "none|north|east|west"
+          },
+          {
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "west"
+          },
+          {
+            "west": "true",
+            "arrive": "none|north|east|south",
             "hug": "none|north|east|south"
+          },
+          {
+            "up": "true",
+            "hug": "none",
+            "west": "true"
+          },
+          {
+            "up": "true",
+            "hug": "none",
+            "arrive": "west"
+          },
+          {
+            "down": "true",
+            "arrive": "none",
+            "west": "true"
+          },
+          {
+            "down": "true",
+            "arrive": "none",
+            "hug": "west"
+          },
+          {
+            "arrive": "north",
+            "hug": "east",
+            "west": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "south",
+            "west": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "west",
+            "west": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "west"
+          },
+          {
+            "arrive": "east",
+            "hug": "north",
+            "west": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "south",
+            "west": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "west",
+            "west": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "west"
+          },
+          {
+            "arrive": "south",
+            "hug": "north",
+            "west": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "east",
+            "west": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "west",
+            "west": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "west"
+          },
+          {
+            "arrive": "west",
+            "hug": "north",
+            "west": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "north"
+          },
+          {
+            "arrive": "west",
+            "hug": "east",
+            "west": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "east"
+          },
+          {
+            "arrive": "west",
+            "hug": "south",
+            "west": "true"
+          },
+          {
+            "arrive": "west",
+            "hug": "south"
+          },
+          {
+            "arrive": "none",
+            "hug": "none",
+            "west": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "arrive": "west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "hug": "west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west",
+            "hug": "west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "down": "false",
+            "arrive": "west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "west",
+            "down": "false"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "arrive": "west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "west",
+            "arrive": "north|east|south|west"
           }
         ]
       },
       "apply": {
         "model": "radiocraft:block/wire_horizontal",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "arrive": "north",
+        "hug": "none",
+        "north": "true",
+        "up": "false",
+        "east": "false",
+        "south": "false",
+        "west": "false"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_corner"
+      }
+    },
+    {
+      "when": {
+        "arrive": "east",
+        "hug": "none",
+        "east": "true",
+        "up": "false",
+        "north": "false",
+        "south": "false",
+        "west": "false"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_corner",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "arrive": "south",
+        "hug": "none",
+        "south": "true",
+        "up": "false",
+        "north": "false",
+        "east": "false",
+        "west": "false"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_corner",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "arrive": "west",
+        "hug": "none",
+        "west": "true",
+        "up": "false",
+        "north": "false",
+        "east": "false",
+        "south": "false"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_corner",
         "y": 270
       }
     },

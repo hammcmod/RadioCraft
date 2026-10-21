@@ -147,8 +147,13 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	private static final VoxelShape CENTRE_VERTICAL_SHAPE = makePaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D);
 	private static final HashMap<Direction, VoxelShape> STUB_SHAPES = new HashMap<>();
 	private static final HashMap<Direction, VoxelShape> EDGE_SHAPES = new HashMap<>();
+	private static final HashMap<Direction, VoxelShape> CORNER_SHAPES = new HashMap<>();
 
 	static {
+		CORNER_SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 1.0D));
+		CORNER_SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 15.0D, 9.0D, 2.0D, 16.0D));
+		CORNER_SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 1.0D, 2.0D, 9.0D));
+		CORNER_SHAPES.put(Direction.EAST, makePaddedBox(15.0D, 0.0D, 7.0D, 16.0D, 2.0D, 9.0D));
 		STUB_SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 7.0D));
 		STUB_SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 9.0D, 9.0D, 2.0D, 16.0D));
 		STUB_SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 7.0D, 2.0D, 9.0D));
@@ -462,31 +467,47 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	/**
-	 * The outline follows the cable: the same pieces the blockstate draws (see tools/wire_assets.py), except the
-	 * overhangs, which lie outside the block. The middle only counts when something is drawn there.
+	 * The outline follows the cable: the same pieces the blockstate draws, by the same rule (tools/wire_assets.py
+	 * generates the blockstate from it), except the overhangs, which lie outside the block.
+	 * <p>
+	 * Cable already lies on the edges in S = {arrive, hug}. The "ports" it must reach are the connected neighbours
+	 * (at their edges), the top of the block when the run up goes through the middle, and the bottom when the run
+	 * from below comes up the middle. The middle piece is drawn only when the cable has to pass through the middle:
+	 * a port not on an edge in S, two different edges in S, no edge cable at all, or a dead end (a nub so the block
+	 * is visible). A stub joins the middle to every edge that has cable or a neighbour. A run arriving at an edge
+	 * and leaving sideways on that same edge, with nothing else to reach, is just a corner cube on that edge.
 	 */
 	private static VoxelShape buildShape(BlockState state) {
-		boolean anyHorizontal = false;
-		for(Direction dir : Direction.Plane.HORIZONTAL)
-			anyHorizontal |= state.getValue(PROPERTY_BY_DIRECTION.get(dir));
 		Direction hug = state.getValue(HUG).direction();
 		Direction arrive = state.getValue(ARRIVE).direction();
-		boolean middle = anyHorizontal || hug == null || arrive == null || hug != arrive;
+		Set<Direction> edgeCable = new HashSet<>();
+		if(hug != null)
+			edgeCable.add(hug);
+		if(arrive != null)
+			edgeCable.add(arrive);
+
+		boolean portOffEdge = (state.getValue(UP) && hug == null) || (state.getValue(DOWN) && arrive == null);
+		boolean anyPort = portOffEdge;
+		for(Direction dir : Direction.Plane.HORIZONTAL) {
+			if(state.getValue(PROPERTY_BY_DIRECTION.get(dir))) {
+				anyPort = true;
+				portOffEdge |= !edgeCable.contains(dir);
+			}
+		}
+		boolean middle = portOffEdge || edgeCable.size() != 1 || !anyPort;
 
 		VoxelShape result = middle ? MIDDLE_SHAPE : Shapes.empty();
-		for(Map.Entry<Direction, VoxelShape> entry : STUB_SHAPES.entrySet()) {
-			if(state.getValue(PROPERTY_BY_DIRECTION.get(entry.getKey())))
-				result = Shapes.or(result, entry.getValue());
+		for(Direction dir : Direction.Plane.HORIZONTAL) {
+			boolean connected = state.getValue(PROPERTY_BY_DIRECTION.get(dir));
+			if(middle && (connected || edgeCable.contains(dir)))
+				result = Shapes.or(result, STUB_SHAPES.get(dir));
+			else if(connected && arrive == dir && hug == null)
+				result = Shapes.or(result, CORNER_SHAPES.get(dir)); // The corner case: only reachable with no middle.
 		}
-		if(hug != null) {
-			if(middle && arrive != hug && !state.getValue(PROPERTY_BY_DIRECTION.get(hug)))
-				result = Shapes.or(result, STUB_SHAPES.get(hug)); // From the middle out to the edge.
-			result = Shapes.or(result, EDGE_SHAPES.get(hug)); // Then up it.
-		}
+		if(hug != null)
+			result = Shapes.or(result, EDGE_SHAPES.get(hug));
 		else if(state.getValue(UP))
 			result = Shapes.or(result, CENTRE_VERTICAL_SHAPE);
-		if(arrive != null && middle && !state.getValue(PROPERTY_BY_DIRECTION.get(arrive)))
-			result = Shapes.or(result, STUB_SHAPES.get(arrive)); // The run from below comes in at that edge and turns in.
 		return result.isEmpty() ? MIDDLE_SHAPE : result;
 	}
 

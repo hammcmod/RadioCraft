@@ -193,7 +193,10 @@ Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug tra
   line above a post), `arrive` the edge a run from below comes in on (from the wire below or from a climber). The
   run only turns in to the middle where it must: a horizontal branch, or a device directly above (`end` =
   up_device draws that last piece). Hugging is cosmetic; links are unchanged by it. The models and the three
-  blockstates come from `wire_assets.py` (`tools/wire_assets.py`, run with `python tools/wire_assets.py`).
+  blockstates come from `tools/wire_assets.py` (run with `python tools/wire_assets.py`); the drawing rule (when
+  the middle piece, the stubs, a corner cube or an edge run appear) lives in `WireBlock#buildShape` for the hitbox
+  and is expanded into multipart conditions by the script, and `tools/wire_assets_check.py` proves the two agree
+  for every state. `tools/wirestate.py x y z` reads a wire's state off the dev server when a build looks wrong.
   `WireUtils`, the Jade coax overlay and the redstone pickup zone all walk links, and `WireBlock.wireLinksAround`
   finds the wires touching a device, climbers included. The climb depends on a block that is not a direct
   neighbour, so `WireClimbUpdater` listens to `BlockEvent.NeighborNotifyEvent` and calls `WireBlock#refresh` on
