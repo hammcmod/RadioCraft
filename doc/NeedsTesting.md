@@ -138,6 +138,24 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
   sounded good"). If it goes quiet again, note what happened just before (world reload, far travel, config change)
   and whether a lever next to the coax still pops, since both use the same client path.
 
+## Radios draw power (added 2026-10-21, maintainer request)
+
+Block radios now need power (`radios_need_power`, server config, default on). A radio with no power, or on a
+network that cannot keep up, is "browned out": no static, hears nothing, and its panel cycles frequency (1 s), "PWR"
+(1 s), dark (1 s), then tries the power again.
+
+- [ ] Radio with no battery at all: switch it on and watch the panel cycle; no static. `/rcdebug radio` says
+  `switch=true powered=false (browned out ...)`.
+- [ ] Solar panel -> charge controller -> large battery -> wire -> radio: the radio runs (draw 125 FE/tick listening,
+  375 transmitting, in the common config). `/rcenergy blockinfo` on the battery (look at it and press tab for the
+  coordinates) shows it draining; `/rcenergy fillblock 1500000` on it fills it. When it runs dry the radio browns
+  out mid-session; once charged again it comes back at the next cycle.
+- [ ] Is a 3 s cycle right, and should "PWR" be a different colour than the TX red? The power toggle stays "on"
+  during a brown-out, since that is the switch position.
+- [ ] `/rcenergy` positions now tab-complete to the block you are looking at (they were plain integers before).
+  `/rcenergy infinite` is only for the desk charger; `fillblock` is the way to feed a battery or a radio directly.
+- [ ] A world saved with a radio on comes back with the switch on; it runs only if the battery still has charge.
+
 ## 4:1 balun, off-centre-fed dipole, release tab (added 2026-10-21)
 
 - [ ] New "Balun (4:1)" (`radiocraft:balun_four_to_one`) next to the 2:1 in the tab; its texture is the 2:1 art

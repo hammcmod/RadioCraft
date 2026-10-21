@@ -32,6 +32,8 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> LIGHTNING_STATIC_RANGE;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> ANTENNA_TUNER_ENABLED;
+
+	public static final ModConfigSpec.ConfigValue<Boolean> RADIO_POWER_REQUIRED;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_LOSS;
 
@@ -101,6 +103,13 @@ public class RadiocraftServerConfig {
 		LIGHTNING_STATIC_ENABLED = BUILDER.comment(" Set to false to turn lightning crashes off").define("lightning_static_enabled", true);
 		LIGHTNING_STATIC_STRENGTH = BUILDER.comment(" How much static a strike right next to the radio adds, on top of the solar noise floor (the total is capped at 1, so above 1 nearby strikes saturate and distant ones are still heard)").defineInRange("lightning_static_strength", 1.2, 0.0, 4.0);
 		LIGHTNING_STATIC_RANGE = BUILDER.comment(" Distance in blocks at which a strike is no longer heard").defineInRange("lightning_static_range", 512, 16, 8192);
+		BUILDER.pop();
+
+		BUILDER.push("Power");
+		BUILDER.comment(" Block radios draw power from the wire network they are on (batteries, charge controllers): the per-radio",
+				" receive and transmit draw per tick is in the common config. A radio that cannot get its draw browns out:",
+				" it stays silent and its panel cycles on / PWR / dark until the power comes back.");
+		RADIO_POWER_REQUIRED = BUILDER.comment(" Set to false to let block radios run without any power (the pre-2026-10-21 behaviour)").define("radios_need_power", true);
 		BUILDER.pop();
 
 		BUILDER.push("Antenna Tuner");

@@ -1,0 +1,83 @@
+package com.arrl.radiocraft.gametest;
+
+import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
+import com.arrl.radiocraft.common.be_networks.network_objects.BatteryNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
+import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
+import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import net.minecraft.core.BlockPos;
+import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.gametest.framework.GameTestHelper;
+import net.neoforged.neoforge.gametest.GameTestHolder;
+import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+
+/**
+ * Block radios drawing power. One sequential test, in its own batch, because it turns {@code radios_need_power} on
+ * (every other test runs with it off, see {@link GameTestDefaults}) and puts it back at the end.
+ */
+@GameTestHolder(Radiocraft.MOD_ID)
+@PrefixGameTestTemplate(false)
+public class PowerGameTests {
+
+    private static final BlockPos RADIO = new BlockPos(8, 2, 2);
+    private static final BlockPos WIRE = new BlockPos(8, 2, 3);
+    private static final BlockPos BATTERY = new BlockPos(8, 2, 4);
+
+    private static RadioNetworkObject radio(GameTestHelper helper) {
+        return GameTestUtil.networkObject(helper, RADIO, RadioNetworkObject.class);
+    }
+
+    private static void assertPhase(GameTestHelper helper, int phase, String when) {
+        helper.assertTrue(radio(helper).getDisplayPhase() == phase, "Display phase " + when + " was " + radio(helper).getDisplayPhase() + ", expected " + phase);
+    }
+
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 600, batch = "power")
+    public static void radioBrownsOutWithoutPowerAndRunsOnABattery(GameTestHelper helper) {
+        RadiocraftServerConfig.RADIO_POWER_REQUIRED.set(true);
+        helper.setBlock(RADIO, RadiocraftBlocks.HF_RADIO_20M.get());
+        HFRadioBlockEntity be = GameTestUtil.blockEntity(helper, RADIO, HFRadioBlockEntity.class);
+        int receiveUse = radio(helper).getReceiveUse();
+
+        helper.startSequence()
+                .thenIdle(2)
+                // Switched on with nothing to feed it: dark, silent, and the panel cycles on / PWR / dark.
+                .thenExecute(() -> {
+                    be.toggle();
+                    RadioNetworkObject net = radio(helper);
+                    helper.assertTrue(net.wantsOn, "Switch should be on");
+                    helper.assertTrue(!net.isPowered, "No power source, so the radio must not run");
+                    helper.assertTrue(net.isBrownedOut(), "Should report a brown-out");
+                    helper.assertTrue(!be.getVoiceReceiver().isReceiving(), "A browned-out radio hears nothing");
+                })
+                .thenExecuteAfter(5, () -> assertPhase(helper, RadioNetworkObject.PHASE_ON, "in the first second"))
+                .thenExecuteAfter(20, () -> assertPhase(helper, RadioNetworkObject.PHASE_PWR, "in the second second"))
+                .thenExecuteAfter(20, () -> assertPhase(helper, RadioNetworkObject.PHASE_OFF, "in the third second"))
+                .thenExecuteAfter(20, () -> assertPhase(helper, RadioNetworkObject.PHASE_ON, "at the start of the next cycle"))
+                // A battery with 30 ticks of receive draw in it, wired to the radio: it runs, drains it, then browns out.
+                .thenExecute(() -> {
+                    helper.setBlock(BATTERY, RadiocraftBlocks.LARGE_BATTERY.get());
+                    GameTestUtil.placeWire(helper, WIRE, RadiocraftBlocks.WIRE.get());
+                })
+                .thenIdle(2)
+                .thenExecute(() -> GameTestUtil.networkObject(helper, BATTERY, BatteryNetworkObject.class).getStorage().setEnergy(receiveUse * 30))
+                .thenWaitUntil(() -> helper.assertTrue(radio(helper).isPowered, "Radio should run once the battery feeds it"))
+                .thenExecuteAfter(5, () -> {
+                    helper.assertTrue(be.wasPowered(), "Block entity should see the radio powered");
+                    assertPhase(helper, RadioNetworkObject.PHASE_ON, "while running");
+                    int left = GameTestUtil.networkObject(helper, BATTERY, BatteryNetworkObject.class).getStorage().getEnergyStored();
+                    helper.assertTrue(left < receiveUse * 30, "Battery should be draining, has " + left);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(!radio(helper).isPowered, "Radio should brown out when the battery is drained"))
+                .thenExecute(() -> {
+                    helper.assertTrue(radio(helper).wantsOn, "The switch stays on through a brown-out");
+                    int left = GameTestUtil.networkObject(helper, BATTERY, BatteryNetworkObject.class).getStorage().getEnergyStored();
+                    helper.assertTrue(left < receiveUse, "Battery should be empty, has " + left);
+                })
+                // Charge it again: the next retry brings the radio back.
+                .thenExecute(() -> GameTestUtil.networkObject(helper, BATTERY, BatteryNetworkObject.class).getStorage().setEnergy(receiveUse * 200))
+                .thenWaitUntil(() -> helper.assertTrue(radio(helper).isPowered, "Radio should come back once there is power again"))
+                .thenExecute(() -> RadiocraftServerConfig.RADIO_POWER_REQUIRED.set(false))
+                .thenSucceed();
+    }
+}

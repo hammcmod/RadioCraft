@@ -111,9 +111,10 @@ public class DebugCommands {
 		if(radio == null)
 			return fail(ctx, "No radio there");
 		RadioNetworkObject net = radio.getNetworkObject(ctx.getSource().getLevel(), radio.getBlockPos()) instanceof RadioNetworkObject r ? r : null;
-		if(net != null && net.isPowered != on)
+		if(net != null && net.wantsOn != on)
 			radio.toggle();
-		return send(ctx, List.of("powered=" + (net != null && net.isPowered)));
+		return send(ctx, List.of("switch=" + (net != null && net.wantsOn) + " powered=" + (net != null && net.isPowered)
+				+ (net != null && net.isBrownedOut() ? " (browned out: not enough power on the network, see radios_need_power)" : "")));
 	}
 
 	private static int tune(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {

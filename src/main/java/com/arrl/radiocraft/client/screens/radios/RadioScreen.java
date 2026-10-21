@@ -5,6 +5,7 @@ import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.client.screens.widgets.ValueButton;
+import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.menus.RadioMenu;
 import com.arrl.radiocraft.common.network.serverbound.SBlockRadioControlPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -63,8 +64,13 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	 * {@link #DISPLAY_TX_COLOUR} and, if the window is tall enough, a "TX" marker sits in its top right corner.
 	 */
 	protected void renderDisplay(GuiGraphics guiGraphics, int x, int y, int w, int h, float scale, int colour) {
-		if(!menu.isPowered())
+		int phase = menu.getDisplayPhase();
+		if(phase == RadioNetworkObject.PHASE_OFF)
 			return;
+		if(phase == RadioNetworkObject.PHASE_PWR) { // Switched on but starved of power: the panel pleads for it.
+			drawScaled(guiGraphics, "PWR", leftPos + x + w / 2.0F, topPos + y + h / 2.0F, scale, DISPLAY_TX_COLOUR);
+			return;
+		}
 		boolean transmitting = isTransmitting();
 		String text = String.format("%.3f MHz", menu.getFrequency() / 1_000_000.0F);
 		drawScaled(guiGraphics, text, leftPos + x + w / 2.0F, topPos + y + h / 2.0F, scale, transmitting ? DISPLAY_TX_COLOUR : colour);

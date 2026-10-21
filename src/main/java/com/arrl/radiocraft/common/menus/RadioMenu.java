@@ -48,8 +48,14 @@ public class RadioMenu<T extends RadioBlockEntity> extends AbstractContainerMenu
         blockEntity.setBand(band);
     }
 
+	/** The power switch position (not whether the radio has the energy to run: see {@link #getDisplayPhase}). */
 	public boolean isPowered() {
-		return data.get(0) == 1;
+		return data.get(RadioBlockEntity.DATA_SWITCH) == 1;
+	}
+
+	/** What the front panel shows, a {@code RadioNetworkObject.PHASE_*} value. */
+	public int getDisplayPhase() {
+		return data.get(RadioBlockEntity.DATA_DISPLAY_PHASE);
 	}
 
 	@Override

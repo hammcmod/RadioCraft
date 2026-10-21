@@ -298,8 +298,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      */
     @Override
     public void onNetworkObjectCreated(Level level, BlockPos pos, BENetworkObject networkObject) {
-        if(wasPowered && networkObject instanceof RadioNetworkObject radio && radio.canPowerOn())
-            radio.isPowered = true;
+        if(wasPowered && networkObject instanceof RadioNetworkObject radio)
+            radio.setWantsOn(true); // The switch was on; whether it runs again depends on the power, as before.
     }
 
     // Override this for any additional ticks needed like CWSendBuffers
@@ -311,11 +311,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     public void toggle() {
         if(!level.isClientSide()) {
             if(getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject) {
-                if(networkObject.isPowered)
-                    networkObject.isPowered = false;
-                else if(networkObject.canPowerOn())
-                    networkObject.isPowered = true;
-
+                networkObject.setWantsOn(!networkObject.wantsOn); // Settles isPowered at once from the energy on hand.
                 updateIsReceiving();
                 updateBlock();
             }
@@ -614,15 +610,25 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    /** Menu data slot: the power switch, 1 when the player has switched the radio on. */
+    public static final int DATA_SWITCH = 0;
+    /** Menu data slot: what the front panel shows, a {@code RadioNetworkObject.PHASE_*} value. */
+    public static final int DATA_DISPLAY_PHASE = 1;
+    public static final int DATA_COUNT = 2;
+
     public ContainerData getDataSlots() {
         if(level.isClientSide)
-            return new SimpleContainerData(1);
+            return new SimpleContainerData(DATA_COUNT);
 
         RadioNetworkObject networkObject = (RadioNetworkObject)IBENetworks.getObject(level, worldPosition);
-        return networkObject == null ? new SimpleContainerData(1) : new ContainerData() {
+        return networkObject == null ? new SimpleContainerData(DATA_COUNT) : new ContainerData() {
             @Override
             public int get(int index) {
-                return networkObject.isPowered ? 1 : 0;
+                return switch(index) {
+                    case DATA_SWITCH -> networkObject.wantsOn ? 1 : 0;
+                    case DATA_DISPLAY_PHASE -> networkObject.getDisplayPhase();
+                    default -> 0;
+                };
             }
 
             @Override
@@ -630,7 +636,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
             @Override
             public int getCount() {
-                return 1;
+                return DATA_COUNT;
             }
         };
     }

@@ -153,8 +153,12 @@ Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug tra
 - **Radios persist** frequency, mode, gains, last measured SWR and the power flag in their block entity tag. On load
   the flag switches the fresh network object back on, so a radio left on stays on across restarts.
 - **Power network objects tick** every server tick from `CommonEvents#onLevelTick` (only those in loaded chunks).
-  Solar panel -> charge controller -> battery works; radios do not yet draw power (`RadioNetworkObject#tick` is an
-  MVP stub and `canPowerOn` is always true).
+  Solar panel -> charge controller -> battery -> radio: batteries push into the radio's own small storage each
+  tick and `RadioNetworkObject#resolvePower` consumes the receive or transmit cost from it. `wantsOn` is the
+  player's switch, `isPowered` whether it runs; starved radios brown out and cycle `getDisplayPhase` (on / PWR /
+  dark), retrying once a cycle. `radios_need_power = false` restores free power. The GameTest server runs with it
+  false (`GameTestDefaults`, a `ServerStartedEvent` hook in the gametest source set that only fires for a
+  `GameTestServer`), and `PowerGameTests` turns it on for its own batch.
 - **Static volume** on the client is `NOISE_VOLUME * efficiency(SWR)`. `NOISE_VOLUME` comes from the solar event
   via `CNoisePacket` (sent on login, dimension change and whenever the event changes). A better match means louder
   band noise, which is the intended behaviour. Static is not yet ducked by a received signal.
