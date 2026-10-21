@@ -138,10 +138,14 @@ for a in SIDES:
             middle_or.append({"arrive": a, "hug": h})
 middle_or.append({"arrive": "none", "hug": "none"})
 noflags = {s: "false" for s in SIDES}
-middle_or += [dict(noflags, up="false", down="false"),
-              dict(noflags, up="false", arrive=alt(SIDES)),
-              dict(noflags, hug=alt(SIDES), down="false"),
-              dict(noflags, hug=alt(SIDES), arrive=alt(SIDES))]
+# ... a dead end being: no ports, and the cable does not pass straight through along an edge (it passes through when
+# it arrives on an edge and goes on up or climbs).
+dead = [dict(noflags, up="false", down="false"),
+        dict(noflags, up="false", arrive=alt(SIDES)),
+        dict(noflags, hug=alt(SIDES), down="false"),
+        dict(noflags, hug=alt(SIDES), arrive=alt(SIDES))]
+not_through = [{"arrive": "none"}, {"up": "false", "end": "none|up_device"}]
+middle_or += cross(dead, not_through)
 
 cases = [{"when": when(middle_or), "apply": model("wire_middle")}]
 # A stub from the middle to an edge: when the middle is drawn and that edge has cable (in S) or a neighbour.

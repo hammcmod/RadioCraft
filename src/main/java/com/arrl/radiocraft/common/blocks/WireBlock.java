@@ -494,7 +494,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				portOffEdge |= !edgeCable.contains(dir);
 			}
 		}
-		boolean middle = portOffEdge || edgeCable.size() != 1 || !anyPort;
+		// The cable passes straight through along an edge when it arrives there and goes on up (or climbs).
+		boolean through = arrive != null && (state.getValue(UP) || state.getValue(END).isClimb());
+		boolean middle = portOffEdge || edgeCable.size() != 1 || (!anyPort && !through);
 
 		VoxelShape result = middle ? MIDDLE_SHAPE : Shapes.empty();
 		for(Direction dir : Direction.Plane.HORIZONTAL) {

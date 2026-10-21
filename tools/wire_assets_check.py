@@ -37,7 +37,8 @@ def expected(state):
     port_off_edge = (state["up"] and hug == "none") or (state["down"] and arrive == "none")
     port_off_edge = port_off_edge or any(d not in edge_cable for d in flags)
     any_port = bool(flags) or (state["up"] and hug == "none") or (state["down"] and arrive == "none")
-    middle = port_off_edge or len(edge_cable) != 1 or not any_port
+    through = arrive != "none" and (state["up"] or end in ("climb_wire", "climb_device"))
+    middle = port_off_edge or len(edge_cable) != 1 or (not any_port and not through)
     out = []
     if middle:
         out.append(("wire_middle", None))

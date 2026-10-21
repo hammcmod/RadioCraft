@@ -89,7 +89,8 @@
             "south": "false",
             "west": "false",
             "up": "false",
-            "down": "false"
+            "down": "false",
+            "arrive": "none"
           },
           {
             "north": "false",
@@ -97,7 +98,17 @@
             "south": "false",
             "west": "false",
             "up": "false",
-            "arrive": "north|east|south|west"
+            "down": "false",
+            "end": "none|up_device"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west",
+            "end": "none|up_device"
           },
           {
             "north": "false",
@@ -105,7 +116,8 @@
             "south": "false",
             "west": "false",
             "hug": "north|east|south|west",
-            "down": "false"
+            "down": "false",
+            "arrive": "none"
           },
           {
             "north": "false",
@@ -113,7 +125,19 @@
             "south": "false",
             "west": "false",
             "hug": "north|east|south|west",
-            "arrive": "north|east|south|west"
+            "down": "false",
+            "up": "false",
+            "end": "none|up_device"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north|east|south|west",
+            "arrive": "north|east|south|west",
+            "up": "false",
+            "end": "none|up_device"
           }
         ]
       },
@@ -293,6 +317,17 @@
             "west": "false",
             "up": "false",
             "down": "false",
+            "arrive": "none",
+            "hug": "north"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "end": "none|up_device",
             "arrive": "north"
           },
           {
@@ -302,6 +337,7 @@
             "west": "false",
             "up": "false",
             "down": "false",
+            "end": "none|up_device",
             "hug": "north"
           },
           {
@@ -310,7 +346,8 @@
             "south": "false",
             "west": "false",
             "up": "false",
-            "arrive": "north"
+            "arrive": "north",
+            "end": "none|up_device"
           },
           {
             "north": "false",
@@ -319,7 +356,17 @@
             "west": "false",
             "up": "false",
             "arrive": "north|east|south|west",
+            "end": "none|up_device",
             "hug": "north"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north",
+            "down": "false",
+            "arrive": "none"
           },
           {
             "north": "false",
@@ -328,15 +375,9 @@
             "west": "false",
             "hug": "north|east|south|west",
             "down": "false",
+            "up": "false",
+            "end": "none|up_device",
             "arrive": "north"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "hug": "north",
-            "down": "false"
           },
           {
             "north": "false",
@@ -344,15 +385,9 @@
             "south": "false",
             "west": "false",
             "hug": "north|east|south|west",
-            "arrive": "north"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "hug": "north",
-            "arrive": "north|east|south|west"
+            "arrive": "north",
+            "up": "false",
+            "end": "none|up_device"
           }
         ]
       },
@@ -532,6 +567,17 @@
             "west": "false",
             "up": "false",
             "down": "false",
+            "arrive": "none",
+            "hug": "east"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "end": "none|up_device",
             "arrive": "east"
           },
           {
@@ -541,6 +587,7 @@
             "west": "false",
             "up": "false",
             "down": "false",
+            "end": "none|up_device",
             "hug": "east"
           },
           {
@@ -549,7 +596,8 @@
             "south": "false",
             "west": "false",
             "up": "false",
-            "arrive": "east"
+            "arrive": "east",
+            "end": "none|up_device"
           },
           {
             "north": "false",
@@ -558,7 +606,17 @@
             "west": "false",
             "up": "false",
             "arrive": "north|east|south|west",
+            "end": "none|up_device",
             "hug": "east"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "east",
+            "down": "false",
+            "arrive": "none"
           },
           {
             "north": "false",
@@ -567,15 +625,9 @@
             "west": "false",
             "hug": "north|east|south|west",
             "down": "false",
+            "up": "false",
+            "end": "none|up_device",
             "arrive": "east"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "hug": "east",
-            "down": "false"
           },
           {
             "north": "false",
@@ -583,15 +635,9 @@
             "south": "false",
             "west": "false",
             "hug": "north|east|south|west",
-            "arrive": "east"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "hug": "east",
-            "arrive": "north|east|south|west"
+            "arrive": "east",
+            "up": "false",
+            "end": "none|up_device"
           }
         ]
       },
@@ -772,6 +818,17 @@
             "west": "false",
             "up": "false",
             "down": "false",
+            "arrive": "none",
+            "hug": "south"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "end": "none|up_device",
             "arrive": "south"
           },
           {
@@ -781,6 +838,7 @@
             "west": "false",
             "up": "false",
             "down": "false",
+            "end": "none|up_device",
             "hug": "south"
           },
           {
@@ -789,7 +847,8 @@
             "south": "false",
             "west": "false",
             "up": "false",
-            "arrive": "south"
+            "arrive": "south",
+            "end": "none|up_device"
           },
           {
             "north": "false",
@@ -798,7 +857,17 @@
             "west": "false",
             "up": "false",
             "arrive": "north|east|south|west",
+            "end": "none|up_device",
             "hug": "south"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "south",
+            "down": "false",
+            "arrive": "none"
           },
           {
             "north": "false",
@@ -807,15 +876,9 @@
             "west": "false",
             "hug": "north|east|south|west",
             "down": "false",
+            "up": "false",
+            "end": "none|up_device",
             "arrive": "south"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "hug": "south",
-            "down": "false"
           },
           {
             "north": "false",
@@ -823,15 +886,9 @@
             "south": "false",
             "west": "false",
             "hug": "north|east|south|west",
-            "arrive": "south"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "hug": "south",
-            "arrive": "north|east|south|west"
+            "arrive": "south",
+            "up": "false",
+            "end": "none|up_device"
           }
         ]
       },
@@ -1012,6 +1069,17 @@
             "west": "false",
             "up": "false",
             "down": "false",
+            "arrive": "none",
+            "hug": "west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "end": "none|up_device",
             "arrive": "west"
           },
           {
@@ -1021,6 +1089,7 @@
             "west": "false",
             "up": "false",
             "down": "false",
+            "end": "none|up_device",
             "hug": "west"
           },
           {
@@ -1029,7 +1098,8 @@
             "south": "false",
             "west": "false",
             "up": "false",
-            "arrive": "west"
+            "arrive": "west",
+            "end": "none|up_device"
           },
           {
             "north": "false",
@@ -1038,7 +1108,17 @@
             "west": "false",
             "up": "false",
             "arrive": "north|east|south|west",
+            "end": "none|up_device",
             "hug": "west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "west",
+            "down": "false",
+            "arrive": "none"
           },
           {
             "north": "false",
@@ -1047,15 +1127,9 @@
             "west": "false",
             "hug": "north|east|south|west",
             "down": "false",
+            "up": "false",
+            "end": "none|up_device",
             "arrive": "west"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "hug": "west",
-            "down": "false"
           },
           {
             "north": "false",
@@ -1063,15 +1137,9 @@
             "south": "false",
             "west": "false",
             "hug": "north|east|south|west",
-            "arrive": "west"
-          },
-          {
-            "north": "false",
-            "east": "false",
-            "south": "false",
-            "west": "false",
-            "hug": "west",
-            "arrive": "north|east|south|west"
+            "arrive": "west",
+            "up": "false",
+            "end": "none|up_device"
           }
         ]
       },
