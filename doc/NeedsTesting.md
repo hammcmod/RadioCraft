@@ -4,6 +4,17 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Improvised antennas (added 2026-10-21)
+
+Any wires on any balun now work: when no proper antenna type recognizes the build, it becomes an "Improvised" antenna
+(`ImprovisedAntennaType`, -3 dBi) whose SWR grows with how far it is from ideal (arm lengths off a quarter wave, bent
+or sloping arms, extra or branching arms, a balun of the wrong ratio). Clean builds still match their proper type.
+
+- [ ] Rebuild the playtest dipole with one arm dropping a block: Jade shows "Antenna Type: Improvised", the two arms,
+  "Shape off ideal: +0.2 SWR" and an SWR on 20m around 1.4; the radio works on it.
+- [ ] Bend it, add a third wire, put it on a 9:1: the SWR climbs but it keeps working; a tuner brings it back.
+- [ ] Right-clicking a balun shows "Antenna: Dipole" (or Improvised, ...) above the hotbar instead of a class name.
+
 ## Radio-sounding voice and static ducking (added 2026-10-21)
 
 Received voice now goes through `RadioVoiceProcessor` on the server (band-pass 300-2700 Hz, AGC, soft overdrive) and

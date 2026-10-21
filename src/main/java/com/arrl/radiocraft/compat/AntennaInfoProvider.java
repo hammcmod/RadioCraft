@@ -54,7 +54,7 @@ public enum AntennaInfoProvider implements IBlockComponentProvider, IServerDataP
         if(antenna == null)
             return;
 
-        data.putString("antennaType", antenna.getType().getId().getPath());
+        data.putString("antennaType", AntennaTypes.displayName(antenna.getType()));
         appendDimensions(data, antenna.getData());
         appendResonance(data, antenna.getData());
         appendSwr(data, antenna);
@@ -81,6 +81,13 @@ public enum AntennaInfoProvider implements IBlockComponentProvider, IServerDataP
         else if(antennaData instanceof RandomWireAntennaData wire) {
             data.putString("antennaDimension_" + index++, String.format("Length: %.2f m in %d wire(s)", wire.getLength(), wire.getSegments()));
             data.putString("antennaDimension_" + index++, "Needs an antenna tuner");
+        }
+        else if(antennaData instanceof ImprovisedAntennaData improvised) {
+            double[] arms = improvised.getArmLengths();
+            for(int i = 0; i < arms.length; i++)
+                data.putString("antennaDimension_" + index++, String.format("Arm %d: %.2f m", i + 1, arms[i]));
+            data.putString("antennaDimension_" + index++, String.format("Shape off ideal: +%.1f SWR", improvised.getShapePenalty()));
+            data.putString("antennaDimension_" + index++, "Works, but a proper antenna or a tuner does better");
         }
         else if(antennaData instanceof HorizontalQuadLoopAntennaData loop) {
             data.putString("antennaDimension_" + index++, "Side: " + loop.getSideLength() + " m");

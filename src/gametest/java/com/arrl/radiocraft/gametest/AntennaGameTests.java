@@ -5,6 +5,7 @@ import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
+import com.arrl.radiocraft.common.init.RadiocraftAntennaTypes;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.data.DipoleAntennaData;
@@ -203,16 +204,19 @@ public class AntennaGameTests {
                 .thenSucceed();
     }
 
+    /** Arms at 90 degrees are not a dipole, but still an (improvised) antenna, with the bend costing SWR. */
     @GameTest(template = GameTestUtil.EMPTY)
-    public static void bentDipoleIsNotRecognized(GameTestHelper helper) {
+    public static void bentDipoleIsImprovised(GameTestHelper helper) {
         helper.setBlock(CENTER, RadiocraftBlocks.BALUN_ONE_TO_ONE.get());
         GameTestUtil.wire(helper, CENTER, CENTER.west(5));
         GameTestUtil.wire(helper, CENTER, CENTER.north(5)); // 90 degrees, not opposite
 
         helper.runAtTickTime(5, () -> {
             IAntenna antenna = AntennaTypes.match(helper.getLevel(), helper.absolutePos(CENTER));
-            if (antenna instanceof StaticAntenna<?> s && s.type instanceof DipoleAntennaType)
-                helper.fail("Perpendicular arms should not make a dipole", CENTER);
+            if (!(antenna instanceof StaticAntenna<?> s) || s.type != RadiocraftAntennaTypes.IMPROVISED)
+                helper.fail("Perpendicular arms should make an improvised antenna", CENTER);
+            else
+                helper.assertTrue(s.getSWR(14_175_000.0F) > 2.0D, "The bend should cost SWR, was " + s.getSWR(14_175_000.0F));
             helper.succeed();
         });
     }
@@ -233,14 +237,19 @@ public class AntennaGameTests {
         });
     }
 
-    /** Equal arms on a 4:1 are a dipole on the wrong balun, not an OCFD. */
+    /**
+     * Equal arms on a 4:1 are a dipole on the wrong balun, not an OCFD. Any antenna beats no antenna, so it still works
+     * as an improvised antenna, just a worse match than the same dipole on a 1:1.
+     */
     @GameTest(template = GameTestUtil.EMPTY)
-    public static void centreFedWireOnAFourToOneIsNotRecognized(GameTestHelper helper) {
+    public static void centreFedWireOnAFourToOneIsImprovised(GameTestHelper helper) {
         helper.setBlock(CENTER, RadiocraftBlocks.BALUN_FOUR_TO_ONE.get());
         GameTestUtil.wire(helper, CENTER, CENTER.west(5));
         GameTestUtil.wire(helper, CENTER, CENTER.east(5));
         helper.runAfterDelay(5, () -> {
-            helper.assertTrue(AntennaTypes.match(helper.getLevel(), helper.absolutePos(CENTER)) == null, "A 5 + 5 on a 4:1 should not be an antenna");
+            StaticAntenna<?> antenna = AntennaTypes.match(helper.getLevel(), helper.absolutePos(CENTER));
+            helper.assertTrue(antenna != null && antenna.type == RadiocraftAntennaTypes.IMPROVISED, "A 5 + 5 on a 4:1 should be improvised, got " + (antenna == null ? "none" : antenna.type.getId()));
+            helper.assertTrue(antenna.getSWR(14_175_000.0F) > 2.0D, "The wrong balun should cost SWR, was " + antenna.getSWR(14_175_000.0F));
             helper.succeed();
         });
     }

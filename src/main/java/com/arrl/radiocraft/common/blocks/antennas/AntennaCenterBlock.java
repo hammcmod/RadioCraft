@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blocks.antennas;
 
+import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
@@ -45,9 +46,9 @@ public abstract class AntennaCenterBlock extends AbstractNetworkBlock {
 			if(IBENetworks.getObject(pLevel, pPos) instanceof AntennaNetworkObject networkObject) {
 				StaticAntenna<?> antenna = networkObject.getAntenna();
 				if(antenna != null)
-					pPlayer.displayClientMessage(Component.literal(antenna.type.toString()).withStyle(ChatFormatting.GREEN), false);
+					pPlayer.displayClientMessage(Component.literal("Antenna: " + AntennaTypes.displayName(antenna.type)).withStyle(ChatFormatting.GREEN), true);
 				else
-					pPlayer.displayClientMessage(Component.literal("No valid antenna found.").withStyle(ChatFormatting.RED), false);
+					pPlayer.displayClientMessage(Component.literal("No antenna: attach antenna wire").withStyle(ChatFormatting.RED), true);
 			}
 		}
 		return super.useWithoutItem(pState, pLevel, pPos, pPlayer, pHitResult);
@@ -60,9 +61,9 @@ public abstract class AntennaCenterBlock extends AbstractNetworkBlock {
 			if(IBENetworks.getObject(pLevel, pPos) instanceof AntennaNetworkObject networkObject) {
 				StaticAntenna<?> antenna = networkObject.getAntenna();
 				if(antenna != null)
-					pPlayer.displayClientMessage(Component.literal(antenna.type.toString()).withStyle(ChatFormatting.GREEN), false);
+					pPlayer.displayClientMessage(Component.literal("Antenna: " + AntennaTypes.displayName(antenna.type)).withStyle(ChatFormatting.GREEN), true);
 				else
-					pPlayer.displayClientMessage(Component.literal("No valid antenna found.").withStyle(ChatFormatting.RED), false);
+					pPlayer.displayClientMessage(Component.literal("No antenna: attach antenna wire").withStyle(ChatFormatting.RED), true);
 			}
 		}
 		return super.useItemOn(pStack, pState, pLevel, pPos, pPlayer, pHand, pHitResult);
