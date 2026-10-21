@@ -44,8 +44,11 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         this.networkId = networkId;
     }
 
+    /** Sends voice out of the antenna. Nothing goes out while the balun has no recognized antenna yet. */
     public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequency, UUID sourcePlayer) {
-        antenna.transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer);
+        StaticAntenna<?> antenna = this.antenna; // Read once: voice arrives on Simple Voice Chat's thread.
+        if(antenna != null)
+            antenna.transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer);
     }
 
     public void receiveAudioPacket(AntennaVoicePacket packet) {
@@ -63,7 +66,8 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
     }
 
     public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequency) {
-        antenna.transmitCWPacket(level, buffers, band, frequency);
+        if(antenna != null)
+            antenna.transmitCWPacket(level, buffers, band, frequency);
     }
 
     public void receiveCWPacket(AntennaCWPacket packet) {
@@ -185,16 +189,21 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         antenna.setNetwork(network);
     }
 
-    /** The block is gone: take the antenna off the air so transmissions stop being routed to this position. */
-    @Override
-    public void discard() {
-        super.discard();
+    /** No antenna is recognized at the balun any more: take the old one off the air. */
+    public void clearAntenna() {
         if(antenna != null) {
             AntennaNetwork network = AntennaNetworkManager.getNetwork(networkId);
             if(network != null)
                 network.removeAntenna(antenna);
             antenna = null;
         }
+    }
+
+    /** The block is gone: take the antenna off the air so transmissions stop being routed to this position. */
+    @Override
+    public void discard() {
+        super.discard();
+        clearAntenna();
     }
 
     @Override

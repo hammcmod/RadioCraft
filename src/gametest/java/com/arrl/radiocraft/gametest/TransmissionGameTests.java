@@ -52,6 +52,7 @@ public class TransmissionGameTests {
     private static final int F_CW = 160;
     private static final int F_CW_SSB = 170;
     private static final int F_CW_POWER = 180;
+    private static final int F_BARE_BALUN = 190;
     private static final int F_PARROT_VOICE = 200;
     private static final int F_PARROT_CW = 210;
     private static final int F_PARROT_OFF = 220;
@@ -242,6 +243,35 @@ public class TransmissionGameTests {
                 .thenWaitUntil(() -> helper.assertTrue(GameTestUtil.networkObject(helper, RADIO_A, RadioNetworkObject.class).getAntennas().isEmpty(), "A still has an antenna"))
                 .thenExecute(() -> {
                     speakInto(helper, RADIO_A);
+                    assertHeardNothing(helper, RADIO_B);
+                })
+                .thenSucceed();
+    }
+
+    /**
+     * A balun with coax but no antenna wires gives the radio an antenna entry with no antenna behind it. Speaking or
+     * keying into that radio used to throw a NullPointerException on every voice frame; now nothing goes out.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
+    public static void bareBalunTransmitsNothing(GameTestHelper helper) {
+        stationsUp(helper)
+                .thenExecute(() -> {
+                    setupSsb(helper, RADIO_A, F_BARE_BALUN);
+                    setupSsb(helper, RADIO_B, F_BARE_BALUN);
+                    helper.setBlock(BALUN_A.west(5), Blocks.AIR); // Cut both dipole legs off A's balun.
+                    helper.setBlock(BALUN_A.east(5), Blocks.AIR);
+                })
+                .thenWaitUntil(() -> {
+                    var antennas = GameTestUtil.networkObject(helper, RADIO_A, RadioNetworkObject.class).getAntennas();
+                    helper.assertTrue(antennas.size() == 1, "A should still see its balun, sees " + antennas.size());
+                    helper.assertTrue(antennas.getFirst().getAntenna() == null, "A's balun still has an antenna");
+                })
+                .thenExecute(() -> {
+                    speakInto(helper, RADIO_A);
+                    assertHeardNothing(helper, RADIO_B);
+                    setupCw(helper, RADIO_A, 0);
+                    setupCw(helper, RADIO_B, 0);
+                    radio(helper, RADIO_A).transmitMorse(List.of(new CWBuffer(0, new boolean[] { true })));
                     assertHeardNothing(helper, RADIO_B);
                 })
                 .thenSucceed();
