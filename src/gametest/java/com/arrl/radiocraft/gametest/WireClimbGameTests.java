@@ -199,6 +199,37 @@ public class WireClimbGameTests {
         });
     }
 
+    /**
+     * A one-wide trench: the coax on its floor climbs both walls, so the radio on one side reaches the balun on the
+     * other without a bridge over the trench.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
+    public static void coaxClimbsBothWallsOfAOneWideTrench(GameTestHelper helper) {
+        BlockPos floor = new BlockPos(8, 2, 8);
+        BlockPos radio = new BlockPos(6, 3, 8), balun = new BlockPos(10, 3, 8);
+        helper.setBlock(floor.west(), Blocks.STONE);
+        helper.setBlock(floor.east(), Blocks.STONE);
+        helper.setBlock(radio, RadiocraftBlocks.HF_RADIO_20M.get());
+        helper.setBlock(balun, RadiocraftBlocks.BALUN_ONE_TO_ONE.get());
+        GameTestUtil.wire(helper, balun, balun.north(5));
+        GameTestUtil.wire(helper, balun, balun.south(5));
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    coax(helper, floor.west().above());
+                    coax(helper, floor.east().above());
+                    coax(helper, floor);
+                })
+                .thenWaitUntil(() -> {
+                    helper.assertTrue(helper.getBlockState(floor).getValue(WireBlock.CLIMB_BACK), "Floor coax should climb both walls");
+                    helper.assertTrue(helper.getBlockState(floor.west().above()).getValue(WireBlock.ARRIVE) != WireBlock.Edge.NONE, "West top coax takes the climb in");
+                    helper.assertTrue(helper.getBlockState(floor.east().above()).getValue(WireBlock.ARRIVE) != WireBlock.Edge.NONE, "East top coax takes the climb in");
+                    List<AntennaNetworkObject> antennas = GameTestUtil.networkObject(helper, radio, RadioNetworkObject.class).getAntennas();
+                    helper.assertTrue(antennas.size() == 1, "Radio should reach the balun across the trench, sees " + antennas.size());
+                })
+                .thenSucceed();
+    }
+
     /** A climb can end straight at a device: the balun sits on the step itself. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
     public static void coaxClimbsStraightIntoABalun(GameTestHelper helper) {

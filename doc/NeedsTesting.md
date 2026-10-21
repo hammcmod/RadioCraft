@@ -147,6 +147,10 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
 - [ ] Band words: VHF is always "Normal"; 10m "Open" only in good or great conditions; 20m, 40m and 80m always
   "Open" for now (the propagation-shaping step will make a blackout close them). Say if the words should differ.
 - [ ] `teletypefadeout.ogg` is registered but unused; say where you want it.
+- [ ] Wire across a one-wide trench: coax on the trench floor climbs both walls and joins the wire on each side,
+  no bridge needed (a bridge plus floor wire makes a real loop, which draws as a rectangle).
+- [ ] Solar weather station outline and collision follow the model (body plus the paper roll at the back) for all
+  four facings.
 - [ ] Wire: at the foot of a trench or pit the run now goes up the wall on the side the wire above continues over,
   so it meets that wire head on instead of going up the nearest wall and across. Check the screenshot build.
 

@@ -100,6 +100,7 @@ for prefix, texture in VARIANTS.items():
 H = {"north": None, "east": 90, "south": 180, "west": 270}
 SIDES = list(H)
 ALL_EDGE = ["none"] + SIDES
+OPP = {"north": "south", "south": "north", "east": "west", "west": "east"}
 
 
 def model(name, y=None):
@@ -157,6 +158,8 @@ for a in SIDES:
         if a != h:
             middle_or.append({"arrive": a, "hug": h})
 middle_or.append({"arrive": "none", "hug": "none"})
+# Climbing both walls of a one-wide trench: cable on two opposite edges, so through the middle.
+middle_or.append({"climb_back": "true", "hug": alt(SIDES)})
 noflags = {s: "false" for s in SIDES}
 # ... a dead end being: no ports, and the cable does not pass straight through along an edge (it passes through when
 # it arrives on an edge and goes on up or climbs).
@@ -170,7 +173,7 @@ middle_or += cross(dead, not_through)
 cases = [{"when": when(middle_or), "apply": model("wire_middle")}]
 # A stub from the middle to an edge: when the middle is drawn and that edge has cable (in S) or a neighbour.
 for e, y in H.items():
-    triggers = [{e: "true"}, {"arrive": e}, {"hug": e}]
+    triggers = [{e: "true"}, {"arrive": e}, {"hug": e}, {"hug": OPP[e], "climb_back": "true"}]
     cases.append({"when": when(cross(middle_or, triggers)), "apply": model("wire_horizontal", y)})
 # A corner at an edge: the run from below arrives there and the cable leaves sideways on that same edge, nothing
 # else to reach, so no middle: just the cube that joins the top of the run to the neighbour's stub.
@@ -183,6 +186,10 @@ cases.append({"when": {"hug": "none", "up": "true"}, "apply": model("wire_vertic
 for h, y in H.items():
     cases.append({"when": {"hug": h, "arrive": h}, "apply": model("wire_edge_full", y)})
     cases.append({"when": {"hug": h, "arrive": alt([e for e in ALL_EDGE if e != h])}, "apply": model("wire_edge", y)})
+    # The second climb, up the opposite wall.
+    o = OPP[h]
+    cases.append({"when": {"hug": h, "climb_back": "true", "arrive": o}, "apply": model("wire_edge_full", H[o])})
+    cases.append({"when": {"hug": h, "climb_back": "true", "arrive": alt([e for e in ALL_EDGE if e != o])}, "apply": model("wire_edge", H[o])})
 # The ends that draw their own last piece.
 for h, y in H.items():
     cases.append({"when": {"hug": h, "end": "climb_device"}, "apply": model("wire_climb_overhang", y)})

@@ -32,7 +32,9 @@ def applied(cases, state):
 
 def expected(state):
     hug, arrive, end = state["hug"], state["arrive"], state["end"]
-    edge_cable = {e for e in (hug, arrive) if e != "none"}
+    opp = {"north": "south", "south": "north", "east": "west", "west": "east"}
+    back = opp[hug] if state["climb_back"] and hug != "none" else None
+    edge_cable = {e for e in (hug, arrive, back) if e not in ("none", None)}
     flags = {d for d in SIDES if state[d]}
     port_off_edge = (state["up"] and hug == "none") or (state["down"] and arrive == "none")
     port_off_edge = port_off_edge or any(d not in edge_cable for d in flags)
@@ -53,6 +55,8 @@ def expected(state):
             out.append(("wire_climb_overhang", ROT[hug]))
         if end == "up_device":
             out.append(("wire_up_overhang", ROT[hug]))
+        if back:
+            out.append(("wire_edge_full" if arrive == back else "wire_edge", ROT[back]))
     elif state["up"]:
         out.append(("wire_vertical", None))
     return sorted(out, key=str)
@@ -64,14 +68,14 @@ def main():
     for bits in itertools.product([False, True], repeat=6):
         for hug in ["none"] + SIDES:
             for arrive in ["none"] + SIDES:
-                for end in ["none", "climb_wire", "climb_device", "up_device"]:
-                    state = dict(zip(SIDES + ["up", "down"], bits), hug=hug, arrive=arrive, end=end)
+                for end, back in itertools.product(["none", "climb_wire", "climb_device", "up_device"], [False, True]):
+                    state = dict(zip(SIDES + ["up", "down"], bits), hug=hug, arrive=arrive, end=end, climb_back=back)
                     got, want = applied(cases, state), expected(state)
                     if got != want:
                         bad += 1
                         if bad <= 10:
                             print("MISMATCH", {k: v for k, v in state.items() if v and v != "none"}, "\n   got ", got, "\n   want", want)
-    print("states checked: 6400, mismatches:", bad)
+    print("states checked: 12800, mismatches:", bad)
     return bad
 
 

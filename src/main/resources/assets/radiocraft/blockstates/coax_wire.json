@@ -84,6 +84,10 @@
             "hug": "none"
           },
           {
+            "climb_back": "true",
+            "hug": "north|east|south|west"
+          },
+          {
             "north": "false",
             "east": "false",
             "south": "false",
@@ -154,6 +158,12 @@
             "hug": "none|east|south|west"
           },
           {
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "south",
+            "climb_back": "true"
+          },
+          {
             "east": "true",
             "arrive": "none|north|south|west",
             "hug": "none|north|south|west",
@@ -168,6 +178,12 @@
             "east": "true",
             "arrive": "none|north|south|west",
             "hug": "north"
+          },
+          {
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "south",
+            "climb_back": "true"
           },
           {
             "south": "true",
@@ -202,6 +218,12 @@
             "hug": "north"
           },
           {
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "south",
+            "climb_back": "true"
+          },
+          {
             "up": "true",
             "hug": "none",
             "north": "true"
@@ -222,6 +244,12 @@
             "hug": "north"
           },
           {
+            "down": "true",
+            "arrive": "none",
+            "hug": "south",
+            "climb_back": "true"
+          },
+          {
             "arrive": "north",
             "hug": "east",
             "north": "true"
@@ -238,6 +266,11 @@
           {
             "arrive": "north",
             "hug": "south"
+          },
+          {
+            "arrive": "north",
+            "hug": "south",
+            "climb_back": "true"
           },
           {
             "arrive": "north",
@@ -264,6 +297,11 @@
           },
           {
             "arrive": "east",
+            "hug": "south",
+            "climb_back": "true"
+          },
+          {
+            "arrive": "east",
             "hug": "west",
             "north": "true"
           },
@@ -306,9 +344,32 @@
             "north": "true"
           },
           {
+            "arrive": "west",
+            "hug": "south",
+            "climb_back": "true"
+          },
+          {
             "arrive": "none",
             "hug": "none",
             "north": "true"
+          },
+          {
+            "climb_back": "true",
+            "hug": "north|east|south|west",
+            "north": "true"
+          },
+          {
+            "climb_back": "true",
+            "hug": "north|east|south|west",
+            "arrive": "north"
+          },
+          {
+            "climb_back": "true",
+            "hug": "north"
+          },
+          {
+            "climb_back": "true",
+            "hug": "south"
           },
           {
             "north": "false",
@@ -319,6 +380,17 @@
             "down": "false",
             "arrive": "none",
             "hug": "north"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "arrive": "none",
+            "hug": "south",
+            "climb_back": "true"
           },
           {
             "north": "false",
@@ -346,6 +418,17 @@
             "south": "false",
             "west": "false",
             "up": "false",
+            "down": "false",
+            "end": "none|up_device",
+            "hug": "south",
+            "climb_back": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
             "arrive": "north",
             "end": "none|up_device"
           },
@@ -364,9 +447,30 @@
             "east": "false",
             "south": "false",
             "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west",
+            "end": "none|up_device",
+            "hug": "south",
+            "climb_back": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
             "hug": "north",
             "down": "false",
             "arrive": "none"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "south",
+            "down": "false",
+            "arrive": "none",
+            "climb_back": "true"
           },
           {
             "north": "false",
@@ -415,9 +519,21 @@
             "hug": "east"
           },
           {
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "west",
+            "climb_back": "true"
+          },
+          {
             "east": "true",
             "arrive": "none|north|south|west",
             "hug": "none|north|south|west"
+          },
+          {
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "west",
+            "climb_back": "true"
           },
           {
             "south": "true",
@@ -434,6 +550,12 @@
             "south": "true",
             "arrive": "none|north|east|west",
             "hug": "east"
+          },
+          {
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "west",
+            "climb_back": "true"
           },
           {
             "west": "true",
@@ -472,6 +594,12 @@
             "hug": "east"
           },
           {
+            "down": "true",
+            "arrive": "none",
+            "hug": "west",
+            "climb_back": "true"
+          },
+          {
             "arrive": "north",
             "hug": "east",
             "east": "true"
@@ -489,6 +617,11 @@
             "arrive": "north",
             "hug": "west",
             "east": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "west",
+            "climb_back": "true"
           },
           {
             "arrive": "east",
@@ -518,6 +651,11 @@
             "hug": "west"
           },
           {
+            "arrive": "east",
+            "hug": "west",
+            "climb_back": "true"
+          },
+          {
             "arrive": "south",
             "hug": "north",
             "east": "true"
@@ -535,6 +673,11 @@
             "arrive": "south",
             "hug": "west",
             "east": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "west",
+            "climb_back": "true"
           },
           {
             "arrive": "west",
@@ -561,6 +704,24 @@
             "east": "true"
           },
           {
+            "climb_back": "true",
+            "hug": "north|east|south|west",
+            "east": "true"
+          },
+          {
+            "climb_back": "true",
+            "hug": "north|east|south|west",
+            "arrive": "east"
+          },
+          {
+            "climb_back": "true",
+            "hug": "east"
+          },
+          {
+            "climb_back": "true",
+            "hug": "west"
+          },
+          {
             "north": "false",
             "east": "false",
             "south": "false",
@@ -569,6 +730,17 @@
             "down": "false",
             "arrive": "none",
             "hug": "east"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "arrive": "none",
+            "hug": "west",
+            "climb_back": "true"
           },
           {
             "north": "false",
@@ -596,6 +768,17 @@
             "south": "false",
             "west": "false",
             "up": "false",
+            "down": "false",
+            "end": "none|up_device",
+            "hug": "west",
+            "climb_back": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
             "arrive": "east",
             "end": "none|up_device"
           },
@@ -614,9 +797,30 @@
             "east": "false",
             "south": "false",
             "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west",
+            "end": "none|up_device",
+            "hug": "west",
+            "climb_back": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
             "hug": "east",
             "down": "false",
             "arrive": "none"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "west",
+            "down": "false",
+            "arrive": "none",
+            "climb_back": "true"
           },
           {
             "north": "false",
@@ -682,9 +886,21 @@
             "hug": "south"
           },
           {
+            "east": "true",
+            "arrive": "none|north|south|west",
+            "hug": "north",
+            "climb_back": "true"
+          },
+          {
             "south": "true",
             "arrive": "none|north|east|west",
             "hug": "none|north|east|west"
+          },
+          {
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "north",
+            "climb_back": "true"
           },
           {
             "west": "true",
@@ -701,6 +917,12 @@
             "west": "true",
             "arrive": "none|north|east|south",
             "hug": "south"
+          },
+          {
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "north",
+            "climb_back": "true"
           },
           {
             "up": "true",
@@ -721,6 +943,12 @@
             "down": "true",
             "arrive": "none",
             "hug": "south"
+          },
+          {
+            "down": "true",
+            "arrive": "none",
+            "hug": "north",
+            "climb_back": "true"
           },
           {
             "arrive": "north",
@@ -745,6 +973,11 @@
             "arrive": "east",
             "hug": "north",
             "south": "true"
+          },
+          {
+            "arrive": "east",
+            "hug": "north",
+            "climb_back": "true"
           },
           {
             "arrive": "east",
@@ -771,6 +1004,11 @@
           },
           {
             "arrive": "south",
+            "hug": "north",
+            "climb_back": "true"
+          },
+          {
+            "arrive": "south",
             "hug": "east",
             "south": "true"
           },
@@ -794,6 +1032,11 @@
           },
           {
             "arrive": "west",
+            "hug": "north",
+            "climb_back": "true"
+          },
+          {
+            "arrive": "west",
             "hug": "east",
             "south": "true"
           },
@@ -812,6 +1055,24 @@
             "south": "true"
           },
           {
+            "climb_back": "true",
+            "hug": "north|east|south|west",
+            "south": "true"
+          },
+          {
+            "climb_back": "true",
+            "hug": "north|east|south|west",
+            "arrive": "south"
+          },
+          {
+            "climb_back": "true",
+            "hug": "south"
+          },
+          {
+            "climb_back": "true",
+            "hug": "north"
+          },
+          {
             "north": "false",
             "east": "false",
             "south": "false",
@@ -820,6 +1081,17 @@
             "down": "false",
             "arrive": "none",
             "hug": "south"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "arrive": "none",
+            "hug": "north",
+            "climb_back": "true"
           },
           {
             "north": "false",
@@ -847,6 +1119,17 @@
             "south": "false",
             "west": "false",
             "up": "false",
+            "down": "false",
+            "end": "none|up_device",
+            "hug": "north",
+            "climb_back": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
             "arrive": "south",
             "end": "none|up_device"
           },
@@ -865,9 +1148,30 @@
             "east": "false",
             "south": "false",
             "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west",
+            "end": "none|up_device",
+            "hug": "north",
+            "climb_back": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
             "hug": "south",
             "down": "false",
             "arrive": "none"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "north",
+            "down": "false",
+            "arrive": "none",
+            "climb_back": "true"
           },
           {
             "north": "false",
@@ -917,6 +1221,12 @@
             "hug": "west"
           },
           {
+            "north": "true",
+            "arrive": "none|east|south|west",
+            "hug": "east",
+            "climb_back": "true"
+          },
+          {
             "east": "true",
             "arrive": "none|north|south|west",
             "hug": "none|north|south|west",
@@ -949,9 +1259,21 @@
             "hug": "west"
           },
           {
+            "south": "true",
+            "arrive": "none|north|east|west",
+            "hug": "east",
+            "climb_back": "true"
+          },
+          {
             "west": "true",
             "arrive": "none|north|east|south",
             "hug": "none|north|east|south"
+          },
+          {
+            "west": "true",
+            "arrive": "none|north|east|south",
+            "hug": "east",
+            "climb_back": "true"
           },
           {
             "up": "true",
@@ -974,9 +1296,20 @@
             "hug": "west"
           },
           {
+            "down": "true",
+            "arrive": "none",
+            "hug": "east",
+            "climb_back": "true"
+          },
+          {
             "arrive": "north",
             "hug": "east",
             "west": "true"
+          },
+          {
+            "arrive": "north",
+            "hug": "east",
+            "climb_back": "true"
           },
           {
             "arrive": "north",
@@ -1020,6 +1353,11 @@
             "arrive": "south",
             "hug": "east",
             "west": "true"
+          },
+          {
+            "arrive": "south",
+            "hug": "east",
+            "climb_back": "true"
           },
           {
             "arrive": "south",
@@ -1050,6 +1388,11 @@
           },
           {
             "arrive": "west",
+            "hug": "east",
+            "climb_back": "true"
+          },
+          {
+            "arrive": "west",
             "hug": "south",
             "west": "true"
           },
@@ -1063,6 +1406,24 @@
             "west": "true"
           },
           {
+            "climb_back": "true",
+            "hug": "north|east|south|west",
+            "west": "true"
+          },
+          {
+            "climb_back": "true",
+            "hug": "north|east|south|west",
+            "arrive": "west"
+          },
+          {
+            "climb_back": "true",
+            "hug": "west"
+          },
+          {
+            "climb_back": "true",
+            "hug": "east"
+          },
+          {
             "north": "false",
             "east": "false",
             "south": "false",
@@ -1071,6 +1432,17 @@
             "down": "false",
             "arrive": "none",
             "hug": "west"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
+            "down": "false",
+            "arrive": "none",
+            "hug": "east",
+            "climb_back": "true"
           },
           {
             "north": "false",
@@ -1098,6 +1470,17 @@
             "south": "false",
             "west": "false",
             "up": "false",
+            "down": "false",
+            "end": "none|up_device",
+            "hug": "east",
+            "climb_back": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "up": "false",
             "arrive": "west",
             "end": "none|up_device"
           },
@@ -1116,9 +1499,30 @@
             "east": "false",
             "south": "false",
             "west": "false",
+            "up": "false",
+            "arrive": "north|east|south|west",
+            "end": "none|up_device",
+            "hug": "east",
+            "climb_back": "true"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
             "hug": "west",
             "down": "false",
             "arrive": "none"
+          },
+          {
+            "north": "false",
+            "east": "false",
+            "south": "false",
+            "west": "false",
+            "hug": "east",
+            "down": "false",
+            "arrive": "none",
+            "climb_back": "true"
           },
           {
             "north": "false",
@@ -1236,6 +1640,28 @@
     },
     {
       "when": {
+        "hug": "north",
+        "climb_back": "true",
+        "arrive": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/coax_wire_edge_full",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "hug": "north",
+        "climb_back": "true",
+        "arrive": "none|north|east|west"
+      },
+      "apply": {
+        "model": "radiocraft:block/coax_wire_edge",
+        "y": 180
+      }
+    },
+    {
+      "when": {
         "hug": "east",
         "arrive": "east"
       },
@@ -1252,6 +1678,28 @@
       "apply": {
         "model": "radiocraft:block/coax_wire_edge",
         "y": 90
+      }
+    },
+    {
+      "when": {
+        "hug": "east",
+        "climb_back": "true",
+        "arrive": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/coax_wire_edge_full",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "hug": "east",
+        "climb_back": "true",
+        "arrive": "none|north|east|south"
+      },
+      "apply": {
+        "model": "radiocraft:block/coax_wire_edge",
+        "y": 270
       }
     },
     {
@@ -1276,6 +1724,26 @@
     },
     {
       "when": {
+        "hug": "south",
+        "climb_back": "true",
+        "arrive": "north"
+      },
+      "apply": {
+        "model": "radiocraft:block/coax_wire_edge_full"
+      }
+    },
+    {
+      "when": {
+        "hug": "south",
+        "climb_back": "true",
+        "arrive": "none|east|south|west"
+      },
+      "apply": {
+        "model": "radiocraft:block/coax_wire_edge"
+      }
+    },
+    {
+      "when": {
         "hug": "west",
         "arrive": "west"
       },
@@ -1292,6 +1760,28 @@
       "apply": {
         "model": "radiocraft:block/coax_wire_edge",
         "y": 270
+      }
+    },
+    {
+      "when": {
+        "hug": "west",
+        "climb_back": "true",
+        "arrive": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/coax_wire_edge_full",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "hug": "west",
+        "climb_back": "true",
+        "arrive": "none|north|south|west"
+      },
+      "apply": {
+        "model": "radiocraft:block/coax_wire_edge",
+        "y": 90
       }
     },
     {
