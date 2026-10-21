@@ -147,7 +147,11 @@ Lay coax (or power wire) along the ground up to a one-block step with more wire 
   climb piece look right against the horizontal stub (no z-fighting at the bottom corner)?
 - [ ] Order does not matter: foot first then top, or top first then foot, and the radio sees the antenna either way
   (`/rcdebug radio`). Break the step: the climb vanishes and the radio loses the antenna; put it back: it returns.
-- [ ] A climb straight into a device on the step (battery on a ledge, balun on a post): the wire reaches it.
+- [ ] A climb straight into a device on the step (battery on a ledge, balun on a post): the cable runs up the post,
+  over its top edge and along the top to the middle of the balun's block, ending just under the balun's body. That
+  last piece is drawn by the climbing wire outside its own block, so check it against the post's top texture and in
+  the dark, and at chunk borders (x or z a multiple of 16). No coax on top of the post is needed, or wanted: with
+  one there the run jogs to the middle at floor level and goes up the middle instead.
 - [ ] A wire directly above the foot wire wins: with coax at the foot, on the step and also floating above the foot,
   the foot does not climb (the column carries the run) but still hugs the step, and the piece above arrives at the
   step's face before turning onto the step. Removing the floating piece makes it climb; both look the same.

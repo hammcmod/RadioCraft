@@ -186,7 +186,9 @@ Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug tra
   holder) and therefore `./gradlew runData` before GameTests that connect it to coax can pass.
 - **Wire links, wall hugging and climbs** (2026-10-21): `WireBlock#getLinks` is the one place that says what a wire
   is joined to: its six neighbours plus, like redstone dust, a climb up a solid block to the wire or device on top of
-  it (`climb` flag with `hug` giving the wall; the wire on top shows a stub towards the climber). Any vertical run
+  it (`climb` = none/wire/device with `hug` giving the wall; a wire on top shows a stub towards the climber, for a
+  device the climber draws an overhang piece over the wall's top to the device's centre, outside its own block
+  bounds, since devices have no stub to give). Any vertical run
   next to a wall hugs it: `hug` is the wall the run up follows, `down_hug` the wall the wire below is on (inherited
   so a column stays on one face and the top piece arrives at the edge). Hugging is cosmetic; links are unchanged by
   it. `WireUtils`, the Jade coax overlay and the redstone pickup zone all walk links, and `WireBlock.wireLinksAround`

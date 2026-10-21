@@ -71,8 +71,21 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	public static final EnumProperty<WallSide> HUG = EnumProperty.create("hug", WallSide.class);
 	/** The wall the wire below follows, i.e. where a run from below arrives in this block (none: the middle). */
 	public static final EnumProperty<WallSide> DOWN_HUG = EnumProperty.create("down_hug", WallSide.class);
-	/** The run up the {@link #HUG} wall continues to the wire or device on top of that wall (a diagonal link). */
-	public static final BooleanProperty CLIMB = BooleanProperty.create("climb");
+	/**
+	 * The run up the {@link #HUG} wall continues to what is on top of that wall (a diagonal link). A wire there draws
+	 * its own stub towards us; a device does not, so the climb carries on over the wall's top edge to its centre.
+	 */
+	public static final EnumProperty<ClimbTarget> CLIMB = EnumProperty.create("climb", ClimbTarget.class);
+
+	/** What a climb ends at. */
+	public enum ClimbTarget implements StringRepresentable {
+		NONE, WIRE, DEVICE;
+
+		@Override
+		public @NotNull String getSerializedName() {
+			return name().toLowerCase(Locale.ROOT);
+		}
+	}
 
 	public static final Map<Direction, BooleanProperty> PROPERTY_BY_DIRECTION = Maps.newEnumMap(ImmutableMap.of(
 			Direction.NORTH, NORTH, Direction.EAST, EAST,
@@ -141,7 +154,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				.setValue(SOUTH, false).setValue(WEST, false)
 				.setValue(UP, false).setValue(DOWN, false)
 				.setValue(HUG, WallSide.NONE).setValue(DOWN_HUG, WallSide.NONE)
-				.setValue(CLIMB, false));
+				.setValue(CLIMB, ClimbTarget.NONE));
 		this.isPower = isPower;
         this.isWaterproof = isWaterproof;
 	}
@@ -170,10 +183,12 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 		// A climb if there is one, trying the wall the run from below is already on first so the cable stays on one wall.
 		for(Direction dir : wallOrder(state.getValue(DOWN_HUG))) {
-			if(canClimb(level, pos, dir))
-				return state.setValue(HUG, WallSide.of(dir)).setValue(CLIMB, true);
+			if(canClimb(level, pos, dir)) {
+				ClimbTarget target = isSameKind(level.getBlockState(pos.relative(dir).above())) ? ClimbTarget.WIRE : ClimbTarget.DEVICE;
+				return state.setValue(HUG, WallSide.of(dir)).setValue(CLIMB, target);
+			}
 		}
-		return state.setValue(HUG, WallSide.of(hugWall(level, pos, state))).setValue(CLIMB, false);
+		return state.setValue(HUG, WallSide.of(hugWall(level, pos, state))).setValue(CLIMB, ClimbTarget.NONE);
 	}
 
 	/** The four walls, with {@code first} (if any) ahead of the others. */
@@ -226,7 +241,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	/** True if the block at {@code climberPos} is a wire of this kind climbing the wall in direction {@code towards}. */
 	public boolean climbsTowards(BlockGetter level, BlockPos climberPos, Direction towards) {
 		BlockState state = level.getBlockState(climberPos);
-		return isSameKind(state) && state.getValue(CLIMB) && state.getValue(HUG).direction() == towards;
+		return isSameKind(state) && state.getValue(CLIMB) != ClimbTarget.NONE && state.getValue(HUG).direction() == towards;
 	}
 
 	/**
@@ -278,7 +293,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			else if(dir.getAxis().isHorizontal() && climbsTowards(level, next.below(), dir.getOpposite()))
 				out.put(next.below(), dir); // The stub reaches the top of a climb coming up the block below-diagonal.
 		}
-		Direction climb = state.getValue(CLIMB) ? state.getValue(HUG).direction() : null;
+		Direction climb = state.getValue(CLIMB) != ClimbTarget.NONE ? state.getValue(HUG).direction() : null;
 		if(climb != null) {
 			BlockPos top = pos.relative(climb).above();
 			if(canConnectTo(level.getBlockState(top), isPower))
@@ -305,7 +320,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				BlockPos foot = next.below();
 				BlockState footState = level.getBlockState(foot);
 				if(footState.getBlock() instanceof WireBlock wire && wires.contains(wire)
-						&& footState.getValue(CLIMB) && footState.getValue(HUG).direction() == dir.getOpposite())
+						&& footState.getValue(CLIMB) != ClimbTarget.NONE && footState.getValue(HUG).direction() == dir.getOpposite())
 					out.put(foot, dir);
 			}
 		}
@@ -365,7 +380,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	/** The block a climb in {@code state} links to, or null when not climbing. */
 	@Nullable
 	private static BlockPos climbTarget(BlockPos pos, BlockState state) {
-		Direction dir = state.getValue(CLIMB) ? state.getValue(HUG).direction() : null;
+		Direction dir = state.getValue(CLIMB) != ClimbTarget.NONE ? state.getValue(HUG).direction() : null;
 		return dir == null ? null : pos.relative(dir).above();
 	}
 
@@ -409,9 +424,11 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		// Everything that follows direct neighbours is recomputed; the climb (which depends on a diagonal block and
 		// carries network bookkeeping) is left to refresh().
 		BlockState fresh = getBlockState(level, pos).setValue(BlockStateProperties.WATERLOGGED, state.getValue(BlockStateProperties.WATERLOGGED));
-		if(state.getValue(CLIMB))
-			return fresh.setValue(CLIMB, true).setValue(HUG, state.getValue(HUG));
-		return fresh.setValue(CLIMB, false).setValue(HUG, fresh.getValue(CLIMB) ? WallSide.of(hugWall(level, pos, fresh)) : fresh.getValue(HUG));
+		if(state.getValue(CLIMB) != ClimbTarget.NONE)
+			return fresh.setValue(CLIMB, state.getValue(CLIMB)).setValue(HUG, state.getValue(HUG));
+		if(fresh.getValue(CLIMB) != ClimbTarget.NONE)
+			fresh = fresh.setValue(CLIMB, ClimbTarget.NONE).setValue(HUG, WallSide.of(hugWall(level, pos, fresh)));
+		return fresh;
 	}
 
 	@Override

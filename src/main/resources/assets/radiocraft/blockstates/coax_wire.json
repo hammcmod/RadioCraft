@@ -269,6 +269,15 @@
     },
     {
       "when": {
+        "hug": "north",
+        "climb": "device"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_climb_overhang"
+      }
+    },
+    {
+      "when": {
         "hug": "east",
         "down_hug": "east"
       },
@@ -284,6 +293,16 @@
       },
       "apply": {
         "model": "radiocraft:block/wire_wall",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "hug": "east",
+        "climb": "device"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_climb_overhang",
         "y": 90
       }
     },
@@ -309,6 +328,16 @@
     },
     {
       "when": {
+        "hug": "south",
+        "climb": "device"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_climb_overhang",
+        "y": 180
+      }
+    },
+    {
+      "when": {
         "hug": "west",
         "down_hug": "west"
       },
@@ -324,6 +353,16 @@
       },
       "apply": {
         "model": "radiocraft:block/wire_wall",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "hug": "west",
+        "climb": "device"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_climb_overhang",
         "y": 270
       }
     }

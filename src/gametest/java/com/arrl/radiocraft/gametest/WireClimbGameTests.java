@@ -65,11 +65,12 @@ public class WireClimbGameTests {
     }
 
     private static boolean climbsSouth(GameTestHelper helper, BlockPos pos) {
-        return helper.getBlockState(pos).getValue(WireBlock.CLIMB) && helper.getBlockState(pos).getValue(WireBlock.HUG) == WireBlock.WallSide.SOUTH;
+        return helper.getBlockState(pos).getValue(WireBlock.CLIMB) != WireBlock.ClimbTarget.NONE && helper.getBlockState(pos).getValue(WireBlock.HUG) == WireBlock.WallSide.SOUTH;
     }
 
     private static void assertClimbState(GameTestHelper helper) {
         helper.assertTrue(climbsSouth(helper, FOOT), "Foot coax should climb south up the step");
+        helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.WIRE, "A climb to the coax on the step ends at a wire");
         helper.assertTrue(!helper.getBlockState(FOOT).getValue(WireBlock.SOUTH), "Foot coax has no plain south connection (the step is solid)");
         helper.assertTrue(helper.getBlockState(TOP).getValue(WireBlock.NORTH), "Top coax should show a stub north towards the climber");
         helper.assertTrue(!helper.getBlockState(TOP).getValue(WireBlock.DOWN), "Top coax must not claim a down connection into the step");
@@ -93,7 +94,7 @@ public class WireClimbGameTests {
                     coax(helper, aboveFoot); // A wire straight above the foot: it carries the run, so no climb.
                 })
                 .thenWaitUntil(() -> {
-                    helper.assertTrue(!helper.getBlockState(FOOT).getValue(WireBlock.CLIMB), "A wire above the foot means no climb");
+                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.NONE, "A wire above the foot means no climb");
                     helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.UP), "Foot links up to the wire above it");
                     helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.HUG) == WireBlock.WallSide.SOUTH, "Foot should hug the step");
                     helper.assertTrue(helper.getBlockState(aboveFoot).getValue(WireBlock.DOWN_HUG) == WireBlock.WallSide.SOUTH, "The wire above arrives on the step's face");
@@ -119,7 +120,7 @@ public class WireClimbGameTests {
                 .thenExecute(() -> {
                     coax(helper, GROUND_COAX);
                     coax(helper, FOOT);
-                    helper.assertTrue(!helper.getBlockState(FOOT).getValue(WireBlock.CLIMB), "Nothing on the step yet, so no climb");
+                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.NONE, "Nothing on the step yet, so no climb");
                     coax(helper, TOP);
                     coax(helper, UPPER_COAX);
                 })
@@ -165,7 +166,7 @@ public class WireClimbGameTests {
                 .thenWaitUntil(() -> assertRadioSeesMatchedDipole(helper))
                 .thenExecute(() -> helper.setBlock(STEP, Blocks.AIR))
                 .thenExecuteAfter(2, () -> {
-                    helper.assertTrue(!helper.getBlockState(FOOT).getValue(WireBlock.CLIMB), "Climb should end with the step gone");
+                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.NONE, "Climb should end with the step gone");
                     helper.assertTrue(!helper.getBlockState(TOP).getValue(WireBlock.NORTH), "Top stub should go with the climb");
                     helper.assertTrue(antennasSeen(helper) == 0, "Radio should lose the antenna, sees " + antennasSeen(helper));
                 })
@@ -191,6 +192,7 @@ public class WireClimbGameTests {
                     coax(helper, GROUND_COAX);
                     coax(helper, FOOT);
                     helper.assertTrue(climbsSouth(helper, FOOT), "Foot coax should climb to the balun on the step");
+                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.DEVICE, "A climb into a balun ends at a device");
                 })
                 .thenWaitUntil(() -> assertRadioSeesMatchedDipole(helper))
                 .thenSucceed();
