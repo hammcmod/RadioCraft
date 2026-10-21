@@ -63,6 +63,12 @@ public class PassthroughBlock extends WireBlock implements EntityBlock {
 			level.setBlock(pos, fresh, Block.UPDATE_ALL);
 	}
 
+	/** A solid wall block with 64 states: the normal per-state cache is cheap and helps lighting. */
+	@Override
+	public boolean hasDynamicShape() {
+		return false;
+	}
+
 	@Override
 	public boolean conductsAll() {
 		return true;

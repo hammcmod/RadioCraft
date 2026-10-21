@@ -516,6 +516,18 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	private static final Map<BlockState, VoxelShape> SHAPE_CACHE = new ConcurrentHashMap<>();
 
+	/**
+	 * Wires have many block states (their look lives in the state), and Minecraft builds a cache of shapes for every
+	 * state of every block whenever a world's tags load, on the server and the client. For wires that cost minutes and
+	 * gigabytes once the states passed 100,000. A dynamic shape skips that cache; {@link #getShape} answers from
+	 * {@link #SHAPE_CACHE} instead, built only for states actually placed. Wires have no collision and do not occlude,
+	 * so the per-call lookup is only hit for outlines and lighting.
+	 */
+	@Override
+	public boolean hasDynamicShape() {
+		return true;
+	}
+
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
 		return SHAPE_CACHE.computeIfAbsent(state, WireBlock::buildShape);
