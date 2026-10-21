@@ -2,6 +2,7 @@ package com.arrl.radiocraft.compat;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.SolarWeatherStationBlockEntity;
+import com.arrl.radiocraft.common.radio.solar.BandCondition;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -26,7 +27,12 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
         ResourceLocation key = ResourceLocation.tryParse(data.getString("event"));
         tooltip.add(Component.literal("Conditions: ").append(SolarWeatherStationBlockEntity.eventName(key))
                 .append(Component.literal(" (noise floor " + data.getInt("noise") + "%, level " + data.getInt("level") + ")")));
-        tooltip.add(Component.literal(SolarWeatherStationBlockEntity.REPORTED_BAND + " band: " + (data.getBoolean("open") ? "open" : "closed")));
+        CompoundTag bands = data.getCompound("bands");
+        for(String band : SolarWeatherStationBlockEntity.REPORTED_BANDS) {
+            BandCondition condition = BandCondition.byName(bands.getString(band));
+            if(condition != null)
+                tooltip.add(Component.literal(band + " band: ").append(SolarWeatherStationBlockEntity.conditionName(condition)));
+        }
     }
 
     @Override
@@ -40,7 +46,13 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
         data.putString("event", key.toString());
         data.putInt("noise", Math.round(event.getNoise() * 100.0F));
         data.putInt("level", be.getConditionLevel());
-        data.putBoolean("open", be.isReportedBandOpen());
+        CompoundTag bands = new CompoundTag();
+        for(String band : SolarWeatherStationBlockEntity.REPORTED_BANDS) {
+            BandCondition condition = be.getBandCondition(band);
+            if(condition != null)
+                bands.putString(band, condition.getSerializedName());
+        }
+        data.put("bands", bands);
     }
 
     @Override

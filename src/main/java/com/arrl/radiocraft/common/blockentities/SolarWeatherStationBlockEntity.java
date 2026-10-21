@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.init.RadiocraftData;
+import com.arrl.radiocraft.common.radio.solar.BandCondition;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
@@ -14,7 +15,6 @@ import net.minecraft.sounds.SoundSource;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -26,7 +26,7 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Reads the solar weather of its dimension for the {@link com.arrl.radiocraft.common.blocks.SolarWeatherStationBlock}:
- * the current event's name, its rank for a comparator, and whether 10m is open. The only reason this is a block entity
+ * the current event's name, its rank for a comparator, and how each HF band is doing right now. The only reason this is a block entity
  * is the comparator: it has to be told when the event changes, which the server tick notices by watching the event
  * instance. The printed paper report from the proposal is still to come.
  */
@@ -42,8 +42,6 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 	public static final int PRINT_TICKS = 56;
 	/** The HF bands reported, in order. VHF is reported first as "Normal" since the sun does not touch it. */
 	public static final List<String> REPORTED_BANDS = List.of("10m", "20m", "40m", "80m");
-	/** Bands no solar event closes (the data packs only list 10m as opening and closing); the propagation work will change this. */
-	public static final Set<String> ALWAYS_OPEN_BANDS = Set.of("20m", "40m", "80m");
 
 	/** A chat line waiting to be printed for a player, with the game time to print it at; a ding instead of a line rings the bell. */
 	private record PendingLine(UUID player, @Nullable Component line, long at, boolean ding) {}
@@ -83,10 +81,22 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 		return RadiocraftData.SOLAR_EVENTS.conditionLevel(getCurrentEvent());
 	}
 
-	/** Whether {@link #REPORTED_BAND} propagates in the current weather. */
-	public boolean isReportedBandOpen() {
+	/** How {@code band} carries skip right now, from the event and the time of day; null with no event. */
+	@Nullable
+	public BandCondition getBandCondition(String band) {
 		SolarEvent event = getCurrentEvent();
-		return event != null && event.isBandOpen(REPORTED_BAND);
+		return event == null || level == null ? null : event.getCondition(band, level.isDay());
+	}
+
+	/** Whether {@link #REPORTED_BAND} propagates at all right now (any condition but closed). */
+	public boolean isReportedBandOpen() {
+		BandCondition condition = getBandCondition(REPORTED_BAND);
+		return condition != null && condition != BandCondition.CLOSED;
+	}
+
+	/** "Good", "Fair", "Poor" or "Closed". */
+	public static MutableComponent conditionName(BandCondition condition) {
+		return Component.translatable("message.radiocraft.solar_weather_station." + condition.getSerializedName());
 	}
 
 	/** The event's display name: a translation if the pack has one, else the id's path with a capital ("Good"). */
@@ -146,11 +156,9 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 		lines.add(Component.translatable("message.radiocraft.solar_weather_station.overall", eventName(getCurrentEventKey())));
 		lines.add(Component.translatable("message.radiocraft.solar_weather_station.noise", Math.round(event.getNoise() * 100.0F)));
 		lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", "VHF", Component.translatable("message.radiocraft.solar_weather_station.normal")));
-		for(String band : REPORTED_BANDS) {
-			boolean open = ALWAYS_OPEN_BANDS.contains(band) || event.isBandOpen(band);
-			lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", band,
-					Component.translatable(open ? "message.radiocraft.solar_weather_station.open" : "message.radiocraft.solar_weather_station.closed")));
-		}
+		boolean isDay = level != null && level.isDay();
+		for(String band : REPORTED_BANDS)
+			lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", band, conditionName(event.getCondition(band, isDay))));
 		return lines;
 	}
 
@@ -163,6 +171,6 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 				eventName(getCurrentEventKey()),
 				Math.round(event.getNoise() * 100.0F),
 				REPORTED_BAND,
-				Component.translatable(isReportedBandOpen() ? "message.radiocraft.solar_weather_station.open" : "message.radiocraft.solar_weather_station.closed"));
+				conditionName(getBandCondition(REPORTED_BAND)));
 	}
 }

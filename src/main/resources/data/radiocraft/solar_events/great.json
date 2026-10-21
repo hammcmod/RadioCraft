@@ -3,7 +3,18 @@
   "noise": 0.1,
   "minDuration": 24000,
   "maxDuration": 24000,
-  "openBands": [
-    "10m"
-  ]
+  "bands": {
+    "day": {
+      "10m": "good",
+      "20m": "good",
+      "40m": "good",
+      "80m": "good"
+    },
+    "night": {
+      "10m": "fair",
+      "20m": "good",
+      "40m": "good",
+      "80m": "good"
+    }
+  }
 }

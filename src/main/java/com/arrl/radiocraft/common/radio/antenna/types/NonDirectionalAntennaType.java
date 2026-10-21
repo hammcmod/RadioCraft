@@ -4,6 +4,7 @@ import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
+import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 
@@ -57,7 +58,9 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
 
     protected double getPropagationStrength(IAntennaPacket packet, double distance, boolean isCW) {
         double effectiveDistance = isCW ? distance / CW_RANGE_MULTIPLIER : distance;
-        return BandUtils.getBaseStrength(packet.getBand(), effectiveDistance, getLosEfficiency(), getSkipEfficiency(), packet.getLevel().isDay());
+        // Solar weather only touches the sky wave: a poor or closed band weakens skip, line of sight is unchanged.
+        double skip = getSkipEfficiency() * SolarEventManager.getCondition(packet.getLevel(), packet.getBand()).getSkipMultiplier();
+        return BandUtils.getBaseStrength(packet.getBand(), effectiveDistance, getLosEfficiency(), skip, packet.getLevel().isDay());
     }
 
     protected double getLosEfficiency() {

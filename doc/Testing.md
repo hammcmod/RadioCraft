@@ -89,7 +89,8 @@ Read-only:
 | `rcdebug radio <pos>` | band, frequency, power, mode, PTT, gains, measured SWR, static factor, the power flag synced to clients, connected antennas with SWR |
 | `rcdebug antenna <pos>` | recognized antenna type, its data, SWR at the centre of every band |
 | `rcdebug network <pos>` | network object, energy, and every network it is on with its members |
-| `rcdebug solar` | current solar event, noise, progress, time of day, weather |
+| `rcdebug solar` | current solar event, noise, progress, time of day, weather, each HF band's condition |
+| `rcdebug solar set <event>` | start a fresh spell of an event (`blackout`, `great`, ...) in this dimension |
 
 Stand-ins for player actions (these change the world):
 

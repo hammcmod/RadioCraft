@@ -2,47 +2,70 @@ package com.arrl.radiocraft.common.radio.solar;
 
 import com.arrl.radiocraft.Radiocraft;
 
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+
 import java.util.Collection;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * One kind of solar weather, loaded from {@code data/radiocraft/solar_events/*.json}: its noise floor, how long a spell
- * of it lasts, and which normally closed bands it opens.
+ * of it lasts, and how well each HF band carries skip by day and by night (see {@link BandCondition}).
  */
 public class SolarEvent {
 
 	private final float noise;
 	private final int minDuration;
 	private final int maxDuration;
-	private final Set<String> openBands;
+	private final Map<String, BandCondition> dayConditions;
+	private final Map<String, BandCondition> nightConditions;
 
+	/** An event that leaves every band {@link BandCondition#GOOD}. */
 	public SolarEvent(float noise, int minDuration, int maxDuration) {
-		this(noise, minDuration, maxDuration, Set.of());
+		this(noise, minDuration, maxDuration, Map.of(), Map.of());
 	}
 
-	public SolarEvent(float noise, int minDuration, int maxDuration, Set<String> openBands) {
+	/**
+	 * @param dayConditions   Band name ("20m") to its condition while the sun is up; bands left out are good.
+	 * @param nightConditions The same for the night.
+	 */
+	public SolarEvent(float noise, int minDuration, int maxDuration, Map<String, BandCondition> dayConditions, Map<String, BandCondition> nightConditions) {
 		this.noise = noise;
 		this.minDuration = minDuration;
 		this.maxDuration = maxDuration;
-		this.openBands = Set.copyOf(openBands);
+		this.dayConditions = Map.copyOf(dayConditions);
+		this.nightConditions = Map.copyOf(nightConditions);
 	}
 
 	public float getNoise() {
 		return noise;
 	}
 
-	/**
-	 * Bands that only propagate while this event is on, by name ("10m"). The lower HF bands are always open and are
-	 * not listed; 10m is listed by the good and great events, following the proposal's "10m band has some limited
-	 * propagation" during those.
-	 */
-	public Set<String> getOpenBands() {
-		return openBands;
+	/** How {@code band} ("20m") carries skip during this event, by day or by night. Bands the data leaves out are good. */
+	public BandCondition getCondition(String band, boolean isDay) {
+		return (isDay ? dayConditions : nightConditions).getOrDefault(band, BandCondition.GOOD);
 	}
 
-	/** True if this event opens {@code band} (see {@link #getOpenBands()}). */
-	public boolean isBandOpen(String band) {
-		return openBands.contains(band);
+	/** True unless this event closes {@code band} at that time of day. */
+	public boolean isBandOpen(String band, boolean isDay) {
+		return getCondition(band, isDay) != BandCondition.CLOSED;
+	}
+
+	/**
+	 * Reads a {@code {"10m": "closed", "40m": "poor"}} object from the event data. Unknown condition names are an
+	 * error, so a typo in a data pack shows up in the log instead of silently meaning "good".
+	 */
+	public static Map<String, BandCondition> parseConditions(JsonObject json) {
+		Map<String, BandCondition> conditions = new HashMap<>();
+		for(Map.Entry<String, JsonElement> entry : json.entrySet()) {
+			BandCondition condition = BandCondition.byName(entry.getValue().getAsString());
+			if(condition == null)
+				throw new JsonParseException("Unknown band condition '" + entry.getValue().getAsString() + "' for " + entry.getKey());
+			conditions.put(entry.getKey(), condition);
+		}
+		return conditions;
 	}
 
 	/**

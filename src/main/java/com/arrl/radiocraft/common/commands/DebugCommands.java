@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.commands;
 
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
@@ -12,6 +13,7 @@ import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftData;
+import com.arrl.radiocraft.common.network.clientbound.CNoisePacket;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
@@ -21,15 +23,18 @@ import com.arrl.radiocraft.common.radio.rfi.TransmitInterference;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -68,7 +73,10 @@ public class DebugCommands {
 			.then(Commands.literal("radio").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::radio)))
 			.then(Commands.literal("antenna").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::antenna)))
 			.then(Commands.literal("network").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::network)))
-			.then(Commands.literal("solar").executes(DebugCommands::solar))
+			.then(Commands.literal("solar").executes(DebugCommands::solar)
+					.then(Commands.literal("set").then(Commands.argument("event", StringArgumentType.word())
+							.suggests((ctx, builder) -> SharedSuggestionProvider.suggest(RadiocraftData.SOLAR_EVENTS.getKeys().stream().map(ResourceLocation::getPath), builder))
+							.executes(DebugCommands::setSolar))))
 			.then(Commands.literal("wire").then(Commands.argument("from", BlockPosArgument.blockPos())
 					.then(Commands.argument("to", BlockPosArgument.blockPos()).executes(DebugCommands::wire))))
 			.then(Commands.literal("power").then(Commands.argument("pos", BlockPosArgument.blockPos())
@@ -303,7 +311,26 @@ public class DebugCommands {
 		else
 			out.add(String.format(Locale.ROOT, "solarEvent=%s noise=%.3f progress=%d/%d",
 					RadiocraftData.SOLAR_EVENTS.getKey(event.getEvent()), event.getEvent().getNoise(), event.getTicks(), event.getDuration()));
+		if(event != null) {
+			StringBuilder bands = new StringBuilder("bands (" + (level.isDay() ? "day" : "night") + "):");
+			for(String band : List.of("10m", "20m", "40m", "80m"))
+				bands.append(' ').append(band).append('=').append(event.getEvent().getCondition(band, level.isDay()).getSerializedName());
+			out.add(bands.toString());
+		}
 		return send(ctx, out);
+	}
+
+	/** Starts a fresh spell of the named event ("blackout") in this dimension, for playtesting the weather. */
+	private static int setSolar(CommandContext<CommandSourceStack> ctx) {
+		ServerLevel level = ctx.getSource().getLevel();
+		ResourceLocation id = Radiocraft.id(StringArgumentType.getString(ctx, "event"));
+		if(!RadiocraftData.SOLAR_EVENTS.getKeys().contains(id)) {
+			ctx.getSource().sendFailure(Component.literal("No solar event " + id));
+			return 0;
+		}
+		SolarEventManager.setEvent(level, RadiocraftData.SOLAR_EVENTS.getValue(id).getInstance());
+		CNoisePacket.sendToLevel(level);
+		return solar(ctx);
 	}
 
 	private static int send(CommandContext<CommandSourceStack> ctx, List<String> lines) {

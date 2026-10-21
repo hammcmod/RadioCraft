@@ -82,7 +82,7 @@ public class ComparatorGameTests {
             int level = be.getConditionLevel();
             helper.assertTrue(level >= 1 && level <= RadiocraftData.SOLAR_EVENTS.getEvents().size(), "Condition level out of range: " + level);
             helper.assertTrue(level == RadiocraftData.SOLAR_EVENTS.conditionLevel(event.getEvent()), "Condition level does not match the event");
-            helper.assertTrue(be.isReportedBandOpen() == event.getEvent().isBandOpen(SolarWeatherStationBlockEntity.REPORTED_BAND), "10m open flag disagrees with the event");
+            helper.assertTrue(be.isReportedBandOpen() == event.getEvent().isBandOpen(SolarWeatherStationBlockEntity.REPORTED_BAND, helper.getLevel().isDay()), "10m open flag disagrees with the event");
             helper.assertTrue(comparatorOutput(helper, comparator) == level, "Comparator shows " + comparatorOutput(helper, comparator) + ", station level is " + level);
         });
     }

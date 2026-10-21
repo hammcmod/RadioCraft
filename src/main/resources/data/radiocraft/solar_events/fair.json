@@ -2,5 +2,19 @@
   "weight": 2,
   "noise": 0.5,
   "minDuration": 24000,
-  "maxDuration": 48000
+  "maxDuration": 48000,
+  "bands": {
+    "day": {
+      "10m": "closed",
+      "20m": "fair",
+      "40m": "fair",
+      "80m": "poor"
+    },
+    "night": {
+      "10m": "closed",
+      "20m": "fair",
+      "40m": "good",
+      "80m": "good"
+    }
+  }
 }

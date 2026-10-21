@@ -13,9 +13,7 @@ import org.antlr.v4.runtime.misc.Pair;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 public class SolarEventReloadListener extends SimpleJsonResourceReloadListener {
 
@@ -40,12 +38,12 @@ public class SolarEventReloadListener extends SimpleJsonResourceReloadListener {
 
 				int weight = jsonObject.get("weight").getAsInt();
 
-				Set<String> openBands = new HashSet<>();
-				if(jsonObject.has("openBands")) // Optional: bands this weather opens that are otherwise closed, e.g. ["10m"].
-					for(JsonElement band : jsonObject.getAsJsonArray("openBands"))
-						openBands.add(band.getAsString());
+				// Optional: how each band carries skip, {"day": {"10m": "closed", ...}, "night": {...}}. Bands left out are good.
+				JsonObject bands = jsonObject.has("bands") ? jsonObject.getAsJsonObject("bands") : new JsonObject();
+				Map<String, BandCondition> day = bands.has("day") ? SolarEvent.parseConditions(bands.getAsJsonObject("day")) : Map.of();
+				Map<String, BandCondition> night = bands.has("night") ? SolarEvent.parseConditions(bands.getAsJsonObject("night")) : Map.of();
 
-				events.put(resourceLocation, new Pair<>(new SolarEvent(noise, minDuration, maxDuration, openBands), weight));
+				events.put(resourceLocation, new Pair<>(new SolarEvent(noise, minDuration, maxDuration, day, night), weight));
 				totalWeight += weight;
 
 			} catch (IllegalArgumentException | JsonParseException jsonparseexception) {
@@ -64,6 +62,11 @@ public class SolarEventReloadListener extends SimpleJsonResourceReloadListener {
 
 	public SolarEvent getValue(ResourceLocation key) {
 		return events.get(key).a;
+	}
+
+	/** Ids of every loaded event ("radiocraft:blackout"). */
+	public Collection<ResourceLocation> getKeys() {
+		return events.keySet();
 	}
 
 	/** Every loaded event. */

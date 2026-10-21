@@ -4,6 +4,22 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Solar weather shapes HF skip (added 2026-10-21)
+
+Each solar event now rates every HF band Good / Fair / Poor / Closed, separately by day and night
+(`data/radiocraft/solar_events/*.json`, `bands.day` / `bands.night`). The rating scales the sky-wave (skip) signal:
+Good 1.0, Fair 0.6, Poor 0.3, Closed 0.05. Line of sight is not touched. A weaker signal plays quieter against the same
+static, so a poor band is hard to copy. Force an event with `/rcdebug solar set blackout` (`/rcdebug solar` shows
+the band ratings), then check the station.
+
+- [ ] Blackout by day: the station reads Closed on 10m, 20m, 40m and 80m. Two stations at skip distance (20m by day:
+  2000-6000 blocks apart) hear each other only as a faint voice buried in the static.
+- [ ] Blackout at night: 40m and 80m read Poor and still work, weak and noisy; 10m and 20m read Closed.
+- [ ] Average and better: 20m, 40m and 80m read Good both day and night, as before; skip sounds like it did.
+- [ ] Is the balance right? Closed at 0.05 might still be too audible (or Poor at 0.3 too easy) next to the static.
+- [ ] Note: stations within line of sight (a few hundred blocks) are not affected by the band rating, only by the
+  louder static.
+
 ## Radio static comes back after the sound engine drops it (added 2026-10-21)
 
 A radio's static, morse and hum loops are now restarted within a second if Minecraft's sound engine drops them.
@@ -75,7 +91,7 @@ Full-power HF rig with a matched dipole, redstone dust and a repeater or lamp wi
 
 ## Solar weather station (added 2026-10-20)
 
-- [ ] Right click: a chat line like "Solar conditions: Good (noise floor 20%). 10m band: open". The event name reads
+- [ ] Right click: a chat line like "Solar conditions: Good (noise floor 20%). 10m band: Fair". The event name reads
   as a word, not a key (needs `./gradlew runData` first). Tooltip replaced the "not implemented" one.
 - [ ] The block still renders and faces the right way (it became a block entity; existing placed ones keep working).
 
@@ -95,7 +111,7 @@ Powered HF radio in SSB, a thunderstorm (`/weather thunder`) or `/summon lightni
 - [ ] Radio: "Signal: n/15" appears while receiving, "Interference: n%" while redstone or lightning noise is up,
   "Simplex repeat: Ns delay" when a controller is linked.
 - [ ] Simplex Repeat Controller: delay, "Radio: linked to the west" (or none), "State: Idle/Receiving/Repeating".
-- [ ] Solar Weather Station: conditions with noise floor and level, 10m open or closed.
+- [ ] Solar Weather Station: conditions with noise floor and level, then each HF band's Good/Fair/Poor/Closed.
 
 ## Antenna tuner (added 2026-10-20)
 
@@ -153,8 +169,8 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
   3 seconds (header, Overall, Noise Floor, VHF, 10m, 20m, 40m, 80m), with the bell at the end. Does the spacing feel
   right against the sound? Two players clicking at once each get their own lines.
 - [ ] Placing the station rings the bell once.
-- [ ] Band words: VHF is always "Normal"; 10m "Open" only in good or great conditions; 20m, 40m and 80m always
-  "Open" for now (the propagation-shaping step will make a blackout close them). Say if the words should differ.
+- [ ] Band words: VHF is always "Normal"; the HF bands read Good, Fair, Poor or Closed for the current event and time
+  of day (see "Solar weather shapes HF skip" below). Say if the words should differ.
 - [ ] `teletypefadeout.ogg` is registered but unused; say where you want it.
 - [ ] Wire across a one-wide trench: coax on the trench floor climbs both walls and joins the wire on each side,
   no bridge needed (a bridge plus floor wire makes a real loop, which draws as a rectangle).
