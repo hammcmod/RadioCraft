@@ -14,6 +14,7 @@ import com.arrl.radiocraft.common.radio.antenna.data.RandomWireAntennaData;
 import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.EndFedAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.InvertedVAntennaType;
+import com.arrl.radiocraft.common.radio.antenna.types.OffCenterFedDipoleAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.RandomWireAntennaType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
@@ -212,6 +213,34 @@ public class AntennaGameTests {
             IAntenna antenna = AntennaTypes.match(helper.getLevel(), helper.absolutePos(CENTER));
             if (antenna instanceof StaticAntenna<?> s && s.type instanceof DipoleAntennaType)
                 helper.fail("Perpendicular arms should not make a dipole", CENTER);
+            helper.succeed();
+        });
+    }
+
+    /** A 4 + 7 on a 4:1 balun is an off-centre-fed dipole: matched on 20m (a half wave) and on 10m (two), poor on 15m. */
+    @GameTest(template = GameTestUtil.EMPTY)
+    public static void offCentreFedDipoleIsRecognized(GameTestHelper helper) {
+        helper.setBlock(CENTER, RadiocraftBlocks.BALUN_FOUR_TO_ONE.get());
+        GameTestUtil.wire(helper, CENTER, CENTER.west(4));
+        GameTestUtil.wire(helper, CENTER, CENTER.east(7));
+
+        helper.succeedWhen(() -> {
+            StaticAntenna<?> antenna = match(helper, CENTER);
+            helper.assertTrue(antenna.type instanceof OffCenterFedDipoleAntennaType, "Expected OCFD, got " + antenna.type.getId());
+            helper.assertTrue(antenna.getSWR(TWENTY_M) == 1.0D, "20m SWR was " + antenna.getSWR(TWENTY_M));
+            helper.assertTrue(antenna.getSWR(28_000_000) == 1.0D, "10m SWR was " + antenna.getSWR(28_000_000));
+            helper.assertTrue(antenna.getSWR(21_000_000) > 2.0D, "15m SWR was " + antenna.getSWR(21_000_000));
+        });
+    }
+
+    /** Equal arms on a 4:1 are a dipole on the wrong balun, not an OCFD. */
+    @GameTest(template = GameTestUtil.EMPTY)
+    public static void centreFedWireOnAFourToOneIsNotRecognized(GameTestHelper helper) {
+        helper.setBlock(CENTER, RadiocraftBlocks.BALUN_FOUR_TO_ONE.get());
+        GameTestUtil.wire(helper, CENTER, CENTER.west(5));
+        GameTestUtil.wire(helper, CENTER, CENTER.east(5));
+        helper.runAfterDelay(5, () -> {
+            helper.assertTrue(AntennaTypes.match(helper.getLevel(), helper.absolutePos(CENTER)) == null, "A 5 + 5 on a 4:1 should not be an antenna");
             helper.succeed();
         });
     }

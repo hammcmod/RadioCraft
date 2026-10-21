@@ -9,10 +9,13 @@ import com.arrl.radiocraft.common.radio.antenna.data.RandomWireAntennaData;
 import com.arrl.radiocraft.common.radio.antenna.types.DipoleAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.EndFedAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.InvertedVAntennaType;
+import com.arrl.radiocraft.common.radio.antenna.types.OffCenterFedDipoleAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.types.RandomWireAntennaType;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * SWR is 1.0 when each element is a quarter wavelength (rounded to whole blocks) and rises 0.5 per block of error.
@@ -85,5 +88,30 @@ class AntennaSwrTest {
         assertEquals(1.0, SWRHelper.getEfficiencyMultiplier(1.0), EPS);
         assertEquals(8.0 / 9.0, SWRHelper.getEfficiencyMultiplier(2.0), EPS);
         assertEquals(0.75, SWRHelper.getEfficiencyMultiplier(3.0), EPS);
+    }
+
+    @Test
+    void offCentreFedDipoleIsMatchedOnEvenHarmonicsOnly() {
+        // Half waves: 20m 10.7 m (11 blocks), 10m 5.35 m, 40m 21.4 m, 15m 7.14 m. The OCFD rounds the whole wire.
+        float f20 = 14_000_000, f10 = 28_000_000, f15 = 21_000_000, f40 = 7_000_000;
+        assertEquals(1.0, OffCenterFedDipoleAntennaType.swrForLength(11, f20), 1e-9, "11 blocks on 20m: a half wave");
+        assertEquals(1.0, OffCenterFedDipoleAntennaType.swrForLength(11, f10), 1e-9, "11 blocks on 10m: two half waves (2nd harmonic)");
+        assertEquals(1.5, OffCenterFedDipoleAntennaType.swrForLength(10, f20), 1e-9, "one block short costs 0.5");
+        assertEquals(1.0, OffCenterFedDipoleAntennaType.swrForLength(21, f40), 1e-9, "21 blocks on 40m: a half wave");
+        assertEquals(1.0, OffCenterFedDipoleAntennaType.swrForLength(21, f20), 1e-9, "a 40m OCFD on 20m: 2nd harmonic");
+        assertEquals(1.0, OffCenterFedDipoleAntennaType.swrForLength(21, f10), 1e-9, "a 40m OCFD on 10m: 4th harmonic");
+        assertTrue(OffCenterFedDipoleAntennaType.swrForLength(21, f15) >= 4.0, "a 40m OCFD on 15m is the 3rd harmonic: poor");
+        assertTrue(OffCenterFedDipoleAntennaType.swrForLength(11, f15) > 2.0, "a 20m OCFD on 15m is between harmonics: poor");
+        assertEquals(SWRHelper.OVERDRAW_SWR, OffCenterFedDipoleAntennaType.swrForLength(4, f20), 1e-9, "shorter than a quarter wave is no antenna");
+    }
+
+    @Test
+    void offCentreFeedNeedsAnArmRatioBetweenAThirdAndTwoThirds() {
+        assertTrue(OffCenterFedDipoleAntennaType.isOffCentre(3, 7));
+        assertTrue(OffCenterFedDipoleAntennaType.isOffCentre(7, 3));
+        assertTrue(OffCenterFedDipoleAntennaType.isOffCentre(4, 6));
+        assertFalse(OffCenterFedDipoleAntennaType.isOffCentre(5, 5), "equal arms are a dipole");
+        assertFalse(OffCenterFedDipoleAntennaType.isOffCentre(1, 9), "a stub arm is an end-fed");
+        assertFalse(OffCenterFedDipoleAntennaType.isOffCentre(0, 10));
     }
 }

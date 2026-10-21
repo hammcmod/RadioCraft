@@ -30,36 +30,15 @@ public class ItemRenderEvents {
             RadiocraftItems.SOLAR_PANEL,
             RadiocraftItems.LARGE_BATTERY,
             RadiocraftItems.CHARGE_CONTROLLER,
-            RadiocraftItems.SOLAR_WEATHER_STATION,
-            RadiocraftItems.VHF_BASE_STATION,
-            RadiocraftItems.VHF_RECEIVER,
             RadiocraftItems.VHF_REPEATER,
-            RadiocraftItems.HF_RADIO_10M,
-            RadiocraftItems.HF_RADIO_20M,
-            RadiocraftItems.HF_RADIO_40M,
-            RadiocraftItems.HF_RADIO_80M,
-            RadiocraftItems.HF_RECEIVER,
             RadiocraftItems.ALL_BAND_RADIO,
-            RadiocraftItems.QRP_RADIO_20M,
-            RadiocraftItems.QRP_RADIO_40M,
             RadiocraftItems.DUPLEXER,
-            RadiocraftItems.ANTENNA_TUNER,
-            RadiocraftItems.ANTENNA_CONNECTOR,
-            RadiocraftItems.BALUN_ONE_TO_ONE,
-            RadiocraftItems.BALUN_TWO_TO_ONE,
-            RadiocraftItems.BALUN_NINE_TO_ONE,
-            RadiocraftItems.COAX_WIRE,
             RadiocraftItems.DIGITAL_INTERFACE,
-            RadiocraftItems.YAGI_ANTENNA,
-            RadiocraftItems.J_POLE_ANTENNA,
-            RadiocraftItems.SLIM_JIM_ANTENNA,
             RadiocraftItems.MICROPHONE
     );
 
     private static final List<DeferredHolder<Item, ?>> DEV_SPECIAL_ITEMS = List.of(
-            RadiocraftItems.ANTENNA_POLE,
-            RadiocraftItems.SMALL_BATTERY,
-            RadiocraftItems.ANTENNA_WIRE
+            RadiocraftItems.SMALL_BATTERY
     );
 
     // Lazily initialized set of actual items

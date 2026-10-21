@@ -32,6 +32,13 @@ What was done for the parrot controller, as the pattern for the next one:
 
 ## Open bounties
 
+### Balun (4:1) texture
+
+The 2:1 balun became the 4:1 on 2026-10-21 (`balun_four_to_one`, feeds the off-centre-fed dipole and the quad
+loops), but `textures/block/balun_four_to_one.png` is still the old 2:1 art.
+
+- Wanted: the label repainted to "4:1". Nothing else changes.
+
 ### Sound: redstone interference buzz
 
 Not a model, but the same kind of ask. `RadioInterferenceHumSoundInstance` plays when redstone keeps switching near a

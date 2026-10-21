@@ -108,6 +108,15 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types
 - [ ] Revisit delta loop construction to support triangular build flow and align analyzer messaging
 - [ ] Add sag-varying visuals for long unsupported antenna wire runs
+- [x] 4:1 balun and off-centre-fed dipole (2026-10-21, maintainer): new `balun_four_to_one` feeding an OCFD
+  (short arm a third to two thirds of the long one, matched on the half wave and its 2nd and 4th harmonics, poor
+  on the odd ones). The 2:1 stays for the quad loops. The 4:1 texture is a copy of the 2:1 art (bounty).
+- [ ] Loop antennas (maintainer, 2026-10-21): the horizontal and vertical quad loops exist on the 2:1 balun but
+  have never been played with; the proposal's delta loop (4:1, corner fed, each side a third of a wavelength) is
+  not implemented. Play the quads, then decide on the delta loop and the loop gains.
+- [x] Release creative tab (2026-10-21, maintainer): the HF station (radios, receivers, VHF base station, coax,
+  wire holders, baluns, tuner, VHF antennas, parrot controller, weather station) moved out of the dev-only list
+  and lost the dev watermark. Still dev-only: duplexer, repeater, digital interface, dish, microphone block, power.
 - [x] Wires hug walls (2026-10-21, maintainer request): wire, waterproof wire and coax climb a solid block like
   redstone dust and link diagonally to the wire or device on top, instead of a floating vertical piece. Also gave the
   waterproof wire the blockstate it never had.

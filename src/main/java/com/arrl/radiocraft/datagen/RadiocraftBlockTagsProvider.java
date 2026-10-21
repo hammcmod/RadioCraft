@@ -46,7 +46,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.ANTENNA_TUNER.get())
                 .add(RadiocraftBlocks.ANTENNA_CONNECTOR.get())
                 .add(RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
-                .add(RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
+                .add(RadiocraftBlocks.BALUN_FOUR_TO_ONE.get(), RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
                 .add(RadiocraftBlocks.BALUN_NINE_TO_ONE.get())
                 .add(RadiocraftBlocks.J_POLE_ANTENNA.get())
                 .add(RadiocraftBlocks.SLIM_JIM_ANTENNA.get())
@@ -68,7 +68,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.COAX_WIRE.get())
                 .add(RadiocraftBlocks.ANTENNA_CONNECTOR.get()) // I'm not convinced this is the feed end of the antenna - jrddunbr
                 .add(RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
-                .add(RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
+                .add(RadiocraftBlocks.BALUN_FOUR_TO_ONE.get(), RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
                 .add(RadiocraftBlocks.BALUN_NINE_TO_ONE.get())
                 .add(RadiocraftBlocks.J_POLE_ANTENNA.get())
                 .add(RadiocraftBlocks.SLIM_JIM_ANTENNA.get())
@@ -80,7 +80,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.ANTENNA_POLE.get()) // I'm not convinced this is used for this - jrddunbr
                 .add(RadiocraftBlocks.ANTENNA_CONNECTOR.get())
                 .add(RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
-                .add(RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
+                .add(RadiocraftBlocks.BALUN_FOUR_TO_ONE.get(), RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
                 .add(RadiocraftBlocks.BALUN_NINE_TO_ONE.get());
 
 

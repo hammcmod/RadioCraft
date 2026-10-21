@@ -3,6 +3,7 @@
     "radiocraft:antenna_pole",
     "radiocraft:antenna_connector",
     "radiocraft:balun_one_to_one",
+    "radiocraft:balun_four_to_one",
     "radiocraft:balun_two_to_one",
     "radiocraft:balun_nine_to_one"
   ]

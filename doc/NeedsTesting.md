@@ -115,7 +115,7 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
   5 along the wire). Right clicking the balun names `radiocraft:inverted_v`; Jade shows arms and drops; a 20m radio
   sees SWR 1. Raise one end above the balun: no longer recognized. Compare the strength heard at a far station with
   a flat 5+5 dipole: the V should be 10% weaker (25% on 40m).
-- [ ] Random wire: Balun (9:1) (placeholder: looks like the 2:1 balun until the bounty is drawn), one wire to a pole,
+- [ ] Random wire: Balun (9:1) (texture by the maintainer, 2026-10-21), one wire to a pole,
   a second wire on from that pole (12 blocks total, any shape). Right click names `radiocraft:random_wire`; Jade
   shows the length and "Needs an antenna tuner". A 20m radio without a tuner sees SWR 2.6, with a tuner 1.0; a
   wire shorter than 11 blocks on 20m is SWR 10. Fork the wire at the pole: not recognized.
@@ -137,6 +137,16 @@ HF radio, coax, Antenna Tuner, coax, 1:1 balun with a dipole one or two blocks s
 - [ ] Lightning: reported silent once, then fine after a client restart (maintainer, 2026-10-21; "audio and decay
   sounded good"). If it goes quiet again, note what happened just before (world reload, far travel, config change)
   and whether a lever next to the coax still pops, since both use the same client path.
+
+## 4:1 balun, off-centre-fed dipole, release tab (added 2026-10-21)
+
+- [ ] New "Balun (4:1)" (`radiocraft:balun_four_to_one`) next to the 2:1 in the tab; its texture is the 2:1 art
+  until the bounty is drawn. The 2:1 still feeds the quad loops (horizontal and vertical squares); try one.
+- [ ] OCFD: 4:1 balun, arms 4 and 7 on the same level. Right click names `radiocraft:off_center_fed_dipole`; a 20m
+  radio sees SWR 1, a 10m radio also 1, a 15m... there is no 15m radio, so check with `/rcdebug antenna`: 21 MHz
+  is above 2. A 5 + 5 on the 4:1 is not recognized (that is a dipole, use the 1:1). A 40m OCFD is 7 + 14.
+- [ ] Creative tab: the HF station items are in the main section without the blue "dev" watermark; the duplexer,
+  repeater, digital interface, dish, microphone block and power blocks keep it (dev runs only).
 
 ## Tooltips (added 2026-10-21)
 
