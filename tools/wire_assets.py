@@ -1,7 +1,9 @@
 """Generates the wire models that depend on each other and the three identical wire blockstates.
 
-Model coordinate convention: every edge model is authored for the NORTH edge (z = 0..2) and rotated in the
-blockstate. Pieces may reach outside the 0..16 cube (the overhangs), which Minecraft renders fine.
+Model coordinate convention: every edge model is authored for the NORTH edge and rotated in the blockstate. An
+edge run straddles the block face (z = -1..1): one pixel inside the wall it hugs (hidden) and one outside, so the
+run in the block above a wall, which hugs the same face from the other side, lines up with it exactly. Pieces may
+reach outside the 0..16 cube, which Minecraft renders fine.
 """
 import json
 
@@ -33,8 +35,8 @@ def edge_run(y0, credit):
         "parent": "block/block",
         "textures": TEX,
         "elements": [
-            {"name": "wire", "from": [7, y0, 0], "to": [9, mid, 2], "faces": faces(down=y0 == 0)},
-            {"name": "wire", "from": [7, mid, 0], "to": [9, 16, 2], "faces": faces(up=True)},
+            {"name": "wire", "from": [7, y0, -1], "to": [9, mid, 1], "faces": faces(down=y0 == 0)},
+            {"name": "wire", "from": [7, mid, -1], "to": [9, 16, 1], "faces": faces(up=True)},
         ],
     }
 
@@ -61,9 +63,9 @@ models = {
     "wire_edge": edge_run(2, "Wire running up the north edge of the block, from the floor stub to the ceiling"),
     "wire_edge_full": edge_run(0, "Wire running up the north edge of the block, floor to ceiling (a run passing through)"),
     # Top of a climb up the north face ending at a device: on over the wall's top to the middle of the block on top of it.
-    "wire_climb_overhang": flat_run(-7, 0, 16, "Climb up the north face ending at a device: the cable runs on over the wall's top to the device's middle"),
+    "wire_climb_overhang": flat_run(-7, 1, 16, "Climb up the north face ending at a device: the cable runs on over the wall's top to the device's middle"),
     # Run up the north edge ending at a device directly above: in along that block's floor to its middle.
-    "wire_up_overhang": flat_run(0, 7, 16, "Run up the north edge ending at a device above: the cable turns in to the device's middle"),
+    "wire_up_overhang": flat_run(-1, 7, 16, "Run up the north edge ending at a device above: the cable turns in to the device's middle"),
 }
 for name, model in models.items():
     json.dump(model, open(f"{BASE}models/block/{name}.json", "w", newline="\n"), indent="\t")
