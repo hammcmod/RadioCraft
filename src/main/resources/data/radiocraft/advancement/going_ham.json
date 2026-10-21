@@ -1,0 +1,32 @@
+{
+  "display": {
+    "icon": { "id": "radiocraft:hf_radio_20m", "count": 1 },
+    "title": "Going Ham",
+    "description": "You placed a radio. Remember: it needs power from a battery on wire, and an antenna on coax, before it makes a sound.",
+    "frame": "task",
+    "background": "minecraft:textures/gui/advancements/backgrounds/stone.png",
+    "show_toast": true,
+    "announce_to_chat": false
+  },
+  "criteria": {
+    "placed_radio": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": [
+                  "radiocraft:hf_radio_10m", "radiocraft:hf_radio_20m", "radiocraft:hf_radio_40m", "radiocraft:hf_radio_80m",
+                  "radiocraft:all_band_radio", "radiocraft:qrp_radio_20m", "radiocraft:qrp_radio_40m",
+                  "radiocraft:hf_receiver", "radiocraft:vhf_base_station", "radiocraft:vhf_receiver"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

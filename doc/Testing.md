@@ -213,6 +213,8 @@ Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug tra
 ## Bug audit (2026-10)
 
 Fixed, each with a GameTest or unit test that now runs as required:
+- Battery charge was never saved: it lived only in the in-memory `BatteryNetworkObject`, so every reload emptied the
+  battery. `LargeBatteryBlockEntity` now saves it and hands it to the fresh object (`PowerGameTests`, 2026-10-21).
 
 1. Radio settings not saved - `radioSettingsSurviveSaveAndLoad`, `outOfBandFrequencyIsResetOnLoad`,
    `radioPowerStateSurvivesReload`.

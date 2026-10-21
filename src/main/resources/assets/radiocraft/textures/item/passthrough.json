@@ -1,0 +1,64 @@
+{
+	"format_version": "26.3",
+	"credit": "Made with Blockbench",
+	"textures": {
+		"0": "radiocraft:item/passthrough",
+		"particle": "radiocraft:item/passthrough"
+	},
+	"elements": [
+		{
+			"from": [6, 0, 0],
+			"to": [10, 0, 7],
+			"rotation": {"angle": 0, "axis": "y", "origin": [6, 0, 0]},
+			"faces": {
+				"north": {"uv": [0, 0, 4, 0], "texture": "#0"},
+				"east": {"uv": [0, 0, 7, 0], "texture": "#0"},
+				"south": {"uv": [0, 0, 4, 0], "texture": "#0"},
+				"west": {"uv": [0, 0, 7, 0], "texture": "#0"},
+				"up": {"uv": [0, 0, 4, 7], "texture": "#0"},
+				"down": {"uv": [4, 0, 8, 7], "texture": "#0"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [87, 24, -5],
+			"translation": [1.25, -1, 8.25]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [94, -8, 8],
+			"translation": [-1, -2.25, 9.5]
+		},
+		"firstperson_righthand": {
+			"rotation": [13, 0, 0],
+			"translation": [3.5, 0, 0]
+		},
+		"firstperson_lefthand": {
+			"rotation": [24, 1, 9],
+			"translation": [0.25, 0.25, 1]
+		},
+		"ground": {
+			"rotation": [0, 0, 15],
+			"translation": [0, 5.25, 0]
+		},
+		"gui": {
+			"rotation": [99, -28, -176],
+			"translation": [-3.5, -7, 0],
+			"scale": [1.8, 0, 1.8]
+		},
+		"head": {
+			"rotation": [85, -91, 16],
+			"translation": [-4.25, -0.5, 0.25]
+		},
+		"fixed": {
+			"rotation": [89, 0, 0],
+			"translation": [0, -8.25, 16],
+			"scale": [2, 2, 2]
+		},
+		"on_shelf": {
+			"rotation": [-93, 0, 0],
+			"translation": [0, 0, -19],
+			"scale": [2, 2, 2]
+		}
+	}
+}

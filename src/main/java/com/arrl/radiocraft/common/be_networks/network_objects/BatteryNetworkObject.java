@@ -4,9 +4,11 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
+import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 public class BatteryNetworkObject extends PowerNetworkObject {
 
@@ -42,7 +44,20 @@ public class BatteryNetworkObject extends PowerNetworkObject {
         }
 
         energyStorage.setEnergy(energyStorage.getEnergyStored() - pushed);
+
+        // The charge is saved by the block entity (networks are not), so tell it whenever the charge has moved,
+        // whether we pushed it out or a charge controller pushed it in.
+        if(energyStorage.getEnergyStored() != lastSeenEnergy) {
+            lastSeenEnergy = energyStorage.getEnergyStored();
+            BlockEntity be = level.getBlockEntity(pos);
+            if(be instanceof LargeBatteryBlockEntity battery)
+                battery.rememberEnergy(lastSeenEnergy);
+            else if(be != null)
+                be.setChanged();
+        }
     }
+
+    private int lastSeenEnergy = -1;
 
     @Override
     public ResourceLocation getType() {

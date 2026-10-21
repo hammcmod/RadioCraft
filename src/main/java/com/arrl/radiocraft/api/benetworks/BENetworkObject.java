@@ -10,6 +10,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,6 +28,11 @@ public class BENetworkObject {
      * The networks this {@link BENetworkObject} is in.
      */
     protected final Map<Direction, BENetwork> networks = new HashMap<>();
+
+    /** The networks this object is in, by the side of the block they touch. Read only. */
+    public Map<Direction, BENetwork> getNetworks() {
+        return Collections.unmodifiableMap(networks);
+    }
     /**
      * The {@link Level} this {@link BENetworkObject} is in.
      */

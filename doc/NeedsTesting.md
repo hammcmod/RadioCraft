@@ -155,6 +155,15 @@ network that cannot keep up, is "browned out": no static, hears nothing, and its
 - [ ] `/rcenergy` positions now tab-complete to the block you are looking at (they were plain integers before).
   `/rcenergy infinite` is only for the desk charger; `fillblock` is the way to feed a battery or a radio directly.
 - [ ] A world saved with a radio on comes back with the switch on; it runs only if the battery still has charge.
+- [ ] Battery charge survives leaving and rejoining the world (it did not until 2026-10-21 midday: every relaunch
+  emptied the batteries, which is what made a "charged" battery show PWR). Jade on a battery shows its own charge
+  and the total over every battery on the same wire.
+- [ ] With no battery on the wire at all the panel stays dark when switched on (no PWR cycle); PWR is only for a
+  battery that cannot keep up.
+- [ ] Display corners: the mode (SSB, CW, or FM on the VHF base station) top left, TX top right while sending, both
+  in the same small size. Does the mode read well on each radio's display texture?
+- [ ] "Going Ham" advancement: placing any block radio pops a toast with the icon of the 20m radio and a reminder
+  that it needs power and an antenna; it gets its own RadioCraft tab in the advancements screen. Is the wording OK?
 
 ## 4:1 balun, off-centre-fed dipole, release tab (added 2026-10-21)
 
@@ -197,6 +206,8 @@ Lay coax (or power wire) along the ground up to a one-block step with more wire 
   post, the bottom piece turns from its floor run to the post, the top piece arrives on the post's face and turns
   towards its own connection. Where the post has a gap the run jogs back to the middle for that block.
 - [ ] Waterproof wire now has a blockstate and renders like wire (it had none and showed the missing-model box).
+- [ ] Coax has its own darker texture (maintainer, 2026-10-21, `coaxial_wire.png`) on every piece: floor, edge
+  runs, corners, overhangs. Power wire and waterproof wire keep the light one.
 
 ## From the 2026-10-19 work (CW restored, transmission tests)
 

@@ -19,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("empty") // Some parts are not implemented; this is okay as we'll fix this later when block radios are worked on
 public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContainerScreen<T> {
@@ -74,11 +75,23 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 		boolean transmitting = isTransmitting();
 		String text = String.format("%.3f MHz", menu.getFrequency() / 1_000_000.0F);
 		drawScaled(guiGraphics, text, leftPos + x + w / 2.0F, topPos + y + h / 2.0F, scale, transmitting ? DISPLAY_TX_COLOUR : colour);
-		if(transmitting && h >= 20) {
-			float markerScale = Math.min(1.0F, scale * 0.6F);
+		if(h < 20)
+			return; // Too small for the corner markers.
+		float markerScale = Math.min(1.0F, scale * 0.6F);
+		float markerY = topPos + y + 2 + font.lineHeight * markerScale / 2.0F;
+		String mode = modeLabel();
+		if(mode != null) // Top left: the mode (SSB, CW, FM).
+			drawScaled(guiGraphics, mode, leftPos + x + 2 + font.width(mode) * markerScale / 2.0F, markerY, markerScale, colour);
+		if(transmitting) { // Top right: TX.
 			float markerWidth = font.width("TX") * markerScale;
-			drawScaled(guiGraphics, "TX", leftPos + x + w - 2 - markerWidth / 2.0F, topPos + y + 2 + font.lineHeight * markerScale / 2.0F, markerScale, DISPLAY_TX_COLOUR);
+			drawScaled(guiGraphics, "TX", leftPos + x + w - 2 - markerWidth / 2.0F, markerY, markerScale, DISPLAY_TX_COLOUR);
 		}
+	}
+
+	/** The mode shown in the display's top left corner, or null for none. */
+	@Nullable
+	protected String modeLabel() {
+		return null;
 	}
 
 	/** Draws {@code text} centred on {@code cx, cy} at {@code scale}, no shadow. */

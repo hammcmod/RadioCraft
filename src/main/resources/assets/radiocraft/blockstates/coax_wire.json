@@ -142,7 +142,7 @@
         ]
       },
       "apply": {
-        "model": "radiocraft:block/wire_middle"
+        "model": "radiocraft:block/coax_wire_middle"
       }
     },
     {
@@ -392,7 +392,7 @@
         ]
       },
       "apply": {
-        "model": "radiocraft:block/wire_horizontal"
+        "model": "radiocraft:block/coax_wire_horizontal"
       }
     },
     {
@@ -642,7 +642,7 @@
         ]
       },
       "apply": {
-        "model": "radiocraft:block/wire_horizontal",
+        "model": "radiocraft:block/coax_wire_horizontal",
         "y": 90
       }
     },
@@ -893,7 +893,7 @@
         ]
       },
       "apply": {
-        "model": "radiocraft:block/wire_horizontal",
+        "model": "radiocraft:block/coax_wire_horizontal",
         "y": 180
       }
     },
@@ -1144,7 +1144,7 @@
         ]
       },
       "apply": {
-        "model": "radiocraft:block/wire_horizontal",
+        "model": "radiocraft:block/coax_wire_horizontal",
         "y": 270
       }
     },
@@ -1159,7 +1159,7 @@
         "west": "false"
       },
       "apply": {
-        "model": "radiocraft:block/wire_corner"
+        "model": "radiocraft:block/coax_wire_corner"
       }
     },
     {
@@ -1173,7 +1173,7 @@
         "west": "false"
       },
       "apply": {
-        "model": "radiocraft:block/wire_corner",
+        "model": "radiocraft:block/coax_wire_corner",
         "y": 90
       }
     },
@@ -1188,7 +1188,7 @@
         "west": "false"
       },
       "apply": {
-        "model": "radiocraft:block/wire_corner",
+        "model": "radiocraft:block/coax_wire_corner",
         "y": 180
       }
     },
@@ -1203,7 +1203,7 @@
         "south": "false"
       },
       "apply": {
-        "model": "radiocraft:block/wire_corner",
+        "model": "radiocraft:block/coax_wire_corner",
         "y": 270
       }
     },
@@ -1213,7 +1213,7 @@
         "up": "true"
       },
       "apply": {
-        "model": "radiocraft:block/wire_vertical"
+        "model": "radiocraft:block/coax_wire_vertical"
       }
     },
     {
@@ -1222,7 +1222,7 @@
         "arrive": "north"
       },
       "apply": {
-        "model": "radiocraft:block/wire_edge_full"
+        "model": "radiocraft:block/coax_wire_edge_full"
       }
     },
     {
@@ -1231,7 +1231,7 @@
         "arrive": "none|east|south|west"
       },
       "apply": {
-        "model": "radiocraft:block/wire_edge"
+        "model": "radiocraft:block/coax_wire_edge"
       }
     },
     {
@@ -1240,7 +1240,7 @@
         "arrive": "east"
       },
       "apply": {
-        "model": "radiocraft:block/wire_edge_full",
+        "model": "radiocraft:block/coax_wire_edge_full",
         "y": 90
       }
     },
@@ -1250,7 +1250,7 @@
         "arrive": "none|north|south|west"
       },
       "apply": {
-        "model": "radiocraft:block/wire_edge",
+        "model": "radiocraft:block/coax_wire_edge",
         "y": 90
       }
     },
@@ -1260,7 +1260,7 @@
         "arrive": "south"
       },
       "apply": {
-        "model": "radiocraft:block/wire_edge_full",
+        "model": "radiocraft:block/coax_wire_edge_full",
         "y": 180
       }
     },
@@ -1270,7 +1270,7 @@
         "arrive": "none|north|east|west"
       },
       "apply": {
-        "model": "radiocraft:block/wire_edge",
+        "model": "radiocraft:block/coax_wire_edge",
         "y": 180
       }
     },
@@ -1280,7 +1280,7 @@
         "arrive": "west"
       },
       "apply": {
-        "model": "radiocraft:block/wire_edge_full",
+        "model": "radiocraft:block/coax_wire_edge_full",
         "y": 270
       }
     },
@@ -1290,7 +1290,7 @@
         "arrive": "none|north|east|south"
       },
       "apply": {
-        "model": "radiocraft:block/wire_edge",
+        "model": "radiocraft:block/coax_wire_edge",
         "y": 270
       }
     },
@@ -1300,7 +1300,7 @@
         "end": "climb_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_climb_overhang"
+        "model": "radiocraft:block/coax_wire_climb_overhang"
       }
     },
     {
@@ -1309,7 +1309,7 @@
         "end": "up_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_up_overhang"
+        "model": "radiocraft:block/coax_wire_up_overhang"
       }
     },
     {
@@ -1318,7 +1318,7 @@
         "end": "climb_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_climb_overhang",
+        "model": "radiocraft:block/coax_wire_climb_overhang",
         "y": 90
       }
     },
@@ -1328,7 +1328,7 @@
         "end": "up_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_up_overhang",
+        "model": "radiocraft:block/coax_wire_up_overhang",
         "y": 90
       }
     },
@@ -1338,7 +1338,7 @@
         "end": "climb_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_climb_overhang",
+        "model": "radiocraft:block/coax_wire_climb_overhang",
         "y": 180
       }
     },
@@ -1348,7 +1348,7 @@
         "end": "up_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_up_overhang",
+        "model": "radiocraft:block/coax_wire_up_overhang",
         "y": 180
       }
     },
@@ -1358,7 +1358,7 @@
         "end": "climb_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_climb_overhang",
+        "model": "radiocraft:block/coax_wire_climb_overhang",
         "y": 270
       }
     },
@@ -1368,7 +1368,7 @@
         "end": "up_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_up_overhang",
+        "model": "radiocraft:block/coax_wire_up_overhang",
         "y": 270
       }
     }

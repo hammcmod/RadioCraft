@@ -34,6 +34,13 @@ public abstract class HFRadioScreen<T extends RadioMenu<? extends HFRadioBlockEn
 		super.renderBackground(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 	}
 
+	@Override
+	protected String modeLabel() {
+		if(menu.blockEntity.getCWEnabled())
+			return "CW";
+		return menu.blockEntity.getSSBEnabled() ? "SSB" : null;
+	}
+
 	/** CW has no PTT on the server: keying is local, so the readout follows our own key while in CW. */
 	@Override
 	protected boolean isTransmitting() {

@@ -74,8 +74,28 @@ models = {
     },
     "wire_up_overhang": flat_run(-1, 7, 16, "Run up the north edge ending at a device above: the cable turns in to the device's middle"),
 }
-for name, model in models.items():
+# Each wire kind has its own texture; the models are identical otherwise. "wire_*" models are the power wire's
+# (the waterproof wire shares them); "coax_wire_*" models use the coax texture the maintainer drew (2026-10-21).
+VARIANTS = {"wire": "radiocraft:block/wire", "coax_wire": "radiocraft:block/coaxial_wire"}
+BASE_MODELS = ["middle", "horizontal", "vertical"]  # hand-made in Blockbench for the power wire, copied for coax
+
+
+def retextured(model, texture):
+    out = json.loads(json.dumps(model))
+    out["textures"] = {k: texture for k in out.get("textures", {})}
+    return out
+
+
+def dump(model, name):
     json.dump(model, open(f"{BASE}models/block/{name}.json", "w", newline="\n"), indent="\t")
+
+
+for prefix, texture in VARIANTS.items():
+    for name, model in models.items():
+        dump(retextured(model, texture), prefix + name[len("wire"):])
+    if prefix != "wire":
+        for base in BASE_MODELS:
+            dump(retextured(json.load(open(f"{BASE}models/block/wire_{base}.json")), texture), f"{prefix}_{base}")
 
 H = {"north": None, "east": 90, "south": 180, "west": 270}
 SIDES = list(H)
@@ -169,6 +189,6 @@ for h, y in H.items():
     cases.append({"when": {"hug": h, "end": "up_device"}, "apply": model("wire_up_overhang", y)})
 
 text = json.dumps({"multipart": cases}, indent=2) + "\n"
-for name in ["wire", "coax_wire", "waterproof_wire"]:
-    open(f"{BASE}blockstates/{name}.json", "w", newline="\n").write(text)
-print("models:", ", ".join(models), "| blockstate cases:", len(cases), "| bytes:", len(text))
+for name, prefix in [("wire", "wire"), ("waterproof_wire", "wire"), ("coax_wire", "coax_wire")]:
+    open(f"{BASE}blockstates/{name}.json", "w", newline="\n").write(text.replace("radiocraft:block/wire_", f"radiocraft:block/{prefix}_"))
+print("models:", ", ".join(models), "x", len(VARIANTS), "textures | blockstate cases:", len(cases), "| bytes:", len(text))

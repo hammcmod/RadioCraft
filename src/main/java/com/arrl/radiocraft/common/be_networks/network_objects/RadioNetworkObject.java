@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
@@ -108,14 +109,29 @@ public class RadioNetworkObject extends PowerNetworkObject implements ICoaxNetwo
         brownoutTicks++;
     }
 
-    /** What the front panel shows: {@link #PHASE_ON}, {@link #PHASE_PWR} or {@link #PHASE_OFF}. */
+    /**
+     * What the front panel shows: {@link #PHASE_ON}, {@link #PHASE_PWR} or {@link #PHASE_OFF}. With no battery on the
+     * wire at all the panel stays dark whatever the switch says; the PWR cycle is for a battery that cannot keep up.
+     */
     public int getDisplayPhase() {
         if(isPowered)
             return PHASE_ON;
-        if(!wantsOn)
+        if(!wantsOn || !hasBattery())
             return PHASE_OFF;
         int t = brownoutTicks % BROWNOUT_CYCLE_TICKS;
         return t < BROWNOUT_PWR_FROM ? PHASE_ON : t < BROWNOUT_DARK_FROM ? PHASE_PWR : PHASE_OFF;
+    }
+
+    /** True if a battery sits on any power network this radio is wired to. */
+    public boolean hasBattery() {
+        for(BENetwork network : networks.values()) {
+            if(network instanceof PowerBENetwork) {
+                for(BENetworkObject object : network.getNetworkObjects())
+                    if(object instanceof BatteryNetworkObject)
+                        return true;
+            }
+        }
+        return false;
     }
 
     /** True while the switch is on but the power network cannot feed the radio. */

@@ -13,4 +13,9 @@ public abstract class VHFRadioScreen<T extends RadioMenu<?>> extends RadioScreen
         RadiocraftClientValues.SCREEN_VOICE_ENABLED = true;
     }
 
+    @Override
+    protected String modeLabel() {
+        return "FM";
+    }
+
 }
