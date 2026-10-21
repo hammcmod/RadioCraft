@@ -150,8 +150,11 @@ Lay coax (or power wire) along the ground up to a one-block step with more wire 
 - [ ] A climb straight into a device on the step (battery on a ledge, balun on a post): the cable runs up the post,
   over its top edge and along the top to the middle of the balun's block, ending just under the balun's body. That
   last piece is drawn by the climbing wire outside its own block, so check it against the post's top texture and in
-  the dark, and at chunk borders (x or z a multiple of 16). No coax on top of the post is needed, or wanted: with
-  one there the run jogs to the middle at floor level and goes up the middle instead.
+  the dark, and at chunk borders (x or z a multiple of 16).
+- [ ] Balun one block above the post top, coax on the post under it (maintainer's build, 2026-10-21): the run comes
+  up the post face, carries straight on up the same edge through the block on the post (no wall there, no jog) and
+  turns in to the balun's middle only at the ceiling. Nothing extends to the middle at floor level any more. A
+  second coax beside that one is a real branch and will draw a stub; leave it out.
 - [ ] A wire directly above the foot wire wins: with coax at the foot, on the step and also floating above the foot,
   the foot does not climb (the column carries the run) but still hugs the step, and the piece above arrives at the
   step's face before turning onto the step. Removing the floating piece makes it climb; both look the same.

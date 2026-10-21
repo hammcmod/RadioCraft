@@ -186,12 +186,15 @@ Build a second station the same way 20 blocks east (`x = 20`), then `rcdebug tra
   holder) and therefore `./gradlew runData` before GameTests that connect it to coax can pass.
 - **Wire links, wall hugging and climbs** (2026-10-21): `WireBlock#getLinks` is the one place that says what a wire
   is joined to: its six neighbours plus, like redstone dust, a climb up a solid block to the wire or device on top of
-  it (`climb` = none/wire/device with `hug` giving the wall; a wire on top shows a stub towards the climber, for a
-  device the climber draws an overhang piece over the wall's top to the device's centre, outside its own block
-  bounds, since devices have no stub to give). Any vertical run
-  next to a wall hugs it: `hug` is the wall the run up follows, `down_hug` the wall the wire below is on (inherited
-  so a column stays on one face and the top piece arrives at the edge). Hugging is cosmetic; links are unchanged by
-  it. `WireUtils`, the Jade coax overlay and the redstone pickup zone all walk links, and `WireBlock.wireLinksAround`
+  it (`end` = climb_wire / climb_device with `hug` giving the wall; a wire on top takes the climber in on that edge,
+  for a device the climber draws an overhang piece over the wall's top to the device's centre, outside its own
+  block bounds, since devices have no stub to give). Vertical runs follow block edges: `hug` is the edge the run up
+  follows (a solid wall if the run starts here, otherwise the edge it arrived on, wall or not, so a cable keeps its
+  line above a post), `arrive` the edge a run from below comes in on (from the wire below or from a climber). The
+  run only turns in to the middle where it must: a horizontal branch, or a device directly above (`end` =
+  up_device draws that last piece). Hugging is cosmetic; links are unchanged by it. The models and the three
+  blockstates come from `wire_assets.py` (`tools/wire_assets.py`, run with `python tools/wire_assets.py`).
+  `WireUtils`, the Jade coax overlay and the redstone pickup zone all walk links, and `WireBlock.wireLinksAround`
   finds the wires touching a device, climbers included. The climb depends on a block that is not a direct
   neighbour, so `WireClimbUpdater` listens to `BlockEvent.NeighborNotifyEvent` and calls `WireBlock#refresh` on
   every wire around a changed block; `refresh` merges or splits the networks itself when the climb link comes, goes

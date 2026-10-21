@@ -65,14 +65,15 @@ public class WireClimbGameTests {
     }
 
     private static boolean climbsSouth(GameTestHelper helper, BlockPos pos) {
-        return helper.getBlockState(pos).getValue(WireBlock.CLIMB) != WireBlock.ClimbTarget.NONE && helper.getBlockState(pos).getValue(WireBlock.HUG) == WireBlock.WallSide.SOUTH;
+        return helper.getBlockState(pos).getValue(WireBlock.END).isClimb() && helper.getBlockState(pos).getValue(WireBlock.HUG) == WireBlock.Edge.SOUTH;
     }
 
     private static void assertClimbState(GameTestHelper helper) {
         helper.assertTrue(climbsSouth(helper, FOOT), "Foot coax should climb south up the step");
-        helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.WIRE, "A climb to the coax on the step ends at a wire");
+        helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.END) == WireBlock.End.CLIMB_WIRE, "A climb to the coax on the step ends at a wire");
         helper.assertTrue(!helper.getBlockState(FOOT).getValue(WireBlock.SOUTH), "Foot coax has no plain south connection (the step is solid)");
-        helper.assertTrue(helper.getBlockState(TOP).getValue(WireBlock.NORTH), "Top coax should show a stub north towards the climber");
+        helper.assertTrue(helper.getBlockState(TOP).getValue(WireBlock.ARRIVE) == WireBlock.Edge.NORTH, "Top coax should take the climber in on its north edge");
+        helper.assertTrue(!helper.getBlockState(TOP).getValue(WireBlock.NORTH), "Top coax has no neighbour to the north");
         helper.assertTrue(!helper.getBlockState(TOP).getValue(WireBlock.DOWN), "Top coax must not claim a down connection into the step");
     }
 
@@ -94,11 +95,11 @@ public class WireClimbGameTests {
                     coax(helper, aboveFoot); // A wire straight above the foot: it carries the run, so no climb.
                 })
                 .thenWaitUntil(() -> {
-                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.NONE, "A wire above the foot means no climb");
+                    helper.assertTrue(!helper.getBlockState(FOOT).getValue(WireBlock.END).isClimb(), "A wire above the foot means no climb");
                     helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.UP), "Foot links up to the wire above it");
-                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.HUG) == WireBlock.WallSide.SOUTH, "Foot should hug the step");
-                    helper.assertTrue(helper.getBlockState(aboveFoot).getValue(WireBlock.DOWN_HUG) == WireBlock.WallSide.SOUTH, "The wire above arrives on the step's face");
-                    helper.assertTrue(helper.getBlockState(aboveFoot).getValue(WireBlock.HUG) == WireBlock.WallSide.NONE, "The wire above does not go on up");
+                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.HUG) == WireBlock.Edge.SOUTH, "Foot should hug the step");
+                    helper.assertTrue(helper.getBlockState(aboveFoot).getValue(WireBlock.ARRIVE) == WireBlock.Edge.SOUTH, "The wire above arrives on the step's face");
+                    helper.assertTrue(helper.getBlockState(aboveFoot).getValue(WireBlock.HUG) == WireBlock.Edge.NONE, "The wire above does not go on up");
                     helper.assertTrue(helper.getBlockState(aboveFoot).getValue(WireBlock.SOUTH), "The wire above links south onto the step's wire");
                     helper.assertTrue(helper.getBlockState(TOP).getValue(WireBlock.NORTH), "The wire on the step links north to the column");
                     assertRadioSeesMatchedDipole(helper);
@@ -120,7 +121,7 @@ public class WireClimbGameTests {
                 .thenExecute(() -> {
                     coax(helper, GROUND_COAX);
                     coax(helper, FOOT);
-                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.NONE, "Nothing on the step yet, so no climb");
+                    helper.assertTrue(!helper.getBlockState(FOOT).getValue(WireBlock.END).isClimb(), "Nothing on the step yet, so no climb");
                     coax(helper, TOP);
                     coax(helper, UPPER_COAX);
                 })
@@ -166,8 +167,8 @@ public class WireClimbGameTests {
                 .thenWaitUntil(() -> assertRadioSeesMatchedDipole(helper))
                 .thenExecute(() -> helper.setBlock(STEP, Blocks.AIR))
                 .thenExecuteAfter(2, () -> {
-                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.NONE, "Climb should end with the step gone");
-                    helper.assertTrue(!helper.getBlockState(TOP).getValue(WireBlock.NORTH), "Top stub should go with the climb");
+                    helper.assertTrue(!helper.getBlockState(FOOT).getValue(WireBlock.END).isClimb(), "Climb should end with the step gone");
+                    helper.assertTrue(helper.getBlockState(TOP).getValue(WireBlock.ARRIVE) == WireBlock.Edge.NONE, "Top arrival should go with the climb");
                     helper.assertTrue(antennasSeen(helper) == 0, "Radio should lose the antenna, sees " + antennasSeen(helper));
                 })
                 .thenExecute(() -> helper.setBlock(STEP, Blocks.STONE)) // Put the step back: the climb and the link return.
@@ -192,7 +193,7 @@ public class WireClimbGameTests {
                     coax(helper, GROUND_COAX);
                     coax(helper, FOOT);
                     helper.assertTrue(climbsSouth(helper, FOOT), "Foot coax should climb to the balun on the step");
-                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.CLIMB) == WireBlock.ClimbTarget.DEVICE, "A climb into a balun ends at a device");
+                    helper.assertTrue(helper.getBlockState(FOOT).getValue(WireBlock.END) == WireBlock.End.CLIMB_DEVICE, "A climb into a balun ends at a device");
                 })
                 .thenWaitUntil(() -> assertRadioSeesMatchedDipole(helper))
                 .thenSucceed();

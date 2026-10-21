@@ -19,23 +19,23 @@
             "hug": "none"
           },
           {
-            "down_hug": "none"
+            "arrive": "none"
           },
           {
             "hug": "north",
-            "down_hug": "east|south|west"
+            "arrive": "east|south|west"
           },
           {
             "hug": "east",
-            "down_hug": "north|south|west"
+            "arrive": "north|south|west"
           },
           {
             "hug": "south",
-            "down_hug": "north|east|west"
+            "arrive": "north|east|west"
           },
           {
             "hug": "west",
-            "down_hug": "north|east|south"
+            "arrive": "north|east|south"
           }
         ]
       },
@@ -80,28 +80,9 @@
     },
     {
       "when": {
-        "OR": [
-          {
-            "hug": "north",
-            "north": "false",
-            "east": "true"
-          },
-          {
-            "hug": "north",
-            "north": "false",
-            "south": "true"
-          },
-          {
-            "hug": "north",
-            "north": "false",
-            "west": "true"
-          },
-          {
-            "hug": "north",
-            "north": "false",
-            "down_hug": "none|east|south|west"
-          }
-        ]
+        "hug": "north",
+        "north": "false",
+        "arrive": "none|east|south|west"
       },
       "apply": {
         "model": "radiocraft:block/wire_horizontal"
@@ -109,28 +90,9 @@
     },
     {
       "when": {
-        "OR": [
-          {
-            "hug": "east",
-            "east": "false",
-            "north": "true"
-          },
-          {
-            "hug": "east",
-            "east": "false",
-            "south": "true"
-          },
-          {
-            "hug": "east",
-            "east": "false",
-            "west": "true"
-          },
-          {
-            "hug": "east",
-            "east": "false",
-            "down_hug": "none|north|south|west"
-          }
-        ]
+        "hug": "east",
+        "east": "false",
+        "arrive": "none|north|south|west"
       },
       "apply": {
         "model": "radiocraft:block/wire_horizontal",
@@ -139,28 +101,9 @@
     },
     {
       "when": {
-        "OR": [
-          {
-            "hug": "south",
-            "south": "false",
-            "north": "true"
-          },
-          {
-            "hug": "south",
-            "south": "false",
-            "east": "true"
-          },
-          {
-            "hug": "south",
-            "south": "false",
-            "west": "true"
-          },
-          {
-            "hug": "south",
-            "south": "false",
-            "down_hug": "none|north|east|west"
-          }
-        ]
+        "hug": "south",
+        "south": "false",
+        "arrive": "none|north|east|west"
       },
       "apply": {
         "model": "radiocraft:block/wire_horizontal",
@@ -169,28 +112,9 @@
     },
     {
       "when": {
-        "OR": [
-          {
-            "hug": "west",
-            "west": "false",
-            "north": "true"
-          },
-          {
-            "hug": "west",
-            "west": "false",
-            "east": "true"
-          },
-          {
-            "hug": "west",
-            "west": "false",
-            "south": "true"
-          },
-          {
-            "hug": "west",
-            "west": "false",
-            "down_hug": "none|north|east|south"
-          }
-        ]
+        "hug": "west",
+        "west": "false",
+        "arrive": "none|north|east|south"
       },
       "apply": {
         "model": "radiocraft:block/wire_horizontal",
@@ -199,9 +123,28 @@
     },
     {
       "when": {
-        "down_hug": "north",
-        "north": "false",
-        "hug": "none|east|south|west"
+        "OR": [
+          {
+            "arrive": "north",
+            "north": "false",
+            "east": "true"
+          },
+          {
+            "arrive": "north",
+            "north": "false",
+            "south": "true"
+          },
+          {
+            "arrive": "north",
+            "north": "false",
+            "west": "true"
+          },
+          {
+            "arrive": "north",
+            "north": "false",
+            "hug": "none|east|south|west"
+          }
+        ]
       },
       "apply": {
         "model": "radiocraft:block/wire_horizontal"
@@ -209,9 +152,28 @@
     },
     {
       "when": {
-        "down_hug": "east",
-        "east": "false",
-        "hug": "none|north|south|west"
+        "OR": [
+          {
+            "arrive": "east",
+            "east": "false",
+            "north": "true"
+          },
+          {
+            "arrive": "east",
+            "east": "false",
+            "south": "true"
+          },
+          {
+            "arrive": "east",
+            "east": "false",
+            "west": "true"
+          },
+          {
+            "arrive": "east",
+            "east": "false",
+            "hug": "none|north|south|west"
+          }
+        ]
       },
       "apply": {
         "model": "radiocraft:block/wire_horizontal",
@@ -220,9 +182,28 @@
     },
     {
       "when": {
-        "down_hug": "south",
-        "south": "false",
-        "hug": "none|north|east|west"
+        "OR": [
+          {
+            "arrive": "south",
+            "south": "false",
+            "north": "true"
+          },
+          {
+            "arrive": "south",
+            "south": "false",
+            "east": "true"
+          },
+          {
+            "arrive": "south",
+            "south": "false",
+            "west": "true"
+          },
+          {
+            "arrive": "south",
+            "south": "false",
+            "hug": "none|north|east|west"
+          }
+        ]
       },
       "apply": {
         "model": "radiocraft:block/wire_horizontal",
@@ -231,9 +212,28 @@
     },
     {
       "when": {
-        "down_hug": "west",
-        "west": "false",
-        "hug": "none|north|east|south"
+        "OR": [
+          {
+            "arrive": "west",
+            "west": "false",
+            "north": "true"
+          },
+          {
+            "arrive": "west",
+            "west": "false",
+            "east": "true"
+          },
+          {
+            "arrive": "west",
+            "west": "false",
+            "south": "true"
+          },
+          {
+            "arrive": "west",
+            "west": "false",
+            "hug": "none|north|east|south"
+          }
+        ]
       },
       "apply": {
         "model": "radiocraft:block/wire_horizontal",
@@ -252,25 +252,85 @@
     {
       "when": {
         "hug": "north",
-        "down_hug": "north"
+        "arrive": "north"
       },
       "apply": {
-        "model": "radiocraft:block/wire_wall_full"
+        "model": "radiocraft:block/wire_edge_full"
       }
     },
     {
       "when": {
         "hug": "north",
-        "down_hug": "none|east|south|west"
+        "arrive": "none|east|south|west"
       },
       "apply": {
-        "model": "radiocraft:block/wire_wall"
+        "model": "radiocraft:block/wire_edge"
+      }
+    },
+    {
+      "when": {
+        "hug": "east",
+        "arrive": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_edge_full",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "hug": "east",
+        "arrive": "none|north|south|west"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_edge",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "hug": "south",
+        "arrive": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_edge_full",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "hug": "south",
+        "arrive": "none|north|east|west"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_edge",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "hug": "west",
+        "arrive": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_edge_full",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "hug": "west",
+        "arrive": "none|north|east|south"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_edge",
+        "y": 270
       }
     },
     {
       "when": {
         "hug": "north",
-        "climb": "device"
+        "end": "climb_device"
       },
       "apply": {
         "model": "radiocraft:block/wire_climb_overhang"
@@ -278,28 +338,17 @@
     },
     {
       "when": {
-        "hug": "east",
-        "down_hug": "east"
+        "hug": "north",
+        "end": "up_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_wall_full",
-        "y": 90
+        "model": "radiocraft:block/wire_up_overhang"
       }
     },
     {
       "when": {
         "hug": "east",
-        "down_hug": "none|north|south|west"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_wall",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "hug": "east",
-        "climb": "device"
+        "end": "climb_device"
       },
       "apply": {
         "model": "radiocraft:block/wire_climb_overhang",
@@ -308,61 +357,51 @@
     },
     {
       "when": {
-        "hug": "south",
-        "down_hug": "south"
+        "hug": "east",
+        "end": "up_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_wall_full",
-        "y": 180
+        "model": "radiocraft:block/wire_up_overhang",
+        "y": 90
       }
     },
     {
       "when": {
         "hug": "south",
-        "down_hug": "none|north|east|west"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_wall",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "hug": "south",
-        "climb": "device"
+        "end": "climb_device"
       },
       "apply": {
         "model": "radiocraft:block/wire_climb_overhang",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "hug": "south",
+        "end": "up_device"
+      },
+      "apply": {
+        "model": "radiocraft:block/wire_up_overhang",
         "y": 180
       }
     },
     {
       "when": {
         "hug": "west",
-        "down_hug": "west"
+        "end": "climb_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_wall_full",
+        "model": "radiocraft:block/wire_climb_overhang",
         "y": 270
       }
     },
     {
       "when": {
         "hug": "west",
-        "down_hug": "none|north|east|south"
+        "end": "up_device"
       },
       "apply": {
-        "model": "radiocraft:block/wire_wall",
-        "y": 270
-      }
-    },
-    {
-      "when": {
-        "hug": "west",
-        "climb": "device"
-      },
-      "apply": {
-        "model": "radiocraft:block/wire_climb_overhang",
+        "model": "radiocraft:block/wire_up_overhang",
         "y": 270
       }
     }

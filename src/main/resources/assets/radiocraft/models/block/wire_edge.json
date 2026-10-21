@@ -1,5 +1,5 @@
 {
-	"credit": "Wire running up the north face of the block, floor to ceiling (a run passing through)",
+	"credit": "Wire running up the north edge of the block, from the floor stub to the ceiling",
 	"parent": "block/block",
 	"textures": {
 		"0": "radiocraft:block/wire",
@@ -10,25 +10,15 @@
 			"name": "wire",
 			"from": [
 				7,
-				0,
+				2,
 				0
 			],
 			"to": [
 				9,
-				8,
+				9,
 				2
 			],
 			"faces": {
-				"north": {
-					"uv": [
-						0,
-						4,
-						7,
-						6
-					],
-					"rotation": 270,
-					"texture": "#0"
-				},
 				"east": {
 					"uv": [
 						0,
@@ -39,22 +29,32 @@
 					"rotation": 270,
 					"texture": "#0"
 				},
-				"south": {
-					"uv": [
-						0,
-						0,
-						7,
-						2
-					],
-					"rotation": 90,
-					"texture": "#0"
-				},
 				"west": {
 					"uv": [
 						0,
 						6,
 						7,
 						8
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"north": {
+					"uv": [
+						0,
+						4,
+						7,
+						6
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						7,
+						2
 					],
 					"rotation": 90,
 					"texture": "#0"
@@ -65,7 +65,7 @@
 			"name": "wire",
 			"from": [
 				7,
-				8,
+				9,
 				0
 			],
 			"to": [
@@ -74,16 +74,6 @@
 				2
 			],
 			"faces": {
-				"north": {
-					"uv": [
-						0,
-						4,
-						7,
-						6
-					],
-					"rotation": 270,
-					"texture": "#0"
-				},
 				"east": {
 					"uv": [
 						0,
@@ -94,22 +84,32 @@
 					"rotation": 270,
 					"texture": "#0"
 				},
-				"south": {
-					"uv": [
-						0,
-						0,
-						7,
-						2
-					],
-					"rotation": 90,
-					"texture": "#0"
-				},
 				"west": {
 					"uv": [
 						0,
 						6,
 						7,
 						8
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"north": {
+					"uv": [
+						0,
+						4,
+						7,
+						6
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						7,
+						2
 					],
 					"rotation": 90,
 					"texture": "#0"
