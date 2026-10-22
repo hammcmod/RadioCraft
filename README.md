@@ -7,7 +7,7 @@ Download on Modrinth here: https://modrinth.com/mod/radiocraft
 
 Join our Discord here: https://discord.gg/tZFWE2jYQX
 
-View details about the project: [https://radiocraft.w1btr.com](https://radiocraft.bigtimeradio.us/)
+View details about the project: [https://radiocraft.bigtimeradio.us](https://radiocraft.bigtimeradio.us/)
 
 # Development Goals
 
