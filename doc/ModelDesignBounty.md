@@ -67,6 +67,16 @@ trap coils along it, standing on a ground mount. Requested by the maintainer 202
   block is where the coax connects), with the traps visible as thicker coil sections up the tube.
 - No antenna type for it yet; it will need one (multiband vertical) when the model lands.
 
+### Digital interface: player inventory panel
+
+The digital interface's FILES tab needs the player's inventory, and none of its GUI textures has one. Until there is
+art, the screen draws the bottom half of the vanilla chest screen under the panel (added 2026-10-21).
+
+- Wanted: a panel in the style of `textures/gui/digital_interface_*.png` with the 27 + 9 player slots, 176 wide or
+  the panel's full 217, to sit under the 217 x 133 panel. The slots start at x 28, y 147 of the whole screen (y 14
+  into a panel placed at y 133), 18 apart, hotbar 58 below the first row; tell the code if the art moves them
+  (`DigitalInterfaceMenu.INVENTORY_X/Y`).
+
 ## Done
 
 ### Balun (9:1) texture

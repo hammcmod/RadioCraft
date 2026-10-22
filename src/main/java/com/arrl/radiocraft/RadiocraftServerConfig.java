@@ -35,6 +35,11 @@ public class RadiocraftServerConfig {
 
 	public static final ModConfigSpec.ConfigValue<Boolean> RADIO_POWER_REQUIRED;
 	public static final ModConfigSpec.ConfigValue<Double> BARE_CONNECTOR_RANGE;
+
+	public static final ModConfigSpec.ConfigValue<Double> TNC_MIN_SNR;
+	public static final ModConfigSpec.ConfigValue<Double> TNC_MIN_SIGNAL;
+	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_DELAY_TICKS;
+	public static final ModConfigSpec.ConfigValue<Integer> TNC_BEACON_INTERVAL_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_LOSS;
 
@@ -129,6 +134,16 @@ public class RadiocraftServerConfig {
 		BUILDER.push("No Antenna");
 		BARE_CONNECTOR_RANGE = BUILDER.comment(" A radio with nothing on its coax still sends and hears a little through the bare connector: the",
 				" distance in blocks at which that fades to nothing, both ways").defineInRange("bare_connector_range", 8.0D, 1.0D, 64.0D);
+		BUILDER.pop();
+
+		BUILDER.push("Digital Interface (TNC)");
+		TNC_MIN_SNR = BUILDER.comment(" A packet decodes when its signal is at least this many times the receiver's noise floor; weaker ones are lost whole")
+				.defineInRange("tnc_min_snr", 1.0D, 0.0D, 10.0D);
+		TNC_MIN_SIGNAL = BUILDER.comment(" Weakest signal a packet decodes at even with no noise at all, 0 to 1").defineInRange("tnc_min_signal", 0.02D, 0.0D, 1.0D);
+		TNC_DIGIPEAT_DELAY_TICKS = BUILDER.comment(" Ticks a digital interface with more than one radio waits before repeating a packet it heard on its other radios")
+				.defineInRange("tnc_digipeat_delay_ticks", 20, 1, 200);
+		TNC_BEACON_INTERVAL_SECONDS = BUILDER.comment(" Seconds between automatic beacons from a digital interface with beaconing enabled")
+				.defineInRange("tnc_beacon_interval_seconds", 600, 30, 86400);
 		BUILDER.pop();
 
 		BUILDER.push("Antenna Tuner");

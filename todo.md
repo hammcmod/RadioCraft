@@ -112,8 +112,19 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Add multi-channel scan indicator to VHF receiver UI
 
 ### Digital & APRS Features
-- [ ] Implement digital interface/TNC block with data transfer, APRS messaging, and Curios integration
-- [ ] Add `/aprs beacon` and `/aprs broadcast` commands plus in-game item transfer
+- [x] Digital interface (TNC), first slice (2026-10-21): packets ride the radio like voice (AFSK burst everyone on
+  the frequency hears, then the packet decodes whole if on frequency and above the noise, `tnc_min_snr`); APRS
+  beacons (button, redstone pulse, timer) with a map of heard stations, messages to a callsign or ALL with an unread
+  light/buzzer/comparator, digipeating across two radios, `/aprs beacon` and `/aprs broadcast`. No printer block:
+  paper/book/map supplies will live in the TNC (maintainer, 2026-10-21).
+- [ ] TNC APRS map: real terrain under the heard stations; maintainer recalls a map mod considered as a dependency
+- [x] TNC RTTY (2026-10-21): live typing at 45.45 baud, prints a line per sender, 20 lines per paper, garbles when
+  weak; supplies by right click, hopper or the FILES slots
+- [x] TNC FILES (2026-10-21): books, paper and maps (SSTV, from the map's picture) to a callsign or everyone; each
+  receiver prints a copy on its own blank, the sender keeps the original; progress on the six LEDs
+- [ ] TNC FILES: real inventory panel art (bounty); for now the vanilla chest's bottom half
+- [ ] TNC single-radio digipeating (classic APRS, 8-hop cap, toggle); deferred by the maintainer 2026-10-21
+- [ ] TNC: handheld/Curios side (APRS from a handheld radio), message acks and retries
 
 ### Antenna Expansions
 - [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types

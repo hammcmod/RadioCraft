@@ -7,6 +7,7 @@ import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObje
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
+import com.arrl.radiocraft.common.radio.data.TncPacket;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import net.minecraft.core.BlockPos;
@@ -147,6 +148,30 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 //			}
 
 			obj.receiveCWPacket(packet);
+		}
+	}
+
+	@Override
+	public void transmitDataPacket(net.minecraft.server.level.ServerLevel level, TncPacket payload, Band band, float frequencyHertz) {
+		if(network != null) {
+			double matchEfficiency = getMatchEfficiency(frequencyHertz);
+			for(IAntenna antenna : network.allAntennas()) {
+				AntennaPos destination = antenna.getAntennaPos();
+				if(antenna == this || destination == null)
+					continue;
+				AntennaDataPacket packet = new AntennaDataPacket(level, payload, band, frequencyHertz, 1.0D, this);
+				packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * matchEfficiency); // Same bandwidth as voice.
+				antenna.receiveDataPacket(packet);
+			}
+		}
+	}
+
+	@Override
+	public void receiveDataPacket(AntennaDataPacket packet) {
+		AntennaNetworkObject obj = getNetworkObj();
+		if(obj != null) {
+			packet.setStrength(type.getReceiveEfficiency(packet, data, pos.get().position()));
+			obj.receiveDataPacket(packet);
 		}
 	}
 

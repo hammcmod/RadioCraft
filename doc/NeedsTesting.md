@@ -381,6 +381,52 @@ network that cannot keep up, is "browned out": no static, hears nothing, and its
   charge controller and large battery each have a sentence instead (needs `./gradlew runData`). Only the microphone
   block and the satellite dish still say not implemented. Read the sentences: anything wrong or missing?
 
+## Digital interface (TNC): APRS (added 2026-10-21)
+
+Two VHF base stations a few blocks apart (or with antennas), both on 144.390, each with a digital interface touching
+it. `/rcdebug` is not needed; GameTests cover delivery, digipeating and the command, so this is about the screen and
+the sound.
+
+- [ ] Placing the interface sets it to your callsign (green lamp tooltip shows who set it). Clicking CALLSIGN opens
+  an edit box over the map; ENTER saves, ESC cancels without closing the screen, typing 'e' does not close it, and
+  saving it empty claims your own callsign again.
+- [ ] The blue lamp beacons: the radio sends a short burst of packet tones (about half a second) that any radio on
+  the frequency plays, then the other interface lists the station on the paper (callsign, distance, bearing) and
+  draws its icon on the grey map, north up, with a hover tooltip (coordinates, comment, age, digipeaters). Is the
+  burst too loud or too long? Do the tiny half-scale letters read OK on the paper and the fields?
+- [ ] BCN (comment) and ICON (click to cycle: door, compass, minecart, boat, saddle, campfire, lightning rod, ender
+  eye) show up in the far station's tooltip and map. The map zooms out to fit the furthest station.
+- [ ] Beacon enable (on either tab) beacons right away and then every 10 minutes (server config
+  `tnc_beacon_interval_seconds`); a redstone pulse into the interface beacons too. New-contact buzzer: a high note
+  block blip the first time a station is heard.
+- [ ] MSG tab: TO box and message box (100 characters), SEND MESSAGE. The far interface buzzes (low blip), the red
+  lamp blinks on its screen, red dust flickers on top of the block, and a comparator reads 15 until someone opens the
+  MSG tab. The message shows on both papers (yours as "> CALL: text"); long ones wrap and the paper scrolls.
+- [ ] A message to ALL lands on every interface that hears it.
+- [ ] Digipeating: an interface touching two radios on different frequencies repeats a packet heard on one out of
+  the other a second later, once.
+- [ ] `/aprs beacon 144.390 W1AW Net tonight` and `/aprs broadcast all ALL hello` reach interfaces anywhere.
+- [ ] RTTY (stations on an HF band too, say 14.080): whatever you type on the RTTY tab goes out as you type it
+  (upper case only, no backspace: it is already on the air), and Enter or SEND ends the line. Both radios play the
+  warbling RTTY tones, about 6 characters a second. The far interface prints "CALL: TEXT" with a blinking cursor,
+  starts the teletype sound and rings the bell at the end of the line; yours prints its own copy. Does typing 'e'
+  or a number key do anything it should not? Is the 0.6 scale text readable?
+- [ ] RTTY paper: one sheet does 20 lines (top right of the paper shows lines left, PAPER OUT in red). With no
+  paper nothing prints, but you can still send. Paper goes in by right clicking the interface with it, from a hopper
+  on top or side, or the FILES tab's PAPER slot.
+- [ ] RTTY at the edge of range prints with some characters garbled; a bit further and nothing at all.
+- [ ] FILES: the tab shows a vanilla inventory panel under the interface (stand-in art) and the item slots: SEND,
+  four RECEIVED, PAPER / BOOKS / MAPS. Other tabs hide them. Shift click sends paper, books and maps to their
+  supply slots and written books, books and quills, paper and filled maps to SEND.
+- [ ] Send a written book to the far callsign (TO), or to everyone (TO empty): the six LEDs fill up on both
+  interfaces as it goes (a few seconds, plus half a second a page), the radios play packet tones, and the far one
+  prints a "copy of" into RECEIVED using one of its blank books. The sender keeps the original. A copy of a copy is
+  refused. The paper strip on the right logs TX/RX lines, NO BLANK BOOK, TRAY FULL.
+- [ ] Send a filled map: SSTV tones (the classic "beep, bloop" start, then about 26 s of scanning) and the far
+  side prints the same map on an empty map. Does it sound like SSTV? A hopper under the interface pulls the copies
+  out of RECEIVED.
+- [ ] Break the interface: its supplies, the SEND item and the received copies drop.
+
 ## Wires climb walls (added 2026-10-21)
 
 Lay coax (or power wire) along the ground up to a one-block step with more wire on top of the step.

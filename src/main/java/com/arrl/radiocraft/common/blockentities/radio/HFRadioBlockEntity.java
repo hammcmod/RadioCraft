@@ -50,10 +50,6 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 		return cwSendBuffer;
 	}
 
-	private boolean isPowered() {
-		return getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject && networkObject.isPowered;
-	}
-
 	@Override
 	public boolean canReceiveCW() {
 		return cwEnabled && isPowered();

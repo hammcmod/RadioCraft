@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.capabilities;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.*;
+import com.arrl.radiocraft.common.blockentities.DigitalInterfaceBlockEntity;
 import com.arrl.radiocraft.common.data.BlockEntityCallsignSavedData;
 import com.arrl.radiocraft.common.data.PlayerCallsignSavedData;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
@@ -56,6 +57,11 @@ public class RadiocraftCapabilities {
         event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.ALL_BAND_RADIO.get());
 
         event.registerBlockEntity(BLOCK_ENTITY_CALLSIGNS, RadiocraftBlockEntities.HF_RADIO_ALL_BAND.get(), (entity, ignored) -> BlockEntityCallsignSavedData.get(entity.getLevel().getServer().overworld()));
+
+		// Hoppers stock a digital interface's paper, books and maps; one underneath takes the copies of files received.
+		event.registerBlock(Capabilities.ItemHandler.BLOCK, (level, pos, state, be, side) -> be instanceof DigitalInterfaceBlockEntity tnc
+						? side == net.minecraft.core.Direction.DOWN ? tnc.getReceived() : tnc.getSupplies() : null,
+				RadiocraftBlocks.DIGITAL_INTERFACE.get());
 
 		event.registerItem(VHF_HANDHELDS, (itemStack, context) -> new VHFHandheldCapability(itemStack), RadiocraftItems.VHF_HANDHELD.get());
 		

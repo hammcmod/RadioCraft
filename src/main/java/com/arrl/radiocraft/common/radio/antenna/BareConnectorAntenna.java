@@ -8,6 +8,7 @@ import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
+import com.arrl.radiocraft.common.radio.data.TncPacket;
 import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
@@ -124,6 +125,22 @@ public class BareConnectorAntenna implements IAntenna {
 		if(packet.getStrength() > 0.0D && radio instanceof HFRadioBlockEntity hf
 				&& BandUtils.areFrequenciesEqualWithTolerance(hf.getFrequency(), packet.getFrequency(), 1000.0F))
 			hf.receiveCW(packet);
+	}
+
+	@Override
+	public void transmitDataPacket(ServerLevel level, TncPacket payload, Band band, float frequencyHertz) {
+		for(IAntenna other : others()) {
+			double strength = strengthAt(distanceTo(other));
+			if(strength > 0.0D)
+				other.receiveDataPacket(new AntennaDataPacket(level, payload, band, frequencyHertz, strength, this));
+		}
+	}
+
+	@Override
+	public void receiveDataPacket(AntennaDataPacket packet) {
+		packet.setStrength(packet.getStrength() * strengthAt(Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(pos.position()))));
+		if(packet.getStrength() > 0.0D)
+			radio.receiveData(packet);
 	}
 
 	@Override

@@ -2,9 +2,11 @@ package com.arrl.radiocraft.api.antenna;
 
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaDataPacket;
 import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
+import com.arrl.radiocraft.common.radio.data.TncPacket;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -62,6 +64,22 @@ public interface IAntenna {
 	 * @param packet The {@link AntennaCWPacket} being received.
 	 */
 	void receiveCWPacket(AntennaCWPacket packet);
+
+	/**
+	 * Transmit a data packet (from a digital interface) to other {@link IAntenna}s on the network. Antennas that do not
+	 * carry data leave this as it is and send nothing.
+	 * @param level The {@link ServerLevel} object for this {@link IAntenna}.
+	 * @param payload The {@link TncPacket} being sent.
+	 * @param band The band of the transmission.
+	 * @param frequencyHertz The frequency (Hertz) of the transmission.
+	 */
+	default void transmitDataPacket(ServerLevel level, TncPacket payload, Band band, float frequencyHertz) {}
+
+	/**
+	 * Handle receiving a data packet from another {@link IAntenna} on the network. Ignored unless overridden.
+	 * @param packet The {@link AntennaDataPacket} being received.
+	 */
+	default void receiveDataPacket(AntennaDataPacket packet) {}
 
 	/**
 	 * Thread safe, used for calculating signal strengths, must be backed by {@link java.util.concurrent.atomic.AtomicReference}

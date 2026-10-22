@@ -134,7 +134,8 @@ public final class RepeaterAudio {
 		}
 	}
 
-	private static List<short[]> frames(double[] samples) {
+	/** Cuts {@code samples} (-1 to 1) into 20 ms frames, padding the last one with silence. */
+	static List<short[]> frames(double[] samples) {
 		List<short[]> frames = new ArrayList<>();
 		for(int f = 0; f * FRAME < samples.length; f++) {
 			short[] frame = new short[FRAME];

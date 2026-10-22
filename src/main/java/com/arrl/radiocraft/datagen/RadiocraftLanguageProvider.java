@@ -142,6 +142,35 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "repeater.tip.mic"), "Mic: talk out through the repeater from here");
 			provider.add(Radiocraft.translationKey("screen", "repeater.tip.tx"), "Transmitter: repeat what comes in");
 			provider.add(Radiocraft.translationKey("screen", "repeater.tip.speaker"), "Speaker: listen to the input here");
+
+			// Digital interface (TNC)
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.no_callsign"), "You have no callsign to claim it with");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.set_callsign_first"), "Set the interface's callsign first");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.no_radio"), "No radio switched on next to the interface");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.send_failed"), "Nothing sent: check the callsign and message");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.message_hint"), "Message");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.busy"), "A file is already going out or coming in");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.nothing_to_send"), "Put a book, paper or map in the SEND slot");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.paper"), "PAPER: %s LINES");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.paper_out"), "PAPER OUT");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.no_beacons"), "No beacons heard");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.no_messages"), "No messages");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.edit_callsign"), "STATION CALLSIGN");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.edit_comment"), "BEACON COMMENT");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.edit_keys"), "ENTER saves, ESC cancels");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.beacon"), "Beacon now: send this station's position");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.claim"), "Claim: set the interface to your callsign");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.set_by"), "%s, set by %s");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.unread"), "New message! Open MSG to read it");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.no_unread"), "No new messages");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.callsign"), "Station callsign: click to change (empty claims your own)");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.comment"), "Beacon comment, up to 30 characters: click to change");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.icon"), "Map icon: click for the next one");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.beacon_enable"), "Beacon by itself every few minutes (a redstone pulse beacons too)");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.heard"), "Heard %s min ago, direct");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.heard_via"), "Heard %s min ago, via %s digipeater(s)");
+			provider.add(Radiocraft.translationKey("commands", "aprs.sent"), "APRS packet delivered to %s digital interface(s)");
+			provider.add(Radiocraft.translationKey("commands", "aprs.bad_frequency"), "Frequency must be in MHz (such as 144.390) or \"all\"");
 			
 			// Digital Interface tab labels
 			provider.add(Radiocraft.translationKey("gui", "tab.arps"), "ARPS");

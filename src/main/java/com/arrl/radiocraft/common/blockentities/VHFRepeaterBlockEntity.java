@@ -240,10 +240,6 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 	@Override
 	public void setCtcssTone(float tone) {}
 
-	private boolean isPowered() {
-		return level != null && IBENetworks.getObject(level, worldPosition) instanceof RadioNetworkObject networkObject && networkObject.isPowered;
-	}
-
 	/** The repeater listens whenever it is on; the speaker switch only decides whether it plays what it hears. */
 	@Override
 	protected boolean isListening() {

@@ -14,9 +14,11 @@ import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaDataPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
+import com.arrl.radiocraft.common.radio.data.TncPacket;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import de.maxhenkel.voicechat.api.ServerLevel;
@@ -83,6 +85,24 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
                         radio.receiveCW(packet);
                 }
             }
+        }
+        else if(radios.size() > 1)
+            overdraw(level);
+    }
+
+    /** Sends a digital interface's packet out of the antenna, like voice. */
+    public void transmitDataPacket(net.minecraft.server.level.ServerLevel level, TncPacket payload, Band band, float frequency) {
+        StaticAntenna<?> antenna = this.antenna;
+        if(antenna != null)
+            antenna.transmitDataPacket(level, payload, band, frequency);
+    }
+
+    /** Hands a data packet to the radio on this coax, which decides whether it decodes it. */
+    public void receiveDataPacket(AntennaDataPacket packet) {
+        if(radios.size() == 1) {
+            BlockPos checkPos = radios.iterator().next().getPos();
+            if(level.isLoaded(checkPos) && level.getBlockEntity(checkPos) instanceof RadioBlockEntity radio)
+                radio.receiveData(packet);
         }
         else if(radios.size() > 1)
             overdraw(level);

@@ -9,13 +9,20 @@ import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.client.blockentity.RadioBlockEntityClientHandler;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
+import com.arrl.radiocraft.common.blockentities.DigitalInterfaceBlockEntity;
 import com.arrl.radiocraft.common.blockentities.ITogglableBE;
 import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.network.clientbound.CInterferencePacket;
+import com.arrl.radiocraft.api.antenna.IAntennaPacket;
+import com.arrl.radiocraft.common.radio.antenna.AntennaDataPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaVoicePacket;
+import com.arrl.radiocraft.common.radio.data.FileTransfer;
+import com.arrl.radiocraft.common.radio.data.TncPacket;
+import com.arrl.radiocraft.common.radio.voice.Afsk;
+import com.arrl.radiocraft.common.radio.voice.Rtty;
 import com.arrl.radiocraft.common.radio.rfi.InterferenceLevel;
 import com.arrl.radiocraft.common.radio.rfi.PickupZone;
 import com.arrl.radiocraft.common.radio.rfi.RedstoneInterference;
@@ -30,6 +37,7 @@ import com.arrl.radiocraft.common.radio.voice.RepeaterAudio;
 import com.arrl.radiocraft.common.radio.voice.ReceiverMix;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
@@ -153,6 +161,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.tickParrot(serverLevel);
                 be.tickInterference(serverLevel, antenna);
                 be.tickMeter(serverLevel);
+                be.tickData(serverLevel, powered);
             }
             be.additionalTick();
         }
@@ -183,6 +192,148 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     @Nullable
     public BareConnectorAntenna getBareConnector() {
         return bareConnector;
+    }
+
+    // -------------------- DATA (DIGITAL INTERFACE) --------------------
+
+    private final ArrayDeque<TncPacket> dataQueue = new ArrayDeque<>(); // Server thread only.
+    private TncPacket sendingData = null;
+    private List<short[]> dataFrames = List.of();
+    private int dataFrame = 0;
+    private UUID dataVoiceId = null;
+    private final double[] rttyPhase = new double[1]; // Keeps RTTY tones continuous from one packet to the next.
+    private long lastRttyGameTime = -100L;
+
+    /**
+     * Queues a packet from a digital interface: the radio sends its burst of tones (heard by any radio on the
+     * frequency, like voice) and then the packet itself. Nothing is queued while the radio is off.
+     *
+     * @return True if the packet will go out.
+     */
+    public boolean sendData(TncPacket packet) {
+        if(level == null || level.isClientSide || !(getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject) || !networkObject.isPowered)
+            return false;
+        dataQueue.add(packet);
+        return true;
+    }
+
+    /** True if the radio is switched on and has the power it needs (server side). */
+    public boolean isPowered() {
+        return level != null && getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject && networkObject.isPowered;
+    }
+
+    /** True while a packet burst is going out or waiting to. */
+    public boolean isSendingData() {
+        return sendingData != null || !dataQueue.isEmpty();
+    }
+
+    /** Plays the packet in hand out frame by frame (2.5 frames of 20 ms per tick) and sends it once the tones are done. */
+    private void tickData(ServerLevel serverLevel, boolean powered) {
+        if(!powered) {
+            dataQueue.clear();
+            sendingData = null;
+            return;
+        }
+        if(sendingData == null) {
+            sendingData = dataQueue.poll();
+            if(sendingData == null)
+                return;
+            if(sendingData.kind() == TncPacket.Kind.RTTY) // Straight on from the last characters, or a lead-in after a pause.
+                dataFrames = Rtty.frames(sendingData.text(), serverLevel.getGameTime() - lastRttyGameTime > 2, rttyPhase);
+            else if(sendingData.kind() == TncPacket.Kind.FILE) {
+                transmitData(serverLevel, sendingData.header()); // Receivers learn a file is coming and how long it takes.
+                dataFrames = FileTransfer.audio(sendingData.item(), serverLevel, sendingData.id());
+            }
+            else
+                dataFrames = Afsk.burst(sendingData.airBytes(), sendingData.id());
+            dataFrame = 0;
+        }
+        if(dataVoiceId == null)
+            dataVoiceId = UUID.nameUUIDFromBytes(("radiocraft-tnc-" + worldPosition.asLong()).getBytes(StandardCharsets.UTF_8));
+        int frames = serverLevel.getGameTime() % 2 == 0 ? 3 : 2;
+        for(int i = 0; i < frames && dataFrame < dataFrames.size(); i++) {
+            transmitVoice(() -> serverLevel, dataFrames.get(dataFrame++), frequency, dataVoiceId, 0.0F);
+            recordTransmit();
+        }
+        if(dataFrame >= dataFrames.size()) {
+            if(sendingData.kind() == TncPacket.Kind.RTTY)
+                lastRttyGameTime = serverLevel.getGameTime();
+            transmitData(serverLevel, sendingData);
+            sendingData = null;
+        }
+    }
+
+    /** Puts a packet on the air on the radio's own frequency (packet is simplex), the way voice goes out. */
+    protected void transmitData(ServerLevel serverLevel, TncPacket packet) {
+        if(!(IBENetworks.getObject(serverLevel, worldPosition) instanceof RadioNetworkObject networkObject))
+            return;
+        List<AntennaNetworkObject> antennas = networkObject.getAntennas();
+        if(antennas.size() == 1)
+            antennas.get(0).transmitDataPacket(serverLevel, packet, band, frequency);
+        else if(antennas.size() > 1)
+            overdraw();
+        else {
+            BareConnectorAntenna bare = bareConnector;
+            if(bare != null)
+                bare.transmitDataPacket(serverLevel, packet, band, frequency);
+        }
+    }
+
+    /**
+     * A data packet reached this radio's antenna. It decodes if the radio is on, not transmitting, tuned to it (a
+     * modem cannot copy tones shifted by a detuned SSB receiver) and it is far enough above the noise
+     * ({@link RadiocraftServerConfig#TNC_MIN_SNR}); then every digital interface next to the radio gets it. RTTY
+     * still prints a little under that, with more and more characters garbled, down to half of it.
+     *
+     * @return True if the packet decoded.
+     */
+    public boolean receiveData(AntennaDataPacket packet) {
+        if(!(level instanceof ServerLevel serverLevel) || !(getNetworkObject(level, worldPosition) instanceof RadioNetworkObject networkObject) || !networkObject.isPowered)
+            return false;
+        if(isTransmittingNow(serverLevel) || sendingData != null)
+            return false;
+        Detuning.Effect effect = getDetuning(packet.getFrequency());
+        if(!effect.audible() || effect.pitchShiftHz() != 0.0D || effect.splatter() > 0.0D)
+            return false;
+        double strength = packet.getStrength() * effect.strength();
+        if(isSkipPath(packet))
+            strength *= ReceiverMix.fading(level.getGameTime() / 20.0D, pathSeed(packet), RadiocraftServerConfig.SKIP_FADING_DEPTH.get());
+        double quality = strength / copyThreshold(getNoiseFloor());
+        TncPacket payload = packet.getPayload();
+        if(payload.kind() == TncPacket.Kind.RTTY && quality >= RTTY_GARBLE_FLOOR && quality < 1.0D)
+            payload = payload.withText(Rtty.garble(payload.text(), (1.0D - quality) / (1.0D - RTTY_GARBLE_FLOOR), new java.util.Random(level.getRandom().nextLong())));
+        else if(!decodes(strength, getNoiseFloor()))
+            return false;
+        recordSignal(strength);
+        for(DigitalInterfaceBlockEntity tnc : getDigitalInterfaces())
+            tnc.receive(this, payload);
+        return true;
+    }
+
+    /** RTTY below this share of the copy threshold is lost; between it and the threshold it prints garbled. */
+    public static final double RTTY_GARBLE_FLOOR = 0.5D;
+
+    /** Weakest signal that copies cleanly over {@code noise}. */
+    public static double copyThreshold(double noise) {
+        return Math.max(RadiocraftServerConfig.TNC_MIN_SIGNAL.get(), noise * RadiocraftServerConfig.TNC_MIN_SNR.get());
+    }
+
+    /** True if a packet at {@code strength} copies over {@code noise}: no weaker than the noise times the minimum SNR. */
+    public static boolean decodes(double strength, double noise) {
+        return strength > 0.0D && strength >= copyThreshold(noise);
+    }
+
+    /** Digital interfaces on any side of this radio. */
+    public List<DigitalInterfaceBlockEntity> getDigitalInterfaces() {
+        if(level == null)
+            return List.of();
+        List<DigitalInterfaceBlockEntity> found = new java.util.ArrayList<>();
+        for(Direction direction : Direction.values()) {
+            BlockPos at = worldPosition.relative(direction);
+            if(level.isLoaded(at) && level.getBlockEntity(at) instanceof DigitalInterfaceBlockEntity tnc)
+                found.add(tnc);
+        }
+        return found;
     }
 
     // -------------------- S-METER (COMPARATOR OUTPUT) --------------------
@@ -513,14 +664,14 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     }
 
     /** True if the packet came from further away than line of sight on this band: by skip (or, on VHF, the aurora). */
-    protected boolean isSkipPath(AntennaVoicePacket packet) {
+    protected boolean isSkipPath(IAntennaPacket packet) {
         if(band == null || packet.getSource() == null || packet.getSource().getAntennaPos() == null)
             return false;
         return packet.getSource().getAntennaPos().position().distSqr(worldPosition) > (double)band.losRange() * band.losRange();
     }
 
     /** A number for the path between the sender and this radio, so each path fades on its own. */
-    private long pathSeed(AntennaVoicePacket packet) {
+    private long pathSeed(IAntennaPacket packet) {
         return packet.getSource().getAntennaPos().position().asLong() * 31L + worldPosition.asLong();
     }
 
