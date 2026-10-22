@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=east": {
+    "facing=east,on_repeater=false": {
       "model": "radiocraft:block/duplexer",
       "y": 90
     },
-    "facing=north": {
+    "facing=east,on_repeater=true": {
+      "model": "radiocraft:block/duplexer_on_repeater",
+      "y": 90
+    },
+    "facing=north,on_repeater=false": {
       "model": "radiocraft:block/duplexer"
     },
-    "facing=south": {
+    "facing=north,on_repeater=true": {
+      "model": "radiocraft:block/duplexer_on_repeater"
+    },
+    "facing=south,on_repeater=false": {
       "model": "radiocraft:block/duplexer",
       "y": 180
     },
-    "facing=west": {
+    "facing=south,on_repeater=true": {
+      "model": "radiocraft:block/duplexer_on_repeater",
+      "y": 180
+    },
+    "facing=west,on_repeater=false": {
       "model": "radiocraft:block/duplexer",
+      "y": 270
+    },
+    "facing=west,on_repeater=true": {
+      "model": "radiocraft:block/duplexer_on_repeater",
       "y": 270
     }
   }

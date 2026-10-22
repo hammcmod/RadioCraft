@@ -174,6 +174,7 @@ repositories {
 
 val jade_version = "15.10.0+neoforge"
 val top_version="1.21_neo-12.0.4-6"
+val jei_version="19.9.1.125" // Same JEI as TOP brings in at runtime
 val geckolib_version = "4.7.5.1"
 
 dependencies {
@@ -181,6 +182,7 @@ dependencies {
     compileOnly(libs.voicechat.api)
     implementation(libs.voicechat)
     implementation("mcjty.theoneprobe:theoneprobe:${top_version}")
+    compileOnly("mezz.jei:jei-1.21.1-neoforge-api:${jei_version}") // JEI API from the JEI Maven (maven.blamejared.com), for client/compat
     implementation("maven.modrinth:jade:${jade_version}")
     // GeckoLib for block/entity geo models
     implementation("software.bernie.geckolib:geckolib-neoforge-${mcVersion}:${geckolib_version}")

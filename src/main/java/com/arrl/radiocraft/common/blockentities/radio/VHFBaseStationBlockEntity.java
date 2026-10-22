@@ -34,7 +34,7 @@ public class VHFBaseStationBlockEntity extends VHFRadioBlockEntity {
 
     @Override
     public BENetworkObject createNetworkObject() {
-        return new RadioNetworkObject(level, worldPosition, CommonConfig.VHF_BASE_STATION_RECEIVE_TICK.get(), CommonConfig.VHF_BASE_STATION_TRANSMIT_TICK.get());
+        return new RadioNetworkObject(level, worldPosition, CommonConfig.VHF_BASE_STATION_TRANSMIT_TICK.get(), CommonConfig.VHF_BASE_STATION_RECEIVE_TICK.get());
     }
 
 }

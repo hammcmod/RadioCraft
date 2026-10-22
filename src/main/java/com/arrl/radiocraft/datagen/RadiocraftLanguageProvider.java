@@ -72,6 +72,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.MICROPHONE, "Microphone");
 			provider.addBlock(RadiocraftBlocks.YAGI_ANTENNA, "Yagi Antenna");
 			provider.addBlock(RadiocraftBlocks.J_POLE_ANTENNA, "J-Pole Antenna");
+			provider.addBlock(RadiocraftBlocks.DUMMY_LOAD, "Dummy Load");
+			provider.add("tooltip.radiocraft.dummy_load", "A perfect match on every band that hardly radiates: about 10 blocks. Fits on a radio or its coax.");
 			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
 			provider.addBlock(RadiocraftBlocks.SATELLITE_DISH, "Satellite Dish");
 			provider.addBlock(RadiocraftBlocks.DESK_CHARGER, "Desk Charger");
@@ -167,6 +169,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.comment"), "Beacon comment, up to 30 characters: click to change");
 			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.icon"), "Map icon: click for the next one");
 			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.beacon_enable"), "Beacon by itself every few minutes (a redstone pulse beacons too)");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.digipeat_on"), "Digipeating ON: repeating packets heard (click to stop)");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.digipeat_off"), "Digipeating OFF: click to repeat packets heard, up to 8 hops");
+			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.rpt"), "RPT: lit while repeating a packet");
 			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.heard"), "Heard %s min ago, direct");
 			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.heard_via"), "Heard %s min ago, via %s digipeater(s)");
 			provider.add(Radiocraft.translationKey("commands", "aprs.sent"), "APRS packet delivered to %s digital interface(s)");

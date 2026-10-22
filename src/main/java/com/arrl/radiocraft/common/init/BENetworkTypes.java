@@ -21,6 +21,8 @@ public class BENetworkTypes {
         BENetworkRegistry.registerObject(ChargeControllerNetworkObject.TYPE, ChargeControllerNetworkObject::new);
         BENetworkRegistry.registerObject(AntennaTunerNetworkObject.TYPE, AntennaTunerNetworkObject::new);
         BENetworkRegistry.registerObject(DuplexerNetworkObject.TYPE, DuplexerNetworkObject::new);
+        BENetworkRegistry.registerObject(com.arrl.radiocraft.common.be_networks.network_objects.DummyLoadNetworkObject.TYPE,
+                com.arrl.radiocraft.common.be_networks.network_objects.DummyLoadNetworkObject::new);
         BENetworkRegistry.registerObject(RepeaterNetworkObject.TYPE, (level, pos) -> new RepeaterNetworkObject(level, pos, 0, 0));
     }
 

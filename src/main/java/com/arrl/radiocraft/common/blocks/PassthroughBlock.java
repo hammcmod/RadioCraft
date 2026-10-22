@@ -97,7 +97,7 @@ public class PassthroughBlock extends WireBlock implements EntityBlock {
 	}
 
 	@Override
-	public boolean canClimb(BlockGetter level, BlockPos pos, Direction direction) {
+	public boolean canClimb(BlockGetter level, BlockPos pos, Direction direction, boolean ceiling) {
 		return false;
 	}
 

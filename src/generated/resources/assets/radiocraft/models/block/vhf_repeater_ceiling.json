@@ -1,0 +1,10 @@
+{
+  "parent": "radiocraft:block/vhf_repeater",
+  "transform": {
+    "translation": [
+      0.0,
+      0.25,
+      0.0
+    ]
+  }
+}

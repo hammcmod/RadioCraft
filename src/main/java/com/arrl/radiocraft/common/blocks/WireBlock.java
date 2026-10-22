@@ -50,6 +50,9 @@ import java.util.function.Supplier;
  * something in the middle of a block (a device above it, or a horizontal branch) does it turn in from the edge.
  * Like redstone dust, a wire at the foot of a wall with nothing above it but a wire or device on top of the wall
  * <em>climbs</em>: the run up the wall continues to the block on top and links to it diagonally ({@link #CLIMB}).
+ * A wire placed against the underside of a block hangs from it ({@link #CEILING}): everything above is mirrored, so
+ * its runs lie along the ceiling, its runs downwards hug walls, and it climbs <em>down</em> the face of a beam to the
+ * wire or device underneath. "Up" in the rules below is away from the surface the wire lies on ({@link #up}).
  * {@link #getLinks} is the single source of truth for what a wire is linked to; the network code and the Jade
  * overlay walk those links rather than the six neighbours.
  * <p>
@@ -78,6 +81,35 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 * everything else about the look is worked out from the neighbours ({@link #look}).
 	 */
 	public static final EnumProperty<Climb> CLIMB = EnumProperty.create("climb", Climb.class);
+	/** True for a wire hanging from the underside of a block: its whole look and climb logic is upside down. */
+	public static final BooleanProperty CEILING = BooleanProperty.create("ceiling");
+
+	/** True if {@code state} is a wire hanging from a ceiling (blocks without the property, like the passthrough, are not). */
+	public static boolean isCeiling(BlockState state) {
+		return state.hasProperty(CEILING) && state.getValue(CEILING);
+	}
+
+	/** "Up" for a wire: away from the floor it lies on, or down for one on a ceiling. */
+	public static Direction up(boolean ceiling) {
+		return ceiling ? Direction.DOWN : Direction.UP;
+	}
+
+	private static BlockPos above(BlockPos pos, boolean ceiling) {
+		return pos.relative(up(ceiling));
+	}
+
+	private static BlockPos below(BlockPos pos, boolean ceiling) {
+		return pos.relative(up(ceiling).getOpposite());
+	}
+
+	/** The connection property that points "up" (see {@link #up}) and the one that points "down". */
+	private static BooleanProperty upLink(boolean ceiling) {
+		return PROPERTY_BY_DIRECTION.get(up(ceiling));
+	}
+
+	private static BooleanProperty downLink(boolean ceiling) {
+		return PROPERTY_BY_DIRECTION.get(up(ceiling).getOpposite());
+	}
 
 	/** See {@link #CLIMB}. */
 	public enum Climb implements StringRepresentable {
@@ -161,28 +193,56 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				.setValue(NORTH, false).setValue(EAST, false)
 				.setValue(SOUTH, false).setValue(WEST, false)
 				.setValue(UP, false).setValue(DOWN, false)
-				.trySetValue(HUG, Edge.NONE).trySetValue(CLIMB, Climb.NONE));
+				.trySetValue(HUG, Edge.NONE).trySetValue(CLIMB, Climb.NONE).trySetValue(CEILING, false));
 		this.isPower = isPower;
         this.isWaterproof = isWaterproof;
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, HUG, CLIMB, BlockStateProperties.WATERLOGGED);
+		builder.add(NORTH, EAST, SOUTH, WEST, UP, DOWN, HUG, CLIMB, CEILING, BlockStateProperties.WATERLOGGED);
 	}
 
 	@Nullable
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return getBlockState(context.getLevel(), context.getClickedPos());
+		if(!defaultBlockState().hasProperty(CEILING))
+			return getBlockState(context.getLevel(), context.getClickedPos());
+		return getBlockState(context.getLevel(), context.getClickedPos(), placesOnCeiling(context));
 	}
 
 	/**
-	 * Calculate desired blockstate for a wire given its connections, the walls around it and the fluid at its location.
+	 * A wire hangs from the ceiling when placed against the underside of a block, when it carries on sideways from a
+	 * wire that hangs, or when there is a ceiling above it but no floor under it.
+	 */
+	private static boolean placesOnCeiling(BlockPlaceContext context) {
+		Direction face = context.getClickedFace();
+		if(face == Direction.DOWN)
+			return true;
+		if(face == Direction.UP)
+			return false;
+		BlockGetter level = context.getLevel();
+		BlockPos pos = context.getClickedPos();
+		BlockPos against = pos.relative(face.getOpposite());
+		if(level.getBlockState(against).getBlock() instanceof WireBlock)
+			return isCeiling(level.getBlockState(against));
+		BlockPos floor = pos.below(), ceiling = pos.above();
+		return !level.getBlockState(floor).isFaceSturdy(level, floor, Direction.UP) && level.getBlockState(ceiling).isFaceSturdy(level, ceiling, Direction.DOWN);
+	}
+
+	/**
+	 * Calculate desired blockstate for a wire given its connections, the walls around it and the fluid at its location,
+	 * keeping whether the wire already there hangs from the ceiling.
 	 */
 	public BlockState getBlockState(BlockGetter level, BlockPos pos) {
+		return getBlockState(level, pos, isCeiling(level.getBlockState(pos)));
+	}
+
+	/** As {@link #getBlockState(BlockGetter, BlockPos)}, for a wire on the floor or hanging from the ceiling. */
+	public BlockState getBlockState(BlockGetter level, BlockPos pos, boolean ceiling) {
 		BlockState state = defaultBlockState()
-				.setValue(BlockStateProperties.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
+				.setValue(BlockStateProperties.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER)
+				.trySetValue(CEILING, ceiling);
 
 		for(Direction direction : Direction.values())
 			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(level.getBlockState(pos.relative(direction)), isPower));
@@ -190,9 +250,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 		// A climb if there is one, trying the edge the run from below is already on first so the cable keeps its line.
 		for(Direction dir : wallOrder(Edge.of(arrive))) {
-			if(canClimb(level, pos, dir)) {
+			if(canClimb(level, pos, dir, ceiling)) {
 				Direction back = dir.getOpposite();
-				boolean climbBack = canClimb(level, pos, back) && isSameKind(level.getBlockState(pos.relative(back).above()));
+				boolean climbBack = canClimb(level, pos, back, ceiling) && isSameKind(level.getBlockState(above(pos.relative(back), ceiling)));
 				return state.setValue(HUG, Edge.of(dir)).setValue(CLIMB, climbBack ? Climb.BOTH : Climb.ONE);
 			}
 		}
@@ -209,15 +269,32 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			return WireLook.Look.NONE;
 		Direction hug = state.getValue(HUG).direction();
 		Climb climb = state.getValue(CLIMB);
+		boolean ceiling = isCeiling(state);
 		WireLook.End end = WireLook.End.NONE;
 		if(hug != null && climb != Climb.NONE)
-			end = isSameKind(level.getBlockState(pos.relative(hug).above())) ? WireLook.End.CLIMB_WIRE : WireLook.End.CLIMB_DEVICE;
+			end = isSameKind(level.getBlockState(above(pos.relative(hug), ceiling))) ? WireLook.End.CLIMB_WIRE : WireLook.End.CLIMB_DEVICE;
 		else if(hug != null) {
-			BlockState above = level.getBlockState(pos.above());
+			BlockState above = level.getBlockState(above(pos, ceiling));
 			if(!isSameKind(above) && canConnectTo(above, isPower))
 				end = WireLook.End.UP_DEVICE; // The run up the edge ends at a device above: turn in to its middle.
 		}
 		return new WireLook.Look(hug, arrival(level, pos, state), end, climb == Climb.BOTH);
+	}
+
+	/**
+	 * The six connections of {@code state} as {@link WireLook} sees them: for a wire on a ceiling, up and down swapped,
+	 * since its look is drawn upside down.
+	 */
+	public static Set<Direction> lookConnections(BlockState state) {
+		Set<Direction> out = connected(state);
+		if(isCeiling(state)) {
+			boolean up = out.remove(Direction.UP), down = out.remove(Direction.DOWN);
+			if(up)
+				out.add(Direction.DOWN);
+			if(down)
+				out.add(Direction.UP);
+		}
+		return out;
 	}
 
 	/** The six connections of {@code state} as a set. */
@@ -246,11 +323,18 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 */
 	@Nullable
 	private Direction arrival(BlockGetter level, BlockPos pos, BlockState state) {
-		BlockState below = level.getBlockState(pos.below());
-		if(state.getValue(DOWN) && isSameKind(below))
-			return below.getValue(HUG).direction();
+		boolean ceiling = isCeiling(state);
+		BlockState below = level.getBlockState(below(pos, ceiling));
+		if(state.getValue(downLink(ceiling)) && isSameKind(below)) {
+			if(isCeiling(below) == ceiling)
+				return below.getValue(HUG).direction();
+			// A floor wire and a ceiling wire joined end to end (a ceiling run turning up a wall, say): one run between
+			// them, on the edge either of them hugs, so each turns its corner on that edge with no stub to the middle.
+			Direction shared = below.getValue(HUG).direction();
+			return shared != null ? shared : state.getValue(HUG).direction();
+		}
 		for(Direction dir : Direction.Plane.HORIZONTAL)
-			if(climbsTowards(level, pos.relative(dir).below(), dir.getOpposite()))
+			if(climbsTowards(level, below(pos.relative(dir), ceiling), dir.getOpposite(), ceiling))
 				return dir;
 		return null;
 	}
@@ -261,13 +345,18 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 */
 	@Nullable
 	private Direction hugEdge(BlockGetter level, BlockPos pos, BlockState state, @Nullable Direction arrive) {
-		if(!state.getValue(UP))
+		boolean ceiling = isCeiling(state);
+		if(!state.getValue(upLink(ceiling)))
 			return null;
 		if(arrive != null)
 			return arrive;
+		// A floor wire and a ceiling wire running towards each other share the run: follow the edge the other is on.
+		BlockState facing = level.getBlockState(above(pos, ceiling));
+		if(isSameKind(facing) && isCeiling(facing) != ceiling && facing.getValue(HUG).direction() != null)
+			return facing.getValue(HUG).direction();
 		// Of the solid walls around, prefer the one on the side the run leads to at the top, so the cable goes
 		// straight up to the wire it joins instead of up the nearest wall and across.
-		for(Direction dir : wallOrder(Edge.of(destinationSide(level, pos))))
+		for(Direction dir : wallOrder(Edge.of(destinationSide(level, pos, ceiling))))
 			if(isWall(level, pos.relative(dir), dir.getOpposite()))
 				return dir;
 		return null;
@@ -278,8 +367,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 * up: the client only redraws blocks next to a change, so a look must not depend on anything further away.
 	 */
 	@Nullable
-	private Direction destinationSide(BlockGetter level, BlockPos pos) {
-		BlockState above = level.getBlockState(pos.above());
+	private Direction destinationSide(BlockGetter level, BlockPos pos, boolean ceiling) {
+		BlockState above = level.getBlockState(above(pos, ceiling));
 		if(!isSameKind(above))
 			return null;
 		for(Direction dir : Direction.Plane.HORIZONTAL)
@@ -294,10 +383,13 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return !canConnectTo(wall, isPower) && wall.isFaceSturdy(level, wallPos, faceTowardsUs);
 	}
 
-	/** True if the block at {@code climberPos} is a wire of this kind climbing the wall in direction {@code towards}. */
-	public boolean climbsTowards(BlockGetter level, BlockPos climberPos, Direction towards) {
+	/**
+	 * True if the block at {@code climberPos} is a wire of this kind climbing the wall in direction {@code towards},
+	 * the same way up as {@code ceiling} (a floor wire climbs up, a ceiling wire down).
+	 */
+	public boolean climbsTowards(BlockGetter level, BlockPos climberPos, Direction towards, boolean ceiling) {
 		BlockState state = level.getBlockState(climberPos);
-		return isSameKind(state) && climbsTowards(state, towards);
+		return isSameKind(state) && isCeiling(state) == ceiling && climbsTowards(state, towards);
 	}
 
 	/** True if a wire in {@code state} climbs the wall in direction {@code towards} (its main climb or the second one). */
@@ -313,10 +405,11 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		if(!state.hasProperty(CLIMB) || state.getValue(CLIMB) == Climb.NONE)
 			return Set.of();
 		Direction hug = state.getValue(HUG).direction();
+		boolean ceiling = isCeiling(state);
 		Set<BlockPos> out = new HashSet<>();
-		out.add(pos.relative(hug).above());
+		out.add(above(pos.relative(hug), ceiling));
 		if(state.getValue(CLIMB) == Climb.BOTH)
-			out.add(pos.relative(hug.getOpposite()).above());
+			out.add(above(pos.relative(hug.getOpposite()), ceiling));
 		return out;
 	}
 
@@ -325,13 +418,14 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 * our kind sits on top of it, and no wire of our kind sits directly above us (that one carries the run up
 	 * instead, on the same edge).
 	 */
-	public boolean canClimb(BlockGetter level, BlockPos pos, Direction direction) {
+	public boolean canClimb(BlockGetter level, BlockPos pos, Direction direction, boolean ceiling) {
 		BlockPos wall = pos.relative(direction);
 		if(!isWall(level, wall, direction.getOpposite()))
 			return false;
-		if(!canConnectTo(level.getBlockState(wall.above()), isPower))
-			return false;
-		return !isSameKind(level.getBlockState(pos.above()));
+		BlockState target = level.getBlockState(above(wall, ceiling));
+		if(!canConnectTo(target, isPower) || (isSameKind(target) && isCeiling(target) != ceiling))
+			return false; // Nothing to climb to, or a wire the other way up (it could not take the climb in).
+		return !isSameKind(level.getBlockState(above(pos, ceiling)));
 	}
 
 	private boolean isSameKind(BlockState state) {
@@ -364,19 +458,20 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			if(state.getValue(PROPERTY_BY_DIRECTION.get(dir)))
 				out.put(pos.relative(dir), dir.getOpposite());
 		}
+		boolean ceiling = isCeiling(state);
 		Direction arrive = arrival(level, pos, state);
-		if(arrive != null && !state.getValue(DOWN)) { // Not from the wire below, so from a climber on that side.
-			BlockPos climber = pos.relative(arrive).below();
-			if(climbsTowards(level, climber, arrive.getOpposite()))
+		if(arrive != null && !state.getValue(downLink(ceiling))) { // Not from the wire below, so from a climber on that side.
+			BlockPos climber = below(pos.relative(arrive), ceiling);
+			if(climbsTowards(level, climber, arrive.getOpposite(), ceiling))
 				out.put(climber, arrive);
 		}
 		if(state.getValue(CLIMB) != Climb.NONE) {
 			Direction hug = state.getValue(HUG).direction();
-			BlockPos top = pos.relative(hug).above();
+			BlockPos top = above(pos.relative(hug), ceiling);
 			if(canConnectTo(level.getBlockState(top), isPower))
 				out.put(top, hug.getOpposite());
 			if(state.getValue(CLIMB) == Climb.BOTH) {
-				BlockPos back = pos.relative(hug.getOpposite()).above();
+				BlockPos back = above(pos.relative(hug.getOpposite()), ceiling);
 				if(canConnectTo(level.getBlockState(back), isPower))
 					out.put(back, hug);
 			}
@@ -389,8 +484,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	/**
-	 * The wires of the given kinds that a device at {@code pos} is linked to: its six neighbours and any climber at
-	 * the foot of a block below-diagonal that climbs up to it. The value is the side of the device the wire touches.
+	 * The wires of the given kinds that a device at {@code pos} is linked to: its six neighbours, any climber at the
+	 * foot of a block below-diagonal that climbs up to it, and any ceiling wire above-diagonal that climbs down to it.
+	 * The value is the side of the device the wire touches.
 	 */
 	public static Map<BlockPos, Direction> wireLinksAround(BlockGetter level, BlockPos pos, Set<WireBlock> wires) {
 		Map<BlockPos, Direction> out = new LinkedHashMap<>();
@@ -399,11 +495,13 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			if(wires.contains(level.getBlockState(next).getBlock()))
 				out.put(next, dir);
 			if(dir.getAxis().isHorizontal()) {
-				BlockPos foot = next.below();
-				BlockState footState = level.getBlockState(foot);
-				if(footState.getBlock() instanceof WireBlock wire && wires.contains(wire)
-						&& climbsTowards(footState, dir.getOpposite()))
-					out.put(foot, dir);
+				for(boolean ceiling : new boolean[] { false, true }) {
+					BlockPos foot = below(next, ceiling); // Below-diagonal for a floor climber, above for a ceiling one.
+					BlockState footState = level.getBlockState(foot);
+					if(footState.getBlock() instanceof WireBlock wire && wires.contains(wire) && isCeiling(footState) == ceiling
+							&& climbsTowards(footState, dir.getOpposite()))
+						out.put(foot, dir);
+				}
 			}
 		}
 		return out;
@@ -506,7 +604,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return fresh;
 	}
 
-	private static final Map<List<WireLook.Placed>, VoxelShape> SHAPE_CACHE = new ConcurrentHashMap<>();
+	private record ShapeKey(List<WireLook.Placed> parts, boolean ceiling) {}
+
+	private static final Map<ShapeKey, VoxelShape> SHAPE_CACHE = new ConcurrentHashMap<>();
 
 	/**
 	 * The shape depends on the neighbours (the look is not stored), so Minecraft must not cache it per state. A
@@ -520,8 +620,17 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	/** The outline follows the cable: the pieces {@link WireLook#parts} picks, except the overhangs outside the block. */
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-		List<WireLook.Placed> parts = WireLook.parts(look(level, pos, state), connected(state));
-		return SHAPE_CACHE.computeIfAbsent(parts, WireBlock::buildShape);
+		List<WireLook.Placed> parts = WireLook.parts(look(level, pos, state), lookConnections(state));
+		return SHAPE_CACHE.computeIfAbsent(new ShapeKey(parts, isCeiling(state)),
+				key -> key.ceiling() ? flipVertically(buildShape(key.parts())) : buildShape(key.parts()));
+	}
+
+	/** {@code shape} upside down within its block: a ceiling wire's outline. */
+	private static VoxelShape flipVertically(VoxelShape shape) {
+		VoxelShape out = Shapes.empty();
+		for(net.minecraft.world.phys.AABB box : shape.toAabbs())
+			out = Shapes.or(out, Shapes.box(box.minX, 1.0D - box.maxY, box.minZ, box.maxX, 1.0D - box.minY, box.maxZ));
+		return out;
 	}
 
 	private static VoxelShape buildShape(List<WireLook.Placed> parts) {

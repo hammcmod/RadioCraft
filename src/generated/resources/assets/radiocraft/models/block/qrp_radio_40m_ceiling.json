@@ -1,0 +1,10 @@
+{
+  "parent": "radiocraft:block/qrp_radio_40m",
+  "transform": {
+    "translation": [
+      0.0,
+      0.28125,
+      0.0
+    ]
+  }
+}

@@ -51,8 +51,9 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * The digital interface (TNC): placed against one or more radios, it sends and decodes packets through them. So far
  * that is APRS: position beacons (on demand, on a redstone pulse or on a timer), messages to a callsign, and
- * digipeating: with more than one radio next to it, a packet heard on one goes back out on the others a second later,
- * once per packet. And RTTY: what is typed goes out live, character by character, and prints on every interface that
+ * digipeating (switched on with the blue RPT lamp): a packet heard goes back out a second later on every radio next to
+ * it, once per packet, up to {@link RadiocraftServerConfig#TNC_DIGIPEAT_MAX_HOPS} hops, except messages for this
+ * station. And RTTY: what is typed goes out live, character by character, and prints on every interface that
  * hears it (and on this one), a line per sender, using up a sheet of paper every {@link #LINES_PER_PAPER} lines. It
  * holds its own paper, books and maps (hoppers, or right click with them). It needs no power of its own; the radios
  * it uses must be on.
@@ -76,6 +77,8 @@ public class DigitalInterfaceBlockEntity extends BlockEntity implements MenuProv
 	public static final int RECEIVED_SLOTS = 4;
 	/** Lines of the file log kept. */
 	public static final int FILE_LOG = 6;
+	/** Ticks the RPT lamp stays lit after a repeat is due to go out (the burst itself takes about half a second). */
+	private static final int REPEAT_LAMP_TICKS = 20;
 	/** Ticks the teletype printing sound lasts, so it is started again only when it has run out. */
 	private static final int PRINT_SOUND_TICKS = 56;
 
@@ -89,6 +92,8 @@ public class DigitalInterfaceBlockEntity extends BlockEntity implements MenuProv
 	private boolean beaconEnabled = false;
 	private boolean contactBuzzer = true;
 	private boolean messageBuzzer = true;
+	private boolean digipeatEnabled = false;
+	private long repeatLampUntilGameTime = -1L;
 	private boolean unread = false;
 	private long lastBeaconGameTime = -1L;
 
@@ -152,7 +157,7 @@ public class DigitalInterfaceBlockEntity extends BlockEntity implements MenuProv
 	/** A message this station received ({@code outgoing} false) or sent. */
 	public record Logged(TncPacket packet, boolean outgoing, long gameTime) {}
 
-	private record PendingDigipeat(TncPacket packet, BlockPos heardOn, long dueGameTime) {}
+	private record PendingDigipeat(TncPacket packet, long dueGameTime) {}
 
 	public DigitalInterfaceBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.DIGITAL_INTERFACE.get(), pos, state);
@@ -205,9 +210,8 @@ public class DigitalInterfaceBlockEntity extends BlockEntity implements MenuProv
 			if(now < pending.dueGameTime())
 				continue;
 			it.remove();
-			for(RadioBlockEntity radio : getRadios())
-				if(!radio.getBlockPos().equals(pending.heardOn()))
-					radio.sendData(pending.packet());
+			for(RadioBlockEntity radio : getRadios()) // Back out on every radio, the one it came in on too.
+				radio.sendData(pending.packet());
 		}
 
 		boolean redstone = level.hasNeighborSignal(worldPosition);
@@ -534,8 +538,32 @@ public class DigitalInterfaceBlockEntity extends BlockEntity implements MenuProv
 		}
 		if(!take(packet))
 			return;
-		if(getRadios().size() > 1 && level != null)
-			digipeats.add(new PendingDigipeat(packet.digipeated(), radio.getBlockPos(), level.getGameTime() + RadiocraftServerConfig.TNC_DIGIPEAT_DELAY_TICKS.get()));
+		if(shouldDigipeat(packet)) {
+			long due = level.getGameTime() + RadiocraftServerConfig.TNC_DIGIPEAT_DELAY_TICKS.get();
+			digipeats.add(new PendingDigipeat(packet.digipeated(), due));
+			repeatLampUntilGameTime = due + REPEAT_LAMP_TICKS; // The RPT lamp: from hearing it until it has gone back out.
+			setChanged();
+			sync();
+		}
+	}
+
+	/**
+	 * True if this interface repeats {@code packet}: digipeating is on, it has been through fewer than
+	 * {@link RadiocraftServerConfig#TNC_DIGIPEAT_MAX_HOPS} digipeaters, and it is not a message for this station.
+	 */
+	private boolean shouldDigipeat(TncPacket packet) {
+		if(!digipeatEnabled || level == null || packet.hops() >= RadiocraftServerConfig.TNC_DIGIPEAT_MAX_HOPS.get())
+			return false;
+		return !(packet.kind() == TncPacket.Kind.MESSAGE && !callsign.isEmpty() && packet.to().equals(callsign));
+	}
+
+	public boolean isDigipeatEnabled() {
+		return digipeatEnabled;
+	}
+
+	/** True while the RPT lamp is lit: a packet heard is waiting to go back out, or just went. */
+	public boolean isRepeating() {
+		return level != null && level.getGameTime() < repeatLampUntilGameTime;
 	}
 
 	/** A packet put straight into this interface (admin commands): kept like one off the air, but not repeated. */
@@ -642,6 +670,8 @@ public class DigitalInterfaceBlockEntity extends BlockEntity implements MenuProv
 			contactBuzzer = tag.getBoolean("contactBuzzer");
 		if(tag.contains("messageBuzzer"))
 			messageBuzzer = tag.getBoolean("messageBuzzer");
+		if(tag.contains("digipeat"))
+			digipeatEnabled = tag.getBoolean("digipeat");
 		setChanged();
 		sync();
 	}
@@ -736,6 +766,8 @@ public class DigitalInterfaceBlockEntity extends BlockEntity implements MenuProv
 		tag.putBoolean("beaconEnabled", beaconEnabled);
 		tag.putBoolean("contactBuzzer", contactBuzzer);
 		tag.putBoolean("messageBuzzer", messageBuzzer);
+		tag.putBoolean("digipeat", digipeatEnabled);
+		tag.putLong("repeatLampUntil", repeatLampUntilGameTime);
 		tag.putBoolean("unread", unread);
 		tag.putLong("lastBeacon", lastBeaconGameTime);
 		ListTag beaconTags = new ListTag();
@@ -784,6 +816,8 @@ public class DigitalInterfaceBlockEntity extends BlockEntity implements MenuProv
 		beaconEnabled = tag.getBoolean("beaconEnabled");
 		contactBuzzer = !tag.contains("contactBuzzer") || tag.getBoolean("contactBuzzer");
 		messageBuzzer = !tag.contains("messageBuzzer") || tag.getBoolean("messageBuzzer");
+		digipeatEnabled = tag.getBoolean("digipeat");
+		repeatLampUntilGameTime = tag.contains("repeatLampUntil") ? tag.getLong("repeatLampUntil") : -1L;
 		unread = tag.getBoolean("unread");
 		lastBeaconGameTime = tag.contains("lastBeacon") ? tag.getLong("lastBeacon") : -1L;
 		beacons.clear();

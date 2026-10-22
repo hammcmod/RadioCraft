@@ -15,7 +15,6 @@
     "radiocraft:qrp_radio_40m",
     "radiocraft:vhf_base_station",
     "radiocraft:vhf_receiver",
-    "radiocraft:vhf_repeater",
-    "radiocraft:digital_interface"
+    "radiocraft:vhf_repeater"
   ]
 }

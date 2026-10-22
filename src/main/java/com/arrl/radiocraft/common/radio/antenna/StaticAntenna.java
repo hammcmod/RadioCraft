@@ -102,7 +102,8 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 //				ssbReceiveCache.put(source, packet.getStrength());
 //			}
 
-			obj.receiveAudioPacket(packet);
+			if(packet.getStrength() > 0.0D) // Nothing arrives out of range: do not tell the radio it heard something.
+				obj.receiveAudioPacket(packet);
 		}
 	}
 
@@ -147,7 +148,8 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 //				cwReceiveCache.put(source, packet.getStrength());
 //			}
 
-			obj.receiveCWPacket(packet);
+			if(packet.getStrength() > 0.0D)
+				obj.receiveCWPacket(packet);
 		}
 	}
 
@@ -171,7 +173,8 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 		AntennaNetworkObject obj = getNetworkObj();
 		if(obj != null) {
 			packet.setStrength(type.getReceiveEfficiency(packet, data, pos.get().position()));
-			obj.receiveDataPacket(packet);
+			if(packet.getStrength() > 0.0D)
+				obj.receiveDataPacket(packet);
 		}
 	}
 

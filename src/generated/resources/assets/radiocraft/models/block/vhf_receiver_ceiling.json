@@ -1,0 +1,10 @@
+{
+  "parent": "radiocraft:block/vhf_receiver",
+  "transform": {
+    "translation": [
+      0.0,
+      0.625,
+      0.0
+    ]
+  }
+}

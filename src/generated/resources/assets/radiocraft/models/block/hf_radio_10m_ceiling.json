@@ -1,0 +1,10 @@
+{
+  "parent": "radiocraft:block/hf_radio_10m",
+  "transform": {
+    "translation": [
+      0.0,
+      0.6875,
+      0.0
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "parent": "radiocraft:block/all_band_radio",
+  "transform": {
+    "translation": [
+      0.0,
+      0.5,
+      0.0
+    ]
+  }
+}

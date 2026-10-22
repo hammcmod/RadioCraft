@@ -5,6 +5,7 @@ import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject
 import com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.VHFRadioBlockEntity;
 import com.arrl.radiocraft.common.blocks.antennas.DoubleVHFAntennaBlock;
+import com.arrl.radiocraft.common.blocks.antennas.DuplexerBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.BareConnectorAntenna;
 import com.arrl.radiocraft.common.radio.voice.Ctcss;
@@ -134,6 +135,26 @@ public class RepeaterGameTests {
                         "B heard nothing from the repeater after A let go"))
                 // ...and then drops.
                 .thenWaitUntil(() -> helper.assertFalse(repeater(helper, REPEATER).isTransmitting(), "Repeater is still transmitting"))
+                .thenSucceed();
+    }
+
+    /** A duplexer on top of the repeater shows its coax down the repeater's back, faces it, and counts as its duplexer. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100, batch = BATCH)
+    public static void duplexerSitsOnTop(GameTestHelper helper) {
+        BlockPos above = REPEATER.above();
+        helper.setBlock(REPEATER, RadiocraftBlocks.VHF_REPEATER.get()); // Faces north: its back is south.
+        helper.setBlock(above, net.minecraft.world.level.block.Block.updateFromNeighbourShapes(
+                RadiocraftBlocks.DUPLEXER.get().defaultBlockState(), helper.getLevel(), helper.absolutePos(above)));
+        helper.startSequence()
+                .thenExecute(() -> {
+                    var state = helper.getBlockState(above);
+                    helper.assertTrue(state.getValue(DuplexerBlock.ON_REPEATER), "The duplexer does not know it is on the repeater");
+                    helper.assertTrue(state.getValue(DuplexerBlock.FACING) == net.minecraft.core.Direction.SOUTH,
+                            "The duplexer faces " + state.getValue(DuplexerBlock.FACING) + ", not the repeater's back");
+                })
+                .thenWaitUntil(() -> helper.assertTrue(repeater(helper, REPEATER).hasDuplexer(), "The repeater does not see the duplexer on top"))
+                .thenExecute(() -> helper.setBlock(REPEATER, net.minecraft.world.level.block.Blocks.STONE))
+                .thenExecute(() -> helper.assertFalse(helper.getBlockState(above).getValue(DuplexerBlock.ON_REPEATER), "Still on a repeater that is gone"))
                 .thenSucceed();
     }
 

@@ -30,6 +30,7 @@ public class RadiocraftTabs {
             output.accept(RadiocraftItems.VHF_REPEATER.get());
             output.accept(RadiocraftItems.ALL_BAND_RADIO.get());
             output.accept(RadiocraftItems.DUPLEXER.get());
+            output.accept(RadiocraftItems.DUMMY_LOAD.get());
             output.accept(RadiocraftItems.DIGITAL_INTERFACE.get());
 			output.accept(RadiocraftItems.SATELLITE_DISH.get());
 		}

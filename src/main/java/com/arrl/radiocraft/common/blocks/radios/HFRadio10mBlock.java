@@ -49,7 +49,7 @@ public class HFRadio10mBlock extends RadioBlock {
 
 	@Override
 	public @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-		return SHAPES.get(state.getValue(RadioBlock.HORIZONTAL_FACING));
+		return hanging(state, SHAPES.get(state.getValue(RadioBlock.HORIZONTAL_FACING)));
 	}
 
     @Override

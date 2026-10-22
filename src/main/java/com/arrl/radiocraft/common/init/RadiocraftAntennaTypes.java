@@ -21,6 +21,7 @@ public class RadiocraftAntennaTypes {
 
 	// VHF Antennas
 	public static JPoleAntennaType J_POLE;
+	public static com.arrl.radiocraft.common.radio.antenna.types.DummyLoadAntennaType DUMMY_LOAD; // Every band.
 	public static SlimJimAntennaType SLIM_JIM;
 	public static YagiAntennaType YAGI;
 	public static com.arrl.radiocraft.common.radio.antenna.types.vhf.SatelliteDishAntennaType SATELLITE_DISH;
@@ -37,6 +38,7 @@ public class RadiocraftAntennaTypes {
 		IMPROVISED = AntennaTypes.registerFallbackType(new ImprovisedAntennaType()); // Last: anything the others do not recognise.
 
 		J_POLE = AntennaTypes.registerType(new JPoleAntennaType());
+		DUMMY_LOAD = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.DummyLoadAntennaType());
 		SLIM_JIM = AntennaTypes.registerType(new SlimJimAntennaType());
 		YAGI = AntennaTypes.registerType(new YagiAntennaType());
 		SATELLITE_DISH = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.vhf.SatelliteDishAntennaType());

@@ -24,7 +24,7 @@ public class VHFRepeaterBlock extends RadioBlock {
 
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-		return SHAPE;
+		return hanging(state, SHAPE);
 	}
 
 	@Override

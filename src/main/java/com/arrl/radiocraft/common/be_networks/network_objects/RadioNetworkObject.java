@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.be_networks.network_objects;
 
+import com.arrl.radiocraft.common.capabilities.BasicEnergyStorage;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
@@ -157,6 +158,17 @@ public class RadioNetworkObject extends PowerNetworkObject implements ICoaxNetwo
         isTransmitting = nbt.getBoolean("isTransmitting");
         transmitUse = nbt.getInt("transmitUse");
         receiveUse = nbt.getInt("receiveUse");
+        // VHF base stations placed before 2026-10-21 saved their two draws the wrong way round, with a buffer only
+        // as big as the receive draw, and browned out forever. Put them right: transmit is the larger, and the
+        // buffer must hold it.
+        if(transmitUse < receiveUse) {
+            int swap = transmitUse;
+            transmitUse = receiveUse;
+            receiveUse = swap;
+        }
+        if(energyStorage == null || energyStorage.getMaxEnergyStored() < transmitUse)
+            energyStorage = new BasicEnergyStorage(transmitUse, transmitUse, transmitUse,
+                    energyStorage == null ? 0 : Math.min(transmitUse, energyStorage.getEnergyStored()));
     }
 
     public void setTransmitting(boolean value) {

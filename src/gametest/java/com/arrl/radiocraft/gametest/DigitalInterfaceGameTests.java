@@ -158,6 +158,7 @@ public class DigitalInterfaceGameTests {
         radio(helper, digiIn).setFrequency(144_470_000.0F);
         radio(helper, digiOut).setFrequency(144_490_000.0F);
         tnc(helper, digi).setCallsign("W4DIG", "gametest");
+        digipeat(helper, digi, true);
         station(helper, c, 144_490, c.north(), "W4CCC");
         helper.startSequence()
                 .thenExecute(() -> {
@@ -172,6 +173,68 @@ public class DigitalInterfaceGameTests {
                 .thenExecute(() -> {
                     TncPacket packet = tnc(helper, c.north()).getBeacons().getFirst().packet();
                     helper.assertTrue(packet.hops() == 1, "The digipeated beacon shows " + packet.hops() + " hops");
+                })
+                .thenSucceed();
+    }
+
+    private static void digipeat(GameTestHelper helper, BlockPos tncPos, boolean on) {
+        net.minecraft.nbt.CompoundTag tag = new net.minecraft.nbt.CompoundTag();
+        tag.putBoolean("digipeat", on);
+        tnc(helper, tncPos).applySettings(tag);
+    }
+
+    /**
+     * Classic APRS: one radio, digipeating on. A and C are out of each other's reach, both within the digipeater's;
+     * A's beacon reaches C through it, one hop on, on the same frequency.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+    public static void singleRadioDigipeater(GameTestHelper helper) {
+        BlockPos a = new BlockPos(3, 2, 6);
+        BlockPos digi = new BlockPos(7, 2, 6);
+        BlockPos c = new BlockPos(11, 2, 6); // 8 blocks from A: the bare connectors do not reach.
+        station(helper, a, 144_670, a.north(), "W5AAA");
+        station(helper, digi, 144_670, digi.north(), "W5DIG");
+        station(helper, c, 144_670, c.north(), "W5CCC");
+        digipeat(helper, digi.north(), true);
+        helper.startSequence()
+                .thenExecute(() -> {
+                    for(BlockPos pos : new BlockPos[] { a, digi, c })
+                        powerOn(helper, pos);
+                })
+                .thenIdle(1)
+                .thenExecute(() -> tnc(helper, a.north()).beacon())
+                .thenWaitUntil(() -> helper.assertTrue(heardBeaconFrom(helper, digi.north(), "W5AAA"), "The digipeater never heard A"))
+                .thenExecute(() -> {
+                    helper.assertTrue(tnc(helper, digi.north()).isRepeating(), "The RPT lamp is not lit");
+                    helper.assertFalse(heardBeaconFrom(helper, c.north(), "W5AAA"), "C heard A directly");
+                })
+                .thenWaitUntil(() -> helper.assertTrue(heardBeaconFrom(helper, c.north(), "W5AAA"), "C never heard the digipeated beacon"))
+                .thenExecute(() -> helper.assertTrue(tnc(helper, c.north()).getBeacons().getFirst().packet().hops() == 1, "Not one hop"))
+                .thenSucceed();
+    }
+
+    /** No repeat with digipeating off, of a packet already at 8 hops, or of a message for the digipeater itself. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100, batch = BATCH)
+    public static void digipeaterLimits(GameTestHelper helper) {
+        station(helper, RADIO_A, 144_690, TNC_A, "W6DIG");
+        helper.startSequence()
+                .thenExecute(() -> powerOn(helper, RADIO_A))
+                .thenIdle(1)
+                .thenExecute(() -> {
+                    DigitalInterfaceBlockEntity digi = tnc(helper, TNC_A);
+                    RadioBlockEntity radio = radio(helper, RADIO_A);
+                    digi.receive(radio, TncPacket.beacon(1L, "W6XYZ", BlockPos.ZERO, "off", "HOUSE"));
+                    helper.assertFalse(digi.isRepeating(), "Repeated with digipeating off");
+                    digipeat(helper, TNC_A, true);
+                    TncPacket tired = TncPacket.beacon(2L, "W6XYZ", BlockPos.ZERO, "far", "HOUSE");
+                    for(int i = 0; i < 8; i++)
+                        tired = tired.digipeated();
+                    digi.receive(radio, tired);
+                    helper.assertFalse(digi.isRepeating(), "Repeated a packet already 8 hops along");
+                    digi.receive(radio, TncPacket.message(3L, "W6XYZ", "W6DIG", "for me"));
+                    helper.assertFalse(digi.isRepeating(), "Repeated a message for itself");
+                    digi.receive(radio, TncPacket.message(4L, "W6XYZ", "W6ABC", "for someone else"));
+                    helper.assertTrue(digi.isRepeating(), "Did not repeat a message for someone else");
                 })
                 .thenSucceed();
     }

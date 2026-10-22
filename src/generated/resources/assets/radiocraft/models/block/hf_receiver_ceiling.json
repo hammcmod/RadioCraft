@@ -1,0 +1,10 @@
+{
+  "parent": "radiocraft:block/hf_receiver",
+  "transform": {
+    "translation": [
+      0.0,
+      0.5625,
+      0.0
+    ]
+  }
+}

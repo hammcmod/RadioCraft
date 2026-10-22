@@ -46,11 +46,18 @@ import java.util.function.Function;
  * ({@code <prefix>middle}, {@code <prefix>edge} and so on), each baked once per rotation.
  * <p>
  * Used from a block model JSON as {@code {"loader": "radiocraft:wire", "prefix": "radiocraft:block/wire_"}}.
+ * <p>
+ * A wire hanging from a ceiling ({@link WireBlock#CEILING}) draws the same parts upside down: each part is also baked
+ * turned 180 degrees about X, which flips it top to bottom but also front to back, so a part meant for an edge is
+ * turned about Y towards the opposite edge first.
  */
 public final class WireModel {
 
 	public static final ResourceLocation LOADER_ID = Radiocraft.id("wire");
-	private static final ModelProperty<List<WireLook.Placed>> PARTS = new ModelProperty<>();
+	private static final ModelProperty<Key> PARTS = new ModelProperty<>();
+
+	/** What a wire block draws: its parts, and whether upside down. */
+	private record Key(List<WireLook.Placed> parts, boolean ceiling) {}
 
 	private WireModel() {}
 
@@ -81,13 +88,20 @@ public final class WireModel {
 		public @NotNull BakedModel bake(@NotNull IGeometryBakingContext context, @NotNull ModelBaker baker, @NotNull Function<Material, TextureAtlasSprite> spriteGetter,
 										@NotNull ModelState modelState, @NotNull ItemOverrides overrides) {
 			Map<WireLook.Part, Map<Integer, BakedModel>> baked = new EnumMap<>(WireLook.Part.class);
+			Map<WireLook.Part, Map<Integer, BakedModel>> flipped = new EnumMap<>(WireLook.Part.class);
 			for(WireLook.Part part : WireLook.Part.values()) {
 				Map<Integer, BakedModel> byRotation = new HashMap<>();
-				for(int rotation : part.rotates ? new int[] { 0, 90, 180, 270 } : new int[] { 0 })
+				Map<Integer, BakedModel> flippedByRotation = new HashMap<>();
+				for(int rotation : part.rotates ? new int[] { 0, 90, 180, 270 } : new int[] { 0 }) {
 					byRotation.put(rotation, baker.bake(part(part), BlockModelRotation.by(0, rotation), spriteGetter));
+					// X 180 also turns north to south, so aim at the opposite edge to land on this one.
+					int towardsOpposite = part.rotates ? (rotation + 180) % 360 : 0;
+					flippedByRotation.put(rotation, baker.bake(part(part), BlockModelRotation.by(180, towardsOpposite), spriteGetter));
+				}
 				baked.put(part, byRotation);
+				flipped.put(part, flippedByRotation);
 			}
-			return new Baked(baked);
+			return new Baked(baked, flipped);
 		}
 	}
 
@@ -95,12 +109,14 @@ public final class WireModel {
 	public static final class Baked implements IDynamicBakedModel {
 
 		private final Map<WireLook.Part, Map<Integer, BakedModel>> parts;
+		private final Map<WireLook.Part, Map<Integer, BakedModel>> flipped;
 		private final BakedModel middle;
 		/** Quads per part list, built once: a world has few distinct wire looks. */
-		private final Map<List<WireLook.Placed>, List<BakedQuad>> quadCache = new ConcurrentHashMap<>();
+		private final Map<Key, List<BakedQuad>> quadCache = new ConcurrentHashMap<>();
 
-		Baked(Map<WireLook.Part, Map<Integer, BakedModel>> parts) {
+		Baked(Map<WireLook.Part, Map<Integer, BakedModel>> parts, Map<WireLook.Part, Map<Integer, BakedModel>> flipped) {
 			this.parts = parts;
+			this.flipped = flipped;
 			this.middle = parts.get(WireLook.Part.MIDDLE).get(0);
 		}
 
@@ -108,8 +124,8 @@ public final class WireModel {
 		public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
 			if(!(state.getBlock() instanceof WireBlock wire))
 				return modelData;
-			List<WireLook.Placed> placed = WireLook.parts(wire.look(level, pos, state), WireBlock.connected(state));
-			return modelData.derive().with(PARTS, placed).build();
+			List<WireLook.Placed> placed = WireLook.parts(wire.look(level, pos, state), WireBlock.lookConnections(state));
+			return modelData.derive().with(PARTS, new Key(placed, WireBlock.isCeiling(state))).build();
 		}
 
 		@Override
@@ -117,13 +133,17 @@ public final class WireModel {
 												 @NotNull ModelData data, @Nullable RenderType renderType) {
 			if(side != null)
 				return List.of(); // The part models have no cull faces: everything is in the unculled list.
-			List<WireLook.Placed> placed = data.get(PARTS);
-			if(placed == null) // No level to look at (breaking overlay, a state with no model data): connections only.
-				placed = state != null && state.getBlock() instanceof WireBlock ? WireLook.parts(WireLook.Look.NONE, WireBlock.connected(state)) : List.of(new WireLook.Placed(WireLook.Part.MIDDLE, null));
-			return quadCache.computeIfAbsent(placed, list -> {
+			Key key = data.get(PARTS);
+			if(key == null) { // No level to look at (breaking overlay, a state with no model data): connections only.
+				boolean wire = state != null && state.getBlock() instanceof WireBlock;
+				key = new Key(wire ? WireLook.parts(WireLook.Look.NONE, WireBlock.lookConnections(state)) : List.of(new WireLook.Placed(WireLook.Part.MIDDLE, null)),
+						wire && WireBlock.isCeiling(state));
+			}
+			return quadCache.computeIfAbsent(key, k -> {
+				Map<WireLook.Part, Map<Integer, BakedModel>> set = k.ceiling() ? flipped : parts;
 				List<BakedQuad> quads = new ArrayList<>();
-				for(WireLook.Placed p : list) {
-					BakedModel model = parts.get(p.part()).get(p.part().rotates ? WireLook.rotation(p.dir()) : 0);
+				for(WireLook.Placed p : k.parts()) {
+					BakedModel model = set.get(p.part()).get(p.part().rotates ? WireLook.rotation(p.dir()) : 0);
 					if(model != null)
 						quads.addAll(model.getQuads(state, null, rand, ModelData.EMPTY, renderType));
 				}

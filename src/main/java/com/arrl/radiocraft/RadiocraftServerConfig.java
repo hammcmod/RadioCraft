@@ -36,9 +36,13 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Boolean> RADIO_POWER_REQUIRED;
 	public static final ModConfigSpec.ConfigValue<Double> BARE_CONNECTOR_RANGE;
 
+	public static final ModConfigSpec.ConfigValue<Double> DUMMY_LOAD_RANGE;
+	public static final ModConfigSpec.ConfigValue<Double> DUMMY_LOAD_STRENGTH;
+
 	public static final ModConfigSpec.ConfigValue<Double> TNC_MIN_SNR;
 	public static final ModConfigSpec.ConfigValue<Double> TNC_MIN_SIGNAL;
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_DELAY_TICKS;
+	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_MAX_HOPS;
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_BEACON_INTERVAL_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_LOSS;
@@ -136,12 +140,21 @@ public class RadiocraftServerConfig {
 				" distance in blocks at which that fades to nothing, both ways").defineInRange("bare_connector_range", 8.0D, 1.0D, 64.0D);
 		BUILDER.pop();
 
+		BUILDER.push("Dummy Load");
+		DUMMY_LOAD_RANGE = BUILDER.comment(" A dummy load is a perfect match on every band but radiates almost nothing: the distance in blocks",
+				" at which its signal fades to nothing, both ways. No skip, no solar weather").defineInRange("dummy_load_range", 10.0D, 1.0D, 64.0D);
+		DUMMY_LOAD_STRENGTH = BUILDER.comment(" Strength a dummy load sends at right next to it, 0 to 1, falling to nothing at its range")
+				.defineInRange("dummy_load_strength", 0.6D, 0.0D, 1.0D);
+		BUILDER.pop();
+
 		BUILDER.push("Digital Interface (TNC)");
 		TNC_MIN_SNR = BUILDER.comment(" A packet decodes when its signal is at least this many times the receiver's noise floor; weaker ones are lost whole")
 				.defineInRange("tnc_min_snr", 1.0D, 0.0D, 10.0D);
 		TNC_MIN_SIGNAL = BUILDER.comment(" Weakest signal a packet decodes at even with no noise at all, 0 to 1").defineInRange("tnc_min_signal", 0.02D, 0.0D, 1.0D);
-		TNC_DIGIPEAT_DELAY_TICKS = BUILDER.comment(" Ticks a digital interface with more than one radio waits before repeating a packet it heard on its other radios")
+		TNC_DIGIPEAT_DELAY_TICKS = BUILDER.comment(" Ticks a digipeating digital interface waits before repeating a packet it heard")
 				.defineInRange("tnc_digipeat_delay_ticks", 20, 1, 200);
+		TNC_DIGIPEAT_MAX_HOPS = BUILDER.comment(" Digipeaters a packet may go through; one that has been through this many is not repeated again")
+				.defineInRange("tnc_digipeat_max_hops", 8, 0, 16);
 		TNC_BEACON_INTERVAL_SECONDS = BUILDER.comment(" Seconds between automatic beacons from a digital interface with beaconing enabled")
 				.defineInRange("tnc_beacon_interval_seconds", 600, 30, 86400);
 		BUILDER.pop();

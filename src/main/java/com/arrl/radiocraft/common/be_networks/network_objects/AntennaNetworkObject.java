@@ -202,6 +202,26 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         return antenna;
     }
 
+    public ResourceLocation getNetworkId() {
+        return networkId;
+    }
+
+    /** Moves this antenna to another antenna network (HF or VHF), taking its antenna, if any, along. */
+    public void setNetworkId(ResourceLocation id) {
+        if(id.equals(networkId))
+            return;
+        networkId = id;
+        if(antenna != null)
+            antenna.setNetwork(AntennaNetworkManager.getNetwork(id));
+    }
+
+    /** The radios on this antenna's coax. */
+    public List<RadioNetworkObject> getRadios() {
+        synchronized(radios) {
+            return List.copyOf(radios);
+        }
+    }
+
     public void setAntenna(StaticAntenna<?> antenna) {
         AntennaNetwork network = AntennaNetworkManager.getNetwork(networkId);
 

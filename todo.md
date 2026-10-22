@@ -53,7 +53,7 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [ ] Duplexer runtime effect (repeater protection, losses) to unblock repeater work
 - [ ] Add in SWR consequences (maintainer, 2026-10-21): high SWR, and any long transmission with no antenna, should
   damage the radio. For now a radio with no antenna just works at a few blocks' range.
-- [ ] Dummy load block (maintainer, 2026-10-21): a coax load to transmit into safely, once SWR has consequences
+- [x] Dummy load block (maintainer, 2026-10-21; done 2026-10-21, see the Digital section): a coax load to transmit into safely, once SWR has consequences
 - [ ] Implement duplexer tuning (maintainer, 2026-10-21): the six screws on the duplexer screen tune the RX and TX
   cavities; a badly tuned duplexer loses signal and lets the transmitter desense the receiver
 - [ ] Implement antenna analyzer UI and data capture
@@ -109,6 +109,11 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   time with courtesy beep, timeout timer, MIC/TX/SPEAKER, duplexer on the back/top/bottom (kerchunks without one),
   bare connector without an antenna. Handhelds and the base station got a tone and a ±600 kHz offset.
 - [ ] Repeater: sleep/wake cycle (from the original plan) not done; the repeater is not in the release creative tab yet.
+- [x] Fix the J-pole and duplexer models (maintainer fixed them, 2026-10-21): overlapping faces z-fight; nudge them apart by 0.01 px (maintainer, 2026-10-21)
+- [x] Duplexer sits right on top of the repeater (done 2026-10-21 with the maintainer's model) (the repeater is 12 px tall, so a duplexer above it floats 4 px), and
+  a clearer way to run coax to it: model the wire to where the antenna port is, or two coax ports on the back of the
+  repeater (maintainer, 2026-10-21, undecided)
+- [x] Radios and wires placed on the underside of a block hang from it (2026-10-21): radios the right way up (raised copies of their models made in datagen), wires as the floor logic upside down (hug, climb down beams)
 - [ ] Add multi-channel scan indicator to VHF receiver UI
 
 ### Digital & APRS Features
@@ -117,13 +122,20 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   beacons (button, redstone pulse, timer) with a map of heard stations, messages to a callsign or ALL with an unread
   light/buzzer/comparator, digipeating across two radios, `/aprs beacon` and `/aprs broadcast`. No printer block:
   paper/book/map supplies will live in the TNC (maintainer, 2026-10-21).
-- [ ] TNC APRS map: real terrain under the heard stations; maintainer recalls a map mod considered as a dependency
+- [x] TNC APRS map terrain (2026-10-21): painted like a vanilla map from the chunks the client has loaded, zooming
+  with the stations heard; beyond render distance it is dark
+- [ ] TNC APRS map: terrain beyond render distance (optional Xaero's / JourneyMap integration for explored areas)
+- [x] TNC screen scales up to 80% of the window in whole-pixel steps (2026-10-21)
 - [x] TNC RTTY (2026-10-21): live typing at 45.45 baud, prints a line per sender, 20 lines per paper, garbles when
   weak; supplies by right click, hopper or the FILES slots
 - [x] TNC FILES (2026-10-21): books, paper and maps (SSTV, from the map's picture) to a callsign or everyone; each
   receiver prints a copy on its own blank, the sender keeps the original; progress on the six LEDs
 - [ ] TNC FILES: real inventory panel art (bounty); for now the vanilla chest's bottom half
-- [ ] TNC single-radio digipeating (classic APRS, 8-hop cap, toggle); deferred by the maintainer 2026-10-21
+- [x] TNC digipeating (2026-10-21): blue lamp on the APRS tab toggles it (off by default), red RPT lamp while
+  repeating; repeats on every radio it touches incl. the one it heard on, 8-hop cap (config), never a message for itself
+- [x] Dummy load (2026-10-21, model by the maintainer): perfect SWR on every band, ~10 blocks, no skip; fits on a
+  radio directly or on its coax and follows the radio's band (HF or VHF network)
+- [x] Duplexer on top of the repeater shows its coax down the repeater's back (maintainer's `duplexer_on_repeater`)
 - [ ] TNC: handheld/Curios side (APRS from a handheld radio), message acks and retries
 
 ### Antenna Expansions

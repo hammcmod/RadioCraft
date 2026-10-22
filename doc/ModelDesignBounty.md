@@ -32,12 +32,6 @@ What was done for the parrot controller, as the pattern for the next one:
 
 ## Open bounties
 
-### Balun (4:1) texture
-
-The 2:1 balun became the 4:1 on 2026-10-21 (`balun_four_to_one`, feeds the off-centre-fed dipole and the quad
-loops), but `textures/block/balun_four_to_one.png` is still the old 2:1 art.
-
-- Wanted: the label repainted to "4:1". Nothing else changes.
 
 ### Sound: redstone interference buzz
 
@@ -66,27 +60,3 @@ trap coils along it, standing on a ground mount. Requested by the maintainer 202
 - Wanted: a 3D block model and texture, about 7.5 blocks tall (a multi-block or tall-rendered model; the base
   block is where the coax connects), with the traps visible as thicker coil sections up the tube.
 - No antenna type for it yet; it will need one (multiband vertical) when the model lands.
-
-### Digital interface: player inventory panel
-
-The digital interface's FILES tab needs the player's inventory, and none of its GUI textures has one. Until there is
-art, the screen draws the bottom half of the vanilla chest screen under the panel (added 2026-10-21).
-
-- Wanted: a panel in the style of `textures/gui/digital_interface_*.png` with the 27 + 9 player slots, 176 wide or
-  the panel's full 217, to sit under the 217 x 133 panel. The slots start at x 28, y 147 of the whole screen (y 14
-  into a panel placed at y 133), 18 apart, hotbar 58 below the first row; tell the code if the art moves them
-  (`DigitalInterfaceMenu.INVENTORY_X/Y`).
-
-## Done
-
-### Balun (9:1) texture
-
-Drawn by the maintainer on 2026-10-21 (`textures/block/balun_nine_to_one.png`, same model as the other baluns).
-It is the feed point of the random wire antenna.
-
-### 1. Parrot controller
-
-A small desk unit (12 x 3 x 10 px) next to a radio that turns it into a simplex "parrot" repeater. Modelled and
-textured by the maintainer, 2026-10-20: `models/block/parrot_controller*.json`, `textures/block/parrot_controller*.png`,
-source in `doc/models/parrot_controller.bbmodel`. Green LED = the radio is receiving, red LED = it is echoing; the
-wire stub towards the linked radio reuses the coax wire texture.

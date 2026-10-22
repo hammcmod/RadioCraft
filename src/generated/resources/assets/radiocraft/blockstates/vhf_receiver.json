@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=east": {
+    "ceiling=false,facing=east": {
       "model": "radiocraft:block/vhf_receiver",
       "y": 90
     },
-    "facing=north": {
+    "ceiling=false,facing=north": {
       "model": "radiocraft:block/vhf_receiver"
     },
-    "facing=south": {
+    "ceiling=false,facing=south": {
       "model": "radiocraft:block/vhf_receiver",
       "y": 180
     },
-    "facing=west": {
+    "ceiling=false,facing=west": {
       "model": "radiocraft:block/vhf_receiver",
+      "y": 270
+    },
+    "ceiling=true,facing=east": {
+      "model": "radiocraft:block/vhf_receiver_ceiling",
+      "y": 90
+    },
+    "ceiling=true,facing=north": {
+      "model": "radiocraft:block/vhf_receiver_ceiling"
+    },
+    "ceiling=true,facing=south": {
+      "model": "radiocraft:block/vhf_receiver_ceiling",
+      "y": 180
+    },
+    "ceiling=true,facing=west": {
+      "model": "radiocraft:block/vhf_receiver_ceiling",
       "y": 270
     }
   }

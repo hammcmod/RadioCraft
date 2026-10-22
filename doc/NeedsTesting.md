@@ -403,9 +403,32 @@ the sound.
   lamp blinks on its screen, red dust flickers on top of the block, and a comparator reads 15 until someone opens the
   MSG tab. The message shows on both papers (yours as "> CALL: text"); long ones wrap and the paper scrolls.
 - [ ] A message to ALL lands on every interface that hears it.
-- [ ] Digipeating: an interface touching two radios on different frequencies repeats a packet heard on one out of
-  the other a second later, once.
+- [ ] Digipeating: the blue lamp under RPT on the APRS tab toggles it (lit = on, off by default). With it on, a
+  packet heard goes back out a second later on every radio the interface touches; the red RPT lamp lights from
+  hearing it until it has gone. Works with one radio (same frequency) or two (crosses over). Nothing past 8 hops.
+- [ ] Dummy load (dev tab): touching a radio or on its coax, the radio shows SWR 1.0 on every band and reaches only
+  about 10 blocks; an all-band radio switched from HF to 2m follows within half a second. Model and hitbox line up?
+- [ ] Duplexer on top of the repeater: the coax legs run down the repeater's back and the duplexer turns to face it
+  whichever way the repeater faces; take the repeater away and it goes back to the plain model.
+- [ ] J-pole and duplexer: no more z-fighting (maintainer's model fixes).
+- [ ] Aurora crackle: during an aurora (`/rcdebug` aurora), past the aurora latitude, in a snowy biome, faint pops
+  every several seconds from a few blocks away (vanilla campfire crackle, 4 to 9% volume, high pitch). Should be
+  near inaudible over rain, music or a radio's static. Nothing in a warm biome, or when the aurora ends.
+  `/auroracrackle [pops]` (client command) plays one burst right now at the same volume and spread, anywhere.
 - [ ] `/aprs beacon 144.390 W1AW Net tonight` and `/aprs broadcast all ALL hello` reach interfaces anywhere.
+- [ ] Radios on ceilings: click the underside of a block with a radio. It hangs the right way up, its top against
+  the block (a raised copy of its model; the repeater rises 4 px). Panel, display and lights read normally; the
+  hitbox matches. Every radio, all four facings.
+- [ ] Wires on ceilings: click the underside of a block with wire, coax or waterproof wire. It runs along the
+  ceiling, joins hanging radios and devices, and carries on sideways when you extend it from a hanging wire (or
+  where there is a ceiling but no floor). Runs down a wall hug it; at a beam hanging lower, the cable runs down
+  the beam's face to a wire or device under it (the floor climb, upside down). Floor-to-ceiling columns line up on
+  one edge. Check the pieces look right flipped (no gaps, textures not inside out) and hitboxes follow the cable.
+- [ ] TNC screen size: it scales up to at most 80% of the window, in whole window pixels (crisp art). Try a few
+  window sizes and GUI scales; clicks, slots, item dragging, scrolling and tooltips must all still line up.
+- [ ] APRS map terrain: the grey screen shows the land around the interface like a vanilla map (shaded by slope,
+  dimmed under the icons), north up, and zooms out with the stations heard. Past render distance it is dark.
+  Does it repaint when you walk/build (every 3 s)? Any stutter opening the tab?
 - [ ] RTTY (stations on an HF band too, say 14.080): whatever you type on the RTTY tab goes out as you type it
   (upper case only, no backspace: it is already on the air), and Enter or SEND ends the line. Both radios play the
   warbling RTTY tones, about 6 characters a second. The far interface prints "CALL: TEXT" with a blinking cursor,

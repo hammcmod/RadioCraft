@@ -11,9 +11,10 @@ import com.arrl.radiocraft.common.network.serverbound.SDigitalInterfacePacket;
 import com.arrl.radiocraft.common.radio.data.AprsIcon;
 import com.arrl.radiocraft.common.radio.data.TncPacket;
 import com.arrl.radiocraft.common.radio.voice.Rtty;
+import com.mojang.blaze3d.platform.Window;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.gui.components.MultiLineEditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -66,6 +67,8 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	private static final int[] APRS_ICON = {34, 62, 21, 6};
 	private static final int[] APRS_PAPER = {21, 83, 52, 27};
 	private static final int[] APRS_MAP = {103, 44, 94, 71};
+	private static final int[] APRS_RPT_LAMP = {87, 69, 6, 8};
+	private static final int[] APRS_DIGIPEAT = {84, 112, 11, 10};
 	private static final int[] MSG_BUZZER = {89, 36, 5, 5};
 	private static final int[] MSG_BEACON_ENABLE = {78, 45, 5, 5};
 	private static final int[] MSG_SEND = {29, 53, 51, 9};
@@ -80,8 +83,16 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	private static final int PANEL_HEIGHT = 133;
 	/** The player inventory half of the vanilla chest screen, a stand-in until the interface has its own. */
 	private static final ResourceLocation INVENTORY_TEXTURE = ResourceLocation.withDefaultNamespace("textures/gui/container/generic_54.png");
-	private static final float RTTY_SCALE = 0.6F;
-	private static final int RTTY_LINE = 6;
+	/** Tops of the bands between the ruled lines of each paper (each rule is the row above a band); a line of text per band. */
+	private static final int[] APRS_BANDS = {83, 93, 102};
+	private static final int[] MSG_BANDS = {46, 55, 64, 73, 83, 92, 102};
+	private static final int[] RTTY_BANDS = {46, 55, 64, 73, 82, 91};
+	private static final int BAND_HEIGHT = 8;
+	private static final float PAPER_SCALE = 0.75F;
+	private static final float APRS_PAPER_SCALE = 0.6F;
+	/** Text size on the MSG tab's little command-line screen. */
+	private static final float CLI_SCALE = 0.5F;
+	private static final int CLI_LINE = 5;
 	private static final int PAPER_OUT = 0xFFB02020;
 
 	private static final float SMALL = 0.5F;
@@ -93,7 +104,8 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	private Editing editing = Editing.NONE;
 	private EditBox fieldBox;
 	private EditBox toBox;
-	private MultiLineEditBox messageBox;
+	private enum Compose { NONE, TO, TEXT }
+	private Compose composeFocus = Compose.NONE;
 	private String draftTo = "";
 	private String draftMessage = "";
 	private int beaconScroll = 0;
@@ -116,10 +128,10 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 
 	@Override
 	protected void init() {
+		fitToWindow(); // Before super.init, which centres the panel in width x height.
 		super.init();
 		fieldBox = null;
 		toBox = null;
-		messageBox = null;
 
 		addRenderableWidget(new ToggleButton(currentTab == TAB_APRS, leftPos + 16, topPos + 17, 35, 14, 0, 0, WIDGETS_TEXTURE, 217, 80, btn -> selectTab(TAB_APRS)));
 		addRenderableWidget(new ToggleButton(currentTab == TAB_MSG, leftPos + 50, topPos + 17, 36, 14, 144, 0, WIDGETS_TEXTURE, 217, 80, btn -> selectTab(TAB_MSG)));
@@ -132,21 +144,6 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 			fieldBox.setValue(editing == Editing.CALLSIGN ? tnc().getCallsign() : tnc().getBeaconComment());
 			addRenderableWidget(fieldBox);
 			setInitialFocus(fieldBox);
-		}
-		else if(currentTab == TAB_MSG) {
-			toBox = new EditBox(font, leftPos + MSG_COMPOSE[0] + 14, topPos + MSG_COMPOSE[1] + 2, MSG_COMPOSE[2] - 16, 9, Component.empty());
-			toBox.setBordered(false);
-			toBox.setTextColor(LCD);
-			toBox.setMaxLength(TncPacket.CALLSIGN_MAX);
-			toBox.setValue(draftTo);
-			toBox.setResponder(value -> draftTo = value);
-			addRenderableWidget(toBox);
-			messageBox = new MultiLineEditBox(font, leftPos + MSG_COMPOSE[0], topPos + MSG_COMPOSE[1] + 12, MSG_COMPOSE[2], MSG_COMPOSE[3] - 12,
-					Component.translatable("screen.radiocraft.digital_interface.message_hint"), Component.empty());
-			messageBox.setCharacterLimit(TncPacket.MESSAGE_TEXT_MAX);
-			messageBox.setValue(draftMessage);
-			messageBox.setValueListener(value -> draftMessage = value);
-			addRenderableWidget(messageBox);
 		}
 		else if(currentTab == TAB_RTTY)
 			addRenderableWidget(new HoldButton(leftPos + 174, topPos + 113, 28, 14, 72, 28, WIDGETS_TEXTURE, 217, 80, btn -> endRttyLine(), btn -> {}));
@@ -193,8 +190,62 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		SDigitalInterfacePacket.send(tnc().getBlockPos(), "settings", tag);
 	}
 
+	// -------------------- SCALING --------------------
+
+	/**
+	 * The whole screen is drawn {@link #scale} times larger than the GUI scale would, as large as fits, in steps of
+	 * whole window pixels so the pixel art stays sharp. Everything inside works in unscaled screen coordinates: the
+	 * screen is laid out in a smaller "virtual" window, drawing is scaled up, and the mouse is scaled down on the way in.
+	 */
+	private float scale = 1.0F;
+	private AprsMapTexture mapTexture = null; // Made when the APRS map is first drawn, freed when the screen closes.
+	/** Most of the window the screen may take, either way. */
+	private static final double WINDOW_SHARE = 0.8D;
+
+	/** How many times larger than the GUI scale the screen is drawn; its own coordinates are all unscaled. */
+	public float getScale() {
+		return scale;
+	}
+
+	/** Picks {@link #scale} for the window and lays the screen out in the scaled-down window it gives. */
+	private void fitToWindow() {
+		Window window = Minecraft.getInstance().getWindow();
+		double guiScale = window.getGuiScale();
+		int pixelsPerTexel = (int)Math.floor(Math.min((double)window.getWidth() / imageWidth, (double)window.getHeight() / imageHeight) * WINDOW_SHARE);
+		scale = (float)Math.max(1.0D, pixelsPerTexel / guiScale);
+		width = (int)(window.getGuiScaledWidth() / scale);
+		height = (int)(window.getGuiScaledHeight() / scale);
+	}
+
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+		guiGraphics.pose().pushPose();
+		guiGraphics.pose().scale(scale, scale, 1.0F);
+		int x = (int)(mouseX / scale), y = (int)(mouseY / scale);
+		super.render(guiGraphics, x, y, partialTick);
+		renderTooltip(guiGraphics, x, y);
+		renderPanelTooltips(guiGraphics, x, y);
+		guiGraphics.pose().popPose();
+	}
+
+	@Override
+	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+		return super.mouseReleased(mouseX / scale, mouseY / scale, button);
+	}
+
+	@Override
+	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+		return super.mouseDragged(mouseX / scale, mouseY / scale, button, dragX / scale, dragY / scale);
+	}
+
+	@Override
+	public void mouseMoved(double mouseX, double mouseY) {
+		super.mouseMoved(mouseX / scale, mouseY / scale);
+	}
+
+	@Override
+	public boolean mouseClicked(double rawX, double rawY, int button) {
+		double mouseX = rawX / scale, mouseY = rawY / scale;
 		if(button == 0) {
 			if(inside(BLUE_LAMP, mouseX, mouseY)) {
 				SDigitalInterfacePacket.send(tnc().getBlockPos(), "beacon");
@@ -211,6 +262,10 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 				}
 				if(inside(APRS_BEACON_ENABLE, mouseX, mouseY)) {
 					settings("beaconEnabled", !tnc().isBeaconEnabled());
+					return true;
+				}
+				if(inside(APRS_DIGIPEAT, mouseX, mouseY)) {
+					settings("digipeat", !tnc().isDigipeatEnabled());
 					return true;
 				}
 				if(inside(APRS_CALLSIGN, mouseX, mouseY)) {
@@ -241,6 +296,11 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 					sendMessage();
 					return true;
 				}
+				if(inside(MSG_COMPOSE, mouseX, mouseY)) { // The top line is TO, the rest the message.
+					composeFocus = mouseY - topPos < MSG_COMPOSE[1] + 2 + CLI_LINE ? Compose.TO : Compose.TEXT;
+					return true;
+				}
+				composeFocus = Compose.NONE;
 			}
 		}
 		return super.mouseClicked(mouseX, mouseY, button);
@@ -256,8 +316,7 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		tag.putString("text", text);
 		SDigitalInterfacePacket.send(tnc().getBlockPos(), "message", tag);
 		draftMessage = "";
-		if(messageBox != null)
-			messageBox.setValue("");
+		composeFocus = Compose.TEXT;
 	}
 
 	private void startEditing(Editing field) {
@@ -301,8 +360,24 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		}
 		if(keyCode != GLFW.GLFW_KEY_ESCAPE && getFocused() instanceof EditBox box && box.isFocused()) // Typing 'e' must not close the screen.
 			return box.keyPressed(keyCode, scanCode, modifiers) || box.canConsumeInput();
-		if(keyCode != GLFW.GLFW_KEY_ESCAPE && getFocused() instanceof MultiLineEditBox box && box.isFocused()) {
-			box.keyPressed(keyCode, scanCode, modifiers);
+		if(currentTab == TAB_MSG && composeFocus != Compose.NONE) {
+			switch(keyCode) {
+				case GLFW.GLFW_KEY_ESCAPE -> composeFocus = Compose.NONE; // Leaves the prompt; a second Escape closes.
+				case GLFW.GLFW_KEY_BACKSPACE -> {
+					if(composeFocus == Compose.TO && !draftTo.isEmpty())
+						draftTo = draftTo.substring(0, draftTo.length() - 1);
+					else if(composeFocus == Compose.TEXT && !draftMessage.isEmpty())
+						draftMessage = draftMessage.substring(0, draftMessage.length() - 1);
+				}
+				case GLFW.GLFW_KEY_ENTER, GLFW.GLFW_KEY_KP_ENTER -> {
+					if(composeFocus == Compose.TO)
+						composeFocus = Compose.TEXT;
+					else
+						sendMessage();
+				}
+				case GLFW.GLFW_KEY_TAB -> composeFocus = composeFocus == Compose.TO ? Compose.TEXT : Compose.TO;
+				default -> {} // Typing comes through charTyped; nothing else (no closing the screen on E).
+			}
 			return true;
 		}
 		if(currentTab == TAB_RTTY && keyCode != GLFW.GLFW_KEY_ESCAPE) {
@@ -324,6 +399,15 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 			}
 			return true;
 		}
+		if(currentTab == TAB_MSG && composeFocus == Compose.TO) {
+			draftTo = TncPacket.sanitizeCallsign(draftTo + codePoint);
+			return true;
+		}
+		if(currentTab == TAB_MSG && composeFocus == Compose.TEXT) {
+			if(codePoint >= 32 && codePoint < 127 && draftMessage.length() < TncPacket.MESSAGE_TEXT_MAX)
+				draftMessage += codePoint;
+			return true;
+		}
 		return super.charTyped(codePoint, modifiers);
 	}
 
@@ -342,14 +426,15 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	}
 
 	@Override
-	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+	public boolean mouseScrolled(double rawX, double rawY, double scrollX, double scrollY) {
+		double mouseX = rawX / scale, mouseY = rawY / scale;
 		int step = scrollY > 0 ? -1 : 1;
 		if(currentTab == TAB_RTTY && inside(RTTY_PAPER, mouseX, mouseY)) {
 			rttyScroll = Math.max(0, rttyScroll - step); // Up the roll; clamped when drawn.
 			return true;
 		}
 		if(currentTab == TAB_APRS && inside(APRS_PAPER, mouseX, mouseY)) {
-			beaconScroll = Mth.clamp(beaconScroll + step, 0, Math.max(0, tnc().getBeacons().size() - APRS_PAPER[3] / SMALL_LINE));
+			beaconScroll = Mth.clamp(beaconScroll + step, 0, Math.max(0, tnc().getBeacons().size() - APRS_BANDS.length));
 			return true;
 		}
 		if(currentTab == TAB_MSG && inside(MSG_PAPER, mouseX, mouseY)) {
@@ -360,13 +445,6 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 	}
 
 	// -------------------- RENDERING --------------------
-
-	@Override
-	public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-		super.render(guiGraphics, mouseX, mouseY, partialTick);
-		renderTooltip(guiGraphics, mouseX, mouseY);
-		renderPanelTooltips(guiGraphics, mouseX, mouseY);
-	}
 
 	@Override
 	protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
@@ -383,6 +461,29 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 			fillAt(guiGraphics, RED_LAMP, leftPos, topPos, LAMP_RED);
 		if(currentTab == TAB_APRS && editing != Editing.NONE)
 			fillAt(guiGraphics, APRS_MAP, leftPos, topPos, 0xFF3A4448); // Here, under the edit box: labels draw over widgets.
+		else if(currentTab == TAB_APRS)
+			renderTerrain(guiGraphics);
+	}
+
+	/** The terrain under the map, at the map's scale and centred on this station. */
+	private void renderTerrain(GuiGraphics guiGraphics) {
+		if(minecraft == null || minecraft.level == null)
+			return;
+		if(mapTexture == null)
+			mapTexture = new AprsMapTexture(APRS_MAP[2], APRS_MAP[3]);
+		float radius = Math.min(APRS_MAP[2], APRS_MAP[3]) / 2.0F - 6.0F;
+		double blocksPerPixel = mapRange(tnc().getBeacons()) / (double)radius;
+		mapTexture.update(minecraft.level, tnc().getBlockPos(), APRS_MAP[2] / 2.0D, APRS_MAP[3] / 2.0D, blocksPerPixel);
+		guiGraphics.blit(AprsMapTexture.LOCATION, leftPos + APRS_MAP[0], topPos + APRS_MAP[1], 0, 0, APRS_MAP[2], APRS_MAP[3], APRS_MAP[2], APRS_MAP[3]);
+	}
+
+	@Override
+	public void removed() {
+		super.removed();
+		if(mapTexture != null) {
+			mapTexture.close();
+			mapTexture = null;
+		}
 	}
 
 	@Override
@@ -419,19 +520,24 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		DigitalInterfaceBlockEntity tnc = tnc();
 		check(guiGraphics, APRS_CONTACT_BUZZER, tnc.isContactBuzzer());
 		check(guiGraphics, APRS_BEACON_ENABLE, tnc.isBeaconEnabled());
+		if(tnc.isRepeating())
+			guiGraphics.fill(APRS_RPT_LAMP[0], APRS_RPT_LAMP[1], APRS_RPT_LAMP[0] + APRS_RPT_LAMP[2], APRS_RPT_LAMP[1] + APRS_RPT_LAMP[3], 0xFFFF3A2E);
+		if(tnc.isDigipeatEnabled()) // The blue lamp lit: digipeating on.
+			guiGraphics.fill(APRS_DIGIPEAT[0] + 2, APRS_DIGIPEAT[1] + 3, APRS_DIGIPEAT[0] + APRS_DIGIPEAT[2] - 2, APRS_DIGIPEAT[1] + APRS_DIGIPEAT[3] - 2, 0xFF4F7BFF);
 		fieldText(guiGraphics, APRS_CALLSIGN, tnc.getCallsign().isEmpty() ? "-" : tnc.getCallsign());
 		fieldText(guiGraphics, APRS_COMMENT, tnc.getBeaconComment());
 		fieldText(guiGraphics, APRS_ICON, tnc.getIcon().name());
 		item(guiGraphics, tnc.getIcon(), APRS_ICON[0] + APRS_ICON[2] + 2, APRS_ICON[1] - 1);
 
 		List<Heard> beacons = tnc.getBeacons();
-		int rows = APRS_PAPER[3] / SMALL_LINE;
-		beaconScroll = Mth.clamp(beaconScroll, 0, Math.max(0, beacons.size() - rows));
+		beaconScroll = Mth.clamp(beaconScroll, 0, Math.max(0, beacons.size() - APRS_BANDS.length));
+		int width = (int)(APRS_PAPER[2] / APRS_PAPER_SCALE);
 		if(beacons.isEmpty())
-			text(guiGraphics, Component.translatable("screen.radiocraft.digital_interface.no_beacons").getString(), APRS_PAPER[0], APRS_PAPER[1], SMALL, INK, false);
-		for(int i = 0; i < rows && beaconScroll + i < beacons.size(); i++) {
+			onBand(guiGraphics, Component.translatable("screen.radiocraft.digital_interface.no_beacons").getVisualOrderText(), APRS_PAPER[0], APRS_BANDS[0], APRS_PAPER_SCALE);
+		for(int i = 0; i < APRS_BANDS.length && beaconScroll + i < beacons.size(); i++) {
 			TncPacket packet = beacons.get(beaconScroll + i).packet();
-			text(guiGraphics, packet.from() + " " + distanceAndBearing(packet.position()), APRS_PAPER[0], APRS_PAPER[1] + i * SMALL_LINE, SMALL, INK, false);
+			String line = font.plainSubstrByWidth(packet.from() + " " + distanceAndBearing(packet.position()), width);
+			onBand(guiGraphics, Component.literal(line).getVisualOrderText(), APRS_PAPER[0], APRS_BANDS[i], APRS_PAPER_SCALE);
 		}
 
 		if(editing != Editing.NONE) {
@@ -470,26 +576,51 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		DigitalInterfaceBlockEntity tnc = tnc();
 		check(guiGraphics, MSG_BUZZER, tnc.isMessageBuzzer());
 		check(guiGraphics, MSG_BEACON_ENABLE, tnc.isBeaconEnabled());
-		text(guiGraphics, "TO", MSG_COMPOSE[0] + 2, MSG_COMPOSE[1] + 3, 0.6F, LCD_DIM, false);
+		renderCompose(guiGraphics);
 
 		List<FormattedCharSequence> lines = new ArrayList<>();
-		int wrap = (int)(MSG_PAPER[2] / SMALL);
+		int wrap = (int)(MSG_PAPER[2] / PAPER_SCALE);
 		for(Logged logged : tnc.getMessages()) {
 			TncPacket packet = logged.packet();
 			String line = logged.outgoing() ? "> " + packet.to() + ": " + packet.text() : packet.from() + ": " + packet.text();
 			lines.addAll(font.split(Component.literal(line), wrap));
 		}
-		int rows = MSG_PAPER[3] / SMALL_LINE;
-		messageScroll = Mth.clamp(messageScroll, 0, Math.max(0, lines.size() - rows));
+		messageScroll = Mth.clamp(messageScroll, 0, Math.max(0, lines.size() - MSG_BANDS.length));
 		if(lines.isEmpty())
-			text(guiGraphics, Component.translatable("screen.radiocraft.digital_interface.no_messages").getString(), MSG_PAPER[0], MSG_PAPER[1], SMALL, INK, false);
-		for(int i = 0; i < rows && messageScroll + i < lines.size(); i++) {
+			onBand(guiGraphics, Component.translatable("screen.radiocraft.digital_interface.no_messages").getVisualOrderText(), MSG_PAPER[0], MSG_BANDS[0], PAPER_SCALE);
+		for(int i = 0; i < MSG_BANDS.length && messageScroll + i < lines.size(); i++)
+			onBand(guiGraphics, lines.get(messageScroll + i), MSG_PAPER[0], MSG_BANDS[i], PAPER_SCALE);
+	}
+
+	/**
+	 * The message being written, on the grey screen like a command line: "TO&gt; " and the callsign, then "APRS&gt; "
+	 * and the message, wrapped, showing its end if it is longer than the screen. A cursor blinks where typing goes.
+	 */
+	private void renderCompose(GuiGraphics guiGraphics) {
+		boolean blink = (System.currentTimeMillis() / 400) % 2 == 0;
+		int wrap = (int)((MSG_COMPOSE[2] - 4) / CLI_SCALE);
+		List<FormattedCharSequence> lines = new ArrayList<>(font.split(Component.literal("TO> ").withColor(LCD_DIM)
+				.append(Component.literal(draftTo + (composeFocus == Compose.TO && blink ? "_" : ""))), wrap));
+		List<FormattedCharSequence> message = font.split(Component.literal("APRS> ").withColor(LCD_DIM)
+				.append(Component.literal(draftMessage + (composeFocus == Compose.TEXT && blink ? "_" : ""))), wrap);
+		int room = (MSG_COMPOSE[3] - 4) / CLI_LINE - 1;
+		lines.addAll(message.subList(Math.max(0, message.size() - room), message.size()));
+		for(int i = 0; i < lines.size(); i++) {
 			guiGraphics.pose().pushPose();
-			guiGraphics.pose().translate(MSG_PAPER[0], MSG_PAPER[1] + i * SMALL_LINE, 0.0F);
-			guiGraphics.pose().scale(SMALL, SMALL, 1.0F);
-			guiGraphics.drawString(font, lines.get(messageScroll + i), 0, 0, INK, false);
+			guiGraphics.pose().translate(MSG_COMPOSE[0] + 2, MSG_COMPOSE[1] + 2 + i * CLI_LINE, 0.0F);
+			guiGraphics.pose().scale(CLI_SCALE, CLI_SCALE, 1.0F);
+			guiGraphics.drawString(font, lines.get(i), 0, 0, LCD, false);
 			guiGraphics.pose().popPose();
 		}
+	}
+
+	/** A line of text on a paper band whose top row is {@code top}, centred in the band's height. */
+	private void onBand(GuiGraphics guiGraphics, FormattedCharSequence line, float x, int top, float scale) {
+		guiGraphics.pose().pushPose();
+		guiGraphics.pose().translate(x, top + (BAND_HEIGHT - 7.0F * scale) / 2.0F, 0.0F);
+		guiGraphics.pose().scale(scale, scale, 1.0F);
+		guiGraphics.drawString(font, line, 0, 0, INK, false);
+		guiGraphics.pose().popPose();
 	}
 
 	/** The teleprinter roll, newest line at the bottom, and the line being typed under it. */
@@ -497,23 +628,18 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		DigitalInterfaceBlockEntity tnc = tnc();
 		boolean blink = (System.currentTimeMillis() / 400) % 2 == 0;
 		List<FormattedCharSequence> lines = new ArrayList<>();
-		int wrap = (int)(RTTY_PAPER[2] / RTTY_SCALE);
+		int wrap = (int)(RTTY_PAPER[2] / PAPER_SCALE);
 		for(String line : tnc.getRttyLines())
 			lines.addAll(font.split(Component.literal(line), wrap));
 		String open = tnc.getRttyOpenLine();
 		if(open != null)
 			lines.addAll(font.split(Component.literal(open + (blink ? "_" : " ")), wrap));
-		int rows = RTTY_PAPER[3] / RTTY_LINE;
+		int rows = RTTY_BANDS.length; // Newest line on the bottom band, as a teleprinter feeds paper up.
 		rttyScroll = Mth.clamp(rttyScroll, 0, Math.max(0, lines.size() - rows));
 		int end = lines.size() - rttyScroll;
 		int start = Math.max(0, end - rows);
-		for(int i = start; i < end; i++) {
-			guiGraphics.pose().pushPose();
-			guiGraphics.pose().translate(RTTY_PAPER[0], RTTY_PAPER[1] + RTTY_PAPER[3] - (end - i) * RTTY_LINE, 0.0F);
-			guiGraphics.pose().scale(RTTY_SCALE, RTTY_SCALE, 1.0F);
-			guiGraphics.drawString(font, lines.get(i), 0, 0, INK, false);
-			guiGraphics.pose().popPose();
-		}
+		for(int i = start; i < end; i++)
+			onBand(guiGraphics, lines.get(i), RTTY_PAPER[0], RTTY_BANDS[rows - (end - i)], PAPER_SCALE);
 
 		int paperLines = tnc.getPaperLines();
 		String paper = paperLines > 0 ? Component.translatable("screen.radiocraft.digital_interface.paper", paperLines).getString()
@@ -523,6 +649,14 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 		String typed = rttyTyped + (blink ? "_" : "");
 		String shown = font.plainSubstrByWidth(new StringBuilder(typed).reverse().toString(), (int)((RTTY_INPUT[2] - 4) / 0.75F));
 		text(guiGraphics, new StringBuilder(shown).reverse().toString(), RTTY_INPUT[0] + 2, RTTY_INPUT[1] + 2.5F, 0.75F, LCD, false);
+	}
+
+	/** Index of the band containing {@code y} (screen-relative); far negative between and outside them. */
+	private static int bandAt(int[] bands, int y) {
+		for(int i = 0; i < bands.length; i++)
+			if(y >= bands[i] && y < bands[i] + BAND_HEIGHT)
+				return i;
+		return -100_000;
 	}
 
 	private void renderPanelTooltips(GuiGraphics guiGraphics, int mouseX, int mouseY) {
@@ -545,8 +679,12 @@ public class DigitalInterfaceScreen extends AbstractContainerScreen<DigitalInter
 				tip.add(Component.translatable("screen.radiocraft.digital_interface.tip.icon"));
 			else if(inside(APRS_BEACON_ENABLE, mouseX, mouseY))
 				tip.add(Component.translatable("screen.radiocraft.digital_interface.tip.beacon_enable"));
+			else if(inside(APRS_DIGIPEAT, mouseX, mouseY))
+				tip.add(Component.translatable(tnc().isDigipeatEnabled() ? "screen.radiocraft.digital_interface.tip.digipeat_on" : "screen.radiocraft.digital_interface.tip.digipeat_off"));
+			else if(inside(APRS_RPT_LAMP, mouseX, mouseY))
+				tip.add(Component.translatable("screen.radiocraft.digital_interface.tip.rpt"));
 			else if(inside(APRS_PAPER, mouseX, mouseY)) {
-				int row = (mouseY - topPos - APRS_PAPER[1]) / SMALL_LINE + beaconScroll;
+				int row = bandAt(APRS_BANDS, mouseY - topPos) + beaconScroll;
 				List<Heard> beacons = tnc().getBeacons();
 				if(row >= 0 && row < beacons.size())
 					beaconTip(tip, beacons.get(row));

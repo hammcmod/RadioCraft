@@ -7,13 +7,18 @@ import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
+import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
+import com.arrl.radiocraft.common.capabilities.BENetworksCapability;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+
+import java.util.List;
 
 /**
  * Block radios drawing power. One sequential test, in its own batch, because it turns {@code radios_need_power} on
@@ -110,5 +115,62 @@ public class PowerGameTests {
                 })
                 .thenExecute(() -> RadiocraftServerConfig.RADIO_POWER_REQUIRED.set(false))
                 .thenSucceed();
+    }
+
+    /**
+     * Every kind of radio runs on a charged battery. The VHF base station passed its draws the wrong way round, so its
+     * buffer was smaller than its draw and it browned out on a full battery (maintainer's playtest, 2026-10-21).
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 200, batch = "power_every_radio")
+    public static void everyRadioRunsOnABattery(GameTestHelper helper) {
+        RadiocraftServerConfig.RADIO_POWER_REQUIRED.set(true);
+        List<Block> radios = List.of(RadiocraftBlocks.HF_RADIO_10M.get(), RadiocraftBlocks.HF_RADIO_20M.get(), RadiocraftBlocks.HF_RADIO_40M.get(),
+                RadiocraftBlocks.HF_RADIO_80M.get(), RadiocraftBlocks.ALL_BAND_RADIO.get(), RadiocraftBlocks.QRP_RADIO_20M.get(),
+                RadiocraftBlocks.QRP_RADIO_40M.get(), RadiocraftBlocks.HF_RECEIVER.get(), RadiocraftBlocks.VHF_BASE_STATION.get(),
+                RadiocraftBlocks.VHF_RECEIVER.get(), RadiocraftBlocks.VHF_REPEATER.get());
+        List<BlockPos> at = new java.util.ArrayList<>();
+        for(int i = 0; i < radios.size(); i++) // Two rows, every other block, so nothing touches its neighbour.
+            at.add(new BlockPos(1 + (i % 7) * 2, 2, i < 7 ? 1 : 8));
+        helper.startSequence()
+                .thenExecute(() -> {
+                    for(int i = 0; i < radios.size(); i++) {
+                        helper.setBlock(at.get(i), radios.get(i));
+                        GameTestUtil.placeWire(helper, at.get(i).south(), RadiocraftBlocks.WIRE.get());
+                        helper.setBlock(at.get(i).south(2), RadiocraftBlocks.LARGE_BATTERY.get());
+                    }
+                })
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    for(BlockPos pos : at) {
+                        GameTestUtil.networkObject(helper, pos.south(2), BatteryNetworkObject.class).getStorage().setEnergy(1_000_000);
+                        GameTestUtil.blockEntity(helper, pos, RadioBlockEntity.class).toggle();
+                    }
+                })
+                // Switched on before the battery has topped its buffer up, a radio browns out once and retries at the
+                // start of the next brown-out cycle; one that can never run never comes on.
+                .thenWaitUntil(() -> {
+                    for(int i = 0; i < radios.size(); i++) {
+                        RadioNetworkObject net = GameTestUtil.networkObject(helper, at.get(i), RadioNetworkObject.class);
+                        helper.assertTrue(net.isPowered, radios.get(i).getDescriptionId() + " browned out on a full battery (draws "
+                                + net.getReceiveUse() + "/" + net.getTransmitUse() + ")");
+                        helper.assertTrue(net.getTransmitUse() >= net.getReceiveUse(), radios.get(i).getDescriptionId() + " draws more receiving than transmitting");
+                    }
+                })
+                .thenExecute(() -> RadiocraftServerConfig.RADIO_POWER_REQUIRED.set(false))
+                .thenSucceed();
+    }
+
+    /** A base station saved with the draws swapped (before the fix) is put right when it loads. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20, batch = "power_every_radio")
+    public static void swappedDrawsAreRepairedOnLoad(GameTestHelper helper) {
+        RadioNetworkObject broken = new RadioNetworkObject(helper.getLevel(), helper.absolutePos(RADIO), 63, 188);
+        CompoundTag saved = new CompoundTag();
+        broken.save(saved);
+        RadioNetworkObject loaded = new RadioNetworkObject(helper.getLevel(), helper.absolutePos(RADIO), 0, 0);
+        loaded.load(BENetworksCapability.get(helper.getLevel()), saved);
+        helper.assertTrue(loaded.getTransmitUse() == 188 && loaded.getReceiveUse() == 63,
+                "Loaded draws " + loaded.getReceiveUse() + "/" + loaded.getTransmitUse());
+        helper.assertTrue(loaded.getStorage().getMaxEnergyStored() >= 188, "Buffer still holds only " + loaded.getStorage().getMaxEnergyStored());
+        helper.succeed();
     }
 }
