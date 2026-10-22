@@ -164,6 +164,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   waterproof wire the blockstate it never had.
 
 ### World & Progression Additions
+- [ ] In-game guide book like the Create mod's (Ponder-style scenes) explaining radios, antennas, power and the
+  digital interface (maintainer, 2026-10-21)
+- [ ] Cable trays (maintainer, 2026-10-21): one block carries several cables at once, colour coded; a coloured ring
+  where a cable leaves the tray, at cable ends and where a cable meets a block, so you can tell the runs apart
 - [x] Solar weather station, minimal (2026-10-20): right click reports the current conditions, noise floor and whether
   10m is open (solar event JSONs carry an `openBands` list; good and great open 10m); a comparator reads 1 (blackout)
   to 6 (great); Jade shows the same. Nothing uses "10m open" for propagation yet (plan step 2).
