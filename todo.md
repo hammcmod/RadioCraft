@@ -36,6 +36,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
   back to 0 a second after the signal ends. Jade shows the same reading, the interference level and the repeat delay.
 
 ### Antennas & Signal Model
+- [ ] Terrain-aware line of sight (maintainer, 2026-10-23): look into cheap ways for terrain to block or weaken
+  line-of-sight paths without a big performance cost (e.g. sampling the heightmap along the path rather than ray
+  tracing blocks, cached per pair of stations); a server config turns it off
 - [x] Dipole, end-fed, quarter-wave vertical, loop, wide-band receive, and VHF Yagi/J-pole/Slim Jim antennas are implemented
 - [x] Antenna tuner runtime effect (2026-10-20): a tuner anywhere on the coax between a radio and its antenna is an
   automatic tuner. Within `antenna_tuner_max_swr` (default 6) the radio sees SWR 1 (static, interference and the
@@ -206,5 +209,11 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   - [ ] AT&T Long Lines site (maintainer, 2026-10-23)
   - [ ] Prepper bunker (maintainer, 2026-10-23)
 - [ ] Add something radio-related to villages (maintainer, 2026-10-23)
+- [ ] Industrial radio block (maintainer, 2026-10-23; needs a model): broken and working versions, found in
+  structures, not usable by players; breaking it drops a random rare radio component (the all-band circuit board and
+  others to come)
+- [ ] Large microwave dish (maintainer, 2026-10-23; needs a model)
+- [ ] Microwave radio (maintainer, 2026-10-23; needs a model): long-range, reliable point-to-point links, paired with
+  the large microwave dish
 - [ ] Introduce random structures, auto-beacon radios, APRS Discord bridge, and external radio API hooks
 - [ ] Review all recipes together (maintainer, 2026-10-20): align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes; decide the simplex repeat controller recipe
