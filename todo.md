@@ -181,6 +181,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   to 6 (great); Jade shows the same. Nothing uses "10m open" for propagation yet (plan step 2).
 - [ ] Solar weather station, rest of the proposal: printed paper report (consumes paper, hopper fed, redstone
   activated), best-band calculator between two coordinates
+- [x] `/bandcalculate <from> <to>` (2026-10-23, proposal admin command): lists each band between two x z points as
+  line of sight, skip (with its condition), aurora or out of range, best first, from the band ranges in the server
+  config and the current solar conditions. An estimate: antennas, power and noise are not counted; 10m has no skip
+  ranges configured yet, so it only shows line of sight.
 - [x] The solar weather station needs a radio (2026-10-23, maintainer): one of any kind next to it with a real antenna
   on its coax (a dummy load does not count), else it reports "No signal" and its comparator reads 0. Server config
   `solar_weather_station_needs_radio` (default on) turns it off. The radio does not need to be powered.

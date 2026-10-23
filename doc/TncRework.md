@@ -146,11 +146,11 @@ Each step can ship on its own.
 - WX is separate from SOLAR WX and only shows with a compatible weather source. A WEFAX receiver comes later; a
   RadioCraft weather mod may be needed.
 
-## Still open
+## More decisions (maintainer, 2026-10-23)
 
-1. **Teletype callsign:** it skips the TNC, so where does it get the "from" for RTTY? Options: its own callsign field
-   like the processor; or borrow a TNC's or processor's callsign when one touches the same radio, and stay anonymous
-   (blank sender) otherwise.
-2. **WX without a weather mod:** use vanilla's rain and thunder timers, or hide WX entirely?
-3. **Blackout warning lead time:** a server config, and is 2 to 5 minutes right?
-4. **Local reports:** is sharing a radio with the processor enough, or must the Teletype touch the processor?
+- The Teletype has its own callsign field.
+- WX works in vanilla from the rain and thunder timers; weather mods add more when installed.
+- The blackout warning goes out 3 minutes ahead, set by a server config.
+- A local report only needs the Teletype on the same radio as the processor.
+- Wording: automatic bulletins (timed and blackout warnings) are written as forecasts ("expected", "next few minutes");
+  answers to a request describe current conditions.
