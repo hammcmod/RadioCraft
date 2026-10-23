@@ -216,7 +216,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Microwave radio (maintainer, 2026-10-23; needs a model): long-range, reliable point-to-point links, paired with
   the large microwave dish
 - [ ] Manpack radio (maintainer, 2026-10-23): a radio worn on the back
-  - [ ] Traveler's Backpack mod version
-  - [ ] Backpacks mod version
+  - [ ] [Traveler's Backpack](https://www.curseforge.com/minecraft/mc-mods/travelers-backpack) version
+  - [ ] [Sophisticated Backpacks](https://modrinth.com/mod/sophisticated-backpacks) version
+- [ ] Generator blocks for the Create mod (maintainer, 2026-10-23): a few that turn rotational force into power
+  for the radio power network
+- [ ] Look for other mods that would be easy to integrate with (maintainer, 2026-10-23)
 - [ ] Introduce random structures, auto-beacon radios, APRS Discord bridge, and external radio API hooks
 - [ ] Review all recipes together (maintainer, 2026-10-20): align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes; decide the simplex repeat controller recipe
