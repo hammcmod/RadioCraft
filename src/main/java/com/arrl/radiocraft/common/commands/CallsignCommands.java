@@ -63,6 +63,7 @@ public class CallsignCommands {
 
 	public static final LiteralArgumentBuilder<CommandSourceStack> BUILDER =
 			Commands.literal("callsign")
+					.executes(command -> getPlayerCallsign(command.getSource(), java.util.List.of(command.getSource().getPlayerOrException().getGameProfile()))) // Your own.
 					.then(Commands.literal("list")
 							.executes(command -> listCallsigns(command.getSource())))
 
