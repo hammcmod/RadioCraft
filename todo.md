@@ -215,5 +215,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Large microwave dish (maintainer, 2026-10-23; needs a model)
 - [ ] Microwave radio (maintainer, 2026-10-23; needs a model): long-range, reliable point-to-point links, paired with
   the large microwave dish
+- [ ] Manpack radio (maintainer, 2026-10-23): a radio worn on the back
+  - [ ] Traveler's Backpack mod version
+  - [ ] Backpacks mod version
 - [ ] Introduce random structures, auto-beacon radios, APRS Discord bridge, and external radio API hooks
 - [ ] Review all recipes together (maintainer, 2026-10-20): align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes; decide the simplex repeat controller recipe
