@@ -73,6 +73,7 @@ public class RadiocraftBlockEntities {
 					RadiocraftBlocks.BALUN_NINE_TO_ONE.get(),
 					RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
 					RadiocraftBlocks.J_POLE_ANTENNA.get(),
+					RadiocraftBlocks.IONOSONDE.get(),
 					RadiocraftBlocks.DUMMY_LOAD.get(),
 					RadiocraftBlocks.YAGI_ANTENNA.get()
 			).build(null));

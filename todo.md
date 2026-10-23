@@ -128,7 +128,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
     maintainer's model with READY / CONTACT / MSG screens) and the **Digital Transfer Interface** (files; placeholder
     box). The Radio Interface keeps the old recipe for now; the H19 and Transfer Interface have none yet.
   - [ ] Step 3: the Teletype. RTTY is unavailable until it exists (the three RTTY GameTests went with it)
-  - [ ] Steps 4 to 7: ionosonde and processor, over-the-air requests and bulletins, WX, recipes
+  - [x] Ionosonde Antenna (2026-10-23, maintainer's model): two blocks tall like the J-pole, its own antenna type.
+    On a radio it hears VHF well and HF weakly, and matches poorly: SWR 3 on VHF, 8 on HF. Dev tab, no recipe.
+  - [ ] Steps 4 to 7: the Ionospheric Processor (maintainer modelling it, with glowing tubes), over-the-air
+    requests and bulletins, WX, recipes
   - [ ] Redesigned UIs for the H19 and the Transfer Interface (maintainer); for now they are the old APRS/MSG and
     FILES tabs
   - [ ] A display item for item frames near an H19 that shows a simplified black and green map of the stations

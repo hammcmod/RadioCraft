@@ -38,6 +38,7 @@ public class RadiocraftTabs {
             output.accept(RadiocraftItems.APRS_TERMINAL.get());
             output.accept(RadiocraftItems.TRANSFER_INTERFACE.get());
 			output.accept(RadiocraftItems.SATELLITE_DISH.get());
+			output.accept(RadiocraftItems.IONOSONDE.get());
 			output.accept(RadiocraftItems.WEFAX_RECEIVER.get());
 		}
 

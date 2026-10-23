@@ -25,6 +25,7 @@ public class RadiocraftAntennaTypes {
 	public static SlimJimAntennaType SLIM_JIM;
 	public static YagiAntennaType YAGI;
 	public static com.arrl.radiocraft.common.radio.antenna.types.vhf.SatelliteDishAntennaType SATELLITE_DISH;
+	public static com.arrl.radiocraft.common.radio.antenna.types.IonosondeAntennaType IONOSONDE; // Every band, badly; for the ionospheric processor.
 
 	public static void register() {
 		DIPOLE = AntennaTypes.registerType(new DipoleAntennaType());
@@ -42,6 +43,7 @@ public class RadiocraftAntennaTypes {
 		SLIM_JIM = AntennaTypes.registerType(new SlimJimAntennaType());
 		YAGI = AntennaTypes.registerType(new YagiAntennaType());
 		SATELLITE_DISH = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.vhf.SatelliteDishAntennaType());
+		IONOSONDE = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.IonosondeAntennaType());
 	}
 
 }

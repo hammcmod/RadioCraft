@@ -4,6 +4,15 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Ionosonde Antenna (added 2026-10-23)
+
+- [ ] Placing it puts down both halves; breaking either half removes both and drops one item. The model sits right
+  across the two blocks (the maintainer's export was split at y=16 into `ionosonde_lower` and `ionosonde_upper`), with
+  both textures showing (no purple and black).
+- [ ] The item looks right in the hand, the inventory and an item frame (it borrows the J-pole's display settings).
+- [ ] On coax to a VHF base station the radio shows SWR 3; to an HF radio, SWR 8, and keying up wastes most of the
+  power. Receiving on VHF is about as good as a J-pole; HF is faint.
+
 ## Radio Interface, H19 and Transfer Interface (added 2026-10-23)
 
 The digital interface is now three blocks (dev tab): the **Radio Interface** touching a VHF radio, and the **H19

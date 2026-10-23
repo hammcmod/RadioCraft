@@ -13,6 +13,10 @@ Planning notes from 2026-10-23, updated with the maintainer's answers the same d
   and the beacon settings are set from the H19, the way a real terminal configures its TNC. The H19's CONTACT light
   goes out when it is opened or after `aprs_contact_lamp_minutes`; MSG only when opened. There is no claim button: an
   empty callsign box claims your own.
+- **Ionosonde Antenna** (`ionosonde`, maintainer's model): built as an antenna. Two blocks tall, placed and broken as
+  one like the J-pole. On a radio it is poor on purpose: it hears VHF in full and HF at a third, and its SWR is 3 on
+  VHF and 8 on HF (`IonosondeAntennaType`). Like the dummy load it joins whichever antenna network its radio is on.
+  The processor will treat it as its sky sensor instead of a radio antenna.
 - **Not yet:** RTTY (until the Teletype), steps 3 to 7, recipes for the H19 and Transfer Interface.
 
 ## Where things stand
