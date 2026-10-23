@@ -8,9 +8,9 @@ Add to this list whenever a change cannot be fully verified by `test` / `runGame
 
 With Create and Create: Crafts & Additions installed (NeoForge 1.21.1):
 - [ ] An alternator next to a large battery charges it (Jade shows the charge rising); FE cables from other mods work too.
-- [ ] One small water wheel geared down to 4 RPM into an alternator, feeding a large battery wired to a VHF base
-  station: the battery holds steady with the radio transmitting most of the time.
-- [ ] Delete old `radiocraft-common.toml` files first, or they keep the old (32x larger) numbers.
+- [ ] Two small water wheels on one shaft (or a large wheel geared up to 8 RPM) into an alternator, feeding a large
+  battery wired to a VHF base station: the battery holds steady with the radio transmitting most of the time.
+- [ ] Delete old `radiocraft-common.toml` files first, or they keep the old (about 15x larger) numbers.
 - [ ] A handheld's battery bar barely moves over a few minutes idle (it should last 12 in-game days).
 - [ ] The desk charger fills a flat handheld in about 6 minutes.
 

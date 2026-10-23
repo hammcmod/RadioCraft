@@ -69,7 +69,7 @@ public class DeskChargerBlockEntity extends BlockEntity implements GeoBlockEntit
         if (radioEnergy == null) return;
 
         // Transfer rate per tick
-        int desiredTransfer = 4; // FE per tick: a flat small battery's worth in about 6 minutes, like a charge controller
+        int desiredTransfer = 8; // FE per tick: a flat small battery's worth in about 6 minutes, like a charge controller
 
         // Don't extract before knowing how much radio can accept. Simulate receive first.
         int available = blockEnergy.getEnergyStored();

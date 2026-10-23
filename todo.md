@@ -221,13 +221,12 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   - [ ] [Sophisticated Backpacks](https://modrinth.com/mod/sophisticated-backpacks) version
 - [x] Power from other mods (2026-10-23, maintainer): the large battery takes and gives Forge Energy, so Create:
   Crafts & Additions' [Alternator](https://create-mod-addon.fandom.com/wiki/Alternator) or any other mod's generator
-  can charge the power network. Power rebalanced around that: one small Create water wheel geared to 4 RPM into an
-  alternator makes about 5 FE/t, which just keeps up with a VHF base station transmitting 80% of the time (1 FE/t
-  listening, 6 transmitting). HF radios 4/12, QRP 2/6, repeater 2/8, solar panel 4, large battery 120000 (one
-  Minecraft day of that base station), small battery 30000. The handheld's drain is now spread over ticks, so its
-  battery really lasts the 2/6/12 days. Existing config files keep the old numbers until deleted.
-  Note: an alternator straight on one small wheel at 8 RPM overstresses it (512 SU against the wheel's 256) and makes
-  nothing; it needs gearing down to 4 RPM, or a large wheel.
+  can charge the power network. Power rebalanced around that: one large Create water wheel geared up to 8 RPM, or
+  two small wheels on one shaft (512 SU either way), driving one alternator makes about 11 FE/t, which just keeps up
+  with a VHF base station transmitting 80% of the time (2 FE/t listening, 13 transmitting). HF radios 8/26, QRP 2/13,
+  repeater 4/17, solar panel 9, large battery 260000 (one Minecraft day of that base station), small battery 60000.
+  The handheld's drain is now spread over ticks, so its battery really lasts the 2/6/12 days. Existing config files
+  keep the old numbers until deleted. (A single small wheel tops out at about 5 FE/t, geared down to 4 RPM.)
 - [ ] Look for other mods that would be easy to integrate with (maintainer, 2026-10-23)
 - [ ] Introduce random structures, auto-beacon radios, APRS Discord bridge, and external radio API hooks
 - [ ] Review all recipes together (maintainer, 2026-10-20): align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes; decide the simplex repeat controller recipe
