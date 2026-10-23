@@ -218,8 +218,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Manpack radio (maintainer, 2026-10-23): a radio worn on the back
   - [ ] [Traveler's Backpack](https://www.curseforge.com/minecraft/mc-mods/travelers-backpack) version
   - [ ] [Sophisticated Backpacks](https://modrinth.com/mod/sophisticated-backpacks) version
-- [ ] Generator blocks for the Create mod (maintainer, 2026-10-23): a few that turn rotational force into power
-  for the radio power network
+- [ ] Power from other mods (maintainer, 2026-10-23): let the large battery (and maybe the charge controller) take
+  standard Forge Energy, so Create: Crafts & Additions' [Alternator](https://create-mod-addon.fandom.com/wiki/Alternator)
+  (Create rotation to FE) and any other mod's generator can charge the power network. Today only the desk charger
+  takes FE from other blocks. Our own Create generator blocks only if this falls short.
 - [ ] Look for other mods that would be easy to integrate with (maintainer, 2026-10-23)
 - [ ] Introduce random structures, auto-beacon radios, APRS Discord bridge, and external radio API hooks
 - [ ] Review all recipes together (maintainer, 2026-10-20): align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes; decide the simplex repeat controller recipe
