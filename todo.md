@@ -117,7 +117,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Add multi-channel scan indicator to VHF receiver UI
 
 ### Digital & APRS Features
-- [ ] Rework the digital interface (TNC) into three separate blocks (maintainer, 2026-10-22; design to come). Its recipe
+- [ ] Rework the digital interface (TNC) into separate blocks (maintainer, 2026-10-22; plan in
+  [doc/TncRework.md](doc/TncRework.md), with the solar weather teletype/observatory idea). Its recipe
   (diamond, desk microphone) is left as is until then
 - [x] Digital interface (TNC), first slice (2026-10-21): packets ride the radio like voice (AFSK burst everyone on
   the frequency hears, then the packet decodes whole if on frequency and above the noise, `tnc_min_snr`); APRS
@@ -139,6 +140,9 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   radio directly or on its coax and follows the radio's band (HF or VHF network)
 - [x] Duplexer on top of the repeater shows its coax down the repeater's back (maintainer's `duplexer_on_repeater`)
 - [ ] TNC: handheld/Curios side (APRS from a handheld radio), message acks and retries
+- [ ] WX button on the teletype (maintainer, 2026-10-23): weather reports, shown only with a compatible weather mod
+  (see [doc/TncRework.md](doc/TncRework.md)); we may end up writing our own weather mod
+- [ ] WEFAX receiver (maintainer, 2026-10-23): prints weather charts, after the WX work
 
 ### Antenna Expansions
 - [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types
