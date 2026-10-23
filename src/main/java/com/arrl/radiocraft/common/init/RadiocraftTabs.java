@@ -36,6 +36,7 @@ public class RadiocraftTabs {
             output.accept(RadiocraftItems.DUMMY_LOAD.get());
             output.accept(RadiocraftItems.DIGITAL_INTERFACE.get());
 			output.accept(RadiocraftItems.SATELLITE_DISH.get());
+			output.accept(RadiocraftItems.WEFAX_RECEIVER.get());
 		}
 
 		// Anything below here should be in the release creative menu

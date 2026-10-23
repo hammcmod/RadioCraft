@@ -4,6 +4,13 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Maintainer's art: WEFAX receiver, static loop, 4:1 balun (added 2026-10-23)
+
+- [ ] WEFAX receiver (dev tab): the model renders with its texture, faces the player when placed, turns with each
+  facing, and the outline/collision box fits it (full base, printer body behind the front bar). It drops itself.
+- [ ] Static loops with no hiccup every few seconds (new `static.ogg`), on HF and on a weak VHF signal.
+- [ ] The 4:1 balun shows its own texture, different from the 2:1.
+
 ## Forge Energy and the power rebalance (added 2026-10-23)
 
 With Create and Create: Crafts & Additions installed (NeoForge 1.21.1):

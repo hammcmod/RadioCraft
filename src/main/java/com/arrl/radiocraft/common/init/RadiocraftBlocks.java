@@ -83,6 +83,7 @@ public class RadiocraftBlocks {
 
 	public static final DeferredHolder<Block, SolarWeatherStationBlock> SOLAR_WEATHER_STATION = BLOCKS.register("solar_weather_station", () -> new SolarWeatherStationBlock(PROPERTIES_STONE));
 
+	public static final DeferredHolder<Block, com.arrl.radiocraft.common.blocks.WefaxReceiverBlock> WEFAX_RECEIVER = BLOCKS.register("wefax_receiver", () -> new com.arrl.radiocraft.common.blocks.WefaxReceiverBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, MicrophoneBlock> MICROPHONE = BLOCKS.register("microphone", () -> new MicrophoneBlock(PROPERTIES_STONE));
 	public static final DeferredHolder<Block, DeskChargerBlock> DESK_CHARGER = BLOCKS.register("desk_charger", () -> new DeskChargerBlock(Properties.of().mapColor(DyeColor.GRAY).strength(0.0F, 5.0F).sound(SoundType.METAL).noOcclusion()));
 

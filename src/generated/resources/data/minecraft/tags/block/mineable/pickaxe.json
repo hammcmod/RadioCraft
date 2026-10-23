@@ -40,6 +40,7 @@
     "radiocraft:yagi_antenna",
     "radiocraft:satellite_dish",
     "radiocraft:solar_weather_station",
+    "radiocraft:wefax_receiver",
     "radiocraft:microphone"
   ]
 }

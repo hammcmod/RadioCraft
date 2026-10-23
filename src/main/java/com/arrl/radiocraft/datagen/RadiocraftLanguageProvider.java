@@ -86,6 +86,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("tooltip.radiocraft.dummy_load", "A perfect match on every band that hardly radiates: about 10 blocks. Fits on a radio or its coax.");
 			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
 			provider.addBlock(RadiocraftBlocks.SATELLITE_DISH, "Satellite Dish");
+			provider.addBlock(RadiocraftBlocks.WEFAX_RECEIVER, "WEFAX Receiver");
 			provider.addBlock(RadiocraftBlocks.DESK_CHARGER, "Desk Charger");
 
 			provider.addEntityType(RadiocraftEntityTypes.ANTENNA_WIRE, "Antenna Wire");

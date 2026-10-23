@@ -39,6 +39,7 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		duplexer();
 		complexHorizontalBlockWithItem(RadiocraftBlocks.DUMMY_LOAD.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.MICROPHONE.get());
+		complexHorizontalBlockWithItem(RadiocraftBlocks.WEFAX_RECEIVER.get());
 		complexBlockWithItem(RadiocraftBlocks.SOLAR_PANEL.get());
 		complexBlockWithItem(RadiocraftBlocks.ANTENNA_POLE.get());
 		radio(RadiocraftBlocks.QRP_RADIO_40M.get());

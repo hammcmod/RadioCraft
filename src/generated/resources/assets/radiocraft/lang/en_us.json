@@ -42,6 +42,7 @@
   "block.radiocraft.vhf_receiver": "VHF Receiver",
   "block.radiocraft.vhf_repeater": "VHF Repeater",
   "block.radiocraft.waterproof_wire": "Waterproof Wire",
+  "block.radiocraft.wefax_receiver": "WEFAX Receiver",
   "block.radiocraft.wire": "Wire",
   "block.radiocraft.yagi_antenna": "Yagi Antenna",
   "commands.radiocraft.aprs.bad_frequency": "Frequency must be in MHz (such as 144.390) or \"all\"",
