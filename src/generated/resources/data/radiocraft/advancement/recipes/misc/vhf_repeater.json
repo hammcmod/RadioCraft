@@ -1,6 +1,16 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
+    "has_encased_crystal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:encased_crystal_vhf_pure"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
     "has_the_recipe": {
       "conditions": {
         "recipe": "radiocraft:vhf_repeater"
@@ -21,7 +31,8 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_vhf_base_station"
+      "has_vhf_base_station",
+      "has_encased_crystal"
     ]
   ],
   "rewards": {

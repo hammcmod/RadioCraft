@@ -5,9 +5,17 @@
     "#": {
       "item": "radiocraft:wire"
     },
-    "B": {
-      "item": "radiocraft:vhf_base_station"
-    },
+    "B": [
+      {
+        "item": "radiocraft:vhf_base_station_pure"
+      },
+      {
+        "item": "radiocraft:vhf_base_station"
+      },
+      {
+        "item": "radiocraft:vhf_base_station_poor"
+      }
+    ],
     "C": {
       "item": "minecraft:copper_ingot"
     },
@@ -15,7 +23,7 @@
       "item": "minecraft:iron_ingot"
     },
     "R": {
-      "item": "radiocraft:radio_crystal"
+      "item": "radiocraft:encased_crystal_vhf_pure"
     },
     "T": {
       "item": "minecraft:iron_trapdoor"

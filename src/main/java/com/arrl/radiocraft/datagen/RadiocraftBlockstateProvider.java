@@ -28,10 +28,10 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 
 	@Override
 	protected void registerStatesAndModels() {
-		radio(RadiocraftBlocks.HF_RADIO_10M.get());
-		radio(RadiocraftBlocks.HF_RADIO_20M.get());
-		radio(RadiocraftBlocks.HF_RADIO_40M.get());
-		radio(RadiocraftBlocks.HF_RADIO_80M.get());
+		RadiocraftBlocks.HF_RADIO_10M_VARIANTS.values().forEach(this::radio);
+		RadiocraftBlocks.HF_RADIO_20M_VARIANTS.values().forEach(this::radio);
+		RadiocraftBlocks.HF_RADIO_40M_VARIANTS.values().forEach(this::radio);
+		RadiocraftBlocks.HF_RADIO_80M_VARIANTS.values().forEach(this::radio);
 		complexHorizontalBlockWithItem(RadiocraftBlocks.LARGE_BATTERY.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.ANTENNA_TUNER.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
@@ -43,7 +43,7 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		complexBlockWithItem(RadiocraftBlocks.ANTENNA_POLE.get());
 		radio(RadiocraftBlocks.QRP_RADIO_40M.get());
 		radio(RadiocraftBlocks.QRP_RADIO_20M.get());
-		radio(RadiocraftBlocks.VHF_BASE_STATION.get());
+		RadiocraftBlocks.VHF_BASE_STATION_VARIANTS.values().forEach(this::radio);
 		radio(RadiocraftBlocks.VHF_RECEIVER.get());
 		radio(RadiocraftBlocks.HF_RECEIVER.get());
 		radio(RadiocraftBlocks.VHF_REPEATER.get());

@@ -1,11 +1,21 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_radio_crystal": {
+    "has_encased_crystal": {
       "conditions": {
         "items": [
           {
-            "items": "radiocraft:radio_crystal"
+            "items": "radiocraft:encased_crystal_vhf_good"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_radio_speaker": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:radio_speaker"
           }
         ]
       },
@@ -21,7 +31,8 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_radio_crystal"
+      "has_radio_speaker",
+      "has_encased_crystal"
     ]
   ],
   "rewards": {

@@ -2,20 +2,20 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
+    "I": {
       "item": "minecraft:iron_ingot"
     },
-    "B": {
-      "item": "minecraft:charcoal"
+    "K": {
+      "item": "minecraft:clay_ball"
     }
   },
   "pattern": [
-    "BBB",
-    "B#B",
-    "BBB"
+    " K ",
+    "KIK",
+    " K "
   ],
   "result": {
-    "count": 1,
+    "count": 2,
     "id": "radiocraft:ferrite_core"
   }
 }

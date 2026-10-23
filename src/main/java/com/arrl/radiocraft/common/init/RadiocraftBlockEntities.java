@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.*;
 import com.arrl.radiocraft.common.blockentities.radio.*;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -23,13 +24,13 @@ public class RadiocraftBlockEntities {
 	public static final Supplier<BlockEntityType<?>> CHARGE_CONTROLLER = BLOCK_ENTITY_TYPES.register("charge_controller",
 			() -> BlockEntityType.Builder.of(ChargeControllerBlockEntity::new, RadiocraftBlocks.CHARGE_CONTROLLER.get()).build(null));
 	public static final Supplier<BlockEntityType<HFRadio10mBlockEntity>> HF_RADIO_10M = BLOCK_ENTITY_TYPES.register("hf_radio_10m",
-			() -> BlockEntityType.Builder.of(HFRadio10mBlockEntity::new, RadiocraftBlocks.HF_RADIO_10M.get()).build(null));
+			() -> BlockEntityType.Builder.of(HFRadio10mBlockEntity::new, RadiocraftBlocks.HF_RADIO_10M_VARIANTS.values().toArray(Block[]::new)).build(null));
 	public static final Supplier<BlockEntityType<HFRadio20mBlockEntity>> HF_RADIO_20M = BLOCK_ENTITY_TYPES.register("hf_radio_20m",
-			() -> BlockEntityType.Builder.of(HFRadio20mBlockEntity::new, RadiocraftBlocks.HF_RADIO_20M.get()).build(null));
+			() -> BlockEntityType.Builder.of(HFRadio20mBlockEntity::new, RadiocraftBlocks.HF_RADIO_20M_VARIANTS.values().toArray(Block[]::new)).build(null));
 	public static final Supplier<BlockEntityType<HFRadio40mBlockEntity>> HF_RADIO_40M = BLOCK_ENTITY_TYPES.register("hf_radio_40m",
-			() -> BlockEntityType.Builder.of(HFRadio40mBlockEntity::new, RadiocraftBlocks.HF_RADIO_40M.get()).build(null));
+			() -> BlockEntityType.Builder.of(HFRadio40mBlockEntity::new, RadiocraftBlocks.HF_RADIO_40M_VARIANTS.values().toArray(Block[]::new)).build(null));
 	public static final Supplier<BlockEntityType<HFRadio80mBlockEntity>> HF_RADIO_80M = BLOCK_ENTITY_TYPES.register("hf_radio_80m",
-			() -> BlockEntityType.Builder.of(HFRadio80mBlockEntity::new, RadiocraftBlocks.HF_RADIO_80M.get()).build(null));
+			() -> BlockEntityType.Builder.of(HFRadio80mBlockEntity::new, RadiocraftBlocks.HF_RADIO_80M_VARIANTS.values().toArray(Block[]::new)).build(null));
 	public static final Supplier<BlockEntityType<HFRadioAllBandBlockEntity>> HF_RADIO_ALL_BAND = BLOCK_ENTITY_TYPES.register("all_band_radio",
 			() -> BlockEntityType.Builder.of(HFRadioAllBandBlockEntity::new, RadiocraftBlocks.ALL_BAND_RADIO.get()).build(null));
 	public static final Supplier<BlockEntityType<HFReceiverBlockEntity>> HF_RECEIVER = BLOCK_ENTITY_TYPES.register("hf_receiver",
@@ -39,7 +40,7 @@ public class RadiocraftBlockEntities {
 	public static final Supplier<BlockEntityType<QRPRadio40mBlockEntity>> QRP_RADIO_40M = BLOCK_ENTITY_TYPES.register("qrp_radio_40m",
 			() -> BlockEntityType.Builder.of(QRPRadio40mBlockEntity::new, RadiocraftBlocks.QRP_RADIO_40M.get()).build(null));
 	public static final Supplier<BlockEntityType<VHFBaseStationBlockEntity>> VHF_BASE_STATION = BLOCK_ENTITY_TYPES.register("vhf_base_station",
-			() -> BlockEntityType.Builder.of(VHFBaseStationBlockEntity::new, RadiocraftBlocks.VHF_BASE_STATION.get()).build(null));
+			() -> BlockEntityType.Builder.of(VHFBaseStationBlockEntity::new, RadiocraftBlocks.VHF_BASE_STATION_VARIANTS.values().toArray(Block[]::new)).build(null));
 	public static final Supplier<BlockEntityType<VHFReceiverBlockEntity>> VHF_RECEIVER = BLOCK_ENTITY_TYPES.register("vhf_receiver",
 			() -> BlockEntityType.Builder.of(VHFReceiverBlockEntity::new, RadiocraftBlocks.VHF_RECEIVER.get()).build(null));
 

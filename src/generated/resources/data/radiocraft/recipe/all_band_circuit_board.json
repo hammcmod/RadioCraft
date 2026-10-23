@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    {
+      "item": "radiocraft:encased_crystal_80m_pure"
+    },
+    {
+      "item": "radiocraft:encased_crystal_40m_pure"
+    },
+    {
+      "item": "radiocraft:encased_crystal_20m_pure"
+    },
+    {
+      "item": "radiocraft:encased_crystal_10m_pure"
+    },
+    {
+      "item": "radiocraft:encased_crystal_vhf_pure"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:all_band_circuit_board"
+  }
+}

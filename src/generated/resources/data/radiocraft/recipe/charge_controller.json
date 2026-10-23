@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "C": {
+      "item": "minecraft:comparator"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "III",
+    "#C#",
+    "ICI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:charge_controller"
+  }
+}

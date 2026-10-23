@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    [
+      {
+        "item": "radiocraft:vhf_base_station"
+      },
+      {
+        "item": "radiocraft:vhf_base_station_poor"
+      }
+    ],
+    {
+      "item": "radiocraft:encased_crystal_vhf_pure"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:vhf_base_station_pure"
+  }
+}

@@ -20,6 +20,10 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         CompoundTag data = accessor.getServerData();
+        if(data.getBoolean("no_radio")) {
+            tooltip.add(Component.translatable("message.radiocraft.solar_weather_station.no_radio"));
+            return;
+        }
         if(!data.contains("event")) {
             tooltip.add(Component.literal("Conditions: no data"));
             return;
@@ -41,6 +45,10 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         if(!(accessor.getBlockEntity() instanceof SolarWeatherStationBlockEntity be))
             return;
+        if(!be.hasRadio()) {
+            data.putBoolean("no_radio", true);
+            return;
+        }
         SolarEvent event = be.getCurrentEvent();
         ResourceLocation key = be.getCurrentEventKey();
         if(event == null || key == null)

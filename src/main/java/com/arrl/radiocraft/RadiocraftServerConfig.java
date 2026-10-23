@@ -54,11 +54,20 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> VHF_NOISE_FLOOR;
 	public static final ModConfigSpec.ConfigValue<Double> SKIP_FADING_DEPTH;
 
+	public static final ModConfigSpec.ConfigValue<Boolean> SOLAR_WEATHER_STATION_NEEDS_RADIO;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_LATITUDE;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MIN_RANGE;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MAX_RANGE;
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_VHF_STRENGTH;
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_STATIC;
+
+	public static final ModConfigSpec.ConfigValue<Double> CRYSTAL_SAND_CHANCE;
+	public static final ModConfigSpec.ConfigValue<Integer> CRYSTAL_POOR_WEIGHT;
+	public static final ModConfigSpec.ConfigValue<Integer> CRYSTAL_GOOD_WEIGHT;
+	public static final ModConfigSpec.ConfigValue<Integer> CRYSTAL_PURE_WEIGHT;
+	public static final ModConfigSpec.ConfigValue<Double> CRYSTAL_PURE_NOISE_FACTOR;
+	public static final ModConfigSpec.ConfigValue<Double> CRYSTAL_POOR_EXTRA_NOISE;
+	public static final ModConfigSpec.ConfigValue<Double> CRYSTAL_POOR_DRIFT_HZ;
 
 	public record BandConfig(String name, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Float> minFrequency, ModConfigSpec.ConfigValue<Float> maxFrequency) {
 		public Band getBand() {
@@ -179,6 +188,11 @@ public class RadiocraftServerConfig {
 		SKIP_FADING_DEPTH = BUILDER.comment(" How deep skip signals fade in and out (QSB): 0 steady, 1 fades to nothing").defineInRange("skip_fading_depth", 0.5, 0.0, 1.0);
 		BUILDER.pop();
 
+		BUILDER.push("Solar Weather Station");
+		SOLAR_WEATHER_STATION_NEEDS_RADIO = BUILDER.comment(" The station only reports (and drives a comparator) with a radio of any kind next to it that has a real",
+				" antenna on its coax; a dummy load does not count").define("solar_weather_station_needs_radio", true);
+		BUILDER.pop();
+
 		BUILDER.push("Aurora");
 		BUILDER.comment(" An aurora can follow a solar blackout (chance and timing are in the solar event data). It only reaches",
 				" stations far from the equator (Z = 0): there VHF gains a long skip off the aurora, and every HF band drops one",
@@ -188,6 +202,18 @@ public class RadiocraftServerConfig {
 		AURORA_VHF_MAX_RANGE = BUILDER.comment(" Longest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_max_range", 4000, 1, 1000000);
 		AURORA_VHF_STRENGTH = BUILDER.comment(" Strength (0 to 1) of a VHF signal carried by the aurora").defineInRange("aurora_vhf_strength", 0.8, 0.0, 1.0);
 		AURORA_STATIC = BUILDER.comment(" Extra static on HF radios under the aurora, on top of the solar noise floor").defineInRange("aurora_static", 0.25, 0.0, 1.0);
+		BUILDER.pop();
+
+		BUILDER.push("Crystals");
+		BUILDER.comment(" Quartz crystals turn up when digging sand. Radios are built with a pure, good or poor one: good is the",
+				" baseline, pure is a little quieter, poor a little noisier and drifts off frequency (QRP radios excepted).");
+		CRYSTAL_SAND_CHANCE = BUILDER.comment(" Chance that digging a sand block also drops a crystal (gravel drops flint 10% of the time)").defineInRange("crystal_sand_chance", 0.0125, 0.0, 1.0);
+		CRYSTAL_POOR_WEIGHT = BUILDER.comment(" How often a crystal found in sand is poor, against the two weights below").defineInRange("crystal_poor_weight", 80, 0, 10000);
+		CRYSTAL_GOOD_WEIGHT = BUILDER.comment(" How often a crystal found in sand is good").defineInRange("crystal_good_weight", 18, 0, 10000);
+		CRYSTAL_PURE_WEIGHT = BUILDER.comment(" How often a crystal found in sand is pure").defineInRange("crystal_pure_weight", 2, 0, 10000);
+		CRYSTAL_PURE_NOISE_FACTOR = BUILDER.comment(" Multiplier on the noise a radio with a pure crystal hears (0.95 = 5% quieter)").defineInRange("crystal_pure_noise_factor", 0.95, 0.0, 1.0);
+		CRYSTAL_POOR_EXTRA_NOISE = BUILDER.comment(" Noise a poor crystal adds on top of the noise floor (0 to 1)").defineInRange("crystal_poor_extra_noise", 0.05, 0.0, 1.0);
+		CRYSTAL_POOR_DRIFT_HZ = BUILDER.comment(" Furthest a poor crystal drifts off frequency, in Hz, wandering over a few minutes (SSB hears 500 Hz off as on frequency)").defineInRange("crystal_poor_drift_hz", 1000.0, 0.0, 10000.0);
 		BUILDER.pop();
 
 		SPEC = BUILDER.build();

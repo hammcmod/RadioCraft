@@ -44,8 +44,8 @@ public class BatterySwapEvents {
         
         // Check if we're swapping battery and radio
         boolean batteryOnRadio = carried.getItem() == RadiocraftItems.SMALL_BATTERY.get() && 
-                                 slotItem.getItem() == RadiocraftItems.VHF_HANDHELD.get();
-        boolean radioOnBattery = carried.getItem() == RadiocraftItems.VHF_HANDHELD.get() && 
+                                 slotItem.getItem() instanceof VHFHandheldItem;
+        boolean radioOnBattery = carried.getItem() instanceof VHFHandheldItem && 
                                  slotItem.getItem() == RadiocraftItems.SMALL_BATTERY.get();
         
         if (batteryOnRadio || radioOnBattery) {

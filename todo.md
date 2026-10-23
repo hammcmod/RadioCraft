@@ -117,6 +117,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Add multi-channel scan indicator to VHF receiver UI
 
 ### Digital & APRS Features
+- [ ] Rework the digital interface (TNC) into three separate blocks (maintainer, 2026-10-22; design to come). Its recipe
+  (diamond, desk microphone) is left as is until then
 - [x] Digital interface (TNC), first slice (2026-10-21): packets ride the radio like voice (AFSK burst everyone on
   the frequency hears, then the packet decodes whole if on frequency and above the noise, `tnc_min_snr`); APRS
   beacons (button, redstone pulse, timer) with a map of heard stations, messages to a callsign or ALL with an unread
@@ -141,6 +143,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 ### Antenna Expansions
 - [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types
 - [ ] Figure out how we'll allow building of HF yagis (maintainer, 2026-10-21)
+- [ ] Satellite dish: no recipe yet (maintainer, 2026-10-23); it stays dev-only and decorative until satellites
+  exist, then gets a recipe with them.
 - [ ] Hustler 5-BTV multiband vertical: antenna type once the model is drawn (bounty, 2026-10-21)
 - [ ] Revisit delta loop construction to support triangular build flow and align analyzer messaging
 - [ ] Add sag-varying visuals for long unsupported antenna wire runs
@@ -173,7 +177,26 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   to 6 (great); Jade shows the same. Nothing uses "10m open" for propagation yet (plan step 2).
 - [ ] Solar weather station, rest of the proposal: printed paper report (consumes paper, hopper fed, redstone
   activated), best-band calculator between two coordinates
-- [ ] Server setting to make the solar weather station require a powered VHF radio (maintainer, 2026-10-21)
+- [x] The solar weather station needs a radio (2026-10-23, maintainer): one of any kind next to it with a real antenna
+  on its coax (a dummy load does not count), else it reports "No signal" and its comparator reads 0. Server config
+  `solar_weather_station_needs_radio` (default on) turns it off. The radio does not need to be powered.
 - [ ] Improve wire spool storage UX (bulk crafting/collapse)
+- [x] Crystals (2026-10-22): raw 80/40/20/10m and VHF crystals in pure, good and poor turn up when digging sand
+  (`crystal_sand_chance`, quality weights in the server config); one iron ingot encases them. Each crystal radio
+  comes as Premium (pure), plain (good) and Cheap (poor) blocks/items; crafting a radio with an encased crystal of
+  another quality swaps it. QRP radios take only poor crystals and ignore them; the repeater takes only pure.
+- [ ] Crystals from pressing sand with the Create mod's mechanical press (maintainer, 2026-10-22)
+- [x] Insulation item texture (maintainer, 2026-10-23): `textures/item/insulation.png`
+- [ ] Microphone element and speaker crafting components (maintainer, 2026-10-22): a microphone item (its own
+  texture) used in the hand microphone and desk microphone recipes, and a speaker item used in radio recipes
+  - [ ] Once the microphone item exists, the maintainer will switch the VHF handheld recipe to use it
+- [ ] Desk speakers (maintainer, 2026-10-22): several kinds of desk speaker block that sit next to or on top of an
+  HF radio and change its audio slightly (e.g. tone, passband, loudness)
+- [ ] More speakers (maintainer, 2026-10-23)
+- [ ] More radio models and brands (maintainer, 2026-10-23)
+- [ ] Structures (maintainer, 2026-10-23): the worldgen plumbing to place the mod's own structures
+  - [ ] AT&T Long Lines site (maintainer, 2026-10-23)
+  - [ ] Prepper bunker (maintainer, 2026-10-23)
+- [ ] Add something radio-related to villages (maintainer, 2026-10-23)
 - [ ] Introduce random structures, auto-beacon radios, APRS Discord bridge, and external radio API hooks
 - [ ] Review all recipes together (maintainer, 2026-10-20): align crafting costs (e.g., netherite-heavy radios) with the original spec or update the design doc to reflect lighter recipes; decide the simplex repeat controller recipe

@@ -1,0 +1,10 @@
+{
+  "parent": "radiocraft:block/vhf_base_station_pure",
+  "transform": {
+    "translation": [
+      0.0,
+      0.6875,
+      0.0
+    ]
+  }
+}

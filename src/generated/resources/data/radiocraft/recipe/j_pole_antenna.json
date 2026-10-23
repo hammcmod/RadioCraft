@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "O": {
+      "item": "radiocraft:coax_wire"
+    }
+  },
+  "pattern": [
+    "  C",
+    "COC",
+    "CCC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:j_pole_antenna"
+  }
+}

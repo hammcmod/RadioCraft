@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_ferrite_core": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:ferrite_core"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "radiocraft:balun_two_to_one"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_ferrite_core"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "radiocraft:balun_two_to_one"
+    ]
+  }
+}

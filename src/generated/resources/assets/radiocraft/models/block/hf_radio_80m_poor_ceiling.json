@@ -1,0 +1,10 @@
+{
+  "parent": "radiocraft:block/hf_radio_80m_poor",
+  "transform": {
+    "translation": [
+      0.0,
+      0.1875,
+      0.0
+    ]
+  }
+}

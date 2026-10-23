@@ -2,20 +2,23 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "D": {
-      "item": "minecraft:daylight_detector"
+    "#": {
+      "item": "radiocraft:wire"
     },
     "G": {
       "item": "minecraft:glass"
     },
-    "W": {
-      "item": "radiocraft:wire"
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "minecraft:lapis_lazuli"
     }
   },
   "pattern": [
     "GGG",
-    "WDW",
-    "   "
+    "LLL",
+    "I#I"
   ],
   "result": {
     "count": 1,

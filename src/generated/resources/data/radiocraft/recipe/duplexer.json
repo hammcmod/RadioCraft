@@ -2,23 +2,17 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "item": "minecraft:iron_ingot"
-    },
     "B": {
-      "item": "radiocraft:hf_circuit_board"
+      "item": "minecraft:bucket"
     },
-    "C": {
-      "item": "minecraft:copper_ingot"
-    },
-    "L": {
-      "item": "minecraft:lightning_rod"
+    "I": {
+      "item": "minecraft:iron_ingot"
     }
   },
   "pattern": [
-    "#L#",
-    "#B#",
-    "#C#"
+    "III",
+    "BBB",
+    "III"
   ],
   "result": {
     "count": 1,

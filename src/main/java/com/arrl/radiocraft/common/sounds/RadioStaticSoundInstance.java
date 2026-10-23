@@ -38,7 +38,7 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 				// Solar noise floor, plus whatever redstone is switching near the station and any aurora overhead, through the antenna match.
 				// VHF has no solar noise, only the receiver's own (an all-band radio in SSB on 2m).
 				double floor = radio.getBand() != null && radio.getBand().isVhf() ? RadiocraftServerConfig.VHF_NOISE_FLOOR.get() : RadiocraftClientValues.NOISE_VOLUME;
-				double noise = Math.min(1.0D, floor + radio.getInterference() + auroraNoise());
+				double noise = radio.getCrystalEffect().applyNoise(Math.min(1.0D, floor + radio.getInterference() + auroraNoise()));
 				// The receiver's AGC: a signal well above the noise pushes the static down, fast in and slower back out.
 				double wanted = ReceiverMix.noiseDuck(radio.getSyncedSignal(), noise);
 				duck += (wanted - duck) * (wanted < duck ? DUCK_ATTACK : DUCK_RELEASE);

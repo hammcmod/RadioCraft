@@ -36,7 +36,7 @@ public class SmallBatteryItem extends Item {
         ItemStack slotStack = slot.getItem();
         
         if (action == ClickAction.PRIMARY && !slotStack.isEmpty() && 
-            slotStack.getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
+            slotStack.getItem() instanceof VHFHandheldItem) {
             
             if (!player.level().isClientSide()) {
                 VHFHandheldItem.swapBatteryEnergy(slotStack, battery, player);

@@ -8,23 +8,26 @@
     "B": {
       "item": "radiocraft:hf_circuit_board"
     },
-    "C": {
-      "item": "minecraft:copper_ingot"
+    "H": {
+      "item": "radiocraft:hand_microphone"
     },
     "I": {
       "item": "minecraft:iron_ingot"
     },
     "R": {
-      "item": "radiocraft:radio_crystal"
+      "item": "radiocraft:encased_crystal_40m_good"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
     },
     "T": {
       "item": "minecraft:tinted_glass"
     }
   },
   "pattern": [
-    "CBC",
+    "BHS",
     "#RT",
-    "IBI"
+    "III"
   ],
   "result": {
     "count": 1,

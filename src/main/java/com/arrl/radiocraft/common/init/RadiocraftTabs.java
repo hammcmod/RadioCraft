@@ -1,12 +1,15 @@
 package com.arrl.radiocraft.common.init;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.radio.crystal.CrystalBand;
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 /**
@@ -37,12 +40,12 @@ public class RadiocraftTabs {
 
 		// Anything below here should be in the release creative menu
         // The HF station and its antennas (working since the 2026-10 rework)
-        output.accept(RadiocraftItems.VHF_BASE_STATION.get());
+        RadiocraftItems.VHF_BASE_STATION_VARIANTS.values().forEach(output::accept);
         output.accept(RadiocraftItems.VHF_RECEIVER.get());
-        output.accept(RadiocraftItems.HF_RADIO_10M.get());
-        output.accept(RadiocraftItems.HF_RADIO_20M.get());
-        output.accept(RadiocraftItems.HF_RADIO_40M.get());
-        output.accept(RadiocraftItems.HF_RADIO_80M.get());
+        RadiocraftItems.HF_RADIO_10M_VARIANTS.values().forEach(output::accept);
+        RadiocraftItems.HF_RADIO_20M_VARIANTS.values().forEach(output::accept);
+        RadiocraftItems.HF_RADIO_40M_VARIANTS.values().forEach(output::accept);
+        RadiocraftItems.HF_RADIO_80M_VARIANTS.values().forEach(output::accept);
         output.accept(RadiocraftItems.HF_RECEIVER.get());
         output.accept(RadiocraftItems.QRP_RADIO_20M.get());
         output.accept(RadiocraftItems.QRP_RADIO_40M.get());
@@ -66,19 +69,26 @@ public class RadiocraftTabs {
 
         // General crafting-only ingredients (Not used yet, but they are "finished")
         output.accept(RadiocraftItems.HF_CIRCUIT_BOARD.get());
+        output.accept(RadiocraftItems.ALL_BAND_CIRCUIT_BOARD.get());
         output.accept(RadiocraftItems.FERRITE_CORE.get());
         output.accept(RadiocraftItems.COAXIAL_CORE.get());
+        output.accept(RadiocraftItems.INSULATION.get());
 
         // The antenna analyzer
         output.accept(RadiocraftItems.ANTENNA_ANALYZER.get());
 
         // Crafting ingredients for the VHF Handheld
-        output.accept(RadiocraftItems.RADIO_CRYSTAL.get());
+        for(CrystalBand band : CrystalBand.values()) // Raw crystals, then the encased ones, pure to poor.
+            for(CrystalQuality quality : List.of(CrystalQuality.PURE, CrystalQuality.GOOD, CrystalQuality.POOR))
+                output.accept(RadiocraftItems.CRYSTALS.get(band).get(quality).get());
+        for(CrystalBand band : CrystalBand.values())
+            for(CrystalQuality quality : List.of(CrystalQuality.PURE, CrystalQuality.GOOD, CrystalQuality.POOR))
+                output.accept(RadiocraftItems.ENCASED_CRYSTALS.get(band).get(quality).get());
         output.accept(RadiocraftItems.RADIO_SPEAKER.get());
         output.accept(RadiocraftItems.HAND_MICROPHONE.get());
         output.accept(RadiocraftItems.WIRE.get());
 
-        output.accept(RadiocraftItems.VHF_HANDHELD.get());
+        RadiocraftItems.VHF_HANDHELD_VARIANTS.values().forEach(output::accept);
 
     }).build();
 

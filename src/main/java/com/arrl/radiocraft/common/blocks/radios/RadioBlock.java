@@ -1,6 +1,13 @@
 package com.arrl.radiocraft.common.blocks.radios;
 
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import com.arrl.radiocraft.common.blocks.power.AbstractPowerNetworkBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,6 +26,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -40,9 +48,28 @@ public abstract class RadioBlock extends AbstractPowerNetworkBlock {
 		return RAISED.computeIfAbsent(floor, shape -> shape.move(0.0D, 1.0D - shape.max(Direction.Axis.Y), 0.0D));
 	}
 
+	private final CrystalQuality crystal;
+
 	public RadioBlock(Properties properties) {
+		this(properties, CrystalQuality.GOOD);
+	}
+
+	/** A radio built around a crystal of {@code crystal} quality (each quality is its own block). */
+	public RadioBlock(Properties properties, CrystalQuality crystal) {
 		super(properties);
+		this.crystal = crystal;
 		registerDefaultState(defaultBlockState().setValue(CEILING, false));
+	}
+
+	public CrystalQuality getCrystalQuality() {
+		return crystal;
+	}
+
+	@Override
+	public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
+		super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+		if(crystal != CrystalQuality.GOOD)
+			tooltipComponents.add(Component.translatable(Radiocraft.translationKey("tooltip", "crystal_" + crystal.getId())).withStyle(ChatFormatting.GRAY));
 	}
 
 

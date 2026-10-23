@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.client.screens.radios;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.items.VHFHandheldItem;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
@@ -27,8 +28,9 @@ import net.neoforged.neoforge.energy.IEnergyStorage;
 
 public class VHFHandheldScreen extends Screen {
 
-    public static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/vhf_handheld.png");
-    public static final ResourceLocation WIDGETS_TEXTURE = Radiocraft.id("textures/gui/vhf_handheld_widgets.png");
+    // Each crystal quality of the handheld has its own GUI textures (vhf_handheld_pure.png), the good one the plain name.
+    protected ResourceLocation texture = Radiocraft.id("textures/gui/vhf_handheld.png");
+    protected ResourceLocation widgetsTexture = Radiocraft.id("textures/gui/vhf_handheld_widgets.png");
 
     protected static final int imageWidth = 157;
     protected static final int imageHeight = 248;
@@ -75,6 +77,9 @@ public class VHFHandheldScreen extends Screen {
 
         this.item = Minecraft.getInstance().player.getInventory().getItem(index);
         this.cap = item.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
+        String crystal = VHFHandheldItem.crystalOf(item).radioSuffix();
+        this.texture = Radiocraft.id("textures/gui/vhf_handheld" + crystal + ".png");
+        this.widgetsTexture = Radiocraft.id("textures/gui/vhf_handheld" + crystal + "_widgets.png");
 
         if(cap == null) onClose();
     }
@@ -85,32 +90,32 @@ public class VHFHandheldScreen extends Screen {
         leftPos = (width - imageWidth) / 2;
         topPos = (height - imageHeight) / 2;
 
-        TX_LED = new LedIndicator(Component.literal("TX LED"), leftPos+ 32, topPos + 107, 10, 13, 157, 0, TEXTURE, 256, 256);
-        RX_LED = new LedIndicator(Component.literal("RX LED"), leftPos + 44, topPos + 107, 10, 13, 167, 0, TEXTURE, 256, 256);
-        DATA_LED = new LedIndicator(Component.literal("Data LED"), leftPos + 56, topPos + 107, 10, 13, 167, 0, TEXTURE, 256, 256);
+        TX_LED = new LedIndicator(Component.literal("TX LED"), leftPos+ 32, topPos + 107, 10, 13, 157, 0, texture, 256, 256);
+        RX_LED = new LedIndicator(Component.literal("RX LED"), leftPos + 44, topPos + 107, 10, 13, 167, 0, texture, 256, 256);
+        DATA_LED = new LedIndicator(Component.literal("Data LED"), leftPos + 56, topPos + 107, 10, 13, 167, 0, texture, 256, 256);
 
         //     public MeterNeedleIndicator(Component name, MeterNeedleType mnt, int meterDimension, int x, int y, int width, int height, int u, int v, ResourceLocation texture, int textureWidth, int textureHeight) {
-        POWER_METER = new MeterNeedleIndicator(Component.literal("Power"), MeterNeedleIndicator.MeterNeedleType.METER_HORIZONTAL, 33, leftPos + 33, topPos + 126, 2, 20, 232, 0, WIDGETS_TEXTURE, 256, 256);
+        POWER_METER = new MeterNeedleIndicator(Component.literal("Power"), MeterNeedleIndicator.MeterNeedleType.METER_HORIZONTAL, 33, leftPos + 33, topPos + 126, 2, 20, 232, 0, widgetsTexture, 256, 256);
 
     // Power toggle - store reference so we can reset it later on the client thread without spawning threads
-    ToggleButton powerBtn = new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPower);
+    ToggleButton powerBtn = new ToggleButton(cap.isPowered(), leftPos + 1, topPos + 37, 18, 38, 0, 0, widgetsTexture, 256, 256, this::onPressPower);
     this.powerToggle = powerBtn;
     addRenderableWidget(powerBtn); // Power
-        addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, WIDGETS_TEXTURE, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
-        this.micGainDial = new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, WIDGETS_TEXTURE, 256, 256, this::onMicGainUp, this::onMicGainDown);
+        addRenderableWidget(new HoldButton(leftPos - 1, topPos + 80, 20, 101, 36, 0, widgetsTexture, 256, 256, this::onPressPTT, this::onReleasePTT)); // PTT
+        this.micGainDial = new Dial(leftPos + 66, topPos - 1, 37, 21, 76, 0, widgetsTexture, 256, 256, this::onMicGainUp, this::onMicGainDown);
         addRenderableWidget(this.micGainDial); // Mic gain
-        this.gainDial = new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, WIDGETS_TEXTURE, 256, 256, this::onGainUp, this::onGainDown);
+        this.gainDial = new Dial(leftPos + 111, topPos - 1, 37, 21, 76, 42, widgetsTexture, 256, 256, this::onGainUp, this::onGainDown);
         addRenderableWidget(this.gainDial); // Gain
-        addRenderableWidget(new HoverableImageButton(leftPos + 105, topPos + 168, 18, 14, 94, 84, 76, 84, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
-        addRenderableWidget(new HoverableImageButton(leftPos + 125, topPos + 168, 18, 14, 94, 98, 76, 98, WIDGETS_TEXTURE, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
+        addRenderableWidget(new HoverableImageButton(leftPos + 105, topPos + 168, 18, 14, 94, 84, 76, 84, widgetsTexture, 256, 256, this::onFrequencyButtonUp)); // Frequency up button
+        addRenderableWidget(new HoverableImageButton(leftPos + 125, topPos + 168, 18, 14, 94, 98, 76, 98, widgetsTexture, 256, 256, this::onFrequencyButtonDown)); // Frequency down button
         //number buttons
-        addRenderableWidget(new HoverableImageButton(leftPos + 54, topPos + 225, 20, 14, 172, 0, 152, 0, WIDGETS_TEXTURE, 256, 256, (b) -> this.onNum(0)));
+        addRenderableWidget(new HoverableImageButton(leftPos + 54, topPos + 225, 20, 14, 172, 0, 152, 0, widgetsTexture, 256, 256, (b) -> this.onNum(0)));
         for (int i = 1; i < 10; i += 1) {
             final int num = i;
-            addRenderableWidget(new HoverableImageButton(leftPos + 29 + ((i-1)%3)*25, topPos + 168 + ((i-1)/3)*19, 20, 14, 172, i*14, 152, i*14, WIDGETS_TEXTURE, 256, 256, (b) -> this.onNum(num)));
+            addRenderableWidget(new HoverableImageButton(leftPos + 29 + ((i-1)%3)*25, topPos + 168 + ((i-1)/3)*19, 20, 14, 172, i*14, 152, i*14, widgetsTexture, 256, 256, (b) -> this.onNum(num)));
         }
 
-        addRenderableWidget(new HoverableImageButton(leftPos + 103, topPos + 225, 42, 14, 192, 112, 192, 42, WIDGETS_TEXTURE, 256, 256, this::onPressEnter));
+        addRenderableWidget(new HoverableImageButton(leftPos + 103, topPos + 225, 42, 14, 192, 112, 192, 42, widgetsTexture, 256, 256, this::onPressEnter));
 
         addRenderableWidget(TX_LED);
         addRenderableWidget(RX_LED);
@@ -152,7 +157,7 @@ public class VHFHandheldScreen extends Screen {
 
         int edgeSpacingX = (width - imageWidth) / 2;
         int edgeSpacingY = (height - imageHeight) / 2;
-        pGuiGraphics.blit(TEXTURE, edgeSpacingX, edgeSpacingY, 0, 0, imageWidth, imageHeight);
+        pGuiGraphics.blit(texture, edgeSpacingX, edgeSpacingY, 0, 0, imageWidth, imageHeight);
 
         /*
 

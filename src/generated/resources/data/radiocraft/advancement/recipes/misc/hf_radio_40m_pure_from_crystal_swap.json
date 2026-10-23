@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_encased_crystal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:encased_crystal_40m_pure"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "radiocraft:hf_radio_40m_pure_from_crystal_swap"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_encased_crystal"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "radiocraft:hf_radio_40m_pure_from_crystal_swap"
+    ]
+  }
+}

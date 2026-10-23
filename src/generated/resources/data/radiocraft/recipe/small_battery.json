@@ -6,7 +6,7 @@
       "item": "radiocraft:wire"
     },
     "C": {
-      "item": "minecraft:coal"
+      "tag": "minecraft:coals"
     },
     "G": {
       "item": "minecraft:glass"

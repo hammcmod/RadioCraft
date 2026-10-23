@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 public class VHFBaseStationScreen extends VHFRadioScreen<VHFBaseStationMenu> {
 
 	public VHFBaseStationScreen(VHFBaseStationMenu menu, Inventory playerInventory, Component title) {
-		super(menu, playerInventory, title, Radiocraft.id("textures/gui/vhf_base_station.png"), Radiocraft.id("textures/gui/vhf_base_station_widgets.png"));
+		super(menu, playerInventory, title, guiTexture(menu, "vhf_base_station", ""), guiTexture(menu, "vhf_base_station", "_widgets"));
 
 		this.imageWidth = 249;
 		this.imageHeight = 104;

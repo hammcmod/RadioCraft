@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "minecraft:lightning_rod"
+    },
+    "O": {
+      "item": "radiocraft:coax_wire"
+    }
+  },
+  "pattern": [
+    "LIL",
+    "LIL",
+    " O "
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:yagi_antenna"
+  }
+}

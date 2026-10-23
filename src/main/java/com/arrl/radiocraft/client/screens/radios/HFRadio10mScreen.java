@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 public class HFRadio10mScreen extends HFRadioScreen<HFRadio10mMenu> {
 
 	public HFRadio10mScreen(HFRadio10mMenu menu, Inventory playerInventory, Component title) {
-		super(menu, playerInventory, title, Radiocraft.id("textures/gui/hf_radio_10m.png"), Radiocraft.id("textures/gui/hf_radio_10m_widgets.png"));
+		super(menu, playerInventory, title, guiTexture(menu, "hf_radio_10m", ""), guiTexture(menu, "hf_radio_10m", "_widgets"));
 
 		this.imageWidth = 250;
 		this.imageHeight = 147;

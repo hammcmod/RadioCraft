@@ -2,10 +2,14 @@ package com.arrl.radiocraft.datagen;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.LicenseClass;
+import com.arrl.radiocraft.common.init.CrystalVariants;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
+import com.arrl.radiocraft.common.radio.crystal.CrystalBand;
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import net.minecraft.data.PackOutput;
+import net.minecraft.world.item.Item;
 import net.neoforged.neoforge.common.data.LanguageProvider;
 import org.apache.commons.lang3.text.WordUtils;
 
@@ -30,29 +34,35 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("tabs", "main_tab"), "RadioCraft");
 
 			provider.addItem(RadiocraftItems.PASSTHROUGH, "Wire Passthrough");
-			provider.addItem(RadiocraftItems.RADIO_CRYSTAL, "Radio Crystal");
+			for(CrystalBand band : CrystalBand.values())
+				for(CrystalQuality quality : CrystalQuality.values()) {
+					provider.addItem(RadiocraftItems.CRYSTALS.get(band).get(quality), quality.getLabel() + " " + band.getLabel() + " Crystal");
+					provider.addItem(RadiocraftItems.ENCASED_CRYSTALS.get(band).get(quality), "Encased " + quality.getLabel() + " " + band.getLabel() + " Crystal");
+				}
 			provider.addItem(RadiocraftItems.RADIO_SPEAKER, "Radio Speaker");
 			provider.addItem(RadiocraftItems.HAND_MICROPHONE, "Hand Microphone");
 			provider.addItem(RadiocraftItems.HF_CIRCUIT_BOARD, "HF Circuit Board");
+			provider.addItem(RadiocraftItems.ALL_BAND_CIRCUIT_BOARD, "All-Band Circuit Board");
 			provider.addItem(RadiocraftItems.SMALL_BATTERY, "Small Alkaline Battery");
 			provider.addItem(RadiocraftItems.FERRITE_CORE, "Ferrite Core");
 			provider.addItem(RadiocraftItems.COAXIAL_CORE, "Coaxial Core");
+			provider.addItem(RadiocraftItems.INSULATION, "Insulation");
 			provider.addItem(RadiocraftItems.ANTENNA_ANALYZER, "Antenna Analyzer");
 			provider.addItem(RadiocraftItems.ANTENNA_WIRE, "Antenna Wire");
-			provider.addItem(RadiocraftItems.VHF_HANDHELD, "VHF Handheld Radio");
+			addCrystalRadio(provider, RadiocraftItems.VHF_HANDHELD_VARIANTS, "VHF Handheld Radio");
 
 			provider.addBlock(RadiocraftBlocks.WIRE, "Wire");
 			provider.addBlock(RadiocraftBlocks.WATERPROOF_WIRE, "Waterproof Wire");
 			provider.addBlock(RadiocraftBlocks.SOLAR_PANEL, "Solar Panel");
 			provider.addBlock(RadiocraftBlocks.SOLAR_WEATHER_STATION, "Solar Weather Station");
 			provider.addBlock(RadiocraftBlocks.LARGE_BATTERY, "Large Battery");
-			provider.addBlock(RadiocraftBlocks.VHF_BASE_STATION, "VHF Base Station");
+			addCrystalRadio(provider, RadiocraftItems.VHF_BASE_STATION_VARIANTS, "VHF Base Station");
 			provider.addBlock(RadiocraftBlocks.VHF_RECEIVER, "VHF Receiver");
 			provider.addBlock(RadiocraftBlocks.VHF_REPEATER, "VHF Repeater");
-			provider.addBlock(RadiocraftBlocks.HF_RADIO_10M, "HF Radio (10m)");
-			provider.addBlock(RadiocraftBlocks.HF_RADIO_20M, "HF Radio (20m)");
-			provider.addBlock(RadiocraftBlocks.HF_RADIO_40M, "HF Radio (40m)");
-			provider.addBlock(RadiocraftBlocks.HF_RADIO_80M, "HF Radio (80m)");
+			addCrystalRadio(provider, RadiocraftItems.HF_RADIO_10M_VARIANTS, "10m Radio");
+			addCrystalRadio(provider, RadiocraftItems.HF_RADIO_20M_VARIANTS, "20m Radio");
+			addCrystalRadio(provider, RadiocraftItems.HF_RADIO_40M_VARIANTS, "40m Radio");
+			addCrystalRadio(provider, RadiocraftItems.HF_RADIO_80M_VARIANTS, "80m Radio");
 			provider.addBlock(RadiocraftBlocks.HF_RECEIVER, "HF Receiver");
 			provider.addBlock(RadiocraftBlocks.ALL_BAND_RADIO, "All Band Radio");
 			provider.addBlock(RadiocraftBlocks.QRP_RADIO_20M, "QRP Radio (20m)");
@@ -194,9 +204,10 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "parrot_controller"), "Repeats received messages back out the connected radio. Affectionately called a \"parrot\" repeater.");
             provider.add(Radiocraft.translationKey("message", "parrot_controller.delay"), "Repeat delay: %ss");
 
-            provider.add(Radiocraft.translationKey("tooltip", "solar_weather_station"), "Right click for the current solar conditions. A comparator reads 1 (blackout) to 6 (great).");
+            provider.add(Radiocraft.translationKey("tooltip", "solar_weather_station"), "Right click for the current solar conditions. Needs a radio with an antenna (not a dummy load) next to it. A comparator reads 1 (blackout) to 6 (great).");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.report"), "Solar conditions: %s (noise floor %s%%). %s band: %s");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.no_data"), "No solar weather data yet");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.no_radio"), "No signal: the station needs a radio next to it with an antenna (not a dummy load)");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.good"), "Good");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.fair"), "Fair");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.poor"), "Poor");
@@ -247,6 +258,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "battery_percentage"), "Charge: %s%%");
 			provider.add(Radiocraft.translationKey("tooltip", "small_battery"), "A common small battery, typically starts with 50-70% charge");
 			provider.add(Radiocraft.translationKey("tooltip", "vhf_handheld_battery_swap"), "Click battery on VHF Handheld to swap batteries");
+			provider.add(Radiocraft.translationKey("tooltip", "crystal_pure"), "Pure crystal: a little less noise.");
+			provider.add(Radiocraft.translationKey("tooltip", "crystal_poor"), "Poor crystal: a little more noise, and it drifts off frequency.");
 
 			provider.add(Radiocraft.translationKey("message", "battery_swapped"), "Battery swapped");
             provider.add(Radiocraft.translationKey("message", "radio_battery_empty"), "Radio battery depleted");
@@ -269,6 +282,12 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 				provider.add(Radiocraft.translationKey("license_class", licenseClass.name()), friendlyClassName);
 			});
 		});
+	}
+
+	/** Names a radio's crystal versions: "Premium 40m Radio", "40m Radio", "Cheap 40m Radio". */
+	private static void addCrystalRadio(LanguageProvider provider, CrystalVariants<Item, ? extends Item> radio, String name) {
+		for(CrystalQuality quality : CrystalQuality.values())
+			provider.addItem(radio.get(quality), quality.radioPrefix() + name);
 	}
 
 	public RadiocraftLanguageProvider(PackOutput output, String locale) {

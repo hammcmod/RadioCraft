@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_hf_circuit_board": {
+    "has_radio_speaker": {
       "conditions": {
         "items": [
           {
-            "items": "radiocraft:hf_circuit_board"
+            "items": "radiocraft:radio_speaker"
           }
         ]
       },
@@ -21,7 +21,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_hf_circuit_board"
+      "has_radio_speaker"
     ]
   ],
   "rewards": {

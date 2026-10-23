@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blocks.radios;
 
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -19,7 +20,7 @@ public class VHFRepeaterBlock extends RadioBlock {
 	public static final VoxelShape SHAPE = Block.box(0.0D, 0.0D, 0.0D, 16.0D, 12.0D, 16.0D);
 
 	public VHFRepeaterBlock(Properties properties) {
-		super(properties);
+		super(properties, CrystalQuality.PURE); // Repeaters are only built with pure crystals.
 	}
 
 	@Override

@@ -4,6 +4,36 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Solar weather station needs a radio (added 2026-10-23)
+
+- [ ] On its own, right click prints "No signal: ..."; Jade shows the same line; a comparator reads 0.
+- [ ] Put a VHF base station (or any radio) next to it with a J-pole on coax: the full report prints and the comparator
+  lights up within half a second. Swap the J-pole for a dummy load: back to "No signal".
+- [ ] The item tooltip mentions the radio.
+
+## Block drops (added 2026-10-23)
+
+Every block now has a loot table; before, breaking any RadioCraft block lost it. GameTests check the tables.
+
+- [ ] In survival, mine a radio, a battery, a balun and the tuner with a pickaxe: each drops itself. By hand: nothing.
+- [ ] Wire, waterproof wire and coax break instantly by hand and drop themselves.
+- [ ] A J-pole broken from its top half drops one antenna, not two (creative drops none).
+- [ ] The passthrough still gives back itself and the wall block; the desk charger still drops itself and its radio.
+
+## Crystal qualities (added 2026-10-22)
+
+Every crystal radio (10/20/40/80m, VHF base station, VHF handheld) is now three blocks/items: Premium (pure), plain
+(good, the old id) and Cheap (poor). Textures are copies for now. The old Radio Crystal item is gone.
+
+- [ ] Premium and Cheap radios place, render (floor and ceiling) and show their names and tooltip line; their GUIs open
+  with their own (copied) GUI textures, including the Premium/Cheap VHF handheld screen.
+- [ ] Raw crystals show the maintainer's pure/good/poor crystal textures (same for every band), encased crystals the old crystal texture; all are in the creative tab.
+- [ ] Digging sand drops a crystal about 1 in 80 blocks, mostly poor.
+- [ ] JEI shows the encased crystal, radio and crystal-swap recipes; the swap works in a crafting table.
+- [ ] By ear: a Cheap HF radio slowly pulls a steady SSB voice up and down in pitch over a few minutes (drift up to
+  1 kHz); a Premium radio's static is a touch quieter than the plain one's.
+- [ ] Handhelds of every quality still charge in the desk charger and swap batteries.
+
 ## VHF repeater, duplexer, CTCSS and offsets (added 2026-10-21)
 
 The repeater is now a working 2m repeater (`VHFRepeaterBlockEntity`). It needs a duplexer on its back, top or bottom,

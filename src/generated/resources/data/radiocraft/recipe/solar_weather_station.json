@@ -8,23 +8,20 @@
     "A": {
       "item": "radiocraft:antenna_pole"
     },
+    "G": {
+      "item": "minecraft:glass"
+    },
     "I": {
       "item": "minecraft:iron_ingot"
     },
-    "L": {
-      "item": "minecraft:lightning_rod"
-    },
-    "R": {
-      "item": "radiocraft:radio_crystal"
-    },
-    "T": {
-      "item": "minecraft:tinted_glass"
+    "K": {
+      "item": "minecraft:clock"
     }
   },
   "pattern": [
-    "ATT",
-    "AR#",
-    "L#I"
+    "AKG",
+    "A##",
+    "##I"
   ],
   "result": {
     "count": 1,

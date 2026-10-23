@@ -1,11 +1,21 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_radio_crystal": {
+    "has_encased_crystal": {
       "conditions": {
         "items": [
           {
-            "items": "radiocraft:radio_crystal"
+            "items": "radiocraft:encased_crystal_10m_good"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_hf_circuit_board": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:hf_circuit_board"
           }
         ]
       },
@@ -21,7 +31,8 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_radio_crystal"
+      "has_hf_circuit_board",
+      "has_encased_crystal"
     ]
   ],
   "rewards": {

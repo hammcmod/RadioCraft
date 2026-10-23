@@ -81,7 +81,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
             if(level.isLoaded(pos)) {
                 BlockEntity be = level.getBlockEntity(radios.iterator().next().getPos());
                 if(be instanceof HFRadioBlockEntity radio) {
-                    if(BandUtils.areFrequenciesEqualWithTolerance(radio.getFrequency(), packet.getFrequency(), 1000.0F)) // Only receive if listening to correct frequency.
+                    if(BandUtils.areFrequenciesEqualWithTolerance(radio.getTunedFrequency(), packet.getFrequency(), 1000.0F)) // Only receive if listening to correct frequency.
                         radio.receiveCW(packet);
                 }
             }

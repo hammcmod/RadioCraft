@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "radiocraft:wire"
+    },
+    {
+      "item": "radiocraft:coax_wire"
+    },
+    {
+      "item": "radiocraft:insulation"
+    }
+  ],
+  "result": {
+    "count": 4,
+    "id": "radiocraft:passthrough"
+  }
+}

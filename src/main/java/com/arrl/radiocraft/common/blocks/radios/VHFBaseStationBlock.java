@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blocks.radios;
 
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import com.arrl.radiocraft.common.blockentities.radio.VHFBaseStationBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -32,8 +33,8 @@ public class VHFBaseStationBlock extends RadioBlock {
 		SHAPES.put(Direction.EAST, Block.box(0.0D, 0.0D, 2.0D, 14.0D, 5.0D, 14.0D));
 	}
 
-	public VHFBaseStationBlock(Properties properties) {
-		super(properties);
+	public VHFBaseStationBlock(Properties properties, CrystalQuality crystal) {
+		super(properties, crystal);
 	}
 
 	@Override

@@ -31,7 +31,7 @@ public class RadiocraftBlocks {
 	private static final Properties PROPERTIES_STONE_NO_OCCLUDE = Properties.ofFullCopy(Blocks.STONE).noCollission();
 	private static final Properties PROPERTIES_RADIO = Properties.ofFullCopy(Blocks.STONE).noOcclusion();
 	private static final Properties PROPERTIES_IRON_BARS = Properties.ofFullCopy(Blocks.IRON_BARS);
-	private static final Properties PROPERTIES_WIRES = Properties.ofFullCopy(Blocks.STONE).instabreak().noCollission().noOcclusion().mapColor(MapColor.COLOR_LIGHT_GRAY);
+	private static final Properties PROPERTIES_WIRES = Properties.of().sound(SoundType.STONE).instabreak().noCollission().noOcclusion().mapColor(MapColor.COLOR_LIGHT_GRAY); // No tool needed to pick wire back up.
 
 	// Power related blocks
 	public static final DeferredHolder<Block, WireBlock> WIRE = BLOCKS.register("wire", () -> new WireBlock(PROPERTIES_WIRES, true, false));
@@ -41,14 +41,19 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, ChargeControllerBlock> CHARGE_CONTROLLER = BLOCKS.register("charge_controller", () -> new ChargeControllerBlock(PROPERTIES_STONE));
 
 	// Radios/receivers/repeaters
-	public static final DeferredHolder<Block, VHFBaseStationBlock> VHF_BASE_STATION = BLOCKS.register("vhf_base_station", () -> new VHFBaseStationBlock(PROPERTIES_RADIO));
+	public static final CrystalVariants<Block, VHFBaseStationBlock> VHF_BASE_STATION_VARIANTS = CrystalVariants.register(BLOCKS, "vhf_base_station", crystal -> new VHFBaseStationBlock(PROPERTIES_RADIO, crystal));
+	public static final DeferredHolder<Block, VHFBaseStationBlock> VHF_BASE_STATION = VHF_BASE_STATION_VARIANTS.good();
 	public static final DeferredHolder<Block, VHFReceiverBlock> VHF_RECEIVER = BLOCKS.register("vhf_receiver", () -> new VHFReceiverBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, VHFRepeaterBlock> VHF_REPEATER = BLOCKS.register("vhf_repeater", () -> new VHFRepeaterBlock(PROPERTIES_RADIO));
 
-	public static final DeferredHolder<Block, HFRadio10mBlock> HF_RADIO_10M = BLOCKS.register("hf_radio_10m", () -> new HFRadio10mBlock(PROPERTIES_RADIO));
-	public static final DeferredHolder<Block, HFRadio20mBlock> HF_RADIO_20M = BLOCKS.register("hf_radio_20m", () -> new HFRadio20mBlock(PROPERTIES_RADIO));
-	public static final DeferredHolder<Block, HFRadio40mBlock> HF_RADIO_40M = BLOCKS.register("hf_radio_40m", () -> new HFRadio40mBlock(PROPERTIES_RADIO));
-	public static final DeferredHolder<Block, HFRadio80mBlock> HF_RADIO_80M = BLOCKS.register("hf_radio_80m", () -> new HFRadio80mBlock(PROPERTIES_RADIO));
+	public static final CrystalVariants<Block, HFRadio10mBlock> HF_RADIO_10M_VARIANTS = CrystalVariants.register(BLOCKS, "hf_radio_10m", crystal -> new HFRadio10mBlock(PROPERTIES_RADIO, crystal));
+	public static final DeferredHolder<Block, HFRadio10mBlock> HF_RADIO_10M = HF_RADIO_10M_VARIANTS.good();
+	public static final CrystalVariants<Block, HFRadio20mBlock> HF_RADIO_20M_VARIANTS = CrystalVariants.register(BLOCKS, "hf_radio_20m", crystal -> new HFRadio20mBlock(PROPERTIES_RADIO, crystal));
+	public static final DeferredHolder<Block, HFRadio20mBlock> HF_RADIO_20M = HF_RADIO_20M_VARIANTS.good();
+	public static final CrystalVariants<Block, HFRadio40mBlock> HF_RADIO_40M_VARIANTS = CrystalVariants.register(BLOCKS, "hf_radio_40m", crystal -> new HFRadio40mBlock(PROPERTIES_RADIO, crystal));
+	public static final DeferredHolder<Block, HFRadio40mBlock> HF_RADIO_40M = HF_RADIO_40M_VARIANTS.good();
+	public static final CrystalVariants<Block, HFRadio80mBlock> HF_RADIO_80M_VARIANTS = CrystalVariants.register(BLOCKS, "hf_radio_80m", crystal -> new HFRadio80mBlock(PROPERTIES_RADIO, crystal));
+	public static final DeferredHolder<Block, HFRadio80mBlock> HF_RADIO_80M = HF_RADIO_80M_VARIANTS.good();
 	public static final DeferredHolder<Block, HFReceiverBlock> HF_RECEIVER = BLOCKS.register("hf_receiver", () -> new HFReceiverBlock(PROPERTIES_RADIO));
 
 	public static final DeferredHolder<Block, HFRadioAllBandBlock> ALL_BAND_RADIO = BLOCKS.register("all_band_radio", () -> new HFRadioAllBandBlock(PROPERTIES_RADIO));

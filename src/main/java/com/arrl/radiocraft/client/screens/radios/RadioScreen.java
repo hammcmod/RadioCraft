@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.client.screens.radios;
 
+import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.client.screens.widgets.Dial;
 import com.arrl.radiocraft.client.screens.widgets.HoldButton;
@@ -27,6 +28,14 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	protected final ResourceLocation texture;
 	protected final ResourceLocation widgetsTexture;
 	protected final T menu;
+
+	/**
+	 * {@code textures/gui/<name><crystal><suffix>.png}: each crystal quality of a radio has its own GUI textures
+	 * ({@code hf_radio_40m_pure_widgets.png}), the good one the plain name.
+	 */
+	protected static ResourceLocation guiTexture(RadioMenu<?> menu, String name, String suffix) {
+		return Radiocraft.id("textures/gui/" + name + menu.blockEntity.getCrystalQuality().radioSuffix() + suffix + ".png");
+	}
 
 	public RadioScreen(T menu, Inventory inventory, Component title, ResourceLocation texture, ResourceLocation widgetsTexture) {
 		super(menu, inventory, title);

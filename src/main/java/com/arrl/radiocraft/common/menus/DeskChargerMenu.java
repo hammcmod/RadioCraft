@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.menus;
 
+import com.arrl.radiocraft.common.items.VHFHandheldItem;
 import com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
@@ -37,7 +38,7 @@ public class DeskChargerMenu extends AbstractContainerMenu {
         this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 0, 80, 35) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.getItem() == RadiocraftItems.VHF_HANDHELD.get();
+                return stack.getItem() instanceof VHFHandheldItem;
             }
         });
     }

@@ -11,20 +11,20 @@
     "C": {
       "item": "minecraft:copper_ingot"
     },
+    "D": {
+      "item": "minecraft:diamond"
+    },
     "G": {
       "item": "minecraft:glass_pane"
     },
     "H": {
       "item": "radiocraft:hf_circuit_board"
-    },
-    "I": {
-      "item": "minecraft:iron_ingot"
     }
   },
   "pattern": [
     "CGC",
     "#H#",
-    "IBI"
+    "DBD"
   ],
   "result": {
     "count": 1,

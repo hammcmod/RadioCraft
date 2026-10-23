@@ -1,5 +1,7 @@
 package com.arrl.radiocraft.common.radio.voice.handheld;
 
+import com.arrl.radiocraft.common.items.VHFHandheldItem;
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.IAntenna;
@@ -109,7 +111,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         final boolean canReceive;
         final boolean canTransmit;
 
-        final float frequency;
+        final float frequency; // Where the radio really is: its dial frequency plus any crystal drift.
+        final CrystalQuality crystal;
 
         final float gain;
         final float micGain;
@@ -132,13 +135,14 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             this.canReceive = canReceive;
             this.canTransmit = canTransmit;
             this.frequency = frequency;
+            this.crystal = VHFHandheldItem.crystalOf(item);
             this.itemLocation = itemLocation;
             this.gain = gain;
             this.micGain = micGain;
         }
 
-        public SynchronousRadioState(ItemStack item, IVHFHandheldCapability cap, HandheldLocation itemLocation) {
-            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), cap.getFrequencyHertz(), itemLocation, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz());
+        public SynchronousRadioState(ItemStack item, IVHFHandheldCapability cap, HandheldLocation itemLocation, float frequency) {
+            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), frequency, itemLocation, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz());
         }
 
         /** Where this radio transmits: its frequency plus the repeater offset, kept inside 2m. */
@@ -149,6 +153,12 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         }
     }
 
+    /** The handheld's dial frequency moved by its crystal's drift (poor crystals only); each slot drifts on its own. */
+    private static float tunedFrequency(Player player, ItemStack stack, IVHFHandheldCapability cap, int slot) {
+        long seed = player.getUUID().getLeastSignificantBits() + slot * 7_919L;
+        return (float)(cap.getFrequencyHertz() + VHFHandheldItem.crystalOf(stack).driftHz(player.level().getGameTime(), seed));
+    }
+
     protected List<SynchronousRadioState> genHandheldStates(Player player) {
 
         Inventory playerInventory = player.getInventory();
@@ -156,22 +166,22 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
         //Add offhand first, so it goes before other radios on the hot bar, but after the held item
         ItemStack offhand = player.getOffhandItem();
-        if (offhand.getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
+        if (offhand.getItem() instanceof VHFHandheldItem) {
             IVHFHandheldCapability cap = offhand.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
-            if(cap != null) out.add(new SynchronousRadioState(offhand, cap, HandheldLocation.HELD));
+            if(cap != null) out.add(new SynchronousRadioState(offhand, cap, HandheldLocation.HELD, tunedFrequency(player, offhand, cap, -1)));
         }
 
         for(int i=0; i<playerInventory.getContainerSize(); i++) {
             ItemStack itemStack = player.getInventory().getItem(i);
-            if(itemStack.getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
+            if(itemStack.getItem() instanceof VHFHandheldItem) {
                 IVHFHandheldCapability cap = itemStack.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
                 if(cap != null) {
                     //if the current radio is the held item, put it before the offhand and other radios
                     //otherwise add the radio to the end of the list, so the order is held, then offhand, then all others
                     if (i == playerInventory.selected) {
-                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), cap.getFrequencyHertz(), HandheldLocation.HELD, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz()));
+                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), tunedFrequency(player, itemStack, cap, i), HandheldLocation.HELD, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz()));
                     } else {
-                        out.addLast(new SynchronousRadioState(itemStack, cap, Inventory.isHotbarSlot(i) ? HandheldLocation.HOT_BAR : HandheldLocation.BACKPACK));
+                        out.addLast(new SynchronousRadioState(itemStack, cap, Inventory.isHotbarSlot(i) ? HandheldLocation.HOT_BAR : HandheldLocation.BACKPACK, tunedFrequency(player, itemStack, cap, i)));
                     }
                 }
             }
@@ -336,6 +346,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             boolean shouldRecieve = false;
             float gain = 1.0f;
             double detuneStrength = 0.0D; // Best of the handhelds that hear it (FM: up to 2 kHz off, weaker).
+            CrystalQuality crystal = CrystalQuality.GOOD; // That handheld's crystal, for its receiver noise.
             double qrm = 0.0D; // Splatter it puts on the handhelds it is only near (3-10 kHz or one channel step off).
             int channelStep = RadiocraftServerConfig.VHF_FREQUENCY_STEP.get();
             for(SynchronousRadioState state : this.radios) {
@@ -345,6 +356,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                         continue; // Tone squelch: not this radio's tone.
                     if(effect.audible()) {
                         shouldRecieve = true;
+                        if(effect.strength() > detuneStrength)
+                            crystal = state.crystal;
                         detuneStrength = Math.max(detuneStrength, effect.strength());
                         if(state.itemLocation == HandheldLocation.HELD) {
                             isHeld = true;
@@ -371,7 +384,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             AntennaPos here = getAntennaPos();
             boolean beyondLos = source != null && here != null && antennaPacket.getBand() != null
                     && source.position().distSqr(here.position()) > (double)antennaPacket.getBand().losRange() * antennaPacket.getBand().losRange();
-            double level = ReceiverMix.voiceLevel(packetStrength, RadiocraftServerConfig.VHF_NOISE_FLOOR.get()) * (isHeld ? 1.0D : 0.5D) * gain;
+            double level = ReceiverMix.voiceLevel(packetStrength, crystal.applyNoise(RadiocraftServerConfig.VHF_NOISE_FLOOR.get())) * (isHeld ? 1.0D : 0.5D) * gain;
             short[] rawAudio = processor.process(antennaPacket.getRawAudio(), RadioVoiceProcessor.currentSettings(), level, beyondLos ? 1.0D : 0.0D, 0.0D, 0.0D, splatter);
             long runningTotal = 0;
             for(short sample : rawAudio)

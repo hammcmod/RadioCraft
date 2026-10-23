@@ -4,6 +4,8 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.datacomponents.HandheldRadioState;
 import com.arrl.radiocraft.common.items.*;
 import com.arrl.radiocraft.common.items.DeskChargerBlockItem;
+import com.arrl.radiocraft.common.radio.crystal.CrystalBand;
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -15,7 +17,9 @@ import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 /**
@@ -26,10 +30,13 @@ public class RadiocraftItems {
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.createItems(Radiocraft.MOD_ID);
 
 	// Regular Items
-	public static final Supplier<Item> RADIO_CRYSTAL = simpleItem("radio_crystal", null);
+	// Raw quartz crystals (dug out of sand) and the encased crystals radios are built with: one per band and quality.
+	public static final Map<CrystalBand, Map<CrystalQuality, Supplier<Item>>> CRYSTALS = crystals("crystal");
+	public static final Map<CrystalBand, Map<CrystalQuality, Supplier<Item>>> ENCASED_CRYSTALS = crystals("encased_crystal");
 	public static final Supplier<Item> RADIO_SPEAKER = simpleItem("radio_speaker", null);
 	public static final Supplier<Item> HAND_MICROPHONE = simpleItem("hand_microphone", null);
 	public static final Supplier<Item> HF_CIRCUIT_BOARD = simpleItem("hf_circuit_board", null);
+	public static final Supplier<Item> ALL_BAND_CIRCUIT_BOARD = simpleItem("all_band_circuit_board", null);
 
 	public static final DeferredHolder<Item, SmallBatteryItem> SMALL_BATTERY = ITEMS.register("small_battery", () -> new SmallBatteryItem(new Properties()
 			.stacksTo(1)
@@ -37,8 +44,10 @@ public class RadiocraftItems {
 	
 	public static final Supplier<Item> FERRITE_CORE = simpleItem("ferrite_core", null);
 	public static final Supplier<Item> COAXIAL_CORE = simpleItem("coaxial_core", null);
+	public static final Supplier<Item> INSULATION = simpleItem("insulation", null); // Stands in for rubber: wire jackets, coax.
 	public static final Supplier<Item> ANTENNA_ANALYZER = ITEMS.register("antenna_analyzer", () -> new AntennaAnalyzerItem(new Properties().stacksTo(1)));
-	public static final DeferredHolder<Item, VHFHandheldItem> VHF_HANDHELD = ITEMS.register("vhf_handheld", () -> new VHFHandheldItem(new Properties().stacksTo(1).component(RadiocraftDataComponent.HANDHELD_RADIO_STATE_COMPONENT.value(), HandheldRadioState.getDefault())));
+	public static final CrystalVariants<Item, VHFHandheldItem> VHF_HANDHELD_VARIANTS = CrystalVariants.register(ITEMS, "vhf_handheld", crystal -> new VHFHandheldItem(new Properties().stacksTo(1).component(RadiocraftDataComponent.HANDHELD_RADIO_STATE_COMPONENT.value(), HandheldRadioState.getDefault()), crystal));
+	public static final DeferredHolder<Item, VHFHandheldItem> VHF_HANDHELD = VHF_HANDHELD_VARIANTS.good();
 	public static final DeferredHolder<Item, AntennaWireItem> ANTENNA_WIRE = ITEMS.register("antenna_wire", () -> new AntennaWireItem(new Properties()));
 	public static final DeferredHolder<Item, PassthroughItem> PASSTHROUGH = ITEMS.register("passthrough", () -> new PassthroughItem(new Properties()));
 
@@ -49,14 +58,19 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> LARGE_BATTERY = simpleBlockItem("large_battery", RadiocraftBlocks.LARGE_BATTERY);
 	public static final Supplier<BlockItem> CHARGE_CONTROLLER = simpleBlockItem("charge_controller", RadiocraftBlocks.CHARGE_CONTROLLER);
 
-	public static final Supplier<BlockItem> VHF_BASE_STATION = simpleBlockItem("vhf_base_station", RadiocraftBlocks.VHF_BASE_STATION);
+	public static final CrystalVariants<Item, BlockItem> VHF_BASE_STATION_VARIANTS = crystalBlockItems("vhf_base_station", RadiocraftBlocks.VHF_BASE_STATION_VARIANTS);
+	public static final Supplier<BlockItem> VHF_BASE_STATION = VHF_BASE_STATION_VARIANTS.good();
 	public static final Supplier<BlockItem> VHF_RECEIVER = simpleBlockItem("vhf_receiver", RadiocraftBlocks.VHF_RECEIVER);
 	public static final Supplier<BlockItem> VHF_REPEATER = simpleBlockItem("vhf_repeater", RadiocraftBlocks.VHF_REPEATER);
 
-	public static final Supplier<BlockItem> HF_RADIO_10M = simpleBlockItem("hf_radio_10m", RadiocraftBlocks.HF_RADIO_10M);
-	public static final Supplier<BlockItem> HF_RADIO_20M = simpleBlockItem("hf_radio_20m", RadiocraftBlocks.HF_RADIO_20M);
-	public static final Supplier<BlockItem> HF_RADIO_40M = simpleBlockItem("hf_radio_40m", RadiocraftBlocks.HF_RADIO_40M);
-	public static final Supplier<BlockItem> HF_RADIO_80M = simpleBlockItem("hf_radio_80m", RadiocraftBlocks.HF_RADIO_80M);
+	public static final CrystalVariants<Item, BlockItem> HF_RADIO_10M_VARIANTS = crystalBlockItems("hf_radio_10m", RadiocraftBlocks.HF_RADIO_10M_VARIANTS);
+	public static final Supplier<BlockItem> HF_RADIO_10M = HF_RADIO_10M_VARIANTS.good();
+	public static final CrystalVariants<Item, BlockItem> HF_RADIO_20M_VARIANTS = crystalBlockItems("hf_radio_20m", RadiocraftBlocks.HF_RADIO_20M_VARIANTS);
+	public static final Supplier<BlockItem> HF_RADIO_20M = HF_RADIO_20M_VARIANTS.good();
+	public static final CrystalVariants<Item, BlockItem> HF_RADIO_40M_VARIANTS = crystalBlockItems("hf_radio_40m", RadiocraftBlocks.HF_RADIO_40M_VARIANTS);
+	public static final Supplier<BlockItem> HF_RADIO_40M = HF_RADIO_40M_VARIANTS.good();
+	public static final CrystalVariants<Item, BlockItem> HF_RADIO_80M_VARIANTS = crystalBlockItems("hf_radio_80m", RadiocraftBlocks.HF_RADIO_80M_VARIANTS);
+	public static final Supplier<BlockItem> HF_RADIO_80M = HF_RADIO_80M_VARIANTS.good();
 	public static final Supplier<BlockItem> HF_RECEIVER = simpleBlockItem("hf_receiver", RadiocraftBlocks.HF_RECEIVER);
 
 	public static final Supplier<BlockItem> ALL_BAND_RADIO = simpleBlockItem("all_band_radio", RadiocraftBlocks.ALL_BAND_RADIO);
@@ -101,6 +115,22 @@ public class RadiocraftItems {
         } else {
             return ITEMS.register(name, () -> new Item(new Properties()));
         }
+	}
+
+	private static CrystalVariants<Item, BlockItem> crystalBlockItems(String name, CrystalVariants<Block, ? extends Block> blocks) {
+		return CrystalVariants.register(ITEMS, name, crystal -> new BlockItem(blocks.get(crystal).get(), new Properties()));
+	}
+
+	/** {@code <prefix>_<band>_<quality>} for every band and quality, e.g. {@code encased_crystal_40m_poor}. */
+	private static Map<CrystalBand, Map<CrystalQuality, Supplier<Item>>> crystals(String prefix) {
+		Map<CrystalBand, Map<CrystalQuality, Supplier<Item>>> out = new EnumMap<>(CrystalBand.class);
+		for(CrystalBand band : CrystalBand.values()) {
+			Map<CrystalQuality, Supplier<Item>> byQuality = new EnumMap<>(CrystalQuality.class);
+			for(CrystalQuality quality : CrystalQuality.values())
+				byQuality.put(quality, simpleItem(prefix + "_" + band.getId() + "_" + quality.getId(), null));
+			out.put(band, byQuality);
+		}
+		return out;
 	}
 
 	private static Supplier<BlockItem> simpleBlockItem(String name, Supplier<? extends Block> block) {

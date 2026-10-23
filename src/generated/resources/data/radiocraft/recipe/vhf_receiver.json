@@ -5,8 +5,8 @@
     "#": {
       "item": "radiocraft:wire"
     },
-    "G": {
-      "item": "minecraft:gold_ingot"
+    "C": {
+      "item": "radiocraft:encased_crystal_vhf_poor"
     },
     "I": {
       "item": "minecraft:iron_ingot"
@@ -19,9 +19,9 @@
     }
   },
   "pattern": [
-    "IIW",
-    "G#S",
-    "I#W"
+    "W#W",
+    "WCS",
+    "III"
   ],
   "result": {
     "count": 1,

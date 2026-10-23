@@ -2,14 +2,14 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "item": "radiocraft:wire"
+    "C": {
+      "item": "minecraft:copper_ingot"
     },
     "I": {
       "item": "minecraft:iron_ingot"
     },
-    "N": {
-      "item": "minecraft:quartz"
+    "P": {
+      "item": "minecraft:paper"
     },
     "R": {
       "item": "minecraft:redstone_torch"
@@ -20,7 +20,7 @@
   },
   "pattern": [
     "SSS",
-    "#RN",
+    "PRC",
     "III"
   ],
   "result": {

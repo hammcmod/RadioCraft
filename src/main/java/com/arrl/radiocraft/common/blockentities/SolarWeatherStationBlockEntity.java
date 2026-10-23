@@ -10,7 +10,11 @@ import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import com.arrl.radiocraft.common.init.RadiocraftSoundEvents;
 import net.minecraft.ChatFormatting;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.be_networks.network_objects.DummyLoadNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
@@ -39,6 +43,7 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 
 	@Nullable
 	private SolarEventInstance lastSeenEvent;
+	private boolean lastSeenRadio;
 
 	/** Ticks the printing sound lasts (2.79 s); the lines are spread over it and the bell rings at the end. */
 	public static final int PRINT_TICKS = 56;
@@ -56,8 +61,10 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 	public static void tick(Level level, BlockPos pos, BlockState state, SolarWeatherStationBlockEntity be) {
 		be.printPending(level);
 		SolarEventInstance current = SolarEventManager.getEvent(level);
-		if(current != be.lastSeenEvent) {
+		boolean radio = level.getGameTime() % 10 == 0 ? be.hasRadio() : be.lastSeenRadio;
+		if(current != be.lastSeenEvent || radio != be.lastSeenRadio) {
 			be.lastSeenEvent = current;
+			be.lastSeenRadio = radio;
 			level.updateNeighbourForOutputSignal(pos, state.getBlock()); // Comparators only re-read when told to.
 		}
 	}
@@ -78,9 +85,30 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 		return event == null ? null : RadiocraftData.SOLAR_EVENTS.getKey(event);
 	}
 
-	/** Comparator output: 1 for the noisiest conditions (blackout) up to 6 for the quietest (great), 0 with no event. */
+	/**
+	 * Like a real station, it hears the solar weather through a radio: one of any kind next to it, with a real antenna
+	 * on its coax (a dummy load radiates nothing, so it does not count). Always true when the server config turns this
+	 * off.
+	 */
+	public boolean hasRadio() {
+		if(!RadiocraftServerConfig.SOLAR_WEATHER_STATION_NEEDS_RADIO.get())
+			return true;
+		if(level == null)
+			return false;
+		for(Direction direction : Direction.values()) {
+			if(IBENetworks.getObject(level, worldPosition.relative(direction)) instanceof RadioNetworkObject radio
+					&& radio.getAntennas().stream().anyMatch(antenna -> !(antenna instanceof DummyLoadNetworkObject) && antenna.getAntenna() != null))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Comparator output: 1 for the noisiest conditions (blackout) up to 6 for the quietest (great), 0 with no event or
+	 * without a radio ({@link #hasRadio()}).
+	 */
 	public int getConditionLevel() {
-		return RadiocraftData.SOLAR_EVENTS.conditionLevel(getCurrentEvent());
+		return hasRadio() ? RadiocraftData.SOLAR_EVENTS.conditionLevel(getCurrentEvent()) : 0;
 	}
 
 	/**
@@ -169,6 +197,8 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 
 	/** The report, one chat line per entry: header, overall conditions, noise floor, then each band. */
 	public List<Component> getReportLines() {
+		if(!hasRadio())
+			return List.of(Component.translatable("message.radiocraft.solar_weather_station.no_radio"));
 		SolarEvent event = getCurrentEvent();
 		if(event == null)
 			return List.of(Component.translatable("message.radiocraft.solar_weather_station.no_data"));
@@ -189,6 +219,8 @@ public class SolarWeatherStationBlockEntity extends BlockEntity {
 
 	/** The one-line report, kept for tools and tests; the block itself prints {@link #getReportLines()}. */
 	public Component getReport() {
+		if(!hasRadio())
+			return Component.translatable("message.radiocraft.solar_weather_station.no_radio");
 		SolarEvent event = getCurrentEvent();
 		if(event == null)
 			return Component.translatable("message.radiocraft.solar_weather_station.no_data");

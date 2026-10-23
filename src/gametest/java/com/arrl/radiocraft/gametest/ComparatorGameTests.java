@@ -73,6 +73,7 @@ public class ComparatorGameTests {
         BlockPos comparator = station.east();
         placeComparator(helper, comparator, Direction.WEST);
         helper.setBlock(station, RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
+        GameTestUtil.radioWithJPole(helper, station.west()); // The station hears the weather through a radio.
         helper.succeedWhen(() -> {
             SolarEventInstance event = SolarEventManager.getEvent(helper.getLevel());
             helper.assertTrue(event != null, "No solar event for this level");

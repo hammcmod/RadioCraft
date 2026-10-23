@@ -4,10 +4,12 @@ import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.common.blocks.WireBlock;
+import com.arrl.radiocraft.common.blocks.antennas.DoubleVHFAntennaBlock;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
@@ -41,6 +43,15 @@ public final class GameTestUtil {
      */
     public static void placeWire(GameTestHelper helper, BlockPos pos, WireBlock wire) {
         helper.setBlock(pos, wire.getBlockState(helper.getLevel(), helper.absolutePos(pos)));
+    }
+
+    /** A VHF base station at {@code radio} with a J-pole on its coax: coax one block south, the J-pole two south. */
+    public static void radioWithJPole(GameTestHelper helper, BlockPos radio) {
+        helper.setBlock(radio, RadiocraftBlocks.VHF_BASE_STATION.get());
+        placeWire(helper, radio.south(), RadiocraftBlocks.COAX_WIRE.get());
+        BlockPos lower = radio.south(2);
+        helper.setBlock(lower, RadiocraftBlocks.J_POLE_ANTENNA.get().defaultBlockState().setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.LOWER));
+        helper.setBlock(lower.above(), RadiocraftBlocks.J_POLE_ANTENNA.get().defaultBlockState().setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.UPPER));
     }
 
     public static <T extends BlockEntity> T blockEntity(GameTestHelper helper, BlockPos pos, Class<T> type) {

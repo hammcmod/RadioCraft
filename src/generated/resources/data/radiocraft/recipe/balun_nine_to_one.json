@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "radiocraft:ferrite_core"
+    },
+    {
+      "item": "radiocraft:coax_wire"
+    },
+    {
+      "item": "radiocraft:wire"
+    },
+    {
+      "item": "radiocraft:wire"
+    },
+    {
+      "item": "radiocraft:wire"
+    },
+    {
+      "item": "radiocraft:wire"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:balun_nine_to_one"
+  }
+}

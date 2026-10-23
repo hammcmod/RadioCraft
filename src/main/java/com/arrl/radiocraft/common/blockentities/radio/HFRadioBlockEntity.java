@@ -105,13 +105,13 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 		if(level instanceof ServerLevel serverLevel && canTransmitCW()) {
 			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
 			if(antennas.size() == 1) {
-				antennas.get(0).transmitCWPacket(serverLevel, buffers, band, frequency);
+				antennas.get(0).transmitCWPacket(serverLevel, buffers, band, getTunedFrequency());
 				recordTransmit(); // Keying is RF on the air too, for the transmit side of redstone interference.
 			}
 			else if(antennas.size() > 1)
 				overdraw();
 			else if(bareConnector != null) // No antenna: a few blocks out of the bare connector.
-				bareConnector.transmitCWPacket(serverLevel, buffers, band, frequency);
+				bareConnector.transmitCWPacket(serverLevel, buffers, band, getTunedFrequency());
 		}
 	}
 

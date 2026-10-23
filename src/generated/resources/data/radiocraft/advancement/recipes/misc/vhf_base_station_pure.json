@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_encased_crystal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:encased_crystal_vhf_pure"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_radio_speaker": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:radio_speaker"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "radiocraft:vhf_base_station_pure"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_radio_speaker",
+      "has_encased_crystal"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "radiocraft:vhf_base_station_pure"
+    ]
+  }
+}

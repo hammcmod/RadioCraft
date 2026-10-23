@@ -52,6 +52,18 @@ is in the file itself: its start and end do not line up. Found in the 2026-10-21
   zero crossings), mono OGG Vorbis, same name. A few seconds is plenty.
 - Deliverables: the OGG. Drop it over `assets/radiocraft/sounds/static.ogg`; nothing else changes.
 
+### Textures: crystals and crystal-quality radios
+
+Requested by the maintainer 2026-10-22 (they plan to draw these). All are placeholders copied from existing art:
+
+- ~~Raw crystals~~ Done (2026-10-23, maintainer): `textures/item/crystal_pure.png`, `crystal_good.png` and
+  `crystal_poor.png`, shared by every band's raw crystal of that quality.
+- Encased crystals: `textures/item/encased_crystal_<band>_<quality>.png`, copies of the old radio crystal texture.
+- ~~Insulation~~ Done (2026-10-23, maintainer): `textures/item/insulation.png`.
+- Premium (`_pure`) and Cheap (`_poor`) radios: `textures/block/<radio>_<pure|poor>.png`,
+  `textures/gui/<radio>_<pure|poor>.png` and `..._widgets.png` for hf_radio_10m/20m/40m/80m and vhf_base_station,
+  and `textures/item/vhf_handheld_<pure|poor>.png` plus its GUI pair. All copies of the plain radio's art.
+
 ### Hustler 5-BTV vertical antenna
 
 A model of the Hustler 5-BTV: a multiband HF trap vertical (80/40/30/20/15/10m), an aluminium tube with the

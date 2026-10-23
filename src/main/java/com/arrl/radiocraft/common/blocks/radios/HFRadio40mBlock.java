@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blocks.radios;
 
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadio40mBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -32,8 +33,8 @@ public class HFRadio40mBlock extends RadioBlock {
 		SHAPES.put(Direction.WEST, Block.box(5.0D, 0.0D, 0.0D, 16.0D, 7.0D, 16.0D));
 	}
 
-	public HFRadio40mBlock(Properties properties) {
-		super(properties);
+	public HFRadio40mBlock(Properties properties, CrystalQuality crystal) {
+		super(properties, crystal);
 	}
 
 	@Override

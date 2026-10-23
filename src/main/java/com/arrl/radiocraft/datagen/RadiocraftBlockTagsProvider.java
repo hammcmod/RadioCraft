@@ -4,6 +4,8 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.data.PackOutput;
 import net.neoforged.neoforge.common.data.BlockTagsProvider;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
@@ -19,6 +21,10 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
 
     @Override
     protected void addTags(HolderLookup.Provider provider) {
+        // Every block that drops itself needs a pickaxe, as they copy stone (or iron bars). Wires break by hand.
+        tag(BlockTags.MINEABLE_WITH_PICKAXE).add(RadiocraftBlockLootProvider.blocks().stream()
+                .filter(block -> block.defaultBlockState().requiresCorrectToolForDrops()).toArray(Block[]::new));
+
         // Define the POWER_BLOCKS tag
         tag(RadiocraftTags.Blocks.POWER_BLOCKS)
                 .add(RadiocraftBlocks.WIRE.get())
@@ -27,14 +33,14 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.LARGE_BATTERY.get())
                 .add(RadiocraftBlocks.CHARGE_CONTROLLER.get())
                 .add(RadiocraftBlocks.ALL_BAND_RADIO.get())
-                .add(RadiocraftBlocks.HF_RADIO_10M.get())
-                .add(RadiocraftBlocks.HF_RADIO_20M.get())
-                .add(RadiocraftBlocks.HF_RADIO_40M.get())
-                .add(RadiocraftBlocks.HF_RADIO_80M.get())
+                .add(RadiocraftBlocks.HF_RADIO_10M_VARIANTS.values().toArray(Block[]::new))
+                .add(RadiocraftBlocks.HF_RADIO_20M_VARIANTS.values().toArray(Block[]::new))
+                .add(RadiocraftBlocks.HF_RADIO_40M_VARIANTS.values().toArray(Block[]::new))
+                .add(RadiocraftBlocks.HF_RADIO_80M_VARIANTS.values().toArray(Block[]::new))
                 .add(RadiocraftBlocks.HF_RECEIVER.get())
                 .add(RadiocraftBlocks.QRP_RADIO_20M.get())
                 .add(RadiocraftBlocks.QRP_RADIO_40M.get())
-                .add(RadiocraftBlocks.VHF_BASE_STATION.get())
+                .add(RadiocraftBlocks.VHF_BASE_STATION_VARIANTS.values().toArray(Block[]::new))
                 .add(RadiocraftBlocks.VHF_RECEIVER.get())
                 .add(RadiocraftBlocks.VHF_REPEATER.get());
 
@@ -52,14 +58,14 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.YAGI_ANTENNA.get())
                 .add(RadiocraftBlocks.DUMMY_LOAD.get())
                 .add(RadiocraftBlocks.ALL_BAND_RADIO.get())
-                .add(RadiocraftBlocks.HF_RADIO_10M.get())
-                .add(RadiocraftBlocks.HF_RADIO_20M.get())
-                .add(RadiocraftBlocks.HF_RADIO_40M.get())
-                .add(RadiocraftBlocks.HF_RADIO_80M.get())
+                .add(RadiocraftBlocks.HF_RADIO_10M_VARIANTS.values().toArray(Block[]::new))
+                .add(RadiocraftBlocks.HF_RADIO_20M_VARIANTS.values().toArray(Block[]::new))
+                .add(RadiocraftBlocks.HF_RADIO_40M_VARIANTS.values().toArray(Block[]::new))
+                .add(RadiocraftBlocks.HF_RADIO_80M_VARIANTS.values().toArray(Block[]::new))
                 .add(RadiocraftBlocks.HF_RECEIVER.get())
                 .add(RadiocraftBlocks.QRP_RADIO_20M.get())
                 .add(RadiocraftBlocks.QRP_RADIO_40M.get())
-                .add(RadiocraftBlocks.VHF_BASE_STATION.get())
+                .add(RadiocraftBlocks.VHF_BASE_STATION_VARIANTS.values().toArray(Block[]::new))
                 .add(RadiocraftBlocks.VHF_RECEIVER.get())
                 .add(RadiocraftBlocks.VHF_REPEATER.get());
 

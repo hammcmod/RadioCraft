@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    [
+      {
+        "item": "radiocraft:hf_radio_10m_pure"
+      },
+      {
+        "item": "radiocraft:hf_radio_10m"
+      }
+    ],
+    {
+      "item": "radiocraft:encased_crystal_10m_poor"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:hf_radio_10m_poor"
+  }
+}

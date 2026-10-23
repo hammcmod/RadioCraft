@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.commands;
 
+import com.arrl.radiocraft.common.items.VHFHandheldItem;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
@@ -209,7 +210,7 @@ public class EnergyCommands {
             final String itemType;
             if (itemInHand.getItem() == RadiocraftItems.SMALL_BATTERY.get()) {
                 itemType = "Small Battery";
-            } else if (itemInHand.getItem() == RadiocraftItems.VHF_HANDHELD.get()) {
+            } else if (itemInHand.getItem() instanceof VHFHandheldItem) {
                 itemType = "VHF Handheld Radio";
             } else {
                 itemType = "Unknown";

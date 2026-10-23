@@ -14,14 +14,28 @@
     "L": {
       "item": "minecraft:lightning_rod"
     },
+    "R": [
+      {
+        "item": "radiocraft:encased_crystal_80m_poor"
+      },
+      {
+        "item": "radiocraft:encased_crystal_40m_poor"
+      },
+      {
+        "item": "radiocraft:encased_crystal_20m_poor"
+      },
+      {
+        "item": "radiocraft:encased_crystal_10m_poor"
+      }
+    ],
     "S": {
       "item": "radiocraft:radio_speaker"
     }
   },
   "pattern": [
-    "III",
-    "C#S",
-    "L#I"
+    "LII",
+    "CRS",
+    "I#I"
   ],
   "result": {
     "count": 1,

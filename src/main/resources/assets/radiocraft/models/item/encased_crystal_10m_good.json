@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "radiocraft:item/encased_crystal_10m_good"
+  }
+}

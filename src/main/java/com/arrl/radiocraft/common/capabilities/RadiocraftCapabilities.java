@@ -10,9 +10,13 @@ import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.*;
+
+import java.util.stream.Stream;
 
 @EventBusSubscriber(modid=Radiocraft.MOD_ID)
 public class RadiocraftCapabilities {
@@ -25,6 +29,18 @@ public class RadiocraftCapabilities {
 
 	public static EntityCapability<IPlayerCallsignCapability, Void> PLAYER_CALLSIGNS = EntityCapability.createVoid(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "callsigns"), IPlayerCallsignCapability.class);
 	public static EntityCapability<IAntennaWireHolderCapability, Void> ANTENNA_WIRE_HOLDERS = EntityCapability.createVoid(ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "antenna_wire_holders"), IAntennaWireHolderCapability.class);
+
+	/** The pure and poor crystal versions of the radios that come in three qualities. */
+	private static Block[] premiumAndCheapRadios() {
+		return Stream.of(RadiocraftBlocks.HF_RADIO_10M_VARIANTS, RadiocraftBlocks.HF_RADIO_20M_VARIANTS, RadiocraftBlocks.HF_RADIO_40M_VARIANTS,
+						RadiocraftBlocks.HF_RADIO_80M_VARIANTS, RadiocraftBlocks.VHF_BASE_STATION_VARIANTS)
+				.flatMap(variants -> Stream.of(variants.pure().get(), variants.poor().get()))
+				.toArray(Block[]::new);
+	}
+
+	private static Item[] handhelds() {
+		return RadiocraftItems.VHF_HANDHELD_VARIANTS.values().toArray(Item[]::new);
+	}
 
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
@@ -53,7 +69,8 @@ public class RadiocraftCapabilities {
 				RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
 				RadiocraftBlocks.YAGI_ANTENNA.get(),
 				RadiocraftBlocks.SATELLITE_DISH.get());
-		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.HF_RADIO_10M.get());
+		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> BENetworksCapability.get(level), premiumAndCheapRadios()); // The plain ones are above.
+		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.HF_RADIO_10M_VARIANTS.values().toArray(Block[]::new));
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.VHF_RECEIVER.get());
         event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.ALL_BAND_RADIO.get());
 
@@ -64,7 +81,7 @@ public class RadiocraftCapabilities {
 						? side == net.minecraft.core.Direction.DOWN ? tnc.getReceived() : tnc.getSupplies() : null,
 				RadiocraftBlocks.DIGITAL_INTERFACE.get());
 
-		event.registerItem(VHF_HANDHELDS, (itemStack, context) -> new VHFHandheldCapability(itemStack), RadiocraftItems.VHF_HANDHELD.get());
+		event.registerItem(VHF_HANDHELDS, (itemStack, context) -> new VHFHandheldCapability(itemStack), handhelds());
 		
 		// Register SmallBatteryItem with ComponentEnergyStorage and random initial energy (50-70%)
 		event.registerItem(Capabilities.EnergyStorage.ITEM, (itemStack, context) -> {
@@ -81,7 +98,7 @@ public class RadiocraftCapabilities {
 				com.arrl.radiocraft.common.init.RadiocraftDataComponent.RADIO_ENERGY.get(),
 				capacity
 			);
-		}, RadiocraftItems.VHF_HANDHELD.get());
+		}, handhelds());
 
 		// Register block energy capability for Desk Charger (small buffer)
 		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, RadiocraftBlockEntities.DESK_CHARGER.get(), (be, side) -> {

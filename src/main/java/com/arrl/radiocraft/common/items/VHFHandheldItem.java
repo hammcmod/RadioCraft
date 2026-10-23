@@ -1,6 +1,9 @@
 package com.arrl.radiocraft.common.items;
 
 import com.arrl.radiocraft.CommonConfig;
+import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
+import net.minecraft.ChatFormatting;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
 import com.arrl.radiocraft.client.screens.radios.VHFHandheldScreen;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
@@ -27,8 +30,21 @@ import static com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities.VHF
 
 public class VHFHandheldItem extends Item {
 
-    public VHFHandheldItem(Properties properties) {
+    private final CrystalQuality crystal;
+
+    /** A handheld built around a crystal of {@code crystal} quality (each quality is its own item). */
+    public VHFHandheldItem(Properties properties, CrystalQuality crystal) {
         super(properties);
+        this.crystal = crystal;
+    }
+
+    public CrystalQuality getCrystalQuality() {
+        return crystal;
+    }
+
+    /** The crystal in the handheld {@code stack}, good if it is not a handheld. */
+    public static CrystalQuality crystalOf(ItemStack stack) {
+        return stack.getItem() instanceof VHFHandheldItem handheld ? handheld.crystal : CrystalQuality.GOOD;
     }
 
     @Override
@@ -214,6 +230,8 @@ public class VHFHandheldItem extends Item {
         }
         
         tooltipComponents.add(Component.translatable("tooltip.radiocraft.vhf_handheld_battery_swap"));
+        if(crystal != CrystalQuality.GOOD)
+            tooltipComponents.add(Component.translatable(Radiocraft.translationKey("tooltip", "crystal_" + crystal.getId())).withStyle(ChatFormatting.GRAY));
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.arrl.radiocraft;
 import com.arrl.radiocraft.common.init.*;
 import com.arrl.radiocraft.common.network.RadiocraftNetworking;
 import com.arrl.radiocraft.compat.TopCompat;
+import com.arrl.radiocraft.datagen.RadiocraftBlockLootProvider;
 import com.arrl.radiocraft.datagen.RadiocraftBlockTagsProvider;
 import com.arrl.radiocraft.datagen.RadiocraftBlockstateProvider;
 import com.arrl.radiocraft.datagen.RadiocraftLanguageProvider;
@@ -20,11 +21,15 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
+import net.minecraft.data.loot.LootTableProvider;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 import org.slf4j.Logger;
 
+import java.util.List;
 import java.util.Random;
+import java.util.Set;
 
 @Mod(Radiocraft.MOD_ID)
 public class Radiocraft {
@@ -68,6 +73,7 @@ public class Radiocraft {
         RadiocraftSoundEvents.SOUND_EVENTS.register(modEventBus);
         RadiocraftTabs.CREATIVE_TABS.register(modEventBus);
         RadiocraftDataComponent.DATA_COMPONENTS.register(modEventBus);
+        RadiocraftLootModifiers.LOOT_MODIFIERS.register(modEventBus);
 
         modEventBus.addListener(Radiocraft::gatherData);
         modEventBus.addListener(Radiocraft::registerPackets);
@@ -95,6 +101,9 @@ public class Radiocraft {
                 RadiocraftBlockstateProvider(output, existingFileHelper));
         gen.addProvider(true, (Factory<RadiocraftRecipesProvider>) output -> new
                 RadiocraftRecipesProvider(output, event.getLookupProvider()));
+        gen.addProvider(event.includeServer(), (Factory<LootTableProvider>) output -> new LootTableProvider(output, Set.of(),
+                List.of(new LootTableProvider.SubProviderEntry(RadiocraftBlockLootProvider::new, LootContextParamSets.BLOCK)),
+                event.getLookupProvider()));
     }
 
     public static ResourceLocation id(String path) {

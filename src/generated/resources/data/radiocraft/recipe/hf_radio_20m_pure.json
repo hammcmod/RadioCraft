@@ -1,0 +1,36 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "#": {
+      "item": "radiocraft:wire"
+    },
+    "B": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "H": {
+      "item": "radiocraft:hand_microphone"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "R": {
+      "item": "radiocraft:encased_crystal_20m_pure"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
+    },
+    "T": {
+      "item": "minecraft:tinted_glass"
+    }
+  },
+  "pattern": [
+    "BHS",
+    "#RT",
+    "III"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:hf_radio_20m_pure"
+  }
+}

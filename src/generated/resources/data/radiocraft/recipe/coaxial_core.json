@@ -6,7 +6,7 @@
       "item": "minecraft:copper_ingot"
     },
     "K": {
-      "item": "minecraft:dried_kelp"
+      "item": "radiocraft:insulation"
     }
   },
   "pattern": [
@@ -15,7 +15,7 @@
     "KKK"
   ],
   "result": {
-    "count": 3,
+    "count": 6,
     "id": "radiocraft:coaxial_core"
   }
 }

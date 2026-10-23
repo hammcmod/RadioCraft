@@ -11,7 +11,9 @@ import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObje
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.DigitalInterfaceBlockEntity;
 import com.arrl.radiocraft.common.blockentities.ITogglableBE;
+import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
 import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
+import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
@@ -252,7 +254,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             dataVoiceId = UUID.nameUUIDFromBytes(("radiocraft-tnc-" + worldPosition.asLong()).getBytes(StandardCharsets.UTF_8));
         int frames = serverLevel.getGameTime() % 2 == 0 ? 3 : 2;
         for(int i = 0; i < frames && dataFrame < dataFrames.size(); i++) {
-            transmitVoice(() -> serverLevel, dataFrames.get(dataFrame++), frequency, dataVoiceId, 0.0F);
+            transmitVoice(() -> serverLevel, dataFrames.get(dataFrame++), getTunedFrequency(), dataVoiceId, 0.0F);
             recordTransmit();
         }
         if(dataFrame >= dataFrames.size()) {
@@ -269,13 +271,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             return;
         List<AntennaNetworkObject> antennas = networkObject.getAntennas();
         if(antennas.size() == 1)
-            antennas.get(0).transmitDataPacket(serverLevel, packet, band, frequency);
+            antennas.get(0).transmitDataPacket(serverLevel, packet, band, getTunedFrequency());
         else if(antennas.size() > 1)
             overdraw();
         else {
             BareConnectorAntenna bare = bareConnector;
             if(bare != null)
-                bare.transmitDataPacket(serverLevel, packet, band, frequency);
+                bare.transmitDataPacket(serverLevel, packet, band, getTunedFrequency());
         }
     }
 
@@ -649,8 +651,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     /** How this radio's receiver takes a signal on {@code txHz}: as SSB, or as FM for {@link #isFM() FM} radios. */
     public Detuning.Effect getDetuning(float txHz) {
         if(isFM())
-            return Detuning.fm(frequency, txHz, band != null && band.isVhf() ? RadiocraftServerConfig.VHF_FREQUENCY_STEP.get() : 0);
-        return Detuning.ssb(frequency, txHz, isLowerSideband());
+            return Detuning.fm(getTunedFrequency(), txHz, band != null && band.isVhf() ? RadiocraftServerConfig.VHF_FREQUENCY_STEP.get() : 0);
+        return Detuning.ssb(getTunedFrequency(), txHz, isLowerSideband());
     }
 
     /** True if the radio receives voice as FM (VHF radios); SSB otherwise. */
@@ -684,12 +686,37 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(level == null)
             return 0.0D;
         if(band != null && band.isVhf())
-            return RadiocraftServerConfig.VHF_NOISE_FLOOR.get();
+            return getCrystalEffect().applyNoise(RadiocraftServerConfig.VHF_NOISE_FLOOR.get());
         SolarEventInstance event = SolarEventManager.getEvent(level);
         double noise = (event == null ? 0.0D : event.getEvent().getNoise()) + getInterference();
         if(Aurora.affects(level, worldPosition))
             noise += RadiocraftServerConfig.AURORA_STATIC.get();
-        return Math.min(1.0D, noise);
+        return getCrystalEffect().applyNoise(Math.min(1.0D, noise));
+    }
+
+    // -------------------- CRYSTAL --------------------
+
+    /** The crystal the radio was built with: each quality is its own block. */
+    public CrystalQuality getCrystalQuality() {
+        return getBlockState().getBlock() instanceof RadioBlock radio ? radio.getCrystalQuality() : CrystalQuality.GOOD;
+    }
+
+    /**
+     * The crystal as the radio behaves: QRP rigs are designed around poor crystals, so they hear and tune like a good
+     * one whatever they were built with.
+     */
+    public CrystalQuality getCrystalEffect() {
+        return isQrp() ? CrystalQuality.GOOD : getCrystalQuality();
+    }
+
+    /** Hz a poor crystal has the radio off its dial frequency right now, 0 for any other crystal. */
+    public double getDriftHz() {
+        return level == null ? 0.0D : getCrystalEffect().driftHz(level.getGameTime(), worldPosition.asLong());
+    }
+
+    /** Where the radio really is: the dial frequency plus any crystal drift. It listens and transmits here. */
+    public float getTunedFrequency() {
+        return (float)(frequency + getDriftHz());
     }
 
     // -------------------- RECEIVED SIGNAL (CLIENT SYNC) --------------------
@@ -827,7 +854,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
-        transmitVoice(level, rawAudio, getTransmitFrequency(), sourcePlayer, getTransmitTone());
+        transmitVoice(level, rawAudio, (float)(getTransmitFrequency() + getDriftHz()), sourcePlayer, getTransmitTone());
     }
 
     /**

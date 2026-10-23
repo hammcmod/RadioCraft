@@ -5,26 +5,29 @@
     "#": {
       "item": "radiocraft:wire"
     },
-    "G": {
-      "item": "minecraft:gold_ingot"
+    "B": {
+      "item": "radiocraft:hf_circuit_board"
     },
     "H": {
       "item": "radiocraft:hand_microphone"
     },
+    "I": {
+      "item": "minecraft:gold_ingot"
+    },
     "R": {
-      "item": "radiocraft:radio_crystal"
+      "item": "radiocraft:encased_crystal_10m_good"
     },
     "S": {
       "item": "radiocraft:radio_speaker"
     },
-    "W": {
-      "tag": "minecraft:planks"
+    "T": {
+      "item": "minecraft:tinted_glass"
     }
   },
   "pattern": [
-    "GGG",
-    "HRS",
-    "#WW"
+    "BHS",
+    "#RT",
+    "III"
   ],
   "result": {
     "count": 1,

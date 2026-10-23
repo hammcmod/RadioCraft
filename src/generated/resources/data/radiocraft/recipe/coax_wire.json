@@ -9,7 +9,7 @@
       "item": "radiocraft:coaxial_core"
     },
     "K": {
-      "item": "minecraft:dried_kelp"
+      "item": "radiocraft:insulation"
     }
   },
   "pattern": [
@@ -18,7 +18,7 @@
     "CCC"
   ],
   "result": {
-    "count": 3,
+    "count": 6,
     "id": "radiocraft:coax_wire"
   }
 }
