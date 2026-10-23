@@ -59,7 +59,9 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, HFRadioAllBandBlock> ALL_BAND_RADIO = BLOCKS.register("all_band_radio", () -> new HFRadioAllBandBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, QRPRadio20mBlock> QRP_RADIO_20M = BLOCKS.register("qrp_radio_20m", () -> new QRPRadio20mBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, QRPRadio40mBlock> QRP_RADIO_40M = BLOCKS.register("qrp_radio_40m", () -> new QRPRadio40mBlock(PROPERTIES_RADIO));
-	public static final DeferredHolder<Block, DigitalInterfaceBlock> DIGITAL_INTERFACE = BLOCKS.register("digital_interface", () -> new DigitalInterfaceBlock(PROPERTIES_STONE));
+	public static final DeferredHolder<Block, RadioInterfaceBlock> RADIO_INTERFACE = BLOCKS.register("radio_interface", () -> new RadioInterfaceBlock(PROPERTIES_STONE));
+	public static final DeferredHolder<Block, AprsTerminalBlock> APRS_TERMINAL = BLOCKS.register("aprs_h19", () -> new AprsTerminalBlock(PROPERTIES_RADIO));
+	public static final DeferredHolder<Block, TransferInterfaceBlock> TRANSFER_INTERFACE = BLOCKS.register("transfer_interface", () -> new TransferInterfaceBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, ParrotControllerBlock> PARROT_CONTROLLER = BLOCKS.register("parrot_controller", () -> new ParrotControllerBlock(PROPERTIES_RADIO));
 
 	// Antenna blocks

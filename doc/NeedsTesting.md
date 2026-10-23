@@ -4,6 +4,27 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Radio Interface, H19 and Transfer Interface (added 2026-10-23)
+
+The digital interface is now three blocks (dev tab): the **Radio Interface** touching a VHF radio, and the **H19
+APRS Terminal** and **Digital Transfer Interface** touching it, or touching each other in a chain back to it.
+
+- [ ] H19 model: renders facing the player, with the hitbox over the keyboard and case. Its screen is blank with the
+  radio off, shows READY within half a second of switching a VHF radio on, CONTACT when a new station's beacon
+  arrives, MSG when a message for this station arrives (MSG wins over CONTACT). The screen icons glow in the dark.
+- [ ] Opening the H19 clears CONTACT and MSG back to READY. CONTACT also goes out by itself after 10 minutes
+  (`aprs_contact_lamp_minutes`); MSG stays until opened.
+- [ ] H19 screen: the old APRS and MSG tabs. The callsign field shows the Radio Interface's callsign (not editable
+  here), the green lamp is lit while joined to a Radio Interface, and the digipeat lamp switches the Radio
+  Interface's digipeating.
+- [ ] Radio Interface screen: a plain panel with a callsign box (Enter saves; empty claims your own) and a TX ON / TX
+  OFF button. With TX off, beacons, messages, files and digipeats don't go out; listening still works.
+- [ ] Transfer Interface: the old FILES tab with the inventory; hoppers stock it and one underneath takes the copies.
+  Its placeholder model is a stone box with a loom front and a cartography table top.
+- [ ] JEI's item list stays clear of both scaled-up screens.
+- [ ] A chain: radio, Radio Interface, Transfer Interface, H19 in a row works end to end; breaking the middle one
+  greys the H19's green lamp and stops it sending.
+
 ## Maintainer's art: WEFAX receiver, static loop, 4:1 balun (added 2026-10-23)
 
 - [ ] WEFAX receiver (dev tab): the model renders with its texture, faces the player when placed, turns with each
@@ -428,7 +449,7 @@ network that cannot keep up, is "browned out": no static, hears nothing, and its
   charge controller and large battery each have a sentence instead (needs `./gradlew runData`). Only the microphone
   block and the satellite dish still say not implemented. Read the sentences: anything wrong or missing?
 
-## Digital interface (TNC): APRS (added 2026-10-21)
+## Digital interface (TNC): APRS (added 2026-10-21; now split, see "Radio Interface, H19 and Transfer Interface")
 
 Two VHF base stations a few blocks apart (or with antennas), both on 144.390, each with a digital interface touching
 it. `/rcdebug` is not needed; GameTests cover delivery, digipeating and the command, so this is about the screen and

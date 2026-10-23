@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.common.commands;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.blockentities.DigitalInterfaceBlockEntity;
+import com.arrl.radiocraft.common.blockentities.AprsTerminalBlockEntity;
 import com.arrl.radiocraft.common.radio.data.TncPacket;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -59,12 +59,12 @@ public class AprsCommands {
 		return deliver(source, packet, hz);
 	}
 
-	/** Puts the packet into every loaded interface listening on {@code hz} (any, if NaN) and reports how many. */
+	/** Puts the packet into every loaded APRS terminal listening on {@code hz} (any, if NaN) and reports how many. */
 	private static int deliver(CommandSourceStack source, TncPacket packet, float hz) {
 		int reached = 0;
-		for(DigitalInterfaceBlockEntity tnc : DigitalInterfaceBlockEntity.loaded()) {
-			if(Float.isNaN(hz) || tnc.isListeningOn(hz)) {
-				tnc.receiveDirect(packet);
+		for(AprsTerminalBlockEntity terminal : AprsTerminalBlockEntity.loaded()) {
+			if(Float.isNaN(hz) || terminal.isListeningOn(hz)) {
+				terminal.receiveDirect(packet);
 				reached++;
 			}
 		}

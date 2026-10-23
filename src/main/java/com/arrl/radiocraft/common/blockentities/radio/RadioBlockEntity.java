@@ -9,7 +9,7 @@ import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.client.blockentity.RadioBlockEntityClientHandler;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
-import com.arrl.radiocraft.common.blockentities.DigitalInterfaceBlockEntity;
+import com.arrl.radiocraft.common.blockentities.RadioInterfaceBlockEntity;
 import com.arrl.radiocraft.common.blockentities.ITogglableBE;
 import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
 import com.arrl.radiocraft.common.radio.BEVoiceReceiver;
@@ -307,8 +307,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         else if(!decodes(strength, getNoiseFloor()))
             return false;
         recordSignal(strength);
-        for(DigitalInterfaceBlockEntity tnc : getDigitalInterfaces())
-            tnc.receive(this, payload);
+        for(RadioInterfaceBlockEntity radioInterface : getRadioInterfaces())
+            radioInterface.receive(this, payload);
         return true;
     }
 
@@ -325,15 +325,15 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return strength > 0.0D && strength >= copyThreshold(noise);
     }
 
-    /** Digital interfaces on any side of this radio. */
-    public List<DigitalInterfaceBlockEntity> getDigitalInterfaces() {
+    /** Radio interfaces on any side of this radio. */
+    public List<RadioInterfaceBlockEntity> getRadioInterfaces() {
         if(level == null)
             return List.of();
-        List<DigitalInterfaceBlockEntity> found = new java.util.ArrayList<>();
+        List<RadioInterfaceBlockEntity> found = new java.util.ArrayList<>();
         for(Direction direction : Direction.values()) {
             BlockPos at = worldPosition.relative(direction);
-            if(level.isLoaded(at) && level.getBlockEntity(at) instanceof DigitalInterfaceBlockEntity tnc)
-                found.add(tnc);
+            if(level.isLoaded(at) && level.getBlockEntity(at) instanceof RadioInterfaceBlockEntity radioInterface)
+                found.add(radioInterface);
         }
         return found;
     }

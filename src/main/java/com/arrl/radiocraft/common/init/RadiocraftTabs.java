@@ -34,7 +34,9 @@ public class RadiocraftTabs {
             output.accept(RadiocraftItems.ALL_BAND_RADIO.get());
             output.accept(RadiocraftItems.DUPLEXER.get());
             output.accept(RadiocraftItems.DUMMY_LOAD.get());
-            output.accept(RadiocraftItems.DIGITAL_INTERFACE.get());
+            output.accept(RadiocraftItems.RADIO_INTERFACE.get());
+            output.accept(RadiocraftItems.APRS_TERMINAL.get());
+            output.accept(RadiocraftItems.TRANSFER_INTERFACE.get());
 			output.accept(RadiocraftItems.SATELLITE_DISH.get());
 			output.accept(RadiocraftItems.WEFAX_RECEIVER.get());
 		}

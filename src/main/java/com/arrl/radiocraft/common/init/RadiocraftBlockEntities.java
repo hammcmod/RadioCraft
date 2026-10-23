@@ -53,8 +53,12 @@ public class RadiocraftBlockEntities {
 	public static final Supplier<BlockEntityType<SolarWeatherStationBlockEntity>> SOLAR_WEATHER_STATION = BLOCK_ENTITY_TYPES.register("solar_weather_station",
 			() -> BlockEntityType.Builder.of(SolarWeatherStationBlockEntity::new, RadiocraftBlocks.SOLAR_WEATHER_STATION.get()).build(null));
 
-	public static final Supplier<BlockEntityType<?>> DIGITAL_INTERFACE = BLOCK_ENTITY_TYPES.register("digital_interface",
-			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.DigitalInterfaceBlockEntity::new, RadiocraftBlocks.DIGITAL_INTERFACE.get()).build(null));
+	public static final Supplier<BlockEntityType<?>> RADIO_INTERFACE = BLOCK_ENTITY_TYPES.register("radio_interface",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.RadioInterfaceBlockEntity::new, RadiocraftBlocks.RADIO_INTERFACE.get()).build(null));
+	public static final Supplier<BlockEntityType<?>> APRS_TERMINAL = BLOCK_ENTITY_TYPES.register("aprs_h19",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.AprsTerminalBlockEntity::new, RadiocraftBlocks.APRS_TERMINAL.get()).build(null));
+	public static final Supplier<BlockEntityType<?>> TRANSFER_INTERFACE = BLOCK_ENTITY_TYPES.register("transfer_interface",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.TransferInterfaceBlockEntity::new, RadiocraftBlocks.TRANSFER_INTERFACE.get()).build(null));
 	public static final Supplier<BlockEntityType<?>> DUPLEXER = BLOCK_ENTITY_TYPES.register("duplexer",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.DuplexerBlockEntity::new, RadiocraftBlocks.DUPLEXER.get()).build(null));
 	public static final Supplier<BlockEntityType<?>> ANTENNA_TUNER = BLOCK_ENTITY_TYPES.register("antenna_tuner",

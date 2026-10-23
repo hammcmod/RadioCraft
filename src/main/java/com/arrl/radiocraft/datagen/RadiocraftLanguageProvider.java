@@ -76,7 +76,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.BALUN_TWO_TO_ONE, "Balun (2:1)");
 			provider.addBlock(RadiocraftBlocks.BALUN_NINE_TO_ONE, "Balun (9:1)");
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
-			provider.addBlock(RadiocraftBlocks.DIGITAL_INTERFACE, "Digital Interface (TNC)");
+			provider.addBlock(RadiocraftBlocks.RADIO_INTERFACE, "Radio Interface");
+			provider.addBlock(RadiocraftBlocks.APRS_TERMINAL, "H19 APRS Terminal");
+			provider.addBlock(RadiocraftBlocks.TRANSFER_INTERFACE, "Digital Transfer Interface");
 			provider.addBlock(RadiocraftBlocks.PARROT_CONTROLLER, "Simplex Repeat Controller");
 			provider.addBlock(RadiocraftBlocks.CHARGE_CONTROLLER, "Charge Controller");
 			provider.addBlock(RadiocraftBlocks.MICROPHONE, "Microphone");
@@ -115,7 +117,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "desk_charger"), "Desk Charger");
 			
 			// Container titles for new GUIs
-			provider.add("container.radiocraft.digital_interface", "Digital Interface (TNC)");
+			provider.add("container.radiocraft.radio_interface", "Radio Interface");
+			provider.add("container.radiocraft.aprs_terminal", "H19 APRS Terminal");
+			provider.add("container.radiocraft.transfer_interface", "Digital Transfer Interface");
 			provider.add("container.radiocraft.duplexer", "Duplexer");
 			provider.add("container.radiocraft.antenna_tuner", "Antenna Tuner");
 
@@ -156,36 +160,38 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "repeater.tip.tx"), "Transmitter: repeat what comes in");
 			provider.add(Radiocraft.translationKey("screen", "repeater.tip.speaker"), "Speaker: listen to the input here");
 
-			// Digital interface (TNC)
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.no_callsign"), "You have no callsign to claim it with");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.set_callsign_first"), "Set the interface's callsign first");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.no_radio"), "No radio switched on next to the interface");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.send_failed"), "Nothing sent: check the callsign and message");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.message_hint"), "Message");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.busy"), "A file is already going out or coming in");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.nothing_to_send"), "Put a book, paper or map in the SEND slot");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.paper"), "PAPER: %s LINES");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.paper_out"), "PAPER OUT");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.no_beacons"), "No beacons heard");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.no_messages"), "No messages");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.edit_callsign"), "STATION CALLSIGN");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.edit_comment"), "BEACON COMMENT");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.edit_keys"), "ENTER saves, ESC cancels");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.beacon"), "Beacon now: send this station's position");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.claim"), "Claim: set the interface to your callsign");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.set_by"), "%s, set by %s");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.unread"), "New message! Open MSG to read it");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.no_unread"), "No new messages");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.callsign"), "Station callsign: click to change (empty claims your own)");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.comment"), "Beacon comment, up to 30 characters: click to change");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.icon"), "Map icon: click for the next one");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.beacon_enable"), "Beacon by itself every few minutes (a redstone pulse beacons too)");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.digipeat_on"), "Digipeating ON: repeating packets heard (click to stop)");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.digipeat_off"), "Digipeating OFF: click to repeat packets heard, up to 8 hops");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.rpt"), "RPT: lit while repeating a packet");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.heard"), "Heard %s min ago, direct");
-			provider.add(Radiocraft.translationKey("screen", "digital_interface.tip.heard_via"), "Heard %s min ago, via %s digipeater(s)");
-			provider.add(Radiocraft.translationKey("commands", "aprs.sent"), "APRS packet delivered to %s digital interface(s)");
+			// Radio interface, APRS terminal and transfer interface
+			provider.add(Radiocraft.translationKey("screen", "station.no_interface"), "Not joined to a Radio Interface: place it touching one, or touching a terminal that is");
+			provider.add(Radiocraft.translationKey("screen", "station.set_callsign_first"), "Set a callsign on the Radio Interface first");
+			provider.add(Radiocraft.translationKey("screen", "station.no_radio"), "No radio switched on next to the Radio Interface");
+			provider.add(Radiocraft.translationKey("screen", "station.send_failed"), "Nothing sent: check the message, and that the Radio Interface is set to TX");
+			provider.add(Radiocraft.translationKey("screen", "radio_interface.no_callsign"), "You have no callsign to claim it with");
+			provider.add(Radiocraft.translationKey("screen", "radio_interface.callsign"), "CALLSIGN");
+			provider.add(Radiocraft.translationKey("screen", "radio_interface.callsign_hint"), "Enter saves; leave it empty to claim your own");
+			provider.add(Radiocraft.translationKey("screen", "radio_interface.set_by"), "Set by %s");
+			provider.add(Radiocraft.translationKey("screen", "radio_interface.tx_on"), "TX ON");
+			provider.add(Radiocraft.translationKey("screen", "radio_interface.tx_off"), "TX OFF: LISTEN ONLY");
+			provider.add(Radiocraft.translationKey("screen", "radio_interface.tip.tx"), "Switch off to only listen: nothing goes out from this station, digipeats included");
+			provider.add(Radiocraft.translationKey("screen", "aprs.no_beacons"), "No beacons heard");
+			provider.add(Radiocraft.translationKey("screen", "aprs.no_messages"), "No messages");
+			provider.add(Radiocraft.translationKey("screen", "aprs.edit_comment"), "BEACON COMMENT");
+			provider.add(Radiocraft.translationKey("screen", "aprs.edit_keys"), "ENTER saves, ESC cancels");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.beacon"), "Beacon now: send this station's position");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.unread"), "New message! Open MSG to read it");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.no_unread"), "No new messages");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.callsign"), "Station callsign: set on the Radio Interface");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.no_interface"), "Not joined to a Radio Interface");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.comment"), "Beacon comment, up to 30 characters: click to change");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.icon"), "Map icon: click for the next one");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.beacon_enable"), "Beacon by itself every few minutes (a redstone pulse beacons too)");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.digipeat_on"), "Digipeating ON: the Radio Interface repeats packets heard (click to stop)");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.digipeat_off"), "Digipeating OFF: click to have the Radio Interface repeat packets heard, up to 8 hops");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.rpt"), "RPT: lit while repeating a packet");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.heard"), "Heard %s min ago, direct");
+			provider.add(Radiocraft.translationKey("screen", "aprs.tip.heard_via"), "Heard %s min ago, via %s digipeater(s)");
+			provider.add(Radiocraft.translationKey("screen", "transfer_interface.busy"), "A file is already going out or coming in");
+			provider.add(Radiocraft.translationKey("screen", "transfer_interface.nothing_to_send"), "Put a book, paper or map in the SEND slot");
+			provider.add(Radiocraft.translationKey("commands", "aprs.sent"), "APRS packet delivered to %s APRS terminal(s)");
 			provider.add(Radiocraft.translationKey("commands", "aprs.bad_frequency"), "Frequency must be in MHz (such as 144.390) or \"all\"");
 			
 			// Digital Interface tab labels

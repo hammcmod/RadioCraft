@@ -1,7 +1,19 @@
 # TNC rework and solar weather: plan
 
-Planning notes from 2026-10-23, updated with the maintainer's answers the same day. Nothing here is built yet. Still
-open questions are at the end.
+Planning notes from 2026-10-23, updated with the maintainer's answers the same day. Steps 1 and 2 are built (see
+"Status"); the rest is still a plan.
+
+## Status (2026-10-23)
+
+- **Built:** the station bus (`StationBus`), the TNC renamed the **Radio Interface** (`radio_interface`: callsign and
+  TX switch, digipeating), the APRS Interface as the **H19 APRS Terminal** (`aprs_h19`, the maintainer's model; its
+  screen shows READY, CONTACT or MSG) and the **Digital Transfer Interface** (`transfer_interface`, placeholder box).
+  The H19 and Transfer screens are the old tabs until the maintainer redesigns them.
+- **Changed from the plan below:** the Radio Interface's only UI is a callsign box and a TX on/off switch. Digipeating
+  and the beacon settings are set from the H19, the way a real terminal configures its TNC. The H19's CONTACT light
+  goes out when it is opened or after `aprs_contact_lamp_minutes`; MSG only when opened. There is no claim button: an
+  empty callsign box claims your own.
+- **Not yet:** RTTY (until the Teletype), steps 3 to 7, recipes for the H19 and Transfer Interface.
 
 ## Where things stand
 
@@ -15,8 +27,8 @@ Breaking worlds is fine for this rework (maintainer, 2026-10-23). A build went o
 
 | Block | Real-world idea | Connects to | Callsign | Does |
 |---|---|---|---|---|
-| **TNC** | The packet modem (KPC-3, TNC-2) | Radios it touches | Yes (MYCALL) | Turns APRS and file packets into tones and back; digipeats |
-| **APRS Interface** | A terminal or tracker display | A TNC, directly or through other interfaces | Uses the TNC's | Beacons, the map, messages, unread lamp, buzzers, comparator |
+| **TNC** (now the Radio Interface) | The packet modem (KPC-3, TNC-2) | Radios it touches | Yes (MYCALL) | Turns APRS and file packets into tones and back; digipeats |
+| **APRS Interface** (now the H19 APRS Terminal) | A terminal or tracker display | A TNC, directly or through other interfaces | Uses the TNC's | Beacons, the map, messages, unread lamp, buzzers, comparator |
 | **Digital Transfer Interface** | A file and SSTV terminal | A TNC, directly or through other interfaces | Uses the TNC's | Sends and prints books, paper and maps |
 | **Teletype** | A Model 15/28 teleprinter with its own terminal unit | Radios it touches, no TNC | See question 1 | RTTY typing and printing; SOLAR WX and WX buttons |
 | **Ionospheric Processor** | The ionosonde's electronics rack | Coax to the Ionosonde Antenna; radios it touches | Yes | The only source of solar data; answers requests and sends bulletins |

@@ -55,6 +55,17 @@ Requested by the maintainer 2026-10-22 (they plan to draw these). All are placeh
   `textures/gui/<radio>_<pure|poor>.png` and `..._widgets.png` for hf_radio_10m/20m/40m/80m and vhf_base_station,
   and `textures/item/vhf_handheld_<pure|poor>.png` plus its GUI pair. All copies of the plain radio's art.
 
+### Radio Interface and Digital Transfer Interface
+
+From the TNC rework (2026-10-23, see [TncRework.md](TncRework.md)). The H19 APRS Terminal is done (maintainer).
+
+- **Radio Interface** (`radio_interface`): still the old digital interface model. Wanted: a small modem box with
+  PWR, DCD, TX, RX and RPT lamps. Its screen is a callsign box and a TX switch on a plain panel.
+- **Digital Transfer Interface** (`transfer_interface`): a placeholder stone box. Wanted: a file and SSTV terminal
+  with a paper feed. Its screen is the old FILES tab.
+- Lamps go in as separate named elements, like the H19's MSG / CONTACT / READY: `python tools/split_lamps.py <model>
+  <LAMP>...` splits a Blockbench export into the body and one full-bright model per lamp.
+
 ### Hustler 5-BTV vertical antenna
 
 A model of the Hustler 5-BTV: a multiband HF trap vertical (80/40/30/20/15/10m), an aluminium tube with the

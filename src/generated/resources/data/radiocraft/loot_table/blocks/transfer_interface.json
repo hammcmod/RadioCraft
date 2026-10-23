@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "radiocraft:digital_interface"
+          "name": "radiocraft:transfer_interface"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "radiocraft:blocks/digital_interface"
+  "random_sequence": "radiocraft:blocks/transfer_interface"
 }

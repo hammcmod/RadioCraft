@@ -33,7 +33,9 @@ public class ItemRenderEvents {
             RadiocraftItems.VHF_REPEATER,
             RadiocraftItems.ALL_BAND_RADIO,
             RadiocraftItems.DUPLEXER,
-            RadiocraftItems.DIGITAL_INTERFACE,
+            RadiocraftItems.RADIO_INTERFACE,
+            RadiocraftItems.APRS_TERMINAL,
+            RadiocraftItems.TRANSFER_INTERFACE,
             RadiocraftItems.MICROPHONE
     );
 

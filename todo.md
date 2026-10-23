@@ -122,8 +122,17 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 
 ### Digital & APRS Features
 - [ ] Rework the digital interface (TNC) into separate blocks (maintainer, 2026-10-22; plan in
-  [doc/TncRework.md](doc/TncRework.md), with the solar weather teletype/observatory idea). Its recipe
-  (diamond, desk microphone) is left as is until then
+  [doc/TncRework.md](doc/TncRework.md), with the solar weather teletype/observatory idea)
+  - [x] Steps 1 and 2 (2026-10-23): the TNC is now the **Radio Interface** (callsign and TX switch only), joined by
+    touch on the station bus to the **H19 APRS Terminal** (maps, messages, beacon and digipeat settings, the
+    maintainer's model with READY / CONTACT / MSG screens) and the **Digital Transfer Interface** (files; placeholder
+    box). The Radio Interface keeps the old recipe for now; the H19 and Transfer Interface have none yet.
+  - [ ] Step 3: the Teletype. RTTY is unavailable until it exists (the three RTTY GameTests went with it)
+  - [ ] Steps 4 to 7: ionosonde and processor, over-the-air requests and bulletins, WX, recipes
+  - [ ] Redesigned UIs for the H19 and the Transfer Interface (maintainer); for now they are the old APRS/MSG and
+    FILES tabs
+  - [ ] A display item for item frames near an H19 that shows a simplified black and green map of the stations
+    heard, centred and scaled to fit them (maintainer, 2026-10-23; built on vanilla map data)
 - [x] Digital interface (TNC), first slice (2026-10-21): packets ride the radio like voice (AFSK burst everyone on
   the frequency hears, then the packet decodes whole if on frequency and above the noise, `tnc_min_snr`); APRS
   beacons (button, redstone pulse, timer) with a map of heard stations, messages to a callsign or ALL with an unread
@@ -137,7 +146,7 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   weak; supplies by right click, hopper or the FILES slots
 - [x] TNC FILES (2026-10-21): books, paper and maps (SSTV, from the map's picture) to a callsign or everyone; each
   receiver prints a copy on its own blank, the sender keeps the original; progress on the six LEDs
-- [ ] TNC FILES: real inventory panel art (bounty); for now the vanilla chest's bottom half
+- [ ] Transfer Interface: real inventory panel art (bounty); for now the vanilla chest's bottom half
 - [x] TNC digipeating (2026-10-21): blue lamp on the APRS tab toggles it (off by default), red RPT lamp while
   repeating; repeats on every radio it touches incl. the one it heard on, 8-hop cap (config), never a message for itself
 - [x] Dummy load (2026-10-21, model by the maintainer): perfect SWR on every band, ~10 blocks, no skip; fits on a
@@ -165,7 +174,7 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   not implemented. Play the quads, then decide on the delta loop and the loop gains.
 - [x] Release creative tab (2026-10-21, maintainer): the HF station (radios, receivers, VHF base station, coax,
   wire holders, baluns, tuner, VHF antennas, parrot controller, weather station) moved out of the dev-only list
-  and lost the dev watermark. Still dev-only: duplexer, repeater, digital interface, dish, microphone block, power.
+  and lost the dev watermark. Still dev-only: duplexer, repeater, radio interface and its terminals, dish, microphone block, power.
 - [x] Solar panels join by touching (2026-10-21, maintainer request): a row of panels and the charge controller at
   its end are one network without wire; batteries still need wire. Jade shows a panel's output and the row's.
   Open: a device removed from the middle of a touching row does not split the row (wire removal does).

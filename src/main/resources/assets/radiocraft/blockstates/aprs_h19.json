@@ -1,0 +1,156 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19"
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "display": "ready"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_ready"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "display": "ready"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_ready",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "display": "ready"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_ready",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "display": "ready"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_ready",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "display": "contact"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_contact"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "display": "contact"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_contact",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "display": "contact"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_contact",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "display": "contact"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_contact",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "display": "msg"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_msg"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "display": "msg"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_msg",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "display": "msg"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_msg",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "display": "msg"
+      },
+      "apply": {
+        "model": "radiocraft:block/aprs_h19_msg",
+        "y": 270
+      }
+    }
+  ]
+}

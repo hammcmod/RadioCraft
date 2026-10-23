@@ -50,7 +50,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         buildCoaxWireRecipe(recipeOutput);
         buildDuplexerRecipe(recipeOutput);
         buildSmallBatteryRecipe(recipeOutput);
-        buildDigitalInterfaceRecipe(recipeOutput);
+        buildRadioInterfaceRecipe(recipeOutput);
         buildParrotControllerRecipe(recipeOutput);
         buildHandMicrophoneRecipe(recipeOutput);
         buildAntennaToolsRecipe(recipeOutput);
@@ -257,8 +257,8 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .save(recipeOutput);
     }
 
-    private void buildDigitalInterfaceRecipe(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.DIGITAL_INTERFACE.get(), 1)
+    private void buildRadioInterfaceRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.RADIO_INTERFACE.get(), 1)
                 .pattern("   ")
                 .pattern("#MS")
                 .pattern("##D")

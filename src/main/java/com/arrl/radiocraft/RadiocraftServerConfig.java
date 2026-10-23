@@ -44,6 +44,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_DELAY_TICKS;
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_MAX_HOPS;
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_BEACON_INTERVAL_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Integer> APRS_CONTACT_LAMP_MINUTES;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_LOSS;
 
@@ -160,12 +161,14 @@ public class RadiocraftServerConfig {
 		TNC_MIN_SNR = BUILDER.comment(" A packet decodes when its signal is at least this many times the receiver's noise floor; weaker ones are lost whole")
 				.defineInRange("tnc_min_snr", 1.0D, 0.0D, 10.0D);
 		TNC_MIN_SIGNAL = BUILDER.comment(" Weakest signal a packet decodes at even with no noise at all, 0 to 1").defineInRange("tnc_min_signal", 0.02D, 0.0D, 1.0D);
-		TNC_DIGIPEAT_DELAY_TICKS = BUILDER.comment(" Ticks a digipeating digital interface waits before repeating a packet it heard")
+		TNC_DIGIPEAT_DELAY_TICKS = BUILDER.comment(" Ticks a digipeating radio interface waits before repeating a packet it heard")
 				.defineInRange("tnc_digipeat_delay_ticks", 20, 1, 200);
 		TNC_DIGIPEAT_MAX_HOPS = BUILDER.comment(" Digipeaters a packet may go through; one that has been through this many is not repeated again")
 				.defineInRange("tnc_digipeat_max_hops", 8, 0, 16);
-		TNC_BEACON_INTERVAL_SECONDS = BUILDER.comment(" Seconds between automatic beacons from a digital interface with beaconing enabled")
+		TNC_BEACON_INTERVAL_SECONDS = BUILDER.comment(" Seconds between automatic beacons from an APRS terminal with beaconing enabled")
 				.defineInRange("tnc_beacon_interval_seconds", 600, 30, 86400);
+		APRS_CONTACT_LAMP_MINUTES = BUILDER.comment(" Minutes an APRS terminal's CONTACT light stays on after a new station is heard, unless someone opens it first; 0 keeps it on until opened")
+				.defineInRange("aprs_contact_lamp_minutes", 10, 0, 1440);
 		BUILDER.pop();
 
 		BUILDER.push("Antenna Tuner");

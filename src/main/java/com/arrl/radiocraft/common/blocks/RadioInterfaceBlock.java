@@ -1,13 +1,11 @@
-package com.arrl.radiocraft.common.blocks.radios;
+package com.arrl.radiocraft.common.blocks;
 
-import com.arrl.radiocraft.common.blockentities.DigitalInterfaceBlockEntity;
+import com.arrl.radiocraft.common.blockentities.RadioInterfaceBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -33,11 +31,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 
 /**
- * The digital interface (TNC). It takes the callsign of whoever places it, works through the radios on any side of it,
- * beacons on a redstone pulse, and its comparator output is 15 while a message waits to be read. Right clicking it
- * with paper, books or maps (or a hopper) stocks its printer.
+ * The radio interface (TNC). It takes the callsign of whoever places it and works through the radios on any side of
+ * it; APRS and file transfer terminals joined to it use them. See {@link RadioInterfaceBlockEntity}.
  */
-public class DigitalInterfaceBlock extends BaseEntityBlock {
+public class RadioInterfaceBlock extends BaseEntityBlock {
 
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 	public static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
@@ -49,7 +46,7 @@ public class DigitalInterfaceBlock extends BaseEntityBlock {
 		SHAPES.put(Direction.WEST, Block.box(4.0D, 0.0D, 0.0D, 16.0D, 6.0D, 16.0D));
 	}
 
-	public DigitalInterfaceBlock(Properties properties) {
+	public RadioInterfaceBlock(Properties properties) {
 		super(properties);
 	}
 
@@ -67,56 +64,20 @@ public class DigitalInterfaceBlock extends BaseEntityBlock {
 	@Override
 	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack stack) {
 		super.setPlacedBy(level, pos, state, placer, stack);
-		if(placer instanceof ServerPlayer player && level.getBlockEntity(pos) instanceof DigitalInterfaceBlockEntity tnc)
-			tnc.claim(player);
-	}
-
-	/** Paper, books and maps in hand go into the interface's supply instead of opening it. */
-	@Override
-	protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
-	                                                   @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
-		if(!(level.getBlockEntity(pos) instanceof DigitalInterfaceBlockEntity tnc))
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		boolean supply = false;
-		for(int slot = 0; slot < tnc.getSupplies().getSlots(); slot++)
-			supply |= DigitalInterfaceBlockEntity.isSupply(slot, stack);
-		if(!supply)
-			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
-		if(!level.isClientSide) {
-			ItemStack left = tnc.insertSupply(stack.copy());
-			if(!player.getAbilities().instabuild)
-				stack.setCount(left.getCount());
-		}
-		return ItemInteractionResult.sidedSuccess(level.isClientSide);
-	}
-
-	@Override
-	public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
-		if(!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof DigitalInterfaceBlockEntity tnc)
-			tnc.dropSupplies();
-		super.onRemove(state, level, pos, newState, isMoving);
+		if(placer instanceof ServerPlayer player && level.getBlockEntity(pos) instanceof RadioInterfaceBlockEntity radioInterface)
+			radioInterface.claim(player);
 	}
 
 	@Override
 	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
-		if(!level.isClientSide && player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof DigitalInterfaceBlockEntity tnc)
-			serverPlayer.openMenu(tnc, pos);
+		if(!level.isClientSide && player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof RadioInterfaceBlockEntity radioInterface)
+			serverPlayer.openMenu(radioInterface, pos);
 		return InteractionResult.sidedSuccess(level.isClientSide);
 	}
 
 	@Override
 	public @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
 		return SHAPES.get(state.getValue(FACING));
-	}
-
-	@Override
-	protected boolean hasAnalogOutputSignal(@NotNull BlockState state) {
-		return true;
-	}
-
-	@Override
-	protected int getAnalogOutputSignal(@NotNull BlockState state, Level level, @NotNull BlockPos pos) {
-		return level.getBlockEntity(pos) instanceof DigitalInterfaceBlockEntity tnc ? tnc.getComparatorOutput() : 0;
 	}
 
 	@Override
@@ -127,17 +88,17 @@ public class DigitalInterfaceBlock extends BaseEntityBlock {
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(@NotNull Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
-		return DigitalInterfaceBlockEntity::tick;
+		return RadioInterfaceBlockEntity::tick;
 	}
 
 	@Override
 	protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
-		return null;
+		return simpleCodec(RadioInterfaceBlock::new);
 	}
 
 	@Nullable
 	@Override
 	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-		return new DigitalInterfaceBlockEntity(pos, state);
+		return new RadioInterfaceBlockEntity(pos, state);
 	}
 }

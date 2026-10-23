@@ -30,7 +30,9 @@ public class RadiocraftMenuTypes {
 
 	public static final Supplier<MenuType<VHFReceiverMenu>> VHF_RECEIVER = MENU_TYPES.register("vhf_receiver", () -> IMenuTypeExtension.create(VHFReceiverMenu::new));
 	public static final Supplier<MenuType<DeskChargerMenu>> DESK_CHARGER = MENU_TYPES.register("desk_charger", () -> IMenuTypeExtension.create(DeskChargerMenu::new));
-	public static final Supplier<MenuType<DigitalInterfaceMenu>> DIGITAL_INTERFACE = MENU_TYPES.register("digital_interface", () -> IMenuTypeExtension.create(DigitalInterfaceMenu::new));
+	public static final Supplier<MenuType<RadioInterfaceMenu>> RADIO_INTERFACE = MENU_TYPES.register("radio_interface", () -> IMenuTypeExtension.create(RadioInterfaceMenu::new));
+	public static final Supplier<MenuType<AprsTerminalMenu>> APRS_TERMINAL = MENU_TYPES.register("aprs_h19", () -> IMenuTypeExtension.create(AprsTerminalMenu::new));
+	public static final Supplier<MenuType<TransferInterfaceMenu>> TRANSFER_INTERFACE = MENU_TYPES.register("transfer_interface", () -> IMenuTypeExtension.create(TransferInterfaceMenu::new));
 	public static final Supplier<MenuType<DuplexerMenu>> DUPLEXER = MENU_TYPES.register("duplexer", () -> IMenuTypeExtension.create(DuplexerMenu::new));
 	public static final Supplier<MenuType<AntennaTunerMenu>> ANTENNA_TUNER = MENU_TYPES.register("antenna_tuner", () -> IMenuTypeExtension.create(AntennaTunerMenu::new));
 	public static final Supplier<MenuType<VHFRepeaterMenu>> VHF_REPEATER = MENU_TYPES.register("vhf_repeater", () -> IMenuTypeExtension.create(VHFRepeaterMenu::new));
