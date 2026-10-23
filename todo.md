@@ -21,7 +21,8 @@ In order. Each step gets GameTests where the server side can be checked; audio s
    static) when starved; `radios_need_power` server config; `PowerGameTests`. Still open: the charge controller
    switch does something; VHF repeater power; the small battery / handheld drain.
 5. **VHF (FM) static model.** Mostly silent except on very weak signals. After the HF static work settles.
-6. **Update to Minecraft 26.3** and the matching NeoForge (maintainer, 2026-10-21), once the HF work above settles.
+6. **Port to Minecraft 26.1** and the matching NeoForge, keeping a 1.21.1 branch running alongside it (maintainer,
+   2026-10-23; was 26.3 on 2026-10-21), once most of the rest of this list is done.
    Expect the usual port churn: GUI and render APIs, registries, mixin targets, and new Simple Voice Chat, Jade,
    TOP and GeckoLib versions.
 
