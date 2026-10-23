@@ -4,6 +4,16 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Forge Energy and the power rebalance (added 2026-10-23)
+
+With Create and Create: Crafts & Additions installed (NeoForge 1.21.1):
+- [ ] An alternator next to a large battery charges it (Jade shows the charge rising); FE cables from other mods work too.
+- [ ] One small water wheel geared down to 4 RPM into an alternator, feeding a large battery wired to a VHF base
+  station: the battery holds steady with the radio transmitting most of the time.
+- [ ] Delete old `radiocraft-common.toml` files first, or they keep the old (32x larger) numbers.
+- [ ] A handheld's battery bar barely moves over a few minutes idle (it should last 12 in-game days).
+- [ ] The desk charger fills a flat handheld in about 6 minutes.
+
 ## Solar weather station needs a radio (added 2026-10-23)
 
 - [ ] On its own, right click prints "No signal: ..."; Jade shows the same line; a comparator reads 0.

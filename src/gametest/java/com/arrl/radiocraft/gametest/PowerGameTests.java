@@ -118,6 +118,27 @@ public class PowerGameTests {
     }
 
     /**
+     * Other mods (a Create alternator, ...) charge the power network through the large battery's Forge Energy
+     * capability, up to the battery's per-tick rate, and can take it back out (maintainer, 2026-10-23).
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 40)
+    public static void largeBatteryTakesForgeEnergy(GameTestHelper helper) {
+        helper.setBlock(BATTERY, RadiocraftBlocks.LARGE_BATTERY.get());
+        helper.runAfterDelay(2, () -> {
+            net.neoforged.neoforge.energy.IEnergyStorage fe = helper.getLevel().getCapability(
+                    net.neoforged.neoforge.capabilities.Capabilities.EnergyStorage.BLOCK, helper.absolutePos(BATTERY), net.minecraft.core.Direction.UP);
+            helper.assertTrue(fe != null, "The large battery offers no Forge Energy");
+            int rate = com.arrl.radiocraft.CommonConfig.LARGE_BATTERY_OUTPUT.get();
+            int taken = fe.receiveEnergy(rate * 10, false);
+            helper.assertTrue(taken == rate, "Took " + taken + " FE in one go, its rate is " + rate);
+            BatteryNetworkObject battery = GameTestUtil.networkObject(helper, BATTERY, BatteryNetworkObject.class);
+            helper.assertTrue(battery.getStorage().getEnergyStored() == rate, "The network's battery holds " + battery.getStorage().getEnergyStored());
+            helper.assertTrue(fe.extractEnergy(5, false) == 5 && fe.getEnergyStored() == rate - 5, "Could not take 5 FE back out");
+            helper.succeed();
+        });
+    }
+
+    /**
      * Every kind of radio runs on a charged battery. The VHF base station passed its draws the wrong way round, so its
      * buffer was smaller than its draw and it browned out on a full battery (maintainer's playtest, 2026-10-21).
      */

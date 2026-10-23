@@ -39,6 +39,47 @@ public class LargeBatteryBlockEntity extends PowerBlockEntity {
 		return Component.translatable("container.large_battery");
 	}
 
+	/**
+	 * The battery's charge as Forge Energy, for other mods' generators and cables (a Create alternator, ...): what they
+	 * put in or take out is the charge the power network uses. Other mods keep hold of this object, and the network
+	 * object behind it can be replaced (chunk reloads), so every call looks the current one up; with none it holds nothing.
+	 */
+	public final net.neoforged.neoforge.energy.IEnergyStorage energyStorage = new net.neoforged.neoforge.energy.IEnergyStorage() {
+		@Override
+		public int receiveEnergy(int toReceive, boolean simulate) {
+			BatteryNetworkObject battery = battery();
+			return battery == null ? 0 : battery.getStorage().receiveEnergy(toReceive, simulate);
+		}
+
+		@Override
+		public int extractEnergy(int toExtract, boolean simulate) {
+			BatteryNetworkObject battery = battery();
+			return battery == null ? 0 : battery.getStorage().extractEnergy(toExtract, simulate);
+		}
+
+		@Override
+		public int getEnergyStored() {
+			BatteryNetworkObject battery = battery();
+			return battery == null ? savedEnergy : battery.getStorage().getEnergyStored();
+		}
+
+		@Override
+		public int getMaxEnergyStored() {
+			BatteryNetworkObject battery = battery();
+			return battery == null ? CommonConfig.LARGE_BATTERY_CAPACITY.get() : battery.getStorage().getMaxEnergyStored();
+		}
+
+		@Override
+		public boolean canExtract() {
+			return true;
+		}
+
+		@Override
+		public boolean canReceive() {
+			return true;
+		}
+	};
+
 	@Nullable
 	private BatteryNetworkObject battery() {
 		return level != null && getNetworkObject(level, worldPosition) instanceof BatteryNetworkObject battery ? battery : null;

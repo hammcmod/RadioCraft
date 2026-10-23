@@ -110,6 +110,10 @@ public class RadiocraftCapabilities {
 			return new com.arrl.radiocraft.common.capabilities.BasicEnergyStorage(1000, 250, 250);
 		});
 
+		// The large battery takes and gives Forge Energy, so other mods can charge the power network.
+		event.registerBlockEntity(Capabilities.EnergyStorage.BLOCK, RadiocraftBlockEntities.LARGE_BATTERY.get(), (be, side) ->
+			be instanceof com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity battery ? battery.energyStorage : null);
+
 		event.registerEntity(ANTENNA_WIRE_HOLDERS, EntityType.PLAYER, (player, context) -> new AntennaWireHolderCapability());
 		event.registerEntity(PLAYER_CALLSIGNS, EntityType.PLAYER, (player, context) -> PlayerCallsignSavedData.get(player.getServer().overworld()));
 	}

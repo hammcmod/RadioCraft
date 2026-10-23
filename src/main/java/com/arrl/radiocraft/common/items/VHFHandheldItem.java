@@ -148,9 +148,9 @@ public class VHFHandheldItem extends Item {
                     
                     if (storedEnergy > 0) {
                         // Calculate consumption based on radio state
-                        int consumption = calculateEnergyConsumption(cap);
-                        
-                        energyStorage.extractEnergy(consumption, false);
+                        int consumption = calculateEnergyConsumption(cap, level.getGameTime());
+                        if(consumption > 0)
+                            energyStorage.extractEnergy(consumption, false);
                     } else {
                         // No energy - turn off radio
                         cap.setPowered(false);
@@ -172,17 +172,17 @@ public class VHFHandheldItem extends Item {
      * - Idle: battery lasts 12 in-game days (288000 ticks)
      * - Receiving: battery lasts 6 in-game days (144000 ticks)
      * - Transmitting: battery lasts 2 in-game days (48000 ticks)
+     * The rate is usually under 1 FE a tick, so it is spread over ticks: this tick takes the whole FE the running total
+     * has crossed since the last one (0 most ticks, 1 now and then).
      */
-    private int calculateEnergyConsumption(IVHFHandheldCapability cap) {
-        int capacity = CommonConfig.SMALL_BATTERY_CAPACITY.get();
-        
-        if (cap.isPTTDown()) {
-            return Math.max(1, capacity / 48000); // Transmitting (~3.5 FE/tick)
-        } else if (cap.getReceiveStrength() > 0) {
-            return Math.max(1, capacity / 144000); // Receiving (~1.16 FE/tick)
-        } else {
-            return Math.max(1, capacity / 288000); // Idle (~0.58 FE/tick)
-        }
+    private static int calculateEnergyConsumption(IVHFHandheldCapability cap, long gameTime) {
+        int lifetimeTicks = cap.isPTTDown() ? 48000 : cap.getReceiveStrength() > 0 ? 144000 : 288000;
+        return spreadDrain((double)CommonConfig.SMALL_BATTERY_CAPACITY.get() / lifetimeTicks, gameTime);
+    }
+
+    /** The whole FE to take at {@code gameTime} for a drain of {@code perTick} (often under 1): over N ticks they add up to N times it. */
+    public static int spreadDrain(double perTick, long gameTime) {
+        return (int)(Math.floor((gameTime + 1) * perTick) - Math.floor(gameTime * perTick));
     }
 
     @Override
