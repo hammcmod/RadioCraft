@@ -4,6 +4,15 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Floor cables and the ionosonde's coax (added 2026-10-23)
+
+- [ ] A short grey cable runs along the floor from the Radio Interface to each radio, H19 and Transfer Interface
+  beside it, from the H19 and Transfer Interface back to it, and from a desk microphone or the teletype (solar
+  weather station) to a radio beside it. It appears and goes as blocks are placed and broken, and it hides under the
+  device's body except between the body and the block edge. A radio hung from a ceiling gets no floor cable.
+- [ ] Coax laid next to the bottom of the Ionosonde Antenna runs in to the foot of its mast on that side.
+- [ ] The Ionospheric Processor now faces 270 degrees round from its export (180, then 90 more clockwise).
+
 ## Model fixes (added 2026-10-23, second pass)
 
 - [ ] The H19 and the Ionosonde Antenna now show (they failed to load: rotations Minecraft 1.21.1 cannot read). The

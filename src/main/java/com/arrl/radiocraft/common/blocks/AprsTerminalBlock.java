@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
+import net.minecraft.world.level.LevelAccessor;
 import com.arrl.radiocraft.common.blockentities.AprsTerminalBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -38,7 +39,7 @@ import java.util.Map;
  * out CONTACT and MSG. Beacons on a redstone pulse; comparator output 15 while a message waits to be read. See
  * {@link AprsTerminalBlockEntity}.
  */
-public class AprsTerminalBlock extends BaseEntityBlock {
+public final class AprsTerminalBlock extends BaseEntityBlock {
 
 	public static final MapCodec<AprsTerminalBlock> CODEC = simpleCodec(AprsTerminalBlock::new);
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -65,17 +66,27 @@ public class AprsTerminalBlock extends BaseEntityBlock {
 
 	public AprsTerminalBlock(Properties properties) {
 		super(properties);
+		registerDefaultState(RadioLinks.none(stateDefinition.any()));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(FACING, DISPLAY);
+		RadioLinks.addTo(builder);
 	}
 
 	@Nullable
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+		return RadioLinks.around(defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()),
+				context.getLevel(), context.getClickedPos(), RadioLinks.STATION);
+	}
+
+	/** Shows or hides the floor cable on a side as {@link RadioLinks} neighbours come and go. */
+	@Override
+	protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighbour, @NotNull LevelAccessor level,
+	                                          @NotNull BlockPos pos, @NotNull BlockPos neighbourPos) {
+		return RadioLinks.update(super.updateShape(state, direction, neighbour, level, pos, neighbourPos), direction, neighbour, RadioLinks.STATION);
 	}
 
 	@Override

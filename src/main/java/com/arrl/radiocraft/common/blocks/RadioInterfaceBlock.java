@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blocks;
 
+import net.minecraft.world.level.LevelAccessor;
 import com.arrl.radiocraft.common.blockentities.RadioInterfaceBlockEntity;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -34,7 +35,7 @@ import java.util.HashMap;
  * The radio interface (TNC). It takes the callsign of whoever places it and works through the radios on any side of
  * it; APRS and file transfer terminals joined to it use them. See {@link RadioInterfaceBlockEntity}.
  */
-public class RadioInterfaceBlock extends BaseEntityBlock {
+public final class RadioInterfaceBlock extends BaseEntityBlock {
 
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 	public static final HashMap<Direction, VoxelShape> SHAPES = new HashMap<>();
@@ -48,17 +49,27 @@ public class RadioInterfaceBlock extends BaseEntityBlock {
 
 	public RadioInterfaceBlock(Properties properties) {
 		super(properties);
+		registerDefaultState(RadioLinks.none(stateDefinition.any()));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
 		builder.add(FACING);
+		RadioLinks.addTo(builder);
 	}
 
 	@Nullable
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+		return RadioLinks.around(this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()),
+				context.getLevel(), context.getClickedPos(), RadioLinks.RADIO.or(RadioLinks.STATION));
+	}
+
+	/** Shows or hides the floor cable on a side as {@link RadioLinks} neighbours come and go. */
+	@Override
+	protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighbour, @NotNull LevelAccessor level,
+	                                          @NotNull BlockPos pos, @NotNull BlockPos neighbourPos) {
+		return RadioLinks.update(super.updateShape(state, direction, neighbour, level, pos, neighbourPos), direction, neighbour, RadioLinks.RADIO.or(RadioLinks.STATION));
 	}
 
 	@Override

@@ -8,6 +8,7 @@ import com.arrl.radiocraft.common.blockentities.StationBus;
 import com.arrl.radiocraft.common.blockentities.TransferInterfaceBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.blocks.AprsTerminalBlock;
+import com.arrl.radiocraft.common.blocks.RadioLinks;
 import com.arrl.radiocraft.common.blocks.AprsTerminalBlock.Display;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.data.TncPacket;
@@ -440,6 +441,28 @@ public class StationGameTests {
                     helper.assertTrue(aprs(helper, APRS_A).beacon(), "Did not beacon with TX back on");
                 })
                 .thenSucceed();
+    }
+
+    /**
+     * Floor cables: the radio interface shows one to its radio and its terminals, the terminals to the interface, and
+     * nothing points at an empty side.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20, batch = BATCH)
+    public static void floorCablesFollowLinks(GameTestHelper helper) {
+        helper.setBlock(IFACE_A, RadiocraftBlocks.RADIO_INTERFACE.get()); // First: setBlock skips placement, so the
+        helper.setBlock(RADIO_A, RadiocraftBlocks.VHF_BASE_STATION.get()); // others arrive as neighbour updates.
+        helper.setBlock(APRS_A, RadiocraftBlocks.APRS_TERMINAL.get());
+        helper.setBlock(FILES_A, RadiocraftBlocks.TRANSFER_INTERFACE.get());
+        var iface = helper.getBlockState(IFACE_A);
+        helper.assertTrue(iface.getValue(RadioLinks.SOUTH), "No cable from the interface to its radio");
+        helper.assertTrue(iface.getValue(RadioLinks.NORTH), "No cable from the interface to the H19");
+        helper.assertTrue(iface.getValue(RadioLinks.WEST), "No cable from the interface to the transfer interface");
+        helper.assertFalse(iface.getValue(RadioLinks.EAST), "A cable from the interface to nothing");
+        helper.assertTrue(helper.getBlockState(APRS_A).getValue(RadioLinks.SOUTH), "No cable from the H19 to the interface");
+        helper.assertTrue(helper.getBlockState(FILES_A).getValue(RadioLinks.EAST), "No cable from the transfer interface to the interface");
+        helper.setBlock(RADIO_A, Blocks.AIR);
+        helper.assertFalse(helper.getBlockState(IFACE_A).getValue(RadioLinks.SOUTH), "The cable stayed after the radio went");
+        helper.succeed();
     }
 
     // -------------------- FILES --------------------

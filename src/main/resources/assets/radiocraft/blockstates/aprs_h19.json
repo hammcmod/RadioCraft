@@ -151,6 +151,41 @@
         "model": "radiocraft:block/aprs_h19_msg",
         "y": 270
       }
+    },
+    {
+      "when": {
+        "north": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/radio_link"
+      }
+    },
+    {
+      "when": {
+        "east": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/radio_link",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "south": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/radio_link",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "west": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/radio_link",
+        "y": 270
+      }
     }
   ]
 }

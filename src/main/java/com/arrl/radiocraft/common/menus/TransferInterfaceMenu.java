@@ -24,7 +24,7 @@ import java.util.Objects;
  * The digital transfer interface's screen. Its state reaches the client with the block entity's update tag; its slots
  * are the file to send, the copies received, the paper, book and map supply, and the player's inventory.
  */
-public class TransferInterfaceMenu extends AbstractContainerMenu implements StationMenu {
+public final class TransferInterfaceMenu extends AbstractContainerMenu implements StationMenu {
 
 	/** Where the player's inventory starts, below the interface's own panel (a vanilla panel until it has art). */
 	public static final int INVENTORY_X = 28;

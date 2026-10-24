@@ -1,5 +1,7 @@
 package com.arrl.radiocraft.common.blocks;
 
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.core.Direction;
 import com.arrl.radiocraft.common.blockentities.SolarWeatherStationBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.mojang.serialization.MapCodec;
@@ -33,13 +35,14 @@ import java.util.List;
  * open; a comparator reads the conditions as 1 (blackout) to 6 (great). The proposal's printed paper report and
  * best-band calculator are not built yet.
  */
-public class SolarWeatherStationBlock extends BaseEntityBlock {
+public final class SolarWeatherStationBlock extends BaseEntityBlock {
 
 	public static final MapCodec<SolarWeatherStationBlock> CODEC = simpleCodec(SolarWeatherStationBlock::new);
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
 	public SolarWeatherStationBlock(Properties properties) {
 		super(properties);
+		registerDefaultState(RadioLinks.none(stateDefinition.any()));
 	}
 
 	@Override
@@ -50,6 +53,7 @@ public class SolarWeatherStationBlock extends BaseEntityBlock {
 	@Override
 	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
 		builder.add(FACING);
+		RadioLinks.addTo(builder);
 	}
 
 	/**
@@ -83,7 +87,15 @@ public class SolarWeatherStationBlock extends BaseEntityBlock {
 	@Nullable
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+		return RadioLinks.around(this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()),
+				context.getLevel(), context.getClickedPos(), RadioLinks.RADIO);
+	}
+
+	/** Shows or hides the floor cable on a side as {@link RadioLinks} neighbours come and go. */
+	@Override
+	protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighbour, @NotNull LevelAccessor level,
+	                                          @NotNull BlockPos pos, @NotNull BlockPos neighbourPos) {
+		return RadioLinks.update(super.updateShape(state, direction, neighbour, level, pos, neighbourPos), direction, neighbour, RadioLinks.RADIO);
 	}
 
 	@Override

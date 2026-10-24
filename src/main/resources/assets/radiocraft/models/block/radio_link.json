@@ -1,0 +1,71 @@
+{
+	"parent": "block/block",
+	"textures": {
+		"0": "radiocraft:block/wire",
+		"particle": "radiocraft:block/wire"
+	},
+	"elements": [
+		{
+			"name": "link",
+			"from": [
+				7,
+				0,
+				0
+			],
+			"to": [
+				9,
+				1.5,
+				8
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						7,
+						0,
+						9,
+						1.5
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						0,
+						2,
+						8,
+						3.5
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						6,
+						8,
+						7.5
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						8,
+						2
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						0,
+						4,
+						8,
+						6
+					],
+					"rotation": 90,
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

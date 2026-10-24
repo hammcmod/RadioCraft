@@ -1,5 +1,9 @@
 package com.arrl.radiocraft.datagen;
 
+import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.core.Direction;
+import com.arrl.radiocraft.common.blocks.RadioLinks;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blocks.antennas.DuplexerBlock;
 import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
@@ -34,12 +38,12 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		RadiocraftBlocks.HF_RADIO_80M_VARIANTS.values().forEach(this::radio);
 		complexHorizontalBlockWithItem(RadiocraftBlocks.LARGE_BATTERY.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.ANTENNA_TUNER.get());
-		complexHorizontalBlockWithItem(RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
-		complexHorizontalBlockWithItem(RadiocraftBlocks.RADIO_INTERFACE.get());
-		complexHorizontalBlockWithItem(RadiocraftBlocks.TRANSFER_INTERFACE.get());
+		horizontalWithRadioLinks(RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
+		horizontalWithRadioLinks(RadiocraftBlocks.RADIO_INTERFACE.get());
+		horizontalWithRadioLinks(RadiocraftBlocks.TRANSFER_INTERFACE.get());
 		duplexer();
 		complexHorizontalBlockWithItem(RadiocraftBlocks.DUMMY_LOAD.get());
-		complexHorizontalBlockWithItem(RadiocraftBlocks.MICROPHONE.get());
+		horizontalWithRadioLinks(RadiocraftBlocks.MICROPHONE.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.WEFAX_RECEIVER.get());
 		complexBlockWithItem(RadiocraftBlocks.SOLAR_PANEL.get());
 		complexBlockWithItem(RadiocraftBlocks.ANTENNA_POLE.get());
@@ -105,6 +109,23 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		catch(IOException e) {
 			throw new UncheckedIOException("Cannot read " + file, e);
 		}
+	}
+
+	/**
+	 * A radio accessory: turned like the other horizontal blocks, with a floor cable (block/radio_link) out of each side
+	 * that has something it works with (see {@link RadioLinks}).
+	 */
+	private void horizontalWithRadioLinks(Block block) {
+		ModelFile model = models().getExistingFile(modLoc("block/" + key(block).getPath()));
+		ModelFile link = models().getExistingFile(modLoc("block/radio_link"));
+		MultiPartBlockStateBuilder builder = getMultipartBuilder(block);
+		for(Direction facing : Direction.Plane.HORIZONTAL)
+			builder.part().modelFile(model).rotationY(((int)facing.toYRot() + 180) % 360).addModel()
+					.condition(BlockStateProperties.HORIZONTAL_FACING, facing).end();
+		for(Direction side : Direction.Plane.HORIZONTAL)
+			builder.part().modelFile(link).rotationY(((int)side.toYRot() + 180) % 360).addModel()
+					.condition(RadioLinks.side(side), true).end();
+		simpleBlockItem(block, model);
 	}
 
 	/** The duplexer, turned like the other horizontal blocks, with its coax run down to the repeater when it sits on one. */
