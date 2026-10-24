@@ -106,6 +106,14 @@ public interface IAntenna {
 	 */
 	record AntennaPos(BlockPos position, Level level) {}
 
+	/**
+	 * True while this antenna has no sky above it (a handheld indoors or underground), which costs it some signal when
+	 * terrain is on. Thread safe: read on the voice thread. Fixed antennas are outside by nature: false.
+	 */
+	default boolean isIndoors() {
+		return false;
+	}
+
     /**
      * Get the player this antenna belongs to.
      * @return The player this antenna belongs to, or null if it doesn't belong to a player.

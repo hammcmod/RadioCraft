@@ -1,7 +1,36 @@
 # Research: terrain-aware propagation (line of sight and sky view)
 
-Status: research and a spike (2026-10-24). Todo item: "Terrain-aware line of sight". Spike code:
-`src/test/java/com/arrl/radiocraft/common/radio/terrain/TerrainSpikeTest.java` (test-only, not wired in).
+Status: phases 1 and 2 implemented (2026-10-24) in `common/radio/terrain` (`TerrainAtlas`, `TerrainMath`,
+`TerrainPropagation`, `ExpiringCache`); phase 3 is open. Tests: `TerrainMathTest`, `TerrainBenchmarkTest` (timings,
+printed), `TerrainGameTests` (a floating wall south of a station, and the cost in game). `/rcdebug terrain` shows the
+map size and the cost so far; `/rcdebug terrain path <from> <to> <band>` what terrain does to one path.
+
+## Measured cost (2026-10-24, the maintainer's dev machine)
+
+| What | Cost |
+|---|---|
+| Line-of-sight loss, 100-500 block path, worked out | 5-10 us |
+| Horizon profile, worked out | 18-32 us |
+| Strength to one receiver in game (20m dipole, 50-250 blocks): terrain off / worked out every packet / cached | 0.23 / 1.5 / 0.24 us |
+| Busy server (10 talking at once, 40 receivers, 50 frames a second), every packet | ~220 ms per second of talk (22% of a core) |
+| The same, results kept 2 seconds (the default) | 5-8 ms per second of talk (under 1% of a core) |
+| Atlas memory | ~165 bytes per chunk: 100,000 chunks ~16 MB |
+
+The cache is what makes it cheap: a path or horizon is worked out at most once per `terrain_recalculate_seconds` per
+pair of 4 block cells, so a talking station costs a map lookup per receiver per packet, and a walking handheld is
+worked out again about once a second (as it changes cell).
+
+## As built (differences from the plan below)
+
+- A cell's height is the average of its 16 columns, not the highest, so tree trunks and posts barely count.
+- Obstruction loss counts only past grazing (the knife-edge loss minus its 6 dB at v = 0), so open flat ground costs
+  nothing compared with before. Losses are in power terms (dB / 10), like antenna gains.
+- A path pays the worse of the knife edge and its cliffs, not both, and a cliff only counts when its top reaches the
+  first Fresnel zone of the path (a mountain-top station does not care about cliffs far below it).
+- Indoors is only for handhelds (no sky above the player's head, read on the server tick). A fixed antenna's balun is
+  often inside the shack with the wires outside, so fixed antennas never count as indoors.
+- Dimensions with a ceiling (the Nether) have no terrain at all. The GameTest server runs with terrain off except
+  for its own tests (the test plots are hills to each other).
 
 ## The question
 
@@ -110,7 +139,4 @@ handhelds on 2m can kill the path; 80m mostly shrugs off hills but not cliffs (s
 - HF ground wave: feels sharp inclines (section 5).
 - A `terrain_enabled` server switch turns the whole system off (section 6).
 
-## Open question for the maintainer
-
-- The atlas memory cap (oldest chunks forgotten and treated as clear beyond `terrain_atlas_max_chunks`): asked,
-  explained, awaiting an answer.
+- Memory cap (2026-10-24): yes, `terrain_atlas_max_chunks` default 100,000 (about 16 MB), oldest forgotten first.

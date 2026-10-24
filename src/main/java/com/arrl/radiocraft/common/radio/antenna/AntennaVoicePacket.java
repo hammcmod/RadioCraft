@@ -15,6 +15,7 @@ public class AntennaVoicePacket implements IAntennaPacket {
 	private final float frequency;
 	private double strength;
 	private final IAntenna source;
+	private IAntenna destination = null; // Set by the transmitting antenna for each receiver, for terrain.
 	private final UUID sourcePlayer;
 	private final float ctcssTone; // Sub-audible tone under the voice, 0 for none (see Ctcss).
 
@@ -47,6 +48,15 @@ public class AntennaVoicePacket implements IAntennaPacket {
 	@Override
 	public double getStrength() {
 		return strength;
+	}
+
+	@Override
+	public IAntenna getDestination() {
+		return destination;
+	}
+
+	public void setDestination(IAntenna destination) {
+		this.destination = destination;
 	}
 
 	@Override

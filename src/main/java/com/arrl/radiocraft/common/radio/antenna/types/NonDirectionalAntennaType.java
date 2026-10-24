@@ -7,6 +7,7 @@ import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
+import com.arrl.radiocraft.common.radio.terrain.TerrainPropagation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -68,6 +69,9 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
         double skip = getSkipEfficiency() * SolarEventManager.getCondition(level, packet.getBand(), source, destination).getSkipMultiplier();
         double strength = BandUtils.getBaseStrength(packet.getBand(), effectiveDistance, getLosEfficiency(), skip, level.isDay(),
                 getLosRangeScale(packet.getBand()), getMaxSkipScale(packet.getBand()));
+        // Terrain: hills in the way of line of sight, or the horizon around either station for skip.
+        if(strength > 0.0D && packet.getBand() != null)
+            strength *= TerrainPropagation.factor(packet, destination, effectiveDistance >= packet.getBand().losRange() * getLosRangeScale(packet.getBand()));
         return Math.max(strength, Aurora.vhfStrength(level, packet.getBand(), source, destination, effectiveDistance));
     }
 

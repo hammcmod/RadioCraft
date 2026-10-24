@@ -15,6 +15,7 @@ public class AntennaDataPacket implements IAntennaPacket {
 	private final float frequency;
 	private double strength;
 	private final IAntenna source;
+	private IAntenna destination = null; // Set by the transmitting antenna for each receiver, for terrain.
 
 	public AntennaDataPacket(ServerLevel level, TncPacket payload, Band band, float frequency, double strength, IAntenna source) {
 		this.level = level;
@@ -42,6 +43,15 @@ public class AntennaDataPacket implements IAntennaPacket {
 
 	public void setStrength(double strength) {
 		this.strength = strength;
+	}
+
+	@Override
+	public IAntenna getDestination() {
+		return destination;
+	}
+
+	public void setDestination(IAntenna destination) {
+		this.destination = destination;
 	}
 
 	@Override

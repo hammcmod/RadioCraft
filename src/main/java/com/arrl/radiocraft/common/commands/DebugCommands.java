@@ -23,6 +23,9 @@ import com.arrl.radiocraft.common.radio.rfi.TransmitInterference;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent.SolarEventInstance;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
+import com.arrl.radiocraft.common.radio.terrain.TerrainAtlas;
+import com.arrl.radiocraft.common.radio.terrain.TerrainMath;
+import com.arrl.radiocraft.common.radio.terrain.TerrainPropagation;
 import com.mojang.brigadier.arguments.DoubleArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -55,6 +58,8 @@ import java.util.UUID;
  *     <li>/rcdebug antenna &lt;pos&gt; - what antenna (if any) is recognized at pos, and its SWR per band</li>
  *     <li>/rcdebug network &lt;pos&gt; - the network object at pos, its networks and their members</li>
  *     <li>/rcdebug solar - current solar weather and time of day for this dimension</li>
+ *     <li>/rcdebug terrain [reset] - terrain map size and what terrain has cost so far (reset clears the counters)</li>
+ *     <li>/rcdebug terrain path &lt;from&gt; &lt;to&gt; &lt;band&gt; - what terrain does to a signal between two points</li>
  * </ul>
  * Changes the world (stand-ins for player actions):
  * <ul>
@@ -94,6 +99,11 @@ public class DebugCommands {
 					.then(Commands.literal("off").executes(ctx -> mode(ctx, "off")))))
 			.then(Commands.literal("transmit").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::transmit)))
 			.then(Commands.literal("key").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::key)))
+			.then(Commands.literal("terrain").executes(DebugCommands::terrain)
+					.then(Commands.literal("reset").executes(DebugCommands::terrainReset))
+					.then(Commands.literal("path").then(Commands.argument("from", BlockPosArgument.blockPos()).then(Commands.argument("to", BlockPosArgument.blockPos())
+							.then(Commands.argument("band", StringArgumentType.word()).suggests((c, b) -> SharedSuggestionProvider.suggest(List.of("2m", "10m", "20m", "40m", "80m"), b))
+									.executes(DebugCommands::terrainPath))))))
 			.then(Commands.literal("parrot").then(Commands.argument("pos", BlockPosArgument.blockPos())
 					.then(Commands.literal("off").executes(ctx -> parrot(ctx, 0.0D)))
 					.then(Commands.argument("seconds", DoubleArgumentType.doubleArg(0.05D, 60.0D))
@@ -352,6 +362,52 @@ public class DebugCommands {
 		else
 			Aurora.clear(level);
 		return solar(ctx);
+	}
+
+	/** Terrain map size and what terrain has cost the voice thread since the last reset. */
+	private static int terrain(CommandContext<CommandSourceStack> ctx) {
+		ServerLevel level = ctx.getSource().getLevel();
+		List<String> out = new ArrayList<>();
+		TerrainAtlas atlas = TerrainPropagation.atlas(level);
+		out.add("terrain_enabled=" + TerrainPropagation.enabled() + (atlas == null ? " (no terrain map in this dimension)" : String.format(Locale.ROOT,
+				" map: %d chunks, about %.1f MB", atlas.chunkCount(), atlas.estimatedBytes() / 1048576.0D)));
+		long calls = TerrainPropagation.CALLS.sum();
+		long nanos = TerrainPropagation.CALL_NANOS.sum();
+		out.add(String.format(Locale.ROOT, "since reset: %d signal paths checked, %.2f us each on average, %.1f ms in all; worked out %d paths and %d horizons (the rest came from the cache)",
+				calls, calls == 0 ? 0.0D : nanos / 1e3D / calls, nanos / 1e6D, TerrainPropagation.PATHS_WORKED_OUT.sum(), TerrainPropagation.HORIZONS_WORKED_OUT.sum()));
+		return send(ctx, out);
+	}
+
+	private static int terrainReset(CommandContext<CommandSourceStack> ctx) {
+		TerrainPropagation.resetCounters();
+		TerrainPropagation.clearCaches();
+		return send(ctx, List.of("terrain counters reset and caches cleared"));
+	}
+
+	/** What terrain does to a signal between two points on a band: line-of-sight loss and each end's skip clearance. */
+	private static int terrainPath(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		ServerLevel level = ctx.getSource().getLevel();
+		BlockPos from = BlockPosArgument.getBlockPos(ctx, "from");
+		BlockPos to = BlockPosArgument.getBlockPos(ctx, "to");
+		Band band = Band.getBand(StringArgumentType.getString(ctx, "band"));
+		TerrainAtlas atlas = TerrainPropagation.atlas(level);
+		if(band == null)
+			return fail(ctx, "No such band");
+		if(atlas == null)
+			return fail(ctx, "Terrain is off here (terrain_enabled, or a dimension with a ceiling)");
+		TerrainPropagation.clearCaches();
+		double db = TerrainPropagation.pathLossDb(level, atlas, band, from, to);
+		List<String> out = new ArrayList<>();
+		out.add(String.format(Locale.ROOT, "%s %s -> %s, %.0f blocks: line of sight loses %.1f dB (x%.3f)", band.name(),
+				from.toShortString(), to.toShortString(), Math.sqrt(from.distSqr(to)), db, TerrainMath.dbToFactor(db)));
+		out.add(String.format(Locale.ROOT, "skip (takeoff %.0f deg): x%.3f", TerrainPropagation.takeoffDegrees(band),
+				TerrainPropagation.factor(level, band, from, false, to, false, true)));
+		float[] horizon = TerrainPropagation.horizon(level, atlas, from);
+		StringBuilder line = new StringBuilder("horizon at from (deg, from +Z clockwise to +X):");
+		for(float angle : horizon)
+			line.append(' ').append(Math.round(Math.toDegrees(angle)));
+		out.add(line.toString());
+		return send(ctx, out);
 	}
 
 	private static int send(CommandContext<CommandSourceStack> ctx, List<String> lines) {

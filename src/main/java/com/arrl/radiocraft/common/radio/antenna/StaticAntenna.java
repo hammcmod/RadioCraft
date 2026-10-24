@@ -71,6 +71,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
 					AntennaVoicePacket packet = new AntennaVoicePacket(level, rawAudio.clone(), band, frequencyHertz, 1.0F, this, sourcePlayer, ctcssTone);
+					packet.setDestination(antenna);
 
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
@@ -115,6 +116,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 			for(IAntenna antenna : antennas) {
 				if(antenna != this) {
 					AntennaCWPacket packet = new AntennaCWPacket(level, buffers, band, frequencyHertz, 1.0F, this);
+					packet.setDestination(antenna);
 
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
@@ -162,6 +164,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 				if(antenna == this || destination == null)
 					continue;
 				AntennaDataPacket packet = new AntennaDataPacket(level, payload, band, frequencyHertz, 1.0D, this);
+				packet.setDestination(antenna);
 				packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * matchEfficiency); // Same bandwidth as voice.
 				antenna.receiveDataPacket(packet);
 			}

@@ -42,4 +42,12 @@ public interface IAntennaPacket {
 	 */
 	ServerLevel getLevel();
 
+	/**
+	 * The {@link IAntenna} this copy of the signal is on its way to, when the sender knows it (terrain needs to know
+	 * whether the receiver is a handheld under a roof). Null when only a position is known.
+	 */
+	default IAntenna getDestination() {
+		return null;
+	}
+
 }

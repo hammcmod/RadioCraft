@@ -4,6 +4,19 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Terrain (added 2026-10-24)
+
+- [ ] Two VHF stations or handhelds either side of a real hill: the signal is much weaker than on open ground, and
+  comes back when one climbs the hill. `/rcdebug terrain path <from> <to> 2m` shows the loss in dB.
+- [ ] The same hill on 80m barely matters; on 10m and 20m a cliff or mountain wall on the path costs a few dB.
+- [ ] A 20m station at the bottom of a deep valley loses skip across the valley walls but not along the valley; 80m
+  keeps working. Compare against a hilltop station.
+- [ ] A handheld indoors or in a cave is weaker than outside (about 10 dB on VHF).
+- [ ] Builds show up: a wall built between two stations weakens them within a few seconds (chunks are re-read in
+  turn), and breaking it down brings the signal back.
+- [ ] `/rcdebug terrain` on a busy server: average microseconds per signal path stays low (a few us), and the map's
+  memory matches the explored area. `terrain_enabled = false` in the server config: no difference from before.
+
 ## Hand mic on a cord, 10m skip, duplexer desense (added 2026-10-24)
 
 - [ ] Sneak-right-click a radio (HF, QRP, all-band, VHF base station) with an empty hand: a Hand Microphone appears

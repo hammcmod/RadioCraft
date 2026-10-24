@@ -68,6 +68,23 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_VHF_STRENGTH;
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_STATIC;
 
+	public static final ModConfigSpec.ConfigValue<Boolean> TERRAIN_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Boolean> TERRAIN_LINE_OF_SIGHT;
+	public static final ModConfigSpec.ConfigValue<Boolean> TERRAIN_SKY_VIEW;
+	public static final ModConfigSpec.ConfigValue<Integer> TERRAIN_ATLAS_MAX_CHUNKS;
+	public static final ModConfigSpec.ConfigValue<Integer> TERRAIN_REFRESH_CHUNKS_PER_TICK;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_RECALCULATE_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Integer> TERRAIN_CLIFF_RISE;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_CLIFF_LOSS_DB;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_CLIFF_MAX_LOSS_DB;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_TAKEOFF_10M;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_TAKEOFF_20M;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_TAKEOFF_40M;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_TAKEOFF_80M;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_SKY_FADE;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_INDOOR_VHF_LOSS_DB;
+	public static final ModConfigSpec.ConfigValue<Double> TERRAIN_INDOOR_HF_LOSS_DB;
+
 	public static final ModConfigSpec.ConfigValue<Double> CRYSTAL_SAND_CHANCE;
 	public static final ModConfigSpec.ConfigValue<Integer> CRYSTAL_POOR_WEIGHT;
 	public static final ModConfigSpec.ConfigValue<Integer> CRYSTAL_GOOD_WEIGHT;
@@ -230,6 +247,34 @@ public class RadiocraftServerConfig {
 		AURORA_VHF_MAX_RANGE = BUILDER.comment(" Longest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_max_range", 4000, 1, 1000000);
 		AURORA_VHF_STRENGTH = BUILDER.comment(" Strength (0 to 1) of a VHF signal carried by the aurora").defineInRange("aurora_vhf_strength", 0.8, 0.0, 1.0);
 		AURORA_STATIC = BUILDER.comment(" Extra static on HF radios under the aurora, on top of the solar noise floor").defineInRange("aurora_static", 0.25, 0.0, 1.0);
+		BUILDER.pop();
+
+		BUILDER.push("Terrain");
+		BUILDER.comment(" Hills, cliffs and valleys shape propagation. Line of sight: ground poking into the straight line between two",
+				" antennas weakens the signal by knife-edge diffraction, which hurts VHF most and 80m least; HF also loses some at each",
+				" cliff on the way. Skip: a station sees the sky over its horizon, and a band whose signal leaves low (10m, 20m) is cut",
+				" by hills and valley walls in that direction, while 80m goes up nearly straight. A handheld under a roof loses some too.",
+				" Terrain comes from a coarse map of every chunk loaded since the server started; terrain nobody has loaded counts as clear.");
+		TERRAIN_ENABLED = BUILDER.comment(" Master switch. False turns all of it off for low-performance servers: no terrain map is kept and nothing is",
+				" computed, exactly as before terrain existed").define("terrain_enabled", true);
+		TERRAIN_LINE_OF_SIGHT = BUILDER.comment(" Terrain blocks line of sight (needs terrain_enabled)").define("terrain_line_of_sight", true);
+		TERRAIN_SKY_VIEW = BUILDER.comment(" A station's horizon cuts skip at low angles (needs terrain_enabled)").define("terrain_sky_view", true);
+		TERRAIN_ATLAS_MAX_CHUNKS = BUILDER.comment(" Most chunks the terrain map remembers per dimension, about 170 bytes each (100000 is about 17 MB). Past it the",
+				" oldest are forgotten and count as clear until they load again").defineInRange("terrain_atlas_max_chunks", 100_000, 1_000, 10_000_000);
+		TERRAIN_REFRESH_CHUNKS_PER_TICK = BUILDER.comment(" Loaded chunks re-read per tick, so building and digging shows up while they stay loaded").defineInRange("terrain_refresh_chunks_per_tick", 8, 0, 1000);
+		TERRAIN_RECALCULATE_SECONDS = BUILDER.comment(" How long a path's terrain loss and a station's horizon are kept before they are worked out again. Moving",
+				" stations are looked up by 4 block cell, so walking still updates them. 0 works it out for every voice packet")
+				.defineInRange("terrain_recalculate_seconds", 2.0, 0.0, 600.0);
+		TERRAIN_CLIFF_RISE = BUILDER.comment(" Height change over 4 blocks along a path that counts as a cliff for HF ground wave").defineInRange("terrain_cliff_rise", 8, 1, 512);
+		TERRAIN_CLIFF_LOSS_DB = BUILDER.comment(" Loss in dB per cliff on 10m; longer bands lose less (80m about a third)").defineInRange("terrain_cliff_loss_db", 6.0, 0.0, 100.0);
+		TERRAIN_CLIFF_MAX_LOSS_DB = BUILDER.comment(" Most the cliffs on one path can cost together, in dB").defineInRange("terrain_cliff_max_loss_db", 18.0, 0.0, 100.0);
+		TERRAIN_TAKEOFF_10M = BUILDER.comment(" Angle in degrees above the horizon a 10m skip signal leaves at").defineInRange("terrain_takeoff_10m", 5.0, 0.0, 90.0);
+		TERRAIN_TAKEOFF_20M = BUILDER.comment(" Angle in degrees above the horizon a 20m skip signal leaves at").defineInRange("terrain_takeoff_20m", 10.0, 0.0, 90.0);
+		TERRAIN_TAKEOFF_40M = BUILDER.comment(" Angle in degrees above the horizon a 40m skip signal leaves at").defineInRange("terrain_takeoff_40m", 30.0, 0.0, 90.0);
+		TERRAIN_TAKEOFF_80M = BUILDER.comment(" Angle in degrees above the horizon an 80m skip signal leaves at (nearly straight up: NVIS)").defineInRange("terrain_takeoff_80m", 60.0, 0.0, 90.0);
+		TERRAIN_SKY_FADE = BUILDER.comment(" Degrees the horizon must rise above the takeoff angle to cut skip completely").defineInRange("terrain_sky_fade", 10.0, 0.1, 90.0);
+		TERRAIN_INDOOR_VHF_LOSS_DB = BUILDER.comment(" Loss in dB for a handheld with no sky above it (a roof, a cave), on VHF").defineInRange("terrain_indoor_vhf_loss_db", 10.0, 0.0, 100.0);
+		TERRAIN_INDOOR_HF_LOSS_DB = BUILDER.comment(" The same on HF line of sight; skip loses twice this").defineInRange("terrain_indoor_hf_loss_db", 3.0, 0.0, 100.0);
 		BUILDER.pop();
 
 		BUILDER.push("Crystals");

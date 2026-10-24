@@ -17,6 +17,11 @@
       "type": "patchouli:text",
       "text": "Being a few kHz off still lets you hear SSB, sounding higher or lower and thinner; 11 kHz off, nothing. FM is heard up to 2 kHz off.",
       "title": "Off frequency"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Hills in the way weaken line of sight: badly on VHF, much less on 80 m, and HF also loses some at every cliff. Skip leaves at a low angle on 10 and 20 m, so a station deep in a valley loses it over the valley walls, while 80 m goes nearly straight up. A handheld indoors or underground is weaker. Build high!",
+      "title": "Hills and valleys"
     }
   ]
 }

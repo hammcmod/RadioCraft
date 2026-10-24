@@ -22,6 +22,7 @@ import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
+import com.arrl.radiocraft.common.radio.terrain.TerrainPropagation;
 import com.arrl.radiocraft.common.radio.voice.Ctcss;
 import com.arrl.radiocraft.common.radio.voice.Detuning;
 import com.arrl.radiocraft.common.radio.voice.RadioVoiceProcessor;
@@ -29,6 +30,7 @@ import com.arrl.radiocraft.common.radio.voice.ReceiverMix;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.EntityAudioChannel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -58,6 +60,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     private volatile Level voiceLevel;
 
     private boolean isUseHeld;
+    private volatile boolean indoors; // No sky above the player's head, updated each tick on the server thread.
 
     public void setUseHeld(boolean useHeld) {
         this.isUseHeld = useHeld;
@@ -71,6 +74,11 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     @SuppressWarnings("this-escape")
     public PlayerRadio(Player player) {
         setPlayer(player);
+    }
+
+    @Override
+    public boolean isIndoors() {
+        return indoors;
     }
 
     public Player getPlayer() {
@@ -272,7 +280,11 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     if(pos == null) continue;
 
                     double distance = Math.sqrt(thisPos.position().distSqr(pos.position()));
-                    packet.setStrength(Math.max(BandUtils.getBaseStrength(packet.getBand(), distance, 1.0F, 0.0F, packet.getLevel().isDay()),
+                    packet.setDestination(antenna);
+                    double lineOfSight = BandUtils.getBaseStrength(packet.getBand(), distance, 1.0F, 0.0F, packet.getLevel().isDay());
+                    if(lineOfSight > 0.0D) // A handheld has no skip: only hills and roofs in the way.
+                        lineOfSight *= TerrainPropagation.factor(packet, pos.position(), false);
+                    packet.setStrength(Math.max(lineOfSight,
                             Aurora.vhfStrength(packet.getLevel(), packet.getBand(), thisPos.position(), pos.position(), distance)));
 
                     antenna.receiveAudioPacket(packet);
@@ -432,6 +444,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                 this.voicePosition = player.getEyePosition();
                 this.voiceLevel = player.level();
                 this.antennaPos.set(new AntennaPos(player.blockPosition(), player.level()));
+                this.indoors = !player.level().canSeeSky(BlockPos.containing(player.getEyePosition()));
             }
         }
 
