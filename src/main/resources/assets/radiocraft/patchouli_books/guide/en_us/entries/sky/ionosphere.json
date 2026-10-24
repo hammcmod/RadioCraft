@@ -1,0 +1,45 @@
+{
+  "name": "Sounding Station",
+  "icon": "radiocraft:ionospheric_processor",
+  "category": "radiocraft:sky",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "An $(thing)ionosonde$() sweeps up the bands to measure the sky. Its $(item)antenna$() is two blocks tall, on coax. On a radio it is poor (SWR 3 on VHF, 8 on HF).$(br2)The $(item)Ionospheric Processor$() with its glowing valves will read the sky through it. For now both are for building the station."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Sounding station",
+      "multiblock": {
+        "mapping": {
+          "M": "radiocraft:ionospheric_processor[half=upper,facing=south]",
+          "N": "radiocraft:ionosonde[half=lower,facing=south]",
+          "O": "radiocraft:ionosonde[half=upper,facing=south]",
+          "a": "radiocraft:coax_wire[east=true,west=true]",
+          "0": "radiocraft:ionospheric_processor[half=lower,facing=south]"
+        },
+        "pattern": [
+          [
+            "M",
+            " ",
+            " ",
+            "O"
+          ],
+          [
+            "0",
+            "a",
+            "a",
+            "N"
+          ]
+        ]
+      },
+      "text": "Processor, coax, ionosonde antenna."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:ionosonde",
+      "recipe2": "radiocraft:ionospheric_processor"
+    }
+  ]
+}

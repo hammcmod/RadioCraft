@@ -1,0 +1,6 @@
+{
+  "name": "Power",
+  "description": "Radios run on energy: solar panels, batteries, charge controllers and wire.",
+  "icon": "radiocraft:large_battery",
+  "sortnum": 3
+}

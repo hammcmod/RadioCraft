@@ -1,0 +1,32 @@
+{
+  "name": "Antenna Wire",
+  "icon": "radiocraft:antenna_wire",
+  "category": "radiocraft:antennas",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Wire antennas are strung between $(item)wire holders$(): baluns, $(item)antenna poles$() and $(item)antenna connectors$(). Right click one holder with $(item)antenna wire$(), then another, and a wire runs between them. A wire must end on a holder or it falls down."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Lengths are in blocks, one block is a metre. A $(thing)quarter wave$() is about:$(li)80 m band: 20 blocks$(li)40 m band: 10$(li)20 m band: 5$(li)10 m band: 3$(br)Every block off costs 0.5 SWR.",
+      "title": "How long?"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Anything strung on a balun that is not a proper antenna becomes an $(thing)Improvised$() antenna: it works, with an SWR that grows the further it is from a clean shape. Right click a balun to see what it thinks it is.",
+      "title": "Improvised"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:antenna_wire",
+      "recipe2": "radiocraft:antenna_pole"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:antenna_connector",
+      "recipe2": "radiocraft:antenna_analyzer"
+    }
+  ]
+}

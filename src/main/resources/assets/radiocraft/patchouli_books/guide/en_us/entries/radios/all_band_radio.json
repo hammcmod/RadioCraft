@@ -1,0 +1,22 @@
+{
+  "name": "All-Band Radio",
+  "icon": "radiocraft:all_band_radio",
+  "category": "radiocraft:radios",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The all-band transceiver covers 80, 40, 20 and 10 m and the 2 m band, in SSB, CW and FM. Its band knob steps through them; the frequency jumps to the bottom of the new band.$(br2)Its lamps: signal, antenna matched (SWR 2 or better) and transmitting."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Its heart is the $(item)all-band circuit board$(), which needs a $(thing)pure$() encased crystal of every band. One antenna will not suit every band: use a $(l:radiocraft:antennas/five_btv)5-BTV$(/l), an $(l:radiocraft:antennas/ocfd)OCFD$(/l) or a $(l:radiocraft:antennas/tuners)tuner$(/l).",
+      "title": "Building one"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:all_band_circuit_board",
+      "recipe2": "radiocraft:all_band_radio"
+    }
+  ]
+}

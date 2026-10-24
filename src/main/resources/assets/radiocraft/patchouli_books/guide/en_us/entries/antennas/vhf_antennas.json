@@ -1,0 +1,52 @@
+{
+  "name": "VHF Antennas",
+  "icon": "radiocraft:j_pole_antenna",
+  "category": "radiocraft:antennas",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Each is a two-block-tall antenna for the 2 m band, matched across it, with coax to its foot:$(li)$(thing)J-pole$(): the all-rounder.$(li)$(thing)Slim Jim$(): made from twin-lead, a little cheaper.$(li)$(thing)Yagi$(): directional."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "J-pole, Slim Jim, Yagi",
+      "multiblock": {
+        "mapping": {
+          "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
+          "S": "radiocraft:slim_jim_antenna[half=lower,facing=north]",
+          "T": "radiocraft:slim_jim_antenna[half=upper,facing=north]",
+          "Y": "radiocraft:yagi_antenna[half=lower,facing=north]",
+          "Z": "radiocraft:yagi_antenna[half=upper,facing=north]",
+          "0": "radiocraft:j_pole_antenna[half=lower,facing=north]"
+        },
+        "pattern": [
+          [
+            "U",
+            " ",
+            "T",
+            " ",
+            "Z"
+          ],
+          [
+            "0",
+            " ",
+            "S",
+            " ",
+            "Y"
+          ]
+        ]
+      },
+      "text": "From left to right."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:j_pole_antenna",
+      "recipe2": "radiocraft:slim_jim_antenna"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:yagi_antenna"
+    }
+  ]
+}

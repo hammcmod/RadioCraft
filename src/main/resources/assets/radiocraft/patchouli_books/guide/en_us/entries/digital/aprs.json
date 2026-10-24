@@ -1,0 +1,52 @@
+{
+  "name": "APRS Station",
+  "icon": "radiocraft:aprs_h19",
+  "category": "radiocraft:digital",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)APRS$() sends short packets over a VHF radio: position beacons, messages and digipeats.$(li)The $(item)Radio Interface$() touches the radio and holds the call sign and the TX switch.$(li)The $(item)H19 terminal$() touches the interface (or another terminal): beacons, the station list and messages."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "APRS station",
+      "multiblock": {
+        "mapping": {
+          "I": "radiocraft:radio_interface[facing=north]",
+          "H": "radiocraft:aprs_h19[facing=north]",
+          "T": "radiocraft:transfer_interface[facing=north]",
+          "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
+          "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
+          "a": "radiocraft:coax_wire[north=true,south=true]",
+          "0": "radiocraft:vhf_base_station[facing=north]"
+        },
+        "pattern": [
+          [
+            "   U",
+            "    ",
+            "    ",
+            "    "
+          ],
+          [
+            "0aaJ",
+            "I   ",
+            "H   ",
+            "T   "
+          ]
+        ]
+      },
+      "text": "Base station, Radio Interface, H19, Transfer Interface, and a J-pole."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The H19's screen says READY, CONTACT when a new station is heard and MSG when a message arrives.$(br2)Right click it with an $(item)empty map$() for an $(thing)APRS map$() of the stations heard. Sneak with 4 or 9 maps for a 2x2 or 3x3 map wall.",
+      "title": "The H19"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:radio_interface",
+      "recipe2": "radiocraft:aprs_h19"
+    }
+  ]
+}

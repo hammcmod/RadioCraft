@@ -33,6 +33,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [ ] Provide working SWR and propagation hooks so core HF radios are usable
 - [x] HF receiver, QRP radios, and the all-band radio shapeless combinations exist
 - [x] VHF handhelds have functional radios
+- [ ] Hand mic on a cord (maintainer, 2026-10-23): shift-right-click a radio to take its hand mic into your hand,
+  with a cord drawn from you to the radio like the antenna wire. Right click with the mic to PTT. Walk more than 5
+  blocks away and the cord snaps back and the mic goes back on the radio; right click the radio to hang it up.
 - [x] Comparator S-meter (2026-10-20): a comparator against any radio reads the received signal strength 0-15, falling
   back to 0 a second after the signal ends. Jade shows the same reading, the interference level and the repeat delay.
 
@@ -179,6 +182,12 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] WEFAX receiver (maintainer, 2026-10-23): prints weather charts, after the WX work. The block and model are in
   (dev tab, decorative; recipe 2026-10-23: a board, paper drum and a clock); the UI comes once the rest of the WX work is done
 
+### New bands and services (maintainer, 2026-10-23)
+- [ ] Airband (VHF AM aircraft band)
+- [ ] ISM band
+- [ ] CB radio (11m)
+- [ ] A Sputnik-style radio satellite (beeping beacon in orbit to listen for)
+
 ### Antenna Expansions
 - [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types
 - [ ] Figure out how we'll allow building of HF yagis (maintainer, 2026-10-21)
@@ -212,7 +221,11 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 ### World & Progression Additions
 - [ ] In-game guide book like the Create mod's (Ponder-style scenes) explaining radios, antennas, power and the
   digital interface (maintainer, 2026-10-21)
-  - [ ] Patchouli guide book, shipped as a datapack (maintainer, 2026-10-23)
+  - [x] Patchouli guide book (2026-10-23): "Radiocraft Handbook", optional (only with Patchouli installed; dev runs
+    have it). 8 categories, 34 entries with crafting pages and Visualize-able builds (stations, antennas, power,
+    repeater site, APRS, teletype, sounding station). Book plus wire crafts it. Patchouli builds are inline block
+    patterns, not NBT structures. `PatchouliBookTest` checks every link, recipe, item and block state in it.
+  - [ ] Guide book: pictures (screenshots of the GUIs), the wide-band receive antenna, handheld APRS when it exists
   - [ ] PonderLib scenes, shipped as a datapack (maintainer, 2026-10-23)
 - [ ] Cable trays (maintainer, 2026-10-21): one block carries several cables at once, colour coded; a coloured ring
   where a cable leaves the tray, at cable ends and where a cable meets a block, so you can tell the runs apart

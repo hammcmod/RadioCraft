@@ -1,0 +1,33 @@
+{
+  "name": "Your First Station",
+  "icon": "radiocraft:vhf_base_station",
+  "category": "radiocraft:getting_started",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(li)Craft a pair of $(l:radiocraft:radios/vhf_handheld)VHF handhelds$(/l): set both to the same frequency and talk.$(li)Then build a $(l:radiocraft:radios/vhf_base_station)base station$(/l) with a $(l:radiocraft:antennas/vhf_antennas)J-pole$(/l) on $(l:radiocraft:antennas/coax)coax$(/l) and $(l:radiocraft:power/overview)power$(/l).$(li)When you want the world, an $(l:radiocraft:radios/hf_radios)HF radio$(/l) and a $(l:radiocraft:antennas/dipole)dipole$(/l)."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "A VHF base station",
+      "multiblock": {
+        "mapping": {
+          "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
+          "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
+          "a": "radiocraft:coax_wire[north=true,south=true]",
+          "0": "radiocraft:vhf_base_station[facing=north]"
+        },
+        "pattern": [
+          [
+            "   U"
+          ],
+          [
+            "0aaJ"
+          ]
+        ]
+      },
+      "text": "Radio, two blocks of coax and a J-pole. Any length of coax works. Power it too."
+    }
+  ]
+}

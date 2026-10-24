@@ -1,0 +1,17 @@
+{
+  "name": "Solar Weather",
+  "icon": "minecraft:sunflower",
+  "category": "radiocraft:propagation",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The sun changes from day to day: $(thing)great, good, average, fair, poor$() or a $(thing)blackout$(). Each condition rates every HF band good, fair, poor or closed, by day and by night, and sets the static level. In a blackout HF is dead.$(br2)A $(l:radiocraft:digital/teletype)teletype$(/l) next to a radio prints the report."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A blackout may bring an $(thing)aurora$() a few days later, lighting the sky far north or south (Z beyond 10000). Under it VHF skips 500 to 4000 blocks with a raspy buzz, while HF gets worse and noisier.",
+      "title": "Aurora"
+    }
+  ]
+}

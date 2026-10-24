@@ -1,0 +1,43 @@
+{
+  "name": "VHF Repeater",
+  "icon": "radiocraft:vhf_repeater",
+  "category": "radiocraft:repeaters",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A repeater listens on its $(thing)input$() frequency and sends what it hears out on its $(thing)output$(), so handhelds that cannot reach each other can talk through it. Handhelds listen on the output and transmit with an $(thing)offset$() (usually 600 kHz) to the input."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "It needs a $(l:radiocraft:repeaters/duplexer)duplexer$(/l) on its back, top or bottom, with the antenna's coax on the duplexer. Without one it deafens itself: \"psht... psht...\".$(br2)Settings: input/output, $(thing)CTCSS$() access and output tones, CW ID, hang time with courtesy beep, and a timeout.",
+      "title": "Setting up"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Repeater site",
+      "multiblock": {
+        "mapping": {
+          "D": "radiocraft:duplexer[facing=north]",
+          "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
+          "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
+          "a": "radiocraft:coax_wire[north=true,south=true]",
+          "0": "radiocraft:vhf_repeater[facing=north]"
+        },
+        "pattern": [
+          [
+            "    U"
+          ],
+          [
+            "0DaaJ"
+          ]
+        ]
+      },
+      "text": "Repeater, duplexer behind it, coax, J-pole."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:vhf_repeater"
+    }
+  ]
+}

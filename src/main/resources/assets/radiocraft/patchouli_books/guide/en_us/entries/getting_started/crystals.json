@@ -1,0 +1,22 @@
+{
+  "name": "Crystals",
+  "icon": "radiocraft:encased_crystal_20m_good",
+  "category": "radiocraft:getting_started",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Every radio is built around a quartz $(item)crystal$() cut for its band (80, 40, 20, 10 m or VHF). You find them while digging $(thing)sand$(), about one block in eighty, mostly poor ones. Encase one in iron before using it."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Crystals come in three qualities:$(li)$(thing)Pure$() makes a $(thing)Premium$() radio: a touch less static.$(li)$(thing)Good$() makes the plain radio.$(li)$(thing)Poor$() makes a $(thing)Cheap$() radio that slowly drifts off frequency, and that can go up in smoke spectacularly if you $(l:radiocraft:radios/swr_and_blown_radios)abuse it$(/l).",
+      "title": "Quality"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:encased_crystal_20m_good",
+      "text": "Swap a radio's crystal by crafting the radio with an encased crystal of another quality."
+    }
+  ]
+}

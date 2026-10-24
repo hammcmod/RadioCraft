@@ -1,0 +1,12 @@
+{
+  "name": "Tones & Offsets",
+  "icon": "radiocraft:vhf_handheld",
+  "category": "radiocraft:repeaters",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)CTCSS$() is a low tone sent under your voice. A repeater with an access tone only repeats stations sending it. On a handheld press ENTER on the frequency page for the $(thing)Tone$() and $(thing)Offset$() pages; a base station has buttons and knobs for both.$(br2)Example: repeater 146.340 in, 146.940 out: handheld on 146.940, offset -600."
+    }
+  ]
+}

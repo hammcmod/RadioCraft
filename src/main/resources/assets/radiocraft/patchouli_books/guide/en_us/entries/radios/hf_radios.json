@@ -1,0 +1,55 @@
+{
+  "name": "HF Radios",
+  "icon": "radiocraft:hf_radio_20m",
+  "category": "radiocraft:radios",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "HF radios are made for one band each: $(thing)80 m$(), $(thing)40 m$(), $(thing)20 m$() or $(thing)10 m$(). They reach far beyond the horizon by $(l:radiocraft:propagation/bands)skip$(/l).$(li)$(thing)SSB$(): voice. 40 and 80 m use lower sideband, 20 and 10 m upper.$(li)$(thing)CW$(): Morse code, sent with the key on the radio's screen. CW gets through where voice cannot."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Turn it on with the power switch, pick a mode, tune with the big knob (1 kHz a step) and hold $(thing)PTT$() to talk. The screen on the model shows the frequency, mode and S-meter. A comparator next to it reads the S-meter too.$(br2)An HF radio draws 8 FE/t listening and 26 transmitting.",
+      "title": "Operating"
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "A 20 m station",
+      "multiblock": {
+        "mapping": {
+          "B": "radiocraft:balun_one_to_one[placed_on=down]",
+          "P": "radiocraft:antenna_pole",
+          "a": "radiocraft:coax_wire[north=true,south=true]",
+          "0": "radiocraft:hf_radio_20m[facing=north]"
+        },
+        "pattern": [
+          [
+            "   P",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "0aaB",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "   P"
+          ]
+        ]
+      },
+      "text": "Radio, coax, a 1:1 balun and two poles. String antenna wire from the balun to each pole: 5 blocks each way on 20 m. See $(l:radiocraft:antennas/dipole)Dipole$(/l)."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:hf_radio_20m",
+      "recipe2": "radiocraft:hf_radio_40m"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:hf_radio_10m",
+      "recipe2": "radiocraft:hf_radio_80m"
+    }
+  ]
+}

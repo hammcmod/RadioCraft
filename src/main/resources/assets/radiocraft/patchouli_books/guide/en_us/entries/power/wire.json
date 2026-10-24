@@ -1,0 +1,21 @@
+{
+  "name": "Wire",
+  "icon": "radiocraft:wire",
+  "category": "radiocraft:power",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Power $(item)wire$() is laid like redstone and climbs walls. $(item)Waterproof wire$() survives in water. A $(item)wire passthrough$() turns a solid block into a conductor for both power and coax, keeping its look, so cables can go through walls."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:wire",
+      "recipe2": "radiocraft:waterproof_wire"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:passthrough"
+    }
+  ]
+}

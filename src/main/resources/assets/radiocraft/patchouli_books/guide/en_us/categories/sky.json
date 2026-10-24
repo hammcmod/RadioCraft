@@ -1,0 +1,6 @@
+{
+  "name": "Ionosphere & Weather",
+  "description": "The instruments of a sounding station and a weather fax: work in progress, but buildable now.",
+  "icon": "radiocraft:ionosonde",
+  "sortnum": 7
+}

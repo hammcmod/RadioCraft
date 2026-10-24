@@ -1,0 +1,22 @@
+{
+  "name": "QRP Radios & Receivers",
+  "icon": "radiocraft:qrp_radio_20m",
+  "category": "radiocraft:radios",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)QRP$() radios are low-power 20 and 40 m rigs in a wooden case: cheap (poor crystals work fine, they are designed around them), thrifty (2 FE/t, 13 transmitting) and gentle on nearby redstone.$(br2)The $(thing)HF receiver$() and $(thing)VHF receiver$() only listen."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:qrp_radio_20m",
+      "recipe2": "radiocraft:qrp_radio_40m"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:hf_receiver",
+      "recipe2": "radiocraft:vhf_receiver"
+    }
+  ]
+}

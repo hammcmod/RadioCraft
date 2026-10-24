@@ -1,0 +1,16 @@
+{
+  "name": "File Transfer",
+  "icon": "radiocraft:transfer_interface",
+  "category": "radiocraft:digital",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(item)Transfer Interface$() sends books, paper and maps over the air to a call sign or to everyone. Each receiver prints a copy on its own blanks; the sender keeps the original. Hoppers can stock it."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:transfer_interface"
+    }
+  ]
+}

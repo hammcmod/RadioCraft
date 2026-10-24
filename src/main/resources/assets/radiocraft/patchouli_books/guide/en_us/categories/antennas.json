@@ -1,0 +1,6 @@
+{
+  "name": "Antennas & Coax",
+  "description": "A radio is only as good as its antenna. Coax, baluns, wire antennas, verticals, VHF antennas and tuners.",
+  "icon": "radiocraft:balun_one_to_one",
+  "sortnum": 2
+}

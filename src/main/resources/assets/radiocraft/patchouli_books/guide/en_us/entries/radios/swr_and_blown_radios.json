@@ -1,0 +1,26 @@
+{
+  "name": "SWR & Blown Radios",
+  "icon": "radiocraft:dummy_load",
+  "category": "radiocraft:radios",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(thing)SWR$() measures how well the antenna suits the radio's frequency. 1.0 is perfect; the higher it is, the more power bounces back into the radio instead of being radiated.$(br2)See it in Jade, on the $(l:radiocraft:antennas/tuners)antenna tuner$(/l), or with the $(item)antenna analyzer$()."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Transmit into an SWR of $(thing)3 or worse$() and the radio's transmitter may $(thing)blow$(): a fizz and a puff of smoke. The worse the match, the sooner. A blown radio still receives, but keying it only gives loud static.$(br2)A $(thing)Cheap$() radio may instead go up like TNT.",
+      "title": "Blowing up"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Break a blown radio for its parts: everything it was crafted from except the crystal.$(br2)Test a transmitter safely on a $(item)dummy load$(): a perfect match on every band that only reaches about ten blocks.",
+      "title": "Salvage"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:dummy_load"
+    }
+  ]
+}

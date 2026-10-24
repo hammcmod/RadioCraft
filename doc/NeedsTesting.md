@@ -4,6 +4,15 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Patchouli guide book (added 2026-10-23)
+
+- [ ] In a dev client (Patchouli is in the dev runs), craft a book and wire, or take the "Radiocraft Handbook" from
+  the creative tab. Every category and entry opens without "error" pages; links jump to the right entry.
+- [ ] Each build page renders the structure (radios facing their coax, coax drawn connected, the 5-BTV's segments
+  stacked, two-tall antennas whole) and Visualize shows ghost blocks you can build into until it completes.
+- [ ] Read the text for anything wrong or unclear; the book is in
+  `src/main/resources/assets/radiocraft/patchouli_books/guide/en_us`.
+
 ## Manual tuner, automatic tuner, duplexer screws (added 2026-10-23)
 
 - [ ] Antenna tuner screen: three dials (drag or scroll), each with its reading above it. With a radio on and an

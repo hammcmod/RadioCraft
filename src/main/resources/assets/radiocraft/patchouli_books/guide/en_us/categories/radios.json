@@ -1,0 +1,6 @@
+{
+  "name": "Radios",
+  "description": "Handhelds, base stations, HF transceivers, receivers, and what happens when you abuse them.",
+  "icon": "radiocraft:hf_radio_20m",
+  "sortnum": 1
+}

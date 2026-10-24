@@ -1,0 +1,37 @@
+{
+  "name": "VHF Base Station",
+  "icon": "radiocraft:vhf_base_station",
+  "category": "radiocraft:radios",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A desk radio for the 2 m band with more power than a handheld. It needs $(l:radiocraft:power/overview)power$(/l) (2 FE/t listening, 13 transmitting) and an antenna on $(l:radiocraft:antennas/coax)coax$(/l): a $(l:radiocraft:antennas/vhf_antennas)J-pole, Slim Jim or Yagi$(/l).$(br2)The right-hand display shows the repeater $(thing)offset$() (OFS) and $(thing)tone$(); the soft buttons and big knobs change them."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Base station and J-pole",
+      "multiblock": {
+        "mapping": {
+          "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
+          "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
+          "a": "radiocraft:coax_wire[north=true,south=true]",
+          "0": "radiocraft:vhf_base_station[facing=north]"
+        },
+        "pattern": [
+          [
+            "   U"
+          ],
+          [
+            "0aaJ"
+          ]
+        ]
+      },
+      "text": "The J-pole matches the whole 2 m band (SWR 1)."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:vhf_base_station"
+    }
+  ]
+}

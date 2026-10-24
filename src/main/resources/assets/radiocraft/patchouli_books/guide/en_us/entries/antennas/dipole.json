@@ -1,0 +1,45 @@
+{
+  "name": "Dipole & Inverted V",
+  "icon": "radiocraft:balun_one_to_one",
+  "category": "radiocraft:antennas",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(thing)dipole$() is the classic HF antenna: a $(item)1:1 balun$() with two level wires going opposite ways, each a quarter wave long. It is matched on one band.$(br2)The $(thing)inverted V$() is a dipole hung from one tall support: both arms slope down from the balun, 5% shorter, at 90 degrees or wider. A little weaker."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "A 20 m dipole",
+      "multiblock": {
+        "mapping": {
+          "B": "radiocraft:balun_one_to_one[placed_on=down]",
+          "P": "radiocraft:antenna_pole",
+          "a": "radiocraft:coax_wire[north=true,south=true]",
+          "0": "radiocraft:hf_radio_20m[facing=north]"
+        },
+        "pattern": [
+          [
+            "   P",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "0aaB",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "   P"
+          ]
+        ]
+      },
+      "text": "Wire from the balun to each pole, 5 blocks each side."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The $(thing)end-fed$() is a dipole with only one arm: one quarter-wave wire from a 1:1 balun. Easier to string, not as good.",
+      "title": "End-fed"
+    }
+  ]
+}

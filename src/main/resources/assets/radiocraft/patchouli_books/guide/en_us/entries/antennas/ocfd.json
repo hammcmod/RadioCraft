@@ -1,0 +1,12 @@
+{
+  "name": "Off-Centre-Fed Dipole",
+  "icon": "radiocraft:balun_four_to_one",
+  "category": "radiocraft:antennas",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Feed a half-wave dipole about a third of the way along through a $(item)4:1 balun$() and it matches on its band and the $(thing)2nd and 4th harmonics$() too: a 40 m OCFD (one arm 7, the other 13 blocks: 20 in all) works on 40, 20 and 10 m.$(br2)The short arm must be a third to two thirds of the long one."
+    }
+  ]
+}

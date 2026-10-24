@@ -176,6 +176,7 @@ val jade_version = "15.10.0+neoforge"
 val top_version="1.21_neo-12.0.4-6"
 val jei_version="19.9.1.125" // Same JEI as TOP brings in at runtime
 val geckolib_version = "4.7.5.1"
+val patchouli_version = "1.21.1-92-NEOFORGE"
 
 dependencies {
     compileOnly(libs.mixinextras.common)
@@ -186,6 +187,9 @@ dependencies {
     implementation("maven.modrinth:jade:${jade_version}")
     // GeckoLib for block/entity geo models
     implementation("software.bernie.geckolib:geckolib-neoforge-${mcVersion}:${geckolib_version}")
+    // Patchouli, for the guide book (assets/radiocraft/patchouli_books). Optional for players: the book only exists
+    // when they install it. Runtime only, so dev runs can open the book. From maven.blamejared.com (declared above).
+    runtimeOnly("vazkii.patchouli:Patchouli:${patchouli_version}")
 
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")

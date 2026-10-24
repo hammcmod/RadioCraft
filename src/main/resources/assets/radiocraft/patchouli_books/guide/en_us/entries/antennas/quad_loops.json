@@ -1,0 +1,35 @@
+{
+  "name": "Quad Loops",
+  "icon": "radiocraft:balun_two_to_one",
+  "category": "radiocraft:antennas",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A square loop of wire with a quarter wave on each side, fed at one corner from a $(item)2:1 balun$(). Lay it flat for a $(thing)horizontal quad$(), or stand it up, fed from the bottom side, for a $(thing)vertical quad$()."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "A 20 m horizontal quad",
+      "multiblock": {
+        "mapping": {
+          "B": "radiocraft:balun_two_to_one[placed_on=down]",
+          "K": "radiocraft:antenna_connector[placed_on=down]",
+          "a": "radiocraft:coax_wire[north=true,south=true]",
+          "0": "radiocraft:hf_radio_20m[facing=north]"
+        },
+        "pattern": [
+          [
+            "0aaB    K",
+            "         ",
+            "         ",
+            "         ",
+            "         ",
+            "   K    K"
+          ]
+        ]
+      },
+      "text": "Wire balun to connector to connector to connector and back: 5 blocks a side."
+    }
+  ]
+}

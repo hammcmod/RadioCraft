@@ -1,0 +1,37 @@
+{
+  "name": "Parts",
+  "icon": "radiocraft:hf_circuit_board",
+  "category": "radiocraft:getting_started",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Most of the station is made from a handful of parts: $(item)wire$(), $(item)insulation$() (from kelp, leather or slime), $(item)coaxial core$(), $(item)ferrite cores$(), the $(item)HF circuit board$(), $(item)radio speaker$(), $(item)microphone element$() and $(item)hand microphone$()."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:wire",
+      "recipe2": "radiocraft:insulation_from_kelp"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:coaxial_core",
+      "recipe2": "radiocraft:coax_wire"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:ferrite_core",
+      "recipe2": "radiocraft:hf_circuit_board"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:radio_speaker",
+      "recipe2": "radiocraft:microphone_element"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:hand_microphone",
+      "recipe2": "radiocraft:microphone"
+    }
+  ]
+}

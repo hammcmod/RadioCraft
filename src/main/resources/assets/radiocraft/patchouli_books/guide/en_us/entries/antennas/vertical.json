@@ -1,0 +1,45 @@
+{
+  "name": "Quarter-Wave Vertical",
+  "icon": "radiocraft:antenna_pole",
+  "category": "radiocraft:antennas",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Stack $(item)antenna poles$() straight up on a $(item)1:1 balun$(), with no wire at all. The stack must be exactly a quarter wave tall for the band (5 poles on 20 m, 3 on 10 m): one block off and it does not match."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "A 20 m vertical",
+      "multiblock": {
+        "mapping": {
+          "B": "radiocraft:balun_one_to_one[placed_on=down]",
+          "P": "radiocraft:antenna_pole",
+          "a": "radiocraft:coax_wire[north=true,south=true]",
+          "0": "radiocraft:hf_radio_20m[facing=north]"
+        },
+        "pattern": [
+          [
+            "  P"
+          ],
+          [
+            "  P"
+          ],
+          [
+            "  P"
+          ],
+          [
+            "  P"
+          ],
+          [
+            "  P"
+          ],
+          [
+            "0aB"
+          ]
+        ]
+      },
+      "text": "Five poles on the balun."
+    }
+  ]
+}

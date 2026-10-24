@@ -1,0 +1,26 @@
+{
+  "name": "VHF Handheld",
+  "icon": "radiocraft:vhf_handheld",
+  "category": "radiocraft:radios",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The handheld is the easiest radio: no antenna, no wiring.$(li)$(thing)Hold right click$() to talk (push to talk).$(li)$(thing)Sneak and right click$() to open it: frequency, volume, and the $(thing)tone$() and $(thing)offset$() pages (press ENTER) used with $(l:radiocraft:repeaters/repeater)repeaters$(/l)."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "It runs on a $(item)small battery$(): a few days of normal use. Hold the handheld in your off hand and sneak-use a battery in your main hand to swap them, or charge it in a $(item)desk charger$().$(br2)Range is a few hundred blocks by line of sight; a $(l:radiocraft:repeaters/repeater)repeater$(/l) on a hill extends it.",
+      "title": "Battery"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:vhf_handheld",
+      "recipe2": "radiocraft:small_battery"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:desk_charger"
+    }
+  ]
+}

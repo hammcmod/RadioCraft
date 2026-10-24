@@ -1,0 +1,45 @@
+{
+  "name": "Teletype",
+  "icon": "radiocraft:teletype",
+  "category": "radiocraft:digital",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(item)Teletype Machine$() sends $(thing)RTTY$() through the radio it touches: type, and it goes out live; weak copy prints garbled. It needs $(item)paper$() (by hand or hopper).$(br2)Its blue $(thing)SOLAR WX$() lamp prints the current solar report, if the radio has a real antenna."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Teletype station",
+      "multiblock": {
+        "mapping": {
+          "T": "radiocraft:teletype[facing=north]",
+          "B": "radiocraft:balun_one_to_one[placed_on=down]",
+          "P": "radiocraft:antenna_pole",
+          "a": "radiocraft:coax_wire[north=true,south=true]",
+          "0": "radiocraft:hf_radio_20m[facing=north]"
+        },
+        "pattern": [
+          [
+            "   P",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "0aaB",
+            "T   ",
+            "    ",
+            "    ",
+            "    ",
+            "   P"
+          ]
+        ]
+      },
+      "text": "A 20 m station with the teletype beside the radio."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:teletype"
+    }
+  ]
+}

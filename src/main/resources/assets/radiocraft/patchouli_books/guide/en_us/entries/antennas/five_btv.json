@@ -1,0 +1,71 @@
+{
+  "name": "5-BTV Multiband Vertical",
+  "icon": "radiocraft:5btv_antenna",
+  "category": "radiocraft:antennas",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A seven-block-tall trap vertical, placed and broken as one. It matches $(thing)every HF band and VHF$() (SWR 1.3) with no tuner.$(br2)It sends its power low, towards the horizon: nearby stations by line of sight fade at half the usual distance, but skip reaches a quarter further than a dipole. The DX hunter's antenna."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "5-BTV",
+      "multiblock": {
+        "mapping": {
+          "1": "radiocraft:5btv_antenna[segment=0]",
+          "2": "radiocraft:5btv_antenna[segment=1]",
+          "3": "radiocraft:5btv_antenna[segment=2]",
+          "4": "radiocraft:5btv_antenna[segment=3]",
+          "5": "radiocraft:5btv_antenna[segment=4]",
+          "6": "radiocraft:5btv_antenna[segment=5]",
+          "7": "radiocraft:5btv_antenna[segment=6]",
+          "a": "radiocraft:coax_wire[east=true,west=true]",
+          "0": "radiocraft:hf_radio_20m[facing=south]"
+        },
+        "pattern": [
+          [
+            " ",
+            " ",
+            "7"
+          ],
+          [
+            " ",
+            " ",
+            "6"
+          ],
+          [
+            " ",
+            " ",
+            "5"
+          ],
+          [
+            " ",
+            " ",
+            "4"
+          ],
+          [
+            " ",
+            " ",
+            "3"
+          ],
+          [
+            " ",
+            " ",
+            "2"
+          ],
+          [
+            "0",
+            "a",
+            "1"
+          ]
+        ]
+      },
+      "text": "Coax laid against its base runs in to the mast."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:5btv_antenna"
+    }
+  ]
+}

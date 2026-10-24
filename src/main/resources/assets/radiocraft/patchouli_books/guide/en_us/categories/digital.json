@@ -1,0 +1,6 @@
+{
+  "name": "Digital Modes",
+  "description": "Packet radio: APRS beacons, maps and messages, file transfer and the teletype.",
+  "icon": "radiocraft:aprs_h19",
+  "sortnum": 5
+}

@@ -1,0 +1,35 @@
+{
+  "name": "Antenna Tuners",
+  "icon": "radiocraft:antenna_tuner",
+  "category": "radiocraft:antennas",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "An $(item)antenna tuner$() anywhere on the coax between radio and antenna lets an antenna that is off resonance work. Tuned, the radio sees SWR 1; some of the power is still lost in the tuner, more the worse the antenna."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Open it and turn its three dials (drag or scroll). The $(thing)lamp$() tells you how close you are:$(li)$(#d22)red$(), blinking faster as you get closer$(li)$(#9c3)yellow-green$() blinking below SWR 3$(li)$(#3c3)solid green$(): tuned.$(br)Each antenna, band and part of the band needs its own settings.",
+      "title": "Tuning"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A tuner brings any antenna up to SWR 7 down to 1. Past that it can only take 6 off: SWR 9 tunes to 3.",
+      "title": "Range"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:antenna_tuner"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "The $(item)automatic tuner$() does it by itself. On $(l:radiocraft:power/overview)power$(/l), every time the radio changes band or moves 1 MHz it clicks away for a second (the radio sees SWR 3 meanwhile), then TUNED. If the antenna is too far off it clicks slowly, gives up and the radio shows $(thing)TUNE FAIL$(): transmit at your own risk.",
+      "title": "Automatic tuner"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:auto_tuner"
+    }
+  ]
+}

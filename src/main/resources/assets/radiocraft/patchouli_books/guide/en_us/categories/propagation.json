@@ -1,0 +1,6 @@
+{
+  "name": "Propagation & Noise",
+  "description": "How far a signal goes: line of sight, skip, the sun, aurorae, and the noise that buries weak stations.",
+  "icon": "radiocraft:teletype",
+  "sortnum": 4
+}

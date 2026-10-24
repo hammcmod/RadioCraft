@@ -1,0 +1,22 @@
+{
+  "name": "Bands & Range",
+  "icon": "minecraft:compass",
+  "category": "radiocraft:propagation",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A signal reaches another station two ways:$(li)$(thing)Line of sight$(): out to a range set by the band (VHF about 500 blocks), fading with distance.$(li)$(thing)Skip$(): HF bounces off the sky and comes down far away, in a window of distances that differs by band and between day and night. In between is a silent zone."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Rules of thumb: 80 and 40 m are best at night, 20 m by day, 10 m only opens when the sun is lively.$(br2)$(thing)/bandcalculate <from> <to>$() estimates every band between two points under the current conditions.",
+      "title": "Which band?"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Being a few kHz off still lets you hear SSB, sounding higher or lower and thinner; 11 kHz off, nothing. FM is heard up to 2 kHz off.",
+      "title": "Off frequency"
+    }
+  ]
+}

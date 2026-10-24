@@ -1,0 +1,13 @@
+{
+  "name": "Radiocraft Handbook",
+  "landing_text": "Welcome to amateur radio. This handbook walks you from your first $(item)VHF handheld$() to a full HF station, repeaters, packet radio and the instruments that read the sky.$(br2)Every build in here can be shown in the world: press $(thing)Visualize$() on a build page and follow the ghost blocks.",
+  "version": "1",
+  "use_resource_pack": true,
+  "creative_tab": "radiocraft:radiocraft_tabs",
+  "model": "patchouli:book_blue",
+  "show_progress": false,
+  "text_overflow_mode": "resize",
+  "macros": {
+    "$(radio)": "$(#1a6b8f)"
+  }
+}

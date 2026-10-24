@@ -1,0 +1,21 @@
+{
+  "name": "Duplexer",
+  "icon": "radiocraft:duplexer",
+  "category": "radiocraft:repeaters",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The duplexer lets the repeater send and receive on one antenna at once. Its six $(thing)cavity screws$() are tuned to frequencies: the three on the left to the output (TX), the three on the right to the input (RX). Each shows its frequency."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "A new duplexer is $(thing)factory tuned$(): it follows its repeater. Turn a screw and it is yours: retune it whenever you change the repeater's frequencies. A cavity off frequency loses signal and shows the transmitter a bad SWR.",
+      "title": "Tuning"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:duplexer"
+    }
+  ]
+}

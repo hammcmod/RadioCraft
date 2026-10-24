@@ -1,0 +1,17 @@
+{
+  "name": "Desk Gear",
+  "icon": "radiocraft:microphone",
+  "category": "radiocraft:radios",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "$(li)$(item)Desk microphone$(): stands next to a radio, on whichever side the radio is.$(li)$(item)Simplex repeat controller$(): placed next to a radio, makes it echo back whatever it hears after a delay. Perfect for testing your own signal.$(li)$(item)Radio speaker$(): built into every radio."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:microphone",
+      "recipe2": "radiocraft:parrot_controller"
+    }
+  ]
+}

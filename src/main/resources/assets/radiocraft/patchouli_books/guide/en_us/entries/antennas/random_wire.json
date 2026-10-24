@@ -1,0 +1,12 @@
+{
+  "name": "Random Wire",
+  "icon": "radiocraft:balun_nine_to_one",
+  "category": "radiocraft:antennas",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "One wire of any length and shape from a $(item)9:1 balun$(): it may bend at poles and connectors, but not branch or loop. It works on every band where the wire is at least half a wave long, but it is never resonant (SWR 2 or more) and only half as strong as a dipole.$(br2)Always use it with a $(l:radiocraft:antennas/tuners)tuner$(/l)."
+    }
+  ]
+}

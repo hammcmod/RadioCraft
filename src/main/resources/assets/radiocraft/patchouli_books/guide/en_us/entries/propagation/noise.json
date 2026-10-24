@@ -1,0 +1,17 @@
+{
+  "name": "Noise & Interference",
+  "icon": "minecraft:redstone",
+  "category": "radiocraft:propagation",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "HF radios hiss with $(thing)static$(); a strong signal pushes it down, a weak one stays buried in it.$(li)$(thing)Redstone$() switching near your coax or antenna crackles in the receiver: keep clocks away.$(li)$(thing)Lightning$() crashes on every radio in the dimension."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "It works both ways: a transmitter induces a signal in dust near its antenna and can flip levers, buttons and torches nearby, further with a bad SWR. QRP rigs reach less.",
+      "title": "Transmitting"
+    }
+  ]
+}

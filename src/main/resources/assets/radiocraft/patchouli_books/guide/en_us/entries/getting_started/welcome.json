@@ -1,0 +1,22 @@
+{
+  "name": "Welcome",
+  "icon": "radiocraft:vhf_handheld",
+  "category": "radiocraft:getting_started",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Radiocraft brings $(thing)amateur radio$() to Minecraft. You talk through the radios with your real voice using $(thing)Simple Voice Chat$(), which must be installed on the server and your client.$(br2)Radios hear each other only on the same frequency and band, and how far they reach depends on the antenna, the band, the time of day and the sun."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Two families of radio:$(li)$(thing)VHF$() (2 m band, 144-148 MHz): handhelds and base stations. Short range, line of sight, no static. Easy to start with.$(li)$(thing)HF$() (80, 40, 20 and 10 m): long range by bouncing off the sky (\"skip\"), but they need a real antenna, power and some care.",
+      "title": "Two kinds of radio"
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Every licensed operator has a $(thing)call sign$(). Use $(thing)/callsign$() to see or set yours. Digital modes and repeaters send it so others know who they heard.$(br2)New here? Read $(l:radiocraft:getting_started/first_station)Your First Station$(/l).",
+      "title": "Call signs"
+    }
+  ]
+}

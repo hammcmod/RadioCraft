@@ -1,0 +1,16 @@
+{
+  "name": "Weather Fax",
+  "icon": "radiocraft:wefax_receiver",
+  "category": "radiocraft:sky",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(item)WEFAX receiver$() will print weather charts sent over HF on a paper drum. It can be built and placed now; the charts come with the weather work."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:wefax_receiver"
+    }
+  ]
+}
