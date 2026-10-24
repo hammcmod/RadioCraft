@@ -50,6 +50,7 @@ public class Radiocraft {
 
         ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.COMMON, CommonConfig.SPEC, Radiocraft.MOD_ID + "-common.toml");
         ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.SERVER, RadiocraftServerConfig.SPEC, Radiocraft.MOD_ID + "-server.toml");
+        ModLoadingContext.get().getActiveContainer().registerConfig(ModConfig.Type.CLIENT, RadiocraftClientConfig.SPEC, Radiocraft.MOD_ID + "-client.toml");
     }
 
     // This is probably not the best/easiest way to do this, but I couldn't get it to cooperate otherwise, and this is perfectly valid.

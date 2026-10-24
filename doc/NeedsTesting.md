@@ -9,7 +9,8 @@ Add to this list whenever a change cannot be fully verified by `test` / `runGame
 - [ ] Within 8 blocks of a radio that is on, its model's screen (the maintainer's DISPLAY box) shows the frequency in
   amber, and under it smaller the mode (USB/LSB/CW/FM) and an S-meter (S0 to S9, S9+). Blank when the radio is off;
   nothing beyond 8 blocks. Check every radio (10/20/40/80m, all-band, VHF base station, Premium and Cheap ones too),
-  each facing, and one hung from a ceiling; the text should sit on the screen and read left to right.
+  each facing, and one hung from a ceiling; the text should sit on the screen and read left to right. Setting
+  `show_radio_screens = false` in `config/radiocraft-client.toml` hides them.
 - [ ] The S-meter rises with a station's signal, and on HF sits near the top in a blackout
   (`/rcdebug solar set blackout`) or under an aurora; VHF stays low without a signal.
 - [ ] `allow_aurora_at_any_z_coordinate` (server config, off by default): on, the aurora's sky, crackle and static

@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.client.render;
 
+import com.arrl.radiocraft.RadiocraftClientConfig;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioAllBandBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
@@ -22,7 +23,8 @@ import java.util.Locale;
 /**
  * Draws a radio's readout on its model's screen (the {@code DISPLAY} element, see {@link RadioDisplays}) when a player
  * is close: the frequency, and under it smaller, the mode and an S-meter. Amber and full bright, like a lit LCD; blank
- * while the radio is off. Radios whose model has no display draw nothing.
+ * while the radio is off. Radios whose model has no display draw nothing. A player can turn it off in their client
+ * config ({@link RadiocraftClientConfig#SHOW_RADIO_SCREENS}).
  * <p>
  * The S-meter reads what the receiver hears, signal or noise, whichever is stronger, as a real one does: a quiet band
  * sits low, a station lifts it, and on HF a blackout or an aurora overhead pins it near the top.
@@ -42,7 +44,7 @@ public class RadioDisplayRenderer<T extends RadioBlockEntity> implements BlockEn
 
 	@Override
 	public void render(@NotNull T radio, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay) {
-		if(!radio.wasPowered() || radio.getLevel() == null)
+		if(!RadiocraftClientConfig.SHOW_RADIO_SCREENS.get() || !radio.wasPowered() || radio.getLevel() == null)
 			return;
 		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 		if(camera.distanceToSqr(radio.getBlockPos().getCenter()) > VIEW_DISTANCE * VIEW_DISTANCE)
