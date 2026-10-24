@@ -21,7 +21,8 @@ Add to this list whenever a change cannot be fully verified by `test` / `runGame
   dark dither with a bright shoreline, a dotted grid, a box at the H19, and a white cross at each station heard with
   its callsign beside it in a small pixel font (on the left near the right edge). It re-centres and zooms out to fit
   as stations are heard, every 5 seconds. Unloaded ground is black. A cartography table copy stays live.
-- [ ] Sneaking and right-clicking with 4 or more empty maps gives a 2 x 2 wall, 9 or more a 3 x 3: each map's tooltip
+- [ ] Sneaking and right-clicking with 4 or more empty maps gives a 2 x 2 wall (not a vanilla map: the H19 takes the
+  sneak-use), 9 or more a 3 x 3: each map's tooltip
   gives its row and column (top left is north west). Framed in that order, the picture, crosses and callsigns run
   across the joins.
 - [ ] Microphone Element: texture in the inventory; ` P `/`NCN` makes 2; the hand and desk mic recipes use it.
