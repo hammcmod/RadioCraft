@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.client.screens;
 
 import com.arrl.radiocraft.common.network.clientbound.CCallsignPromptPacket;
+import com.arrl.radiocraft.common.radio.Callsigns;
 import com.arrl.radiocraft.common.network.serverbound.SClaimCallsignPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -48,7 +49,7 @@ public class CallsignScreen extends Screen {
 	protected void init() {
 		int x = width / 2 - 60, y = height / 2 - 10;
 		box = addRenderableWidget(new EditBox(font, x, y, 120, 18, Component.translatable("screen.radiocraft.callsign.box")));
-		box.setMaxLength(6);
+		box.setMaxLength(7);
 		box.setFilter(s -> s.matches("[A-Za-z0-9]*"));
 		box.setResponder(s -> {
 			String upper = s.toUpperCase(Locale.ROOT);
@@ -58,6 +59,8 @@ public class CallsignScreen extends Screen {
 		setInitialFocus(box);
 		addRenderableWidget(Button.builder(Component.translatable("screen.radiocraft.callsign.claim"), b -> claim()).bounds(x, y + 26, 58, 20).build());
 		addRenderableWidget(Button.builder(Component.translatable("screen.radiocraft.callsign.later"), b -> onClose()).bounds(x + 62, y + 26, 58, 20).build());
+		addRenderableWidget(Button.builder(Component.translatable("screen.radiocraft.callsign.choose"), b -> SClaimCallsignPacket.send(Callsigns.CHOOSE_TOKEN))
+				.bounds(x, y + 50, 120, 20).build());
 	}
 
 	private void claim() {
@@ -82,7 +85,7 @@ public class CallsignScreen extends Screen {
 		graphics.drawCenteredString(font, Component.translatable("screen.radiocraft.callsign.form"), cx, y + 16, 0xC0C0C0);
 		graphics.drawCenteredString(font, Component.translatable("screen.radiocraft.callsign.digits", digits), cx, y + 28, 0xC0C0C0);
 		if(error != null)
-			graphics.drawCenteredString(font, error, cx, height / 2 + 42, 0xFF5555);
+			graphics.drawCenteredString(font, error, cx, height / 2 + 66, 0xFF5555);
 	}
 
 	@Override

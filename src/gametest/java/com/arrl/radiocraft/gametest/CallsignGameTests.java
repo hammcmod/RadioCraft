@@ -31,9 +31,9 @@ public class CallsignGameTests {
 
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20, batch = "callsigns")
     public static void playerCallsignForm(GameTestHelper helper) {
-        for(String good : new String[] { "K1ABC", "W4X", "KA1B", "N0ZZ" })
+        for(String good : new String[] { "K1ABC", "W4X", "KA1B", "N0ZZ", "VE3XY", "2E0AB", "G4ABC", "KH6XX" })
             helper.assertTrue(Callsigns.isValidPlayerCallsign(good), good + " was refused");
-        for(String bad : new String[] { "1ABC", "K1", "K12AB", "K1ABCD", "KAB1C", "" })
+        for(String bad : new String[] { "1ABC", "K1", "K12AB", "K1ABCD", "KAB1C", "QQ1ABC", "XZ1AB", "" })
             helper.assertFalse(Callsigns.isValidPlayerCallsign(bad), bad + " was accepted");
         String digits = RadiocraftServerConfig.CALLSIGN_DIGITS.get();
         RadiocraftServerConfig.CALLSIGN_DIGITS.set("3");
@@ -53,7 +53,11 @@ public class CallsignGameTests {
         Callsigns.ClaimResult taken = Callsigns.claim(b, "K7QRZ");
         Callsigns.ClaimResult invalid = Callsigns.claim(b, "77QRZ");
         String mine = Callsigns.playerCallsign(helper.getLevel().getServer(), a.getUUID());
+        Callsigns.ClaimResult chosen = Callsigns.claim(b, Callsigns.CHOOSE_TOKEN);
+        String theirs = Callsigns.playerCallsign(helper.getLevel().getServer(), b.getUUID());
         forget(helper, a, b);
+        helper.assertTrue(chosen == Callsigns.ClaimResult.OK && theirs != null && Callsigns.isValidPlayerCallsign(theirs)
+                && theirs.indexOf((char)('0' + Callsigns.zoneDigit(helper.getLevel(), b.blockPosition()))) >= 0, "Choose one for me gave " + chosen + " " + theirs);
         helper.assertTrue(first == Callsigns.ClaimResult.OK && "K7QRZ".equals(mine), "The first claim failed: " + first + " " + mine);
         helper.assertTrue(again == Callsigns.ClaimResult.ALREADY_HAS, "A second claim was " + again);
         helper.assertTrue(taken == Callsigns.ClaimResult.TAKEN, "Claiming a taken callsign was " + taken);

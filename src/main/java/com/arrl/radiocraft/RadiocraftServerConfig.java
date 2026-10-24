@@ -25,6 +25,7 @@ public class RadiocraftServerConfig {
 	/** How CW is sent from a radio's screen (proposal). Both have the keyboard key ({@code key.radiocraft.cw_key}). */
 	public enum CwKeying { TRUE_MORSE, CHAT_MORSE }
 	public static final ModConfigSpec.ConfigValue<String> CALLSIGN_DIGITS;
+	public static final ModConfigSpec.ConfigValue<java.util.List<? extends String>> CALLSIGN_PREFIXES;
 	public static final ModConfigSpec.ConfigValue<Integer> CALLSIGN_ZONE_RADIUS;
 	public static final ModConfigSpec.EnumValue<com.arrl.radiocraft.common.radio.Callsigns.RepeaterMode> REPEATER_CALLSIGN_MODE;
 
@@ -185,6 +186,10 @@ public class RadiocraftServerConfig {
 		CALLSIGN_SELF_ASSIGN = BUILDER.comment(" Players may choose their own callsign (asked the first time they use a radio, or /callsign claim). False:",
 				" only operators hand them out").define("callsign_self_assign", true);
 		CALLSIGN_DIGITS = BUILDER.comment(" Digits players may use in a callsign they choose, e.g. \"0123456789\" or \"3\"").define("callsign_digits", "0123456789");
+		CALLSIGN_PREFIXES = BUILDER.comment(" Callsign prefixes players may use (real amateur prefixes: K, W, N, AA to AL, VE, G, 2E, DL, JA, VK ...). A callsign",
+				" is a prefix, a digit and one to three letters. \"Choose one for me\" picks a prefix from this list")
+				.defineListAllowEmpty("callsign_prefixes", com.arrl.radiocraft.common.radio.Callsigns.DEFAULT_PREFIXES, () -> "K",
+						o -> o instanceof String s && s.matches("[A-Z0-9]{1,3}"));
 		CALLSIGN_ZONE_RADIUS = BUILDER.comment(" Repeater callsigns (X#XX) carry a digit for how far from spawn they stand: 0 near spawn up to 9 at this many",
 				" blocks (or the world border, if nearer)").defineInRange("callsign_zone_radius", 10000, 10, 30000000);
 		REPEATER_CALLSIGN_MODE = BUILDER.comment(" Repeater callsigns: EITHER (made up in the X#XX form, or the owner's own callsign), AUTO (X#XX only) or OWN",

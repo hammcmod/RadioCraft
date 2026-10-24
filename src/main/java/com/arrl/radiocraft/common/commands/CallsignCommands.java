@@ -64,7 +64,8 @@ public class CallsignCommands {
 	public static final LiteralArgumentBuilder<CommandSourceStack> BUILDER =
 			Commands.literal("callsign")
 					.executes(command -> getPlayerCallsign(command.getSource(), java.util.List.of(command.getSource().getPlayerOrException().getGameProfile()))) // Your own.
-					.then(Commands.literal("claim") // A player choosing their own (callsign_self_assign).
+					.then(Commands.literal("claim") // A player choosing their own (callsign_self_assign); with none, one is chosen for them.
+							.executes(command -> claimCallsign(command.getSource(), com.arrl.radiocraft.common.radio.Callsigns.CHOOSE_TOKEN))
 							.then(Commands.argument("callsign", StringArgumentType.word())
 									.executes(command -> claimCallsign(command.getSource(), StringArgumentType.getString(command, "callsign")))))
 					.then(Commands.literal("list")
@@ -104,7 +105,7 @@ public class CallsignCommands {
 	public static int claimCallsign(CommandSourceStack source, String callsign) throws CommandSyntaxException {
 		ServerPlayer player = source.getPlayerOrException();
 		com.arrl.radiocraft.common.radio.Callsigns.ClaimResult result = com.arrl.radiocraft.common.radio.Callsigns.claim(player, callsign);
-		String c = com.arrl.radiocraft.common.radio.Callsigns.normalise(callsign);
+		String c = com.arrl.radiocraft.common.radio.Callsigns.claimedName(player, callsign);
 		if(result == com.arrl.radiocraft.common.radio.Callsigns.ClaimResult.OK) {
 			source.sendSuccess(() -> Component.translatable("message.radiocraft.callsign.claimed", c), false);
 			return 1;

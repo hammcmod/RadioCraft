@@ -91,7 +91,7 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 ### Events, Commands & Config
 - [x] Callsign capability with `/callsign` tools implemented
 - [x] Implement administrative callsign commands (`/callsign set`, `reset`, `generate`: permission level 3)
-- [x] Callsigns (2026-10-24, proposal): players choose their own in the !@#!@@ form (K1ABC), asked the first time
+- [x] Callsigns (2026-10-24, proposal): players choose their own, a real ham callsign (a prefix from `callsign_prefixes`, a digit, 1-3 letters), or "Choose one for me" (prefix + zone digit + 3 letters), asked the first time
   they reach for a radio (once a session) or with `/callsign claim`; taken ones refused; `callsign_self_assign`,
   `callsign_digits`. Repeaters get X#XX callsigns whose digit is the distance from spawn (`callsign_zone_radius`), or
   their owner's callsign; `repeater_callsign_mode` EITHER / AUTO / OWN

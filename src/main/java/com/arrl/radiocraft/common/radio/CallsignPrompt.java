@@ -66,7 +66,7 @@ public final class CallsignPrompt {
 		Callsigns.ClaimResult result = Callsigns.claim(player, callsign);
 		if(result == Callsigns.ClaimResult.OK) {
 			CCallsignPromptPacket.send(player, CCallsignPromptPacket.DONE, "");
-			player.sendSystemMessage(Component.translatable("message.radiocraft.callsign.claimed", Callsigns.normalise(callsign)).withStyle(ChatFormatting.GREEN));
+			player.sendSystemMessage(Component.translatable("message.radiocraft.callsign.claimed", Callsigns.claimedName(player, callsign)).withStyle(ChatFormatting.GREEN));
 		}
 		else
 			CCallsignPromptPacket.send(player, CCallsignPromptPacket.ERROR, "message.radiocraft.callsign." + result.name().toLowerCase(java.util.Locale.ROOT));
