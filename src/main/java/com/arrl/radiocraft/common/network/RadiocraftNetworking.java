@@ -28,6 +28,8 @@ public class RadiocraftNetworking {
         registrar.playToServer(SPlayerClickHoldUpdate.TYPE, SPlayerClickHoldUpdate.STREAM_CODEC, SPlayerClickHoldUpdate::handle);
         registrar.playToServer(SWornPttPacket.TYPE, SWornPttPacket.STREAM_CODEC, SWornPttPacket::handle);
         registrar.playToServer(SCWBufferPacket.TYPE, SCWBufferPacket.STREAM_CODEC, SCWBufferPacket::handle);
+        registrar.playToServer(com.arrl.radiocraft.common.network.serverbound.SClaimCallsignPacket.TYPE, com.arrl.radiocraft.common.network.serverbound.SClaimCallsignPacket.STREAM_CODEC, com.arrl.radiocraft.common.network.serverbound.SClaimCallsignPacket::handle);
+        registrar.playToClient(com.arrl.radiocraft.common.network.clientbound.CCallsignPromptPacket.TYPE, com.arrl.radiocraft.common.network.clientbound.CCallsignPromptPacket.STREAM_CODEC, com.arrl.radiocraft.common.network.clientbound.CCallsignPromptPacket::handle);
         registrar.playToClient(CCWBufferPacket.TYPE, CCWBufferPacket.STREAM_CODEC, CCWBufferPacket::handle);
         registrar.playToClient(CAuroraPacket.TYPE, CAuroraPacket.STREAM_CODEC, CAuroraPacket::handle);
         registrar.playToClient(CInterferencePacket.TYPE, CInterferencePacket.STREAM_CODEC, CInterferencePacket::handle);

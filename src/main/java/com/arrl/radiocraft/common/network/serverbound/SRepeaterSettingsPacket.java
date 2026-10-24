@@ -1,5 +1,8 @@
 package com.arrl.radiocraft.common.network.serverbound;
 
+import com.arrl.radiocraft.common.radio.Callsigns;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity;
 import com.arrl.radiocraft.common.menus.VHFRepeaterMenu;
@@ -35,8 +38,19 @@ public record SRepeaterSettingsPacket(long pos, CompoundTag settings) implements
 
     public void handle(IPayloadContext context) {
         context.enqueueWork(() -> {
-            if(context.player().containerMenu instanceof VHFRepeaterMenu menu && menu.blockEntity.getBlockPos().equals(BlockPos.of(pos)))
+            if(context.player().containerMenu instanceof VHFRepeaterMenu menu && menu.blockEntity.getBlockPos().equals(BlockPos.of(pos))) {
+                if(settings.contains("callsign") && context.player() instanceof ServerPlayer player) { // Only what repeater_callsign_mode allows.
+                    String callsign = Callsigns.resolveRepeaterCallsign(player, player.level(), menu.blockEntity.getBlockPos(), settings.getString("callsign"));
+                    if(callsign == null) {
+                        settings.remove("callsign");
+                        player.displayClientMessage(Component.translatable("message.radiocraft.repeater_callsign." + Callsigns.repeaterMode().name().toLowerCase(java.util.Locale.ROOT),
+                                Callsigns.zoneDigit(player.level(), menu.blockEntity.getBlockPos())), true);
+                    }
+                    else
+                        settings.putString("callsign", callsign);
+                }
                 menu.blockEntity.applySettings(settings);
+            }
         });
     }
 

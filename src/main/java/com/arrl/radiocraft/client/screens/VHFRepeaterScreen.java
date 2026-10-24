@@ -8,6 +8,7 @@ import com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity;
 import com.arrl.radiocraft.common.menus.VHFRepeaterMenu;
 import com.arrl.radiocraft.common.network.serverbound.SBlockRadioControlPacket;
 import com.arrl.radiocraft.common.network.serverbound.SRepeaterSettingsPacket;
+import com.arrl.radiocraft.common.radio.Callsigns;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.voice.Ctcss;
 import net.minecraft.client.gui.GuiGraphics;
@@ -196,12 +197,17 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 				editBox = addRenderableWidget(new EditBox(font, x, y, w, 16, Component.translatable("screen.radiocraft.repeater.callsign")));
 				editBox.setMaxLength(10);
 				editBox.setValue(repeater().getCallsign());
-				editBox.setFilter(s -> s.matches("[A-Za-z0-9/]*"));
+				editBox.setFilter(s -> s.matches("@?[A-Za-z0-9/]*"));
 				setInitialFocus(editBox);
 				addRenderableWidget(Button.builder(idIntervalLabel(), b -> {
 					pendingIdInterval = ID_STEPS[(indexOf(ID_STEPS, pendingIdInterval) + 1) % ID_STEPS.length];
 					b.setMessage(idIntervalLabel());
 				}).bounds(x, y + 20, w, 16).build());
+				// Made up in the X#XX form (the digit is how far from spawn), or your own callsign: the server checks the mode.
+				addRenderableWidget(Button.builder(Component.translatable("screen.radiocraft.repeater.callsign_auto"), b -> editBox.setValue(Callsigns.AUTO_TOKEN))
+						.bounds(x, y + 40, w / 2 - 2, 16).build());
+				addRenderableWidget(Button.builder(Component.translatable("screen.radiocraft.repeater.callsign_own"), b -> editBox.setValue(Callsigns.OWN_TOKEN))
+						.bounds(x + w / 2 + 2, y + 40, w / 2 - 2, 16).build());
 			}
 			case RX_TONE, TX_TONE -> {
 				addRenderableWidget(Button.builder(Component.literal("<"), b -> pendingTone = Ctcss.step(pendingTone, -1)).bounds(x, y + 8, 20, 16).build());

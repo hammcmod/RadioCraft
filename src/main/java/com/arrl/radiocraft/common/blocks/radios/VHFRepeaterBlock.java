@@ -2,6 +2,12 @@ package com.arrl.radiocraft.common.blocks.radios;
 
 import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity;
+import com.arrl.radiocraft.common.radio.Callsigns;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
@@ -31,6 +37,22 @@ public class VHFRepeaterBlock extends RadioBlock {
 	@Override
 	protected @NotNull MapCodec<? extends BaseEntityBlock> codec() {
 		return null;
+	}
+
+	/** A new repeater gets a callsign: made up in the X#XX form, or with repeater_callsign_mode OWN its placer's. */
+	@Override
+	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack stack) {
+		super.setPlacedBy(level, pos, state, placer, stack);
+		if(level.isClientSide || !(level.getBlockEntity(pos) instanceof VHFRepeaterBlockEntity repeater) || !repeater.getCallsign().isEmpty())
+			return;
+		String callsign = Callsigns.repeaterMode() == Callsigns.RepeaterMode.OWN
+				? (placer instanceof ServerPlayer player && player.getServer() != null ? Callsigns.playerCallsign(player.getServer(), player.getUUID()) : null)
+				: Callsigns.generateRepeater(level, pos, level.getRandom());
+		if(callsign != null) {
+			CompoundTag tag = new CompoundTag();
+			tag.putString("callsign", callsign);
+			repeater.applySettings(tag);
+		}
 	}
 
 	@Nullable

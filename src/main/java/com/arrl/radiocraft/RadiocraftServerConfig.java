@@ -19,6 +19,10 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> HANDHELD_MAX_MIC_GAIN;
 
     public static final ModConfigSpec.ConfigValue<Boolean> CALLSIGN_PERMISSIONS_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Boolean> CALLSIGN_SELF_ASSIGN;
+	public static final ModConfigSpec.ConfigValue<String> CALLSIGN_DIGITS;
+	public static final ModConfigSpec.ConfigValue<Integer> CALLSIGN_ZONE_RADIUS;
+	public static final ModConfigSpec.EnumValue<com.arrl.radiocraft.common.radio.Callsigns.RepeaterMode> REPEATER_CALLSIGN_MODE;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> REDSTONE_INTERFERENCE_ENABLED;
 	public static final ModConfigSpec.ConfigValue<Double> REDSTONE_INTERFERENCE_STRENGTH;
@@ -167,6 +171,16 @@ public class RadiocraftServerConfig {
         BUILDER.push("Permissions");
         CALLSIGN_PERMISSIONS_ENABLED = BUILDER.comment(" Require op for callsign configuration").define("callsign_permissions_enabled", true);
         BUILDER.pop();
+
+		BUILDER.push("Callsigns");
+		CALLSIGN_SELF_ASSIGN = BUILDER.comment(" Players may choose their own callsign (asked the first time they use a radio, or /callsign claim). False:",
+				" only operators hand them out").define("callsign_self_assign", true);
+		CALLSIGN_DIGITS = BUILDER.comment(" Digits players may use in a callsign they choose, e.g. \"0123456789\" or \"3\"").define("callsign_digits", "0123456789");
+		CALLSIGN_ZONE_RADIUS = BUILDER.comment(" Repeater callsigns (X#XX) carry a digit for how far from spawn they stand: 0 near spawn up to 9 at this many",
+				" blocks (or the world border, if nearer)").defineInRange("callsign_zone_radius", 10000, 10, 30000000);
+		REPEATER_CALLSIGN_MODE = BUILDER.comment(" Repeater callsigns: EITHER (made up in the X#XX form, or the owner's own callsign), AUTO (X#XX only) or OWN",
+				" (the owner's callsign only). New repeaters get an X#XX one, or with OWN their placer's").defineEnum("repeater_callsign_mode", com.arrl.radiocraft.common.radio.Callsigns.RepeaterMode.EITHER);
+		BUILDER.pop();
 
 		BUILDER.push("Redstone Interference");
 		BUILDER.comment(" Redstone components switching near a station's feedline or antenna add noise to that radio's static.",
