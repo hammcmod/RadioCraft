@@ -136,7 +136,7 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [x] VHF repeater (2026-10-21): input/output frequencies, CTCSS access and output tones, CW ID in Morse tone, hang
   time with courtesy beep, timeout timer, MIC/TX/SPEAKER, duplexer on the back/top/bottom (kerchunks without one),
   bare connector without an antenna. Handhelds and the base station got a tone and a ±600 kHz offset.
-- [x] Repeater sleep/wake (2026-10-24): woken by use, IDs every interval while awake, sleeps after a silent interval. Not in the release creative tab yet.
+- [x] Repeater sleep/wake (2026-10-24): woken by use, IDs every interval while awake, sleeps after a silent interval.
 - [x] Fix the J-pole and duplexer models (maintainer fixed them, 2026-10-21): overlapping faces z-fight; nudge them apart by 0.01 px (maintainer, 2026-10-21)
 - [x] Duplexer sits right on top of the repeater (done 2026-10-21 with the maintainer's model) (the repeater is 12 px tall, so a duplexer above it floats 4 px), and
   a clearer way to run coax to it: model the wire to where the antenna port is, or two coax ports on the back of the

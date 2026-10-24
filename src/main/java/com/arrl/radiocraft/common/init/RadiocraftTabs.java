@@ -24,25 +24,9 @@ public class RadiocraftTabs {
         // In the development environment, we load everything.
         // In the release version, we only enabled working items/blocks. So put all stuff not ready for release here.
         if (Radiocraft.IS_DEVELOPMENT_ENV) {
-            output.accept(RadiocraftItems.MICROPHONE.get());
-            output.accept(RadiocraftItems.SMALL_BATTERY.get());
-            output.accept(RadiocraftItems.WATERPROOF_WIRE.get());
-            output.accept(RadiocraftItems.SOLAR_PANEL.get());
-            output.accept(RadiocraftItems.LARGE_BATTERY.get());
-            output.accept(RadiocraftItems.CHARGE_CONTROLLER.get());
-            output.accept(RadiocraftItems.VHF_REPEATER.get());
-            output.accept(RadiocraftItems.ALL_BAND_RADIO.get());
-            output.accept(RadiocraftItems.DUPLEXER.get());
-            output.accept(RadiocraftItems.AUTO_TUNER.get());
-            output.accept(RadiocraftItems.DUMMY_LOAD.get());
-            output.accept(RadiocraftItems.RADIO_INTERFACE.get());
-            output.accept(RadiocraftItems.APRS_TERMINAL.get());
-            output.accept(RadiocraftItems.TRANSFER_INTERFACE.get());
-			output.accept(RadiocraftItems.SATELLITE_DISH.get());
-			output.accept(RadiocraftItems.IONOSONDE.get());
-			output.accept(RadiocraftItems.FIVE_BTV_ANTENNA.get());
-			output.accept(RadiocraftItems.IONOSPHERIC_PROCESSOR.get());
-			output.accept(RadiocraftItems.WEFAX_RECEIVER.get());
+			output.accept(RadiocraftItems.SATELLITE_DISH.get()); // Decorative, no recipe yet.
+			output.accept(RadiocraftItems.IONOSPHERIC_PROCESSOR.get()); // Built and glowing, does not read the sky yet.
+			output.accept(RadiocraftItems.WEFAX_RECEIVER.get()); // Prints nothing yet.
 		}
 
 		// Anything below here should be in the release creative menu
@@ -73,6 +57,28 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.J_POLE_ANTENNA.get());
         output.accept(RadiocraftItems.SLIM_JIM_ANTENNA.get());
         output.accept(RadiocraftItems.TELETYPE.get());
+        output.accept(RadiocraftItems.ALL_BAND_RADIO.get());
+        output.accept(RadiocraftItems.MICROPHONE.get());
+        output.accept(RadiocraftItems.AUTO_TUNER.get());
+        output.accept(RadiocraftItems.DUMMY_LOAD.get());
+        output.accept(RadiocraftItems.FIVE_BTV_ANTENNA.get());
+        output.accept(RadiocraftItems.IONOSONDE.get());
+
+        // Repeaters
+        output.accept(RadiocraftItems.VHF_REPEATER.get());
+        output.accept(RadiocraftItems.DUPLEXER.get());
+
+        // APRS and packet
+        output.accept(RadiocraftItems.RADIO_INTERFACE.get());
+        output.accept(RadiocraftItems.APRS_TERMINAL.get());
+        output.accept(RadiocraftItems.TRANSFER_INTERFACE.get());
+
+        // Power: radios need it by default (radios_need_power)
+        output.accept(RadiocraftItems.SOLAR_PANEL.get());
+        output.accept(RadiocraftItems.CHARGE_CONTROLLER.get());
+        output.accept(RadiocraftItems.LARGE_BATTERY.get());
+        output.accept(RadiocraftItems.SMALL_BATTERY.get());
+        output.accept(RadiocraftItems.WATERPROOF_WIRE.get());
 
         output.accept(RadiocraftItems.DESK_CHARGER.get());
 
