@@ -275,6 +275,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "coax_wire"), "Carries the signal between a radio and its antenna's balun. Runs along the ground, up walls and over steps.");
             provider.add("key.categories.radiocraft", "RadioCraft");
             provider.add("key.radiocraft.worn_ptt", "Talk on worn radio");
+            provider.add(Radiocraft.translationKey("tooltip", "microphone"), "Stands beside a radio. Hold right click on it to talk; sneak and right click to lock talking on. Speak close: it gets quieter as you step away. Lets go after a timeout.");
+            provider.add(Radiocraft.translationKey("message", "desk_mic.locked"), "Desk mic locked on (lets go after %ss)");
+            provider.add(Radiocraft.translationKey("message", "desk_mic.unlocked"), "Desk mic released");
             provider.add(Radiocraft.translationKey("tooltip", "tower_foothold"), "A rung for climbing a tower, or standing on. Place it against a wall like a ladder.");
             provider.add(Radiocraft.translationKey("tooltip", "old_tower_foothold"), "Weathered. Now and then one gives way under a climber.");
             provider.add(Radiocraft.translationKey("commands", "guide.given"), "Gave %s the RadioCraft guide");

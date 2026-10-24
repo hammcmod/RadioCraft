@@ -98,7 +98,7 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 						if (!listener.canTransmitVoice())
 							continue; // Do not transmit if listener is not accepting packets.
 
-						listener.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid());
+						listener.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid(), new Vec3(playerPos.getX(), playerPos.getY(), playerPos.getZ()));
 					}
 				}
 			}

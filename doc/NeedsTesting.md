@@ -4,6 +4,13 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Desk microphone (added 2026-10-24)
+
+- [ ] Beside a radio: hold right click on the mic to talk (a click on press), let go to stop. Sneak and right click
+  locks talking on (a message says for how long); again to release. After 30 s it lets go by itself with a low blip.
+- [ ] Your voice is full level within a block or two of the mic, half at 3 blocks, gone past 16: walk away while
+  locked and listen on another radio. Someone else standing by the mic is picked up too.
+
 ## Controller switch, Curios, repeater sleep, parrot pick, FM hiss, delta loop and Moxon (added 2026-10-24)
 
 - [ ] Charge controller: the switch on its screen now works. Off, the panels stop charging the batteries (the green

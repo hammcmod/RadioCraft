@@ -24,6 +24,14 @@ public interface IVoiceTransmitter {
 	void acceptVoicePacket(ServerLevel level, short[] rawAudio, UUID sourcePlayer);
 
 	/**
+	 * As {@link #acceptVoicePacket(ServerLevel, short[], UUID)}, knowing where the speaker stood, for transmitters
+	 * whose microphone gets quieter with distance (a radio's desk microphone). The default ignores the position.
+	 */
+	default void acceptVoicePacket(ServerLevel level, short[] rawAudio, UUID sourcePlayer, Vec3 speakerPos) {
+		acceptVoicePacket(level, rawAudio, sourcePlayer);
+	}
+
+	/**
      * Check if this transmitter is currently open to transmit voice.
 	 * @return True if this transmitter is currently open to transmit voice. Checks for if SSB mode is enabled, power is
  	 * on etc. should be done here.

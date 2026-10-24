@@ -97,6 +97,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     // The hand mic on its cord (see takeHandMic): who has it out, which lending it is, and whether it is keying us.
     @Nullable
     protected UUID micHolder = null;
+    // The desk microphone beside the radio (see MicrophoneBlock): who is holding its button, whether it is locked on,
+    // and where it stands. Server side, not saved: a reload lets go of it.
+    private UUID deskMicUser = null;
+    private boolean deskMicLocked = false;
+    private boolean deskMicKeyed = false;
+    private long deskMicKeyedSince = -1L;
+    private volatile BlockPos deskMicPos = null; // Read on the voice thread while keyed.
     @Nullable
     protected UUID micId = null;
     private boolean micKeyed = false;
@@ -196,6 +203,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.tickInterference(serverLevel, antenna);
                 be.tickBlowout(serverLevel);
                 be.tickHandMic(serverLevel);
+                be.tickDeskMic(serverLevel);
                 be.tickMeter(serverLevel);
                 be.tickData(serverLevel, powered);
             }
@@ -547,6 +555,88 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         micId = null;
         setChanged();
         updateBlock();
+    }
+
+    // -------------------- DESK MICROPHONE --------------------
+
+    /** Within this many blocks of the desk mic a voice goes out at full level; further off it falls as 1 / distance. */
+    public static final double DESK_MIC_CLOSE = 1.5D;
+    /** Past this many blocks the desk mic hears nothing. */
+    public static final double DESK_MIC_REACH = 16.0D;
+    /** How far the player holding the desk mic's button can wander before it lets go. */
+    public static final double DESK_MIC_HOLD_REACH = 6.0D;
+
+    /** How loud a voice {@code distance} blocks from the desk mic comes through: 1 up close, half at 3 blocks, none past 16. */
+    public static double deskMicGain(double distance) {
+        if(distance > DESK_MIC_REACH)
+            return 0.0D;
+        return distance <= DESK_MIC_CLOSE ? 1.0D : DESK_MIC_CLOSE / distance;
+    }
+
+    /** Right click on the desk mic at {@code micPos}: the radio talks while the player keeps holding right click. */
+    public void pressDeskMic(Player player, BlockPos micPos) {
+        deskMicPos = micPos;
+        deskMicUser = player.getUUID();
+    }
+
+    /** Sneak and right click on the desk mic: talking stays on until clicked again (or the timeout). True when now locked. */
+    public boolean toggleDeskMicLock(Player player, BlockPos micPos) {
+        deskMicPos = micPos;
+        deskMicLocked = !deskMicLocked;
+        deskMicUser = deskMicLocked ? null : deskMicUser;
+        return deskMicLocked;
+    }
+
+    public boolean isDeskMicLocked() {
+        return deskMicLocked;
+    }
+
+    public boolean isDeskMicKeyed() {
+        return deskMicKeyed;
+    }
+
+    /** Keys the radio while the desk mic is held or locked, and lets go after the timeout with a short blip. */
+    private void tickDeskMic(ServerLevel serverLevel) {
+        boolean held = false;
+        if(deskMicUser != null) {
+            Player player = serverLevel.getPlayerByUUID(deskMicUser);
+            held = player != null && deskMicPos != null && player.position().distanceTo(deskMicPos.getCenter()) <= DESK_MIC_HOLD_REACH
+                    && PlayerRadioManager.get(deskMicUser).map(PlayerRadio::isUseHeld).orElse(false);
+            if(!held)
+                deskMicUser = null; // Let go of the button.
+        }
+        boolean keyed = deskMicLocked || held;
+        long now = serverLevel.getGameTime();
+        int timeout = RadiocraftServerConfig.DESK_MIC_TIMEOUT_SECONDS.get() * 20;
+        if(keyed && deskMicKeyed && timeout > 0 && now - deskMicKeyedSince >= timeout) {
+            keyed = false;
+            deskMicLocked = false;
+            deskMicUser = null;
+            serverLevel.playSound(null, worldPosition, SoundEvents.NOTE_BLOCK_BIT.value(), SoundSource.BLOCKS, 0.6F, 0.6F); // Timed out.
+        }
+        if(keyed != deskMicKeyed) {
+            deskMicKeyed = keyed;
+            deskMicKeyedSince = keyed ? now : -1L;
+            setPTTDown(keyed);
+        }
+    }
+
+    /** A voice heard while the desk mic is keyed comes through quieter the further the speaker stands from the mic. */
+    @Override
+    public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer, Vec3 speakerPos) {
+        BlockPos mic = deskMicPos;
+        if(deskMicKeyed && mic != null && speakerPos != null) {
+            double gain = deskMicGain(speakerPos.distanceTo(mic.getCenter()));
+            if(gain <= 0.0D)
+                return;
+            if(gain < 1.0D) {
+                short[] quieter = new short[rawAudio.length];
+                for(int i = 0; i < rawAudio.length; i++)
+                    quieter[i] = (short)Math.round(rawAudio[i] * gain);
+                rawAudio = quieter;
+            }
+        }
+        acceptVoicePacket(level, rawAudio, sourcePlayer);
     }
 
     // -------------------- BLOWN TRANSMITTER --------------------

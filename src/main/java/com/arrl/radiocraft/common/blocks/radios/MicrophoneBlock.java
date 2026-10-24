@@ -1,5 +1,13 @@
 package com.arrl.radiocraft.common.blocks.radios;
 
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.InteractionResult;
+import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.common.blocks.RadioLinks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -89,6 +97,35 @@ public final class MicrophoneBlock extends Block {
 		return state.getValue(SIDE);
 	}
 
+	/** The radio this mic stands beside, on its {@link #SIDE}, or null. */
+	@Nullable
+	public static RadioBlockEntity radio(BlockState state, BlockGetter level, BlockPos pos) {
+		Direction side = state.getValue(SIDE) == Side.LEFT ? left(state) : left(state).getOpposite();
+		return level.getBlockEntity(pos.relative(side)) instanceof RadioBlockEntity radio ? radio : null;
+	}
+
+	/**
+	 * Hold right click to talk through the radio beside it; sneak and right click to lock talking on (and again to let
+	 * go). The mic hears whoever is close: further away, quieter. It lets go by itself after desk_mic_timeout_seconds.
+	 */
+	@Override
+	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
+		RadioBlockEntity radio = radio(state, level, pos);
+		if(radio == null)
+			return InteractionResult.PASS;
+		if(!level.isClientSide) {
+			if(player.isShiftKeyDown()) {
+				boolean locked = radio.toggleDeskMicLock(player, pos);
+				player.displayClientMessage(Component.translatable(locked ? "message.radiocraft.desk_mic.locked" : "message.radiocraft.desk_mic.unlocked",
+						RadiocraftServerConfig.DESK_MIC_TIMEOUT_SECONDS.get()), true);
+			}
+			else
+				radio.pressDeskMic(player, pos);
+			level.playSound(null, pos, SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.4F, 1.4F);
+		}
+		return InteractionResult.sidedSuccess(level.isClientSide);
+	}
+
 	@Nullable
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -112,6 +149,6 @@ public final class MicrophoneBlock extends Block {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(Component.translatable("tooltip.radiocraft.not_implemented"));
+        tooltipComponents.add(Component.translatable("tooltip.radiocraft.microphone"));
     }
 }

@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Gear that sits on the desk beside a radio and works through it.$(li)$(item)Desk microphone$(): stands next to a radio, on whichever side it is.$(li)$(item)Hand mic$(): sneak and right click a radio with an empty hand to take its mic on a cord. Hold right click to talk; right click the radio to hang it up.$(li)$(item)Simplex repeat controller$(): echoes back what the radio hears after a delay, for testing your own signal."
+      "text": "Gear that sits on the desk beside a radio and works through it.$(li)$(item)Desk microphone$(): beside a radio. Hold right click on it to talk; sneak and right click to lock talking on. Speak close: it gets quieter as you step away, and lets go after 30 seconds.$(li)$(item)Hand mic$(): sneak and right click a radio with an empty hand to take its mic on a cord. Hold right click to talk; right click the radio to hang it up.$(li)$(item)Simplex repeat controller$(): echoes back what the radio hears after a delay, for testing your own signal."
     },
     {
       "type": "patchouli:text",

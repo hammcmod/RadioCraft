@@ -69,6 +69,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_STATIC;
 
 	public static final ModConfigSpec.ConfigValue<Double> TOWER_FOOTHOLD_BREAK_CHANCE;
+	public static final ModConfigSpec.ConfigValue<Integer> DESK_MIC_TIMEOUT_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Boolean> GUIDE_ON_FIRST_JOIN;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> TERRAIN_ENABLED;
@@ -250,6 +251,11 @@ public class RadiocraftServerConfig {
 		AURORA_VHF_MAX_RANGE = BUILDER.comment(" Longest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_max_range", 4000, 1, 1000000);
 		AURORA_VHF_STRENGTH = BUILDER.comment(" Strength (0 to 1) of a VHF signal carried by the aurora").defineInRange("aurora_vhf_strength", 0.8, 0.0, 1.0);
 		AURORA_STATIC = BUILDER.comment(" Extra static on HF radios under the aurora, on top of the solar noise floor").defineInRange("aurora_static", 0.25, 0.0, 1.0);
+		BUILDER.pop();
+
+		BUILDER.push("Desk Microphone");
+		DESK_MIC_TIMEOUT_SECONDS = BUILDER.comment(" Seconds a desk microphone keeps its radio keyed (held or locked) before it lets go by itself. 0 = never")
+				.defineInRange("desk_mic_timeout_seconds", 30, 0, 3600);
 		BUILDER.pop();
 
 		BUILDER.push("Towers");
