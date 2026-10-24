@@ -1,5 +1,12 @@
 package com.arrl.radiocraft.common.blocks;
 
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.LevelAccessor;
 import com.arrl.radiocraft.common.blockentities.AprsTerminalBlockEntity;
 import com.mojang.serialization.MapCodec;
@@ -87,6 +94,22 @@ public final class AprsTerminalBlock extends BaseEntityBlock {
 	protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighbour, @NotNull LevelAccessor level,
 	                                          @NotNull BlockPos pos, @NotNull BlockPos neighbourPos) {
 		return RadioLinks.update(super.updateShape(state, direction, neighbour, level, pos, neighbourPos), direction, neighbour, RadioLinks.STATION);
+	}
+
+	/** An empty map used on the terminal becomes an APRS map of the stations it hears (see {@link AprsTerminalBlockEntity#createMap}). */
+	@Override
+	protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
+	                                                   @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+		if(!stack.is(Items.MAP))
+			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		if(level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof AprsTerminalBlockEntity terminal) {
+			ItemStack map = terminal.createMap(serverLevel);
+			stack.consume(1, player);
+			if(!player.getInventory().add(map))
+				player.drop(map, false);
+			level.playSound(null, pos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0F, 1.0F);
+		}
+		return ItemInteractionResult.sidedSuccess(level.isClientSide);
 	}
 
 	@Override

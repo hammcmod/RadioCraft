@@ -5,8 +5,8 @@
     "B": {
       "tag": "minecraft:buttons"
     },
-    "C": {
-      "item": "minecraft:charcoal"
+    "E": {
+      "item": "radiocraft:microphone_element"
     },
     "W": {
       "item": "radiocraft:wire"
@@ -14,7 +14,7 @@
   },
   "pattern": [
     " B ",
-    "WCW",
+    "WEW",
     "   "
   ],
   "result": {

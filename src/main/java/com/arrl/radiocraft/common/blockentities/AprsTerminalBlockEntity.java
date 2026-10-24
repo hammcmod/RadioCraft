@@ -1,5 +1,14 @@
 package com.arrl.radiocraft.common.blockentities;
 
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import net.minecraft.world.level.saveddata.maps.MapId;
+import net.minecraft.world.item.component.MapItemColor;
+import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.ChatFormatting;
+import com.arrl.radiocraft.common.radio.data.AprsMapPainter;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.common.blocks.AprsTerminalBlock;
 import com.arrl.radiocraft.common.blocks.AprsTerminalBlock.Display;
@@ -48,6 +57,10 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 	public static final int HISTORY = 20;
 	/** Ticks between checks of the screen's light. */
 	private static final int DISPLAY_CHECK_TICKS = 10;
+	/** Ticks between repaints of the APRS maps this terminal made. */
+	private static final int MAP_PAINT_TICKS = 100;
+	/** Most maps one terminal keeps painting; a new one past this takes over from the oldest. */
+	public static final int MAX_MAPS = 8;
 
 	/** APRS terminals loaded on the server, for the admin commands that reach all of them. */
 	private static final Set<AprsTerminalBlockEntity> LOADED = ConcurrentHashMap.newKeySet();
@@ -63,6 +76,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 
 	private final List<Heard> beacons = new ArrayList<>(); // Newest first, one per station.
 	private final List<Logged> messages = new ArrayList<>(); // Newest first: those for this station and those it sent.
+	private final List<Integer> mapIds = new ArrayList<>(); // The APRS maps it made and keeps painting, oldest first.
 	private boolean syncPending = false;
 
 	// Server only, not saved.
@@ -133,6 +147,50 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		}
 		if(now % DISPLAY_CHECK_TICKS == 0)
 			updateDisplay();
+		if(now % MAP_PAINT_TICKS == 0 && !mapIds.isEmpty())
+			paintMaps(level);
+	}
+
+	// -------------------- APRS MAPS --------------------
+
+	/**
+	 * A new APRS map for a framed or held display of the stations heard: a vanilla map (so frames, hands and the
+	 * cartography table all work) that this terminal paints from now on. Copies share it and stay live.
+	 */
+	public ItemStack createMap(ServerLevel level) {
+		MapId id = level.getFreeMapId();
+		level.setMapData(id, MapItemSavedData.createFresh(0.0D, 0.0D, (byte)0, false, false, level.dimension()).locked());
+		mapIds.add(id.id());
+		while(mapIds.size() > MAX_MAPS)
+			mapIds.removeFirst();
+		setChanged();
+		paintMaps(level);
+		ItemStack stack = new ItemStack(Items.FILLED_MAP);
+		stack.set(DataComponents.MAP_ID, id);
+		stack.set(DataComponents.ITEM_NAME, Component.translatable("item.radiocraft.aprs_map"));
+		stack.set(DataComponents.MAP_COLOR, new MapItemColor(0x3A3A3A));
+		stack.set(DataComponents.LORE, new ItemLore(List.of(Component.translatable("item.radiocraft.aprs_map.from",
+				worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()).withStyle(ChatFormatting.GRAY))));
+		return stack;
+	}
+
+	/** Repaints every map this terminal made: fitted to home and the stations heard, greyscale terrain, markers. */
+	public void paintMaps(ServerLevel level) {
+		List<AprsMapPainter.Station> stations = new ArrayList<>();
+		for(Heard heard : beacons)
+			if(heard.packet().position() != null)
+				stations.add(new AprsMapPainter.Station(heard.packet().from(), heard.packet().position()));
+		AprsMapPainter.Fit fit = AprsMapPainter.fit(worldPosition, stations.stream().map(AprsMapPainter.Station::pos).toList());
+		byte[] colors = AprsMapPainter.paint(level, fit);
+		for(int id : mapIds) {
+			MapItemSavedData data = level.getMapData(new MapId(id));
+			if(data != null)
+				AprsMapPainter.apply(level, data, fit, colors, worldPosition, stations);
+		}
+	}
+
+	public List<Integer> getMapIds() {
+		return List.copyOf(mapIds);
 	}
 
 	/** What the screen shows: MSG over CONTACT over READY. */
@@ -393,6 +451,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			messageTags.add(entry);
 		}
 		tag.put("messages", messageTags);
+		tag.putIntArray("maps", mapIds);
 	}
 
 	@Override
@@ -416,6 +475,9 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			CompoundTag compound = (CompoundTag)entry;
 			messages.add(new Logged(TncPacket.load(compound), compound.getBoolean("outgoing"), compound.getLong("loggedAt")));
 		}
+		mapIds.clear();
+		for(int id : tag.getIntArray("maps"))
+			mapIds.add(id);
 	}
 
 	@Override

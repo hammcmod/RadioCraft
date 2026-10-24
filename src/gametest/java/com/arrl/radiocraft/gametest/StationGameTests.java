@@ -465,6 +465,36 @@ public class StationGameTests {
         helper.succeed();
     }
 
+    /**
+     * An APRS map made at the H19 shows home and every station heard, labelled with its callsign, on terrain painted
+     * from the loaded chunks.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 40, batch = BATCH)
+    public static void aprsMapShowsStationsHeard(GameTestHelper helper) {
+        station(helper, RADIO_A, 144_790, "W1MAP");
+        AprsTerminalBlockEntity terminal = aprs(helper, APRS_A);
+        BlockPos home = helper.absolutePos(APRS_A);
+        terminal.receiveDirect(TncPacket.beacon(21L, "W1EAS", home.offset(300, 0, 0), "", "HOUSE"));
+        terminal.receiveDirect(TncPacket.beacon(22L, "W1SOU", home.offset(-50, 0, 400), "", "HOUSE"));
+        net.minecraft.world.item.ItemStack map = terminal.createMap(helper.getLevel());
+        net.minecraft.world.level.saveddata.maps.MapItemSavedData data = net.minecraft.world.item.MapItem.getSavedData(map, helper.getLevel());
+        helper.assertTrue(map.is(net.minecraft.world.item.Items.FILLED_MAP) && data != null, "No map made: " + map);
+        helper.assertTrue(data.locked, "The map is not locked: vanilla would paint over it");
+        java.util.Set<String> labels = new java.util.HashSet<>();
+        int markers = 0;
+        for(var decoration : data.getDecorations()) {
+            markers++;
+            decoration.name().ifPresent(name -> labels.add(name.getString()));
+        }
+        helper.assertTrue(markers == 3 && labels.equals(java.util.Set.of("W1EAS", "W1SOU")), markers + " markers, labels " + labels);
+        boolean painted = false;
+        for(byte color : data.colors)
+            painted |= color != 0;
+        helper.assertTrue(painted, "The map has no terrain painted");
+        helper.assertTrue(terminal.getMapIds().size() == 1, "The terminal does not keep painting its map");
+        helper.succeed();
+    }
+
     // -------------------- FILES --------------------
 
     private static ItemStack book(int generation) {

@@ -79,6 +79,7 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.FERRITE_CORE.get());
         output.accept(RadiocraftItems.COAXIAL_CORE.get());
         output.accept(RadiocraftItems.INSULATION.get());
+        output.accept(RadiocraftItems.MICROPHONE_ELEMENT.get());
 
         // The antenna analyzer
         output.accept(RadiocraftItems.ANTENNA_ANALYZER.get());

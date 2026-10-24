@@ -45,6 +45,7 @@ public class RadiocraftItems {
 	public static final Supplier<Item> FERRITE_CORE = simpleItem("ferrite_core", null);
 	public static final Supplier<Item> COAXIAL_CORE = simpleItem("coaxial_core", null);
 	public static final Supplier<Item> INSULATION = simpleItem("insulation", null); // Stands in for rubber: wire jackets, coax.
+	public static final Supplier<Item> MICROPHONE_ELEMENT = simpleItem("microphone_element", null); // A carbon capsule: the heart of every microphone.
 	public static final Supplier<Item> ANTENNA_ANALYZER = ITEMS.register("antenna_analyzer", () -> new AntennaAnalyzerItem(new Properties().stacksTo(1)));
 	public static final CrystalVariants<Item, VHFHandheldItem> VHF_HANDHELD_VARIANTS = CrystalVariants.register(ITEMS, "vhf_handheld", crystal -> new VHFHandheldItem(new Properties().stacksTo(1).component(RadiocraftDataComponent.HANDHELD_RADIO_STATE_COMPONENT.value(), HandheldRadioState.getDefault()), crystal));
 	public static final DeferredHolder<Item, VHFHandheldItem> VHF_HANDHELD = VHF_HANDHELD_VARIANTS.good();

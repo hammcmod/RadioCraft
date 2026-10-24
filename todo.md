@@ -220,6 +220,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [x] Insulation item texture (maintainer, 2026-10-23): `textures/item/insulation.png`
 - [ ] Microphone element and speaker crafting components (maintainer, 2026-10-22): a microphone item (its own
   texture) used in the hand microphone and desk microphone recipes, and a speaker item used in radio recipes
+  - [x] Microphone Element (2026-10-23, maintainer's texture): ` P `/`NCN` (paper, iron nuggets, coal or charcoal)
+    makes 2; the hand microphone (in place of charcoal) and the desk microphone (in place of a hand mic) use it
   - [ ] Once the microphone item exists, the maintainer will switch the VHF handheld recipe to use it
 - [ ] Desk speakers (maintainer, 2026-10-22): several kinds of desk speaker block that sit next to or on top of an
   HF radio and change its audio slightly (e.g. tone, passband, loudness)

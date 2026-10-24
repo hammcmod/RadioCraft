@@ -53,6 +53,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         buildRadioInterfaceRecipe(recipeOutput);
         buildParrotControllerRecipe(recipeOutput);
         buildHandMicrophoneRecipe(recipeOutput);
+        buildMicrophoneElementRecipe(recipeOutput);
         buildAntennaToolsRecipe(recipeOutput);
         buildAntennaAnalyzerRecipe(recipeOutput);
         buildHfCircuitBoardRecipe(recipeOutput);
@@ -173,12 +174,12 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
 
     private void buildMicrophoneRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.MICROPHONE.get(), 1)
-                .pattern(" M ")
+                .pattern(" E ")
                 .pattern(" D ")
                 .pattern(" C ")
                 .define('C', RadiocraftItems.WIRE.get())
                 .define('D', Items.IRON_INGOT)
-                .define('M', RadiocraftItems.HAND_MICROPHONE.get())
+                .define('E', RadiocraftItems.MICROPHONE_ELEMENT.get())
                 .unlockedBy("has_wire", has(RadiocraftItems.WIRE.get()))
                 .save(recipeOutput);
     }
@@ -273,12 +274,24 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
     private void buildHandMicrophoneRecipe(RecipeOutput recipeOutput) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.HAND_MICROPHONE.get(), 1)
                 .pattern(" B ")
-                .pattern("WCW")
+                .pattern("WEW")
                 .pattern("   ")
                 .define('W', RadiocraftItems.WIRE.get())
-                .define('C', Items.CHARCOAL) // A carbon microphone element, as vintage mics used.
+                .define('E', RadiocraftItems.MICROPHONE_ELEMENT.get())
                 .define('B', ItemTags.BUTTONS)
                 .unlockedBy("has_wire", has(RadiocraftItems.WIRE.get()))
+                .save(recipeOutput);
+    }
+
+    /** A carbon microphone element, as vintage mics used: carbon granules behind a paper diaphragm, in a metal cup. */
+    private void buildMicrophoneElementRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.MICROPHONE_ELEMENT.get(), 2)
+                .pattern(" P ")
+                .pattern("NCN")
+                .define('P', Items.PAPER)
+                .define('N', Items.IRON_NUGGET)
+                .define('C', ItemTags.COALS)
+                .unlockedBy("has_paper", has(Items.PAPER))
                 .save(recipeOutput);
     }
 

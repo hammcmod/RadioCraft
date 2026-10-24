@@ -47,6 +47,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addItem(RadiocraftItems.FERRITE_CORE, "Ferrite Core");
 			provider.addItem(RadiocraftItems.COAXIAL_CORE, "Coaxial Core");
 			provider.addItem(RadiocraftItems.INSULATION, "Insulation");
+			provider.addItem(RadiocraftItems.MICROPHONE_ELEMENT, "Microphone Element");
 			provider.addItem(RadiocraftItems.ANTENNA_ANALYZER, "Antenna Analyzer");
 			provider.addItem(RadiocraftItems.ANTENNA_WIRE, "Antenna Wire");
 			addCrystalRadio(provider, RadiocraftItems.VHF_HANDHELD_VARIANTS, "VHF Handheld Radio");
@@ -122,6 +123,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			// Container titles for new GUIs
 			provider.add("container.radiocraft.radio_interface", "Radio Interface");
 			provider.add("container.radiocraft.aprs_terminal", "H19 APRS Terminal");
+			provider.add("item.radiocraft.aprs_map", "APRS Map");
+			provider.add("item.radiocraft.aprs_map.from", "From the H19 at %s, %s, %s");
 			provider.add("container.radiocraft.transfer_interface", "Digital Transfer Interface");
 			provider.add("container.radiocraft.duplexer", "Duplexer");
 			provider.add("container.radiocraft.antenna_tuner", "Antenna Tuner");

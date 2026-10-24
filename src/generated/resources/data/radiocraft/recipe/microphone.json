@@ -8,12 +8,12 @@
     "D": {
       "item": "minecraft:iron_ingot"
     },
-    "M": {
-      "item": "radiocraft:hand_microphone"
+    "E": {
+      "item": "radiocraft:microphone_element"
     }
   },
   "pattern": [
-    " M ",
+    " E ",
     " D ",
     " C "
   ],
