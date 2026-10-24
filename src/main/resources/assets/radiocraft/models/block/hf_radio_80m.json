@@ -1,4 +1,5 @@
 {
+	"format_version": "26.3",
 	"credit": "Made with Blockbench",
 	"texture_size": [64, 64],
 	"textures": {
@@ -25,11 +26,25 @@
 			"rotation": {"angle": 0, "axis": "y", "origin": [-1, 11, 2.75]},
 			"faces": {
 				"north": {"uv": [7, 0, 8.25, 1], "texture": "#2"},
-				"east": {"uv": [7.5, 7, 7.75, 8], "texture": "#2"},
+				"east": {"uv": [11.5, 4.25, 11.75, 5.25], "texture": "#2"},
 				"south": {"uv": [7, 1, 8.25, 2], "texture": "#2"},
-				"west": {"uv": [7.75, 7, 8, 8], "texture": "#2"},
+				"west": {"uv": [8, 7, 8, 8], "texture": "#2"},
 				"up": {"uv": [8.75, 6.75, 7.5, 6.5], "texture": "#2"},
 				"down": {"uv": [8.75, 6.75, 7.5, 7], "texture": "#2"}
+			}
+		},
+		{
+			"name": "DISPLAY",
+			"from": [2, 7, 1.74],
+			"to": [7, 11, 1.74],
+			"rotation": {"angle": 0, "axis": "y", "origin": [-1, 11, 2.74]},
+			"faces": {
+				"north": {"uv": [11, 4, 12.25, 5], "texture": "#2"},
+				"east": {"uv": [11.25, 7.75, 11.5, 8.75], "texture": "#2"},
+				"south": {"uv": [11, 5, 12.25, 6], "texture": "#2"},
+				"west": {"uv": [12, 4.25, 12, 5.25], "texture": "#2"},
+				"up": {"uv": [12, 6.75, 10.75, 6.5], "texture": "#2"},
+				"down": {"uv": [11.5, 7, 10.25, 7.25], "texture": "#2"}
 			}
 		},
 		{
@@ -240,7 +255,7 @@
 			"scale": [0.49, 0.49, 0.49]
 		},
 		"gui": {
-			"rotation": [-156.25, -42, 180],
+			"rotation": [-156.25, -42, -180],
 			"translation": [0, 1.25, 0],
 			"scale": [0.71, 0.71, 0.71]
 		}

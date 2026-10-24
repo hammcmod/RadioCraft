@@ -48,7 +48,7 @@ public record CAuroraPacket(boolean active, int latitude, float noise) implement
     }
 
     private static CAuroraPacket of(ServerLevel level) {
-        return new CAuroraPacket(Aurora.isActive(level), RadiocraftServerConfig.AURORA_LATITUDE.get(), RadiocraftServerConfig.AURORA_STATIC.get().floatValue());
+        return new CAuroraPacket(Aurora.isActive(level), Aurora.latitude(), RadiocraftServerConfig.AURORA_STATIC.get().floatValue());
     }
 
     public static void sendToLevel(ServerLevel level) {

@@ -87,7 +87,15 @@ public final class Aurora {
 	}
 
 	public static boolean inZone(BlockPos pos) {
-		return inZone(pos.getZ(), RadiocraftServerConfig.AURORA_LATITUDE.get());
+		return inZone(pos.getZ(), latitude());
+	}
+
+	/**
+	 * Distance from Z = 0 past which a station is under the aurora: {@link RadiocraftServerConfig#AURORA_LATITUDE}, or 0
+	 * (everywhere) when {@link RadiocraftServerConfig#AURORA_AT_ANY_Z} is on. Clients are sent this one.
+	 */
+	public static int latitude() {
+		return RadiocraftServerConfig.AURORA_AT_ANY_Z.get() ? 0 : RadiocraftServerConfig.AURORA_LATITUDE.get();
 	}
 
 	/** True if an aurora is on in {@code level} and {@code pos} is under it. */

@@ -344,7 +344,7 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 	public Component auroraLine() {
 		if(level == null)
 			return null;
-		int latitude = RadiocraftServerConfig.AURORA_LATITUDE.get();
+		int latitude = Aurora.latitude();
 		if(Aurora.isActive(level))
 			return Component.translatable("message.radiocraft.solar_weather_station.aurora_active", latitude).withStyle(ChatFormatting.GREEN);
 		if(Aurora.isExpected(level))

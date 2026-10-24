@@ -4,6 +4,17 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Radio screen readouts and the aurora setting (added 2026-10-23)
+
+- [ ] Within 8 blocks of a radio that is on, its model's screen (the maintainer's DISPLAY box) shows the frequency in
+  amber, and under it smaller the mode (USB/LSB/CW/FM) and an S-meter (S0 to S9, S9+). Blank when the radio is off;
+  nothing beyond 8 blocks. Check every radio (10/20/40/80m, all-band, VHF base station, Premium and Cheap ones too),
+  each facing, and one hung from a ceiling; the text should sit on the screen and read left to right.
+- [ ] The S-meter rises with a station's signal, and on HF sits near the top in a blackout
+  (`/rcdebug solar set blackout`) or under an aurora; VHF stays low without a signal.
+- [ ] `allow_aurora_at_any_z_coordinate` (server config, off by default): on, the aurora's sky, crackle and static
+  reach a station at any Z; off, only past `aurora_latitude`.
+
 ## Teletype Machine and the 5-BTV's coax (added 2026-10-23)
 
 - [ ] The solar weather station is now the "Teletype Machine" (same model). Placing it takes your callsign. Right

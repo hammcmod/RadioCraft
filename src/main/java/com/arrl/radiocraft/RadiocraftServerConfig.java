@@ -57,6 +57,7 @@ public class RadiocraftServerConfig {
 
 	public static final ModConfigSpec.ConfigValue<Boolean> TELETYPE_NEEDS_RADIO;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_LATITUDE;
+	public static final ModConfigSpec.ConfigValue<Boolean> AURORA_AT_ANY_Z;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MIN_RANGE;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MAX_RANGE;
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_VHF_STRENGTH;
@@ -201,6 +202,8 @@ public class RadiocraftServerConfig {
 				" stations far from the equator (Z = 0): there VHF gains a long skip off the aurora, and every HF band drops one",
 				" condition step (good to fair, ...) and picks up extra static.");
 		AURORA_LATITUDE = BUILDER.comment(" Distance from Z = 0, north or south, from which a station is under the aurora").defineInRange("aurora_latitude", 10000, 0, 30000000);
+		AURORA_AT_ANY_Z = BUILDER.comment(" Put every station under an aurora when one comes, whatever its Z, instead of only past aurora_latitude")
+				.define("allow_aurora_at_any_z_coordinate", false);
 		AURORA_VHF_MIN_RANGE = BUILDER.comment(" Shortest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_min_range", 500, 0, 1000000);
 		AURORA_VHF_MAX_RANGE = BUILDER.comment(" Longest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_max_range", 4000, 1, 1000000);
 		AURORA_VHF_STRENGTH = BUILDER.comment(" Strength (0 to 1) of a VHF signal carried by the aurora").defineInRange("aurora_vhf_strength", 0.8, 0.0, 1.0);

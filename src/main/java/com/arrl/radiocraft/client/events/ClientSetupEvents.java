@@ -9,6 +9,8 @@ import com.arrl.radiocraft.common.init.RadiocraftEntityTypes;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity;
 import com.arrl.radiocraft.client.render.DeskChargerBlockRenderer;
+import com.arrl.radiocraft.client.render.RadioDisplayRenderer;
+import com.arrl.radiocraft.client.render.RadioDisplays;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import com.arrl.radiocraft.common.init.RadiocraftMenuTypes;
 import net.neoforged.api.distmarker.Dist;
@@ -55,6 +57,21 @@ public class ClientSetupEvents {
 		event.registerBlockEntityRenderer(RadiocraftBlockEntities.PASSTHROUGH.get(), com.arrl.radiocraft.client.render.PassthroughRenderer::new);
 		// Satellite dish geo renderer
 		event.registerBlockEntityRenderer((net.minecraft.world.level.block.entity.BlockEntityType) RadiocraftBlockEntities.SATELLITE_DISH.get(), ctx -> new com.arrl.radiocraft.client.render.SatelliteDishRenderer(ctx));
+		// The frequency, mode and S-meter on each radio's screen; a radio whose model has no DISPLAY draws nothing.
+		event.registerBlockEntityRenderer(RadiocraftBlockEntities.HF_RADIO_10M.get(), RadioDisplayRenderer::new);
+		event.registerBlockEntityRenderer(RadiocraftBlockEntities.HF_RADIO_20M.get(), RadioDisplayRenderer::new);
+		event.registerBlockEntityRenderer(RadiocraftBlockEntities.HF_RADIO_40M.get(), RadioDisplayRenderer::new);
+		event.registerBlockEntityRenderer(RadiocraftBlockEntities.HF_RADIO_80M.get(), RadioDisplayRenderer::new);
+		event.registerBlockEntityRenderer(RadiocraftBlockEntities.HF_RADIO_ALL_BAND.get(), RadioDisplayRenderer::new);
+		event.registerBlockEntityRenderer(RadiocraftBlockEntities.HF_RECEIVER.get(), RadioDisplayRenderer::new);
+		event.registerBlockEntityRenderer(RadiocraftBlockEntities.VHF_BASE_STATION.get(), RadioDisplayRenderer::new);
+		event.registerBlockEntityRenderer(RadiocraftBlockEntities.VHF_RECEIVER.get(), RadioDisplayRenderer::new);
+	}
+
+	/** Radio screens are read from their models (see {@link RadioDisplays}): read them afresh after a resource reload. */
+	@SubscribeEvent
+	public static void registerReloadListeners(net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent event) {
+		event.registerReloadListener((net.minecraft.server.packs.resources.ResourceManagerReloadListener)manager -> RadioDisplays.clear());
 	}
 
 	/** The wire model works its look out from the neighbours, see {@link com.arrl.radiocraft.client.model.WireModel}. */

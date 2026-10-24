@@ -328,7 +328,7 @@ public class DebugCommands {
 		else if(aurora.start() > now)
 			out.add("aurora=expected in " + (aurora.start() - now) + " ticks, lasts " + (aurora.end() - aurora.start()));
 		else
-			out.add("aurora=active for " + (aurora.end() - now) + " more ticks, past |Z| " + RadiocraftServerConfig.AURORA_LATITUDE.get());
+			out.add("aurora=active for " + (aurora.end() - now) + " more ticks, past |Z| " + Aurora.latitude());
 		return send(ctx, out);
 	}
 

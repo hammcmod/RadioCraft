@@ -1,4 +1,5 @@
 {
+	"format_version": "26.3",
 	"credit": "Made with Blockbench",
 	"texture_size": [32, 32],
 	"textures": {
@@ -30,6 +31,20 @@
 				"west": {"uv": [12, 14, 12.5, 15], "texture": "#4"},
 				"up": {"uv": [12.5, 12.5, 8, 12], "texture": "#4"},
 				"down": {"uv": [12.5, 12.5, 8, 13], "texture": "#4"}
+			}
+		},
+		{
+			"name": "DISPLAY",
+			"from": [2, 2.75, 1.7],
+			"to": [7, 4.75, 2.7],
+			"rotation": {"angle": 0, "axis": "y", "origin": [-0.5, 1, 0.7]},
+			"faces": {
+				"north": {"uv": [10.5, 15, 15, 16], "texture": "#4"},
+				"east": {"uv": [11.5, 14, 12, 15], "texture": "#4"},
+				"south": {"uv": [10.5, 15, 15, 16], "texture": "#4"},
+				"west": {"uv": [12, 14, 12.5, 15], "texture": "#4"},
+				"up": {"uv": [14.5, 15.5, 10, 15], "texture": "#4"},
+				"down": {"uv": [14.5, 15.5, 10, 16], "texture": "#4"}
 			}
 		},
 		{
@@ -240,7 +255,7 @@
 			"scale": [0.49, 0.49, 0.49]
 		},
 		"gui": {
-			"rotation": [-150.25, -45.25, 180],
+			"rotation": [-150.25, -45.25, -180],
 			"translation": [0, 1.5, 0],
 			"scale": [0.58, 0.58, 0.58]
 		}

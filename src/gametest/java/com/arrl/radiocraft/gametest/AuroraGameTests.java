@@ -113,4 +113,24 @@ public class AuroraGameTests {
                 })
                 .thenSucceed();
     }
+
+    /** With allow_aurora_at_any_z_coordinate on, a station near Z = 0 is under the aurora; off, only past the latitude. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20, batch = "aurora")
+    public static void auroraAtAnyZSetting(GameTestHelper helper) {
+        int previousLatitude = RadiocraftServerConfig.AURORA_LATITUDE.get();
+        boolean previousAnyZ = RadiocraftServerConfig.AURORA_AT_ANY_Z.get();
+        try {
+            RadiocraftServerConfig.AURORA_LATITUDE.set(1_000_000);
+            RadiocraftServerConfig.AURORA_AT_ANY_Z.set(false);
+            helper.assertFalse(Aurora.inZone(new BlockPos(0, 64, 100)), "Under the aurora at Z 100 with the latitude at 1000000");
+            RadiocraftServerConfig.AURORA_AT_ANY_Z.set(true);
+            helper.assertTrue(Aurora.inZone(new BlockPos(0, 64, 100)), "Not under the aurora at Z 100 with any Z allowed");
+            helper.assertTrue(Aurora.latitude() == 0, "Clients would be sent latitude " + Aurora.latitude());
+        }
+        finally {
+            RadiocraftServerConfig.AURORA_LATITUDE.set(previousLatitude);
+            RadiocraftServerConfig.AURORA_AT_ANY_Z.set(previousAnyZ);
+        }
+        helper.succeed();
+    }
 }
