@@ -144,6 +144,8 @@
   "item.radiocraft.vhf_handheld": "VHF Handheld Radio",
   "item.radiocraft.vhf_handheld_poor": "Cheap VHF Handheld Radio",
   "item.radiocraft.vhf_handheld_pure": "Premium VHF Handheld Radio",
+  "key.categories.radiocraft": "RadioCraft",
+  "key.radiocraft.worn_ptt": "Talk on worn radio",
   "license_class.radiocraft.AMATEUR_EXTRA": "Amateur Extra",
   "license_class.radiocraft.BROADCAST_RADIO": "Broadcast Radio",
   "license_class.radiocraft.BROADCAST_TELEVISION": "Broadcast Television",

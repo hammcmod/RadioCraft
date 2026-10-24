@@ -1,5 +1,7 @@
 package com.arrl.radiocraft.gametest;
 
+import com.arrl.radiocraft.common.blockentities.ChargeControllerBlockEntity;
+import com.arrl.radiocraft.common.blocks.power.ChargeControllerBlock;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
@@ -35,6 +37,37 @@ public class SolarPanelGameTests {
             if(network instanceof PowerBENetwork && network.getNetworkObjects().contains(b))
                 return true;
         return false;
+    }
+
+    /** The charge controller's switch: off, the panels' power stops at the controller; on again, the battery charges. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = "solar")
+    public static void chargeControllerSwitchStopsCharging(GameTestHelper helper) {
+        helper.getLevel().setDayTime(6000); // Noon.
+        helper.setBlock(CONTROLLER, RadiocraftBlocks.CHARGE_CONTROLLER.get());
+        helper.setBlock(PANEL_C, RadiocraftBlocks.SOLAR_PANEL.get());
+        helper.setBlock(BATTERY, RadiocraftBlocks.LARGE_BATTERY.get());
+        GameTestUtil.placeWire(helper, WIRE, RadiocraftBlocks.WIRE.get());
+        int[] charge = new int[1];
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(battery(helper).getStorage().getEnergyStored() > 0, "A new controller does not charge the battery"))
+                .thenExecute(() -> {
+                    helper.assertTrue(helper.getBlockState(CONTROLLER).getValue(ChargeControllerBlock.POWERED), "A new controller is switched off");
+                    GameTestUtil.blockEntity(helper, CONTROLLER, ChargeControllerBlockEntity.class).toggle();
+                })
+                .thenIdle(2)
+                .thenExecute(() -> charge[0] = battery(helper).getStorage().getEnergyStored())
+                .thenIdle(20)
+                .thenExecute(() -> {
+                    int now = battery(helper).getStorage().getEnergyStored();
+                    helper.assertTrue(now == charge[0], "Switched off, the battery still charged from " + charge[0] + " to " + now);
+                    GameTestUtil.blockEntity(helper, CONTROLLER, ChargeControllerBlockEntity.class).toggle();
+                })
+                .thenWaitUntil(() -> helper.assertTrue(battery(helper).getStorage().getEnergyStored() > charge[0], "Switched back on, the battery does not charge"))
+                .thenSucceed();
+    }
+
+    private static BatteryNetworkObject battery(GameTestHelper helper) {
+        return GameTestUtil.networkObject(helper, BATTERY, BatteryNetworkObject.class);
     }
 
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = "solar")

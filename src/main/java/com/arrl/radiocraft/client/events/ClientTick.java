@@ -2,7 +2,10 @@ package com.arrl.radiocraft.client.events;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
+import com.arrl.radiocraft.client.RadiocraftKeys;
 import com.arrl.radiocraft.common.network.serverbound.SPlayerClickHoldUpdate;
+import com.arrl.radiocraft.common.network.serverbound.SWornPttPacket;
+import com.arrl.radiocraft.compat.curios.CuriosCompat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.sounds.SoundEvents;
@@ -21,6 +24,7 @@ public class ClientTick {
 
 
     private static boolean wasUseHeld = false;
+    private static boolean wasWornPttHeld = false;
 
     /**
      * Handles right click to PTT on VHF handhelds
@@ -50,5 +54,14 @@ public class ClientTick {
         }
 
         wasUseHeld = isUseHeld;
+
+        // The "talk on worn radio" key, for a handheld worn on the belt (Curios).
+        boolean wornPtt = RadiocraftKeys.WORN_PTT.isDown();
+        if(wornPtt != wasWornPttHeld) {
+            SWornPttPacket.send(wornPtt);
+            if(CuriosCompat.isLoaded() && Minecraft.getInstance().player != null && !CuriosCompat.wornHandhelds(Minecraft.getInstance().player).isEmpty())
+                Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, wornPtt ? 1.0F : 1.3F));
+        }
+        wasWornPttHeld = wornPtt;
     }
 }

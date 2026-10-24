@@ -18,6 +18,7 @@ import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import com.arrl.radiocraft.compat.curios.CuriosCompat;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.data.ExistingFileHelper;
 import net.neoforged.neoforge.data.event.GatherDataEvent;
@@ -45,6 +46,7 @@ public class Radiocraft {
 
         TopCompatRegistry tcr = new TopCompatRegistry();
         modEventBus.register(tcr);
+        modEventBus.addListener(FMLCommonSetupEvent.class, event -> event.enqueueWork(CuriosCompat::register));
 
         NeoForge.EVENT_BUS.register(RadiocraftSavedData.class);
 

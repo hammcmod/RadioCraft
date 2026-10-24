@@ -44,6 +44,10 @@ public class ChargeControllerNetworkObject extends PowerNetworkObject {
 
     @Override
     public void tick(Level level, BlockPos pos) {
+        if(!isEnabled) { // Switched off: the panels' power stops here, nothing reaches the batteries.
+            lastPowerTick = 0;
+            return;
+        }
         int toPush = Math.min(energyStorage.getMaxExtract(), energyStorage.getEnergyStored());
         int pushed = 0;
 

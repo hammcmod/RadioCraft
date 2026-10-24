@@ -23,6 +23,7 @@ import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.terrain.TerrainPropagation;
+import com.arrl.radiocraft.compat.curios.CuriosCompat;
 import com.arrl.radiocraft.common.radio.voice.Ctcss;
 import com.arrl.radiocraft.common.radio.voice.Detuning;
 import com.arrl.radiocraft.common.radio.voice.RadioVoiceProcessor;
@@ -60,10 +61,15 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     private volatile Level voiceLevel;
 
     private boolean isUseHeld;
+    private volatile boolean wornPttHeld; // The "talk on worn radio" key, for a handheld worn in a Curios slot.
     private volatile boolean indoors; // No sky above the player's head, updated each tick on the server thread.
 
     public void setUseHeld(boolean useHeld) {
         this.isUseHeld = useHeld;
+    }
+
+    public void setWornPttHeld(boolean held) {
+        this.wornPttHeld = held;
     }
 
     /** True while the player holds the use key (right click), as their client last reported. */
@@ -198,6 +204,15 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     }
                 }
             }
+        }
+
+        // Worn on the belt (Curios): heard like one in the inventory, keyed with the "talk on worn radio" key.
+        int worn = 0;
+        for(ItemStack itemStack : CuriosCompat.wornHandhelds(player)) {
+            IVHFHandheldCapability cap = itemStack.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
+            if(cap != null)
+                out.addLast(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.wornPttHeld),
+                        tunedFrequency(player, itemStack, cap, 1000 + worn++), HandheldLocation.HOT_BAR, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz()));
         }
         return out;
     }

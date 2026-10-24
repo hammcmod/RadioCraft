@@ -4,6 +4,7 @@ import com.arrl.radiocraft.common.blockentities.ChargeControllerBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -34,8 +35,11 @@ public class ChargeControllerBlock extends AbstractPowerNetworkBlock {
 	public static final VoxelShape SHAPE = Block.box(1.0D, 0.0D, 1.0D, 15.0D, 7.0D, 15.0D);
 	public static final BooleanProperty POWERED = BooleanProperty.create("powered");
 
+	/** A controller starts switched on: panels charge the batteries as soon as it is wired in. */
+	@SuppressWarnings("this-escape")
 	public ChargeControllerBlock(Properties properties) {
 		super(properties);
+		registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, true));
 	}
 
 	@Override
@@ -63,7 +67,7 @@ public class ChargeControllerBlock extends AbstractPowerNetworkBlock {
 	@Nullable
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()).setValue(POWERED, false);
+		return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()).setValue(POWERED, true);
 	}
 
 	@Override

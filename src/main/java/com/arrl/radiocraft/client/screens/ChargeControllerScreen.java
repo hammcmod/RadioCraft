@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.client.screens;
 
+import com.arrl.radiocraft.common.network.serverbound.SChargeControllerTogglePacket;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.widgets.ToggleButton;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
@@ -47,7 +48,7 @@ public class ChargeControllerScreen extends AbstractContainerScreen<ChargeContro
 	protected void init() {
 		super.init();
 		addRenderableWidget(new ToggleButton(menu.blockEntity.getPoweredOn(), leftPos + 138, topPos + 19, 27, 82, 0, 0, WIDGETS, 256, 256,
-				(button) -> {})//RadiocraftPackets.sendToServer(new STogglePacket(menu.blockEntity.getBlockPos())))
+				button -> SChargeControllerTogglePacket.send(menu.blockEntity.getBlockPos()))
 		);
 	}
 

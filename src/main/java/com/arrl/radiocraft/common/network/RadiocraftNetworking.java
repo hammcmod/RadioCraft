@@ -10,8 +10,10 @@ import com.arrl.radiocraft.common.network.clientbound.CWireEndPosUpdatePacket;
 import com.arrl.radiocraft.common.network.serverbound.SBlockRadioControlPacket;
 import com.arrl.radiocraft.common.network.serverbound.SStationPacket;
 import com.arrl.radiocraft.common.network.serverbound.SPlayerClickHoldUpdate;
+import com.arrl.radiocraft.common.network.serverbound.SWornPttPacket;
 import com.arrl.radiocraft.common.network.serverbound.SAntennaTunerDialPacket;
 import com.arrl.radiocraft.common.network.serverbound.SDuplexerScrewPacket;
+import com.arrl.radiocraft.common.network.serverbound.SChargeControllerTogglePacket;
 import com.arrl.radiocraft.common.network.serverbound.SRepeaterSettingsPacket;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -24,6 +26,7 @@ public class RadiocraftNetworking {
         registrar.playToClient(CWireEndPosUpdatePacket.TYPE, CWireEndPosUpdatePacket.STREAM_CODEC, CWireEndPosUpdatePacket::handle);
         registrar.playToClient(CNoisePacket.TYPE, CNoisePacket.STREAM_CODEC, CNoisePacket::handle);
         registrar.playToServer(SPlayerClickHoldUpdate.TYPE, SPlayerClickHoldUpdate.STREAM_CODEC, SPlayerClickHoldUpdate::handle);
+        registrar.playToServer(SWornPttPacket.TYPE, SWornPttPacket.STREAM_CODEC, SWornPttPacket::handle);
         registrar.playToServer(SCWBufferPacket.TYPE, SCWBufferPacket.STREAM_CODEC, SCWBufferPacket::handle);
         registrar.playToClient(CCWBufferPacket.TYPE, CCWBufferPacket.STREAM_CODEC, CCWBufferPacket::handle);
         registrar.playToClient(CAuroraPacket.TYPE, CAuroraPacket.STREAM_CODEC, CAuroraPacket::handle);
@@ -32,5 +35,6 @@ public class RadiocraftNetworking {
         registrar.playToServer(SStationPacket.TYPE, SStationPacket.STREAM_CODEC, SStationPacket::handle);
         registrar.playToServer(SAntennaTunerDialPacket.TYPE, SAntennaTunerDialPacket.STREAM_CODEC, SAntennaTunerDialPacket::handle);
         registrar.playToServer(SDuplexerScrewPacket.TYPE, SDuplexerScrewPacket.STREAM_CODEC, SDuplexerScrewPacket::handle);
+        registrar.playToServer(SChargeControllerTogglePacket.TYPE, SChargeControllerTogglePacket.STREAM_CODEC, SChargeControllerTogglePacket::handle);
     }
 }
