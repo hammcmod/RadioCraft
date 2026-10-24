@@ -154,7 +154,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.1"), "Radio is off");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.2"), "No antenna recognized");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.3"), "Tuned");
-			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.4"), "Out of range: best effort");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.4"), "Antenna too far off to match: tuned as close as it goes");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.5"), "Overdraw: too many radios or antennas");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.6"), "Tuners disabled on this server");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.antenna_swr"), "Antenna SWR: %s");

@@ -4,6 +4,19 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Guide fixes, duplexer on top, tuners beside radios (added 2026-10-24)
+
+- [ ] Every station picture in the guide now has solar power; flip through them (first station, HF radios, VHF base,
+  repeater, APRS, teletype, antennas) and check they read well. Desk Gear lists the interface, H19, teletype and WEFAX.
+  The new Solar Weather section holds the weather, the Ionospheric Processor and WEFAX.
+- [ ] J-pole: coax laid beside its foot shows a run in to the mast, like the ionosonde.
+- [ ] Repeater with the duplexer on top: coax from the duplexer's side at its height, or on the ground straight behind
+  the repeater (under the duplexer's draped cable), both reach the antenna. The repeater page shows the second.
+- [ ] A new duplexer's screws show 146.940 / 146.340 and turn straight away, even before it sits on a repeater.
+- [ ] A manual or automatic tuner placed against a radio (no coax between) reaches the antenna on its other side.
+- [ ] The tuner's state line and antenna SWR now sit centred above the panel; "out of range" reads "Antenna too far off
+  to match: tuned as close as it goes".
+
 ## Tower footholds and the guide on first join (added 2026-10-24)
 
 - [ ] Place footholds up a wall like ladders (both kinds): the rungs face out from the wall, climbing works, and you

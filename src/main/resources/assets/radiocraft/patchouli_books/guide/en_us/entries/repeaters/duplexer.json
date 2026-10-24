@@ -10,7 +10,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "A new duplexer is $(thing)factory tuned$(): it follows its repeater. Turn a screw and it is yours: retune it whenever you change the repeater's frequencies. A cavity off frequency loses signal and shows the transmitter a bad SWR.",
+      "text": "A new duplexer comes tuned for the usual pair (out 146.940, in 146.340) and then $(thing)follows$() its repeater. Turn a screw (drag or scroll) and it is yours: retune it whenever you change the repeater's frequencies. A cavity off frequency loses signal and shows the transmitter a bad SWR.",
       "title": "Tuning"
     },
     {

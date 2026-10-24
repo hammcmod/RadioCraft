@@ -182,7 +182,7 @@
   "screen.radiocraft.antenna_tuner.status.1": "Radio is off",
   "screen.radiocraft.antenna_tuner.status.2": "No antenna recognized",
   "screen.radiocraft.antenna_tuner.status.3": "Tuned",
-  "screen.radiocraft.antenna_tuner.status.4": "Out of range: best effort",
+  "screen.radiocraft.antenna_tuner.status.4": "Antenna too far off to match: tuned as close as it goes",
   "screen.radiocraft.antenna_tuner.status.5": "Overdraw: too many radios or antennas",
   "screen.radiocraft.antenna_tuner.status.6": "Tuners disabled on this server",
   "screen.radiocraft.antenna_tuner.status.7": "Turn the dials: green is a match",

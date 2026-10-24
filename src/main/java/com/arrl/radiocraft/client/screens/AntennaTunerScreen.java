@@ -21,12 +21,13 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 
 	private static final ResourceLocation TEXTURE = Radiocraft.id("textures/gui/antenna_tuner.png");
 
-	/** Where the readout lines go: the empty panel to the right of the meter, above the dials. */
-	private static final int READOUT_X = 150;
-	private static final int READOUT_Y = 20;
+	/** The readout's two lines sit above the panel, over the world, so they are drawn light with a shadow. */
+	private static final int ABOVE_Y = -24;
 	private static final int READOUT_LINE = 11;
+	private static final int ABOVE_COLOR = 0xFFFFFFFF;
+	private static final int ABOVE_WARN_COLOR = 0xFFFFB050;
+	/** The dials' readings, on the panel. */
 	private static final int READOUT_COLOR = 0xFFD8E0D8;
-	private static final int READOUT_WARN_COLOR = 0xFFFF9A5A;
 
 	/** The three dials' left edges, their top and width; each dial's reading is written above it. */
 	private static final int[] DIAL_X = {23, 106, 188};
@@ -114,21 +115,21 @@ public class AntennaTunerScreen extends AbstractContainerScreen<AntennaTunerMenu
 	}
 
 	/**
-	 * The tuner's readout instead of the default title and inventory labels: a word for the state (tuned, keep
-	 * turning, out of range, no radio...) and what the antenna presents, and each dial's reading above it. The lamp,
-	 * not a number, tells the player how close the dials are.
+	 * The tuner's readout instead of the default title and inventory labels: a line for the state (tuned, keep
+	 * turning, out of range, no radio...) and what the antenna presents, centred above the panel where there is room
+	 * for it, and each dial's reading above the dial. The lamp, not a number, tells the player how close the dials are.
 	 */
 	@Override
 	protected void renderLabels(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY) {
 		int status = menu.getStatus();
 		Component state = Component.translatable(Radiocraft.translationKey("screen", "antenna_tuner.status." + status));
 		boolean warn = status != AntennaTunerBlockEntity.STATUS_MATCHED && status != AntennaTunerBlockEntity.STATUS_TUNING;
-		guiGraphics.drawString(font, state, READOUT_X, READOUT_Y, warn ? READOUT_WARN_COLOR : READOUT_COLOR, false);
+		guiGraphics.drawString(font, state, (imageWidth - font.width(state)) / 2, ABOVE_Y, warn ? ABOVE_WARN_COLOR : ABOVE_COLOR, true);
 
 		if(status == AntennaTunerBlockEntity.STATUS_MATCHED || status == AntennaTunerBlockEntity.STATUS_TUNING
 				|| status == AntennaTunerBlockEntity.STATUS_OUT_OF_RANGE || status == AntennaTunerBlockEntity.STATUS_DISABLED) {
 			Component antenna = Component.translatable(Radiocraft.translationKey("screen", "antenna_tuner.antenna_swr"), String.format(Locale.ROOT, "%.1f", menu.getRawSwr()));
-			guiGraphics.drawString(font, antenna, READOUT_X, READOUT_Y + READOUT_LINE, READOUT_COLOR, false);
+			guiGraphics.drawString(font, antenna, (imageWidth - font.width(antenna)) / 2, ABOVE_Y + READOUT_LINE, ABOVE_COLOR, true);
 		}
 
 		for(int i = 0; i < 3; i++) {

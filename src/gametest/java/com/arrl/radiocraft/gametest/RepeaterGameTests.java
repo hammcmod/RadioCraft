@@ -140,6 +140,55 @@ public class RepeaterGameTests {
                 .thenSucceed();
     }
 
+    /**
+     * The duplexer on top of the repeater, its coax to the J-pole either at the duplexer's own height ({@code behind}
+     * false) or on the ground straight behind the repeater, where the duplexer's cable drapes down ({@code behind} true).
+     */
+    private static void buildWithDuplexerOnTop(GameTestHelper helper, boolean behind) {
+        helper.setBlock(REPEATER, RadiocraftBlocks.VHF_REPEATER.get());
+        BlockPos top = REPEATER.above();
+        helper.setBlock(top, net.minecraft.world.level.block.Block.updateFromNeighbourShapes(
+                RadiocraftBlocks.DUPLEXER.get().defaultBlockState(), helper.getLevel(), helper.absolutePos(top)));
+        BlockPos run = behind ? REPEATER : top;
+        if(!behind)
+            for(int i = 1; i <= 3; i++)
+                helper.setBlock(run.south(i).below(), net.minecraft.world.level.block.Blocks.STONE);
+        GameTestUtil.placeWire(helper, run.south(), RadiocraftBlocks.COAX_WIRE.get());
+        GameTestUtil.placeWire(helper, run.south(2), RadiocraftBlocks.COAX_WIRE.get());
+        jPole(helper, run.south(3));
+        buildStations(helper);
+    }
+
+    private static void repeatsWithDuplexerOnTop(GameTestHelper helper, boolean behind) {
+        buildWithDuplexerOnTop(helper, behind);
+        String layout = behind ? "coax behind the repeater" : "coax from the duplexer";
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    assertAntennas(helper, REPEATER, 1);
+                    helper.assertTrue(repeater(helper, REPEATER).hasDuplexer(), layout + ": the repeater does not see its duplexer");
+                    helper.assertTrue(GameTestUtil.networkObject(helper, REPEATER, RadioNetworkObject.class).getAntennas().getFirst().getDuplexer() != null,
+                            layout + ": the antenna does not see the duplexer");
+                })
+                .thenExecute(() -> setUp(helper, 145_000, 145_600))
+                .thenIdle(1)
+                .thenExecute(() -> {
+                    speak(helper, STATION_A);
+                    helper.assertTrue(heardNow(helper, REPEATER), layout + ": the repeater did not hear A on its input");
+                    helper.assertTrue(heardNow(helper, STATION_B), layout + ": B did not hear the repeater's output");
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+    public static void repeatsWithDuplexerOnTopCoaxFromIt(GameTestHelper helper) {
+        repeatsWithDuplexerOnTop(helper, false);
+    }
+
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+    public static void repeatsWithDuplexerOnTopCoaxBehind(GameTestHelper helper) {
+        repeatsWithDuplexerOnTop(helper, true);
+    }
+
     /** A duplexer on top of the repeater shows its coax down the repeater's back, faces it, and counts as its duplexer. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100, batch = BATCH)
     public static void duplexerSitsOnTop(GameTestHelper helper) {

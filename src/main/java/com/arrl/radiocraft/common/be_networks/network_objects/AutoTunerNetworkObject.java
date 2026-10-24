@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.be_networks.network_objects;
 
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
@@ -163,6 +164,12 @@ public class AutoTunerNetworkObject extends PowerNetworkObject implements ICoaxP
         tunedHz = nbt.getFloat("tunedHz");
         tunedBand = nbt.contains("tunedBand") ? nbt.getString("tunedBand") : null;
         tunedAntenna = nbt.contains("tunedAntenna") ? nbt.getLong("tunedAntenna") : Long.MIN_VALUE;
+    }
+
+    /** A tuner placed beside a radio joins it without coax; coax from its other sides goes on to the antenna. */
+    @Override
+    public boolean linksDirectlyTo(BENetworkObject other) {
+        return other instanceof RadioNetworkObject;
     }
 
     @Override

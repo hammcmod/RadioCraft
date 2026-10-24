@@ -10,7 +10,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "It needs a $(l:radiocraft:repeaters/duplexer)duplexer$(/l) on its back, top or bottom, with the antenna's coax on the duplexer. Without one it deafens itself: \"psht... psht...\".$(br2)Settings: input/output, $(thing)CTCSS$() access and output tones, CW ID, hang time with courtesy beep, and a timeout.",
+      "text": "Set a $(l:radiocraft:repeaters/duplexer)duplexer$(/l) on top of it (its back or bottom work too). Run the antenna's coax from the duplexer, or from the ground straight behind the repeater, where the duplexer's cable comes down. Without one it deafens itself: \"psht... psht...\".$(br2)Settings: input/output, $(thing)CTCSS$() tones, CW ID, hang time and a timeout.",
       "title": "Setting up"
     },
     {
@@ -18,7 +18,7 @@
       "name": "Repeater site",
       "multiblock": {
         "mapping": {
-          "D": "radiocraft:duplexer[facing=north]",
+          "D": "radiocraft:duplexer[facing=south,on_repeater=true]",
           "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
           "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
           "a": "radiocraft:coax_wire[north=true,south=true]",
@@ -30,28 +30,28 @@
         },
         "pattern": [
           [
-            "     ",
-            "     ",
-            "     ",
-            "     ",
-            "     ",
-            "     ",
-            "     ",
-            "    U"
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "D  U"
           ],
           [
-            "G    ",
-            "G    ",
-            "G    ",
-            "Q    ",
-            "r    ",
-            "V    ",
-            "r    ",
-            "0DaaJ"
+            "G   ",
+            "G   ",
+            "G   ",
+            "Q   ",
+            "r   ",
+            "V   ",
+            "r   ",
+            "0aaJ"
           ]
         ]
       },
-      "text": "Repeater, duplexer behind it, coax, J-pole. Solar panels, controller and battery power it."
+      "text": "Duplexer on the repeater, coax from behind it to the J-pole, solar power."
     },
     {
       "type": "patchouli:crafting",

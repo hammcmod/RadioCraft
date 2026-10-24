@@ -97,6 +97,35 @@ public class AntennaTunerGameTests {
      * Untouched dials leave the radio seeing most of the mismatch, and the readout says to keep turning; with every
      * dial on its reading the radio sees SWR 1 while the antenna itself is still SWR 3, and the readout says tuned.
      */
+    /** A tuner (manual or automatic) beside the radio, no coax between them: the radio reaches the antenna through it. */
+    private static void tunerBesideRadio(GameTestHelper helper, Block tuner) {
+        BlockPos radio = new BlockPos(4, 2, 4), beside = radio.east(), balun = beside.east(3);
+        helper.setBlock(radio, RadiocraftBlocks.HF_RADIO_20M.get());
+        helper.setBlock(beside, tuner);
+        GameTestUtil.placeWire(helper, beside.east(), RadiocraftBlocks.COAX_WIRE.get());
+        GameTestUtil.placeWire(helper, beside.east(2), RadiocraftBlocks.COAX_WIRE.get());
+        helper.setBlock(balun, RadiocraftBlocks.BALUN_ONE_TO_ONE.get());
+        GameTestUtil.wire(helper, balun, balun.north(5));
+        GameTestUtil.wire(helper, balun, balun.south(5));
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    var antennas = GameTestUtil.networkObject(helper, radio, com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject.class).getAntennas();
+                    helper.assertTrue(antennas.size() == 1 && antennas.getFirst().getAntenna() != null, "The radio does not reach the antenna through the tuner beside it");
+                    helper.assertTrue(antennas.getFirst().getTuner() != null, "The antenna does not see the tuner");
+                })
+                .thenSucceed();
+    }
+
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 200)
+    public static void manualTunerBesideRadio(GameTestHelper helper) {
+        tunerBesideRadio(helper, RadiocraftBlocks.ANTENNA_TUNER.get());
+    }
+
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 200)
+    public static void autoTunerBesideRadio(GameTestHelper helper) {
+        tunerBesideRadio(helper, RadiocraftBlocks.AUTO_TUNER.get());
+    }
+
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
     public static void tunerMatchesShortDipole(GameTestHelper helper) {
         buildShortStation(helper, RadiocraftBlocks.HF_RADIO_20M.get(), true, 3);

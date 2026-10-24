@@ -75,6 +75,12 @@ public class AntennaTunerNetworkObject extends BENetworkObject implements ICoaxP
             dials = saved;
     }
 
+    /** A tuner placed beside a radio joins it without coax; coax from its other sides goes on to the antenna. */
+    @Override
+    public boolean linksDirectlyTo(BENetworkObject other) {
+        return other instanceof RadioNetworkObject;
+    }
+
     @Override
     public ResourceLocation getType() {
         return TYPE;

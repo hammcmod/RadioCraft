@@ -1,5 +1,8 @@
 package com.arrl.radiocraft.common.be_networks;
 
+import net.minecraft.world.level.BlockGetter;
+import com.arrl.radiocraft.common.blocks.radios.VHFRepeaterBlock;
+import com.arrl.radiocraft.common.blocks.antennas.DuplexerBlock;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.BENetworkRegistry;
@@ -107,7 +110,7 @@ public class WireUtils {
 			blacklist.add(pos);
 
 		for(Map.Entry<BlockPos, Direction> link : links.entrySet()) {
-			BlockPos checkPos = link.getKey();
+			BlockPos checkPos = linkTarget(level, link.getKey(), link.getValue());
 
 			BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
 			if(blacklist.contains(checkPos))
@@ -193,7 +196,7 @@ public class WireUtils {
 		Direction firstSide = null;
 
 		// The wires touching this device: its neighbours and any climber coming up the block below-diagonal.
-		for(Map.Entry<BlockPos, Direction> link : WireBlock.wireLinksAround(level, pos, wireSet).entrySet()) {
+		for(Map.Entry<BlockPos, Direction> link : wireLinksOf(level, pos, wireSet).entrySet()) {
 			BlockPos checkPos = link.getKey();
 			Direction dir = link.getValue();
 
@@ -261,7 +264,7 @@ public class WireUtils {
 			WireBlock wire = (WireBlock)state.getBlock();
 
 			for(Map.Entry<BlockPos, Direction> link : wire.getLinks(level, pos, state).entrySet()) {
-				BlockPos checkPos = link.getKey();
+				BlockPos checkPos = linkTarget(level, link.getKey(), link.getValue());
 				if(blackList.contains(checkPos))
 					continue;
 
@@ -284,7 +287,7 @@ public class WireUtils {
 		if(!(networkObject instanceof IPassThroughNetworkObject) || !blackList.add(pos))
 			return;
 
-		for(BlockPos checkPos : WireBlock.wireLinksAround(level, pos, wires).keySet()) {
+		for(BlockPos checkPos : wireLinksOf(level, pos, wires).keySet()) {
 			if(!blackList.contains(checkPos))
 				getConnections(connections, blackList, level, checkPos, connection, wires);
 		}
@@ -295,6 +298,42 @@ public class WireUtils {
 			if(other != null && connection.test(other) && linksDirectly(networkObject, other) && !blackList.contains(checkPos))
 				addConnection(connections, blackList, level, checkPos, other, dir.getOpposite(), connection, wires);
 		}
+	}
+
+	/**
+	 * Where a wire's link into {@code target} (touching its {@code side}) really goes. Coax laid straight behind a
+	 * repeater with a duplexer on top goes up the duplexer's cable, so it reaches the duplexer, not the repeater.
+	 */
+	public static BlockPos linkTarget(BlockGetter level, BlockPos target, Direction side) {
+		return duplexerOnTop(level, target) && side == repeaterBack(level.getBlockState(target)) ? target.above() : target;
+	}
+
+	/**
+	 * The wires a device at {@code pos} is linked to ({@link WireBlock#wireLinksAround}), with the duplexer's cable:
+	 * a repeater with a duplexer on top does not take the coax behind it, the duplexer does.
+	 */
+	public static Map<BlockPos, Direction> wireLinksOf(BlockGetter level, BlockPos pos, Set<WireBlock> wires) {
+		Map<BlockPos, Direction> links = WireBlock.wireLinksAround(level, pos, wires);
+		if(duplexerOnTop(level, pos)) {
+			Direction back = repeaterBack(level.getBlockState(pos));
+			links.remove(pos.relative(back));
+		}
+		BlockPos below = pos.below();
+		if(level.getBlockState(pos).getBlock() instanceof DuplexerBlock && duplexerOnTop(level, below)) {
+			Direction back = repeaterBack(level.getBlockState(below));
+			BlockPos behind = below.relative(back);
+			if(wires.contains(level.getBlockState(behind).getBlock()))
+				links.put(behind, back);
+		}
+		return links;
+	}
+
+	private static boolean duplexerOnTop(BlockGetter level, BlockPos pos) {
+		return level.getBlockState(pos).getBlock() instanceof VHFRepeaterBlock && level.getBlockState(pos.above()).getBlock() instanceof DuplexerBlock;
+	}
+
+	private static Direction repeaterBack(BlockState repeater) {
+		return repeater.getValue(VHFRepeaterBlock.HORIZONTAL_FACING).getOpposite();
 	}
 
 	/** True if either object says it joins the other by touching, see {@link BENetworkObject#linksDirectlyTo}. */
@@ -322,7 +361,7 @@ public class WireUtils {
 			WireBlock wire = (WireBlock)state.getBlock();
 
 			for(Map.Entry<BlockPos, Direction> link : wire.getLinks(level, pos, state).entrySet()) {
-				BlockPos checkPos = link.getKey();
+				BlockPos checkPos = linkTarget(level, link.getKey(), link.getValue());
 				if(blackList.contains(checkPos))
 					continue;
 

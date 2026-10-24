@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.be_networks.network_objects;
 
+import com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
@@ -26,11 +27,21 @@ public class DuplexerNetworkObject extends BENetworkObject implements ICoaxPassT
 
     public static final ResourceLocation TYPE = Radiocraft.id("duplexer");
 
-    private volatile int[] screwsHz = new int[DuplexerMath.SCREWS]; // 0 until first tuned. Replaced whole: read from the voice thread.
+    private volatile int[] screwsHz = defaultScrews(); // Replaced whole: read from the voice thread.
     private boolean manual = false; // A player has turned a screw: it no longer follows the repeater.
 
     public DuplexerNetworkObject(Level level, BlockPos pos) {
         super(level, pos);
+    }
+
+    /** Out of the box: tuned for a repeater's default pair (output 146.940, input 146.340 MHz). */
+    private static int[] defaultScrews() {
+        int[] screws = new int[DuplexerMath.SCREWS];
+        for(int i = 0; i < 3; i++) {
+            screws[DuplexerMath.TX_FIRST + i] = Math.round(VHFRepeaterBlockEntity.DEFAULT_OUTPUT);
+            screws[DuplexerMath.RX_FIRST + i] = Math.round(VHFRepeaterBlockEntity.DEFAULT_INPUT);
+        }
+        return screws;
     }
 
     public int getScrewHz(int index) {
@@ -104,7 +115,7 @@ public class DuplexerNetworkObject extends BENetworkObject implements ICoaxPassT
     public void load(IBENetworks cap, CompoundTag nbt) {
         super.load(cap, nbt);
         int[] saved = nbt.getIntArray("screws");
-        if(saved.length == DuplexerMath.SCREWS)
+        if(saved.length == DuplexerMath.SCREWS && java.util.Arrays.stream(saved).allMatch(hz -> hz > 0)) // Older saves kept 0 for untuned.
             screwsHz = saved;
         manual = nbt.getBoolean("manual");
     }
