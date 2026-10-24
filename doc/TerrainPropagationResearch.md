@@ -78,9 +78,21 @@ It has to stay cheap for base stations (fixed) and for handhelds and future manp
   thread.
 - Nothing ever reads chunks on the voice thread; everything it reads is immutable arrays swapped atomically.
 
-### 5. Config
-- `terrain_line_of_sight` (on/off), `terrain_sky_view` (on/off), `terrain_atlas_max_chunks`, the takeoff angles per
-  band, the indoor losses. Off reproduces today's behaviour exactly.
+### 5. HF ground wave over steep ground
+Knife-edge alone barely touches 80m. Maintainer (2026-10-24): sharp inclines should hurt HF ground wave too. So
+HF line of sight also takes a steepness loss: each step along the path where the atlas height changes by more than
+`terrain_steep_rise` (default 8 blocks) between neighbouring 4-block cells costs a few dB, scaled by band (10m most,
+80m least), capped per path. Gentle hills stay free on HF; cliffs and mountain walls do not.
+
+### 6. Config
+- `terrain_enabled` (server, default true): the master switch for low-performance servers. Off means no chunk
+  hooks, no atlas memory and no terrain maths at all, exactly today's behaviour.
+- `terrain_line_of_sight` (on/off), `terrain_sky_view` (on/off), `terrain_atlas_max_chunks`, `terrain_steep_rise`,
+  the takeoff angles per band, the indoor losses.
+
+### 7. How harsh
+Maintainer (2026-10-24): per band and realistic, so no softening cap on the ITU-R loss. A ridge between two
+handhelds on 2m can kill the path; 80m mostly shrugs off hills but not cliffs (section 5).
 
 ## Phases
 
@@ -92,9 +104,13 @@ It has to stay cheap for base stations (fixed) and for handhelds and future manp
 3. Persistence and worldgen fill for never-loaded chunks; `/bandcalculate` and the antenna analyzer report terrain
    losses ("path blocked by terrain: -18 dB").
 
-## Open questions for the maintainer
+## Decisions (maintainer, 2026-10-24)
 
-- How much should terrain matter for gameplay: real (a hill kills a handheld path) or softened (cap the loss)?
-- Should HF line of sight (ground wave) be affected at all? Physically yes but mildly; the spike's numbers make 80m
-  shrug off hills, which may be enough.
-- Is a memory cap on the atlas acceptable (oldest chunks forgotten and treated as clear)?
+- Harshness: realistic, per band (section 7).
+- HF ground wave: feels sharp inclines (section 5).
+- A `terrain_enabled` server switch turns the whole system off (section 6).
+
+## Open question for the maintainer
+
+- The atlas memory cap (oldest chunks forgotten and treated as clear beyond `terrain_atlas_max_chunks`): asked,
+  explained, awaiting an answer.
