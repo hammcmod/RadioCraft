@@ -345,15 +345,19 @@ public class CallsignCommands {
 		source.sendFailure(message);
 	}
 
-	private static String generateCallsignFromUuid(UUID playerUUID) {
+	public static String generateCallsignFromUuid(UUID playerUUID) {
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			byte[] hash = digest.digest(playerUUID.toString().getBytes(StandardCharsets.UTF_8));
-			int digit = Byte.toUnsignedInt(hash[0]) % 10;
+			// A real callsign shape: a prefix from callsign_prefixes, an allowed digit, three letters, all from the hash.
+			List<String> prefixes = com.arrl.radiocraft.common.radio.Callsigns.prefixes();
+			String digits = com.arrl.radiocraft.common.radio.Callsigns.allowedDigits();
+			int pick = ((Byte.toUnsignedInt(hash[4]) << 8) | Byte.toUnsignedInt(hash[5])) % prefixes.size();
+			char digit = digits.charAt(Byte.toUnsignedInt(hash[0]) % digits.length());
 			char firstLetter = (char) ('A' + (Byte.toUnsignedInt(hash[1]) % 26));
 			char secondLetter = (char) ('A' + (Byte.toUnsignedInt(hash[2]) % 26));
 			char thirdLetter = (char) ('A' + (Byte.toUnsignedInt(hash[3]) % 26));
-			return "TS" + digit + firstLetter + secondLetter + thirdLetter;
+			return prefixes.get(pick) + digit + firstLetter + secondLetter + thirdLetter;
 		} catch (NoSuchAlgorithmException exception) {
 			throw new IllegalStateException("Unable to generate deterministic callsign", exception);
 		}

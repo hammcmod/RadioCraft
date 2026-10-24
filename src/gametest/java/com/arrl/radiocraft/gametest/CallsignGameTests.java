@@ -29,6 +29,18 @@ public class CallsignGameTests {
             PlayerCallsignSavedData.get(helper.getLevel().getServer().overworld()).resetCallsign(player.getUUID());
     }
 
+    /** The admin /callsign generate makes valid callsigns from the prefix list, the same one each time for a player. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20, batch = "callsigns")
+    public static void adminGeneratedCallsignsAreValid(GameTestHelper helper) {
+        for(int i = 0; i < 50; i++) {
+            UUID id = UUID.nameUUIDFromBytes(("generated-" + i).getBytes());
+            String callsign = com.arrl.radiocraft.common.commands.CallsignCommands.generateCallsignFromUuid(id);
+            helper.assertTrue(Callsigns.isValidPlayerCallsign(callsign), "Generated " + callsign + " is not a valid callsign");
+            helper.assertTrue(callsign.equals(com.arrl.radiocraft.common.commands.CallsignCommands.generateCallsignFromUuid(id)), "Generation is not repeatable");
+        }
+        helper.succeed();
+    }
+
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20, batch = "callsigns")
     public static void playerCallsignForm(GameTestHelper helper) {
         for(String good : new String[] { "K1ABC", "W4X", "KA1B", "N0ZZ", "VE3XY", "2E0AB", "G4ABC", "KH6XX" })
