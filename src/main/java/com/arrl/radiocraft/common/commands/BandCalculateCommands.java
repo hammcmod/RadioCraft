@@ -5,6 +5,7 @@ import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.solar.BandCondition;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
+import com.arrl.radiocraft.common.radio.solar.SporadicE;
 import com.arrl.radiocraft.common.radio.terrain.TerrainAtlas;
 import com.arrl.radiocraft.common.radio.terrain.TerrainMath;
 import com.arrl.radiocraft.common.radio.terrain.TerrainPropagation;
@@ -40,7 +41,7 @@ public class BandCalculateCommands {
 									.executes(context -> run(context.getSource(), ColumnPosArgument.getColumnPos(context, "from"), ColumnPosArgument.getColumnPos(context, "to")))));
 
 	/** How a band would carry between the two points: line of sight, skip (with its condition), aurora, or not at all. */
-	public enum Path { LINE_OF_SIGHT, SKIP, AURORA, NONE }
+	public enum Path { LINE_OF_SIGHT, SKIP, AURORA, SPORADIC_E, NONE }
 
 	/** Height above the ground both ends are taken at, as for an antenna on a short mast. */
 	public static final int STATION_HEIGHT = 4;
@@ -73,7 +74,13 @@ public class BandCalculateCommands {
 			if(band.isVhf()) {
 				boolean aurora = Aurora.isActive(level) && Aurora.inZone(a) && Aurora.inZone(b)
 						&& distance >= RadiocraftServerConfig.AURORA_VHF_MIN_RANGE.get() && distance <= RadiocraftServerConfig.AURORA_VHF_MAX_RANGE.get();
-				results.add(aurora ? new Result(band, Path.AURORA, null, RadiocraftServerConfig.AURORA_VHF_STRENGTH.get()) : new Result(band, Path.NONE, null, 0.0D));
+				double es = SporadicE.vhfStrength(level, band, distance);
+				if(aurora)
+					results.add(new Result(band, Path.AURORA, null, RadiocraftServerConfig.AURORA_VHF_STRENGTH.get()));
+				else if(es > 0.0D)
+					results.add(new Result(band, Path.SPORADIC_E, null, es));
+				else
+					results.add(new Result(band, Path.NONE, null, 0.0D));
 				continue;
 			}
 			boolean day = level.isDay();
@@ -117,6 +124,7 @@ public class BandCalculateCommands {
 			case LINE_OF_SIGHT -> "line of sight";
 			case SKIP -> "skip, " + result.condition().getSerializedName();
 			case AURORA -> "aurora skip";
+			case SPORADIC_E -> "sporadic E";
 			case NONE -> result.condition() == BandCondition.CLOSED ? "closed" : "out of range";
 		};
 		if(result.terrain() >= 0.99D)

@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.radio.solar;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.network.clientbound.CAuroraPacket;
 import com.arrl.radiocraft.common.network.clientbound.CNoisePacket;
@@ -83,16 +84,23 @@ public class SolarEventManager {
 		if(event.getLevel() instanceof ServerLevel level) {
 			SolarEventInstance solarEvent = getEvent(level);
 
-			if(solarEvent == null || solarEvent.isFinished()) // Keep picking new event if the current one is finished
+			if(!RadiocraftServerConfig.SOLAR_EVENTS_ENABLED.get()) { // Solar weather off: average conditions, always.
+				SolarEvent average = RadiocraftData.SOLAR_EVENTS.getValue(Radiocraft.id("average"));
+				if(average != null && (solarEvent == null || solarEvent.getEvent() != average))
+					startEvent(level, average);
+			}
+			else if(solarEvent == null || solarEvent.isFinished()) // Keep picking new event if the current one is finished
 				startEvent(level, RadiocraftData.SOLAR_EVENTS.getWeightedRandom());
 			getEvent(level).tick();
 			Aurora.tick(level);
+			SporadicE.tick(level);
 		}
 	}
 
 	@SubscribeEvent
 	public static void serverStopped(ServerStoppedEvent event) { // In single player the next world must not inherit this one's aurora.
 		Aurora.clearAll();
+		SporadicE.clearAll();
 	}
 
 	@SubscribeEvent

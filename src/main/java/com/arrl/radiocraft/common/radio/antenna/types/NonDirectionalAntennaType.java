@@ -6,6 +6,7 @@ import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
+import com.arrl.radiocraft.common.radio.solar.SporadicE;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import com.arrl.radiocraft.common.radio.terrain.TerrainPropagation;
 import net.minecraft.core.BlockPos;
@@ -72,7 +73,8 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
         // Terrain: hills in the way of line of sight, or the horizon around either station for skip.
         if(strength > 0.0D && packet.getBand() != null)
             strength *= TerrainPropagation.factor(packet, destination, effectiveDistance >= packet.getBand().losRange() * getLosRangeScale(packet.getBand()));
-        return Math.max(strength, Aurora.vhfStrength(level, packet.getBand(), source, destination, effectiveDistance));
+        return Math.max(strength, Math.max(Aurora.vhfStrength(level, packet.getBand(), source, destination, effectiveDistance),
+                SporadicE.vhfStrength(level, packet.getBand(), effectiveDistance)));
     }
 
     /** How far line of sight reaches on {@code band} with this antenna, as a share of the band's range. */

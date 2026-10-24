@@ -65,7 +65,8 @@ public class BandUtils {
             return 0.0D;
         double reach = Math.max(band.losRange(), Math.max(band.maxSkipDay(), band.maxSkipNight()));
         if(band.isVhf())
-            reach = Math.max(reach, com.arrl.radiocraft.RadiocraftServerConfig.AURORA_VHF_MAX_RANGE.get());
+            reach = Math.max(reach, Math.max(com.arrl.radiocraft.RadiocraftServerConfig.AURORA_VHF_MAX_RANGE.get(),
+                    com.arrl.radiocraft.RadiocraftServerConfig.SPORADIC_E_MAX_RANGE.get()));
         return reach * REACH_MARGIN;
     }
 

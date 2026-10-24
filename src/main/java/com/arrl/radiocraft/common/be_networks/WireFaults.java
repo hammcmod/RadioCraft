@@ -5,6 +5,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.BatteryNetworkObject;
 import com.arrl.radiocraft.common.blocks.WireBlock;
 import com.arrl.radiocraft.common.init.RadiocraftDamageTypes;
 import net.minecraft.core.BlockPos;
@@ -324,6 +325,12 @@ public final class WireFaults {
 		if((time + pos.hashCode()) % 20 != 0)
 			return;
 		drainShare(fault, time, pos);
+		if(level.random.nextDouble() < RadiocraftServerConfig.WIRE_WATER_BATTERY_IGNITE_CHANCE.get()) { // Now and then the batteries behind it catch.
+			for(PowerNetworkObject object : fault.supply) {
+				if(object instanceof BatteryNetworkObject)
+					BatteryFires.ignite(level, object.getPos());
+			}
+		}
 		double range = RadiocraftServerConfig.WIRE_WATER_RANGE.get();
 		level.sendParticles(ParticleTypes.ELECTRIC_SPARK, pos.getX() + 0.5D, pos.getY() + 0.3D, pos.getZ() + 0.5D, 6, 0.4D, 0.2D, 0.4D, 0.1D);
 		for(LivingEntity entity : level.getEntitiesOfClass(LivingEntity.class, new AABB(pos).inflate(range))) {

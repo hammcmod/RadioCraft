@@ -22,6 +22,7 @@ import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
 import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.morse.CWBuffer;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
+import com.arrl.radiocraft.common.radio.solar.SporadicE;
 import com.arrl.radiocraft.common.radio.terrain.TerrainPropagation;
 import com.arrl.radiocraft.compat.curios.CuriosCompat;
 import com.arrl.radiocraft.common.radio.voice.Ctcss;
@@ -300,7 +301,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     if(lineOfSight > 0.0D) // A handheld has no skip: only hills and roofs in the way.
                         lineOfSight *= TerrainPropagation.factor(packet, pos.position(), false);
                     packet.setStrength(Math.max(lineOfSight,
-                            Aurora.vhfStrength(packet.getLevel(), packet.getBand(), thisPos.position(), pos.position(), distance)));
+                            Math.max(Aurora.vhfStrength(packet.getLevel(), packet.getBand(), thisPos.position(), pos.position(), distance),
+                                    SporadicE.vhfStrength(packet.getLevel(), packet.getBand(), distance))));
 
                     antenna.receiveAudioPacket(packet);
                 }

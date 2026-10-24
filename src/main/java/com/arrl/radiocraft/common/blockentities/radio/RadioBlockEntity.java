@@ -87,8 +87,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     protected Band band; // Band the radio is configured for, usually not changed.
     protected float frequency; // Frequency the radio is currently using (in Hz)
-    protected float speakerGain = 1.0F;
-    protected float micGain = 1.0F;
+    protected volatile float speakerGain = 1.0F; // Read on the voice thread.
+    protected volatile float micGain = 1.0F;
 
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
@@ -889,7 +889,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(isParrot()) // Queue the audio as it arrived, before the receiver scales it, so the echo carries one path's loss, not two.
             parrotVoiceQueue.add(new QueuedVoice(packet.getRawAudio().clone(), packet.getSourcePlayer(), lastSignalGameTime + parrotDelayTicks));
         double rasp = skip && band != null && band.isVhf() ? 1.0D : 0.0D; // A VHF signal beyond line of sight came off the aurora.
-        getVoiceReceiver().receive(packet, ReceiverMix.voiceLevel(strength, getNoiseFloor()), rasp,
+        getVoiceReceiver().receive(packet, ReceiverMix.voiceLevel(strength, getNoiseFloor()) * speakerGain, rasp,
                 effect.pitchShiftHz(), effect.splatter(), Detuning.splatterOn(1.0D, getAdjacentQrm(), strength));
         return true;
     }
@@ -1055,6 +1055,15 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return micGain;
     }
 
+    /** Client side, so a turned dial shows its new value before the server syncs it back. */
+    public void setSpeakerGainClient(float gain) {
+        this.speakerGain = Mth.clamp(gain, 0.0F, 2.0F);
+    }
+
+    public void setMicGainClient(float gain) {
+        this.micGain = Mth.clamp(gain, 0.0F, 2.0F);
+    }
+
     public void setMicGain(float micGain) {
         this.micGain = Mth.clamp(micGain, 0.0F, 2.0F);
         setChanged();
@@ -1126,6 +1135,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public void acceptVoicePacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, UUID sourcePlayer) {
+        float gain = micGain;
+        if(gain != 1.0F) { // The mic gain dial.
+            short[] scaled = new short[rawAudio.length];
+            for(int i = 0; i < rawAudio.length; i++)
+                scaled[i] = (short)Mth.clamp(Math.round(rawAudio[i] * gain), Short.MIN_VALUE, Short.MAX_VALUE);
+            rawAudio = scaled;
+        }
         transmitVoice(level, rawAudio, (float)(getTransmitFrequency() + getDriftHz()), sourcePlayer, getTransmitTone());
     }
 

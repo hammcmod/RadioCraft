@@ -276,6 +276,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add("key.categories.radiocraft", "RadioCraft");
             provider.add("key.radiocraft.worn_ptt", "Talk on worn radio");
             provider.add("death.attack.radiocraft.electrocution", "%1$s was electrocuted");
+            provider.add(Radiocraft.translationKey("message", "solar_weather_station.sporadic_e"), "Sporadic E: VHF open for long range");
             provider.add("death.attack.radiocraft.electrocution.player", "%1$s was electrocuted whilst fighting %2$s");
             provider.add(Radiocraft.translationKey("tooltip", "microphone"), "Stands beside a radio. Hold right click on it to talk; sneak and right click to lock talking on. Speak close: it gets quieter as you step away. Lets go after a timeout.");
             provider.add(Radiocraft.translationKey("message", "desk_mic.locked"), "Desk mic locked on (lets go after %ss)");

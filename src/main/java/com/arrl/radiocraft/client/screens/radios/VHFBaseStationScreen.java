@@ -33,8 +33,8 @@ public class VHFBaseStationScreen extends VHFRadioScreen<VHFBaseStationMenu> {
 		addRenderableWidget(new PanelButton(leftPos + 133, topPos + 42, 15, 8, this::cycleOffset));
 		addRenderableWidget(new PanelButton(leftPos + 155, topPos + 42, 15, 8, () -> stepTone(-1)));
 		addRenderableWidget(new PanelButton(leftPos + 179, topPos + 42, 15, 8, () -> stepTone(1)));
-		addRenderableWidget(new Dial(leftPos + 231, topPos + 5, 15, 17, 44, 84, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
-		addRenderableWidget(new Dial(leftPos + 231, topPos + 31, 15, 17, 44, 84, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
+		speakerGainDial = addRenderableWidget(new Dial(leftPos + 231, topPos + 5, 15, 17, 44, 84, widgetsTexture, 256, 256, this::onGainUp, this::onGainDown)); // Gain dial
+		micGainDial = addRenderableWidget(new Dial(leftPos + 231, topPos + 31, 15, 17, 44, 84, widgetsTexture, 256, 256, this::onMicGainUp, this::onMicGainDown)); // Mic gain dial
 		addRenderableWidget(new ToggleButton(false, leftPos + 210, topPos + 3, 22, 22, 0, 110, widgetsTexture, 256, 256, (btn) -> {})); // SPK
         addRenderableWidget(new ToggleButton(false, leftPos + 210, topPos + 29, 22, 22, 0, 66, widgetsTexture, 256, 256, (btn) -> {})); // MIC
 		addRenderableWidget(new ToggleButton(false, leftPos + 93, topPos + 65, 18, 12, 0, 42, widgetsTexture, 256, 256, (btn) -> {})); // Frequency up button

@@ -188,6 +188,7 @@
   "message.radiocraft.solar_weather_station.overall": "Overall: %s",
   "message.radiocraft.solar_weather_station.poor": "Poor",
   "message.radiocraft.solar_weather_station.report": "Solar conditions: %s (noise floor %s%%). %s band: %s",
+  "message.radiocraft.solar_weather_station.sporadic_e": "Sporadic E: VHF open for long range",
   "screen.radiocraft.antenna_tuner.antenna_swr": "Antenna SWR: %s",
   "screen.radiocraft.antenna_tuner.status.0": "No radio on this coax",
   "screen.radiocraft.antenna_tuner.status.1": "Radio is off",

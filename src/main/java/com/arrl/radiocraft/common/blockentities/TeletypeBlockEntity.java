@@ -349,6 +349,8 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 			return Component.translatable("message.radiocraft.solar_weather_station.aurora_active", latitude).withStyle(ChatFormatting.GREEN);
 		if(Aurora.isExpected(level))
 			return Component.translatable("message.radiocraft.solar_weather_station.aurora_expected", latitude).withStyle(ChatFormatting.LIGHT_PURPLE);
+		if(com.arrl.radiocraft.common.radio.solar.SporadicE.isActive(level))
+			return Component.translatable("message.radiocraft.solar_weather_station.sporadic_e").withStyle(ChatFormatting.AQUA);
 		return null;
 	}
 

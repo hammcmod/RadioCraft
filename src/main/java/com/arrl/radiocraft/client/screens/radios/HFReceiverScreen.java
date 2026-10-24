@@ -26,7 +26,7 @@ public class HFReceiverScreen extends HFRadioScreen<HFReceiverMenu> {
 		addRenderableWidget(new ValueButton(leftPos + 10, topPos + 78, 34, 21, 0, 84, widgetsTexture, 256, 256, () -> menu.blockEntity.getCWEnabled(), this::onPressCW)); // CW Button
 		addRenderableWidget(new ValueButton(leftPos + 10, topPos + 58, 34, 21, 0, 42, widgetsTexture, 256, 256, () -> menu.blockEntity.getSSBEnabled(), this::onPressSSB)); // SSB button
 		addRenderableWidget(new Dial(leftPos + 103, topPos + 63, 42, 45, 68, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
-		addRenderableWidget(new Dial(leftPos + 56, topPos + 93, 28, 31, 68, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
+		speakerGainDial = addRenderableWidget(new Dial(leftPos + 56, topPos + 93, 28, 31, 68, 90, widgetsTexture, 256, 256, this::onGainUp, this::onGainDown)); // Gain dial
 		addRenderableWidget(new Dial(leftPos + 14, topPos + 26, 28, 31, 68, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // dial1
 		addRenderableWidget(new Dial(leftPos + 56, topPos + 26, 28, 31, 124, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // dial2
 		addRenderableWidget(new Dial(leftPos + 164, topPos + 26, 28, 31, 124, 90, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // dial3

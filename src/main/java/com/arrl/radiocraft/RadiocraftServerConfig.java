@@ -28,6 +28,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> REDSTONE_INTERFERENCE_TRANSMIT_CHANCE;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> LIGHTNING_STATIC_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Boolean> SOLAR_EVENTS_ENABLED;
 	public static final ModConfigSpec.ConfigValue<Double> LIGHTNING_STATIC_STRENGTH;
 	public static final ModConfigSpec.ConfigValue<Integer> LIGHTNING_STATIC_RANGE;
 
@@ -66,6 +67,11 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MIN_RANGE;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MAX_RANGE;
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_VHF_STRENGTH;
+	public static final ModConfigSpec.ConfigValue<Boolean> SPORADIC_E_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Double> SPORADIC_E_CHANCE_PER_DAY;
+	public static final ModConfigSpec.ConfigValue<Integer> SPORADIC_E_MIN_RANGE;
+	public static final ModConfigSpec.ConfigValue<Integer> SPORADIC_E_MAX_RANGE;
+	public static final ModConfigSpec.ConfigValue<Double> SPORADIC_E_STRENGTH;
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_STATIC;
 
 	public static final ModConfigSpec.ConfigValue<Double> TOWER_FOOTHOLD_BREAK_CHANCE;
@@ -75,6 +81,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> WIRE_SHORT_BURN_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Double> WIRE_WATER_DAMAGE;
 	public static final ModConfigSpec.ConfigValue<Integer> WIRE_WATER_RANGE;
+	public static final ModConfigSpec.ConfigValue<Double> WIRE_WATER_BATTERY_IGNITE_CHANCE;
 	public static final ModConfigSpec.ConfigValue<Double> WIRE_ZAP_DAMAGE;
 	public static final ModConfigSpec.ConfigValue<Integer> WIRE_ZAP_MULTIPLIER;
 	public static final ModConfigSpec.ConfigValue<Boolean> BATTERY_FIRES_ENABLED;
@@ -179,6 +186,8 @@ public class RadiocraftServerConfig {
 		BUILDER.comment(" A lightning strike puts a crash of static on every powered radio in the dimension, loudest close by and fading",
 				" with distance. Long HF bands hear the most, 20m half, 10m and VHF a tenth, like redstone noise.");
 		LIGHTNING_STATIC_ENABLED = BUILDER.comment(" Set to false to turn lightning crashes off").define("lightning_static_enabled", true);
+		SOLAR_EVENTS_ENABLED = BUILDER.comment(" Solar weather and geomagnetic storms. Set to false to keep every dimension on average conditions (no blackouts,",
+				" storms or auroras from new events)").define("solar_events_enabled", true);
 		LIGHTNING_STATIC_STRENGTH = BUILDER.comment(" How much static a strike right next to the radio adds, on top of the solar noise floor (the total is capped at 1, so above 1 nearby strikes saturate and distant ones are still heard)").defineInRange("lightning_static_strength", 1.2, 0.0, 4.0);
 		LIGHTNING_STATIC_RANGE = BUILDER.comment(" Distance in blocks at which a strike is no longer heard").defineInRange("lightning_static_range", 512, 16, 8192);
 		BUILDER.pop();
@@ -268,6 +277,12 @@ public class RadiocraftServerConfig {
 		AURORA_VHF_MIN_RANGE = BUILDER.comment(" Shortest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_min_range", 500, 0, 1000000);
 		AURORA_VHF_MAX_RANGE = BUILDER.comment(" Longest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_max_range", 4000, 1, 1000000);
 		AURORA_VHF_STRENGTH = BUILDER.comment(" Strength (0 to 1) of a VHF signal carried by the aurora").defineInRange("aurora_vhf_strength", 0.8, 0.0, 1.0);
+		SPORADIC_E_ENABLED = BUILDER.comment(" Sporadic E: in good or great solar conditions VHF now and then opens for long-range contacts, for a",
+				" quarter of a day to a day, everywhere in the dimension").define("sporadic_e_enabled", true);
+		SPORADIC_E_CHANCE_PER_DAY = BUILDER.comment(" Chance per in-game day of good or great conditions that sporadic E opens").defineInRange("sporadic_e_chance_per_day", 0.05, 0.0, 1.0);
+		SPORADIC_E_MIN_RANGE = BUILDER.comment(" Shortest VHF path sporadic E carries, in blocks").defineInRange("sporadic_e_min_range", 600, 0, 1000000);
+		SPORADIC_E_MAX_RANGE = BUILDER.comment(" Longest VHF path sporadic E carries, in blocks").defineInRange("sporadic_e_max_range", 3000, 1, 1000000);
+		SPORADIC_E_STRENGTH = BUILDER.comment(" Strength (0 to 1) of a VHF signal carried by sporadic E").defineInRange("sporadic_e_strength", 0.6, 0.0, 1.0);
 		AURORA_STATIC = BUILDER.comment(" Extra static on HF radios under the aurora, on top of the solar noise floor").defineInRange("aurora_static", 0.25, 0.0, 1.0);
 		BUILDER.pop();
 
@@ -284,6 +299,8 @@ public class RadiocraftServerConfig {
 		WIRE_SHORT_BURN_SECONDS = BUILDER.comment(" Seconds a powered short burns before the wire burns through").defineInRange("wire_short_burn_seconds", 4, 1, 600);
 		WIRE_WATER_DAMAGE = BUILDER.comment(" Damage per second to anything in the water near a wet wire (6 = 3 hearts)").defineInRange("wire_water_damage", 6.0, 0.0, 100.0);
 		WIRE_WATER_RANGE = BUILDER.comment(" Blocks from a wet wire that the water is electrified").defineInRange("wire_water_range", 6, 0, 32);
+		WIRE_WATER_BATTERY_IGNITE_CHANCE = BUILDER.comment(" Chance per second that a wet wire sets the batteries behind it alight (see Battery Fires)")
+				.defineInRange("wire_water_battery_ignite_chance", 0.01, 0.0, 1.0);
 		WIRE_ZAP_DAMAGE = BUILDER.comment(" Damage a sparking wire end does to whatever touches it (4 = 2 hearts)").defineInRange("wire_zap_damage", 4.0, 0.0, 100.0);
 		WIRE_ZAP_MULTIPLIER = BUILDER.comment(" A sparking end draws as much as a transmitting 20m HF radio; a zap draws this many times that for a second")
 				.defineInRange("wire_zap_multiplier", 6, 1, 100);

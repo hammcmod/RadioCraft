@@ -1,5 +1,8 @@
 package com.arrl.radiocraft.client.screens.radios;
 
+import java.util.Locale;
+import net.minecraft.util.Mth;
+import net.minecraft.client.gui.navigation.ScreenAxis;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.RadiocraftClientValues;
 import com.arrl.radiocraft.client.screens.widgets.Dial;
@@ -58,6 +61,54 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 	public void render(@NotNull GuiGraphics pGuiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
 		super.render(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
 		renderAdditionalTooltips(pGuiGraphics, pMouseX, pMouseY, pPartialTick);
+		renderGainReadout(pGuiGraphics, speakerGainDial, menu.blockEntity.getSpeakerGain());
+		renderGainReadout(pGuiGraphics, micGainDial, menu.blockEntity.getMicGain());
+	}
+
+	/** The speaker (volume) and mic gain dials, if the radio's screen has them; set by each screen in init. */
+	@Nullable
+	protected Dial speakerGainDial, micGainDial;
+
+	/** Gain steps per click of a gain dial, out of 1 (full) and up to {@link #MAX_GAIN}. */
+	private static final float GAIN_STEP = 0.1F, MAX_GAIN = 2.0F;
+
+	/** The gain as a percentage on the dial while it is hovered or turning, like the handheld's. */
+	private void renderGainReadout(GuiGraphics guiGraphics, @Nullable Dial dial, float gain) {
+		if(dial == null || !dial.isHoveredOrChanging())
+			return;
+		String text = String.format(Locale.ROOT, "%d%%", Math.round(gain * 100.0F));
+		guiGraphics.drawString(font, text, dial.getRectangle().getCenterInAxis(ScreenAxis.HORIZONTAL) - font.width(text) / 2,
+				dial.getRectangle().getCenterInAxis(ScreenAxis.VERTICAL) - font.lineHeight / 2, 0xFFFFFF);
+	}
+
+	/** Speaker gain: how loud the radio plays what it hears (voice and static). */
+	protected void onGainUp(AbstractWidget dial) {
+		setSpeakerGain(menu.blockEntity.getSpeakerGain() + GAIN_STEP);
+	}
+
+	protected void onGainDown(AbstractWidget dial) {
+		setSpeakerGain(menu.blockEntity.getSpeakerGain() - GAIN_STEP);
+	}
+
+	/** Mic gain: how loud your voice goes out. */
+	protected void onMicGainUp(AbstractWidget dial) {
+		setMicGain(menu.blockEntity.getMicGain() + GAIN_STEP);
+	}
+
+	protected void onMicGainDown(AbstractWidget dial) {
+		setMicGain(menu.blockEntity.getMicGain() - GAIN_STEP);
+	}
+
+	private void setSpeakerGain(float gain) {
+		int percent = Math.round(Mth.clamp(gain, 0.0F, MAX_GAIN) * 100.0F);
+		menu.blockEntity.setSpeakerGainClient(percent / 100.0F); // Shown at once; the server syncs it back.
+		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_SPEAKER_GAIN, percent);
+	}
+
+	private void setMicGain(float gain) {
+		int percent = Math.round(Mth.clamp(gain, 0.0F, MAX_GAIN) * 100.0F);
+		menu.blockEntity.setMicGainClient(percent / 100.0F);
+		SBlockRadioControlPacket.updateServer(menu.blockEntity.getBlockPos(), SBlockRadioControlPacket.Action.SET_MIC_GAIN, percent);
 	}
 
 	/**

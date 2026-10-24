@@ -119,10 +119,26 @@ public class RadioDisplayRenderer<T extends RadioBlockEntity> implements BlockEn
 
 	/** S0 to S9, or S9+ at the top: the signal heard or the noise floor, whichever is stronger. */
 	private static String meter(RadioBlockEntity radio) {
-		double reading = Math.max(radio.getSyncedSignal(), radio.getNoiseFloor());
+		double reading = Math.max(radio.getSyncedSignal(), blackoutFlicker(radio, radio.getNoiseFloor()));
 		if(reading >= 0.95D)
 			return "S9+";
 		return "S" + Math.min(9, (int)Math.round(reading * 9.0D));
+	}
+
+	/** Noise this high is a blackout; the needle does not sit still: it wanders, and now and then slams up. */
+	private static final double BLACKOUT_NOISE = 0.95D;
+
+	/**
+	 * In a blackout (proposal: "signal strength lights up randomly once in a while") the noise reading jumps about,
+	 * mostly low with random bursts to the top, a new value every few ticks. Otherwise {@code noise} unchanged.
+	 */
+	private static double blackoutFlicker(RadioBlockEntity radio, double noise) {
+		if(noise < BLACKOUT_NOISE || radio.getLevel() == null)
+			return noise;
+		long step = radio.getLevel().getGameTime() / 4L;
+		long seed = radio.getBlockPos().asLong() * 31L + step * 0x9E3779B97F4A7C15L;
+		double roll = new java.util.Random(seed).nextDouble();
+		return roll < 0.12D ? 1.0D : 0.15D + roll * 0.35D;
 	}
 
 	@Override

@@ -28,7 +28,9 @@ public record SBlockRadioControlPacket(long pos, int actionId, int stepCount, bo
         SET_FM,
         SET_BAND,
         SET_TONE, // stepCount: CTCSS tone list position (Ctcss.index), 0 for none
-        SET_OFFSET // stepCount: repeater offset in Hz
+        SET_OFFSET, // stepCount: repeater offset in Hz
+        SET_SPEAKER_GAIN, // stepCount: percent
+        SET_MIC_GAIN // stepCount: percent
     }
 
     public static final CustomPacketPayload.Type<SBlockRadioControlPacket> TYPE = new CustomPacketPayload.Type<>(Radiocraft.id("s_block_radio_control"));
@@ -89,6 +91,8 @@ public record SBlockRadioControlPacket(long pos, int actionId, int stepCount, bo
                     if(radio instanceof VHFRadioBlockEntity vhf)
                         vhf.setOffsetHz(stepCount);
                 }
+                case SET_SPEAKER_GAIN -> radio.setSpeakerGain(stepCount / 100.0F);
+                case SET_MIC_GAIN -> radio.setMicGain(stepCount / 100.0F);
             }
         });
     }

@@ -46,10 +46,10 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 				// The receiver's AGC: a signal well above the noise pushes the static down, fast in and slower back out.
 				double wanted = ReceiverMix.noiseDuck(radio.getSyncedSignal(), noise);
 				duck += (wanted - duck) * (wanted < duck ? DUCK_ATTACK : DUCK_RELEASE);
-				volume = (float)(noise * duck * radio.getStaticVolume());
+				volume = (float)(noise * duck * radio.getStaticVolume() * radio.getSpeakerGain());
 			}
 			else if(radio.wasPowered() && radio.isFM() && !radio.isReceiverMuted()) // FM: hiss only under a weak signal.
-				volume = (float)(ReceiverMix.fmHiss(radio.getSyncedSignal(), radio.getCrystalEffect().applyNoise(RadiocraftServerConfig.VHF_NOISE_FLOOR.get())) * radio.getStaticVolume());
+				volume = (float)(ReceiverMix.fmHiss(radio.getSyncedSignal(), radio.getCrystalEffect().applyNoise(RadiocraftServerConfig.VHF_NOISE_FLOOR.get())) * radio.getStaticVolume() * radio.getSpeakerGain());
 			else
 				volume = 0.0F;
 		}

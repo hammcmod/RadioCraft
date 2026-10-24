@@ -85,7 +85,10 @@ public class DebugCommands {
 							.executes(DebugCommands::setSolar)))
 					.then(Commands.literal("aurora")
 							.then(Commands.literal("on").executes(ctx -> aurora(ctx, true)))
-							.then(Commands.literal("off").executes(ctx -> aurora(ctx, false)))))
+							.then(Commands.literal("off").executes(ctx -> aurora(ctx, false))))
+					.then(Commands.literal("sporadic_e")
+							.then(Commands.literal("on").executes(ctx -> sporadicE(ctx, true)))
+							.then(Commands.literal("off").executes(ctx -> sporadicE(ctx, false)))))
 			.then(Commands.literal("wire").then(Commands.argument("from", BlockPosArgument.blockPos())
 					.then(Commands.argument("to", BlockPosArgument.blockPos()).executes(DebugCommands::wire))))
 			.then(Commands.literal("power").then(Commands.argument("pos", BlockPosArgument.blockPos())
@@ -362,6 +365,16 @@ public class DebugCommands {
 		else
 			Aurora.clear(level);
 		return solar(ctx);
+	}
+
+	/** Opens (for a day) or closes sporadic E in this dimension. */
+	private static int sporadicE(CommandContext<CommandSourceStack> ctx, boolean on) {
+		ServerLevel level = ctx.getSource().getLevel();
+		if(on)
+			com.arrl.radiocraft.common.radio.solar.SporadicE.open(level, 24000);
+		else
+			com.arrl.radiocraft.common.radio.solar.SporadicE.close(level);
+		return send(ctx, List.of("sporadic E " + (on ? "open for a day" : "closed")));
 	}
 
 	/** Terrain map size and what terrain has cost the voice thread since the last reset. */

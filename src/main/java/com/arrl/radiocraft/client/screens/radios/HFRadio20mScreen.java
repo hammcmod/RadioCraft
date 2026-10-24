@@ -30,8 +30,8 @@ public class HFRadio20mScreen extends HFRadioScreen<HFRadio20mMenu> {
 		addRenderableWidget(new Dial(leftPos + 40, topPos + 94, 28, 31, 126, 137, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Dial 1
 		addRenderableWidget(new Dial(leftPos + 70, topPos + 94, 28, 31, 126, 137, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Dial 2
 		addRenderableWidget(new Dial(leftPos + 100, topPos + 94, 28, 31, 126, 137, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Dial 3
-		addRenderableWidget(new Dial(leftPos + 193, topPos + 52, 28, 31, 68, 136, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Gain dial
-		addRenderableWidget(new Dial(leftPos + 193, topPos + 92, 28, 31, 68, 136, widgetsTexture, 256, 256, this::doNothing, this::doNothing)); // Mic gain dial
+		speakerGainDial = addRenderableWidget(new Dial(leftPos + 193, topPos + 52, 28, 31, 68, 136, widgetsTexture, 256, 256, this::onGainUp, this::onGainDown)); // Gain dial
+		micGainDial = addRenderableWidget(new Dial(leftPos + 193, topPos + 92, 28, 31, 68, 136, widgetsTexture, 256, 256, this::onMicGainUp, this::onMicGainDown)); // Mic gain dial
 	}
 
 	@Override
