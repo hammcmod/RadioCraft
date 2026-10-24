@@ -79,6 +79,17 @@ public class Dial extends AbstractWidget {
 		}
 	}
 
+	/** The mouse wheel turns the dial a step per notch, up for up. */
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if(!isMouseOver(mouseX, mouseY) || scrollY == 0.0D)
+			return false;
+		(scrollY > 0.0D ? onValueUp : onValueDown).execute(this);
+		isRotated = !isRotated;
+		Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.NOTE_BLOCK_HAT, 1.0F));
+		return true;
+	}
+
 	@Override
 	protected void updateWidgetNarration(@NotNull NarrationElementOutput narrationElementOutput) {
 		this.defaultButtonNarrationText(narrationElementOutput);

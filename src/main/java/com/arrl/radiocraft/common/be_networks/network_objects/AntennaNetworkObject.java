@@ -12,6 +12,7 @@ import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
+import com.arrl.radiocraft.common.radio.DuplexerMath;
 import com.arrl.radiocraft.common.radio.SWRHelper;
 import com.arrl.radiocraft.common.radio.antenna.AntennaCWPacket;
 import com.arrl.radiocraft.common.radio.antenna.AntennaDataPacket;
@@ -28,6 +29,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -36,8 +38,10 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
     public static final ResourceLocation TYPE = Radiocraft.id("antenna");
 
     protected final Set<RadioNetworkObject> radios = Collections.synchronizedSet(new HashSet<>());
-    /** Antenna tuners sharing a coax run with this antenna; one is enough, more do not stack. */
-    protected final Set<AntennaTunerNetworkObject> tuners = Collections.synchronizedSet(new HashSet<>());
+    /** Antenna tuners (manual or automatic) sharing a coax run with this antenna; one is enough, more do not stack. */
+    protected final Set<ITuner> tuners = Collections.synchronizedSet(new HashSet<>());
+    /** Duplexers on the run (a repeater's); their cavities filter what goes out and what comes in. */
+    protected final Set<DuplexerNetworkObject> duplexers = Collections.synchronizedSet(new HashSet<>());
     protected StaticAntenna<?> antenna = null;
     protected ResourceLocation networkId;
 
@@ -59,6 +63,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
     }
 
     public void receiveAudioPacket(AntennaVoicePacket packet) {
+        packet.setStrength(packet.getStrength() * receivePass(packet.getFrequency()));
         if(radios.size() == 1) {
             BlockPos checkPos = radios.iterator().next().getPos();
             if(level.isLoaded(checkPos)) {
@@ -99,6 +104,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
 
     /** Hands a data packet to the radio on this coax, which decides whether it decodes it. */
     public void receiveDataPacket(AntennaDataPacket packet) {
+        packet.setStrength(packet.getStrength() * receivePass(packet.getFrequency()));
         if(radios.size() == 1) {
             BlockPos checkPos = radios.iterator().next().getPos();
             if(level.isLoaded(checkPos) && level.getBlockEntity(checkPos) instanceof RadioBlockEntity radio)
@@ -148,8 +154,11 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         if(object instanceof RadioNetworkObject radio) {
             if(add) radios.add(radio); else radios.remove(radio);
         }
-        else if(object instanceof AntennaTunerNetworkObject tuner) {
+        else if(object instanceof ITuner tuner) {
             if(add) tuners.add(tuner); else tuners.remove(tuner);
+        }
+        else if(object instanceof DuplexerNetworkObject duplexer) {
+            if(add) duplexers.add(duplexer); else duplexers.remove(duplexer);
         }
     }
 
@@ -157,7 +166,7 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
 
     /** True when an antenna tuner shares this antenna's coax run and tuners are enabled in the server config. */
     public boolean hasTuner() {
-        return !tuners.isEmpty() && RadiocraftServerConfig.ANTENNA_TUNER_ENABLED.get();
+        return getTuner() != null;
     }
 
     /** True when more than one radio shares the coax: the station is overdrawn and no match is possible. */
@@ -175,27 +184,63 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         return antenna == null ? 0 : antenna.getSWR(frequencyHertz);
     }
 
-    /**
-     * The SWR a radio on this coax sees at a frequency. With a tuner on the run this is 1.0 for any antenna the tuner
-     * can match (see {@link SWRHelper#tunedSWR}); otherwise it is {@link #getRawSWR}. This is what the radio reports,
-     * what its static volume follows and what the redstone interference code treats as the station's match.
-     */
-    public double getSWR(float frequencyHertz) {
+    /** The tuner on the run, null without one (or with tuners turned off in the config). */
+    @Nullable
+    public ITuner getTuner() {
+        if(!RadiocraftServerConfig.ANTENNA_TUNER_ENABLED.get())
+            return null;
+        synchronized(tuners) {
+            return tuners.isEmpty() ? null : tuners.iterator().next();
+        }
+    }
+
+    /** The duplexer on the run, null without one. */
+    @Nullable
+    public DuplexerNetworkObject getDuplexer() {
+        synchronized(duplexers) {
+            return duplexers.isEmpty() ? null : duplexers.iterator().next();
+        }
+    }
+
+    /** The match through the tuner on the run, or the antenna as it is without one (or when overdrawn). */
+    private ITuner.Match match(float frequencyHertz) {
         double raw = getRawSWR(frequencyHertz);
-        if(isOverdrawn() || !hasTuner())
-            return raw;
-        return SWRHelper.tunedSWR(raw, RadiocraftServerConfig.ANTENNA_TUNER_MAX_SWR.get());
+        ITuner tuner = isOverdrawn() ? null : getTuner();
+        return tuner == null ? ITuner.Match.bypass(raw) : tuner.match(this, raw, frequencyHertz);
     }
 
     /**
-     * Fraction of the transmit power that makes it to the antenna at a frequency: the plain mismatch loss, or the
-     * tuner's reduced loss when one is on the run (see {@link SWRHelper#tunedEfficiency}).
+     * The SWR a radio on this coax sees at a frequency: the antenna's own ({@link #getRawSWR}), through the tuner on
+     * the run if there is one (how well the manual tuner's dials are set, or what the automatic tuner managed), and
+     * through a duplexer's transmit cavities. This is what the radio reports, what its static volume follows, what can
+     * blow it and what the redstone interference code treats as the station's match.
+     */
+    public double getSWR(float frequencyHertz) {
+        double swr = match(frequencyHertz).swr();
+        DuplexerNetworkObject duplexer = getDuplexer();
+        return duplexer == null ? swr : DuplexerMath.combine(swr, duplexer.swr(frequencyHertz));
+    }
+
+    /**
+     * Fraction of the transmit power that makes it to the antenna at a frequency: the mismatch loss through any tuner
+     * (see {@link ITuner.Match}), times what a duplexer's transmit cavities let through.
      */
     public double getMatchEfficiency(float frequencyHertz) {
-        double raw = getRawSWR(frequencyHertz);
-        if(isOverdrawn() || !hasTuner())
-            return SWRHelper.getEfficiencyMultiplier(raw);
-        return SWRHelper.tunedEfficiency(raw, RadiocraftServerConfig.ANTENNA_TUNER_MAX_SWR.get(), RadiocraftServerConfig.ANTENNA_TUNER_LOSS.get());
+        double efficiency = match(frequencyHertz).efficiency();
+        DuplexerNetworkObject duplexer = getDuplexer();
+        return duplexer == null ? efficiency : efficiency * duplexer.txPass(frequencyHertz);
+    }
+
+    /** True when an automatic tuner on the run has given up on the antenna: the radio shows TUNE FAIL. */
+    public boolean isTuneFailed() {
+        ITuner tuner = getTuner();
+        return tuner != null && tuner.isTuneFailed();
+    }
+
+    /** What a duplexer's receive cavities let through of a signal at {@code frequencyHertz}; 1 without one. */
+    private double receivePass(float frequencyHertz) {
+        DuplexerNetworkObject duplexer = getDuplexer();
+        return duplexer == null ? 1.0D : duplexer.rxPass(frequencyHertz);
     }
 
     public StaticAntenna<?> getAntenna() {

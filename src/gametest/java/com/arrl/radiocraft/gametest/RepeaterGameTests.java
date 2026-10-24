@@ -1,12 +1,14 @@
 package com.arrl.radiocraft.gametest;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.be_networks.network_objects.DuplexerNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.VHFRadioBlockEntity;
 import com.arrl.radiocraft.common.blocks.antennas.DoubleVHFAntennaBlock;
 import com.arrl.radiocraft.common.blocks.antennas.DuplexerBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.radio.DuplexerMath;
 import com.arrl.radiocraft.common.radio.antenna.BareConnectorAntenna;
 import com.arrl.radiocraft.common.radio.voice.Ctcss;
 import net.minecraft.core.BlockPos;
@@ -293,6 +295,82 @@ public class RepeaterGameTests {
                     helper.assertTrue(a.getTransmitFrequency() == f, "Offset should put the transmitter on " + f + ", was " + a.getTransmitFrequency());
                     speak(helper, STATION_A);
                     helper.assertTrue(heardNow(helper, STATION_B), "B did not hear A transmitting through its offset");
+                })
+                .thenSucceed();
+    }
+
+    private static DuplexerNetworkObject duplexer(GameTestHelper helper) {
+        return GameTestUtil.networkObject(helper, REPEATER.south(), DuplexerNetworkObject.class);
+    }
+
+    /**
+     * A new duplexer is factory tuned: it follows the repeater's frequencies, even when they change, and costs
+     * nothing. Once a screw is turned it stays where the player put it.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+    public static void duplexerFollowsRepeaterUntilTurned(GameTestHelper helper) {
+        buildWithDuplexer(helper);
+        helper.startSequence()
+                .thenWaitUntil(() -> assertAntennas(helper, REPEATER, 1))
+                .thenExecute(() -> setUp(helper, 147_000, 147_600))
+                .thenWaitUntil(() -> {
+                    helper.assertTrue(duplexer(helper).getScrewHz(DuplexerMath.TX_FIRST) == 147_600_000, "TX screw at " + duplexer(helper).getScrewHz(DuplexerMath.TX_FIRST));
+                    helper.assertTrue(duplexer(helper).getScrewHz(DuplexerMath.RX_FIRST) == 147_000_000, "RX screw at " + duplexer(helper).getScrewHz(DuplexerMath.RX_FIRST));
+                    helper.assertTrue(duplexer(helper).txPass(147_600_000.0F) == 1.0D, "A factory tuned duplexer loses power");
+                })
+                .thenExecute(() -> {
+                    CompoundTag settings = new CompoundTag();
+                    settings.putFloat("txFrequency", 147_700_000.0F);
+                    repeater(helper, REPEATER).applySettings(settings);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(duplexer(helper).getScrewHz(DuplexerMath.TX_FIRST + 2) == 147_700_000, "TX screws did not follow the repeater"))
+                .thenExecute(() -> {
+                    duplexer(helper).turnScrew(DuplexerMath.TX_FIRST, 147_700_000 + 25_000);
+                    CompoundTag settings = new CompoundTag();
+                    settings.putFloat("txFrequency", 147_600_000.0F);
+                    repeater(helper, REPEATER).applySettings(settings);
+                })
+                .thenIdle(3)
+                .thenExecute(() -> helper.assertTrue(duplexer(helper).getScrewHz(DuplexerMath.TX_FIRST + 1) == 147_700_000,
+                        "A duplexer a player has tuned still follows the repeater"))
+                .thenSucceed();
+    }
+
+    /**
+     * Turning one transmit screw a cavity's half width off loses half the power and shows the repeater a mismatch;
+     * turning a receive screw the same weakens what it hears by half.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+    public static void detunedDuplexerLosesSignal(GameTestHelper helper) {
+        buildWithDuplexer(helper);
+        double[] tunedStrength = new double[1];
+        double[] tunedSwr = new double[1];
+        helper.startSequence()
+                .thenWaitUntil(() -> assertAntennas(helper, REPEATER, 1))
+                .thenExecute(() -> setUp(helper, 147_100, 147_700))
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    speak(helper, STATION_A);
+                    helper.assertTrue(heardNow(helper, REPEATER), "Repeater did not hear A");
+                    tunedStrength[0] = repeater(helper, REPEATER).getLastSignalStrength();
+                    var antennas = GameTestUtil.networkObject(helper, REPEATER, RadioNetworkObject.class).getAntennas();
+                    helper.assertTrue(repeater(helper, REPEATER).getAntennaSWR() < 2.0D, "Tuned repeater sees SWR " + repeater(helper, REPEATER).getAntennaSWR()
+                            + " (antennas " + antennas.size() + ", raw " + antennas.getFirst().getRawSWR(repeater(helper, REPEATER).getSwrFrequency())
+                            + " at " + repeater(helper, REPEATER).getSwrFrequency() + ", duplexer " + duplexer(helper).swr(repeater(helper, REPEATER).getSwrFrequency())
+                            + ", overdrawn " + antennas.getFirst().isOverdrawn() + ")");
+                    tunedSwr[0] = repeater(helper, REPEATER).getAntennaSWR();
+                    duplexer(helper).turnScrew(DuplexerMath.TX_FIRST, 147_700_000 + (int)DuplexerMath.CAVITY_HALF_WIDTH_HZ);
+                    duplexer(helper).turnScrew(DuplexerMath.RX_FIRST, 147_100_000 + (int)DuplexerMath.CAVITY_HALF_WIDTH_HZ);
+                })
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    helper.assertTrue(Math.abs(duplexer(helper).txPass(147_700_000.0F) - 0.5D) < 1e-6, "TX pass " + duplexer(helper).txPass(147_700_000.0F));
+                    double swr = repeater(helper, REPEATER).getAntennaSWR();
+                    helper.assertTrue(swr > 5.0D && swr > tunedSwr[0], "Repeater SWR " + swr + " (tuned " + tunedSwr[0] + ")");
+                    speak(helper, STATION_A);
+                    helper.assertTrue(heardNow(helper, REPEATER), "Repeater did not hear A through the detuned duplexer");
+                    double strength = repeater(helper, REPEATER).getLastSignalStrength();
+                    helper.assertTrue(Math.abs(strength - tunedStrength[0] * 0.5D) < 1e-6, "Heard " + strength + ", expected half of " + tunedStrength[0]);
                 })
                 .thenSucceed();
     }

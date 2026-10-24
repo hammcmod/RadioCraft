@@ -33,6 +33,7 @@ public class RadiocraftTabs {
             output.accept(RadiocraftItems.VHF_REPEATER.get());
             output.accept(RadiocraftItems.ALL_BAND_RADIO.get());
             output.accept(RadiocraftItems.DUPLEXER.get());
+            output.accept(RadiocraftItems.AUTO_TUNER.get()); // Dev only until it has a recipe.
             output.accept(RadiocraftItems.DUMMY_LOAD.get());
             output.accept(RadiocraftItems.RADIO_INTERFACE.get());
             output.accept(RadiocraftItems.APRS_TERMINAL.get());

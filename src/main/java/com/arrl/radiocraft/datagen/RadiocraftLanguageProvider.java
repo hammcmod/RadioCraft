@@ -71,6 +71,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.ANTENNA_POLE, "Antenna Pole");
 			provider.addBlock(RadiocraftBlocks.DUPLEXER, "Duplexer");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_TUNER, "Antenna Tuner");
+			provider.addBlock(RadiocraftBlocks.AUTO_TUNER, "Automatic Antenna Tuner");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_CONNECTOR, "Antenna Connector");
 			provider.addBlock(RadiocraftBlocks.BALUN_ONE_TO_ONE, "Balun (1:1)");
 			provider.addBlock(RadiocraftBlocks.BALUN_FOUR_TO_ONE, "Balun (4:1)");
@@ -146,13 +147,14 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.0"), "No radio on this coax");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.1"), "Radio is off");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.2"), "No antenna recognized");
-			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.3"), "Matched");
-			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.4"), "Out of range: no match");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.3"), "Tuned");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.4"), "Out of range: best effort");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.5"), "Overdraw: too many radios or antennas");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.6"), "Tuners disabled on this server");
 			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.antenna_swr"), "Antenna SWR: %s");
-			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.radio_swr"), "Radio sees: %s");
-			provider.add(Radiocraft.translationKey("tooltip", "antenna_tuner"), "Put it anywhere on the coax between a radio and its antenna. Matches an antenna that is a little off resonance so the radio sees SWR 1; the further off, the more power is lost in the tuner.");
+			provider.add(Radiocraft.translationKey("screen", "antenna_tuner.status.7"), "Turn the dials: green is a match");
+			provider.add(Radiocraft.translationKey("tooltip", "antenna_tuner"), "Put it anywhere on the coax between a radio and its antenna. Turn its three dials until the lamp is solid green: red blinks faster as you get closer, yellow-green below SWR 3. The further off resonance the antenna, the more power is lost in the tuner.");
+			provider.add(Radiocraft.translationKey("tooltip", "auto_tuner"), "Put it on the coax between a radio and its antenna, with power. Tunes itself whenever the radio changes band or moves 1 MHz. Shows TUNE FAIL on the radio when the antenna is too far off.");
 			provider.add(Radiocraft.translationKey("tooltip", "balun_one_to_one"), "Feed point for dipoles, inverted Vs, end-feds and quarter wave verticals.");
 			provider.add(Radiocraft.translationKey("tooltip", "balun_four_to_one"), "Feed point for off-centre-fed dipoles: short arm a third to two thirds of the long one, matched on the even harmonics too.");
 			provider.add(Radiocraft.translationKey("tooltip", "balun_two_to_one"), "Feed point for quad loops.");

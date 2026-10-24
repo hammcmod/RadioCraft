@@ -68,6 +68,7 @@ public class RadiocraftBlocks {
 	// Antenna blocks
 	public static final DeferredHolder<Block, DuplexerBlock> DUPLEXER = BLOCKS.register("duplexer", () -> new DuplexerBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final DeferredHolder<Block, AntennaTunerBlock> ANTENNA_TUNER = BLOCKS.register("antenna_tuner", () -> new AntennaTunerBlock(PROPERTIES_STONE));
+	public static final DeferredHolder<Block, AutoTunerBlock> AUTO_TUNER = BLOCKS.register("auto_tuner", () -> new AutoTunerBlock(PROPERTIES_STONE_NO_OCCLUDE));
 
 	public static final DeferredHolder<Block, WireBlock> COAX_WIRE = BLOCKS.register("coax_wire", () -> new WireBlock(PROPERTIES_WIRES, false, false));
 	/** A wall block wire runs through; made with the passthrough item, looks like the block it replaced. */

@@ -32,6 +32,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.SOLAR_PANEL.get())
                 .add(RadiocraftBlocks.LARGE_BATTERY.get())
                 .add(RadiocraftBlocks.CHARGE_CONTROLLER.get())
+                .add(RadiocraftBlocks.AUTO_TUNER.get())
                 .add(RadiocraftBlocks.ALL_BAND_RADIO.get())
                 .add(RadiocraftBlocks.HF_RADIO_10M_VARIANTS.values().toArray(Block[]::new))
                 .add(RadiocraftBlocks.HF_RADIO_20M_VARIANTS.values().toArray(Block[]::new))
@@ -49,6 +50,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.COAX_WIRE.get())
                 .add(RadiocraftBlocks.DUPLEXER.get())
                 .add(RadiocraftBlocks.ANTENNA_TUNER.get())
+                .add(RadiocraftBlocks.AUTO_TUNER.get())
                 .add(RadiocraftBlocks.ANTENNA_CONNECTOR.get())
                 .add(RadiocraftBlocks.BALUN_ONE_TO_ONE.get())
                 .add(RadiocraftBlocks.BALUN_FOUR_TO_ONE.get(), RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
@@ -84,7 +86,8 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.SLIM_JIM_ANTENNA.get())
                 .add(RadiocraftBlocks.YAGI_ANTENNA.get())
                 .add(RadiocraftBlocks.DUMMY_LOAD.get())
-                .add(RadiocraftBlocks.ANTENNA_TUNER.get());
+                .add(RadiocraftBlocks.ANTENNA_TUNER.get())
+                .add(RadiocraftBlocks.AUTO_TUNER.get());
 
         // Define the ANTENNA_WIRE_HOLDERS tag
         tag(RadiocraftTags.Blocks.ANTENNA_WIRE_HOLDERS)

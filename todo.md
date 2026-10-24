@@ -54,15 +54,24 @@ In order. Each step gets GameTests where the server side can be checked; audio s
   shape, bending at poles/connectors, no forks or loops. Usable on any band where the run is at least a half wave;
   SWR is 2 + 0.5 per block off a half-wave multiple, so it always needs the tuner; gain -3 dBi both ways. Deviation
   from the proposal: fed straight from the 9:1 balun (a 1:1 balun in series would count as a second antenna).
-- [ ] Duplexer runtime effect (repeater protection, losses) to unblock repeater work
+- [x] Antenna tuner made manual (2026-10-23, maintainer): three dials (0-50) each have a reading that matches the
+  antenna at the radio's frequency (seeded by antenna position, type, band and SWR, drifting across the band). The
+  screen's lamp blinks red, faster as the SWR the radio sees nears 3, then yellow-green, then solid green at a
+  match. `antenna_tuner_max_swr` default 6 -> 7; past it a tuner takes off (max - 1) at best (SWR 9 -> 3).
+- [x] Automatic antenna tuner (2026-10-23, maintainer's model): on coax and power (`auto_tuner_power_use`), tunes
+  itself on a new band or a 1 MHz move (SWR 3 for a second, relays clicking faster, then 1); past its range it clicks
+  slowly for 6 s and gives up: TUNE FAIL on the radio's screen, FAIL on its own. Dev tab until it has a recipe.
+- [x] Duplexer runtime effect (2026-10-23): six cavity screws (TX on the left, RX on the right), each showing its
+  frequency. Factory tuned: it follows its repeater until a player turns a screw. A screw off its signal loses power
+  (half at 25 kHz) and shows the transmitter a mismatch; receive cavities weaken what the repeater hears.
 - [ ] Add in SWR consequences (maintainer, 2026-10-21): high SWR, and any long transmission with no antenna, should
   damage the radio. For now a radio with no antenna just works at a few blocks' range.
 - [x] Dummy load block (maintainer, 2026-10-21; done 2026-10-21, see the Digital section): a coax load to transmit into safely, once SWR has consequences
-- [ ] Implement duplexer tuning (maintainer, 2026-10-21): the six screws on the duplexer screen tune the RX and TX
-  cavities; a badly tuned duplexer loses signal and lets the transmitter desense the receiver
+- [x] Implement duplexer tuning (maintainer, 2026-10-21; done 2026-10-23, see above). Not done: desense (a
+  detuned TX side deafening the receiver).
 - [ ] Implement antenna analyzer UI and data capture
 - [ ] Implement shared antenna behavior hooks so antenna blocks drive propagation
-- [ ] Hook SWR consequences (fire/destruction) into `RadioBlockEntity`
+- [x] Hook SWR consequences (fire/destruction) into `RadioBlockEntity` (2026-10-23: blown radios, see NeedsTesting)
 - [ ] Integrate solar event noise and day/night skip changes so HF radios gain or lose range based on `SolarEventManager`
 
 ### Events, Commands & Config
@@ -198,6 +207,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 ### World & Progression Additions
 - [ ] In-game guide book like the Create mod's (Ponder-style scenes) explaining radios, antennas, power and the
   digital interface (maintainer, 2026-10-21)
+  - [ ] Patchouli guide book, shipped as a datapack (maintainer, 2026-10-23)
+  - [ ] PonderLib scenes, shipped as a datapack (maintainer, 2026-10-23)
 - [ ] Cable trays (maintainer, 2026-10-21): one block carries several cables at once, colour coded; a coloured ring
   where a cable leaves the tray, at cable ends and where a cable meets a block, so you can tell the runs apart
 - [x] Solar weather station, minimal (2026-10-20): right click reports the current conditions, noise floor and whether

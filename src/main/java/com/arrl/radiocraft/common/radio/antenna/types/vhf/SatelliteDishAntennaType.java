@@ -59,7 +59,8 @@ public class SatelliteDishAntennaType extends DirectionalAntennaType<SatelliteDi
     @Override
     public double getSWR(SatelliteDishAntennaData data, float frequencyHertz) {
         // Optimized for 2m VHF band (144-148 MHz)
-        return Band.getBand(frequencyHertz) == Band.getBand("2m") ? 1.0D : 10.0D;
+        Band band = Band.getBand(frequencyHertz); // A fresh Band from the config each call: compare by band, not identity.
+        return band != null && band.isVhf() ? 1.0D : 10.0D;
     }
 
     @Override

@@ -39,6 +39,7 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		RadiocraftBlocks.HF_RADIO_80M_VARIANTS.values().forEach(this::radio);
 		complexHorizontalBlockWithItem(RadiocraftBlocks.LARGE_BATTERY.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.ANTENNA_TUNER.get());
+		complexHorizontalBlockWithItem(RadiocraftBlocks.AUTO_TUNER.get());
 		horizontalWithRadioLinks(RadiocraftBlocks.TELETYPE.get(), "solar_weather_station"); // The maintainer's model, from before the rename.
 		horizontalWithRadioLinks(RadiocraftBlocks.RADIO_INTERFACE.get());
 		horizontalWithRadioLinks(RadiocraftBlocks.TRANSFER_INTERFACE.get());

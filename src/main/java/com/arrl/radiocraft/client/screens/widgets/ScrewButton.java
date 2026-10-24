@@ -6,6 +6,9 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.function.IntConsumer;
 
 /**
  * A decorative screw widget that shows a normal state and a hover state.
@@ -24,6 +27,11 @@ public class ScrewButton extends AbstractWidget {
     private boolean isDragging = false;
     private double lastMouseX = 0;
     private float rotation = 0.0f; // Rotation in degrees
+    /** Degrees of turn that make one step for {@link #onTurn}. */
+    public static final float DEGREES_PER_STEP = 15.0f;
+    @Nullable
+    private IntConsumer onTurn = null;
+    private float unspent = 0.0f; // Degrees turned since the last whole step.
 
     /**
      * Creates a screw widget with normal and hover textures.
@@ -73,12 +81,7 @@ public class ScrewButton extends AbstractWidget {
             double deltaX = pMouseX - lastMouseX;
             
             if (Math.abs(deltaX) > 0.5) {
-                rotation += (float) deltaX * 2.0f;
-                
-                rotation = rotation % 360.0f;
-                if (rotation < 0) {
-                    rotation += 360.0f;
-                }
+                turn((float) deltaX * 2.0f);
                 
                 lastMouseX = pMouseX;
             }
@@ -121,12 +124,7 @@ public class ScrewButton extends AbstractWidget {
     protected void onDrag(double pMouseX, double pMouseY, double pDragX, double pDragY) {
         if (isDragging) {
             double deltaX = pMouseX - lastMouseX;
-            rotation += (float) deltaX * 2.0f;
-            
-            rotation = rotation % 360.0f;
-            if (rotation < 0) {
-                rotation += 360.0f;
-            }
+            turn((float) deltaX * 2.0f);
             
             lastMouseX = pMouseX;
         }
@@ -136,12 +134,7 @@ public class ScrewButton extends AbstractWidget {
     public boolean mouseDragged(double pMouseX, double pMouseY, int pButton, double pDragX, double pDragY) {
         if (isDragging) {
             double deltaX = pMouseX - lastMouseX;
-            rotation += (float) deltaX * 2.0f;
-            
-            rotation = rotation % 360.0f;
-            if (rotation < 0) {
-                rotation += 360.0f;
-            }
+            turn((float) deltaX * 2.0f);
             
             lastMouseX = pMouseX;
             return true;
@@ -172,6 +165,43 @@ public class ScrewButton extends AbstractWidget {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Makes the screw a control: {@code onTurn} gets +1 for every {@link #DEGREES_PER_STEP} turned clockwise (dragging
+     * right or scrolling up) and -1 the other way.
+     */
+    public ScrewButton onTurn(IntConsumer onTurn) {
+        this.onTurn = onTurn;
+        return this;
+    }
+
+    /** Sets how far round the screw is drawn, in degrees. */
+    public void setRotation(float degrees) {
+        rotation = ((degrees % 360.0f) + 360.0f) % 360.0f;
+    }
+
+    private void turn(float degrees) {
+        setRotation(rotation + degrees);
+        if (onTurn == null)
+            return;
+        unspent += degrees;
+        while (unspent >= DEGREES_PER_STEP) {
+            unspent -= DEGREES_PER_STEP;
+            onTurn.accept(1);
+        }
+        while (unspent <= -DEGREES_PER_STEP) {
+            unspent += DEGREES_PER_STEP;
+            onTurn.accept(-1);
+        }
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (onTurn == null || !isMouseOver(mouseX, mouseY) || scrollY == 0.0D)
+            return false;
+        turn(scrollY > 0.0D ? DEGREES_PER_STEP : -DEGREES_PER_STEP);
+        return true;
     }
 
     @Override

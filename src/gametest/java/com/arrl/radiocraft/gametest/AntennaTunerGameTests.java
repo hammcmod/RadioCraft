@@ -1,11 +1,14 @@
 package com.arrl.radiocraft.gametest;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.AntennaTunerNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.AntennaTunerBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.SWRHelper;
+import com.arrl.radiocraft.common.radio.TunerMath;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -15,7 +18,8 @@ import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 /**
- * The antenna tuner on the coax between a radio and an antenna that is off resonance.
+ * The manual antenna tuner on the coax between a radio and an antenna that is off resonance. Its dials start at 0;
+ * the tests that need a match turn them to the readings the tuner wants ({@link #tuneDials}).
  * <pre>
  *   z=1  radio A
  *   z=2  coax
@@ -27,7 +31,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
  *   z=14 radio B
  * </pre>
  * The baluns are 7 blocks apart, so a voice packet arrives at (1 - 7/300) times the match efficiency: 0.75 for the
- * bare short dipole, 1 - 0.25 * 0.25 = 0.9375 through the tuner (config defaults: max SWR 6, loss 0.25).
+ * bare short dipole, 1 - 0.25 * 0.25 = 0.9375 through the tuned tuner (config defaults: max SWR 7, loss 0.25).
  */
 @GameTestHolder(Radiocraft.MOD_ID)
 @PrefixGameTestTemplate(false)
@@ -75,17 +79,37 @@ public class AntennaTunerGameTests {
         return antennas.getFirst();
     }
 
+    /** Turns the tuner's dials to the readings that match the antenna on radio A's frequency, as a player would. */
+    private static void tuneDials(GameTestHelper helper) {
+        AntennaNetworkObject antenna = antennaOf(helper, RADIO_A);
+        float frequency = TransmissionGameTests.radio(helper, RADIO_A).getFrequency();
+        int[] targets = AntennaTunerNetworkObject.targets(antenna, antenna.getRawSWR(frequency), frequency);
+        AntennaTunerNetworkObject tuner = GameTestUtil.networkObject(helper, TUNER, AntennaTunerNetworkObject.class);
+        for(int i = 0; i < 3; i++)
+            tuner.setDial(i, targets[i]);
+    }
+
     private static void assertClose(GameTestHelper helper, String what, double actual, double expected) {
         helper.assertTrue(Math.abs(actual - expected) < TransmissionGameTests.TOLERANCE, what + " was " + actual + ", expected " + expected);
     }
 
-    /** Through the tuner the radio sees SWR 1 while the antenna itself is still SWR 3, and the tuner's readout agrees. */
+    /**
+     * Untouched dials leave the radio seeing most of the mismatch, and the readout says to keep turning; with every
+     * dial on its reading the radio sees SWR 1 while the antenna itself is still SWR 3, and the readout says tuned.
+     */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
     public static void tunerMatchesShortDipole(GameTestHelper helper) {
         buildShortStation(helper, RadiocraftBlocks.HF_RADIO_20M.get(), true, 3);
         helper.startSequence()
                 .thenWaitUntil(() -> antennaOf(helper, RADIO_A))
                 .thenExecute(() -> TransmissionGameTests.setupSsb(helper, RADIO_A, F_SWR))
+                .thenWaitUntil(() -> {
+                    double seen = TransmissionGameTests.radio(helper, RADIO_A).getAntennaSWR();
+                    helper.assertTrue(seen > TunerMath.PERFECT_SWR && seen <= 3.0, "Untouched dials give SWR " + seen);
+                    AntennaTunerBlockEntity.Reading reading = GameTestUtil.blockEntity(helper, TUNER, AntennaTunerBlockEntity.class).read();
+                    helper.assertTrue(reading.status() == AntennaTunerBlockEntity.STATUS_TUNING, "Tuner readout status " + reading.status());
+                })
+                .thenExecute(() -> tuneDials(helper))
                 .thenWaitUntil(() -> {
                     AntennaNetworkObject antenna = antennaOf(helper, RADIO_A);
                     helper.assertTrue(antenna.hasTuner(), "Antenna does not see the tuner");
@@ -131,6 +155,7 @@ public class AntennaTunerGameTests {
                 .thenExecute(() -> {
                     TransmissionGameTests.setupSsb(helper, RADIO_A, F_TUNED_VOICE);
                     TransmissionGameTests.setupSsb(helper, RADIO_B, F_TUNED_VOICE);
+                    tuneDials(helper);
                     TransmissionGameTests.speakInto(helper, RADIO_A);
                     TransmissionGameTests.assertHeard(helper, RADIO_B, PATH * TUNED_EFFICIENCY);
                 })
@@ -156,20 +181,27 @@ public class AntennaTunerGameTests {
                 .thenSucceed();
     }
 
-    /** A 2+2 dipole on 40m is SWR 10 (18 blocks short), past the tuner's range: the radio sees 10 and the readout says so. */
+    /**
+     * A 2+2 dipole on 40m is SWR 10 (18 blocks short), past the tuner's range (7 by default): even with the dials on
+     * their readings the best it can do is 10 - (7 - 1) = 4, and the readout says it is out of range.
+     */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
     public static void tunerCannotMatchFarOffAntenna(GameTestHelper helper) {
         buildShortStation(helper, RadiocraftBlocks.HF_RADIO_40M.get(), true, 2);
         helper.startSequence()
                 .thenWaitUntil(() -> antennaOf(helper, RADIO_A))
-                .thenExecute(() -> TransmissionGameTests.setupSsb(helper, RADIO_A, F_OUT_OF_RANGE))
+                .thenExecute(() -> {
+                    TransmissionGameTests.setupSsb(helper, RADIO_A, F_OUT_OF_RANGE);
+                    tuneDials(helper);
+                })
                 .thenWaitUntil(() -> {
                     AntennaNetworkObject antenna = antennaOf(helper, RADIO_A);
                     float frequency = TransmissionGameTests.radio(helper, RADIO_A).getFrequency();
                     helper.assertTrue(antenna.hasTuner(), "Antenna does not see the tuner");
                     assertClose(helper, "raw SWR", antenna.getRawSWR(frequency), 10.0);
-                    assertClose(helper, "SWR the radio measured", TransmissionGameTests.radio(helper, RADIO_A).getAntennaSWR(), 10.0);
-                    assertClose(helper, "match efficiency", antenna.getMatchEfficiency(frequency), SWRHelper.getEfficiencyMultiplier(10.0));
+                    double best = TunerMath.bestSWR(10.0, RadiocraftServerConfig.ANTENNA_TUNER_MAX_SWR.get()); // The run directory's config may predate the default of 7.
+                    assertClose(helper, "SWR the radio measured", TransmissionGameTests.radio(helper, RADIO_A).getAntennaSWR(), best);
+                    assertClose(helper, "match efficiency", antenna.getMatchEfficiency(frequency), TunerMath.efficiency(10.0, best, RadiocraftServerConfig.ANTENNA_TUNER_LOSS.get()));
                     AntennaTunerBlockEntity.Reading reading = GameTestUtil.blockEntity(helper, TUNER, AntennaTunerBlockEntity.class).read();
                     helper.assertTrue(reading.status() == AntennaTunerBlockEntity.STATUS_OUT_OF_RANGE, "Tuner readout status " + reading.status());
                 })
@@ -182,7 +214,10 @@ public class AntennaTunerGameTests {
         buildShortStation(helper, RadiocraftBlocks.HF_RADIO_20M.get(), true, 3);
         helper.startSequence()
                 .thenWaitUntil(() -> antennaOf(helper, RADIO_A))
-                .thenExecute(() -> TransmissionGameTests.setupSsb(helper, RADIO_A, F_REMOVED))
+                .thenExecute(() -> {
+                    TransmissionGameTests.setupSsb(helper, RADIO_A, F_REMOVED);
+                    tuneDials(helper);
+                })
                 .thenWaitUntil(() -> assertClose(helper, "SWR with tuner", TransmissionGameTests.radio(helper, RADIO_A).getAntennaSWR(), 1.0))
                 .thenExecute(() -> {
                     helper.setBlock(TUNER, Blocks.AIR);

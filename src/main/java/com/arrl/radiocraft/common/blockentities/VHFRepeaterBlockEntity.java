@@ -3,6 +3,8 @@ package com.arrl.radiocraft.common.blockentities;
 import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
+import com.arrl.radiocraft.common.be_networks.network_objects.DuplexerNetworkObject;
+import net.minecraft.core.Direction;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RepeaterNetworkObject;
 import com.arrl.radiocraft.common.blockentities.radio.VHFRadioBlockEntity;
@@ -223,6 +225,12 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 		return txFrequency;
 	}
 
+	/** The antenna and duplexer are matched for what goes out: the output. */
+	@Override
+	public float getSwrFrequency() {
+		return txFrequency;
+	}
+
 	@Override
 	public float getTransmitTone() {
 		return txTone;
@@ -347,7 +355,10 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 		long now = serverLevel.getGameTime();
 		RadioNetworkObject networkObject = IBENetworks.getObject(level, worldPosition) instanceof RadioNetworkObject no ? no : null;
 		boolean powered = networkObject != null && networkObject.isPowered;
-		boolean duplexer = RepeaterNetworkObject.findDuplexerSide(level, worldPosition) != null;
+		Direction duplexerSide = RepeaterNetworkObject.findDuplexerSide(level, worldPosition);
+		boolean duplexer = duplexerSide != null;
+		if(duplexer && IBENetworks.getObject(level, worldPosition.relative(duplexerSide)) instanceof DuplexerNetworkObject cavities)
+			cavities.followRepeater(frequency, txFrequency); // Factory tuned until a player turns a screw.
 		hasAntenna = networkObject != null && !networkObject.getAntennas().isEmpty();
 		if(duplexer != hasDuplexer) {
 			hasDuplexer = duplexer;

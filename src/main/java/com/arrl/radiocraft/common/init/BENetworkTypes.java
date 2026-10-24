@@ -20,6 +20,8 @@ public class BENetworkTypes {
         BENetworkRegistry.registerObject(AntennaNetworkObject.TYPE, (level, pos) -> new AntennaNetworkObject(level, pos, AntennaNetworkManager.HF_ID));
         BENetworkRegistry.registerObject(ChargeControllerNetworkObject.TYPE, ChargeControllerNetworkObject::new);
         BENetworkRegistry.registerObject(AntennaTunerNetworkObject.TYPE, AntennaTunerNetworkObject::new);
+        BENetworkRegistry.registerObject(com.arrl.radiocraft.common.be_networks.network_objects.AutoTunerNetworkObject.TYPE,
+                com.arrl.radiocraft.common.be_networks.network_objects.AutoTunerNetworkObject::new);
         BENetworkRegistry.registerObject(DuplexerNetworkObject.TYPE, DuplexerNetworkObject::new);
         BENetworkRegistry.registerObject(com.arrl.radiocraft.common.be_networks.network_objects.BandFollowingAntennaNetworkObject.TYPE,
                 com.arrl.radiocraft.common.be_networks.network_objects.BandFollowingAntennaNetworkObject::new);

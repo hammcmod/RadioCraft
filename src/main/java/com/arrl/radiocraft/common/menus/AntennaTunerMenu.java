@@ -43,9 +43,14 @@ public final class AntennaTunerMenu extends AbstractContainerMenu {
 		return data.get(AntennaTunerBlockEntity.DATA_RAW_SWR) / 100.0D;
 	}
 
-	/** The SWR the radio sees through the tuner. */
+	/** The SWR the radio sees through the tuner as its dials are set. */
 	public double getTunedSwr() {
 		return data.get(AntennaTunerBlockEntity.DATA_TUNED_SWR) / 100.0D;
+	}
+
+	/** A dial's reading, kept in sync from the server. */
+	public int getDial(int index) {
+		return data.get(AntennaTunerBlockEntity.DATA_DIAL_FIRST + index);
 	}
 
 	@Override

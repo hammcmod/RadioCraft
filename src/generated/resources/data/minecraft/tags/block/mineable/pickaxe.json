@@ -30,6 +30,7 @@
     "radiocraft:parrot_controller",
     "radiocraft:duplexer",
     "radiocraft:antenna_tuner",
+    "radiocraft:auto_tuner",
     "radiocraft:antenna_pole",
     "radiocraft:antenna_connector",
     "radiocraft:balun_one_to_one",

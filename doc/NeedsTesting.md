@@ -4,6 +4,22 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Manual tuner, automatic tuner, duplexer screws (added 2026-10-23)
+
+- [ ] Antenna tuner screen: three dials (drag or scroll), each with its reading above it. With a radio on and an
+  off-resonance antenna, the lamp in the middle window blinks red, faster as the dials get closer; below SWR 3 it
+  blinks yellow-green (tinted: the GUI texture has no green lamp sprites yet) and at the right readings it is solid
+  green and the readout says Tuned. Moving far up the band or changing the antenna needs a retune.
+- [ ] Automatic tuner (your model): on the coax with power, switching the radio on gives relay clicks speeding up
+  ("click... click... clickclickclick") for a second and TUNING then TUNED on its display. A 2+2 dipole on 40m
+  (SWR 10) gives slow clicks for 6 s, FAIL on its display and TUNE FAIL on the radio's screen. Check the text sits
+  on the DISPLAY cube for each facing.
+- [ ] Duplexer screen: each screw shows its frequency (factory tuned to its repeater, TX on the left, RX on the
+  right); dragging or scrolling a screw moves it 5 kHz a step. One screw 25 kHz off: the repeater is noticeably
+  weaker. Changing the repeater's frequency after turning a screw leaves the duplexer behind.
+- [ ] VHF antennas (J-pole, Slim Jim, Yagi, dish) now really show SWR 1 on 2m: they showed 10 before (a bug), so
+  check the static and S-meter on a VHF base station look right.
+
 ## Blown radios (added 2026-10-23)
 
 - [ ] Keying a radio into a bad match (SWR 3 or worse, e.g. a 2+2 dipole on 20m, no tuner) for a while blows it:

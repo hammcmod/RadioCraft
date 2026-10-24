@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.AntennaTunerNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftAntennaTypes;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
@@ -182,7 +183,14 @@ public class AntennaGameTests {
                     helper.assertTrue(antennas.size() == 1, "Radio sees " + antennas.size() + " antennas");
                     helper.assertTrue(antennas.getFirst().getAntenna() != null, "Random wire not recognized yet");
                 })
-                .thenExecute(() -> TransmissionGameTests.setupSsb(helper, radio, 330))
+                .thenExecute(() -> {
+                    TransmissionGameTests.setupSsb(helper, radio, 330);
+                    AntennaNetworkObject antenna = GameTestUtil.networkObject(helper, radio, RadioNetworkObject.class).getAntennas().getFirst();
+                    float frequency = TransmissionGameTests.radio(helper, radio).getFrequency();
+                    int[] targets = AntennaTunerNetworkObject.targets(antenna, antenna.getRawSWR(frequency), frequency);
+                    for(int i = 0; i < 3; i++) // Turn the manual tuner's dials to their readings, as a player would.
+                        GameTestUtil.networkObject(helper, tuner, AntennaTunerNetworkObject.class).setDial(i, targets[i]);
+                })
                 .thenWaitUntil(() -> {
                     AntennaNetworkObject antenna = GameTestUtil.networkObject(helper, radio, RadioNetworkObject.class).getAntennas().getFirst();
                     float frequency = TransmissionGameTests.radio(helper, radio).getFrequency();

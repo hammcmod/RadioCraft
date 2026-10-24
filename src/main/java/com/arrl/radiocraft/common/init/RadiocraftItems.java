@@ -87,6 +87,7 @@ public class RadiocraftItems {
 	public static final DeferredHolder<Item, AntennaPoleItem> ANTENNA_POLE = ITEMS.register("antenna_pole", () -> new AntennaPoleItem(RadiocraftBlocks.ANTENNA_POLE.get(), new Item.Properties()));
 	public static final Supplier<BlockItem> DUPLEXER = simpleBlockItem("duplexer", RadiocraftBlocks.DUPLEXER);
 	public static final Supplier<BlockItem> ANTENNA_TUNER = simpleBlockItem("antenna_tuner", RadiocraftBlocks.ANTENNA_TUNER);
+	public static final Supplier<BlockItem> AUTO_TUNER = simpleBlockItem("auto_tuner", RadiocraftBlocks.AUTO_TUNER);
 	public static final Supplier<BlockItem> ANTENNA_CONNECTOR = simpleBlockItem("antenna_connector", RadiocraftBlocks.ANTENNA_CONNECTOR);
 	public static final Supplier<BlockItem> BALUN_ONE_TO_ONE = simpleBlockItem("balun_one_to_one", RadiocraftBlocks.BALUN_ONE_TO_ONE);
 	public static final Supplier<BlockItem> BALUN_FOUR_TO_ONE = simpleBlockItem("balun_four_to_one", RadiocraftBlocks.BALUN_FOUR_TO_ONE);

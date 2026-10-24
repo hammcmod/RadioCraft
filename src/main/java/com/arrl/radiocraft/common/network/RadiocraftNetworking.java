@@ -10,6 +10,8 @@ import com.arrl.radiocraft.common.network.clientbound.CWireEndPosUpdatePacket;
 import com.arrl.radiocraft.common.network.serverbound.SBlockRadioControlPacket;
 import com.arrl.radiocraft.common.network.serverbound.SStationPacket;
 import com.arrl.radiocraft.common.network.serverbound.SPlayerClickHoldUpdate;
+import com.arrl.radiocraft.common.network.serverbound.SAntennaTunerDialPacket;
+import com.arrl.radiocraft.common.network.serverbound.SDuplexerScrewPacket;
 import com.arrl.radiocraft.common.network.serverbound.SRepeaterSettingsPacket;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
@@ -28,5 +30,7 @@ public class RadiocraftNetworking {
         registrar.playToClient(CInterferencePacket.TYPE, CInterferencePacket.STREAM_CODEC, CInterferencePacket::handle);
         registrar.playToServer(SRepeaterSettingsPacket.TYPE, SRepeaterSettingsPacket.STREAM_CODEC, SRepeaterSettingsPacket::handle);
         registrar.playToServer(SStationPacket.TYPE, SStationPacket.STREAM_CODEC, SStationPacket::handle);
+        registrar.playToServer(SAntennaTunerDialPacket.TYPE, SAntennaTunerDialPacket.STREAM_CODEC, SAntennaTunerDialPacket::handle);
+        registrar.playToServer(SDuplexerScrewPacket.TYPE, SDuplexerScrewPacket.STREAM_CODEC, SDuplexerScrewPacket::handle);
     }
 }

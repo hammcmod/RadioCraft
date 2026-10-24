@@ -12,6 +12,7 @@
     "radiocraft:slim_jim_antenna",
     "radiocraft:yagi_antenna",
     "radiocraft:dummy_load",
-    "radiocraft:antenna_tuner"
+    "radiocraft:antenna_tuner",
+    "radiocraft:auto_tuner"
   ]
 }

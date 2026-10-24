@@ -79,6 +79,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
+    protected boolean tuneFail; // An automatic tuner on the coax gave up on the antenna; the screen says TUNE FAIL.
     protected boolean wasPowered; // Used for rendering clientside. The NetworkObject is the one actually controlling this.
 
     // Last received signal, server side only. Written from the voice thread, read on the game thread.
@@ -145,10 +146,16 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 List<AntennaNetworkObject> antennas = networkObject.getAntennas();
                 if(antennas.size() == 1) {
                     antenna = antennas.get(0);
-                    newSWR = antenna.getSWR(be.frequency);
+                    newSWR = antenna.getSWR(be.getSwrFrequency());
                 }
                 else if(antennas.size() > 1)
                     newSWR = 10.0D;
+            }
+
+            boolean tuneFail = antenna != null && antenna.isTuneFailed();
+            if(tuneFail != be.tuneFail) {
+                be.tuneFail = tuneFail;
+                shouldUpdate = true;
             }
 
             if(newSWR != be.antennaSWR) {
@@ -958,6 +965,16 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return this.micPos.get().getCenter();
     }
 
+    /** The frequency the antenna's match is measured at: where the radio transmits from its dial (a repeater: its output). */
+    public float getSwrFrequency() {
+        return frequency;
+    }
+
+    /** True while an automatic tuner on the coax has given up on the antenna (synced, for the screen's TUNE FAIL). */
+    public boolean isTuneFailed() {
+        return tuneFail;
+    }
+
     /** SWR the server last measured on the connected antenna, 0 when off or without an antenna. */
     public double getAntennaSWR() {
         return antennaSWR;
@@ -997,6 +1014,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putFloat("speakerGain", speakerGain);
         nbt.putFloat("micGain", micGain);
         nbt.putDouble("antennaSWR", antennaSWR);
+        nbt.putBoolean("tuneFail", tuneFail);
         nbt.putBoolean("wasPowered", wasPowered);
         nbt.putBoolean("pttDown", isPTTDown);
         nbt.putDouble("signal", syncedSignal);
@@ -1018,6 +1036,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         speakerGain = nbt.contains("speakerGain") ? nbt.getFloat("speakerGain") : 1.0F;
         micGain = nbt.contains("micGain") ? nbt.getFloat("micGain") : 1.0F;
         antennaSWR = nbt.getDouble("antennaSWR");
+        tuneFail = nbt.getBoolean("tuneFail");
         wasPowered = nbt.getBoolean("wasPowered");
         isPTTDown = nbt.getBoolean("pttDown");
         syncedSignal = nbt.getDouble("signal");

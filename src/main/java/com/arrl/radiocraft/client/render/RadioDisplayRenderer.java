@@ -55,7 +55,7 @@ public class RadioDisplayRenderer<T extends RadioBlockEntity> implements BlockEn
 			return;
 
 		String frequency = String.format(Locale.ROOT, "%.3f", radio.getFrequency() / 1_000_000.0D);
-		String status = mode(radio) + " " + meter(radio);
+		String status = radio.isTuneFailed() ? "TUNE FAIL" : mode(radio) + " " + meter(radio); // The automatic tuner gave up.
 		float width = (display.x2() - display.x1()) / 16.0F, height = (display.y2() - display.y1()) / 16.0F;
 		float big = Math.min(width * 0.9F / font.width(frequency), height * 0.55F / font.lineHeight);
 		float small = Math.min(big * 0.6F, width * 0.9F / font.width(status));

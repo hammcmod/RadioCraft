@@ -63,6 +63,8 @@ public class RadiocraftBlockEntities {
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.DuplexerBlockEntity::new, RadiocraftBlocks.DUPLEXER.get()).build(null));
 	public static final Supplier<BlockEntityType<?>> ANTENNA_TUNER = BLOCK_ENTITY_TYPES.register("antenna_tuner",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.AntennaTunerBlockEntity::new, RadiocraftBlocks.ANTENNA_TUNER.get()).build(null));
+	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.AutoTunerBlockEntity>> AUTO_TUNER = BLOCK_ENTITY_TYPES.register("auto_tuner",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.AutoTunerBlockEntity::new, RadiocraftBlocks.AUTO_TUNER.get()).build(null));
 	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity>> VHF_REPEATER = BLOCK_ENTITY_TYPES.register("vhf_repeater",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity::new, RadiocraftBlocks.VHF_REPEATER.get()).build(null));
 

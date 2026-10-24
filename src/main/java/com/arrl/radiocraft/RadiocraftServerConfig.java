@@ -46,6 +46,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_BEACON_INTERVAL_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_CONTACT_LAMP_MINUTES;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
+	public static final ModConfigSpec.ConfigValue<Integer> AUTO_TUNER_POWER_USE;
 	public static final ModConfigSpec.ConfigValue<Double> RADIO_BLOW_SWR;
 	public static final ModConfigSpec.ConfigValue<Double> RADIO_BLOW_CHANCE;
 	public static final ModConfigSpec.ConfigValue<Double> RADIO_EXPLODE_CHANCE;
@@ -176,12 +177,16 @@ public class RadiocraftServerConfig {
 		BUILDER.pop();
 
 		BUILDER.push("Antenna Tuner");
-		BUILDER.comment(" An antenna tuner anywhere on the coax between a radio and its antenna matches an antenna that is off resonance:",
-				" the radio sees SWR 1 and most of the power a mismatch would reflect reaches the antenna instead. The further",
-				" off resonance the antenna is, the more is still lost in the tuner; past antenna_tuner_max_swr it cannot match at all.");
+		BUILDER.comment(" An antenna tuner anywhere on the coax between a radio and its antenna matches an antenna that is off resonance.",
+				" The manual tuner's three dials each have a setting that matches the antenna at the radio's frequency; the",
+				" automatic tuner finds it by itself on power. Matched, the radio sees SWR 1 and most of the power a mismatch would",
+				" reflect reaches the antenna instead. The further off resonance the antenna is, the more is still lost in the tuner.");
 		ANTENNA_TUNER_ENABLED = BUILDER.comment(" Set to false to make tuners decorative again").define("antenna_tuner_enabled", true);
-		ANTENNA_TUNER_MAX_SWR = BUILDER.comment(" Highest antenna SWR a tuner can bring to 1:1 (a dipole 10 blocks off in total is SWR 6)").defineInRange("antenna_tuner_max_swr", 6.0, 1.0, 100.0);
+		ANTENNA_TUNER_MAX_SWR = BUILDER.comment(" Highest antenna SWR a tuner can bring to 1:1 (a dipole 12 blocks off in total is SWR 7). Past it a manual",
+				" tuner can still take this much minus 1 off (SWR 9 tunes down to 3), and the automatic tuner gives up (TUNE FAIL)").defineInRange("antenna_tuner_max_swr", 7.0, 1.0, 100.0);
 		ANTENNA_TUNER_LOSS = BUILDER.comment(" Share of the mismatch loss a tuner cannot recover: 0 = perfect tuner, 1 = tuner only quiets the radio").defineInRange("antenna_tuner_loss", 0.25, 0.0, 1.0);
+		AUTO_TUNER_POWER_USE = BUILDER.comment(" Power the automatic tuner draws per tick; without it, it is just a piece of coax (radios_need_power = false runs it free)")
+				.defineInRange("auto_tuner_power_use", 4, 0, 1000);
 		BUILDER.pop();
 
 		BUILDER.push("Blown Radios");

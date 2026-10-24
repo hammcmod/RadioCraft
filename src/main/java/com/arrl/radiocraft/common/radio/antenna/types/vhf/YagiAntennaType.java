@@ -45,7 +45,8 @@ public class YagiAntennaType extends DirectionalAntennaType<YagiAntennaData> {
 
     @Override
     public double getSWR(YagiAntennaData data, float frequencyHertz) {
-        return Band.getBand(frequencyHertz) == Band.getBand("2m") ? 1.0D : 10.0D;
+        Band band = Band.getBand(frequencyHertz); // A fresh Band from the config each call: compare by band, not identity.
+        return band != null && band.isVhf() ? 1.0D : 10.0D;
     }
 
     @Override
