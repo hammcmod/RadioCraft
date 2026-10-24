@@ -39,6 +39,9 @@ import com.arrl.radiocraft.common.radio.voice.RepeaterAudio;
 import com.arrl.radiocraft.common.radio.voice.ReceiverMix;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -162,6 +165,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             if(level instanceof ServerLevel serverLevel) {
                 be.tickParrot(serverLevel);
                 be.tickInterference(serverLevel, antenna);
+                be.tickBlowout(serverLevel);
                 be.tickMeter(serverLevel);
                 be.tickData(serverLevel, powered);
             }
@@ -267,6 +271,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     /** Puts a packet on the air on the radio's own frequency (packet is simplex), the way voice goes out. */
     protected void transmitData(ServerLevel serverLevel, TncPacket packet) {
+        if(isBlown())
+            return;
         if(!(IBENetworks.getObject(serverLevel, worldPosition) instanceof RadioNetworkObject networkObject))
             return;
         List<AntennaNetworkObject> antennas = networkObject.getAntennas();
@@ -407,9 +413,53 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         }
     }
 
-    /** True while RF is going out: PTT held in SSB, or morse keyed within the last couple of ticks. */
+    /** True while RF is going out: PTT held in SSB, or morse keyed within the last couple of ticks. A blown radio sends nothing. */
     protected boolean isTransmittingNow(ServerLevel serverLevel) {
+        if(isBlown())
+            return false;
         return canTransmitVoice() || (lastTransmitGameTime >= 0 && serverLevel.getGameTime() - lastTransmitGameTime <= 2);
+    }
+
+    // -------------------- BLOWN TRANSMITTER --------------------
+
+    /** True once the transmitter has burnt out (see {@link RadioBlock#BLOWN}). */
+    public boolean isBlown() {
+        BlockState state = getBlockState();
+        return state.hasProperty(RadioBlock.BLOWN) && state.getValue(RadioBlock.BLOWN);
+    }
+
+    /** False for transmitters with SWR protection, which never blow. */
+    protected boolean canBlow() {
+        return true;
+    }
+
+    /**
+     * Each tick on the air into a bad SWR may burn the transmitter out, at {@link SWRHelper#blowChancePerSecond} spread
+     * over the second's 20 ticks.
+     */
+    private void tickBlowout(ServerLevel serverLevel) {
+        if(!canBlow() || !isTransmittingNow(serverLevel))
+            return;
+        double perSecond = SWRHelper.blowChancePerSecond(antennaSWR, RadiocraftServerConfig.RADIO_BLOW_SWR.get(), RadiocraftServerConfig.RADIO_BLOW_CHANCE.get());
+        if(perSecond > 0.0D && serverLevel.random.nextDouble() < perSecond / 20.0D)
+            blow(serverLevel);
+    }
+
+    /**
+     * Burns out the transmitter: a pop and a puff of smoke, and the radio is blown from now on. A radio built with a
+     * poor crystal may instead go up like TNT ({@code radio_explode_chance}); what is left of it drops as salvage.
+     */
+    public void blow(ServerLevel serverLevel) {
+        if(isBlown())
+            return;
+        stopTransmitInterference(serverLevel);
+        BlockPos pos = worldPosition;
+        serverLevel.setBlock(pos, getBlockState().setValue(RadioBlock.BLOWN, true), Block.UPDATE_ALL);
+        Vec3 centre = pos.getCenter();
+        serverLevel.playSound(null, pos, SoundEvents.GENERIC_EXTINGUISH_FIRE, SoundSource.BLOCKS, 1.0F, 0.8F);
+        serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE, centre.x, centre.y + 0.3D, centre.z, 12, 0.2D, 0.1D, 0.2D, 0.02D);
+        if(getCrystalQuality() == CrystalQuality.POOR && serverLevel.random.nextDouble() < RadiocraftServerConfig.RADIO_EXPLODE_CHANCE.get())
+            serverLevel.explode(null, centre.x, centre.y, centre.z, 4.0F, Level.ExplosionInteraction.TNT);
     }
 
     /** Subclasses call this whenever they put something on the air that PTT does not already cover (CW keying). */
@@ -865,6 +915,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * when nothing is on the coax. More than one antenna overdraws the radio instead.
      */
     protected void transmitVoice(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, float txHz, UUID sourcePlayer, float ctcssTone) {
+        if(isBlown())
+            return;
         if(!(IBENetworks.getObject(this.level, worldPosition) instanceof RadioNetworkObject networkObject))
             return;
         List<AntennaNetworkObject> antennas = networkObject.getAntennas();

@@ -46,6 +46,9 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_BEACON_INTERVAL_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_CONTACT_LAMP_MINUTES;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
+	public static final ModConfigSpec.ConfigValue<Double> RADIO_BLOW_SWR;
+	public static final ModConfigSpec.ConfigValue<Double> RADIO_BLOW_CHANCE;
+	public static final ModConfigSpec.ConfigValue<Double> RADIO_EXPLODE_CHANCE;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_LOSS;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> VOICE_PROCESSING_ENABLED;
@@ -179,6 +182,17 @@ public class RadiocraftServerConfig {
 		ANTENNA_TUNER_ENABLED = BUILDER.comment(" Set to false to make tuners decorative again").define("antenna_tuner_enabled", true);
 		ANTENNA_TUNER_MAX_SWR = BUILDER.comment(" Highest antenna SWR a tuner can bring to 1:1 (a dipole 10 blocks off in total is SWR 6)").defineInRange("antenna_tuner_max_swr", 6.0, 1.0, 100.0);
 		ANTENNA_TUNER_LOSS = BUILDER.comment(" Share of the mismatch loss a tuner cannot recover: 0 = perfect tuner, 1 = tuner only quiets the radio").defineInRange("antenna_tuner_loss", 0.25, 0.0, 1.0);
+		BUILDER.pop();
+
+		BUILDER.push("Blown Radios");
+		BUILDER.comment(" Transmitting into a badly matched antenna (the SWR the radio sees, after any tuner) can burn out the radio's",
+				" transmitter. A blown radio still receives, but keying it only puts loud static out of its own speaker. Broken, it",
+				" gives back the parts it was crafted from, except its crystal. The repeater is protected and never blows.");
+		RADIO_BLOW_SWR = BUILDER.comment(" Lowest SWR that can blow a radio").defineInRange("radio_blow_swr", 3.0, 1.0, 100.0);
+		RADIO_BLOW_CHANCE = BUILDER.comment(" Chance per second of transmitting into SWR 10 (more than one antenna on the coax); worse matches between",
+				" radio_blow_swr and 10 follow the reflected power (about 0.4 of this at SWR 3). 0 = radios never blow").defineInRange("radio_blow_chance", 0.05, 0.0, 1.0);
+		RADIO_EXPLODE_CHANCE = BUILDER.comment(" Chance that a radio with a poor crystal goes up like TNT when it blows, instead of just burning out. 0 = never")
+				.defineInRange("radio_explode_chance", 0.1, 0.0, 1.0);
 		BUILDER.pop();
 
 		BUILDER.push("Receiver Audio");

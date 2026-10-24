@@ -9,6 +9,8 @@ import com.arrl.radiocraft.common.blockentities.AntennaBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -38,6 +40,8 @@ public enum RadioProvider implements IBlockComponentProvider, IServerDataProvide
             return;
         }
 
+        if(accessor.getBlockState().hasProperty(RadioBlock.BLOWN) && accessor.getBlockState().getValue(RadioBlock.BLOWN))
+            tooltip.add(Component.literal("Transmitter: Blown").withStyle(ChatFormatting.RED));
         tooltip.add(Component.literal("Radio: " + (data.getBoolean("radioPowered") ? "On" : "Off")));
         tooltip.add(Component.literal(String.format("Frequency: %.3f MHz", data.getFloat("frequency") / 1_000_000.0F)));
         tooltip.add(Component.literal("Mic Volume: " + Math.round(data.getFloat("micGain") * 100.0F) + "%"));

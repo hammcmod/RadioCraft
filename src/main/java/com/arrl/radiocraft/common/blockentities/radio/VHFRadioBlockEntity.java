@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.blockentities.radio;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.voice.Ctcss;
+import com.arrl.radiocraft.client.blockentity.RadioBlockEntityClientHandler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -77,6 +78,18 @@ public abstract class VHFRadioBlockEntity extends RadioBlockEntity {
     @Override
     public float getToneSquelch() {
         return ctcssTone;
+    }
+
+    /** FM is squelched: no static, except the roar of a blown transmitter while it is keyed. */
+    @Override
+    public boolean shouldPlayStatic() {
+        return false;
+    }
+
+    @Override
+    protected void setupSoundInstances() {
+        super.setupSoundInstances();
+        RadioBlockEntityClientHandler.startStaticSoundInstance(this);
     }
 
     @Override

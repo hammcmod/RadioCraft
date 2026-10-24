@@ -4,6 +4,16 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Blown radios (added 2026-10-23)
+
+- [ ] Keying a radio into a bad match (SWR 3 or worse, e.g. a 2+2 dipole on 20m, no tuner) for a while blows it:
+  a fizz and a puff of smoke, and the model stays the same. Jade shows "Transmitter: Blown" in red. With the GUI open
+  and PTT held, the radio's speaker roars with full static instead of sending (HF and VHF base station); released,
+  it hears stations as before. Faster with a worse SWR; never with an antenna tuner matching it or a matched antenna.
+- [ ] A Cheap (poor crystal) radio sometimes goes up like TNT when it blows (`radio_explode_chance`, 0.1).
+- [ ] Mining a blown radio gives back its crafting parts (no crystal; for the all-band radio no all-band board) instead
+  of the radio. Server config `[Blown Radios]`: `radio_blow_swr`, `radio_blow_chance` (0 turns it off).
+
 ## Radio screen readouts and the aurora setting (added 2026-10-23)
 
 - [ ] Within 8 blocks of a radio that is on, its model's screen (the maintainer's DISPLAY box) shows the frequency in

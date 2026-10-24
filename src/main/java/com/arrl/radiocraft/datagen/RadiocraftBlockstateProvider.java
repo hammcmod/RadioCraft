@@ -81,7 +81,8 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 
 	/**
 	 * A radio: turned like the other horizontal blocks, and with a second model for hanging from a ceiling, the same
-	 * model raised so its top meets the block above (by however much room it leaves under a full block).
+	 * model raised so its top meets the block above (by however much room it leaves under a full block). A blown
+	 * radio looks the same, so {@link RadioBlock#BLOWN} is left out of the variants.
 	 */
 	private void radio(Block block) {
 		String name = key(block).getPath();
@@ -89,10 +90,10 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		float rise = 1.0F - modelTop(modLoc("models/block/" + name + ".json"));
 		ModelFile ceiling = models().getBuilder("block/" + name + "_ceiling").parent(floor)
 				.rootTransforms().translation(0.0F, rise, 0.0F).end();
-		getVariantBuilder(block).forAllStates(state -> ConfiguredModel.builder()
+		getVariantBuilder(block).forAllStatesExcept(state -> ConfiguredModel.builder()
 				.modelFile(state.getValue(RadioBlock.CEILING) ? ceiling : floor)
 				.rotationY(((int)state.getValue(RadioBlock.HORIZONTAL_FACING).toYRot() + 180) % 360)
-				.build());
+				.build(), RadioBlock.BLOWN);
 		simpleBlockItem(block, floor);
 	}
 

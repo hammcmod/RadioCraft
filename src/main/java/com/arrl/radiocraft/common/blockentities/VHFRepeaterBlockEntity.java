@@ -278,6 +278,12 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 		return false; // FM, squelched.
 	}
 
+	/** A repeater folds its power back on a bad SWR instead of burning out. */
+	@Override
+	protected boolean canBlow() {
+		return false;
+	}
+
 	// -------------------- REPEATING --------------------
 
 	/** A signal on the input with the right tone is repeated on the output as it arrives. Voice chat thread. */

@@ -102,7 +102,7 @@ public abstract class HFRadioBlockEntity extends RadioBlockEntity implements ICW
 
 	@Override
 	public void transmitMorse(Collection<CWBuffer> buffers) {
-		if(level instanceof ServerLevel serverLevel && canTransmitCW()) {
+		if(level instanceof ServerLevel serverLevel && canTransmitCW() && !isBlown()) {
 			List<AntennaNetworkObject> antennas = ((RadioNetworkObject)IBENetworks.getObject(this.level, worldPosition)).getAntennas();
 			if(antennas.size() == 1) {
 				antennas.get(0).transmitCWPacket(serverLevel, buffers, band, getTunedFrequency());

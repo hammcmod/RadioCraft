@@ -48,4 +48,22 @@ public class SWRHelper {
         return 1.0D - (1.0D - raw) * lossFraction;
     }
 
+    /**
+     * Chance per second that a transmitter keyed into {@code swr} burns out its finals. Nothing below
+     * {@code threshold}; from there it follows the reflected power ({@code 1 - efficiency}), scaled so that SWR
+     * {@link #OVERDRAW_SWR} gives {@code chanceAtWorst}: with the defaults (3, 0.05) about 0.019 at SWR 3, 0.038 at
+     * SWR 6 and 0.05 at SWR 10. 0 (no antenna, off) never blows.
+     *
+     * @param swr The SWR the radio sees (after any tuner).
+     * @param threshold The lowest SWR that can blow a radio.
+     * @param chanceAtWorst The chance per second at SWR {@link #OVERDRAW_SWR}.
+     */
+    public static double blowChancePerSecond(double swr, double threshold, double chanceAtWorst) {
+        if(swr <= 0.0D || swr < threshold)
+            return 0.0D;
+        double reflected = 1.0D - getEfficiencyMultiplier(swr);
+        double worst = 1.0D - getEfficiencyMultiplier(OVERDRAW_SWR);
+        return Math.min(1.0D, chanceAtWorst * reflected / worst);
+    }
+
 }

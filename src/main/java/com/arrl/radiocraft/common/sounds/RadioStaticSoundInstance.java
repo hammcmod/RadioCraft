@@ -14,6 +14,8 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 	/** Share of the way the static moves toward its ducked level each tick, going down and coming back up. */
 	private static final double DUCK_ATTACK = 0.6D;
 	private static final double DUCK_RELEASE = 0.15D;
+	/** Static from a blown radio while it is keyed: full volume, whatever the band or antenna. */
+	private static final float BLOWN_VOLUME = 1.0F;
 
 	private final RadioBlockEntity radio;
 	private double duck = 1.0D;
@@ -34,7 +36,9 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 		if(radio.isRemoved())
 			stop();
 		else {
-			if(radio.wasPowered() && radio.shouldPlayStatic() && !radio.isReceiverMuted()) {
+			if(radio.wasPowered() && radio.isBlown() && radio.isPTTDown())
+				volume = BLOWN_VOLUME; // Keying a blown transmitter: nothing goes out, the speaker just roars.
+			else if(radio.wasPowered() && radio.shouldPlayStatic() && !radio.isReceiverMuted()) {
 				// Solar noise floor, plus whatever redstone is switching near the station and any aurora overhead, through the antenna match.
 				// VHF has no solar noise, only the receiver's own (an all-band radio in SSB on 2m).
 				double floor = radio.getBand() != null && radio.getBand().isVhf() ? RadiocraftServerConfig.VHF_NOISE_FLOOR.get() : RadiocraftClientValues.NOISE_VOLUME;
