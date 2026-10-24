@@ -140,3 +140,24 @@ handhelds on 2m can kill the path; 80m mostly shrugs off hills but not cliffs (s
 - A `terrain_enabled` server switch turns the whole system off (section 6).
 
 - Memory cap (2026-10-24): yes, `terrain_atlas_max_chunks` default 100,000 (about 16 MB), oldest forgotten first.
+
+## Scaling to many stations (2026-10-24)
+
+The maintainer's question: players with several APRS stations, base stations and redstone-driven gear each.
+
+- What costs is **transmissions per second x receivers each reaches**, not the number of stations. Voice is the big
+  one (50 packets a second while someone talks); APRS beacons and digipeats are a packet every few seconds or
+  minutes, and CW a few buffers a second, so those add almost nothing however many stations exist.
+- Today every transmission works out a strength for **every antenna on the band's network**, even ones thousands of
+  blocks past any range. With 30 players x 5 stations (150 antennas) and 10 talking: 75,000 strengths a second. The
+  plain strength is ~0.25 us (about 19 ms a second); terrain worked out every packet would add ~5 us each (~375 ms a
+  second, too much); with the 2 second cache it adds roughly the cost of a map lookup.
+- Fixed station to fixed station: neither end moves, so the answer only changes when a chunk on the path changes.
+  Keep it until then (each atlas chunk gets a version number; a kept path remembers the versions it read, or simply a
+  per-dimension "terrain changed" counter for the chunks it crossed) instead of 2 seconds. That makes fixed pairs
+  free after the first packet, loaded or not.
+- Stations in unloaded chunks: their terrain cannot change while unloaded, so their kept paths never expire there.
+- Moving stations (handhelds, manpacks) keep the 2 second cache; only pairs with a mover are worked out again.
+- Before any of that, skip receivers out of any possible range (past the band's longest skip, and past line of sight
+  on VHF) with one distance check, and later index each network's antennas by area so a transmission only visits
+  nearby ones. That cuts the 75,000 a second down to the receivers that can actually hear.

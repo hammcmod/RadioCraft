@@ -82,6 +82,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [x] Implement shared antenna behavior hooks so antenna blocks drive propagation (antenna types set SWR, gain, reach)
 - [x] Hook SWR consequences (fire/destruction) into `RadioBlockEntity` (2026-10-23: blown radios, see NeedsTesting)
 - [x] Integrate solar event noise and day/night skip changes so HF radios gain or lose range based on `SolarEventManager` (2026-10-21)
+- [ ] Propagation scaling for many stations (2026-10-24, see doc/TerrainPropagationResearch.md "Scaling"): skip
+  receivers out of any possible range before working anything out, keep terrain between two fixed stations until a
+  chunk on the path changes, index each network's antennas by area
 
 ### Events, Commands & Config
 - [x] Callsign capability with `/callsign` tools implemented
@@ -121,6 +124,8 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 Models and textures we want drawn by someone else are listed in [doc/ModelDesignBounty.md](doc/ModelDesignBounty.md).
 
 ### VHF/UHF Channel and Repeater Features
+- [ ] DTMF redstone controller (maintainer, 2026-10-24): a block beside a radio that listens for DTMF tone codes on
+  its frequency and drives redstone outputs (remote switching, repeater control)
 - [x] Simplex repeat controller ("parrot", id `parrot_controller`): links to the radio next to it and makes it echo
   what it receives after a delay, with receive/transmit LEDs and a wire drawn to the radio (2026-10-20; model and
   textures by the maintainer). Its recipe is a placeholder pending the recipe review below.
