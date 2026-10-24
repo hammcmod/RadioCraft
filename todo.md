@@ -43,7 +43,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 ### Antennas & Signal Model
 - [ ] Terrain-aware line of sight (maintainer, 2026-10-23): look into cheap ways for terrain to block or weaken
   line-of-sight paths without a big performance cost (e.g. sampling the heightmap along the path rather than ray
-  tracing blocks, cached per pair of stations); a server config turns it off
+  tracing blocks, cached per pair of stations); a server config turns it off. Research and a timed spike (2026-10-24):
+  [doc/TerrainPropagationResearch.md](doc/TerrainPropagationResearch.md), recommending a coarse terrain atlas,
+  knife-edge diffraction and per-station horizon profiles (~4 us per path, ~16 us per horizon)
 - [x] Dipole, end-fed, quarter-wave vertical, loop, wide-band receive, and VHF Yagi/J-pole/Slim Jim antennas are implemented
 - [x] Antenna tuner runtime effect (2026-10-20): a tuner anywhere on the coax between a radio and its antenna is an
   automatic tuner. Within `antenna_tuner_max_swr` (default 6) the radio sees SWR 1 (static, interference and the
@@ -193,7 +195,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] A Sputnik-style radio satellite (beeping beacon in orbit to listen for)
 
 ### Antenna Expansions
-- [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types
+- [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types (plan with the delta loop:
+  [doc/DeltaLoopAndMoxonPlan.md](doc/DeltaLoopAndMoxonPlan.md))
 - [ ] Ringo antenna (maintainer, 2026-10-23)
 - [ ] Industrial dipole antenna (maintainer, 2026-10-23)
 - [ ] Figure out how we'll allow building of HF yagis (maintainer, 2026-10-21)
