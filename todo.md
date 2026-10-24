@@ -19,7 +19,7 @@ In order. Each step gets GameTests where the server side can be checked; audio s
    their receive/transmit cost per tick from the power network and brown out (panel cycles on / PWR / dark, no
    static) when starved; `radios_need_power` server config; `PowerGameTests`. The repeater draws 4/17 and the
    handheld drains its battery over days (2026-10-23). The charge controller switch works (2026-10-24; controllers start switched on).
-5. **VHF (FM) static model.** Mostly silent except on very weak signals. After the HF static work settles.
+5. ~~**VHF (FM) static model.**~~ Done (2026-10-24): silent between signals and on a good one, a hiss under a weak one (`ReceiverMix.fmHiss`). Needs ears.
 6. **Port to Minecraft 26.1** and the matching NeoForge, keeping a 1.21.1 branch running alongside it (maintainer,
    2026-10-23; was 26.3 on 2026-10-21), once most of the rest of this list is done.
    Expect the usual port churn: GUI and render APIs, registries, mixin targets, and new Simple Voice Chat, Jade,

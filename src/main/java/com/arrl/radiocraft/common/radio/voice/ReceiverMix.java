@@ -29,6 +29,21 @@ public final class ReceiverMix {
 		return noise / Math.sqrt(signal * signal + noise * noise);
 	}
 
+	/** Signal strength from which an FM receiver is fully quiet (full quieting): no hiss under the voice. */
+	public static final double FM_QUIETING = 0.3D;
+
+	/**
+	 * The hiss under an FM signal: none while the squelch is shut (no signal), loudest on a signal that only just
+	 * opens it, fading to nothing as the signal reaches {@link #FM_QUIETING}. Unlike SSB, FM is silent between
+	 * signals and clean on a good one; only a weak, distant station comes in noisy.
+	 */
+	public static double fmHiss(double signal, double floor) {
+		if(signal <= 0.0D || signal >= FM_QUIETING)
+			return 0.0D;
+		double below = 1.0D - signal / FM_QUIETING;
+		return floor * below * below;
+	}
+
 	/**
 	 * Slow fading (QSB) on a skip signal: a factor between {@code 1 - depth} and 1 that swells and sinks over several
 	 * seconds, from two slow waves so it never quite repeats. {@code seed} makes each path fade on its own.

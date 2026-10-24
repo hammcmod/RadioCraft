@@ -48,6 +48,8 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 				duck += (wanted - duck) * (wanted < duck ? DUCK_ATTACK : DUCK_RELEASE);
 				volume = (float)(noise * duck * radio.getStaticVolume());
 			}
+			else if(radio.wasPowered() && radio.isFM() && !radio.isReceiverMuted()) // FM: hiss only under a weak signal.
+				volume = (float)(ReceiverMix.fmHiss(radio.getSyncedSignal(), radio.getCrystalEffect().applyNoise(RadiocraftServerConfig.VHF_NOISE_FLOOR.get())) * radio.getStaticVolume());
 			else
 				volume = 0.0F;
 		}
