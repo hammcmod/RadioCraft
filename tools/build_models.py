@@ -45,7 +45,7 @@ BUILDS = [
         # Blockbench calls slot 0 "top" and slot 1 "bottom", but slot 0 is painted on the bottom half and the files are
         # named for the half they cover.
         "textures": {"0": "radiocraft:block/ionospheric_solar_processor_bottom", "1": "radiocraft:block/ionospheric_solar_processor_top"},
-        "turn": 180,
+        "turn": 270,  # Turned twice, by the maintainer: 180 then 90 more clockwise.
         "glow": "TUBE",  # And the thin filaments inside the tubes.
         "render_type": {"lower": "minecraft:solid", "upper": "minecraft:translucent"},  # Only the valve glass is see-through.
     },

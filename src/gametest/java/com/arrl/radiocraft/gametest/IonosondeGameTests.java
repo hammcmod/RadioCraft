@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blocks.antennas.DoubleVHFAntennaBlock;
+import com.arrl.radiocraft.common.blocks.antennas.IonosondeBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.antenna.types.IonosondeAntennaType;
@@ -65,6 +66,20 @@ public class IonosondeGameTests {
                     helper.assertTrue(AntennaNetworkManager.HF_ID.equals(antennas(helper, hf).getFirst().getNetworkId()), "The HF radio's ionosonde left the HF network");
                 })
                 .thenSucceed();
+    }
+
+    /** Coax laid beside the lower half shows the run in to the mast on that side; taking it up hides it again. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20, batch = BATCH)
+    public static void coaxRunsInToTheMast(GameTestHelper helper) {
+        BlockPos lower = new BlockPos(3, 2, 3);
+        helper.setBlock(lower, RadiocraftBlocks.IONOSONDE.get().defaultBlockState().setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.LOWER));
+        helper.setBlock(lower.above(), RadiocraftBlocks.IONOSONDE.get().defaultBlockState().setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.UPPER));
+        GameTestUtil.placeWire(helper, lower.north(), RadiocraftBlocks.COAX_WIRE.get());
+        helper.assertTrue(helper.getBlockState(lower).getValue(IonosondeBlock.NORTH), "No coax run on the north side");
+        helper.assertFalse(helper.getBlockState(lower).getValue(IonosondeBlock.EAST), "A coax run on the east side with no coax there");
+        helper.setBlock(lower.north(), Blocks.AIR);
+        helper.assertFalse(helper.getBlockState(lower).getValue(IonosondeBlock.NORTH), "The coax run stayed after the coax went");
+        helper.succeed();
     }
 
     /** Breaking the top half takes the bottom with it. */
