@@ -69,7 +69,7 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.YAGI_ANTENNA.get());
         output.accept(RadiocraftItems.J_POLE_ANTENNA.get());
         output.accept(RadiocraftItems.SLIM_JIM_ANTENNA.get());
-        output.accept(RadiocraftItems.SOLAR_WEATHER_STATION.get());
+        output.accept(RadiocraftItems.TELETYPE.get());
 
         output.accept(RadiocraftItems.DESK_CHARGER.get());
 

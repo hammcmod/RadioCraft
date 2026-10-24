@@ -4,7 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
-import com.arrl.radiocraft.common.blockentities.SolarWeatherStationBlockEntity;
+import com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.Band;
@@ -62,7 +62,7 @@ public class AuroraGameTests {
         helper.setBlock(BALUN, RadiocraftBlocks.BALUN_ONE_TO_ONE.get());
         GameTestUtil.wire(helper, BALUN, BALUN.west(5));
         GameTestUtil.wire(helper, BALUN, BALUN.east(5));
-        helper.setBlock(STATION, RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
+        helper.setBlock(STATION, RadiocraftBlocks.TELETYPE.get());
         helper.startSequence()
                 .thenWaitUntil(() -> {
                     helper.assertTrue(helper.getLevel().isDay(), "Not day yet");
@@ -84,7 +84,7 @@ public class AuroraGameTests {
                     double vhfAfter = strength(helper, "2m", 2000);
                     helper.assertTrue(vhfAfter > 0.5D, "VHF should skip 2000 blocks off the aurora, was " + vhfAfter);
 
-                    SolarWeatherStationBlockEntity station = GameTestUtil.blockEntity(helper, STATION, SolarWeatherStationBlockEntity.class);
+                    TeletypeBlockEntity station = GameTestUtil.blockEntity(helper, STATION, TeletypeBlockEntity.class);
                     helper.assertTrue(station.getBandCondition("20m") == BandCondition.FAIR, "Station should report 20m fair, says " + station.getBandCondition("20m"));
                     helper.assertTrue(station.auroraLine() != null, "Station does not mention the aurora");
 

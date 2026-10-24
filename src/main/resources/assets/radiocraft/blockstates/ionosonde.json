@@ -84,7 +84,7 @@
         "north": "true"
       },
       "apply": {
-        "model": "radiocraft:block/ionosonde_coax"
+        "model": "radiocraft:block/antenna_coax"
       }
     },
     {
@@ -93,7 +93,7 @@
         "east": "true"
       },
       "apply": {
-        "model": "radiocraft:block/ionosonde_coax",
+        "model": "radiocraft:block/antenna_coax",
         "y": 90
       }
     },
@@ -103,7 +103,7 @@
         "south": "true"
       },
       "apply": {
-        "model": "radiocraft:block/ionosonde_coax",
+        "model": "radiocraft:block/antenna_coax",
         "y": 180
       }
     },
@@ -113,7 +113,7 @@
         "west": "true"
       },
       "apply": {
-        "model": "radiocraft:block/ionosonde_coax",
+        "model": "radiocraft:block/antenna_coax",
         "y": 270
       }
     }

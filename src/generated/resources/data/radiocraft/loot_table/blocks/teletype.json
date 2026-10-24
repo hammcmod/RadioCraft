@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "radiocraft:solar_weather_station"
+          "name": "radiocraft:teletype"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "radiocraft:blocks/solar_weather_station"
+  "random_sequence": "radiocraft:blocks/teletype"
 }

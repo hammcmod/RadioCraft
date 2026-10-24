@@ -29,6 +29,7 @@ public class RadiocraftJeiPlugin implements IModPlugin {
 	public void registerGuiHandlers(IGuiHandlerRegistration registration) {
 		registration.addGuiScreenHandler(AprsTerminalScreen.class, RadiocraftJeiPlugin::properties);
 		registration.addGuiScreenHandler(TransferInterfaceScreen.class, RadiocraftJeiPlugin::properties);
+		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.TeletypeScreen.class, RadiocraftJeiPlugin::properties);
 	}
 
 	private static IGuiProperties properties(StationPanelScreen<?> screen) {

@@ -127,7 +127,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
     touch on the station bus to the **H19 APRS Terminal** (maps, messages, beacon and digipeat settings, the
     maintainer's model with READY / CONTACT / MSG screens) and the **Digital Transfer Interface** (files; placeholder
     box). The Radio Interface keeps the old recipe for now; the H19 and Transfer Interface have none yet.
-  - [ ] Step 3: the Teletype. RTTY is unavailable until it exists (the three RTTY GameTests went with it)
+  - [x] Step 3 (2026-10-23): the Teletype Machine (the solar weather station renamed) with RTTY through its radios,
+    its own callsign and paper, and SOLAR WX printing the local report
   - [x] Ionosonde Antenna (2026-10-23, maintainer's model): two blocks tall like the J-pole, its own antenna type.
     On a radio it hears VHF well and HF weakly, and matches poorly: SWR 3 on VHF, 8 on HF. Dev tab, no recipe.
   - [x] Ionospheric Processor block (2026-10-23, maintainer's model): two blocks tall, its three valves glow softly

@@ -13,7 +13,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "radiocraft:solar_weather_station"
+        "recipe": "radiocraft:teletype"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -26,7 +26,7 @@
   ],
   "rewards": {
     "recipes": [
-      "radiocraft:solar_weather_station"
+      "radiocraft:teletype"
     ]
   }
 }

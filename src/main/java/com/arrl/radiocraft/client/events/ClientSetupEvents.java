@@ -37,6 +37,7 @@ public class ClientSetupEvents {
 		event.register(RadiocraftMenuTypes.HF_RECEIVER.get(), HFReceiverScreen::new);
 		event.register(RadiocraftMenuTypes.DESK_CHARGER.get(), DeskChargerScreen::new);
 		event.register(RadiocraftMenuTypes.RADIO_INTERFACE.get(), RadioInterfaceScreen::new);
+		event.register(RadiocraftMenuTypes.TELETYPE.get(), TeletypeScreen::new);
 		event.register(RadiocraftMenuTypes.APRS_TERMINAL.get(), AprsTerminalScreen::new);
 		event.register(RadiocraftMenuTypes.TRANSFER_INTERFACE.get(), TransferInterfaceScreen::new);
 		event.register(RadiocraftMenuTypes.DUPLEXER.get(), DuplexerScreen::new);

@@ -502,7 +502,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
     }
 
     private void buildSolarWeatherStationRecipe(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.SOLAR_WEATHER_STATION.get(), 1)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TELETYPE.get(), 1)
                 .pattern("AKG")
                 .pattern("A##")
                 .pattern("##I")

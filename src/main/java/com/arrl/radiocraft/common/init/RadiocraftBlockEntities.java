@@ -50,8 +50,8 @@ public class RadiocraftBlockEntities {
 	public static final Supplier<BlockEntityType<ParrotControllerBlockEntity>> PARROT_CONTROLLER = BLOCK_ENTITY_TYPES.register("parrot_controller",
 			() -> BlockEntityType.Builder.of(ParrotControllerBlockEntity::new, RadiocraftBlocks.PARROT_CONTROLLER.get()).build(null));
 
-	public static final Supplier<BlockEntityType<SolarWeatherStationBlockEntity>> SOLAR_WEATHER_STATION = BLOCK_ENTITY_TYPES.register("solar_weather_station",
-			() -> BlockEntityType.Builder.of(SolarWeatherStationBlockEntity::new, RadiocraftBlocks.SOLAR_WEATHER_STATION.get()).build(null));
+	public static final Supplier<BlockEntityType<TeletypeBlockEntity>> TELETYPE = BLOCK_ENTITY_TYPES.register("teletype",
+			() -> BlockEntityType.Builder.of(TeletypeBlockEntity::new, RadiocraftBlocks.TELETYPE.get()).build(null));
 
 	public static final Supplier<BlockEntityType<?>> RADIO_INTERFACE = BLOCK_ENTITY_TYPES.register("radio_interface",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.RadioInterfaceBlockEntity::new, RadiocraftBlocks.RADIO_INTERFACE.get()).build(null));

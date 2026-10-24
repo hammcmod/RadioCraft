@@ -309,6 +309,9 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         recordSignal(strength);
         for(RadioInterfaceBlockEntity radioInterface : getRadioInterfaces())
             radioInterface.receive(this, payload);
+        for(Direction direction : Direction.values()) // Teletypes have their own terminal unit and take RTTY straight from the radio.
+            if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity teletype)
+                teletype.receive(payload);
         return true;
     }
 

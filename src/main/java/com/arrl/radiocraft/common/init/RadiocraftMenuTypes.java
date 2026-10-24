@@ -30,6 +30,7 @@ public class RadiocraftMenuTypes {
 
 	public static final Supplier<MenuType<VHFReceiverMenu>> VHF_RECEIVER = MENU_TYPES.register("vhf_receiver", () -> IMenuTypeExtension.create(VHFReceiverMenu::new));
 	public static final Supplier<MenuType<DeskChargerMenu>> DESK_CHARGER = MENU_TYPES.register("desk_charger", () -> IMenuTypeExtension.create(DeskChargerMenu::new));
+	public static final Supplier<MenuType<TeletypeMenu>> TELETYPE = MENU_TYPES.register("teletype", () -> IMenuTypeExtension.create(TeletypeMenu::new));
 	public static final Supplier<MenuType<RadioInterfaceMenu>> RADIO_INTERFACE = MENU_TYPES.register("radio_interface", () -> IMenuTypeExtension.create(RadioInterfaceMenu::new));
 	public static final Supplier<MenuType<AprsTerminalMenu>> APRS_TERMINAL = MENU_TYPES.register("aprs_h19", () -> IMenuTypeExtension.create(AprsTerminalMenu::new));
 	public static final Supplier<MenuType<TransferInterfaceMenu>> TRANSFER_INTERFACE = MENU_TYPES.register("transfer_interface", () -> IMenuTypeExtension.create(TransferInterfaceMenu::new));

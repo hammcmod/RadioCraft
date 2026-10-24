@@ -55,7 +55,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> VHF_NOISE_FLOOR;
 	public static final ModConfigSpec.ConfigValue<Double> SKIP_FADING_DEPTH;
 
-	public static final ModConfigSpec.ConfigValue<Boolean> SOLAR_WEATHER_STATION_NEEDS_RADIO;
+	public static final ModConfigSpec.ConfigValue<Boolean> TELETYPE_NEEDS_RADIO;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_LATITUDE;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MIN_RANGE;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MAX_RANGE;
@@ -192,7 +192,7 @@ public class RadiocraftServerConfig {
 		BUILDER.pop();
 
 		BUILDER.push("Solar Weather Station");
-		SOLAR_WEATHER_STATION_NEEDS_RADIO = BUILDER.comment(" The station only reports (and drives a comparator) with a radio of any kind next to it that has a real",
+		TELETYPE_NEEDS_RADIO = BUILDER.comment(" The station only reports (and drives a comparator) with a radio of any kind next to it that has a real",
 				" antenna on its coax; a dummy load does not count").define("solar_weather_station_needs_radio", true);
 		BUILDER.pop();
 

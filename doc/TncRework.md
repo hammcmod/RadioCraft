@@ -17,7 +17,10 @@ Planning notes from 2026-10-23, updated with the maintainer's answers the same d
   one like the J-pole. On a radio it is poor on purpose: it hears VHF in full and HF at a third, and its SWR is 3 on
   VHF and 8 on HF (`IonosondeAntennaType`). Like the dummy load it joins whichever antenna network its radio is on.
   The processor will treat it as its sky sensor instead of a radio antenna.
-- **Not yet:** RTTY (until the Teletype), steps 3 to 7, recipes for the H19 and Transfer Interface.
+- **Teletype Machine** (step 3, 2026-10-23): the solar weather station renamed (`teletype`, model still
+  `solar_weather_station.json`), with its own callsign and paper and RTTY straight through the radios it touches.
+  SOLAR WX prints the local report on its paper; the processor and over-the-air requests are still to come.
+- **Not yet:** steps 4 to 7, recipes for the H19 and Transfer Interface.
 
 ## Where things stand
 

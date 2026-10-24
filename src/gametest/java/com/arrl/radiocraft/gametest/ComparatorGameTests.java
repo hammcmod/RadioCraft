@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.gametest;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.blockentities.SolarWeatherStationBlockEntity;
+import com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftData;
@@ -72,18 +72,18 @@ public class ComparatorGameTests {
         BlockPos station = new BlockPos(8, 2, 8);
         BlockPos comparator = station.east();
         placeComparator(helper, comparator, Direction.WEST);
-        helper.setBlock(station, RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
+        helper.setBlock(station, RadiocraftBlocks.TELETYPE.get());
         GameTestUtil.radioWithJPole(helper, station.west()); // The station hears the weather through a radio.
         helper.succeedWhen(() -> {
             SolarEventInstance event = SolarEventManager.getEvent(helper.getLevel());
             helper.assertTrue(event != null, "No solar event for this level");
-            SolarWeatherStationBlockEntity be = GameTestUtil.blockEntity(helper, station, SolarWeatherStationBlockEntity.class);
+            TeletypeBlockEntity be = GameTestUtil.blockEntity(helper, station, TeletypeBlockEntity.class);
             helper.assertTrue(be.getCurrentEvent() == event.getEvent(), "Station reports a different event than the manager");
             helper.assertTrue(be.getCurrentEventKey() != null, "Station does not know the event's id");
             int level = be.getConditionLevel();
             helper.assertTrue(level >= 1 && level <= RadiocraftData.SOLAR_EVENTS.getEvents().size(), "Condition level out of range: " + level);
             helper.assertTrue(level == RadiocraftData.SOLAR_EVENTS.conditionLevel(event.getEvent()), "Condition level does not match the event");
-            helper.assertTrue(be.isReportedBandOpen() == event.getEvent().isBandOpen(SolarWeatherStationBlockEntity.REPORTED_BAND, helper.getLevel().isDay()), "10m open flag disagrees with the event");
+            helper.assertTrue(be.isReportedBandOpen() == event.getEvent().isBandOpen(TeletypeBlockEntity.REPORTED_BAND, helper.getLevel().isDay()), "10m open flag disagrees with the event");
             helper.assertTrue(comparatorOutput(helper, comparator) == level, "Comparator shows " + comparatorOutput(helper, comparator) + ", station level is " + level);
         });
     }

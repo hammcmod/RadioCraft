@@ -55,7 +55,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.WIRE, "Wire");
 			provider.addBlock(RadiocraftBlocks.WATERPROOF_WIRE, "Waterproof Wire");
 			provider.addBlock(RadiocraftBlocks.SOLAR_PANEL, "Solar Panel");
-			provider.addBlock(RadiocraftBlocks.SOLAR_WEATHER_STATION, "Solar Weather Station");
+			provider.addBlock(RadiocraftBlocks.TELETYPE, "Teletype Machine");
 			provider.addBlock(RadiocraftBlocks.LARGE_BATTERY, "Large Battery");
 			addCrystalRadio(provider, RadiocraftItems.VHF_BASE_STATION_VARIANTS, "VHF Base Station");
 			provider.addBlock(RadiocraftBlocks.VHF_RECEIVER, "VHF Receiver");
@@ -123,6 +123,17 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			// Container titles for new GUIs
 			provider.add("container.radiocraft.radio_interface", "Radio Interface");
 			provider.add("container.radiocraft.aprs_terminal", "H19 APRS Terminal");
+			provider.add("container.radiocraft.teletype", "Teletype Machine");
+			provider.add(Radiocraft.translationKey("screen", "teletype.set_callsign_first"), "Set the teletype's callsign first");
+			provider.add(Radiocraft.translationKey("screen", "teletype.no_radio"), "No radio switched on next to the teletype");
+			provider.add(Radiocraft.translationKey("screen", "teletype.send_failed"), "Nothing sent: the radio is busy or cannot take RTTY");
+			provider.add(Radiocraft.translationKey("screen", "teletype.paper"), "PAPER: %s LINES");
+			provider.add(Radiocraft.translationKey("screen", "teletype.paper_out"), "PAPER OUT");
+			provider.add(Radiocraft.translationKey("screen", "teletype.edit_callsign"), "TELETYPE CALLSIGN: ENTER saves, empty claims yours");
+			provider.add(Radiocraft.translationKey("screen", "teletype.tip.solar"), "SOLAR WX: print the solar weather (needs a radio with an antenna next to it)");
+			provider.add(Radiocraft.translationKey("screen", "teletype.tip.callsign"), "Callsign: click to change (empty claims your own)");
+			provider.add(Radiocraft.translationKey("screen", "teletype.tip.set_by"), "%s, set by %s");
+			provider.add(Radiocraft.translationKey("screen", "teletype.tip.paper_out"), "Out of paper: right click the teletype with paper, or feed it with a hopper");
 			provider.add("item.radiocraft.aprs_map", "APRS Map");
 			provider.add("item.radiocraft.aprs_map.from", "From the H19 at %s, %s, %s");
 			provider.add("container.radiocraft.transfer_interface", "Digital Transfer Interface");
@@ -217,7 +228,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "parrot_controller"), "Repeats received messages back out the connected radio. Affectionately called a \"parrot\" repeater.");
             provider.add(Radiocraft.translationKey("message", "parrot_controller.delay"), "Repeat delay: %ss");
 
-            provider.add(Radiocraft.translationKey("tooltip", "solar_weather_station"), "Right click for the current solar conditions. Needs a radio with an antenna (not a dummy load) next to it. A comparator reads 1 (blackout) to 6 (great).");
+            provider.add(Radiocraft.translationKey("tooltip", "teletype"), "RTTY through the radios it touches, printed on its own paper. SOLAR WX prints the solar conditions, which it reads through a radio with an antenna (not a dummy load) next to it. A comparator reads 1 (blackout) to 6 (great).");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.report"), "Solar conditions: %s (noise floor %s%%). %s band: %s");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.no_data"), "No solar weather data yet");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.no_radio"), "No signal: the station needs a radio next to it with an antenna (not a dummy load)");
@@ -286,7 +297,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("config.jade.plugin_radiocraft.radio", "Radio");
 			provider.add("config.jade.plugin_radiocraft.coax_wire", "Coax Wire");
 			provider.add("config.jade.plugin_radiocraft.parrot_controller", "Simplex Repeat Controller");
-			provider.add("config.jade.plugin_radiocraft.solar_weather_station", "Solar Weather Station");
+			provider.add("config.jade.plugin_radiocraft.teletype", "Teletype Machine");
 			provider.add("config.jade.plugin_radiocraft.battery", "Battery Charge");
 			provider.add("config.jade.plugin_radiocraft.solar_panel", "Solar Panel Output");
 

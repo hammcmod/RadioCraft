@@ -2,7 +2,7 @@ package com.arrl.radiocraft.common.blocks;
 
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.core.Direction;
-import com.arrl.radiocraft.common.blockentities.SolarWeatherStationBlockEntity;
+import com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -35,12 +35,12 @@ import java.util.List;
  * open; a comparator reads the conditions as 1 (blackout) to 6 (great). The proposal's printed paper report and
  * best-band calculator are not built yet.
  */
-public final class SolarWeatherStationBlock extends BaseEntityBlock {
+public final class TeletypeBlock extends BaseEntityBlock {
 
-	public static final MapCodec<SolarWeatherStationBlock> CODEC = simpleCodec(SolarWeatherStationBlock::new);
+	public static final MapCodec<TeletypeBlock> CODEC = simpleCodec(TeletypeBlock::new);
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
 
-	public SolarWeatherStationBlock(Properties properties) {
+	public TeletypeBlock(Properties properties) {
 		super(properties);
 		registerDefaultState(RadioLinks.none(stateDefinition.any()));
 	}
@@ -106,20 +106,49 @@ public final class SolarWeatherStationBlock extends BaseEntityBlock {
 	@Nullable
 	@Override
 	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-		return new SolarWeatherStationBlockEntity(pos, state);
+		return new TeletypeBlockEntity(pos, state);
 	}
 
 	@Nullable
 	@Override
 	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
-		return level.isClientSide ? null : createTickerHelper(type, RadiocraftBlockEntities.SOLAR_WEATHER_STATION.get(), SolarWeatherStationBlockEntity::tick);
+		return level.isClientSide ? null : createTickerHelper(type, RadiocraftBlockEntities.TELETYPE.get(), TeletypeBlockEntity::tick);
 	}
 
 	@Override
 	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
-		if(!level.isClientSide && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof SolarWeatherStationBlockEntity be)
-			be.startReport(serverPlayer);
+		if(!level.isClientSide && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof TeletypeBlockEntity be)
+			serverPlayer.openMenu(be, pos);
 		return InteractionResult.sidedSuccess(level.isClientSide);
+	}
+
+	/** Paper in hand goes into the printer instead of opening the screen. */
+	@Override
+	protected @NotNull net.minecraft.world.ItemInteractionResult useItemOn(@NotNull net.minecraft.world.item.ItemStack stack, @NotNull BlockState state, @NotNull Level level,
+	                                                                      @NotNull BlockPos pos, @NotNull Player player, @NotNull net.minecraft.world.InteractionHand hand, @NotNull BlockHitResult hit) {
+		if(!stack.is(net.minecraft.world.item.Items.PAPER) || !(level.getBlockEntity(pos) instanceof TeletypeBlockEntity be))
+			return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		if(!level.isClientSide) {
+			net.minecraft.world.item.ItemStack left = be.insertPaper(stack.copy());
+			if(!player.getAbilities().instabuild)
+				stack.setCount(left.getCount());
+		}
+		return net.minecraft.world.ItemInteractionResult.sidedSuccess(level.isClientSide);
+	}
+
+	/** It takes the callsign of whoever places it. */
+	@Override
+	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable net.minecraft.world.entity.LivingEntity placer, @NotNull net.minecraft.world.item.ItemStack stack) {
+		super.setPlacedBy(level, pos, state, placer, stack);
+		if(placer instanceof net.minecraft.server.level.ServerPlayer player && level.getBlockEntity(pos) instanceof TeletypeBlockEntity be)
+			be.claim(player);
+	}
+
+	@Override
+	public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
+		if(!state.is(newState.getBlock()) && level.getBlockEntity(pos) instanceof TeletypeBlockEntity be)
+			be.dropPaper();
+		super.onRemove(state, level, pos, newState, isMoving);
 	}
 
 	/** A fresh station rings its bell once. */
@@ -137,12 +166,12 @@ public final class SolarWeatherStationBlock extends BaseEntityBlock {
 
 	@Override
 	protected int getAnalogOutputSignal(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos) {
-		return level.getBlockEntity(pos) instanceof SolarWeatherStationBlockEntity be ? be.getConditionLevel() : 0;
+		return level.getBlockEntity(pos) instanceof TeletypeBlockEntity be ? be.getConditionLevel() : 0;
 	}
 
 	@Override
 	public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
 		super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-		tooltipComponents.add(Component.translatable("tooltip.radiocraft.solar_weather_station"));
+		tooltipComponents.add(Component.translatable("tooltip.radiocraft.teletype"));
 	}
 }

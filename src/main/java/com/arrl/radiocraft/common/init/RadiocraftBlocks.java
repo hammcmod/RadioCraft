@@ -88,7 +88,7 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, YagiAntennaBlock> YAGI_ANTENNA = BLOCKS.register("yagi_antenna", () -> new YagiAntennaBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final DeferredHolder<Block, SatelliteDishBlock> SATELLITE_DISH = BLOCKS.register("satellite_dish", () -> new SatelliteDishBlock(PROPERTIES_STONE_NO_OCCLUDE));
 
-	public static final DeferredHolder<Block, SolarWeatherStationBlock> SOLAR_WEATHER_STATION = BLOCKS.register("solar_weather_station", () -> new SolarWeatherStationBlock(PROPERTIES_STONE));
+	public static final DeferredHolder<Block, TeletypeBlock> TELETYPE = BLOCKS.register("teletype", () -> new TeletypeBlock(PROPERTIES_STONE));
 
 	public static final DeferredHolder<Block, com.arrl.radiocraft.common.blocks.WefaxReceiverBlock> WEFAX_RECEIVER = BLOCKS.register("wefax_receiver", () -> new com.arrl.radiocraft.common.blocks.WefaxReceiverBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, MicrophoneBlock> MICROPHONE = BLOCKS.register("microphone", () -> new MicrophoneBlock(PROPERTIES_STONE));

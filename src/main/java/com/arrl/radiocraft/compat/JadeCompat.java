@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.compat;
 
-import com.arrl.radiocraft.common.blocks.SolarWeatherStationBlock;
+import com.arrl.radiocraft.common.blocks.TeletypeBlock;
 import com.arrl.radiocraft.common.blocks.antennas.AntennaCenterBlock;
 import com.arrl.radiocraft.common.blocks.WireBlock;
 import com.arrl.radiocraft.common.blocks.power.LargeBatteryBlock;
@@ -30,7 +30,7 @@ public class JadeCompat implements IWailaPlugin {
         registration.registerBlockDataProvider(RadioProvider.INSTANCE, VHFBaseStationBlock.class);
         registration.registerBlockDataProvider(RadioProvider.INSTANCE, VHFReceiverBlock.class);
         registration.registerBlockDataProvider(ParrotControllerProvider.INSTANCE, ParrotControllerBlock.class);
-        registration.registerBlockDataProvider(SolarWeatherStationProvider.INSTANCE, SolarWeatherStationBlock.class);
+        registration.registerBlockDataProvider(TeletypeProvider.INSTANCE, TeletypeBlock.class);
         registration.registerBlockDataProvider(BatteryProvider.INSTANCE, LargeBatteryBlock.class);
         registration.registerBlockDataProvider(SolarPanelProvider.INSTANCE, SolarPanelBlock.class);
     }
@@ -42,7 +42,7 @@ public class JadeCompat implements IWailaPlugin {
         registration.registerBlockComponent(CoaxWireProvider.INSTANCE, WireBlock.class);
         registration.registerBlockComponent(RadioProvider.INSTANCE, RadioBlock.class);
         registration.registerBlockComponent(ParrotControllerProvider.INSTANCE, ParrotControllerBlock.class);
-        registration.registerBlockComponent(SolarWeatherStationProvider.INSTANCE, SolarWeatherStationBlock.class);
+        registration.registerBlockComponent(TeletypeProvider.INSTANCE, TeletypeBlock.class);
         registration.registerBlockComponent(BatteryProvider.INSTANCE, LargeBatteryBlock.class);
         registration.registerBlockComponent(SolarPanelProvider.INSTANCE, SolarPanelBlock.class);
     }

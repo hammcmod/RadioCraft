@@ -3,7 +3,7 @@ package com.arrl.radiocraft.gametest;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
-import com.arrl.radiocraft.common.blockentities.SolarWeatherStationBlockEntity;
+import com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftData;
 import com.arrl.radiocraft.common.radio.Band;
@@ -59,7 +59,7 @@ public class SolarPropagationGameTests {
         helper.setBlock(BALUN, RadiocraftBlocks.BALUN_ONE_TO_ONE.get());
         GameTestUtil.wire(helper, BALUN, BALUN.west(5));
         GameTestUtil.wire(helper, BALUN, BALUN.east(5));
-        helper.setBlock(STATION, RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
+        helper.setBlock(STATION, RadiocraftBlocks.TELETYPE.get());
         helper.startSequence()
                 .thenWaitUntil(() -> {
                     helper.assertTrue(helper.getLevel().isDay(), "Not day yet");
@@ -75,8 +75,8 @@ public class SolarPropagationGameTests {
                     double expected = average * BandCondition.CLOSED.getSkipMultiplier();
                     helper.assertTrue(Math.abs(blackout - expected) < 1e-9, "Blackout skip was " + blackout + ", expected " + expected);
 
-                    SolarWeatherStationBlockEntity station = GameTestUtil.blockEntity(helper, STATION, SolarWeatherStationBlockEntity.class);
-                    for (String band : SolarWeatherStationBlockEntity.REPORTED_BANDS)
+                    TeletypeBlockEntity station = GameTestUtil.blockEntity(helper, STATION, TeletypeBlockEntity.class);
+                    for (String band : TeletypeBlockEntity.REPORTED_BANDS)
                         helper.assertTrue(station.getBandCondition(band) == BandCondition.CLOSED, band + " should be closed by day in a blackout, is " + station.getBandCondition(band));
                     SolarEventManager.setEvent(helper.getLevel(), previous);
                 })
@@ -88,12 +88,12 @@ public class SolarPropagationGameTests {
     public static void blackoutLeavesLowBandsPoorAtNight(GameTestHelper helper) {
         SolarEventInstance previous = SolarEventManager.getEvent(helper.getLevel());
         helper.getLevel().setDayTime(18000);
-        helper.setBlock(STATION, RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
+        helper.setBlock(STATION, RadiocraftBlocks.TELETYPE.get());
         helper.startSequence()
                 .thenWaitUntil(() -> helper.assertFalse(helper.getLevel().isDay(), "Not night yet"))
                 .thenExecute(() -> {
                     useEvent(helper, "blackout");
-                    SolarWeatherStationBlockEntity station = GameTestUtil.blockEntity(helper, STATION, SolarWeatherStationBlockEntity.class);
+                    TeletypeBlockEntity station = GameTestUtil.blockEntity(helper, STATION, TeletypeBlockEntity.class);
                     helper.assertTrue(station.getBandCondition("10m") == BandCondition.CLOSED, "10m: " + station.getBandCondition("10m"));
                     helper.assertTrue(station.getBandCondition("20m") == BandCondition.CLOSED, "20m: " + station.getBandCondition("20m"));
                     helper.assertTrue(station.getBandCondition("40m") == BandCondition.POOR, "40m: " + station.getBandCondition("40m"));

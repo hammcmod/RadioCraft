@@ -109,9 +109,9 @@ public class BlockDropGameTests {
     public static void processorValvesGiveLight(GameTestHelper helper) {
         BlockPos bottom = new BlockPos(3, 2, 3);
         placeTall(helper, RadiocraftBlocks.IONOSPHERIC_PROCESSOR.get(), bottom);
-        helper.assertTrue(helper.getBlockState(bottom.above()).getLightEmission() == com.arrl.radiocraft.common.blocks.IonosphericProcessorBlock.VALVE_LIGHT,
-                "The top half gives light " + helper.getBlockState(bottom.above()).getLightEmission());
-        helper.assertTrue(helper.getBlockState(bottom).getLightEmission() == 0, "The bottom half gives light");
+        helper.assertTrue(helper.getBlockState(bottom.above()).getLightEmission(helper.getLevel(), helper.absolutePos(bottom.above())) == com.arrl.radiocraft.common.blocks.IonosphericProcessorBlock.VALVE_LIGHT,
+                "The top half gives light " + helper.getBlockState(bottom.above()).getLightEmission(helper.getLevel(), helper.absolutePos(bottom.above())));
+        helper.assertTrue(helper.getBlockState(bottom).getLightEmission(helper.getLevel(), helper.absolutePos(bottom)) == 0, "The bottom half gives light");
         helper.succeed();
     }
 

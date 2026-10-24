@@ -44,7 +44,7 @@
     "radiocraft:slim_jim_antenna",
     "radiocraft:yagi_antenna",
     "radiocraft:satellite_dish",
-    "radiocraft:solar_weather_station",
+    "radiocraft:teletype",
     "radiocraft:wefax_receiver",
     "radiocraft:microphone"
   ]

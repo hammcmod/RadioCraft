@@ -1,7 +1,7 @@
 package com.arrl.radiocraft.compat;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.blockentities.SolarWeatherStationBlockEntity;
+import com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity;
 import com.arrl.radiocraft.common.radio.solar.BandCondition;
 import com.arrl.radiocraft.common.radio.solar.SolarEvent;
 import net.minecraft.nbt.CompoundTag;
@@ -14,7 +14,7 @@ import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
 
 /** Jade lines for the solar weather station: the current conditions, their comparator level and whether 10m is open. */
-public enum SolarWeatherStationProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
+public enum TeletypeProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
     @Override
@@ -29,13 +29,13 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
             return;
         }
         ResourceLocation key = ResourceLocation.tryParse(data.getString("event"));
-        tooltip.add(Component.literal("Conditions: ").append(SolarWeatherStationBlockEntity.eventName(key))
+        tooltip.add(Component.literal("Conditions: ").append(TeletypeBlockEntity.eventName(key))
                 .append(Component.literal(" (noise floor " + data.getInt("noise") + "%, level " + data.getInt("level") + ")")));
         CompoundTag bands = data.getCompound("bands");
-        for(String band : SolarWeatherStationBlockEntity.REPORTED_BANDS) {
+        for(String band : TeletypeBlockEntity.REPORTED_BANDS) {
             BandCondition condition = BandCondition.byName(bands.getString(band));
             if(condition != null)
-                tooltip.add(Component.literal(band + " band: ").append(SolarWeatherStationBlockEntity.conditionName(condition)));
+                tooltip.add(Component.literal(band + " band: ").append(TeletypeBlockEntity.conditionName(condition)));
         }
         if(data.contains("aurora"))
             tooltip.add(Component.Serializer.fromJson(data.getString("aurora"), accessor.getLevel().registryAccess()));
@@ -43,7 +43,7 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
-        if(!(accessor.getBlockEntity() instanceof SolarWeatherStationBlockEntity be))
+        if(!(accessor.getBlockEntity() instanceof TeletypeBlockEntity be))
             return;
         if(!be.hasRadio()) {
             data.putBoolean("no_radio", true);
@@ -57,7 +57,7 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
         data.putInt("noise", Math.round(event.getNoise() * 100.0F));
         data.putInt("level", be.getConditionLevel());
         CompoundTag bands = new CompoundTag();
-        for(String band : SolarWeatherStationBlockEntity.REPORTED_BANDS) {
+        for(String band : TeletypeBlockEntity.REPORTED_BANDS) {
             BandCondition condition = be.getBandCondition(band);
             if(condition != null)
                 bands.putString(band, condition.getSerializedName());
@@ -70,6 +70,6 @@ public enum SolarWeatherStationProvider implements IBlockComponentProvider, ISer
 
     @Override
     public ResourceLocation getUid() {
-        return Radiocraft.id("solar_weather_station");
+        return Radiocraft.id("teletype");
     }
 }

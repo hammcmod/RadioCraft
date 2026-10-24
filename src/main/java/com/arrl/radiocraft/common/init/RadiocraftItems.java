@@ -101,7 +101,7 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> IONOSPHERIC_PROCESSOR = simpleBlockItem("ionospheric_processor", RadiocraftBlocks.IONOSPHERIC_PROCESSOR);
 	public static final Supplier<BlockItem> SLIM_JIM_ANTENNA = simpleBlockItem("slim_jim_antenna", RadiocraftBlocks.SLIM_JIM_ANTENNA);
 
-	public static final Supplier<BlockItem> SOLAR_WEATHER_STATION = simpleBlockItem("solar_weather_station", RadiocraftBlocks.SOLAR_WEATHER_STATION);
+	public static final Supplier<BlockItem> TELETYPE = simpleBlockItem("teletype", RadiocraftBlocks.TELETYPE);
 	public static final Supplier<BlockItem> MICROPHONE = simpleBlockItem("microphone", RadiocraftBlocks.MICROPHONE);
 	public static final Supplier<BlockItem> WEFAX_RECEIVER = simpleBlockItem("wefax_receiver", RadiocraftBlocks.WEFAX_RECEIVER);
 

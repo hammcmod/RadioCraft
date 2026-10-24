@@ -32,8 +32,8 @@ import java.util.List;
 
 /**
  * The Hustler 5-BTV multiband vertical (maintainer's model, 2026-10-23): {@link #HEIGHT} blocks tall, placed and broken
- * as one. {@link #SEGMENT} 0 is the base, where the coax connects and the antenna lives; breaking any segment takes the
- * whole antenna down and drops it once. See {@link com.arrl.radiocraft.common.radio.antenna.types.FiveBtvAntennaType}.
+ * as one. {@link #SEGMENT} 0 is the base, where the coax connects (coax beside it shows a run in, {@link CoaxStubs})
+ * and the antenna lives; breaking any segment takes the whole antenna down and drops it once. See {@link com.arrl.radiocraft.common.radio.antenna.types.FiveBtvAntennaType}.
  */
 public final class FiveBtvAntennaBlock extends AntennaCenterBlock {
 
@@ -45,11 +45,12 @@ public final class FiveBtvAntennaBlock extends AntennaCenterBlock {
 
     public FiveBtvAntennaBlock(Properties properties) {
         super(properties);
+        registerDefaultState(CoaxStubs.none(stateDefinition.any()));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(SEGMENT);
+        builder.add(SEGMENT, CoaxStubs.NORTH, CoaxStubs.EAST, CoaxStubs.SOUTH, CoaxStubs.WEST);
     }
 
     @Nullable
@@ -62,14 +63,14 @@ public final class FiveBtvAntennaBlock extends AntennaCenterBlock {
         for(int i = 1; i < HEIGHT; i++)
             if(!level.getBlockState(pos.above(i)).canBeReplaced(context))
                 return null;
-        return defaultBlockState().setValue(SEGMENT, 0);
+        return CoaxStubs.around(defaultBlockState().setValue(SEGMENT, 0), level, pos);
     }
 
     @Override
     public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack stack) {
         super.setPlacedBy(level, pos, state, placer, stack);
         for(int i = 1; i < HEIGHT; i++)
-            level.setBlock(pos.above(i), state.setValue(SEGMENT, i), Block.UPDATE_ALL);
+            level.setBlock(pos.above(i), CoaxStubs.none(state).setValue(SEGMENT, i), Block.UPDATE_ALL);
     }
 
     /** A segment goes when the one it stands on or the one above it does, so the whole mast comes down together. */
@@ -81,7 +82,8 @@ public final class FiveBtvAntennaBlock extends AntennaCenterBlock {
             return Blocks.AIR.defaultBlockState();
         if(direction == Direction.DOWN && segment > 0 && !(neighbour.is(this) && neighbour.getValue(SEGMENT) == segment - 1))
             return Blocks.AIR.defaultBlockState();
-        return super.updateShape(state, direction, neighbour, level, pos, neighbourPos);
+        BlockState updated = super.updateShape(state, direction, neighbour, level, pos, neighbourPos);
+        return segment == 0 && updated.is(this) ? CoaxStubs.update(updated, direction, neighbour) : updated; // Coax runs in at the base.
     }
 
     @Override

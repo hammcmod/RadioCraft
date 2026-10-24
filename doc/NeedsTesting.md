@@ -4,6 +4,16 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Teletype Machine and the 5-BTV's coax (added 2026-10-23)
+
+- [ ] The solar weather station is now the "Teletype Machine" (same model). Placing it takes your callsign. Right
+  click opens the old RTTY screen: the callsign across the top (click to change; the green lamp claims yours), the
+  paper roll, typing that goes out live through the radio it touches (no Radio Interface), Enter/SEND to end a line.
+- [ ] The blue lamp (SOLAR WX) prints the solar report on the roll as WX lines, with the printing sound and bell; the
+  red lamp blinks when out of paper. Paper goes in by right click or hopper and drops when the teletype is broken.
+- [ ] Two teletypes on radios a few blocks apart on one frequency print each other's RTTY; weak copy prints garbled.
+- [ ] Coax laid next to the 5-BTV's base runs in to its mast, like the ionosonde.
+
 ## APRS Map, microphone element, desk mic (added 2026-10-23)
 
 - [ ] Right-clicking an H19 with an empty map gives an "APRS Map" (the empty map is used up). In hand and in an item

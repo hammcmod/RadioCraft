@@ -79,6 +79,8 @@ public class RadiocraftCapabilities {
         event.registerBlockEntity(BLOCK_ENTITY_CALLSIGNS, RadiocraftBlockEntities.HF_RADIO_ALL_BAND.get(), (entity, ignored) -> BlockEntityCallsignSavedData.get(entity.getLevel().getServer().overworld()));
 
 		// Hoppers stock a transfer interface's paper, books and maps; one underneath takes the copies of files received.
+		event.registerBlock(Capabilities.ItemHandler.BLOCK, (level, pos, state, be, side) -> be instanceof com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity teletype
+				? teletype.getPaper() : null, RadiocraftBlocks.TELETYPE.get()); // Hoppers feed the teletype paper.
 		event.registerBlock(Capabilities.ItemHandler.BLOCK, (level, pos, state, be, side) -> be instanceof TransferInterfaceBlockEntity transfer
 						? side == net.minecraft.core.Direction.DOWN ? transfer.getReceived() : transfer.getSupplies() : null,
 				RadiocraftBlocks.TRANSFER_INTERFACE.get());

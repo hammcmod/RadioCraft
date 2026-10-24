@@ -39,7 +39,7 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		RadiocraftBlocks.HF_RADIO_80M_VARIANTS.values().forEach(this::radio);
 		complexHorizontalBlockWithItem(RadiocraftBlocks.LARGE_BATTERY.get());
 		complexHorizontalBlockWithItem(RadiocraftBlocks.ANTENNA_TUNER.get());
-		horizontalWithRadioLinks(RadiocraftBlocks.SOLAR_WEATHER_STATION.get());
+		horizontalWithRadioLinks(RadiocraftBlocks.TELETYPE.get(), "solar_weather_station"); // The maintainer's model, from before the rename.
 		horizontalWithRadioLinks(RadiocraftBlocks.RADIO_INTERFACE.get());
 		horizontalWithRadioLinks(RadiocraftBlocks.TRANSFER_INTERFACE.get());
 		duplexer();
@@ -117,7 +117,11 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 	 * that has something it works with (see {@link RadioLinks}).
 	 */
 	private void horizontalWithRadioLinks(Block block) {
-		ModelFile model = models().getExistingFile(modLoc("block/" + key(block).getPath()));
+		horizontalWithRadioLinks(block, key(block).getPath());
+	}
+
+	private void horizontalWithRadioLinks(Block block, String modelName) {
+		ModelFile model = models().getExistingFile(modLoc("block/" + modelName));
 		ModelFile link = models().getExistingFile(modLoc("block/radio_link"));
 		MultiPartBlockStateBuilder builder = getMultipartBuilder(block);
 		for(Direction facing : Direction.Plane.HORIZONTAL)
