@@ -68,6 +68,9 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_VHF_STRENGTH;
 	public static final ModConfigSpec.ConfigValue<Double> AURORA_STATIC;
 
+	public static final ModConfigSpec.ConfigValue<Double> TOWER_FOOTHOLD_BREAK_CHANCE;
+	public static final ModConfigSpec.ConfigValue<Boolean> GUIDE_ON_FIRST_JOIN;
+
 	public static final ModConfigSpec.ConfigValue<Boolean> TERRAIN_ENABLED;
 	public static final ModConfigSpec.ConfigValue<Boolean> TERRAIN_LINE_OF_SIGHT;
 	public static final ModConfigSpec.ConfigValue<Boolean> TERRAIN_SKY_VIEW;
@@ -247,6 +250,16 @@ public class RadiocraftServerConfig {
 		AURORA_VHF_MAX_RANGE = BUILDER.comment(" Longest VHF path the aurora carries, in blocks").defineInRange("aurora_vhf_max_range", 4000, 1, 1000000);
 		AURORA_VHF_STRENGTH = BUILDER.comment(" Strength (0 to 1) of a VHF signal carried by the aurora").defineInRange("aurora_vhf_strength", 0.8, 0.0, 1.0);
 		AURORA_STATIC = BUILDER.comment(" Extra static on HF radios under the aurora, on top of the solar noise floor").defineInRange("aurora_static", 0.25, 0.0, 1.0);
+		BUILDER.pop();
+
+		BUILDER.push("Towers");
+		TOWER_FOOTHOLD_BREAK_CHANCE = BUILDER.comment(" Chance an old tower foothold (found in structures) gives way each time a player climbs onto it or steps on it.",
+				" Crafted footholds never break. 0.0005 = 0.05%").defineInRange("tower_foothold_break_chance", 0.0005, 0.0, 1.0);
+		BUILDER.pop();
+
+		BUILDER.push("Guide Book");
+		GUIDE_ON_FIRST_JOIN = BUILDER.comment(" Give each player the RadioCraft guide book the first time they join (needs Patchouli). /radiocraft guide",
+				" (or /radio guide) gives another any time").define("guide_on_first_join", true);
 		BUILDER.pop();
 
 		BUILDER.push("Terrain");

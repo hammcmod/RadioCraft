@@ -47,8 +47,9 @@ public class TerrainGameTests {
     private static final int LOS_DISTANCE = 60;
     /** 20m daytime skip target, far south (or north). */
     private static final int SKIP_DISTANCE = 4000;
-    /** The wall: 28 to 35 blocks south of the balun, 16 wide, floating from 12 below the stations to 12 above. */
-    private static final int WALL_NEAR = 28, WALL_FAR = 35, WALL_HEIGHT = 12;
+    /** The wall: 28 to 35 blocks south of the balun, 16 wide, floating from 12 below the stations to 20 above (well over
+     * the 20m takeoff angle, whatever the 4 block cells it falls in). */
+    private static final int WALL_NEAR = 28, WALL_FAR = 35, WALL_HEIGHT = 12, WALL_TOP = 20;
 
     private static <T extends AntennaData> double efficiency(StaticAntenna<T> antenna, IAntennaPacket packet, BlockPos destination) {
         return antenna.type.getTransmitEfficiency(packet, antenna.data, destination, false);
@@ -93,7 +94,7 @@ public class TerrainGameTests {
 
     private static void wall(GameTestHelper helper, BlockState state) {
         BlockPos min = helper.absolutePos(new BlockPos(0, UP - WALL_HEIGHT, BALUN.getZ() + WALL_NEAR));
-        BlockPos max = helper.absolutePos(new BlockPos(15, UP + WALL_HEIGHT, BALUN.getZ() + WALL_FAR));
+        BlockPos max = helper.absolutePos(new BlockPos(15, UP + WALL_TOP, BALUN.getZ() + WALL_FAR));
         for(BlockPos pos : BlockPos.betweenClosed(min, max))
             helper.getLevel().setBlock(pos, state, 2);
         TerrainPropagation.refresh(helper.getLevel(), min.offset(-16, 0, -16), max.offset(16, 0, 16));

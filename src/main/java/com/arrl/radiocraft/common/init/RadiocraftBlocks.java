@@ -32,6 +32,7 @@ public class RadiocraftBlocks {
 	private static final Properties PROPERTIES_STONE_NO_OCCLUDE = Properties.ofFullCopy(Blocks.STONE).noCollission();
 	private static final Properties PROPERTIES_RADIO = Properties.ofFullCopy(Blocks.STONE).noOcclusion();
 	private static final Properties PROPERTIES_IRON_BARS = Properties.ofFullCopy(Blocks.IRON_BARS);
+	private static final Properties PROPERTIES_FOOTHOLD = Properties.ofFullCopy(Blocks.IRON_BARS).strength(3.0F, 6.0F);
 	private static final Properties PROPERTIES_WIRES = Properties.of().sound(SoundType.STONE).instabreak().noCollission().noOcclusion().mapColor(MapColor.COLOR_LIGHT_GRAY); // No tool needed to pick wire back up.
 
 	// Power related blocks
@@ -73,6 +74,9 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, WireBlock> COAX_WIRE = BLOCKS.register("coax_wire", () -> new WireBlock(PROPERTIES_WIRES, false, false));
 	/** A wall block wire runs through; made with the passthrough item, looks like the block it replaced. */
 	public static final DeferredHolder<Block, PassthroughBlock> PASSTHROUGH = BLOCKS.register("passthrough", () -> new PassthroughBlock(Properties.ofFullCopy(Blocks.STONE)));
+	/** Rungs on a tower: the old ones (structures, creative) may give way under a player; crafted ones never do. */
+	public static final DeferredHolder<Block, TowerFootholdBlock> TOWER_FOOTHOLD = BLOCKS.register("tower_foothold", () -> new TowerFootholdBlock(PROPERTIES_FOOTHOLD, false));
+	public static final DeferredHolder<Block, TowerFootholdBlock> OLD_TOWER_FOOTHOLD = BLOCKS.register("old_tower_foothold", () -> new TowerFootholdBlock(PROPERTIES_FOOTHOLD, true));
 	public static final DeferredHolder<Block, AntennaPoleBlock> ANTENNA_POLE = BLOCKS.register("antenna_pole", () -> new AntennaPoleBlock(PROPERTIES_IRON_BARS));
 	public static final DeferredHolder<Block, AntennaConnectorBlock> ANTENNA_CONNECTOR = BLOCKS.register("antenna_connector", () -> new AntennaConnectorBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final DeferredHolder<Block, BalunBlock> BALUN_ONE_TO_ONE = BLOCKS.register("balun_one_to_one", () -> new BalunBlock(PROPERTIES_STONE_NO_OCCLUDE, "balun_one_to_one"));

@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "radiocraft:old_tower_foothold",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "broken": "false"
+              }
+            }
+          ],
+          "name": "radiocraft:old_tower_foothold"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "radiocraft:blocks/old_tower_foothold"
+}

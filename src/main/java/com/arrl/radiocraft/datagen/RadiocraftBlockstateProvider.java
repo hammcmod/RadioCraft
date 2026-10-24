@@ -5,6 +5,7 @@ import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.core.Direction;
 import com.arrl.radiocraft.common.blocks.RadioLinks;
+import com.arrl.radiocraft.common.blocks.TowerFootholdBlock;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blocks.antennas.DuplexerBlock;
 import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
@@ -49,6 +50,8 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		complexHorizontalBlockWithItem(RadiocraftBlocks.WEFAX_RECEIVER.get());
 		complexBlockWithItem(RadiocraftBlocks.SOLAR_PANEL.get());
 		complexBlockWithItem(RadiocraftBlocks.ANTENNA_POLE.get());
+		towerFoothold(RadiocraftBlocks.TOWER_FOOTHOLD.get());
+		towerFoothold(RadiocraftBlocks.OLD_TOWER_FOOTHOLD.get());
 		radio(RadiocraftBlocks.QRP_RADIO_40M.get());
 		radio(RadiocraftBlocks.QRP_RADIO_20M.get());
 		RadiocraftBlocks.VHF_BASE_STATION_VARIANTS.values().forEach(this::radio);
@@ -56,6 +59,14 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		radio(RadiocraftBlocks.HF_RECEIVER.get());
 		radio(RadiocraftBlocks.VHF_REPEATER.get());
 		radio(RadiocraftBlocks.ALL_BAND_RADIO.get());
+	}
+
+	/** Both footholds share the maintainer's models (built by tools/build_models.py): whole, or with the rung bent. */
+	private void towerFoothold(Block block) {
+		ModelFile whole = models().getExistingFile(modLoc("block/tower_foothold"));
+		ModelFile broken = models().getExistingFile(modLoc("block/tower_foothold_broken"));
+		horizontalBlock(block, state -> state.getValue(TowerFootholdBlock.BROKEN) ? broken : whole);
+		simpleBlockItem(block, whole);
 	}
 
 	private void simpleBlockWithItem(Block block) {

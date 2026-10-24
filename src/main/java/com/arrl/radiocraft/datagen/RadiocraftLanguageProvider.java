@@ -73,6 +73,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.QRP_RADIO_20M, "QRP Radio (20m)");
 			provider.addBlock(RadiocraftBlocks.QRP_RADIO_40M, "QRP Radio (40m)");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_POLE, "Antenna Pole");
+			provider.addBlock(RadiocraftBlocks.TOWER_FOOTHOLD, "Tower Foothold");
+			provider.addBlock(RadiocraftBlocks.OLD_TOWER_FOOTHOLD, "Old Tower Foothold");
 			provider.addBlock(RadiocraftBlocks.DUPLEXER, "Duplexer");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_TUNER, "Antenna Tuner");
 			provider.addBlock(RadiocraftBlocks.AUTO_TUNER, "Automatic Antenna Tuner");
@@ -268,6 +270,10 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "wire"), "Carries power between solar panels, charge controllers, batteries and radios. Runs along the ground, up walls and over steps.");
             provider.add(Radiocraft.translationKey("tooltip", "waterproof_wire"), "Power wire that can be laid under water. Runs along the ground, up walls and over steps.");
             provider.add(Radiocraft.translationKey("tooltip", "coax_wire"), "Carries the signal between a radio and its antenna's balun. Runs along the ground, up walls and over steps.");
+            provider.add(Radiocraft.translationKey("tooltip", "tower_foothold"), "A rung for climbing a tower, or standing on. Place it against a wall like a ladder.");
+            provider.add(Radiocraft.translationKey("tooltip", "old_tower_foothold"), "Weathered. Now and then one gives way under a climber.");
+            provider.add(Radiocraft.translationKey("commands", "guide.given"), "Gave %s the RadioCraft guide");
+            provider.add(Radiocraft.translationKey("commands", "guide.no_patchouli"), "The guide book needs the Patchouli mod, which is not installed");
             provider.add(Radiocraft.translationKey("tooltip", "antenna_pole"), "Holds the end of an antenna wire. Use antenna wire on this and another holder to string a wire between them.");
             provider.add(Radiocraft.translationKey("tooltip", "antenna_connector"), "Joins antenna wires and coax: a wire holder you can also run coax into.");
             provider.add(Radiocraft.translationKey("tooltip", "j_pole_antenna"), "VHF antenna for 2m base stations and repeaters. Connect it with coax.");

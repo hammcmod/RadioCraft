@@ -12,6 +12,7 @@ import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
 import com.arrl.radiocraft.common.blocks.antennas.FiveBtvAntennaBlock;
+import com.arrl.radiocraft.common.blocks.TowerFootholdBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.NotNull;
@@ -46,6 +47,10 @@ public class RadiocraftBlockLootProvider extends BlockLootSubProvider {
                 add(block, LootTable.lootTable().withPool(applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
                         .add(LootItem.lootTableItem(block).when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
                                 .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(FiveBtvAntennaBlock.SEGMENT, 0)))))));
+            else if(block instanceof TowerFootholdBlock) // A broken foothold is scrap: nothing drops.
+                add(block, LootTable.lootTable().withPool(applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(block).when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(TowerFootholdBlock.BROKEN, false)))))));
             else
                 dropSelf(block);
         }

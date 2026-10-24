@@ -4,6 +4,15 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Tower footholds and the guide on first join (added 2026-10-24)
+
+- [ ] Place footholds up a wall like ladders (both kinds): the rungs face out from the wall, climbing works, and you
+  can stand on the top one. The item looks right in the hand and inventory.
+- [ ] Set `tower_foothold_break_chance` to 1 and climb old ones: each gives way as you reach it with a high metal
+  clang, the rung shows bent, you drop through, and mining it gives nothing. Crafted ones never break.
+- [ ] A new player (or a fresh world) gets the RadioCraft guide on first join, once only (not again on rejoin or after
+  death). `/radiocraft guide` and `/radio guide` give another.
+
 ## Terrain (added 2026-10-24)
 
 - [ ] Two VHF stations or handhelds either side of a real hill: the signal is much weaker than on open ground, and

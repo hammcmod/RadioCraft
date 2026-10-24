@@ -31,6 +31,8 @@
     "radiocraft:duplexer",
     "radiocraft:antenna_tuner",
     "radiocraft:auto_tuner",
+    "radiocraft:tower_foothold",
+    "radiocraft:old_tower_foothold",
     "radiocraft:antenna_pole",
     "radiocraft:antenna_connector",
     "radiocraft:balun_one_to_one",

@@ -1,0 +1,64 @@
+{
+  "variants": {
+    "broken=false,facing=east,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold",
+      "y": 90
+    },
+    "broken=false,facing=east,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold",
+      "y": 90
+    },
+    "broken=false,facing=north,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold"
+    },
+    "broken=false,facing=north,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold"
+    },
+    "broken=false,facing=south,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold",
+      "y": 180
+    },
+    "broken=false,facing=south,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold",
+      "y": 180
+    },
+    "broken=false,facing=west,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold",
+      "y": 270
+    },
+    "broken=false,facing=west,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold",
+      "y": 270
+    },
+    "broken=true,facing=east,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken",
+      "y": 90
+    },
+    "broken=true,facing=east,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken",
+      "y": 90
+    },
+    "broken=true,facing=north,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken"
+    },
+    "broken=true,facing=north,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken"
+    },
+    "broken=true,facing=south,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken",
+      "y": 180
+    },
+    "broken=true,facing=south,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken",
+      "y": 180
+    },
+    "broken=true,facing=west,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken",
+      "y": 270
+    },
+    "broken=true,facing=west,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken",
+      "y": 270
+    }
+  }
+}

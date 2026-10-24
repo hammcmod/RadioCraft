@@ -57,6 +57,8 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.QRP_RADIO_20M.get());
         output.accept(RadiocraftItems.QRP_RADIO_40M.get());
         output.accept(RadiocraftItems.ANTENNA_POLE.get());
+        output.accept(RadiocraftItems.TOWER_FOOTHOLD.get());
+        output.accept(RadiocraftItems.OLD_TOWER_FOOTHOLD.get());
         output.accept(RadiocraftItems.ANTENNA_TUNER.get());
         output.accept(RadiocraftItems.ANTENNA_WIRE.get());
         output.accept(RadiocraftItems.ANTENNA_CONNECTOR.get());

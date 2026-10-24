@@ -272,9 +272,11 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   - [ ] AT&T Long Lines site (maintainer, 2026-10-23)
   - [ ] Prepper bunker (maintainer, 2026-10-23)
 - [ ] Add something radio-related to villages (maintainer, 2026-10-23)
-- [ ] Tower foothold (maintainer, 2026-10-23): a block that works as a ladder or as something to stand on, for the
-  towers in structures. A foothold placed by worldgen has a 0.05% chance of breaking each time a player walks on or
-  climbs it, with a metal clang (the anvil sound, sped up); a blockstate marks player-placed ones, which never break.
+- [x] Tower foothold (2026-10-24): `tower_foothold` (crafted: 3 from iron + stick, never breaks) and
+  `old_tower_foothold` (structures and creative): climbed like a ladder, stood on from above; an old one gives way
+  `tower_foothold_break_chance` (0.05%) of the times a player climbs onto or steps on it, with a sped-up anvil clang,
+  showing the maintainer's bent rung; a broken one cannot be climbed or stood on and drops nothing
+- [x] Guide book on first join (2026-10-24, `guide_on_first_join`), and `/radiocraft guide` or `/radio guide`
 - [ ] Industrial radio block (maintainer, 2026-10-23; needs a model): broken and working versions, found in
   structures, not usable by players; breaking it drops a random rare radio component (the all-band circuit board and
   others to come)

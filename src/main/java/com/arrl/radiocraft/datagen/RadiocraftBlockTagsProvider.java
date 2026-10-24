@@ -25,6 +25,8 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
         tag(BlockTags.MINEABLE_WITH_PICKAXE).add(RadiocraftBlockLootProvider.blocks().stream()
                 .filter(block -> block.defaultBlockState().requiresCorrectToolForDrops()).toArray(Block[]::new));
 
+        tag(BlockTags.CLIMBABLE).add(RadiocraftBlocks.TOWER_FOOTHOLD.get(), RadiocraftBlocks.OLD_TOWER_FOOTHOLD.get());
+
         // Define the POWER_BLOCKS tag
         tag(RadiocraftTags.Blocks.POWER_BLOCKS)
                 .add(RadiocraftBlocks.WIRE.get())

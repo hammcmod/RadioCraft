@@ -108,6 +108,8 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> TELETYPE = simpleBlockItem("teletype", RadiocraftBlocks.TELETYPE);
 	public static final Supplier<BlockItem> MICROPHONE = simpleBlockItem("microphone", RadiocraftBlocks.MICROPHONE);
 	public static final Supplier<BlockItem> WEFAX_RECEIVER = simpleBlockItem("wefax_receiver", RadiocraftBlocks.WEFAX_RECEIVER);
+	public static final Supplier<BlockItem> TOWER_FOOTHOLD = simpleBlockItem("tower_foothold", RadiocraftBlocks.TOWER_FOOTHOLD);
+	public static final Supplier<BlockItem> OLD_TOWER_FOOTHOLD = simpleBlockItem("old_tower_foothold", RadiocraftBlocks.OLD_TOWER_FOOTHOLD);
 
 	public static final DeferredHolder<Item, DeskChargerBlockItem> DESK_CHARGER = ITEMS.register("desk_charger", () -> new DeskChargerBlockItem(RadiocraftBlocks.DESK_CHARGER.get(), new Properties()));
 	public static final DeferredHolder<Item, SatelliteDishBlockItem> SATELLITE_DISH = ITEMS.register("satellite_dish", () -> new SatelliteDishBlockItem(RadiocraftBlocks.SATELLITE_DISH.get(), new Properties()));

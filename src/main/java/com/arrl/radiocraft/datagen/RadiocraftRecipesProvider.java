@@ -40,6 +40,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         buildWaterproofWireRecipe(recipeOutput);
         buildInsulationRecipes(recipeOutput);
         buildAntennaPoleRecipe(recipeOutput);
+        buildTowerFootholdRecipe(recipeOutput);
         buildAntennaWireRecipe(recipeOutput);
         buildFerriteCore(recipeOutput);
         buildLargeBatteryRecipe(recipeOutput);
@@ -236,6 +237,17 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .requires(binder)
                 .unlockedBy("has_" + from, unlock)
                 .save(recipeOutput, Radiocraft.id("insulation_from_" + from));
+    }
+
+    private void buildTowerFootholdRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TOWER_FOOTHOLD.get(), 3)
+                .pattern("I ")
+                .pattern("IS")
+                .pattern("I ")
+                .define('I', Items.IRON_INGOT)
+                .define('S', Items.STICK)
+                .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
+                .save(recipeOutput);
     }
 
     private void buildAntennaPoleRecipe(RecipeOutput recipeOutput) {

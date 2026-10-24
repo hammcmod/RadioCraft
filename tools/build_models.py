@@ -54,6 +54,12 @@ BUILDS = [
         "glow": "TUBE",  # And the thin filaments inside the tubes.
         "render_type": {"lower": "minecraft:solid", "upper": "minecraft:translucent"},  # Only the valve glass is see-through.
     },
+    {   # The tower foothold: one export with both rungs in its Breakable group, split into the whole foothold and the
+        # broken one (the rung bent down), picked by the blockstate.
+        "export": "block/tower_footholds.json",
+        "variants": {"block/tower_foothold": "after_broken", "block/tower_foothold_broken": "before_broken"},
+        "render_type": "minecraft:cutout",
+    },
 ]
 
 # How a two-block-tall item sits in the inventory, hand and frames: vanilla's block views at half size, moved down so
@@ -177,6 +183,16 @@ def build_tall(spec, export, elements):
     print(f"  {spec['lower']}: {len(lower)} elements, {spec['upper']}: {len(upper)}, {spec['item']}")
 
 
+def build_variants(spec, export, elements):
+    """One model per variant, each leaving out the elements with one name."""
+    for out, left_out in spec["variants"].items():
+        kept = [copy.deepcopy(e) for e in elements if (e.get("name") or "") != left_out]
+        if len(kept) == len(elements):
+            sys.exit(f"{spec['export']}: no element named {left_out}")
+        write(out, base(export, kept, render_type=spec["render_type"]))
+        print(f"  {out}: {len(kept)} elements (without {left_out})")
+
+
 def build_stack(spec):
     for export_path, out in zip(spec["exports"], spec["segments"]):
         source = MODELS / export_path
@@ -209,6 +225,8 @@ def main():
                 turn_element(element, spec["turn"] // 90)
         if "lamps" in spec:
             build_lamps(spec, export, elements)
+        elif "variants" in spec:
+            build_variants(spec, export, elements)
         else:
             build_tall(spec, export, elements)
 
