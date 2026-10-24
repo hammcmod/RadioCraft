@@ -113,4 +113,45 @@ class TerrainMathTest {
         cache.get("b", 0L, 0L, k -> ++computed[0]);
         assertEquals(4, computed[0], "a time to live of 0 keeps nothing");
     }
+
+    @Test
+    void atlasSurvivesSavingAndLoading() {
+        TerrainAtlas atlas = new TerrainAtlas();
+        short[] cells = new short[16];
+        for(int i = 0; i < 16; i++)
+            cells[i] = (short)(i * 10 - 64); // Negative heights too (below sea level in deep worlds).
+        atlas.put(3, -7, cells, 100);
+        atlas.put(-2, 5, new short[16], 100);
+        TerrainAtlas loaded = TerrainAtlas.load(atlas.save(new net.minecraft.nbt.CompoundTag(), null), null);
+        assertEquals(2, loaded.chunkCount());
+        for(int cx = 0; cx < 4; cx++)
+            for(int cz = 0; cz < 4; cz++)
+                assertEquals(cells[cx * 4 + cz], loaded.surface(3 * 16 + cx * 4, -7 * 16 + cz * 4));
+        loaded.put(9, 9, new short[16], 2); // The oldest saved chunk goes first.
+        assertEquals(TerrainMath.UNKNOWN, loaded.surface(3 * 16, -7 * 16));
+    }
+
+    @Test
+    void stampsMoveOnlyWhenTerrainChanges() {
+        TerrainAtlas atlas = new TerrainAtlas();
+        atlas.put(0, 0, new short[16], 100);
+        long stamp = atlas.stamp();
+        atlas.put(0, 0, new short[16], 100); // The same terrain re-read.
+        assertTrue(!atlas.changedSince(TerrainAtlas.key(0, 0), stamp));
+        short[] wall = new short[16];
+        wall[3] = 90;
+        atlas.put(0, 0, wall, 100);
+        assertTrue(atlas.changedSince(TerrainAtlas.key(0, 0), stamp));
+    }
+
+    @Test
+    void keptValueRenewsWhenStillGood() {
+        ExpiringCache<String, Integer> cache = new ExpiringCache<>(10);
+        int[] computed = {0};
+        cache.get("a", 0L, 100L, k -> ++computed[0], v -> true);
+        cache.get("a", 500L, 100L, k -> ++computed[0], v -> true); // Expired, but still good: renewed.
+        assertEquals(1, computed[0]);
+        cache.get("a", 1000L, 100L, k -> ++computed[0], v -> false);
+        assertEquals(2, computed[0]);
+    }
 }

@@ -49,6 +49,32 @@ public class BandUtils {
 		return peak * Math.min(1.0D, edge / fade);
 	}
 
+    /**
+     * How much further than a band's own ranges any antenna, mode or path can carry it: the longest antenna reach
+     * (a Yagi divides distance by 2), CW (by 1.5) and the biggest skip scale, with room to spare.
+     */
+    private static final double REACH_MARGIN = 4.0D;
+
+    /**
+     * Furthest a signal on {@code band} can possibly be heard, in blocks: beyond it nothing works out a strength, so a
+     * transmission skips far stations with one distance check. Generous on purpose: it only saves work, never decides
+     * whether a signal arrives.
+     */
+    public static double maxReach(Band band) {
+        if(band == null)
+            return 0.0D;
+        double reach = Math.max(band.losRange(), Math.max(band.maxSkipDay(), band.maxSkipNight()));
+        if(band.isVhf())
+            reach = Math.max(reach, com.arrl.radiocraft.RadiocraftServerConfig.AURORA_VHF_MAX_RANGE.get());
+        return reach * REACH_MARGIN;
+    }
+
+    /** True if two antennas are too far apart for anything on {@code band} to reach (see {@link #maxReach}). */
+    public static boolean outOfReach(Band band, net.minecraft.core.BlockPos a, net.minecraft.core.BlockPos b) {
+        double reach = maxReach(band);
+        return a.distSqr(b) > reach * reach;
+    }
+
     public static double getWavelengthMetersFromFrequencyHertz(double frequencyHertz) {
         // The constant c represents the speed of light in a vacuum, which is exactly 299,792,458 meters per second.
         final double SPEED_OF_LIGHT_METERS_PER_SECOND = 299792458D;

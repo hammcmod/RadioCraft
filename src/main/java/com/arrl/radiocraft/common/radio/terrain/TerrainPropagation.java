@@ -40,7 +40,7 @@ public final class TerrainPropagation {
     private static final int MAX_CACHE = 50_000;
 
     private static final Map<ResourceKey<Level>, TerrainAtlas> ATLASES = new ConcurrentHashMap<>();
-    private static final ExpiringCache<PathKey, Double> PATHS = new ExpiringCache<>(MAX_CACHE);
+    private static final ExpiringCache<PathKey, PathLoss> PATHS = new ExpiringCache<>(MAX_CACHE);
     private static final ExpiringCache<SpotKey, float[]> HORIZONS = new ExpiringCache<>(MAX_CACHE);
 
     /** Running cost counters, for /rcdebug terrain and the benchmark. */
@@ -58,11 +58,21 @@ public final class TerrainPropagation {
         return RadiocraftServerConfig.TERRAIN_ENABLED.get();
     }
 
-    /** The atlas for a level, or null if terrain is off or the level has a ceiling. */
+    /**
+     * The atlas for a level, or null if terrain is off, the level has a ceiling, or nothing has opened its map yet.
+     * Safe on any thread: it only reads.
+     */
     public static TerrainAtlas atlas(Level level) {
         if(level == null || !enabled() || level.dimensionType().hasCeiling())
             return null;
-        return ATLASES.computeIfAbsent(level.dimension(), k -> new TerrainAtlas());
+        return ATLASES.get(level.dimension());
+    }
+
+    /** The atlas for a level, loading it from the world's save or starting it. Server thread only. */
+    public static TerrainAtlas openAtlas(ServerLevel level) {
+        if(!enabled() || level.dimensionType().hasCeiling())
+            return null;
+        return ATLASES.computeIfAbsent(level.dimension(), k -> level.getDataStorage().computeIfAbsent(TerrainAtlas.factory(), TerrainAtlas.SAVE_NAME));
     }
 
     /**
@@ -75,14 +85,21 @@ public final class TerrainPropagation {
         if(source == null || source.getAntennaPos() == null || !enabled())
             return 1.0D;
         long start = System.nanoTime();
+        IAntenna target = packet.getDestination();
+        boolean fixed = source.getPlayer() == null && target != null && target.getPlayer() == null; // Two stations that never move.
         double factor = factor(packet.getLevel(), packet.getBand(), source.getAntennaPos().position(), source.isIndoors(),
-                destination, packet.getDestination() != null && packet.getDestination().isIndoors(), skip);
+                destination, target != null && target.isIndoors(), skip, fixed);
         CALLS.increment();
         CALL_NANOS.add(System.nanoTime() - start);
         return factor;
     }
 
     public static double factor(Level level, Band band, BlockPos from, boolean fromIndoors, BlockPos to, boolean toIndoors, boolean skip) {
+        return factor(level, band, from, fromIndoors, to, toIndoors, skip, false);
+    }
+
+    /** As above; {@code fixed} for two stations that never move, whose path is kept until terrain on it changes. */
+    public static double factor(Level level, Band band, BlockPos from, boolean fromIndoors, BlockPos to, boolean toIndoors, boolean skip, boolean fixed) {
         TerrainAtlas atlas = atlas(level);
         if(atlas == null || band == null)
             return 1.0D;
@@ -101,22 +118,54 @@ public final class TerrainPropagation {
         }
         double db = indoors * indoorDb;
         if(RadiocraftServerConfig.TERRAIN_LINE_OF_SIGHT.get())
-            db += pathLossDb(level, atlas, band, from, to);
+            db += pathLossDb(level, atlas, band, from, to, fixed);
         return TerrainMath.dbToFactor(db);
     }
 
     /** Terrain loss in dB on the line-of-sight path, kept for a while per pair of cells. */
     public static double pathLossDb(Level level, TerrainAtlas atlas, Band band, BlockPos from, BlockPos to) {
+        return pathLossDb(level, atlas, band, from, to, false);
+    }
+
+    /**
+     * As above. A path between two {@code fixed} stations is kept past its time as long as no chunk it crosses has
+     * changed: checking that costs a few map reads, against working the whole path out again.
+     */
+    public static double pathLossDb(Level level, TerrainAtlas atlas, Band band, BlockPos from, BlockPos to, boolean fixed) {
         long a = cell(from), b = cell(to);
         return PATHS.get(new PathKey(level.dimension(), Math.min(a, b), Math.max(a, b), band.name()), ttl(), key -> {
+            long stamp = atlas.stamp();
             double wavelength = BandUtils.getWavelengthMetersFromFrequencyHertz(band.minFrequency());
             double cliffDb = band.isVhf() ? 0.0D : RadiocraftServerConfig.TERRAIN_CLIFF_LOSS_DB.get() * Math.sqrt(10.0D / wavelength);
             PATHS_WORKED_OUT.increment();
-            return TerrainMath.lineOfSightLossDb(atlas,
+            double db = TerrainMath.lineOfSightLossDb(atlas,
                     from.getX() + 0.5D, from.getY() + ANTENNA_HEIGHT, from.getZ() + 0.5D,
                     to.getX() + 0.5D, to.getY() + ANTENNA_HEIGHT, to.getZ() + 0.5D,
                     wavelength, RadiocraftServerConfig.TERRAIN_CLIFF_RISE.get(), cliffDb, RadiocraftServerConfig.TERRAIN_CLIFF_MAX_LOSS_DB.get());
-        });
+            return new PathLoss(db, stamp, fixed ? chunksOnPath(from, to) : null);
+        }, kept -> kept.chunks() != null && unchanged(atlas, kept)).db();
+    }
+
+    /** A path's loss, with what is needed to tell later whether its terrain changed (fixed stations only). */
+    private record PathLoss(double db, long stamp, long[] chunks) {}
+
+    private static boolean unchanged(TerrainAtlas atlas, PathLoss kept) {
+        for(long chunk : kept.chunks())
+            if(atlas.changedSince(chunk, kept.stamp()))
+                return false;
+        return true;
+    }
+
+    /** The chunks a straight path crosses, sampled every 8 blocks. */
+    static long[] chunksOnPath(BlockPos from, BlockPos to) {
+        double dx = to.getX() - from.getX(), dz = to.getZ() - from.getZ();
+        int steps = Math.max(1, (int)Math.ceil(Math.sqrt(dx * dx + dz * dz) / 8.0D));
+        java.util.LinkedHashSet<Long> keys = new java.util.LinkedHashSet<>();
+        for(int i = 0; i <= steps; i++) {
+            double f = (double)i / steps;
+            keys.add(TerrainAtlas.key(((int)Math.floor(from.getX() + dx * f)) >> 4, ((int)Math.floor(from.getZ() + dz * f)) >> 4));
+        }
+        return keys.stream().mapToLong(Long::longValue).toArray();
     }
 
     /** A station's horizon profile, kept for a while per cell. */
@@ -161,7 +210,7 @@ public final class TerrainPropagation {
 
     /** Re-reads the loaded chunks from {@code min} to {@code max} into the atlas now, rather than in turn. */
     public static void refresh(ServerLevel level, BlockPos min, BlockPos max) {
-        TerrainAtlas atlas = atlas(level);
+        TerrainAtlas atlas = openAtlas(level);
         if(atlas == null)
             return;
         for(int cx = Math.min(min.getX(), max.getX()) >> 4; cx <= Math.max(min.getX(), max.getX()) >> 4; cx++)
@@ -180,7 +229,7 @@ public final class TerrainPropagation {
     @SubscribeEvent
     public static void onChunkLoad(ChunkEvent.Load event) {
         if(event.getLevel() instanceof ServerLevel level && event.getChunk() instanceof LevelChunk chunk) {
-            TerrainAtlas atlas = atlas(level);
+            TerrainAtlas atlas = openAtlas(level);
             if(atlas != null)
                 atlas.markLoaded(chunk, maxChunks());
         }
@@ -189,7 +238,7 @@ public final class TerrainPropagation {
     @SubscribeEvent
     public static void onChunkUnload(ChunkEvent.Unload event) {
         if(event.getLevel() instanceof ServerLevel level && event.getChunk() instanceof LevelChunk chunk) {
-            TerrainAtlas atlas = atlas(level);
+            TerrainAtlas atlas = openAtlas(level);
             if(atlas != null)
                 atlas.markUnloaded(chunk, maxChunks());
         }

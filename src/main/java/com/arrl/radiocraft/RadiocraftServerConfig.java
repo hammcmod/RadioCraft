@@ -267,12 +267,12 @@ public class RadiocraftServerConfig {
 				" antennas weakens the signal by knife-edge diffraction, which hurts VHF most and 80m least; HF also loses some at each",
 				" cliff on the way. Skip: a station sees the sky over its horizon, and a band whose signal leaves low (10m, 20m) is cut",
 				" by hills and valley walls in that direction, while 80m goes up nearly straight. A handheld under a roof loses some too.",
-				" Terrain comes from a coarse map of every chunk loaded since the server started; terrain nobody has loaded counts as clear.");
+				" Terrain comes from a coarse map of every chunk ever loaded, saved with the world; terrain nobody has loaded counts as clear.");
 		TERRAIN_ENABLED = BUILDER.comment(" Master switch. False turns all of it off for low-performance servers: no terrain map is kept and nothing is",
 				" computed, exactly as before terrain existed").define("terrain_enabled", true);
 		TERRAIN_LINE_OF_SIGHT = BUILDER.comment(" Terrain blocks line of sight (needs terrain_enabled)").define("terrain_line_of_sight", true);
 		TERRAIN_SKY_VIEW = BUILDER.comment(" A station's horizon cuts skip at low angles (needs terrain_enabled)").define("terrain_sky_view", true);
-		TERRAIN_ATLAS_MAX_CHUNKS = BUILDER.comment(" Most chunks the terrain map remembers per dimension, about 170 bytes each (100000 is about 17 MB). Past it the",
+		TERRAIN_ATLAS_MAX_CHUNKS = BUILDER.comment(" Most chunks the terrain map remembers per dimension, about 190 bytes each (100000 is about 19 MB). Past it the",
 				" oldest are forgotten and count as clear until they load again").defineInRange("terrain_atlas_max_chunks", 100_000, 1_000, 10_000_000);
 		TERRAIN_REFRESH_CHUNKS_PER_TICK = BUILDER.comment(" Loaded chunks re-read per tick, so building and digging shows up while they stay loaded").defineInRange("terrain_refresh_chunks_per_tick", 8, 0, 1000);
 		TERRAIN_RECALCULATE_SECONDS = BUILDER.comment(" How long a path's terrain loss and a station's horizon are kept before they are worked out again. Moving",

@@ -18,7 +18,7 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 4. **Power.** ~~Radios draw from batteries and switch off when drained~~ Done (2026-10-21): block radios draw
    their receive/transmit cost per tick from the power network and brown out (panel cycles on / PWR / dark, no
    static) when starved; `radios_need_power` server config; `PowerGameTests`. The repeater draws 4/17 and the
-   handheld drains its battery over days (2026-10-23). Still open: the charge controller switch does something.
+   handheld drains its battery over days (2026-10-23). The charge controller switch works (2026-10-24; controllers start switched on).
 5. **VHF (FM) static model.** Mostly silent except on very weak signals. After the HF static work settles.
 6. **Port to Minecraft 26.1** and the matching NeoForge, keeping a 1.21.1 branch running alongside it (maintainer,
    2026-10-23; was 26.3 on 2026-10-21), once most of the rest of this list is done.
@@ -44,8 +44,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [x] Terrain-aware propagation (2026-10-24, [doc/TerrainPropagationResearch.md](doc/TerrainPropagationResearch.md)):
   terrain atlas from chunk loads, knife-edge line of sight, HF cliff loss, horizon profiles cutting low-angle skip,
   handhelds indoors, results kept `terrain_recalculate_seconds`, `terrain_enabled` master switch, `/rcdebug terrain`
-- [ ] Terrain phase 3: save the atlas with the world (it starts empty after a restart), fill never-loaded chunks
-  from the world generator, show terrain losses in `/bandcalculate` and the antenna analyzer
+- [x] Terrain map saved with the world (2026-10-24, `radiocraft_terrain.dat` per dimension)
+- [ ] Terrain, rest of phase 3: fill never-loaded chunks from the world generator, show terrain losses in
+  `/bandcalculate` and the antenna analyzer
 - [x] Dipole, end-fed, quarter-wave vertical, loop, wide-band receive, and VHF Yagi/J-pole/Slim Jim antennas are implemented
 - [x] Antenna tuner runtime effect (2026-10-20): a tuner anywhere on the coax between a radio and its antenna is an
   automatic tuner. Within `antenna_tuner_max_swr` (default 6) the radio sees SWR 1 (static, interference and the
@@ -82,9 +83,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [x] Implement shared antenna behavior hooks so antenna blocks drive propagation (antenna types set SWR, gain, reach)
 - [x] Hook SWR consequences (fire/destruction) into `RadioBlockEntity` (2026-10-23: blown radios, see NeedsTesting)
 - [x] Integrate solar event noise and day/night skip changes so HF radios gain or lose range based on `SolarEventManager` (2026-10-21)
-- [ ] Propagation scaling for many stations (2026-10-24, see doc/TerrainPropagationResearch.md "Scaling"): skip
-  receivers out of any possible range before working anything out, keep terrain between two fixed stations until a
-  chunk on the path changes, index each network's antennas by area
+- [x] Propagation scaling (2026-10-24): receivers beyond any possible reach are skipped with one distance check
+  (`BandUtils.maxReach`), and terrain between two fixed stations is kept until a chunk on the path changes
+- [ ] Index each network's antennas by area, if servers grow past a few hundred antennas per band
 
 ### Events, Commands & Config
 - [x] Callsign capability with `/callsign` tools implemented
@@ -108,7 +109,7 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [x] Radio crystal/speaker/microphone/HF circuit board recipes exist, albeit with lighter-cost ingredients than the proposal (iron/planks/redstone torch instead of diamond/iron)
 - [x] Finish small alkaline battery energy handling so `SmallBatteryItem` tracks charge and removes the “not implemented” message
 - [x] Implement handheld battery drain in `VHFHandheldItem#inventoryTick` (2026-10-23, spread over ticks)
-- [ ] Curios slot for the handheld (and the small battery)
+- [x] Curios belt slot for the handheld (and the small battery), with a "talk on worn radio" key (2026-10-24)
 - [ ] Implement large battery behavior (stacking capacity, discharge, explosion-on-fire) and update tooltips accordingly; power draw from radios should respect battery levels
 - [x] Solar panel recipe uses glass + a daylight detector rather than kelp/iron
 - [ ] Implement wire–water electrocution rules and battery ignition on short circuits in `WireBlock` and related power logic
@@ -131,12 +132,11 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   textures by the maintainer). Its recipe is a placeholder pending the recipe review below.
 - [x] Parrot controller polish (2026-10-20): a button click when the delay changes, a comparator output of the delay
   in seconds, Jade lines (delay, linked side, state).
-- [ ] Parrot controller: a way to pick the linked radio when two are adjacent (currently the first side found,
-  north-east-south-west)
+- [x] Parrot controller: sneak and right click to link the next radio round it (2026-10-24)
 - [x] VHF repeater (2026-10-21): input/output frequencies, CTCSS access and output tones, CW ID in Morse tone, hang
   time with courtesy beep, timeout timer, MIC/TX/SPEAKER, duplexer on the back/top/bottom (kerchunks without one),
   bare connector without an antenna. Handhelds and the base station got a tone and a ±600 kHz offset.
-- [ ] Repeater: sleep/wake cycle (from the original plan) not done; the repeater is not in the release creative tab yet.
+- [x] Repeater sleep/wake (2026-10-24): woken by use, IDs every interval while awake, sleeps after a silent interval. Not in the release creative tab yet.
 - [x] Fix the J-pole and duplexer models (maintainer fixed them, 2026-10-21): overlapping faces z-fight; nudge them apart by 0.01 px (maintainer, 2026-10-21)
 - [x] Duplexer sits right on top of the repeater (done 2026-10-21 with the maintainer's model) (the repeater is 12 px tall, so a duplexer above it floats 4 px), and
   a clearer way to run coax to it: model the wire to where the antenna port is, or two coax ports on the back of the

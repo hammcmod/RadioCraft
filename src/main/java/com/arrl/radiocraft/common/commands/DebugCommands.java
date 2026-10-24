@@ -368,7 +368,7 @@ public class DebugCommands {
 	private static int terrain(CommandContext<CommandSourceStack> ctx) {
 		ServerLevel level = ctx.getSource().getLevel();
 		List<String> out = new ArrayList<>();
-		TerrainAtlas atlas = TerrainPropagation.atlas(level);
+		TerrainAtlas atlas = TerrainPropagation.openAtlas(level);
 		out.add("terrain_enabled=" + TerrainPropagation.enabled() + (atlas == null ? " (no terrain map in this dimension)" : String.format(Locale.ROOT,
 				" map: %d chunks, about %.1f MB", atlas.chunkCount(), atlas.estimatedBytes() / 1048576.0D)));
 		long calls = TerrainPropagation.CALLS.sum();
@@ -390,7 +390,7 @@ public class DebugCommands {
 		BlockPos from = BlockPosArgument.getBlockPos(ctx, "from");
 		BlockPos to = BlockPosArgument.getBlockPos(ctx, "to");
 		Band band = Band.getBand(StringArgumentType.getString(ctx, "band"));
-		TerrainAtlas atlas = TerrainPropagation.atlas(level);
+		TerrainAtlas atlas = TerrainPropagation.openAtlas(level);
 		if(band == null)
 			return fail(ctx, "No such band");
 		if(atlas == null)

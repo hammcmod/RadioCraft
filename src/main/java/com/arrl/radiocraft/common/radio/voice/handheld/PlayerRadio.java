@@ -292,7 +292,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
                     AntennaPos pos = antenna.getAntennaPos();
 
-                    if(pos == null) continue;
+                    if(pos == null || BandUtils.outOfReach(band, thisPos.position(), pos.position())) continue;
 
                     double distance = Math.sqrt(thisPos.position().distSqr(pos.position()));
                     packet.setDestination(antenna);
