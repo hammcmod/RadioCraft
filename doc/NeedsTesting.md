@@ -4,6 +4,24 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Controller switch, Curios, repeater sleep, parrot pick, FM hiss, delta loop and Moxon (added 2026-10-24)
+
+- [ ] Charge controller: the switch on its screen now works. Off, the panels stop charging the batteries (the green
+  lamp goes out); on, they charge again. New controllers start on. Controllers placed in older worlds were off and
+  did nothing before: they now need switching on once.
+- [ ] Curios: a VHF handheld (or a small battery) goes in the belt slot. A worn handheld plays what it hears, drains
+  its battery, and talks while the "Talk on worn radio" key (B, Controls under RadioCraft) is held, with a click.
+- [ ] Repeater: asleep until used; after use it IDs every interval even with nobody talking, then after an interval
+  of silence IDs once more and goes quiet. Try it with a short ID interval in its settings.
+- [ ] Parrot controller between two radios: sneak and right click with an empty hand links the other one (the cord
+  moves, a message names the side).
+- [ ] FM (VHF radios, all-band in FM): silent between signals and on a strong one; a weak, distant station has hiss
+  under it that clears as you get closer. Needs ears.
+- [ ] Delta loop: a closed triangle of wire on a 4:1 balun, about 21 blocks round on 20m, 4+ blocks up (Jade names it
+  delta_loop). Lower than 4 it still works with a worse SWR. Try the guide's flat build.
+- [ ] Moxon: the guide's 20m build (7 x 3, 1:1 balun, tails, 1 block gap, reflector) is recognized as moxon and is
+  much louder in front than behind.
+
 ## Guide fixes, duplexer on top, tuners beside radios (added 2026-10-24)
 
 - [ ] Every station picture in the guide now has solar power; flip through them (first station, HF radios, VHF base,

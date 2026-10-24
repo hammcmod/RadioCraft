@@ -9,6 +9,8 @@ import com.arrl.radiocraft.common.radio.antenna.types.vhf.YagiAntennaType;
 public class RadiocraftAntennaTypes {
 
 	// HF Antennas
+	public static com.arrl.radiocraft.common.radio.antenna.types.MoxonAntennaType MOXON;
+	public static com.arrl.radiocraft.common.radio.antenna.types.DeltaLoopAntennaType DELTA_LOOP;
 	public static DipoleAntennaType DIPOLE;
 	public static EndFedAntennaType END_FED;
 	public static HorizontalQuadLoopAntennaType HORIZONTAL_QUAD_LOOP;
@@ -29,6 +31,9 @@ public class RadiocraftAntennaTypes {
 	public static com.arrl.radiocraft.common.radio.antenna.types.FiveBtvAntennaType FIVE_BTV; // Every HF band and VHF. // Every band, badly; for the ionospheric processor.
 
 	public static void register() {
+		// The Moxon first: its driven element starts like a dipole. The delta loop before the OCFD, which shares its 4:1 balun.
+		MOXON = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.MoxonAntennaType());
+		DELTA_LOOP = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.DeltaLoopAntennaType());
 		DIPOLE = AntennaTypes.registerType(new DipoleAntennaType());
 		END_FED = AntennaTypes.registerType(new EndFedAntennaType());
 		HORIZONTAL_QUAD_LOOP = AntennaTypes.registerType(new HorizontalQuadLoopAntennaType());

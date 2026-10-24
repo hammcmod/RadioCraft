@@ -1,0 +1,40 @@
+{
+  "name": "Moxon",
+  "icon": "radiocraft:antenna_pole",
+  "category": "radiocraft:antennas",
+  "sortnum": 11,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A $(thing)Moxon$() is a two-element beam bent into a rectangle. It sends and hears half as much again in the way it points, and a tenth of that behind it, close by and on skip alike.$(br2)It points from the $(thing)reflector$() (the back) to the $(thing)driven element$() (the front, on the balun)."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Building it",
+      "text": "Front: a $(item)1:1 balun$() with wire straight out both ways to the front corners, then a wire back from each corner, the same length both sides.$(br2)Leave a one block gap, then the reflector: from a holder just behind each tail, wire back to the back corners and across between them. Lie it flat.$(br2)20 m: 7 wide, 3 deep. 10 m: 3 wide, 2 deep."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "A 20 m Moxon",
+      "multiblock": {
+        "mapping": {
+          "0": "radiocraft:balun_one_to_one[placed_on=down]",
+          "P": "radiocraft:antenna_pole"
+        },
+        "pattern": [
+          [
+            "PPPP",
+            "    ",
+            "    ",
+            "0   ",
+            "    ",
+            "    ",
+            "    ",
+            "PPPP"
+          ]
+        ]
+      },
+      "text": "Wire balun to both front poles, each front pole one back, then the reflector from the third poles round the back. It beams away from the reflector."
+    }
+  ]
+}

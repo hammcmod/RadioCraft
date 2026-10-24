@@ -1,0 +1,80 @@
+{
+  "name": "Delta Loop",
+  "icon": "radiocraft:balun_four_to_one",
+  "category": "radiocraft:antennas",
+  "sortnum": 10,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A $(thing)delta loop$() is a triangle of antenna wire one wavelength round, fed at a corner through a $(item)4:1 balun$(). It is the long-distance loop: weak up close (a tenth of the usual line of sight) and strong on skip (half as much again).$(br2)On 20 m: about 21 blocks round, each side about 7."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Building it",
+      "text": "Wire from the balun to two corner holders, and a third wire between them: a closed triangle. Upright, flat or sloping all work. Keep the sides even: a lopsided triangle matches worse.$(br2)Hang it at least $(thing)4 blocks$() above the ground. Lower, it still works, but the SWR is a little worse and most of its skip is gone."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "A 20 m delta loop, flat",
+      "multiblock": {
+        "mapping": {
+          "0": "radiocraft:balun_four_to_one[placed_on=down]",
+          "P": "radiocraft:antenna_pole"
+        },
+        "pattern": [
+          [
+            "0      ",
+            "       ",
+            "       ",
+            "      P",
+            "       ",
+            "       ",
+            "       ",
+            "P      "
+          ],
+          [
+            "P      ",
+            "       ",
+            "       ",
+            "      P",
+            "       ",
+            "       ",
+            "       ",
+            "P      "
+          ],
+          [
+            "P      ",
+            "       ",
+            "       ",
+            "      P",
+            "       ",
+            "       ",
+            "       ",
+            "P      "
+          ],
+          [
+            "P      ",
+            "       ",
+            "       ",
+            "      P",
+            "       ",
+            "       ",
+            "       ",
+            "P      "
+          ],
+          [
+            "P      ",
+            "       ",
+            "       ",
+            "      P",
+            "       ",
+            "       ",
+            "       ",
+            "P      "
+          ]
+        ]
+      },
+      "text": "Balun and two corner poles, all 4 blocks up. String wire balun, corner, apex corner, balun."
+    }
+  ]
+}

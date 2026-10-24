@@ -200,8 +200,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] A Sputnik-style radio satellite (beeping beacon in orbit to listen for)
 
 ### Antenna Expansions
-- [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types (plan with the delta loop:
-  [doc/DeltaLoopAndMoxonPlan.md](doc/DeltaLoopAndMoxonPlan.md))
+- [x] Moxon (HF wire, 1:1 balun; 20m 7 x 3, 10m 3 x 2) and delta loop (4:1 balun, closed triangle) (2026-10-24,
+  [doc/DeltaLoopAndMoxonPlan.md](doc/DeltaLoopAndMoxonPlan.md)); the VHF Moxon block still needs a model
 - [ ] Ringo antenna (maintainer, 2026-10-23)
 - [ ] Industrial dipole antenna (maintainer, 2026-10-23)
 - [ ] Figure out how we'll allow building of HF yagis (maintainer, 2026-10-21)

@@ -1,6 +1,6 @@
 # Plan: delta loop and Moxon antennas
 
-Status: plan only (2026-10-24). Todo items: "Implement Moxon antenna variants (VHF/10m/20m)" and the delta loop
+Status: built (2026-10-24): `DeltaLoopAntennaType`, `MoxonAntennaType`, `DeltaLoopMoxonGameTests`, guide pages. Was: plan only. Todo items: "Implement Moxon antenna variants (VHF/10m/20m)" and the delta loop
 under "Loop antennas". No models are needed for the wire versions; the VHF Moxon as a block would need one (bounty).
 
 ## What the proposal says
