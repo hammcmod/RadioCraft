@@ -4,6 +4,16 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## APRS Map, microphone element, desk mic (added 2026-10-23)
+
+- [ ] Right-clicking an H19 with an empty map gives an "APRS Map" (the empty map is used up). In hand and in an item
+  frame it shows dark greyscale terrain, a lighter grid, a target at the H19 and a white banner with the callsign at
+  each station heard; it re-centres and zooms out to fit as stations are heard, every 5 seconds. Unloaded ground is
+  near black. A cartography table copy stays live.
+- [ ] Microphone Element: texture in the inventory; ` P `/`NCN` makes 2; the hand and desk mic recipes use it.
+- [ ] Desk mic: the maintainer's smaller model stands on the side of the block nearest its radio (left or right as
+  seen from the front) and moves when a radio is placed on the other side. Its outline fits the mic.
+
 ## 5-BTV Multiband HF Antenna (added 2026-10-23)
 
 - [ ] Placing it puts up all seven segments (it needs seven free blocks); breaking any one brings the whole mast

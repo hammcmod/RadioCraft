@@ -14,9 +14,9 @@ import java.util.function.Predicate;
 
 /**
  * The cables a radio accessory shows along the floor to the blocks it works with beside it: a radio interface to its
- * radios and terminals, a terminal to the bus, a microphone or teletype to its radio. One property per side, absolute
- * (not turned with FACING); the blockstate draws a short cable from that side in to the middle (model
- * {@code block/radio_link}). Both ends of a link draw their half, so two accessories side by side show one cable; a
+ * radios and terminals, a terminal to the bus, a teletype to its radio (the desk microphone stands against its radio
+ * instead, see MicrophoneBlock). One property per side, absolute (not turned with FACING); the blockstate draws a short
+ * cable from that side in to the middle (model {@code block/radio_link}). Both ends of a link draw their half, so two accessories side by side show one cable; a
  * radio does not draw, so the cable runs up to it. A radio hung from a ceiling gets no floor cable.
  */
 public final class RadioLinks {

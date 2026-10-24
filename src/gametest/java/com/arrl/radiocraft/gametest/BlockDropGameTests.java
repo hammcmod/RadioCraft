@@ -86,6 +86,24 @@ public class BlockDropGameTests {
         });
     }
 
+    /**
+     * The desk mic moves to the side its radio is on, seen from its front: facing north (front to the north, the
+     * player looking south), a radio to the east is on the left.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20)
+    public static void deskMicStandsBySideOfItsRadio(GameTestHelper helper) {
+        BlockPos mic = new BlockPos(5, 2, 5);
+        helper.setBlock(mic, RadiocraftBlocks.MICROPHONE.get().defaultBlockState().setValue(com.arrl.radiocraft.common.blocks.radios.MicrophoneBlock.FACING, net.minecraft.core.Direction.NORTH));
+        helper.setBlock(mic.west(), RadiocraftBlocks.VHF_BASE_STATION.get());
+        helper.assertTrue(helper.getBlockState(mic).getValue(com.arrl.radiocraft.common.blocks.radios.MicrophoneBlock.SIDE) == com.arrl.radiocraft.common.blocks.radios.MicrophoneBlock.Side.RIGHT,
+                "A radio to the west of a north-facing mic is not on its right");
+        helper.setBlock(mic.west(), net.minecraft.world.level.block.Blocks.AIR);
+        helper.setBlock(mic.east(), RadiocraftBlocks.VHF_BASE_STATION.get());
+        helper.assertTrue(helper.getBlockState(mic).getValue(com.arrl.radiocraft.common.blocks.radios.MicrophoneBlock.SIDE) == com.arrl.radiocraft.common.blocks.radios.MicrophoneBlock.Side.LEFT,
+                "A radio to the east of a north-facing mic is not on its left");
+        helper.succeed();
+    }
+
     /** The processor's valves light the room from its top half; the bottom half gives no light. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20)
     public static void processorValvesGiveLight(GameTestHelper helper) {

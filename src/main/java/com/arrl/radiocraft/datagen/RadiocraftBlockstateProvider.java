@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.datagen;
 
+import com.arrl.radiocraft.common.blocks.radios.MicrophoneBlock;
 import net.neoforged.neoforge.client.model.generators.MultiPartBlockStateBuilder;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.core.Direction;
@@ -43,7 +44,7 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		horizontalWithRadioLinks(RadiocraftBlocks.TRANSFER_INTERFACE.get());
 		duplexer();
 		complexHorizontalBlockWithItem(RadiocraftBlocks.DUMMY_LOAD.get());
-		horizontalWithRadioLinks(RadiocraftBlocks.MICROPHONE.get());
+		deskMicrophone();
 		complexHorizontalBlockWithItem(RadiocraftBlocks.WEFAX_RECEIVER.get());
 		complexBlockWithItem(RadiocraftBlocks.SOLAR_PANEL.get());
 		complexBlockWithItem(RadiocraftBlocks.ANTENNA_POLE.get());
@@ -126,6 +127,18 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 			builder.part().modelFile(link).rotationY(((int)side.toYRot() + 180) % 360).addModel()
 					.condition(RadioLinks.side(side), true).end();
 		simpleBlockItem(block, model);
+	}
+
+	/** The desk microphone: the maintainer's left or right model, whichever side its radio is on, turned by facing. */
+	private void deskMicrophone() {
+		Block block = RadiocraftBlocks.MICROPHONE.get();
+		ModelFile left = models().getExistingFile(modLoc("block/desk_mic_left"));
+		ModelFile right = models().getExistingFile(modLoc("block/desk_mic_right"));
+		getVariantBuilder(block).forAllStates(state -> ConfiguredModel.builder()
+				.modelFile(state.getValue(MicrophoneBlock.SIDE) == MicrophoneBlock.Side.LEFT ? left : right)
+				.rotationY(((int)state.getValue(MicrophoneBlock.FACING).toYRot() + 180) % 360)
+				.build());
+		simpleBlockItem(block, left);
 	}
 
 	/** The duplexer, turned like the other horizontal blocks, with its coax run down to the repeater when it sits on one. */

@@ -1,74 +1,34 @@
 {
-  "multipart": [
-    {
-      "apply": {
-        "model": "radiocraft:block/microphone"
-      },
-      "when": {
-        "facing": "north"
-      }
+  "variants": {
+    "facing=east,side=left": {
+      "model": "radiocraft:block/desk_mic_left",
+      "y": 90
     },
-    {
-      "apply": {
-        "model": "radiocraft:block/microphone",
-        "y": 90
-      },
-      "when": {
-        "facing": "east"
-      }
+    "facing=east,side=right": {
+      "model": "radiocraft:block/desk_mic_right",
+      "y": 90
     },
-    {
-      "apply": {
-        "model": "radiocraft:block/microphone",
-        "y": 180
-      },
-      "when": {
-        "facing": "south"
-      }
+    "facing=north,side=left": {
+      "model": "radiocraft:block/desk_mic_left"
     },
-    {
-      "apply": {
-        "model": "radiocraft:block/microphone",
-        "y": 270
-      },
-      "when": {
-        "facing": "west"
-      }
+    "facing=north,side=right": {
+      "model": "radiocraft:block/desk_mic_right"
     },
-    {
-      "apply": {
-        "model": "radiocraft:block/radio_link"
-      },
-      "when": {
-        "north": "true"
-      }
+    "facing=south,side=left": {
+      "model": "radiocraft:block/desk_mic_left",
+      "y": 180
     },
-    {
-      "apply": {
-        "model": "radiocraft:block/radio_link",
-        "y": 90
-      },
-      "when": {
-        "east": "true"
-      }
+    "facing=south,side=right": {
+      "model": "radiocraft:block/desk_mic_right",
+      "y": 180
     },
-    {
-      "apply": {
-        "model": "radiocraft:block/radio_link",
-        "y": 180
-      },
-      "when": {
-        "south": "true"
-      }
+    "facing=west,side=left": {
+      "model": "radiocraft:block/desk_mic_left",
+      "y": 270
     },
-    {
-      "apply": {
-        "model": "radiocraft:block/radio_link",
-        "y": 270
-      },
-      "when": {
-        "west": "true"
-      }
+    "facing=west,side=right": {
+      "model": "radiocraft:block/desk_mic_right",
+      "y": 270
     }
-  ]
+  }
 }

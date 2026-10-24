@@ -1,60 +1,112 @@
 package com.arrl.radiocraft.common.blocks.radios;
 
 import com.arrl.radiocraft.common.blocks.RadioLinks;
-import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.core.Direction;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition.Builder;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
+/**
+ * The desk microphone (maintainer's models, 2026-10-23): a small mic standing at the front of the block, on the side
+ * nearest its radio ({@link #SIDE}, left or right as seen from the front). With no radio beside it, it stays put.
+ */
 public final class MicrophoneBlock extends Block {
 
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
-	public static final VoxelShape SHAPE = Block.box(4.0D, 0.0D, 4.0D, 12.0D, 16.0D, 12.0D);
+	public static final EnumProperty<Side> SIDE = EnumProperty.create("side", Side.class);
+	/** Outlines by side and facing; the models face north, with the left mic at x 11 to 15 and the right at 1 to 5. */
+	private static final Map<Side, Map<Direction, VoxelShape>> SHAPES = new EnumMap<>(Side.class);
+
+	static {
+		for(Side side : Side.values()) {
+			double x1 = side == Side.LEFT ? 11.0D : 1.0D, x2 = x1 + 4.0D, z1 = 0.0D, z2 = 6.0D;
+			Map<Direction, VoxelShape> byFacing = new EnumMap<>(Direction.class);
+			for(Direction facing : Direction.Plane.HORIZONTAL) {
+				double ax = x1, bx = x2, az = z1, bz = z2;
+				int turns = switch(facing) { case EAST -> 1; case SOUTH -> 2; case WEST -> 3; default -> 0; };
+				for(int i = 0; i < turns; i++) { // 90 degrees clockwise seen from above: (x, z) -> (16 - z, x)
+					double nax = 16 - bz, nbx = 16 - az, naz = ax, nbz = bx;
+					ax = nax; bx = nbx; az = naz; bz = nbz;
+				}
+				byFacing.put(facing, Block.box(ax, 0.0D, az, bx, 9.0D, bz));
+			}
+			SHAPES.put(side, byFacing);
+		}
+	}
+
+	/** Which side of the block the mic stands on, as seen from its front. */
+	public enum Side implements StringRepresentable {
+		LEFT, RIGHT;
+
+		@Override
+		public @NotNull String getSerializedName() {
+			return name().toLowerCase(Locale.ROOT);
+		}
+	}
 
 	public MicrophoneBlock(Properties properties) {
 		super(properties);
-		registerDefaultState(RadioLinks.none(stateDefinition.any()));
 	}
 
 	@Override
 	protected void createBlockStateDefinition(Builder<Block, BlockState> builder) {
-		builder.add(FACING);
-		RadioLinks.addTo(builder);
+		builder.add(FACING, SIDE);
+	}
+
+	/** The side seen from the front as the player's left: facing north, the player stands north looking south, left is east. */
+	private static Direction left(BlockState state) {
+		return state.getValue(FACING).getClockWise();
+	}
+
+	/** The side with a radio on it, left first; {@code current} when there is none. */
+	private static Side sideFor(BlockState state, LevelReader level, BlockPos pos) {
+		if(RadioLinks.RADIO.test(level.getBlockState(pos.relative(left(state)))))
+			return Side.LEFT;
+		if(RadioLinks.RADIO.test(level.getBlockState(pos.relative(left(state).getOpposite()))))
+			return Side.RIGHT;
+		return state.getValue(SIDE);
 	}
 
 	@Nullable
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return RadioLinks.around(this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()),
-				context.getLevel(), context.getClickedPos(), RadioLinks.RADIO);
+		BlockState state = defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+		return state.setValue(SIDE, sideFor(state, context.getLevel(), context.getClickedPos()));
 	}
 
-	/** Shows or hides the floor cable on a side as {@link RadioLinks} neighbours come and go. */
+	/** Moves the mic over to a radio placed beside it. */
 	@Override
 	protected @NotNull BlockState updateShape(@NotNull BlockState state, @NotNull Direction direction, @NotNull BlockState neighbour, @NotNull LevelAccessor level,
 	                                          @NotNull BlockPos pos, @NotNull BlockPos neighbourPos) {
-		return RadioLinks.update(super.updateShape(state, direction, neighbour, level, pos, neighbourPos), direction, neighbour, RadioLinks.RADIO);
+		BlockState updated = super.updateShape(state, direction, neighbour, level, pos, neighbourPos);
+		return direction.getAxis().isHorizontal() ? updated.setValue(SIDE, sideFor(updated, level, pos)) : updated;
 	}
 
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
-		return SHAPE;
+		return SHAPES.get(state.getValue(SIDE)).get(state.getValue(FACING));
 	}
 
     @Override
