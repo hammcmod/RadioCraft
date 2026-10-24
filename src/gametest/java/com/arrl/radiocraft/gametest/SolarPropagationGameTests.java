@@ -102,4 +102,43 @@ public class SolarPropagationGameTests {
                 })
                 .thenSucceed();
     }
+
+    /** Strength a 10m voice signal leaves the plot's antenna with, towards a point {@code distance} blocks broadside. */
+    private static double tenMetreStrength(GameTestHelper helper, int distance) {
+        StaticAntenna<?> antenna = GameTestUtil.networkObject(helper, BALUN, AntennaNetworkObject.class).getAntenna();
+        Band band = Band.getBand("10m");
+        AntennaVoicePacket packet = new AntennaVoicePacket(() -> helper.getLevel(), new short[960], band, band.minFrequency(), 1.0D, antenna, UUID.randomUUID());
+        return transmitEfficiency(antenna, packet, antenna.getAntennaPos().position().south(distance));
+    }
+
+    /**
+     * 10m skips one long hop (2500 to 8000 blocks by day) when the sun is lively, and is closed in average weather.
+     * Needs the run directory's config to have the 10m skip ranges (configs made before 2026-10-23 have zeros).
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = "ten_metre_skip")
+    public static void tenMetresSkipsOnlyWhenTheSunIsLively(GameTestHelper helper) {
+        SolarEventInstance previous = SolarEventManager.getEvent(helper.getLevel());
+        helper.getLevel().setDayTime(6000);
+        helper.setBlock(BALUN, RadiocraftBlocks.BALUN_ONE_TO_ONE.get());
+        GameTestUtil.wire(helper, BALUN, BALUN.west(3)); // A quarter wave on 10m.
+        GameTestUtil.wire(helper, BALUN, BALUN.east(3));
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    helper.assertTrue(helper.getLevel().isDay(), "Not day yet");
+                    helper.assertTrue(GameTestUtil.networkObject(helper, BALUN, AntennaNetworkObject.class).getAntenna() != null, "Dipole not recognized yet");
+                })
+                .thenExecute(() -> {
+                    Band ten = Band.getBand("10m");
+                    helper.assertTrue(ten.maxSkipDay() > ten.minSkipDay(), "This run's config has no 10m skip zone: " + ten);
+                    useEvent(helper, "great");
+                    double great = tenMetreStrength(helper, 5000);
+                    helper.assertTrue(great > 0.3D, "10m should skip 5000 blocks in great conditions, strength " + great);
+                    helper.assertTrue(tenMetreStrength(helper, 1500) == 0.0D, "1500 blocks is 10m's silent zone");
+                    useEvent(helper, "average");
+                    double average = tenMetreStrength(helper, 5000);
+                    helper.assertTrue(average < great * 0.2D, "10m should be (nearly) closed in average weather, strength " + average);
+                    SolarEventManager.setEvent(helper.getLevel(), previous);
+                })
+                .thenSucceed();
+    }
 }

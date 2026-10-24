@@ -83,6 +83,11 @@ public class DuplexerNetworkObject extends BENetworkObject implements ICoaxPassT
         return DuplexerMath.pass(screwsHz, DuplexerMath.RX_FIRST, hz);
     }
 
+    /** Share of a received signal left while the transmitter is up ({@link DuplexerMath#desense}). */
+    public double desense(float rxHz, float txHz) {
+        return DuplexerMath.desense(screwsHz, rxHz, txHz);
+    }
+
     /** The SWR the transmit cavities show a transmitter at {@code hz}: 1 when they are tuned to it. */
     public double swr(float hz) {
         return DuplexerMath.swr(txPass(hz));

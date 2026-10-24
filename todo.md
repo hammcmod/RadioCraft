@@ -11,15 +11,14 @@ In order. Each step gets GameTests where the server side can be checked; audio s
    the antenna network for voice and CW, checking strength, wrong frequency, wrong mode, power off and no antenna.
    CW works end to end again (`SCWBufferPacket` / `CCWBufferPacket`, `SET_CW`). `rcdebug transmit` / `rcdebug key`
    do the same on the dev server. Still to hear by ear in a client: morse tone playback and voice through SVC.
-2. **Make solar weather shape propagation**, not just the static level: skip distance and strength per band, day vs
-   night, blackouts killing HF. Open questions for the maintainer: which bands each event helps or hurts and by how
-   much; per-dimension (as now) or global events; whether the solar weather station block should show the event now.
-3. **Static masking and squelch.** Send received strength with the audio; the client ducks the static sound so a
-   signal masks static and static wins as the signal weakens. Verify by ear.
+2. ~~**Make solar weather shape propagation**~~ Done (2026-10-21): each solar event rates every HF band by day and
+   night and that scales skip; blackouts close HF; aurorae; the teletype prints the report. 10m skip added 2026-10-23.
+3. ~~**Static masking and squelch.**~~ Done (2026-10-21): received strength ducks the static on the client; the
+   voice is shaped like a radio's (see NeedsTesting "Radio-sounding voice and static ducking"). Still by ear.
 4. **Power.** ~~Radios draw from batteries and switch off when drained~~ Done (2026-10-21): block radios draw
    their receive/transmit cost per tick from the power network and brown out (panel cycles on / PWR / dark, no
-   static) when starved; `radios_need_power` server config; `PowerGameTests`. Still open: the charge controller
-   switch does something; VHF repeater power; the small battery / handheld drain.
+   static) when starved; `radios_need_power` server config; `PowerGameTests`. The repeater draws 4/17 and the
+   handheld drains its battery over days (2026-10-23). Still open: the charge controller switch does something.
 5. **VHF (FM) static model.** Mostly silent except on very weak signals. After the HF static work settles.
 6. **Port to Minecraft 26.1** and the matching NeoForge, keeping a 1.21.1 branch running alongside it (maintainer,
    2026-10-23; was 26.3 on 2026-10-21), once most of the rest of this list is done.
@@ -30,7 +29,7 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 
 ### Radios & Networking
 - [x] Core HF radios (10m/20m/40m/80m) and their recipes are registered
-- [ ] Provide working SWR and propagation hooks so core HF radios are usable
+- [x] Provide working SWR and propagation hooks so core HF radios are usable (2026-10: SWR per antenna type, skip, solar weather)
 - [x] HF receiver, QRP radios, and the all-band radio shapeless combinations exist
 - [x] VHF handhelds have functional radios
 - [ ] Hand mic on a cord (maintainer, 2026-10-23): shift-right-click a radio to take its hand mic into your hand,
@@ -68,21 +67,23 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [x] Duplexer runtime effect (2026-10-23): six cavity screws (TX on the left, RX on the right), each showing its
   frequency. Factory tuned: it follows its repeater until a player turns a screw. A screw off its signal loses power
   (half at 25 kHz) and shows the transmitter a mismatch; receive cavities weaken what the repeater hears.
-- [ ] Add in SWR consequences (maintainer, 2026-10-21): high SWR, and any long transmission with no antenna, should
-  damage the radio. For now a radio with no antenna just works at a few blocks' range.
+- [x] Add in SWR consequences (maintainer, 2026-10-21; 2026-10-23: blown radios, poor-crystal explosions). A radio with
+  no antenna is not damaged: it works through its bare connector at a few blocks' range.
 - [x] Dummy load block (maintainer, 2026-10-21; done 2026-10-21, see the Digital section): a coax load to transmit into safely, once SWR has consequences
-- [x] Implement duplexer tuning (maintainer, 2026-10-21; done 2026-10-23, see above). Not done: desense (a
-  detuned TX side deafening the receiver).
+- [x] Implement duplexer tuning (maintainer, 2026-10-21; done 2026-10-23, see above), with desense: while the
+  repeater transmits, its noise on the input (through the TX cavities) and its carrier (through the RX cavities) leak
+  into its receiver. About 1% with a 600 kHz split and a tuned duplexer; a cavity turned onto the other frequency
+  deafens it.
 - [ ] Implement antenna analyzer UI and data capture
-- [ ] Implement shared antenna behavior hooks so antenna blocks drive propagation
+- [x] Implement shared antenna behavior hooks so antenna blocks drive propagation (antenna types set SWR, gain, reach)
 - [x] Hook SWR consequences (fire/destruction) into `RadioBlockEntity` (2026-10-23: blown radios, see NeedsTesting)
-- [ ] Integrate solar event noise and day/night skip changes so HF radios gain or lose range based on `SolarEventManager`
+- [x] Integrate solar event noise and day/night skip changes so HF radios gain or lose range based on `SolarEventManager` (2026-10-21)
 
 ### Events, Commands & Config
 - [x] Callsign capability with `/callsign` tools implemented
-- [ ] Implement administrative callsign commands (e.g., `/callsign set`) with permission checks
+- [x] Implement administrative callsign commands (`/callsign set`, `reset`, `generate`: permission level 3)
 - [ ] Extend server config to cover callsign digit pools, HF static squelch, modern/vintage toggles, and “talk everywhere” overrides promised in the proposal
-- [ ] Add `/bandcalculate` helper to complement antenna tuning
+- [x] Add `/bandcalculate` helper to complement antenna tuning (2026-10-23, see World & Progression)
 - [x] Redstone interference, receive side (2026-10-20): redstone switching near the feedline/antenna boosts the
   radio's static, band and distance dependent, server configurable. Design in doc/RedstoneInterference.md.
 - [x] Redstone interference, transmit side (2026-10-20): transmitting induces a level in nearby dust (mixin on the
@@ -94,18 +95,19 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 ## Phase 2 – Power Systems
 
 ### Power & Components
-- [ ] Make the solar panel and batteries actually use FE/other energy sources
+- [x] Make the solar panel and batteries actually use FE/other energy sources (2026-10-23, see "Power from other mods")
 - [x] Wire block recipe implemented
 - [x] Waterproof wire crafting implemented
 - [x] Radio crystal/speaker/microphone/HF circuit board recipes exist, albeit with lighter-cost ingredients than the proposal (iron/planks/redstone torch instead of diamond/iron)
-- [ ] Finish small alkaline battery energy handling so `SmallBatteryItem` tracks charge and removes the “not implemented” message
-- [ ] Implement handheld battery drain and Curios slot behavior in `VHFHandheldItem#inventoryTick`
+- [x] Finish small alkaline battery energy handling so `SmallBatteryItem` tracks charge and removes the “not implemented” message
+- [x] Implement handheld battery drain in `VHFHandheldItem#inventoryTick` (2026-10-23, spread over ticks)
+- [ ] Curios slot for the handheld (and the small battery)
 - [ ] Implement large battery behavior (stacking capacity, discharge, explosion-on-fire) and update tooltips accordingly; power draw from radios should respect battery levels
 - [x] Solar panel recipe uses glass + a daylight detector rather than kelp/iron
 - [ ] Implement wire–water electrocution rules and battery ignition on short circuits in `WireBlock` and related power logic
 
 ### Radios & Networking
-- [ ] Tie radio power draw, on/off state, and static playback into battery/solar networks via `RadioNetworkObject`
+- [x] Tie radio power draw, on/off state, and static playback into battery/solar networks via `RadioNetworkObject` (2026-10-21)
 - [ ] Implement HF static/grounding modifiers so propagation feedback reaches the player
 - [x] Lightning spikes (2026-10-20): a strike puts a crash of static on every powered radio in the dimension, fading
   with distance and by band, server configurable (`Lightning Static`). Design in doc/RedstoneInterference.md.
@@ -238,8 +240,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   activated), best-band calculator between two coordinates
 - [x] `/bandcalculate <from> <to>` (2026-10-23, proposal admin command): lists each band between two x z points as
   line of sight, skip (with its condition), aurora or out of range, best first, from the band ranges in the server
-  config and the current solar conditions. An estimate: antennas, power and noise are not counted; 10m has no skip
-  ranges configured yet, so it only shows line of sight.
+  config and the current solar conditions. An estimate: antennas, power and noise are not counted.
+- [x] 10m skip (2026-10-23): one long hop, 2500-8000 blocks by day and 2500-6000 at night, open only when the
+  solar event rates 10m (great and good). Existing config files keep their zeros until the `10mm_*Skip*` values are
+  set or the file is deleted.
 - [x] The solar weather station needs a radio (2026-10-23, maintainer): one of any kind next to it with a real antenna
   on its coax (a dummy load does not count), else it reports "No signal" and its comparator reads 0. Server config
   `solar_weather_station_needs_radio` (default on) turns it off. The radio does not need to be powered.

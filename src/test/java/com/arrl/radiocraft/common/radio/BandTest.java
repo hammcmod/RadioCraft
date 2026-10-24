@@ -40,4 +40,23 @@ class BandTest {
                     assertTrue(a.maxFrequency() <= b.minFrequency() || b.maxFrequency() <= a.minFrequency(),
                             a.name() + " overlaps " + b.name());
     }
+
+    /** Every HF band skips by default, 10m included: one long hop beyond the others' reach, day and night. */
+    @Test
+    void everyHfBandSkipsAndTenMetresReachesFurthest() {
+        Band ten = null;
+        for (Band band : Band.getDefaults()) {
+            if (band.isVhf())
+                continue;
+            assertTrue(band.maxSkipDay() > band.minSkipDay() && band.maxSkipNight() > band.minSkipNight(), band.name() + " has no skip zone");
+            if (band.name().equals("10m"))
+                ten = band;
+        }
+        assertNotNull(ten);
+        for (Band band : Band.getDefaults())
+            if (!band.isVhf() && band != ten)
+                assertTrue(ten.maxSkipDay() >= band.maxSkipDay(), "10m should reach at least as far as " + band.name());
+        assertTrue(BandUtils.getBaseStrength(ten, 5000, 1.0, 1.0, true) > 0.5, "10m by day at 5000 blocks");
+        assertEquals(0.0, BandUtils.getBaseStrength(ten, 1500, 1.0, 1.0, true), 1e-9, "1500 blocks is in 10m's skip zone (silent)");
+    }
 }

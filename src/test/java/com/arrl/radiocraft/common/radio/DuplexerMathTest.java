@@ -49,4 +49,23 @@ class DuplexerMathTest {
         assertEquals(0.0, DuplexerMath.combine(0.0, 3.0), EPS);
         assertEquals(SWRHelper.OVERDRAW_SWR, DuplexerMath.swr(0.0), EPS);
     }
+
+    @Test
+    void tunedDuplexerDoesNotDesense() {
+        assertTrue(DuplexerMath.desense(tuned(), RX, TX) > 0.98, "tuned (about 1% at 600 kHz split): " + DuplexerMath.desense(tuned(), RX, TX));
+        assertEquals(1.0, DuplexerMath.desense(new int[6], RX, TX), EPS); // Never tuned.
+    }
+
+    @Test
+    void cavityOnTheOtherFrequencyDeafensTheReceiver() {
+        int[] txOnInput = tuned();
+        txOnInput[0] = RX; // Transmitter noise on the input frequency gets out.
+        int[] rxOnOutput = tuned();
+        rxOnOutput[5] = TX; // The transmitter's carrier gets into the receiver.
+        assertTrue(DuplexerMath.desense(txOnInput, RX, TX) < 0.5, "TX cavity on the input: " + DuplexerMath.desense(txOnInput, RX, TX));
+        assertTrue(DuplexerMath.desense(rxOnOutput, RX, TX) < 0.5, "RX cavity on the output: " + DuplexerMath.desense(rxOnOutput, RX, TX));
+        int[] slightlyOff = tuned();
+        slightlyOff[0] = TX - 50_000; // Off its own frequency, but still far from the input.
+        assertTrue(DuplexerMath.desense(slightlyOff, RX, TX) > 0.95, "a little off: " + DuplexerMath.desense(slightlyOff, RX, TX));
+    }
 }

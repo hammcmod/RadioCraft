@@ -76,6 +76,8 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 	protected volatile long lastLocalGameTime = -1L; // The front panel mic.
 	protected volatile boolean timedOut = false;
 	protected volatile boolean hasDuplexer = false;
+	@Nullable
+	private volatile DuplexerNetworkObject duplexerCavities = null; // For desense; read on the voice thread.
 	protected volatile boolean hasAntenna = false;
 	private boolean keyed = false;
 	private boolean beepPending = false;
@@ -297,6 +299,9 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 	/** A signal on the input with the right tone is repeated on the output as it arrives. Voice chat thread. */
 	@Override
 	public boolean receiveVoice(AntennaVoicePacket packet) {
+		DuplexerNetworkObject cavities = duplexerCavities;
+		if(cavities != null && isTransmitting()) // Its own transmitter leaks into the receiver through a badly tuned duplexer.
+			packet.setStrength(packet.getStrength() * cavities.desense(frequency, txFrequency));
 		short[] clean = packet.getRawAudio().clone(); // The speaker's processing works on the packet's audio in place.
 		boolean heard = super.receiveVoice(packet);
 		if(heard)
@@ -357,8 +362,10 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 		boolean powered = networkObject != null && networkObject.isPowered;
 		Direction duplexerSide = RepeaterNetworkObject.findDuplexerSide(level, worldPosition);
 		boolean duplexer = duplexerSide != null;
-		if(duplexer && IBENetworks.getObject(level, worldPosition.relative(duplexerSide)) instanceof DuplexerNetworkObject cavities)
+		DuplexerNetworkObject cavities = duplexer && IBENetworks.getObject(level, worldPosition.relative(duplexerSide)) instanceof DuplexerNetworkObject found ? found : null;
+		if(cavities != null)
 			cavities.followRepeater(frequency, txFrequency); // Factory tuned until a player turns a screw.
+		duplexerCavities = cavities;
 		hasAntenna = networkObject != null && !networkObject.getAntennas().isEmpty();
 		if(duplexer != hasDuplexer) {
 			hasDuplexer = duplexer;

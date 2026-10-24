@@ -370,7 +370,41 @@ public class RepeaterGameTests {
                     speak(helper, STATION_A);
                     helper.assertTrue(heardNow(helper, REPEATER), "Repeater did not hear A through the detuned duplexer");
                     double strength = repeater(helper, REPEATER).getLastSignalStrength();
-                    helper.assertTrue(Math.abs(strength - tunedStrength[0] * 0.5D) < 1e-6, "Heard " + strength + ", expected half of " + tunedStrength[0]);
+                    // Half, less the ~1% desense of the repeater transmitting what it heard a moment ago.
+                    helper.assertTrue(Math.abs(strength - tunedStrength[0] * 0.5D) < tunedStrength[0] * 0.015D, "Heard " + strength + ", expected half of " + tunedStrength[0]);
+                })
+                .thenSucceed();
+    }
+
+    /**
+     * Desense: with a transmit cavity turned onto the input frequency, the repeater's own transmitter leaks into its
+     * receiver. A's first frame arrives before the repeater keys up; the second, while it transmits, is much weaker.
+     * Tuned, they differ by about 1%.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+    public static void detunedDuplexerDesensesWhileTransmitting(GameTestHelper helper) {
+        buildWithDuplexer(helper);
+        double[] tuned = new double[2];
+        helper.startSequence()
+                .thenWaitUntil(() -> assertAntennas(helper, REPEATER, 1))
+                .thenExecute(() -> setUp(helper, 147_200, 147_800))
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    speak(helper, STATION_A);
+                    tuned[0] = repeater(helper, REPEATER).getLastSignalStrength();
+                    helper.assertTrue(repeater(helper, REPEATER).isTransmitting(), "The repeater did not key up");
+                    speak(helper, STATION_A);
+                    tuned[1] = repeater(helper, REPEATER).getLastSignalStrength();
+                    helper.assertTrue(Math.abs(tuned[1] - tuned[0]) < tuned[0] * 0.02D, "A tuned duplexer desenses: " + tuned[0] + " then " + tuned[1]);
+                    duplexer(helper).turnScrew(DuplexerMath.TX_FIRST, 147_200_000);
+                })
+                .thenWaitUntil(() -> helper.assertFalse(repeater(helper, REPEATER).isTransmitting(), "Repeater still transmitting"))
+                .thenExecute(() -> {
+                    speak(helper, STATION_A);
+                    double first = repeater(helper, REPEATER).getLastSignalStrength();
+                    speak(helper, STATION_A);
+                    double second = repeater(helper, REPEATER).getLastSignalStrength();
+                    helper.assertTrue(second < first * 0.5D, "Desensed frame " + second + " vs " + first);
                 })
                 .thenSucceed();
     }

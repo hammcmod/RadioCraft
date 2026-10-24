@@ -41,6 +41,34 @@ public class DuplexerMath {
     }
 
     /**
+     * How strongly the transmitter's leak into the receiver ({@link #desense}) weighs against a received signal: the
+     * transmitter is a million times stronger than anything it listens for, so even a millionth of it hurts.
+     */
+    public static final double DESENSE_GAIN = 1_000_000.0D;
+
+    /**
+     * Share of a received signal left while the repeater transmits ("desense"). The transmitter leaks into its own
+     * receiver two ways: its noise on the input frequency through the transmit cavities ({@code txPass} at the input)
+     * and its carrier through the receive cavities ({@code rxPass} at the output). A tuned duplexer lets through about five
+     * billionths either way (600 kHz is 24 half widths off), which costs about 1%; a cavity turned onto the other
+     * frequency lets through enough to deafen it.
+     */
+    public static double desense(int[] screwsHz, double rxHz, double txHz) {
+        if(isUntuned(screwsHz))
+            return 1.0D; // Never tuned: it has not met its repeater yet.
+        double leak = pass(screwsHz, TX_FIRST, rxHz) + pass(screwsHz, RX_FIRST, txHz);
+        return 1.0D / (1.0D + leak * DESENSE_GAIN);
+    }
+
+    private static boolean isUntuned(int[] screwsHz) {
+        for(int hz : screwsHz) {
+            if(hz > 0)
+                return false;
+        }
+        return true;
+    }
+
+    /**
      * Two mismatches in a row: the antenna's SWR through the duplexer's. 0 (no antenna) stays 0; at most
      * {@link SWRHelper#OVERDRAW_SWR}.
      */

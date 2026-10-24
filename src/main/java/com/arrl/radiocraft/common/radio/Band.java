@@ -67,7 +67,8 @@ public record Band(String name, int losRange, int minSkipDay, int maxSkipDay, in
     public static Collection<Band> getDefaults(){
         return List.of(
                 new Band("2m",500,0,0,0,0,144_000_000,148_000_000),
-                new Band("10m",800,0,0,0,0,28_000_000,29_700_000),
+                // 10m skips far (one long hop) but only while the sun is lively: the solar events close it otherwise.
+                new Band("10m",800,2500,8000,2500,6000,28_000_000,29_700_000),
                 new Band("20m",300,2000,6000,800,1000,14_000_000,14_350_000),
                 new Band("40m",900,1000,1100,100,3000,7_000_000,7_300_000),
                 new Band("80m",600,700,800,600,2000,3_500_000,4_000_000)
