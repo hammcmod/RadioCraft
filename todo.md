@@ -111,9 +111,23 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [x] Finish small alkaline battery energy handling so `SmallBatteryItem` tracks charge and removes the “not implemented” message
 - [x] Implement handheld battery drain in `VHFHandheldItem#inventoryTick` (2026-10-23, spread over ticks)
 - [x] Curios belt slot for the handheld (and the small battery), with a "talk on worn radio" key (2026-10-24)
-- [ ] Implement large battery behavior (stacking capacity, discharge, explosion-on-fire) and update tooltips accordingly; power draw from radios should respect battery levels
+- [x] Large batteries combine capacity when wired together, and radios brown out on an empty battery
+- [x] Battery fires (2026-10-24, maintainer): fire or lava beside a large battery, a flint and steel, or lightning on
+  power wire running to it sets it alight; it burns until consumed (`battery_burn_seconds`), setting fire around it and
+  spreading to batteries it touches. Water holds the flames down (hiss, steam) but it keeps being consumed and flares
+  up again if the water goes. A battery consumed in a group of 4+ explodes (power per battery, capped), setting the
+  rest of the group alight; a quarter of the explosions start fires. Server config `Battery Fires`
+- [ ] Battery self-discharge over time (proposal), if wanted
 - [x] Solar panel recipe uses glass + a daylight detector rather than kelp/iron
-- [ ] Implement wire–water electrocution rules and battery ignition on short circuits in `WireBlock` and related power logic
+- [x] Wire hazards (2026-10-24, maintainer), with power behind the wire: a wire joined back to itself (a closed loop
+  of power wire) shorts, smokes, catches fire and burns through in 4 s, draining a quarter of the stored energy a
+  second; plain wire touching water electrocutes anything in the water within 6 blocks (3 hearts a second) and drains
+  the same; an open end of plain wire in the rain sparks (a transmitting 20m rig's draw) and zaps whatever touches it
+  (2 hearts, six times the draw for a second). Waterproof wire only shorts. Server config `Electrical Hazards`
+- [x] Lightning rods are very basic VHF antennas when coax runs to them (SWR 6, a quarter of a J-pole's range), and
+  antennas draw lightning: a strike no lightning rod claimed lands on the highest antenna within 32 blocks a quarter of
+  the time (`Antenna Lightning`)
+- [ ] Does a strike on an antenna (or a lightning rod antenna) hurt the radio on its coax? (maintainer to decide)
 
 ### Radios & Networking
 - [x] Tie radio power draw, on/off state, and static playback into battery/solar networks via `RadioNetworkObject` (2026-10-21)

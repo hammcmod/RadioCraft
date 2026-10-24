@@ -58,6 +58,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.BALUN_FOUR_TO_ONE.get(), RadiocraftBlocks.BALUN_TWO_TO_ONE.get())
                 .add(RadiocraftBlocks.BALUN_NINE_TO_ONE.get())
                 .add(RadiocraftBlocks.J_POLE_ANTENNA.get())
+                .add(net.minecraft.world.level.block.Blocks.LIGHTNING_ROD) // A very basic VHF antenna.
                 .add(RadiocraftBlocks.IONOSONDE.get())
                 .add(RadiocraftBlocks.FIVE_BTV_ANTENNA.get())
                 .add(RadiocraftBlocks.SLIM_JIM_ANTENNA.get())

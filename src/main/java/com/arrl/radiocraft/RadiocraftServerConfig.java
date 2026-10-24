@@ -70,6 +70,21 @@ public class RadiocraftServerConfig {
 
 	public static final ModConfigSpec.ConfigValue<Double> TOWER_FOOTHOLD_BREAK_CHANCE;
 	public static final ModConfigSpec.ConfigValue<Integer> DESK_MIC_TIMEOUT_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Boolean> WIRE_HAZARDS_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Double> WIRE_FAULT_DRAIN;
+	public static final ModConfigSpec.ConfigValue<Integer> WIRE_SHORT_BURN_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Double> WIRE_WATER_DAMAGE;
+	public static final ModConfigSpec.ConfigValue<Integer> WIRE_WATER_RANGE;
+	public static final ModConfigSpec.ConfigValue<Double> WIRE_ZAP_DAMAGE;
+	public static final ModConfigSpec.ConfigValue<Integer> WIRE_ZAP_MULTIPLIER;
+	public static final ModConfigSpec.ConfigValue<Boolean> BATTERY_FIRES_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Integer> BATTERY_BURN_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Integer> BATTERY_EXPLODE_GROUP;
+	public static final ModConfigSpec.ConfigValue<Double> BATTERY_EXPLOSION_POWER_PER_BATTERY;
+	public static final ModConfigSpec.ConfigValue<Double> BATTERY_EXPLOSION_MAX_POWER;
+	public static final ModConfigSpec.ConfigValue<Integer> BATTERY_LIGHTNING_WIRE_RANGE;
+	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_LIGHTNING_CHANCE;
+	public static final ModConfigSpec.ConfigValue<Integer> ANTENNA_LIGHTNING_RANGE;
 	public static final ModConfigSpec.ConfigValue<Boolean> GUIDE_ON_FIRST_JOIN;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> TERRAIN_ENABLED;
@@ -256,6 +271,36 @@ public class RadiocraftServerConfig {
 		BUILDER.push("Desk Microphone");
 		DESK_MIC_TIMEOUT_SECONDS = BUILDER.comment(" Seconds a desk microphone keeps its radio keyed (held or locked) before it lets go by itself. 0 = never")
 				.defineInRange("desk_mic_timeout_seconds", 30, 0, 3600);
+		BUILDER.pop();
+
+		BUILDER.push("Electrical Hazards");
+		WIRE_HAZARDS_ENABLED = BUILDER.comment(" Bare power wire with power behind it: a wire joined back to itself shorts (smokes, catches fire, burns",
+				" through), plain wire touching water electrocutes what is in the water, and an open end of plain wire in the rain",
+				" sparks and zaps whatever touches it. Waterproof wire does not get wet or spark, but can short").define("wire_hazards_enabled", true);
+		WIRE_FAULT_DRAIN = BUILDER.comment(" Share of the stored energy behind a short or a wet wire drained every second").defineInRange("wire_fault_drain", 0.25, 0.0, 1.0);
+		WIRE_SHORT_BURN_SECONDS = BUILDER.comment(" Seconds a powered short burns before the wire burns through").defineInRange("wire_short_burn_seconds", 4, 1, 600);
+		WIRE_WATER_DAMAGE = BUILDER.comment(" Damage per second to anything in the water near a wet wire (6 = 3 hearts)").defineInRange("wire_water_damage", 6.0, 0.0, 100.0);
+		WIRE_WATER_RANGE = BUILDER.comment(" Blocks from a wet wire that the water is electrified").defineInRange("wire_water_range", 6, 0, 32);
+		WIRE_ZAP_DAMAGE = BUILDER.comment(" Damage a sparking wire end does to whatever touches it (4 = 2 hearts)").defineInRange("wire_zap_damage", 4.0, 0.0, 100.0);
+		WIRE_ZAP_MULTIPLIER = BUILDER.comment(" A sparking end draws as much as a transmitting 20m HF radio; a zap draws this many times that for a second")
+				.defineInRange("wire_zap_multiplier", 6, 1, 100);
+		BUILDER.pop();
+
+		BUILDER.push("Battery Fires");
+		BATTERY_FIRES_ENABLED = BUILDER.comment(" Large batteries catch fire from fire or lava beside them, a flint and steel, or lightning on power wire",
+				" running to them, and burn until consumed: water only holds the flames down. Groups explode").define("battery_fires_enabled", true);
+		BATTERY_BURN_SECONDS = BUILDER.comment(" Seconds a burning battery lasts before it is consumed").defineInRange("battery_burn_seconds", 45, 1, 3600);
+		BATTERY_EXPLODE_GROUP = BUILDER.comment(" A battery consumed in a group of at least this many touching batteries explodes").defineInRange("battery_explode_group", 4, 1, 64);
+		BATTERY_EXPLOSION_POWER_PER_BATTERY = BUILDER.comment(" Explosion power per battery in the group (TNT is 4)").defineInRange("battery_explosion_power_per_battery", 1.0, 0.0, 10.0);
+		BATTERY_EXPLOSION_MAX_POWER = BUILDER.comment(" Largest battery explosion").defineInRange("battery_explosion_max_power", 8.0, 0.0, 20.0);
+		BATTERY_LIGHTNING_WIRE_RANGE = BUILDER.comment(" Lightning within this many blocks of power wire sets the batteries on that wire alight. 0 = never")
+				.defineInRange("battery_lightning_wire_range", 3, 0, 16);
+		BUILDER.pop();
+
+		BUILDER.push("Antenna Lightning");
+		ANTENNA_LIGHTNING_CHANCE = BUILDER.comment(" Antennas draw lightning like a weak lightning rod: the chance a strike no lightning rod claimed lands on the",
+				" highest antenna nearby instead. 0 turns it off").defineInRange("antenna_lightning_chance", 0.25, 0.0, 1.0);
+		ANTENNA_LIGHTNING_RANGE = BUILDER.comment(" Blocks an antenna draws lightning from (a lightning rod: 128)").defineInRange("antenna_lightning_range", 32, 0, 128);
 		BUILDER.pop();
 
 		BUILDER.push("Towers");

@@ -35,6 +35,7 @@ public class RadiocraftAntennaTypes {
 		MOXON = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.MoxonAntennaType());
 		DELTA_LOOP = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.DeltaLoopAntennaType());
 		DIPOLE = AntennaTypes.registerType(new DipoleAntennaType());
+		AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.vhf.LightningRodAntennaType());
 		END_FED = AntennaTypes.registerType(new EndFedAntennaType());
 		HORIZONTAL_QUAD_LOOP = AntennaTypes.registerType(new HorizontalQuadLoopAntennaType());
 		VERTICAL_QUAD_LOOP = AntennaTypes.registerType(new VerticalQuadLoopAntennaType());

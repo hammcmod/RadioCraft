@@ -71,7 +71,8 @@ public class RadiocraftCapabilities {
 				RadiocraftBlocks.DUMMY_LOAD.get(),
 				RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
 				RadiocraftBlocks.YAGI_ANTENNA.get(),
-				RadiocraftBlocks.SATELLITE_DISH.get());
+				RadiocraftBlocks.SATELLITE_DISH.get(),
+				net.minecraft.world.level.block.Blocks.LIGHTNING_ROD); // An antenna when coax runs to it (LightningRodAntennas).
 		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> BENetworksCapability.get(level), premiumAndCheapRadios()); // The plain ones are above.
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.HF_RADIO_10M_VARIANTS.values().toArray(Block[]::new));
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.VHF_RECEIVER.get());

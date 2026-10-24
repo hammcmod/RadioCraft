@@ -4,6 +4,20 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Electrical hazards, battery fires, lightning rod antennas (added 2026-10-24)
+
+- [ ] A 2x2 square of power wire on a charged battery: smoke, flames, the wire burns away after about 4 s. Is a
+  sloppy 2x2 of wire shorting too easy to do by accident? (Any closed loop of power wire counts.)
+- [ ] Power wire into water: a mob or you in the water nearby gets hurt each second; the battery drains fast.
+- [ ] An open end of power wire in the rain: sparks and a faint crackle; standing on it zaps you. Are the particles
+  and the redstone-torch burnout sound right, or does it want its own sound (bounty)?
+- [ ] Set a large battery alight (flint and steel, fire or lava beside it): flames, fire around it, it spreads to
+  touching batteries, gone after 45 s. Pour water on it: steam and hissing; take the water away: flames again.
+  Four or more touching batteries: an explosion when the first burns out.
+- [ ] `/summon lightning_bolt` next to power wire that runs to a battery: the battery catches.
+- [ ] Coax from a VHF radio to a lightning rod: it works as a poor antenna (SWR 6, short range). In a thunderstorm,
+  strikes now and then land on antennas.
+
 ## Desk microphone (added 2026-10-24)
 
 - [ ] Beside a radio: hold right click on the mic to talk (a click on press), let go to stop. Sneak and right click

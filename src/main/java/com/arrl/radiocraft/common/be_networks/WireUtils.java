@@ -10,6 +10,7 @@ import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.blocks.WireBlock;
+import com.arrl.radiocraft.common.radio.antenna.LightningRodAntennas;
 import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
@@ -269,6 +270,8 @@ public class WireUtils {
 					continue;
 
 				BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
+				if(networkObject == null)
+					networkObject = LightningRodAntennas.ensure(level, checkPos); // A rod has no block entity to make it.
 				if(networkObject != null && connection.test(networkObject))
 					addConnection(connections, blackList, level, checkPos, networkObject, link.getValue(), connection, wires);
 				else

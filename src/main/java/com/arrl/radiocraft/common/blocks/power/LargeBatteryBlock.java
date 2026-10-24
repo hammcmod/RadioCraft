@@ -1,6 +1,14 @@
 package com.arrl.radiocraft.common.blocks.power;
 
 import com.arrl.radiocraft.common.blockentities.LargeBatteryBlockEntity;
+import com.arrl.radiocraft.common.be_networks.BatteryFires;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -48,6 +56,35 @@ public class LargeBatteryBlock extends AbstractPowerNetworkBlock {
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		return defaultBlockState().setValue(HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite());
+	}
+
+	/** Fire or lava beside it sets it alight (see BatteryFires). */
+	@Override
+	protected void neighborChanged(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Block block, @NotNull BlockPos fromPos, boolean isMoving) {
+		super.neighborChanged(state, level, pos, block, fromPos, isMoving);
+		BatteryFires.checkNeighbours(level, pos);
+	}
+
+	@Override
+	public void onPlace(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean isMoving) {
+		super.onPlace(state, level, pos, oldState, isMoving);
+		if(!oldState.is(this))
+			BatteryFires.checkNeighbours(level, pos);
+	}
+
+	/** A flint and steel or a fire charge sets it alight; nothing puts it out. */
+	@Override
+	protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
+		if((stack.is(Items.FLINT_AND_STEEL) || stack.is(Items.FIRE_CHARGE)) && BatteryFires.enabled()) {
+			if(!level.isClientSide && BatteryFires.ignite(level, pos)) {
+				if(stack.is(Items.FLINT_AND_STEEL))
+					stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(hand));
+				else
+					stack.consume(1, player);
+			}
+			return ItemInteractionResult.sidedSuccess(level.isClientSide);
+		}
+		return super.useItemOn(stack, state, level, pos, player, hand, hit);
 	}
 
     @Override

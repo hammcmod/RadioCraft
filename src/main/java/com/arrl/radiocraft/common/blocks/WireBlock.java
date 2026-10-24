@@ -5,7 +5,10 @@ import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
+import com.arrl.radiocraft.common.be_networks.WireFaults;
 import com.arrl.radiocraft.common.be_networks.WireUtils;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.RandomSource;
 import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import com.google.common.collect.ImmutableMap;
@@ -542,6 +545,19 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 		if(checkMultipleSides(level, pos, state)) // Only bother running merge if this wire is actually connecting things.
 			WireUtils.mergeNetworks(level, pos, connectionPredicate(), networkSupplier(), networkWires());
+		if(isPower && level instanceof ServerLevel serverLevel)
+			WireFaults.check(serverLevel, pos); // Shorted, wet, or an open end in the rain.
+	}
+
+	/** Power wire ticks now and then to notice rain on an open end, or faults again after a restart (see WireFaults). */
+	@Override
+	protected boolean isRandomlyTicking(@NotNull BlockState state) {
+		return isPower;
+	}
+
+	@Override
+	protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+		WireFaults.check(level, pos);
 	}
 
 	@Override
@@ -594,6 +610,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 										   @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
 		if (state.getValue(BlockStateProperties.WATERLOGGED))
 			level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+		if(isPower && level instanceof ServerLevel serverLevel)
+			WireFaults.queue(serverLevel, pos); // Water next to it, a wire joined on: look again next tick.
 		// Everything that follows direct neighbours is recomputed; the climb (which depends on a diagonal block and
 		// carries network bookkeeping) is left to refresh().
 		BlockState fresh = getBlockState(level, pos).setValue(BlockStateProperties.WATERLOGGED, state.getValue(BlockStateProperties.WATERLOGGED));

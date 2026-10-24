@@ -1,5 +1,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
+import com.arrl.radiocraft.common.be_networks.BatteryFires;
+import net.minecraft.server.level.ServerLevel;
 import com.arrl.radiocraft.CommonConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.BatteryNetworkObject;
@@ -28,7 +30,32 @@ import java.util.function.Supplier;
 public class LargeBatteryBlockEntity extends PowerBlockEntity {
 
 	private static final String ENERGY_TAG = "energy";
+	private static final String BURN_TAG = "burn";
 	private int savedEnergy = 0;
+	/** Ticks left until a burning battery is consumed; 0 when it is not alight (see BatteryFires). */
+	private int burnTicks = 0;
+
+	public boolean isBurning() {
+		return burnTicks > 0;
+	}
+
+	public int getBurnTicks() {
+		return burnTicks;
+	}
+
+	public void setBurnTicks(int ticks) {
+		if(burnTicks != ticks) {
+			burnTicks = ticks;
+			setChanged();
+		}
+	}
+
+	@Override
+	public void onLoad() {
+		super.onLoad();
+		if(level instanceof ServerLevel serverLevel && isBurning())
+			BatteryFires.track(serverLevel, worldPosition); // Still alight from before the save.
+	}
 
 	public LargeBatteryBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.LARGE_BATTERY.get(), pos, state);
@@ -141,11 +168,14 @@ public class LargeBatteryBlockEntity extends PowerBlockEntity {
 	protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
 		super.saveAdditional(tag, registries);
 		tag.putInt(ENERGY_TAG, savedEnergy);
+		if(burnTicks > 0)
+			tag.putInt(BURN_TAG, burnTicks);
 	}
 
 	@Override
 	protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
 		super.loadAdditional(tag, registries);
 		savedEnergy = tag.getInt(ENERGY_TAG);
+		burnTicks = tag.getInt(BURN_TAG);
 	}
 }

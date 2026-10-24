@@ -5,7 +5,8 @@
   "refmap": "radiocraft.refmap.json",
   "mixins": [
     "MixinPTTKeyHandler",
-    "MixinRedStoneWireBlock"
+    "MixinRedStoneWireBlock",
+    "MixinServerLevel"
   ],
   "client": [
   ],

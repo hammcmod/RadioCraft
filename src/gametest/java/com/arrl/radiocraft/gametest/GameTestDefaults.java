@@ -23,6 +23,8 @@ public class GameTestDefaults {
             RadiocraftServerConfig.RADIO_POWER_REQUIRED.set(false);
             RadiocraftServerConfig.RADIO_BLOW_CHANCE.set(0.0D);
             RadiocraftServerConfig.TERRAIN_ENABLED.set(false);
+            RadiocraftServerConfig.WIRE_HAZARDS_ENABLED.set(false); // ElectricalHazardGameTests switches them on.
+            RadiocraftServerConfig.BATTERY_FIRES_ENABLED.set(false);
         }
     }
 }

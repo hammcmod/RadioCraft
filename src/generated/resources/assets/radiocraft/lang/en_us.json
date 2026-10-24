@@ -89,6 +89,8 @@
   "container.radiocraft.teletype": "Teletype Machine",
   "container.radiocraft.transfer_interface": "Digital Transfer Interface",
   "container.radiocraft.vhf_repeater": "VHF Repeater",
+  "death.attack.radiocraft.electrocution": "%1$s was electrocuted",
+  "death.attack.radiocraft.electrocution.player": "%1$s was electrocuted whilst fighting %2$s",
   "entity.radiocraft.antenna_wire": "Antenna Wire",
   "gui.radiocraft.tab.arps": "ARPS",
   "gui.radiocraft.tab.files": "FILES",
