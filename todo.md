@@ -45,8 +45,9 @@ In order. Each step gets GameTests where the server side can be checked; audio s
   terrain atlas from chunk loads, knife-edge line of sight, HF cliff loss, horizon profiles cutting low-angle skip,
   handhelds indoors, results kept `terrain_recalculate_seconds`, `terrain_enabled` master switch, `/rcdebug terrain`
 - [x] Terrain map saved with the world (2026-10-24, `radiocraft_terrain.dat` per dimension)
-- [ ] Terrain, rest of phase 3: fill never-loaded chunks from the world generator, show terrain losses in
-  `/bandcalculate` and the antenna analyzer
+- [x] `/bandcalculate` counts terrain losses (2026-10-24): both ends a few blocks above the mapped ground
+- [ ] Terrain, rest of phase 3: fill never-loaded chunks from the world generator, show terrain losses in the
+  antenna analyzer (once it exists)
 - [x] Dipole, end-fed, quarter-wave vertical, loop, wide-band receive, and VHF Yagi/J-pole/Slim Jim antennas are implemented
 - [x] Antenna tuner runtime effect (2026-10-20): a tuner anywhere on the coax between a radio and its antenna is an
   automatic tuner. Within `antenna_tuner_max_swr` (default 6) the radio sees SWR 1 (static, interference and the
@@ -211,7 +212,7 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   tall, placed and broken as one, coax to the base. SWR 1.3 on every HF band and VHF; on HF line of sight reaches
   half as far and skip a quarter further (the far edge of the skip window). Dev tab; late-game recipe (2026-10-23):
   two copper blocks of tubing, four ferrite traps, two lightning rods, coax
-- [ ] Revisit delta loop construction to support triangular build flow and align analyzer messaging
+- [x] Delta loop (2026-10-24): a closed triangle on a 4:1 balun, upright or flat; analyzer messaging waits for the analyzer
 - [ ] Add sag-varying visuals for long unsupported antenna wire runs
 - [x] 4:1 balun and off-centre-fed dipole (2026-10-21, maintainer): new `balun_four_to_one` feeding an OCFD
   (short arm a third to two thirds of the long one, matched on the half wave and its 2nd and 4th harmonics, poor

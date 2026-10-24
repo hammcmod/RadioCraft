@@ -3,6 +3,7 @@ package com.arrl.radiocraft.gametest;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
+import com.arrl.radiocraft.common.commands.BandCalculateCommands;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
@@ -152,6 +153,34 @@ public class TerrainGameTests {
     }
 
     /** Times terrain in the real game path (antenna type, config, atlas) against terrain off. Prints, never fails. */
+    /** {@code /bandcalculate} counts the terrain: the wall takes most of 2m's line of sight past it. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100, batch = "terrain_bandcalculate")
+    public static void bandCalculateCountsTerrain(GameTestHelper helper) {
+        RadiocraftServerConfig.TERRAIN_ENABLED.set(true);
+        BlockPos from = helper.absolutePos(BALUN), to = south(helper, BALUN, LOS_DISTANCE);
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    TerrainPropagation.openAtlas(helper.getLevel());
+                    TerrainPropagation.refresh(helper.getLevel(), from.offset(-64, 0, -64), from.offset(64, 0, 64));
+                    TerrainPropagation.clearCaches();
+                    double clear = twoMetre(helper, from, to);
+                    wall(helper, Blocks.STONE.defaultBlockState());
+                    TerrainPropagation.clearCaches();
+                    double walled = twoMetre(helper, from, to);
+                    wall(helper, Blocks.AIR.defaultBlockState());
+                    RadiocraftServerConfig.TERRAIN_ENABLED.set(false);
+                    helper.assertTrue(clear > 0.5D, "2m is not clear before the wall: " + clear);
+                    helper.assertTrue(walled < clear * 0.5D, String.format(Locale.ROOT, "The wall did not cut 2m: %.3f -> %.3f", clear, walled));
+                })
+                .thenSucceed();
+    }
+
+    private static double twoMetre(GameTestHelper helper, BlockPos from, BlockPos to) {
+        return BandCalculateCommands.calculate(helper.getLevel(), from, to).stream()
+                .filter(result -> result.band().name().equals("2m")).findFirst().orElseThrow().score();
+    }
+
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = "terrain_cost")
     public static void terrainCostInGame(GameTestHelper helper) {
         RadiocraftServerConfig.TERRAIN_ENABLED.set(true);
