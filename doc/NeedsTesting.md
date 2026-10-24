@@ -4,6 +4,14 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Ionospheric Processor (added 2026-10-23)
+
+- [ ] Placed and broken as one two-tall block; it faces the player when placed (check the front is the side you
+  meant: the model is turned so its north side faces you).
+- [ ] The three valves on top glow softly in the dark (light 10 on the glass and the filaments) and the glass is see
+  through with the filaments visible inside. No odd sorting against water or stained glass behind it.
+- [ ] Item in hand and inventory (borrows the J-pole's display settings).
+
 ## Ionosonde Antenna (added 2026-10-23)
 
 - [ ] Placing it puts down both halves; breaking either half removes both and drops one item. The model sits right

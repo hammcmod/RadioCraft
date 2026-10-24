@@ -1,7 +1,6 @@
 package com.arrl.radiocraft.gametest;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.blocks.antennas.DoubleVHFAntennaBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.datagen.RadiocraftBlockLootProvider;
 import net.minecraft.core.BlockPos;
@@ -12,6 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
@@ -36,15 +36,15 @@ public class BlockDropGameTests {
         for(Block block : RadiocraftBlockLootProvider.blocks()) {
             String name = BuiltInRegistries.BLOCK.getKey(block).getPath();
             BlockState state = block.defaultBlockState();
-            if(block instanceof DoubleVHFAntennaBlock)
-                state = state.setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.LOWER);
+            if(block.defaultBlockState().hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF))
+                state = state.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER);
             if(state.requiresCorrectToolForDrops() && !pickaxe.isCorrectToolForDrops(state))
                 problems.add(name + " cannot be mined with a pickaxe");
             List<ItemStack> drops = Block.getDrops(state, helper.getLevel(), pos, null, null, pickaxe);
             if(drops.size() != 1 || !drops.get(0).is(block.asItem()) || drops.get(0).getCount() != 1)
                 problems.add(name + " drops " + drops);
-            if(block instanceof DoubleVHFAntennaBlock
-                    && !Block.getDrops(state.setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.UPPER), helper.getLevel(), pos, null, null, pickaxe).isEmpty())
+            if(block.defaultBlockState().hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
+                    && !Block.getDrops(state.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER), helper.getLevel(), pos, null, null, pickaxe).isEmpty())
                 problems.add(name + "'s top half drops a second antenna");
         }
         helper.assertTrue(problems.isEmpty(), String.join("; ", problems));
@@ -59,28 +59,35 @@ public class BlockDropGameTests {
         helper.succeed();
     }
 
-    /** Breaking a two-tall VHF antenna from either half in survival drops one antenna. */
+    /** Breaking a two-tall block (J-pole, ionosonde, ionospheric processor) from either half in survival drops one. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 40)
-    public static void tallAntennaDropsOnce(GameTestHelper helper) {
-        BlockPos bottom = new BlockPos(2, 2, 2), other = new BlockPos(6, 2, 2);
-        Block jPole = RadiocraftBlocks.J_POLE_ANTENNA.get();
-        placeTall(helper, jPole, bottom);
-        placeTall(helper, jPole, other);
-        helper.getLevel().destroyBlock(helper.absolutePos(bottom), true);
-        helper.getLevel().destroyBlock(helper.absolutePos(other.above()), true);
+    public static void tallBlocksDropOnce(GameTestHelper helper) {
+        List<Block> tall = List.of(RadiocraftBlocks.J_POLE_ANTENNA.get(), RadiocraftBlocks.IONOSONDE.get(), RadiocraftBlocks.IONOSPHERIC_PROCESSOR.get());
+        for(int i = 0; i < tall.size(); i++) {
+            BlockPos bottom = new BlockPos(2, 2, 2 + i * 5), other = new BlockPos(9, 2, 2 + i * 5);
+            placeTall(helper, tall.get(i), bottom);
+            placeTall(helper, tall.get(i), other);
+            helper.getLevel().destroyBlock(helper.absolutePos(bottom), true);
+            helper.getLevel().destroyBlock(helper.absolutePos(other.above()), true);
+        }
         helper.runAfterDelay(2, () -> {
-            helper.assertBlockNotPresent(jPole, bottom.above());
-            helper.assertBlockNotPresent(jPole, other);
-            int dropped = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
-                            new net.minecraft.world.phys.AABB(helper.absolutePos(bottom)).inflate(6.0D))
-                    .stream().filter(item -> item.getItem().is(jPole.asItem())).mapToInt(item -> item.getItem().getCount()).sum();
-            helper.assertTrue(dropped == 2, "Two antennas broken dropped " + dropped);
+            for(int i = 0; i < tall.size(); i++) {
+                Block block = tall.get(i);
+                BlockPos bottom = new BlockPos(2, 2, 2 + i * 5), other = new BlockPos(9, 2, 2 + i * 5);
+                helper.assertBlockNotPresent(block, bottom.above());
+                helper.assertBlockNotPresent(block, other);
+                int dropped = helper.getLevel().getEntitiesOfClass(net.minecraft.world.entity.item.ItemEntity.class,
+                                new net.minecraft.world.phys.AABB(helper.absolutePos(bottom)).inflate(1.0D, 2.0D, 1.0D)
+                                        .minmax(new net.minecraft.world.phys.AABB(helper.absolutePos(other)).inflate(1.0D, 2.0D, 1.0D)))
+                        .stream().filter(item -> item.getItem().is(block.asItem())).mapToInt(item -> item.getItem().getCount()).sum();
+                helper.assertTrue(dropped == 2, "Two " + BuiltInRegistries.BLOCK.getKey(block) + " broken dropped " + dropped);
+            }
             helper.succeed();
         });
     }
 
     private static void placeTall(GameTestHelper helper, Block block, BlockPos bottom) {
-        helper.setBlock(bottom, block.defaultBlockState().setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.LOWER));
-        helper.setBlock(bottom.above(), block.defaultBlockState().setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.UPPER));
+        helper.setBlock(bottom, block.defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
+        helper.setBlock(bottom.above(), block.defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
     }
 }

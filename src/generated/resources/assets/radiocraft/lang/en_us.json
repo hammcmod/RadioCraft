@@ -27,6 +27,7 @@
   "block.radiocraft.hf_radio_80m_pure": "Premium 80m Radio",
   "block.radiocraft.hf_receiver": "HF Receiver",
   "block.radiocraft.ionosonde": "Ionosonde Antenna",
+  "block.radiocraft.ionospheric_processor": "Ionospheric Processor",
   "block.radiocraft.j_pole_antenna": "J-Pole Antenna",
   "block.radiocraft.large_battery": "Large Battery",
   "block.radiocraft.microphone": "Microphone",

@@ -89,6 +89,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
 			provider.addBlock(RadiocraftBlocks.SATELLITE_DISH, "Satellite Dish");
 			provider.addBlock(RadiocraftBlocks.IONOSONDE, "Ionosonde Antenna");
+			provider.addBlock(RadiocraftBlocks.IONOSPHERIC_PROCESSOR, "Ionospheric Processor");
 			provider.addBlock(RadiocraftBlocks.WEFAX_RECEIVER, "WEFAX Receiver");
 			provider.addBlock(RadiocraftBlocks.DESK_CHARGER, "Desk Charger");
 

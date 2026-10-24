@@ -1,11 +1,11 @@
 package com.arrl.radiocraft.datagen;
 
-import com.arrl.radiocraft.common.blocks.antennas.DoubleVHFAntennaBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.NotNull;
 
@@ -33,8 +33,8 @@ public class RadiocraftBlockLootProvider extends BlockLootSubProvider {
     @Override
     protected void generate() {
         for(Block block : blocks()) {
-            if(block instanceof DoubleVHFAntennaBlock) // Two blocks tall: only the bottom half drops, like a door.
-                add(block, createSinglePropConditionTable(block, DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.LOWER));
+            if(block.defaultBlockState().hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)) // Two blocks tall: only the bottom half drops, like a door.
+                add(block, createSinglePropConditionTable(block, BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
             else
                 dropSelf(block);
         }

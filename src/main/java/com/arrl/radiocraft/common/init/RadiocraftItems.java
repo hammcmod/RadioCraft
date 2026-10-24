@@ -96,6 +96,7 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> DUMMY_LOAD = simpleBlockItem("dummy_load", RadiocraftBlocks.DUMMY_LOAD);
 	public static final Supplier<BlockItem> J_POLE_ANTENNA = simpleBlockItem("j_pole_antenna", RadiocraftBlocks.J_POLE_ANTENNA);
 	public static final Supplier<BlockItem> IONOSONDE = simpleBlockItem("ionosonde", RadiocraftBlocks.IONOSONDE);
+	public static final Supplier<BlockItem> IONOSPHERIC_PROCESSOR = simpleBlockItem("ionospheric_processor", RadiocraftBlocks.IONOSPHERIC_PROCESSOR);
 	public static final Supplier<BlockItem> SLIM_JIM_ANTENNA = simpleBlockItem("slim_jim_antenna", RadiocraftBlocks.SLIM_JIM_ANTENNA);
 
 	public static final Supplier<BlockItem> SOLAR_WEATHER_STATION = simpleBlockItem("solar_weather_station", RadiocraftBlocks.SOLAR_WEATHER_STATION);

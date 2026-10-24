@@ -58,7 +58,7 @@ Requested by the maintainer 2026-10-22 (they plan to draw these). All are placeh
 ### Radio Interface and Digital Transfer Interface
 
 From the TNC rework (2026-10-23, see [TncRework.md](TncRework.md)). The H19 APRS Terminal and the Ionosonde Antenna
-are done (maintainer); the Ionospheric Processor is being modelled.
+and the Ionospheric Processor are done (maintainer).
 
 - **Radio Interface** (`radio_interface`): still the old digital interface model. Wanted: a small modem box with
   PWR, DCD, TX, RX and RPT lamps. Its screen is a callsign box and a TX switch on a plain panel.
