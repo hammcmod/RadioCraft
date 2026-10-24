@@ -298,8 +298,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("message", "callsign.already_has"), "You already have a callsign; an operator can reset it");
             provider.add(Radiocraft.translationKey("message", "callsign.invalid"), "Not a valid callsign: a real prefix (K, W, VE, G...), a digit (%s), then one to three letters");
             provider.add(Radiocraft.translationKey("message", "callsign.taken"), "That callsign is taken");
-            provider.add(Radiocraft.translationKey("message", "repeater_callsign.either"), "A repeater callsign is a letter, %s, and two letters, or your own callsign");
-            provider.add(Radiocraft.translationKey("message", "repeater_callsign.auto"), "A repeater callsign here is a letter, %s, and two letters");
+            provider.add(Radiocraft.translationKey("message", "repeater_callsign.either"), "A repeater callsign is K, N, W, G, M, F or I, then %s, then two letters, or your own callsign");
+            provider.add(Radiocraft.translationKey("message", "repeater_callsign.auto"), "A repeater callsign here is K, N, W, G, M, F or I, then %s, then two letters");
             provider.add(Radiocraft.translationKey("message", "repeater_callsign.own"), "Repeaters here carry their owner's callsign (yours, once you have one)");
             provider.add(Radiocraft.translationKey("screen", "repeater.callsign_auto"), "Make one up");
             provider.add(Radiocraft.translationKey("screen", "repeater.callsign_own"), "Mine");

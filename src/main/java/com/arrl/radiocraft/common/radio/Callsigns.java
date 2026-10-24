@@ -24,8 +24,8 @@ import java.util.regex.Pattern;
  *     server chooses one for them ({@link #generatePlayer}): a prefix from the list, the zone digit where they stand
  *     (as for repeaters) and three letters. No two players share one. {@code callsign_self_assign} turns choosing off,
  *     leaving callsigns to operators.</li>
- *     <li>Repeaters take the form {@code X#XX}: three letters around a digit that says how far from spawn the repeater
- *     stands, 0 near spawn up to 9 near the edge of the world ({@code callsign_zone_radius}, or the world border if
+ *     <li>Repeaters take the form {@code X#XX}: a one-letter prefix (K, N, W, G, M, F, I), then a digit that says how
+ *     far from spawn the repeater stands, then two letters; the digit is 0 near spawn up to 9 near the edge of the world ({@code callsign_zone_radius}, or the world border if
  *     nearer). A repeater can instead carry its owner's own callsign; {@code repeater_callsign_mode} allows either or
  *     locks it to one.</li>
  * </ul>
@@ -182,7 +182,21 @@ public final class Callsigns {
 
 	/** A made-up repeater callsign for {@code pos}: a letter, the zone digit, two letters. */
 	public static String generateRepeater(Level level, BlockPos pos, RandomSource random) {
-		return "" + letter(random) + zoneDigit(level, pos) + letter(random) + letter(random);
+		String first = repeaterPrefixes();
+		return "" + first.charAt(random.nextInt(first.length())) + zoneDigit(level, pos) + letter(random) + letter(random);
+	}
+
+	/**
+	 * Letters a repeater callsign may start with: the one-letter prefixes in {@code callsign_prefixes} (K, N, W, G, M,
+	 * F, I by default), so X#XX is a real callsign shape too. K, N and W if the list has none.
+	 */
+	public static String repeaterPrefixes() {
+		StringBuilder out = new StringBuilder();
+		for(String prefix : prefixes()) {
+			if(prefix.length() == 1 && Character.isLetter(prefix.charAt(0)) && out.indexOf(prefix) < 0)
+				out.append(prefix);
+		}
+		return out.isEmpty() ? "KNW" : out.toString();
 	}
 
 	private static char letter(RandomSource random) {
@@ -192,7 +206,7 @@ public final class Callsigns {
 	/** True for a repeater callsign in the {@code X#XX} form with the right digit for {@code pos}. */
 	public static boolean isValidRepeaterCallsign(Level level, BlockPos pos, String callsign) {
 		String c = normalise(callsign);
-		return c.length() == 4 && Character.isLetter(c.charAt(0)) && c.charAt(1) == (char)('0' + zoneDigit(level, pos))
+		return c.length() == 4 && repeaterPrefixes().indexOf(c.charAt(0)) >= 0 && c.charAt(1) == (char)('0' + zoneDigit(level, pos))
 				&& Character.isLetter(c.charAt(2)) && Character.isLetter(c.charAt(3)) && c.chars().allMatch(ch -> ch < 128);
 	}
 

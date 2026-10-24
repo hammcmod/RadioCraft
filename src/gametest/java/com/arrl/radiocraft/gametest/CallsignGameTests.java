@@ -89,6 +89,9 @@ public class CallsignGameTests {
         try {
             helper.assertTrue(auto.length() == 4 && auto.charAt(1) == (char)('0' + digit) && Callsigns.isValidRepeaterCallsign(helper.getLevel(), pos, auto),
                     "Made-up callsign " + auto + " is not X" + digit + "XX");
+            helper.assertTrue("KNWGMFI".indexOf(auto.charAt(0)) >= 0, "Made-up callsign " + auto + " does not start with a one-letter prefix");
+            String q = "Q" + digit + "AB";
+            helper.assertFalse(Callsigns.isValidRepeaterCallsign(helper.getLevel(), pos, q), q + " was accepted: Q is no prefix");
             RadiocraftServerConfig.REPEATER_CALLSIGN_MODE.set(Callsigns.RepeaterMode.EITHER);
             helper.assertTrue("W9OWN".equals(Callsigns.resolveRepeaterCallsign(owner, helper.getLevel(), pos, Callsigns.OWN_TOKEN)), "EITHER refused the owner's callsign");
             helper.assertTrue(auto.equals(Callsigns.resolveRepeaterCallsign(owner, helper.getLevel(), pos, auto)), "EITHER refused an X#XX callsign");
