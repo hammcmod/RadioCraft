@@ -4,6 +4,21 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## 5-BTV Multiband HF Antenna (added 2026-10-23)
+
+- [ ] Placing it puts up all seven segments (it needs seven free blocks); breaking any one brings the whole mast
+  down and drops one item. The segments line up into the maintainer's model, with the trap radials on the fifth
+  and sixth.
+- [ ] On coax from an HF radio or a VHF base station the radio shows SWR 1.3 on every band.
+- [ ] On HF a nearby station by line of sight fades out at half the usual distance; skip contacts reach a quarter
+  further than on a dipole.
+- [ ] The item (the base segment) looks right in the inventory.
+
+## Two-tall items (added 2026-10-23)
+
+- [ ] The Ionosonde Antenna and Ionospheric Processor items fit their inventory slot and look right in the hand, on
+  the ground and in a frame (they had the J-pole's display settings and spilled over neighbouring slots).
+
 ## Floor cables and the ionosonde's coax (added 2026-10-23)
 
 - [ ] A short grey cable runs along the floor from the Radio Interface to each radio, H19 and Transfer Interface

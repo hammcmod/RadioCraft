@@ -1,0 +1,25 @@
+{
+  "variants": {
+    "segment=0": {
+      "model": "radiocraft:block/5btv_antenna_segment_1"
+    },
+    "segment=1": {
+      "model": "radiocraft:block/5btv_antenna_segment_2"
+    },
+    "segment=2": {
+      "model": "radiocraft:block/5btv_antenna_segment_3"
+    },
+    "segment=3": {
+      "model": "radiocraft:block/5btv_antenna_segment_4"
+    },
+    "segment=4": {
+      "model": "radiocraft:block/5btv_antenna_segment_5"
+    },
+    "segment=5": {
+      "model": "radiocraft:block/5btv_antenna_segment_6"
+    },
+    "segment=6": {
+      "model": "radiocraft:block/5btv_antenna_segment_7"
+    }
+  }
+}

@@ -74,6 +74,7 @@ public class RadiocraftBlockEntities {
 					RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
 					RadiocraftBlocks.J_POLE_ANTENNA.get(),
 					RadiocraftBlocks.IONOSONDE.get(),
+					RadiocraftBlocks.FIVE_BTV_ANTENNA.get(),
 					RadiocraftBlocks.DUMMY_LOAD.get(),
 					RadiocraftBlocks.YAGI_ANTENNA.get()
 			).build(null));

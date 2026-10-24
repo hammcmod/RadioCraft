@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.radio.antenna.types;
 
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.api.antenna.IAntennaType;
+import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.data.AntennaData;
 import com.arrl.radiocraft.common.radio.solar.Aurora;
@@ -65,11 +66,22 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
         // Solar weather only touches the sky wave: a poor or closed band weakens skip, line of sight is unchanged. An
         // aurora over either end costs HF a condition step, and lets VHF skip between two stations under it.
         double skip = getSkipEfficiency() * SolarEventManager.getCondition(level, packet.getBand(), source, destination).getSkipMultiplier();
-        double strength = BandUtils.getBaseStrength(packet.getBand(), effectiveDistance, getLosEfficiency(), skip, level.isDay());
+        double strength = BandUtils.getBaseStrength(packet.getBand(), effectiveDistance, getLosEfficiency(), skip, level.isDay(),
+                getLosRangeScale(packet.getBand()), getMaxSkipScale(packet.getBand()));
         return Math.max(strength, Aurora.vhfStrength(level, packet.getBand(), source, destination, effectiveDistance));
     }
 
-    protected double getLosEfficiency() {
+    /** How far line of sight reaches on {@code band} with this antenna, as a share of the band's range. */
+    protected double getLosRangeScale(Band band) {
+        return 1.0D;
+    }
+
+    /** How far skip reaches on {@code band} with this antenna, as a share of the band's furthest skip. */
+    protected double getMaxSkipScale(Band band) {
+        return 1.0D;
+    }
+
+        protected double getLosEfficiency() {
         return los;
     }
 

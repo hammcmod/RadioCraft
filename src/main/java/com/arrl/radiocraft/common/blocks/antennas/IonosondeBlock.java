@@ -1,6 +1,6 @@
 package com.arrl.radiocraft.common.blocks.antennas;
 
-import com.arrl.radiocraft.common.blockentities.IonosondeBlockEntity;
+import com.arrl.radiocraft.common.blockentities.BandFollowingAntennaBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -88,12 +88,12 @@ public final class IonosondeBlock extends DoubleVHFAntennaBlock {
 
     @Override
     public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
-        return state.getValue(HALF) == DoubleBlockHalf.LOWER ? new IonosondeBlockEntity(pos, state) : null;
+        return state.getValue(HALF) == DoubleBlockHalf.LOWER ? new BandFollowingAntennaBlockEntity(pos, state) : null;
     }
 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, @NotNull BlockState state, @NotNull BlockEntityType<T> type) {
-        return level.isClientSide ? null : IonosondeBlockEntity::tick;
+        return level.isClientSide ? null : BandFollowingAntennaBlockEntity::tick;
     }
 
     @Override

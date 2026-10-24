@@ -74,12 +74,3 @@ and the Ionospheric Processor are done (maintainer).
   with a paper feed. Its screen is the old FILES tab.
 - Lamps go in as separate named elements, like the H19's MSG / CONTACT / READY: `python tools/split_lamps.py <model>
   <LAMP>...` splits a Blockbench export into the body and one full-bright model per lamp.
-
-### Hustler 5-BTV vertical antenna
-
-A model of the Hustler 5-BTV: a multiband HF trap vertical (80/40/30/20/15/10m), an aluminium tube with the
-trap coils along it, standing on a ground mount. Requested by the maintainer 2026-10-21.
-
-- Wanted: a 3D block model and texture, about 7.5 blocks tall (a multi-block or tall-rendered model; the base
-  block is where the coax connects), with the traps visible as thicker coil sections up the tube.
-- No antenna type for it yet; it will need one (multiband vertical) when the model lands.

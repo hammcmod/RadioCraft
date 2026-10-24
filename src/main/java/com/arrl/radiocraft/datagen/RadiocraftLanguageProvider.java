@@ -89,6 +89,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
 			provider.addBlock(RadiocraftBlocks.SATELLITE_DISH, "Satellite Dish");
 			provider.addBlock(RadiocraftBlocks.IONOSONDE, "Ionosonde Antenna");
+			provider.addBlock(RadiocraftBlocks.FIVE_BTV_ANTENNA, "5-BTV Multiband HF Antenna");
 			provider.addBlock(RadiocraftBlocks.IONOSPHERIC_PROCESSOR, "Ionospheric Processor");
 			provider.addBlock(RadiocraftBlocks.WEFAX_RECEIVER, "WEFAX Receiver");
 			provider.addBlock(RadiocraftBlocks.DESK_CHARGER, "Desk Charger");
@@ -248,6 +249,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "antenna_pole"), "Holds the end of an antenna wire. Use antenna wire on this and another holder to string a wire between them.");
             provider.add(Radiocraft.translationKey("tooltip", "antenna_connector"), "Joins antenna wires and coax: a wire holder you can also run coax into.");
             provider.add(Radiocraft.translationKey("tooltip", "j_pole_antenna"), "VHF antenna for 2m base stations and repeaters. Connect it with coax.");
+            provider.add(Radiocraft.translationKey("tooltip", "five_btv_antenna"), "Trap vertical, seven blocks tall: matched on every HF band and VHF. On HF it sends its power low, so it reaches less by line of sight and further by skip. Coax goes to the base.");
             provider.add(Radiocraft.translationKey("tooltip", "ionosonde"), "Sounding antenna for the Ionospheric Processor. On a radio it hears VHF well but matches poorly everywhere, worst on HF.");
             provider.add(Radiocraft.translationKey("tooltip", "slim_jim_antenna"), "VHF antenna for 2m base stations and repeaters. Connect it with coax.");
             provider.add(Radiocraft.translationKey("tooltip", "yagi_antenna"), "Directional VHF antenna: strongest in the direction it points. Connect it with coax.");

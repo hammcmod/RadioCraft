@@ -1,4 +1,5 @@
 {
+  "block.radiocraft.5btv_antenna": "5-BTV Multiband HF Antenna",
   "block.radiocraft.all_band_radio": "All Band Radio",
   "block.radiocraft.antenna_connector": "Antenna Connector",
   "block.radiocraft.antenna_pole": "Antenna Pole",
@@ -251,6 +252,7 @@
   "tooltip.radiocraft.dummy_load": "A perfect match on every band that hardly radiates: about 10 blocks. Fits on a radio or its coax.",
   "tooltip.radiocraft.energy_stored": "Energy: %s / %s FE",
   "tooltip.radiocraft.energy_stored_joules": "Energy: %s / %s J",
+  "tooltip.radiocraft.five_btv_antenna": "Trap vertical, seven blocks tall: matched on every HF band and VHF. On HF it sends its power low, so it reaches less by line of sight and further by skip. Coax goes to the base.",
   "tooltip.radiocraft.hf_radio_10m": "HF transceiver for the 10m band (28 MHz). SSB voice and CW. Needs a 10m antenna on coax.",
   "tooltip.radiocraft.hf_radio_20m": "HF transceiver for the 20m band (14 MHz). SSB voice and CW. Needs a 20m antenna on coax.",
   "tooltip.radiocraft.hf_radio_40m": "HF transceiver for the 40m band (7 MHz). SSB voice and CW. Needs a 40m antenna on coax.",

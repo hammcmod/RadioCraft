@@ -6,15 +6,25 @@ package com.arrl.radiocraft.common.radio;
 public class BandUtils {
 
 	public static double getBaseStrength(Band band, double distance, double losEfficiency, double skipEfficiency, boolean isDay) {
+		return getBaseStrength(band, distance, losEfficiency, skipEfficiency, isDay, 1.0D, 1.0D);
+	}
+
+	/**
+	 * {@link #getBaseStrength(Band, double, double, double, boolean)} for an antenna whose pattern changes the band's
+	 * reach: line of sight reaches {@code losScale} times as far, and skip reaches {@code maxSkipScale} times as far
+	 * (the far edge of the skip zone moves out; the near edge stays).
+	 */
+	public static double getBaseStrength(Band band, double distance, double losEfficiency, double skipEfficiency, boolean isDay,
+	                                     double losScale, double maxSkipScale) {
 		if(band == null)
 			return 0.0D;
 
-		int los = band.losRange();
+		double los = band.losRange() * losScale;
 		if(distance < los)
 			return (1 - (distance / los)) * losEfficiency; // If within LoS scale the strength linearly to 0 as it reaches LoS
 
 		double minSkip = isDay ? band.minSkipDay() : band.minSkipNight();
-		double maxSkip = isDay ? band.maxSkipDay()  : band.maxSkipNight();
+		double maxSkip = (isDay ? band.maxSkipDay() : band.maxSkipNight()) * maxSkipScale;
 
 		if(distance > minSkip && distance < maxSkip) { // If within skip range
 			double skipRadius = (maxSkip - minSkip) / 2;

@@ -1,10 +1,17 @@
 package com.arrl.radiocraft.datagen;
 
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
+import com.arrl.radiocraft.common.blocks.antennas.FiveBtvAntennaBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import org.jetbrains.annotations.NotNull;
@@ -35,6 +42,10 @@ public class RadiocraftBlockLootProvider extends BlockLootSubProvider {
         for(Block block : blocks()) {
             if(block.defaultBlockState().hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)) // Two blocks tall: only the bottom half drops, like a door.
                 add(block, createSinglePropConditionTable(block, BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
+            else if(block.defaultBlockState().hasProperty(FiveBtvAntennaBlock.SEGMENT)) // Seven blocks tall: only the base drops.
+                add(block, LootTable.lootTable().withPool(applyExplosionCondition(block, LootPool.lootPool().setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootItem.lootTableItem(block).when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                .setProperties(StatePropertiesPredicate.Builder.properties().hasProperty(FiveBtvAntennaBlock.SEGMENT, 0)))))));
             else
                 dropSelf(block);
         }

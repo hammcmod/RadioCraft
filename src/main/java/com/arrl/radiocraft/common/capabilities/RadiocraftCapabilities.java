@@ -66,6 +66,7 @@ public class RadiocraftCapabilities {
 				RadiocraftBlocks.BALUN_NINE_TO_ONE.get(),
 				RadiocraftBlocks.J_POLE_ANTENNA.get(),
 				RadiocraftBlocks.IONOSONDE.get(),
+				RadiocraftBlocks.FIVE_BTV_ANTENNA.get(),
 				RadiocraftBlocks.DUMMY_LOAD.get(),
 				RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
 				RadiocraftBlocks.YAGI_ANTENNA.get(),

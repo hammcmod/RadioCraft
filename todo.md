@@ -170,7 +170,9 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] Figure out how we'll allow building of HF yagis (maintainer, 2026-10-21)
 - [ ] Satellite dish: no recipe yet (maintainer, 2026-10-23); it stays dev-only and decorative until satellites
   exist, then gets a recipe with them.
-- [ ] Hustler 5-BTV multiband vertical: antenna type once the model is drawn (bounty, 2026-10-21)
+- [x] Hustler 5-BTV multiband vertical (2026-10-23, maintainer's model): "5-BTV Multiband HF Antenna", seven blocks
+  tall, placed and broken as one, coax to the base. SWR 1.3 on every HF band and VHF; on HF line of sight reaches
+  half as far and skip a quarter further (the far edge of the skip window). Dev tab, no recipe yet
 - [ ] Revisit delta loop construction to support triangular build flow and align analyzer messaging
 - [ ] Add sag-varying visuals for long unsupported antenna wire runs
 - [x] 4:1 balun and off-centre-fed dipole (2026-10-21, maintainer): new `balun_four_to_one` feeding an OCFD

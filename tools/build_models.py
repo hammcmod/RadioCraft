@@ -39,6 +39,11 @@ BUILDS = [
         "textures": {"0": "radiocraft:block/ionosonde_bottom", "1": "radiocraft:block/ionosonde_top"},
         "render_type": {"lower": "minecraft:cutout", "upper": "minecraft:cutout"},
     },
+    {   # The Hustler 5-BTV, seven blocks tall, one export per block; the item shows the base.
+        "exports": [f"block/5_btv_antenna_{i}.json" for i in range(1, 8)],
+        "segments": [f"block/5btv_antenna_segment_{i}" for i in range(1, 8)],
+        "item": "item/5btv_antenna",
+    },
     {   # The ionospheric processor, two blocks tall, turned to face the player, valves glowing through glass.
         "export": "block/ionospheric_solar_processor_bottom.json",
         "lower": "block/ionospheric_processor_lower", "upper": "block/ionospheric_processor_upper", "item": "item/ionospheric_processor",
@@ -51,7 +56,17 @@ BUILDS = [
     },
 ]
 
-ITEM_DISPLAY = "item/j_pole_antenna.json"  # Hand and inventory sizes for a two-tall item.
+# How a two-block-tall item sits in the inventory, hand and frames: vanilla's block views at half size, moved down so
+# the model's middle (8 pixels higher than a block's) stays centred.
+TALL_DISPLAY = {
+    "gui": {"rotation": [30, 225, 0], "translation": [0, -2.5, 0], "scale": [0.3125, 0.3125, 0.3125]},
+    "ground": {"rotation": [0, 0, 0], "translation": [0, 1, 0], "scale": [0.125, 0.125, 0.125]},
+    "fixed": {"rotation": [0, 0, 0], "translation": [0, -4, 0], "scale": [0.25, 0.25, 0.25]},
+    "thirdperson_righthand": {"rotation": [75, 45, 0], "translation": [0, 1, 0], "scale": [0.1875, 0.1875, 0.1875]},
+    "thirdperson_lefthand": {"rotation": [75, 45, 0], "translation": [0, 1, 0], "scale": [0.1875, 0.1875, 0.1875]},
+    "firstperson_righthand": {"rotation": [0, 45, 0], "translation": [0, -1, 0], "scale": [0.2, 0.2, 0.2]},
+    "firstperson_lefthand": {"rotation": [0, 225, 0], "translation": [0, -1, 0], "scale": [0.2, 0.2, 0.2]},
+}
 
 
 def warn(text):
@@ -72,6 +87,12 @@ def legalize(element, where):
         element["rotation"] = rotation
     angle = float(rotation["angle"])
     if angle in LEGAL:
+        return
+    if rotation["axis"] == "y" and angle % 90 == 0:
+        # Minecraft turns positive angles anticlockwise seen from above; turn_element turns clockwise.
+        pivot = rotation["origin"]
+        turn_element(element, int(-angle // 90) % 4, (pivot[0], pivot[2]))
+        rotation["angle"] = 0.0
         return
     if rotation["axis"] == "y":
         for shift in (180.0, -180.0):
@@ -149,15 +170,32 @@ def build_tall(spec, export, elements):
         model = base(export, part, render_type=spec["render_type"][half])
         model["textures"] = dict(textures, particle=textures[first[half]])
         write(spec[half], model)
-    display = json.loads((MODELS / ITEM_DISPLAY).read_text(encoding="utf-8"))["display"]
+    display = copy.deepcopy(TALL_DISPLAY)
     item = {"credit": export.get("credit", "Made with Blockbench"), "render_type": spec["render_type"]["upper"], "texture_size": export.get("texture_size", [16, 16]),
             "textures": dict(textures, particle=textures[first["lower"]]), "elements": item_elements, "display": display}
     write(spec["item"], item)
     print(f"  {spec['lower']}: {len(lower)} elements, {spec['upper']}: {len(upper)}, {spec['item']}")
 
 
+def build_stack(spec):
+    for export_path, out in zip(spec["exports"], spec["segments"]):
+        source = MODELS / export_path
+        export = json.loads(source.read_text(encoding="utf-8"))
+        elements = copy.deepcopy(export["elements"])
+        for i, element in enumerate(elements):
+            legalize(element, f"{export_path} element {i} ({element.get('name') or 'unnamed'})")
+        model = base(export, elements, render_type="minecraft:cutout")
+        write(out, model)
+    write(spec["item"], {"parent": f"radiocraft:{spec['segments'][0]}"})
+    print(f"  {len(spec['segments'])} segments, {spec['item']}")
+
+
 def main():
     for spec in BUILDS:
+        if "exports" in spec:
+            print(spec["exports"][0] + " ...")
+            build_stack(spec)
+            continue
         source = MODELS / spec["export"]
         print(spec["export"])
         if not source.exists():

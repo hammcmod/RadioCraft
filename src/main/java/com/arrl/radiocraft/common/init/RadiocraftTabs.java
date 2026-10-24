@@ -39,6 +39,7 @@ public class RadiocraftTabs {
             output.accept(RadiocraftItems.TRANSFER_INTERFACE.get());
 			output.accept(RadiocraftItems.SATELLITE_DISH.get());
 			output.accept(RadiocraftItems.IONOSONDE.get());
+			output.accept(RadiocraftItems.FIVE_BTV_ANTENNA.get());
 			output.accept(RadiocraftItems.IONOSPHERIC_PROCESSOR.get());
 			output.accept(RadiocraftItems.WEFAX_RECEIVER.get());
 		}

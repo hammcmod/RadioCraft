@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "radiocraft:5btv_antenna",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "segment": "0"
+              }
+            }
+          ],
+          "name": "radiocraft:5btv_antenna"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "radiocraft:blocks/5btv_antenna"
+}

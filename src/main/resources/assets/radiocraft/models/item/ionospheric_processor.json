@@ -1827,96 +1827,123 @@
 		}
 	],
 	"display": {
-		"thirdperson_righthand": {
-			"translation": [
-				0,
-				1.75,
-				0
-			],
-			"scale": [
-				0.3,
-				0.3,
-				0.3
-			]
-		},
-		"thirdperson_lefthand": {
-			"translation": [
-				0,
-				1.75,
-				0
-			],
-			"scale": [
-				0.3,
-				0.3,
-				0.3
-			]
-		},
-		"firstperson_righthand": {
-			"rotation": [
-				-12.75,
-				0,
-				0
-			],
-			"translation": [
-				2,
-				6.5,
-				0
-			],
-			"scale": [
-				0.3,
-				0.3,
-				0.3
-			]
-		},
-		"firstperson_lefthand": {
-			"rotation": [
-				-12.75,
-				0,
-				0
-			],
-			"translation": [
-				2,
-				6.5,
-				0
-			],
-			"scale": [
-				0.3,
-				0.3,
-				0.3
-			]
-		},
 		"gui": {
 			"rotation": [
-				180,
-				6.25,
-				-137.5
+				30,
+				225,
+				0
 			],
 			"translation": [
-				1,
+				0,
+				-2.5,
+				0
+			],
+			"scale": [
+				0.3125,
+				0.3125,
+				0.3125
+			]
+		},
+		"ground": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
 				1,
 				0
 			],
 			"scale": [
-				0.46,
-				0.46,
-				0.46
+				0.125,
+				0.125,
+				0.125
 			]
 		},
 		"fixed": {
 			"rotation": [
 				0,
 				0,
-				42.5
+				0
 			],
 			"translation": [
-				-2,
-				1.75,
+				0,
+				-4,
 				0
 			],
 			"scale": [
-				0.6,
-				0.6,
-				0.6
+				0.25,
+				0.25,
+				0.25
+			]
+		},
+		"thirdperson_righthand": {
+			"rotation": [
+				75,
+				45,
+				0
+			],
+			"translation": [
+				0,
+				1,
+				0
+			],
+			"scale": [
+				0.1875,
+				0.1875,
+				0.1875
+			]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [
+				75,
+				45,
+				0
+			],
+			"translation": [
+				0,
+				1,
+				0
+			],
+			"scale": [
+				0.1875,
+				0.1875,
+				0.1875
+			]
+		},
+		"firstperson_righthand": {
+			"rotation": [
+				0,
+				45,
+				0
+			],
+			"translation": [
+				0,
+				-1,
+				0
+			],
+			"scale": [
+				0.2,
+				0.2,
+				0.2
+			]
+		},
+		"firstperson_lefthand": {
+			"rotation": [
+				0,
+				225,
+				0
+			],
+			"translation": [
+				0,
+				-1,
+				0
+			],
+			"scale": [
+				0.2,
+				0.2,
+				0.2
 			]
 		}
 	}

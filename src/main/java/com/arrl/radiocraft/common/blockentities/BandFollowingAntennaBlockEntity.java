@@ -11,12 +11,13 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
- * The ionosonde's lower half: an antenna block whose network object follows its radio's band (see
- * {@link BandFollowingAntennaNetworkObject}), so a radio on either band sees how poorly it matches.
+ * An antenna block whose network object follows its radio's band (see {@link BandFollowingAntennaNetworkObject}), for
+ * antennas that work on HF and VHF alike, well or badly: the ionosonde and the 5-BTV. A radio on either band sees how
+ * it matches there.
  */
-public class IonosondeBlockEntity extends AntennaBlockEntity {
+public class BandFollowingAntennaBlockEntity extends AntennaBlockEntity {
 
-	public IonosondeBlockEntity(BlockPos pos, BlockState state) {
+	public BandFollowingAntennaBlockEntity(BlockPos pos, BlockState state) {
 		super(pos, state);
 	}
 
