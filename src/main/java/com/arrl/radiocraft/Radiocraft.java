@@ -75,6 +75,7 @@ public class Radiocraft {
         RadiocraftTabs.CREATIVE_TABS.register(modEventBus);
         RadiocraftDataComponent.DATA_COMPONENTS.register(modEventBus);
         RadiocraftLootModifiers.LOOT_MODIFIERS.register(modEventBus);
+        RadiocraftIngredientTypes.INGREDIENT_TYPES.register(modEventBus);
 
         modEventBus.addListener(Radiocraft::gatherData);
         modEventBus.addListener(Radiocraft::registerPackets);

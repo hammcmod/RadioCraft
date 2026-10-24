@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "T": {
+      "type": "radiocraft:h19_screen_glass"
+    },
+    "U": {
+      "item": "minecraft:stone_button"
+    },
+    "W": {
+      "item": "radiocraft:wire"
+    }
+  },
+  "pattern": [
+    "ITI",
+    "IBI",
+    "UWU"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:aprs_h19"
+  }
+}

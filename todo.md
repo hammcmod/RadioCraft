@@ -60,7 +60,8 @@ In order. Each step gets GameTests where the server side can be checked; audio s
   match. `antenna_tuner_max_swr` default 6 -> 7; past it a tuner takes off (max - 1) at best (SWR 9 -> 3).
 - [x] Automatic antenna tuner (2026-10-23, maintainer's model): on coax and power (`auto_tuner_power_use`), tunes
   itself on a new band or a 1 MHz move (SWR 3 for a second, relays clicking faster, then 1); past its range it clicks
-  slowly for 6 s and gives up: TUNE FAIL on the radio's screen, FAIL on its own. Dev tab until it has a recipe.
+  slowly for 6 s and gives up: TUNE FAIL on the radio's screen, FAIL on its own. Late-game recipe: a manual tuner,
+  two boards, repeaters (relays), a comparator and a pure encased crystal of any band.
 - [x] Duplexer runtime effect (2026-10-23): six cavity screws (TX on the left, RX on the right), each showing its
   frequency. Factory tuned: it follows its repeater until a player turns a screw. A screw off its signal loses power
   (half at 25 kHz) and shows the transmitter a mismatch; receive cavities weaken what the repeater hears.
@@ -135,13 +136,16 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   - [x] Steps 1 and 2 (2026-10-23): the TNC is now the **Radio Interface** (callsign and TX switch only), joined by
     touch on the station bus to the **H19 APRS Terminal** (maps, messages, beacon and digipeat settings, the
     maintainer's model with READY / CONTACT / MSG screens) and the **Digital Transfer Interface** (files; placeholder
-    box). The Radio Interface keeps the old recipe for now; the H19 and Transfer Interface have none yet.
+    box). The Radio Interface keeps the old recipe for now. Recipes (2026-10-23): the H19 is a CRT (tinted glass, or
+    stained glass with `allow_stained_glass_for_h19_aprs`), a board and button keys; the Transfer Interface a board
+    and a book.
   - [x] Step 3 (2026-10-23): the Teletype Machine (the solar weather station renamed) with RTTY through its radios,
     its own callsign and paper, and SOLAR WX printing the local report
   - [x] Ionosonde Antenna (2026-10-23, maintainer's model): two blocks tall like the J-pole, its own antenna type.
-    On a radio it hears VHF well and HF weakly, and matches poorly: SWR 3 on VHF, 8 on HF. Dev tab, no recipe.
+    On a radio it hears VHF well and HF weakly, and matches poorly: SWR 3 on VHF, 8 on HF. Dev tab; recipe (2026-10-23): lightning rods, antenna wire, copper, coax.
   - [x] Ionospheric Processor block (2026-10-23, maintainer's model): two blocks tall, its three valves glow softly
-    (light 10) through translucent glass. Decorative so far: dev tab, no recipe
+    (light 10) through translucent glass. Decorative so far, dev tab; recipe (2026-10-23): redstone torch valves,
+    glass, two amethyst shards, a board and a clock
   - [ ] Steps 4 to 7: the processor reading the sky through its ionosonde, over-the-air requests and bulletins, WX,
     recipes
   - [ ] Redesigned UIs for the H19 and the Transfer Interface (maintainer); for now they are the old APRS/MSG and
@@ -173,7 +177,7 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] WEFAX receiver model: its Rotary elements are turned -85, 80 and 42.5 degrees, which Minecraft 1.21.1 cannot
   load (it shows as missing). Re-export with Blockbench set to 1.21.1 and 22.5 degree steps (`ModelFilesTest` lists it)
 - [ ] WEFAX receiver (maintainer, 2026-10-23): prints weather charts, after the WX work. The block and model are in
-  (dev tab, decorative, no recipe); the UI comes once the rest of the WX work is done
+  (dev tab, decorative; recipe 2026-10-23: a board, paper drum and a clock); the UI comes once the rest of the WX work is done
 
 ### Antenna Expansions
 - [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types
@@ -182,7 +186,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   exist, then gets a recipe with them.
 - [x] Hustler 5-BTV multiband vertical (2026-10-23, maintainer's model): "5-BTV Multiband HF Antenna", seven blocks
   tall, placed and broken as one, coax to the base. SWR 1.3 on every HF band and VHF; on HF line of sight reaches
-  half as far and skip a quarter further (the far edge of the skip window). Dev tab, no recipe yet
+  half as far and skip a quarter further (the far edge of the skip window). Dev tab; late-game recipe (2026-10-23):
+  two copper blocks of tubing, four ferrite traps, two lightning rods, coax
 - [ ] Revisit delta loop construction to support triangular build flow and align analyzer messaging
 - [ ] Add sag-varying visuals for long unsupported antenna wire runs
 - [x] 4:1 balun and off-centre-fed dipole (2026-10-21, maintainer): new `balun_four_to_one` feeding an OCFD

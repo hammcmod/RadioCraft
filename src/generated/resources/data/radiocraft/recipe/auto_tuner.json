@@ -1,0 +1,47 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "radiocraft:hf_circuit_board"
+    },
+    "C": {
+      "item": "minecraft:comparator"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "P": {
+      "item": "minecraft:repeater"
+    },
+    "T": {
+      "item": "radiocraft:antenna_tuner"
+    },
+    "X": [
+      {
+        "item": "radiocraft:encased_crystal_80m_pure"
+      },
+      {
+        "item": "radiocraft:encased_crystal_40m_pure"
+      },
+      {
+        "item": "radiocraft:encased_crystal_20m_pure"
+      },
+      {
+        "item": "radiocraft:encased_crystal_10m_pure"
+      },
+      {
+        "item": "radiocraft:encased_crystal_vhf_pure"
+      }
+    ]
+  },
+  "pattern": [
+    "PCP",
+    "BTB",
+    "IXI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:auto_tuner"
+  }
+}

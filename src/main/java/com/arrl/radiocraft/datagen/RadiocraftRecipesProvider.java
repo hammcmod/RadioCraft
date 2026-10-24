@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.datagen;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.crafting.H19ScreenGlassIngredient;
 import com.arrl.radiocraft.common.init.CrystalVariants;
 import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.radio.crystal.CrystalBand;
@@ -79,6 +80,126 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
 
         // All band radio variants (shapeless)
         buildAllBandRadioRecipes(recipeOutput);
+
+        // Late additions: station and antenna gear (recipe review, 2026-10-23)
+        buildFiveBtvRecipe(recipeOutput);
+        buildAutoTunerRecipe(recipeOutput);
+        buildAprsTerminalRecipe(recipeOutput);
+        buildTransferInterfaceRecipe(recipeOutput);
+        buildIonosondeRecipes(recipeOutput);
+        buildWefaxReceiverRecipe(recipeOutput);
+    }
+
+    /** The Hustler 5-BTV: aluminium tubing (copper here), four traps for 10/15/20/40m and a coax feed. Late game. */
+    private void buildFiveBtvRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.FIVE_BTV_ANTENNA.get(), 1)
+                .pattern("LCL")
+                .pattern("FCF")
+                .pattern("FOF")
+                .define('L', Items.LIGHTNING_ROD) // The top whip sections.
+                .define('C', Items.COPPER_BLOCK) // The tubing.
+                .define('F', RadiocraftItems.FERRITE_CORE.get()) // The traps.
+                .define('O', RadiocraftItems.COAX_WIRE.get())
+                .unlockedBy("has_ferrite_core", has(RadiocraftItems.FERRITE_CORE.get()))
+                .save(recipeOutput);
+    }
+
+    /**
+     * The automatic tuner: a manual tuner's network switched by relays (repeaters), an SWR bridge (comparators), and a
+     * controller on two boards clocked by a pure crystal of any band. Late game.
+     */
+    private void buildAutoTunerRecipe(RecipeOutput recipeOutput) {
+        Item[] pureCrystals = Arrays.stream(CrystalBand.values())
+                .map(band -> RadiocraftItems.ENCASED_CRYSTALS.get(band).get(CrystalQuality.PURE).get())
+                .toArray(Item[]::new);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.AUTO_TUNER.get(), 1)
+                .pattern("PCP")
+                .pattern("BTB")
+                .pattern("IXI")
+                .define('P', Items.REPEATER)
+                .define('C', Items.COMPARATOR)
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('T', RadiocraftItems.ANTENNA_TUNER.get())
+                .define('I', Items.IRON_INGOT)
+                .define('X', Ingredient.of(pureCrystals))
+                .unlockedBy("has_antenna_tuner", has(RadiocraftItems.ANTENNA_TUNER.get()))
+                .save(recipeOutput);
+    }
+
+    /**
+     * The H19: a CRT (tinted glass, or stained glass too where the server allows it, see
+     * {@link H19ScreenGlassIngredient}), a logic board and a keyboard of buttons.
+     */
+    private void buildAprsTerminalRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.APRS_TERMINAL.get(), 1)
+                .pattern("ITI")
+                .pattern("IBI")
+                .pattern("UWU")
+                .define('I', Items.IRON_INGOT)
+                .define('T', H19ScreenGlassIngredient.INSTANCE.toVanilla())
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('U', Items.STONE_BUTTON) // The keys.
+                .define('W', RadiocraftItems.WIRE.get())
+                .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
+                .save(recipeOutput);
+    }
+
+    /** The digital transfer interface: a board and a book for the files. */
+    private void buildTransferInterfaceRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TRANSFER_INTERFACE.get(), 1)
+                .pattern("IWI")
+                .pattern("WBW")
+                .pattern("IKI")
+                .define('I', Items.IRON_INGOT)
+                .define('W', RadiocraftItems.WIRE.get())
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('K', Items.BOOK)
+                .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
+                .save(recipeOutput);
+    }
+
+    /**
+     * The ionosonde antenna (copper and antenna wire, fed by coax) and its processor: valves (redstone torches in
+     * glass), a board, amethyst for the sounder's oscillator and a clock for the sweep.
+     */
+    private void buildIonosondeRecipes(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.IONOSONDE.get(), 1)
+                .pattern("LAL")
+                .pattern("CAC")
+                .pattern("COC")
+                .define('L', Items.LIGHTNING_ROD)
+                .define('A', RadiocraftItems.ANTENNA_WIRE.get())
+                .define('C', Items.COPPER_INGOT)
+                .define('O', RadiocraftItems.COAX_WIRE.get())
+                .unlockedBy("has_coax_wire", has(RadiocraftItems.COAX_WIRE.get()))
+                .save(recipeOutput);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.IONOSPHERIC_PROCESSOR.get(), 1)
+                .pattern("RGR")
+                .pattern("ABA")
+                .pattern("IKI")
+                .define('R', Items.REDSTONE_TORCH) // The valves.
+                .define('G', Items.GLASS)
+                .define('A', Items.AMETHYST_SHARD)
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('I', Items.IRON_INGOT)
+                .define('K', Items.CLOCK)
+                .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
+                .save(recipeOutput);
+    }
+
+    /** The WEFAX receiver: a board driving a paper drum, timed by a clock (real ones turn at 120 rpm). */
+    private void buildWefaxReceiverRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.WEFAX_RECEIVER.get(), 1)
+                .pattern("IPI")
+                .pattern("WBW")
+                .pattern("IKI")
+                .define('I', Items.IRON_INGOT)
+                .define('P', Items.PAPER)
+                .define('W', RadiocraftItems.WIRE.get())
+                .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
+                .define('K', Items.CLOCK)
+                .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
+                .save(recipeOutput);
     }
 
     private void buildWireRecipe(RecipeOutput recipeOutput) {

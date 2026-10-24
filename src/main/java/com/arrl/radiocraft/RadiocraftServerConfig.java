@@ -45,6 +45,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_MAX_HOPS;
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_BEACON_INTERVAL_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_CONTACT_LAMP_MINUTES;
+	public static final ModConfigSpec.ConfigValue<Boolean> APRS_H19_STAINED_GLASS;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
 	public static final ModConfigSpec.ConfigValue<Integer> AUTO_TUNER_POWER_USE;
 	public static final ModConfigSpec.ConfigValue<Double> RADIO_BLOW_SWR;
@@ -174,6 +175,8 @@ public class RadiocraftServerConfig {
 				.defineInRange("tnc_beacon_interval_seconds", 600, 30, 86400);
 		APRS_CONTACT_LAMP_MINUTES = BUILDER.comment(" Minutes an APRS terminal's CONTACT light stays on after a new station is heard, unless someone opens it first; 0 keeps it on until opened")
 				.defineInRange("aprs_contact_lamp_minutes", 10, 0, 1440);
+		APRS_H19_STAINED_GLASS = BUILDER.comment(" Allow stained glass for the H19 APRS terminal's screen in its recipe, as well as tinted glass")
+				.define("allow_stained_glass_for_h19_aprs", false);
 		BUILDER.pop();
 
 		BUILDER.push("Antenna Tuner");

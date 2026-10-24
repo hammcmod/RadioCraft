@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "radiocraft:antenna_wire"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "L": {
+      "item": "minecraft:lightning_rod"
+    },
+    "O": {
+      "item": "radiocraft:coax_wire"
+    }
+  },
+  "pattern": [
+    "LAL",
+    "CAC",
+    "COC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:ionosonde"
+  }
+}
