@@ -457,4 +457,41 @@ public class RepeaterGameTests {
                 })
                 .thenSucceed();
     }
+
+    /**
+     * Sleep and wake (original plan): asleep until used; awake, it IDs every interval even when idle; after an interval
+     * with no use since its last ID it IDs once more and goes to sleep, silent until used again.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 600, batch = BATCH)
+    public static void repeaterSleepsAfterAnIdleInterval(GameTestHelper helper) {
+        buildWithDuplexer(helper);
+        int interval = 60;
+        long[] lastHeard = new long[1];
+        helper.startSequence()
+                .thenWaitUntil(() -> assertAntennas(helper, REPEATER, 1))
+                .thenExecute(() -> {
+                    CompoundTag settings = new CompoundTag();
+                    settings.putString("callsign", "W1AW");
+                    settings.putInt("idInterval", interval);
+                    repeater(helper, REPEATER).applySettings(settings);
+                    setUp(helper, 145_000, 145_600);
+                    helper.assertFalse(repeater(helper, REPEATER).isAwake(), "A new repeater should be asleep");
+                })
+                .thenIdle(1)
+                .thenExecute(() -> {
+                    speak(helper, STATION_A);
+                    lastHeard[0] = helper.getLevel().getGameTime();
+                })
+                .thenExecuteAfter(2, () -> helper.assertTrue(repeater(helper, REPEATER).isAwake(), "Use did not wake the repeater"))
+                // Idle but awake: an ID goes out on its own once the interval has passed.
+                .thenWaitUntil(() -> helper.assertTrue(station(helper, STATION_B).getLastSignalGameTime() > lastHeard[0] + interval,
+                        "No ID from the idle, awake repeater"))
+                // With no use since, the next ID is the last: then it sleeps.
+                .thenWaitUntil(() -> helper.assertFalse(repeater(helper, REPEATER).isAwake(), "The repeater did not go to sleep"))
+                .thenWaitUntil(() -> helper.assertFalse(repeater(helper, REPEATER).isTransmitting(), "Still transmitting after its last ID"))
+                .thenExecute(() -> lastHeard[0] = station(helper, STATION_B).getLastSignalGameTime())
+                .thenIdle(interval * 2)
+                .thenExecute(() -> helper.assertTrue(station(helper, STATION_B).getLastSignalGameTime() == lastHeard[0], "The sleeping repeater still sent something"))
+                .thenSucceed();
+    }
 }

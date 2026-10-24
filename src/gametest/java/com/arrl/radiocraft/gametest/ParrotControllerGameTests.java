@@ -1,5 +1,9 @@
 package com.arrl.radiocraft.gametest;
 
+import java.util.UUID;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import net.neoforged.neoforge.common.util.FakePlayer;
+import com.mojang.authlib.GameProfile;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.blockentities.ParrotControllerBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.HFRadioBlockEntity;
@@ -132,5 +136,25 @@ public class ParrotControllerGameTests {
                 .thenExecute(() -> helper.setBlock(CONTROLLER, Blocks.AIR))
                 .thenExecuteAfter(2, () -> helper.assertFalse(radio(helper, RADIO_B).isParrot(), "Radio B still parrots after its controller was broken"))
                 .thenSucceed();
+    }
+
+    /** Sneak and right click with an empty hand: the controller links the next radio round it. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 40)
+    public static void sneakUsePicksTheOtherRadio(GameTestHelper helper) {
+        BlockPos controller = new BlockPos(5, 2, 5);
+        helper.setBlock(controller.west(), RadiocraftBlocks.HF_RADIO_20M.get());
+        helper.setBlock(controller.east(), RadiocraftBlocks.HF_RADIO_20M.get());
+        helper.setBlock(controller, RadiocraftBlocks.PARROT_CONTROLLER.get().defaultBlockState().setValue(ParrotControllerBlock.LINK, ParrotControllerBlock.LinkSide.of(Direction.WEST)));
+        FakePlayer player = FakePlayerFactory.get(helper.getLevel(), new GameProfile(UUID.nameUUIDFromBytes("parrot-picker".getBytes()), "parrot-picker"));
+        player.getInventory().clearContent();
+        player.setShiftKeyDown(true);
+        helper.useBlock(controller, player);
+        helper.assertTrue(helper.getBlockState(controller).getValue(ParrotControllerBlock.LINK) == ParrotControllerBlock.LinkSide.of(Direction.EAST),
+                "Sneak-use did not link the east radio: " + helper.getBlockState(controller).getValue(ParrotControllerBlock.LINK));
+        helper.useBlock(controller, player);
+        helper.assertTrue(helper.getBlockState(controller).getValue(ParrotControllerBlock.LINK) == ParrotControllerBlock.LinkSide.of(Direction.WEST),
+                "A second sneak-use did not go back to the west radio");
+        player.setShiftKeyDown(false);
+        helper.succeed();
     }
 }

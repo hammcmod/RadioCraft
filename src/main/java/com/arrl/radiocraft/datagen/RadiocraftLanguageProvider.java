@@ -237,6 +237,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "antenna_analyzer"), "Used for analyzing antenna networks and handheld radio antennas");
             provider.add(Radiocraft.translationKey("tooltip", "parrot_controller"), "Repeats received messages back out the connected radio. Affectionately called a \"parrot\" repeater.");
             provider.add(Radiocraft.translationKey("message", "parrot_controller.delay"), "Repeat delay: %ss");
+            provider.add(Radiocraft.translationKey("message", "parrot_controller.linked"), "Linked to the radio to the %s");
+            for(String side : new String[] {"north", "east", "south", "west"})
+                provider.add(Radiocraft.translationKey("message", "side." + side), side);
 
             provider.add(Radiocraft.translationKey("tooltip", "teletype"), "RTTY through the radios it touches, printed on its own paper. SOLAR WX prints the solar conditions, which it reads through a radio with an antenna (not a dummy load) next to it. A comparator reads 1 (blackout) to 6 (great).");
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.report"), "Solar conditions: %s (noise floor %s%%). %s band: %s");

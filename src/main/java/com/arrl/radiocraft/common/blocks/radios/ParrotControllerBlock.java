@@ -110,6 +110,18 @@ public class ParrotControllerBlock extends BaseEntityBlock {
 		return LinkSide.NONE;
 	}
 
+	/** The next side round from {@code current} (clockwise) with a radio on it; {@code current} if there is no other. */
+	public static LinkSide nextRadio(BlockGetter level, BlockPos pos, LinkSide current) {
+		Direction start = current == LinkSide.NONE ? Direction.NORTH : current.direction();
+		Direction direction = start;
+		for(int i = 0; i < 4; i++) {
+			direction = direction.getClockWise();
+			if(isRadio(level, pos.relative(direction)))
+				return LinkSide.of(direction);
+		}
+		return current;
+	}
+
 	private static boolean isRadio(BlockGetter level, BlockPos pos) {
 		return level.getBlockState(pos).getBlock() instanceof RadioBlock;
 	}
@@ -138,7 +150,16 @@ public class ParrotControllerBlock extends BaseEntityBlock {
 
 	@Override
 	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
-		if(!level.isClientSide && level.getBlockEntity(pos) instanceof ParrotControllerBlockEntity be) {
+		if(!level.isClientSide && player.isShiftKeyDown()) { // Sneak: link the next radio round it instead.
+			LinkSide next = nextRadio(level, pos, state.getValue(LINK));
+			if(next != LinkSide.NONE) {
+				level.setBlock(pos, state.setValue(LINK, next), Block.UPDATE_ALL);
+				player.displayClientMessage(Component.translatable("message.radiocraft.parrot_controller.linked",
+						Component.translatable("message.radiocraft.side." + next.direction().getName())), true);
+				level.playSound(null, pos, SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.4F, 1.1F);
+			}
+		}
+		else if(!level.isClientSide && level.getBlockEntity(pos) instanceof ParrotControllerBlockEntity be) {
 			int delay = be.cycleDelay();
 			player.displayClientMessage(Component.translatable("message.radiocraft.parrot_controller.delay", delay / 20.0D), true);
 			level.playSound(null, pos, SoundEvents.STONE_BUTTON_CLICK_ON, SoundSource.BLOCKS, 0.4F, 0.8F); // A small front-panel button.

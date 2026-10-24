@@ -83,6 +83,8 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 	private boolean beepPending = false;
 	private long hangUntil = -1L;
 	private long lastIdGameTime = -1L;
+	private boolean awake = false; // Woken by use; sleeps again after an ID interval with no use (not saved: wakes on use).
+	private long lastUseGameTime = -1L;
 	private int kerchunkTicks = 0;
 	private final ConcurrentLinkedQueue<short[]> generated = new ConcurrentLinkedQueue<>();
 	private final UUID voiceId;
@@ -398,13 +400,18 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 		boolean input = isInputActive() && !timedOut;
 		boolean local = lastLocalGameTime >= 0 && now - lastLocalGameTime <= INPUT_GAP_TICKS;
 		if(input || local) { // The voice is going out as it arrives; just keep the hang timer topped up.
+			awake = true;
+			lastUseGameTime = now;
 			keyed = true;
 			beepPending = true;
 			hangUntil = now + hangTicks;
 			return;
 		}
-		if(!keyed)
-			return;
+		if(!keyed) {
+			idleId(now);
+			if(!keyed)
+				return;
+		}
 		if(beepPending) {
 			beepPending = false;
 			generated.addAll(RepeaterAudio.courtesyBeep());
@@ -426,6 +433,26 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 		}
 		if(generated.isEmpty() && now > hangUntil)
 			keyed = false;
+	}
+
+	/**
+	 * Awake and idle with an ID due: key up and send it. If nobody has used the repeater since an interval before
+	 * this ID, it is the last one: the repeater goes back to sleep and stays silent until someone uses it again.
+	 */
+	private void idleId(long now) {
+		if(!awake || !isIdDue(now))
+			return;
+		generated.addAll(RepeaterAudio.morse(callsign));
+		lastIdGameTime = now;
+		keyed = true;
+		hangUntil = now;
+		if(lastUseGameTime < 0 || now - lastUseGameTime >= idIntervalTicks)
+			awake = false;
+	}
+
+	/** True between being used and its last ID after an interval of silence. */
+	public boolean isAwake() {
+		return awake;
 	}
 
 	private boolean isIdDue(long now) {
