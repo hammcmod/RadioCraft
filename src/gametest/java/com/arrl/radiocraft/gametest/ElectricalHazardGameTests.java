@@ -11,6 +11,8 @@ import com.arrl.radiocraft.common.capabilities.BENetworksCapability;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.LightningRodAntennas;
+import com.arrl.radiocraft.common.radio.rfi.AntennaStrikes;
+import com.arrl.radiocraft.common.blocks.radios.RadioBlock;
 import com.arrl.radiocraft.common.radio.antenna.types.vhf.LightningRodAntennaType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
@@ -168,6 +170,34 @@ public class ElectricalHazardGameTests {
                     helper.getLevel().setWeatherParameters(6000, 0, false, false);
                     RadiocraftServerConfig.ANTENNA_LIGHTNING_CHANCE.set(chance);
                     helper.assertTrue(landed.equals(helper.absolutePos(rod).above()), "The strike landed at " + landed + ", not on the antenna");
+                })
+                .thenSucceed();
+    }
+
+    /** A strike on a J-pole blows the radio on its coax, burns the coax at the antenna, and (chance 1 here) lights the battery. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 200, batch = "antenna_strike")
+    public static void strikeOnAntennaBlowsRadio(GameTestHelper helper) {
+        double ignite = RadiocraftServerConfig.LIGHTNING_BATTERY_IGNITE_CHANCE.get();
+        RadiocraftServerConfig.LIGHTNING_BATTERY_IGNITE_CHANCE.set(1.0D);
+        RadiocraftServerConfig.BATTERY_FIRES_ENABLED.set(true);
+        BlockPos radio = new BlockPos(4, 2, 4), coax = radio.south(), jPole = radio.south(2), battery = radio.north(2);
+        GameTestUtil.radioWithJPole(helper, radio);
+        helper.setBlock(battery, RadiocraftBlocks.LARGE_BATTERY.get());
+        wire(helper, radio.north());
+        helper.startSequence()
+                .thenWaitUntil(() -> {
+                    AntennaNetworkObject antenna = GameTestUtil.networkObject(helper, jPole, AntennaNetworkObject.class);
+                    helper.assertTrue(antenna.getAntenna() != null && antenna.getRadios().size() == 1, "The J-pole is not on the radio yet");
+                    helper.assertTrue(GameTestUtil.networkObject(helper, battery, BatteryNetworkObject.class).getNetworks().values().stream()
+                            .anyMatch(n -> n.getNetworkObjects().size() > 1), "The battery is not wired to the radio yet");
+                })
+                .thenExecute(() -> {
+                    AntennaStrikes.strike(helper.getLevel(), net.minecraft.world.phys.Vec3.atBottomCenterOf(helper.absolutePos(jPole.above(2))));
+                    RadiocraftServerConfig.LIGHTNING_BATTERY_IGNITE_CHANCE.set(ignite);
+                    helper.assertTrue(helper.getBlockState(radio).getValue(RadioBlock.BLOWN), "The radio did not blow");
+                    helper.assertFalse(helper.getBlockState(coax).is(RadiocraftBlocks.COAX_WIRE.get()), "The coax at the antenna did not burn out");
+                    helper.assertTrue(BatteryFires.isBurning(helper.getLevel(), helper.absolutePos(battery)), "The battery did not catch");
+                    RadiocraftServerConfig.BATTERY_FIRES_ENABLED.set(false);
                 })
                 .thenSucceed();
     }

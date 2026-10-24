@@ -1,0 +1,27 @@
+{
+  "name": "Wire Hazards",
+  "icon": "radiocraft:wire",
+  "category": "radiocraft:safety",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Power $(item)wire$() is bare metal. With a charged battery or a working solar panel behind it, three things go wrong.$(br2)All of them need power: a run with nothing charged on it is harmless."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Shorts",
+      "text": "A wire joined back to itself, any $(thing)closed loop$() of power wire (even a 2x2 square), is a $(thing)short$(). It fizzes and smokes, catches fire, and burns through after a few seconds, draining a quarter of the stored energy every second until it does.$(br2)Run power as lines and branches, never loops."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Water",
+      "text": "Plain wire touching $(thing)water$() electrifies it: anything swimming within about six blocks is hurt every second, and the batteries drain fast.$(br2)Use $(item)waterproof wire$() anywhere near water. It never gets wet, though it can still short."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Rain",
+      "text": "An $(thing)open end$() of plain wire out in the rain sparks, drawing as much as a transmitting HF radio, and $(thing)zaps$() anything that touches it, drawing six times that for a second.$(br2)End every run at a device, keep it under a roof, or use waterproof wire."
+    }
+  ]
+}

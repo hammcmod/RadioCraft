@@ -1,0 +1,27 @@
+{
+  "name": "Lightning",
+  "icon": "minecraft:lightning_rod",
+  "category": "radiocraft:safety",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Antennas stand tall in the open, and in a thunderstorm they $(thing)draw lightning$(): now and then a strike that would have landed nearby hits the highest antenna instead. A $(item)lightning rod$() draws strikes from much further, and always wins."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "A strike on an antenna",
+      "text": "The surge comes down the coax. It $(thing)burns out$() the coax at the antenna and some of the rest of the run, $(thing)blows every radio$() on it (SWR protection does not help), and sometimes sets the batteries those radios run on alight.$(br2)A $(thing)lightning arrestor$() on the coax will stop it, once there is one."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Lightning rods as antennas",
+      "text": "Run coax to a $(item)lightning rod$() and it works as a very basic VHF antenna: a poor match (SWR 6) and a quarter of a J-pole's range. Fine for listening in a pinch.$(br2)Of course, it is still a lightning rod."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Staying safe",
+      "text": "$(li)Put a real lightning rod higher than your antennas and away from the station.$(li)Keep power wire away from where strikes land: a strike near power wire sets its batteries alight.$(li)Keep spare coax and a spare radio."
+    }
+  ]
+}

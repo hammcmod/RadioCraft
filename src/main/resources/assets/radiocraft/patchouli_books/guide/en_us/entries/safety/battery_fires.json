@@ -1,0 +1,22 @@
+{
+  "name": "Battery Fires",
+  "icon": "radiocraft:large_battery",
+  "category": "radiocraft:safety",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A $(item)large battery$() catches fire from fire or lava beside it, a flint and steel, or lightning striking power wire that runs to it.$(br2)Once it is alight $(thing)nothing puts it out$(). It burns until it is used up, setting fire around it and spreading to the batteries it touches."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Water",
+      "text": "Water against a burning battery holds the flames down: it hisses and steams, and stops spreading fire. It is still burning inside and keeps being used up. Take the water away before it is gone and it $(thing)flares up again$()."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Battery banks",
+      "text": "A battery that burns out in a group of $(thing)four or more$() touching batteries $(thing)explodes$(), harder the bigger the bank, and sets the rest of the bank alight. Some of those explosions start fires.$(br2)Keep banks small, keep them away from anything that burns, and keep fire and lava well away from them."
+    }
+  ]
+}

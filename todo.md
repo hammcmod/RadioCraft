@@ -127,7 +127,11 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [x] Lightning rods are very basic VHF antennas when coax runs to them (SWR 6, a quarter of a J-pole's range), and
   antennas draw lightning: a strike no lightning rod claimed lands on the highest antenna within 32 blocks a quarter of
   the time (`Antenna Lightning`)
-- [ ] Does a strike on an antenna (or a lightning rod antenna) hurt the radio on its coax? (maintainer to decide)
+- [x] A strike on an antenna (2026-10-24, maintainer) burns out the coax at the antenna (and 30% of the rest of the
+  run), blows every radio on the run (SWR protection does not help), and 10% of the time sets the batteries those
+  radios run on alight (`lightning_antenna_damage`, `lightning_coax_burn_chance`, `lightning_battery_ignite_chance`)
+- [ ] Lightning arrestor (maintainer, 2026-10-24): an in-line coax block that stops a strike's surge (no coax burnt,
+  no radio blown, no battery fire); needs a model (bounty) and a recipe
 
 ### Radios & Networking
 - [x] Tie radio power draw, on/off state, and static playback into battery/solar networks via `RadioNetworkObject` (2026-10-21)

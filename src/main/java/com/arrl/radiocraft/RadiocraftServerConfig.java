@@ -85,6 +85,9 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> BATTERY_LIGHTNING_WIRE_RANGE;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_LIGHTNING_CHANCE;
 	public static final ModConfigSpec.ConfigValue<Integer> ANTENNA_LIGHTNING_RANGE;
+	public static final ModConfigSpec.ConfigValue<Boolean> LIGHTNING_ANTENNA_DAMAGE;
+	public static final ModConfigSpec.ConfigValue<Double> LIGHTNING_COAX_BURN_CHANCE;
+	public static final ModConfigSpec.ConfigValue<Double> LIGHTNING_BATTERY_IGNITE_CHANCE;
 	public static final ModConfigSpec.ConfigValue<Boolean> GUIDE_ON_FIRST_JOIN;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> TERRAIN_ENABLED;
@@ -301,6 +304,11 @@ public class RadiocraftServerConfig {
 		ANTENNA_LIGHTNING_CHANCE = BUILDER.comment(" Antennas draw lightning like a weak lightning rod: the chance a strike no lightning rod claimed lands on the",
 				" highest antenna nearby instead. 0 turns it off").defineInRange("antenna_lightning_chance", 0.25, 0.0, 1.0);
 		ANTENNA_LIGHTNING_RANGE = BUILDER.comment(" Blocks an antenna draws lightning from (a lightning rod: 128)").defineInRange("antenna_lightning_range", 32, 0, 128);
+		LIGHTNING_ANTENNA_DAMAGE = BUILDER.comment(" A strike on an antenna surges down the coax: it blows every radio on the run and burns out coax").define("lightning_antenna_damage", true);
+		LIGHTNING_COAX_BURN_CHANCE = BUILDER.comment(" Chance each coax block on a struck antenna's run burns out (the one at the antenna always does)")
+				.defineInRange("lightning_coax_burn_chance", 0.3, 0.0, 1.0);
+		LIGHTNING_BATTERY_IGNITE_CHANCE = BUILDER.comment(" Chance a strike on an antenna also sets the batteries its radios run on alight")
+				.defineInRange("lightning_battery_ignite_chance", 0.1, 0.0, 1.0);
 		BUILDER.pop();
 
 		BUILDER.push("Towers");
