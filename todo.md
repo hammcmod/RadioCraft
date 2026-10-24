@@ -190,6 +190,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 
 ### Antenna Expansions
 - [ ] Implement Moxon antenna variants (VHF/10m/20m) and register antenna types
+- [ ] Ringo antenna (maintainer, 2026-10-23)
+- [ ] Industrial dipole antenna (maintainer, 2026-10-23)
 - [ ] Figure out how we'll allow building of HF yagis (maintainer, 2026-10-21)
 - [ ] Satellite dish: no recipe yet (maintainer, 2026-10-23); it stays dev-only and decorative until satellites
   exist, then gets a recipe with them.
