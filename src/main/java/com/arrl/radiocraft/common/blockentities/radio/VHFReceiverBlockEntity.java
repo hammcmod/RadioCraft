@@ -42,4 +42,10 @@ public class VHFReceiverBlockEntity extends VHFRadioBlockEntity {
         return new RadioNetworkObject(level, worldPosition, CommonConfig.VHF_RECEIVER_TICK.get(), CommonConfig.VHF_RECEIVER_TICK.get());
     }
 
+
+	/** A receiver has no microphone. */
+	@Override
+	public boolean canLendHandMic() {
+		return false;
+	}
 }

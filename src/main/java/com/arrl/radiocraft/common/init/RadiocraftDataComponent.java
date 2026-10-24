@@ -32,6 +32,14 @@ public class RadiocraftDataComponent {
             builder -> builder.persistent(net.minecraft.util.ExtraCodecs.NON_NEGATIVE_INT)
     );
 
+    /** A radio's hand mic on its cord: which radio, and which lending (see {@link com.arrl.radiocraft.common.items.MicCord}). */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.arrl.radiocraft.common.items.MicCord>> MIC_CORD = DATA_COMPONENTS.registerComponentType(
+            "mic_cord",
+            builder -> builder
+                    .persistent(com.arrl.radiocraft.common.items.MicCord.CODEC)
+                    .networkSynchronized(com.arrl.radiocraft.common.items.MicCord.STREAM_CODEC)
+    );
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<HandheldRadioState>> HANDHELD_RADIO_STATE_COMPONENT = DATA_COMPONENTS.registerComponentType(
             "handheld_radio_state",
             builder -> builder

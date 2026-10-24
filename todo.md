@@ -32,9 +32,11 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 - [x] Provide working SWR and propagation hooks so core HF radios are usable (2026-10: SWR per antenna type, skip, solar weather)
 - [x] HF receiver, QRP radios, and the all-band radio shapeless combinations exist
 - [x] VHF handhelds have functional radios
-- [ ] Hand mic on a cord (maintainer, 2026-10-23): shift-right-click a radio to take its hand mic into your hand,
-  with a cord drawn from you to the radio like the antenna wire. Right click with the mic to PTT. Walk more than 5
-  blocks away and the cord snaps back and the mic goes back on the radio; right click the radio to hang it up.
+- [x] Hand mic on a cord (maintainer, 2026-10-23; done 2026-10-24): sneak-right-click a radio with an empty hand
+  to take its hand mic (a "Hand Microphone" item that looks like the crafting one but is its own, uncraftable item),
+  with a sagging cord drawn from the radio to your hand. Hold right click to talk. Walk more than 5 blocks away, put
+  it away or log out and the cord snaps back; right click the radio with it to hang it up. Dropped, it vanishes. HF,
+  QRP, all-band and VHF base stations; not receivers or the repeater.
 - [x] Comparator S-meter (2026-10-20): a comparator against any radio reads the received signal strength 0-15, falling
   back to 0 a second after the signal ends. Jade shows the same reading, the interference level and the repeat delay.
 

@@ -63,6 +63,11 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         this.isUseHeld = useHeld;
     }
 
+    /** True while the player holds the use key (right click), as their client last reported. */
+    public boolean isUseHeld() {
+        return isUseHeld;
+    }
+
     @SuppressWarnings("this-escape")
     public PlayerRadio(Player player) {
         setPlayer(player);

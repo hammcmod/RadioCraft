@@ -35,6 +35,9 @@ public class RadiocraftItems {
 	public static final Map<CrystalBand, Map<CrystalQuality, Supplier<Item>>> ENCASED_CRYSTALS = crystals("encased_crystal");
 	public static final Supplier<Item> RADIO_SPEAKER = simpleItem("radio_speaker", null);
 	public static final Supplier<Item> HAND_MICROPHONE = simpleItem("hand_microphone", null);
+	/** A radio's hand mic taken out on its cord (not craftable: sneak-use a radio). Looks like the hand microphone. */
+	public static final DeferredHolder<Item, com.arrl.radiocraft.common.items.CordedMicrophoneItem> CORDED_MICROPHONE = ITEMS.register("corded_microphone",
+			() -> new com.arrl.radiocraft.common.items.CordedMicrophoneItem(new Properties()));
 	public static final Supplier<Item> HF_CIRCUIT_BOARD = simpleItem("hf_circuit_board", null);
 	public static final Supplier<Item> ALL_BAND_CIRCUIT_BOARD = simpleItem("all_band_circuit_board", null);
 

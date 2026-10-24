@@ -6,6 +6,13 @@ import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.arrl.radiocraft.common.radio.crystal.CrystalQuality;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import com.arrl.radiocraft.common.items.CordedMicrophoneItem;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -118,6 +125,28 @@ public abstract class RadioBlock extends AbstractPowerNetworkBlock {
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
 		return defaultBlockState().setValue(HORIZONTAL_FACING, context.getHorizontalDirection().getOpposite())
 				.setValue(CEILING, context.getClickedFace() == Direction.DOWN);
+	}
+
+	/** Sneak-right-click with an empty hand takes the radio's hand mic on its cord; otherwise the radio's screen opens. */
+	@Override
+	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hitResult) {
+		if(player.isShiftKeyDown() && level.getBlockEntity(pos) instanceof RadioBlockEntity radio && radio.canLendHandMic()) {
+			if(player instanceof ServerPlayer serverPlayer)
+				radio.takeHandMic(serverPlayer);
+			return InteractionResult.sidedSuccess(level.isClientSide);
+		}
+		return super.useWithoutItem(state, level, pos, player, hitResult);
+	}
+
+	/** Right-clicking the radio with its own hand mic hangs it back up. */
+	@Override
+	protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hitResult) {
+		if(level.getBlockEntity(pos) instanceof RadioBlockEntity radio && CordedMicrophoneItem.isMicOf(stack, radio)) {
+			if(!level.isClientSide)
+				radio.hangUpHandMic(player);
+			return ItemInteractionResult.sidedSuccess(level.isClientSide);
+		}
+		return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
 	}
 
 	/** A blown radio drops what it was crafted from instead of itself; see {@link #salvage}. */

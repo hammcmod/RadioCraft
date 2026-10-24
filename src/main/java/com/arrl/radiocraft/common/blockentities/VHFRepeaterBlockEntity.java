@@ -288,6 +288,12 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 		return false; // FM, squelched.
 	}
 
+	/** The repeater's microphone is built in (its MIC switch), not on a cord. */
+	@Override
+	public boolean canLendHandMic() {
+		return false;
+	}
+
 	/** A repeater folds its power back on a bad SWR instead of burning out. */
 	@Override
 	protected boolean canBlow() {

@@ -4,6 +4,20 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Hand mic on a cord, 10m skip, duplexer desense (added 2026-10-24)
+
+- [ ] Sneak-right-click a radio (HF, QRP, all-band, VHF base station) with an empty hand: a Hand Microphone appears
+  in your hand with a thin dark cord sagging from the radio to it, in first and third person. Another player sees
+  the cord too. With your hand full you get "Empty your hand to take the microphone".
+- [ ] Hold right click (looking away from the radio): the radio keys up, your voice goes out, and the radio's own
+  receiver goes quiet. Let go and it unkeys.
+- [ ] Walk more than 5 blocks away, switch the mic out of your hands, or log out: a snap sound and the mic is gone.
+  Right click the radio with the mic: it hangs up. Q to drop it: it vanishes. A second player sneak-using the radio
+  while it is out: "Someone else has this radio's microphone".
+- [ ] 10m: on a great or good day a 10m station 2500-8000 blocks away comes in by skip; on an average day it does
+  not. (Delete `10mm_*Skip*` from old server configs or set them: they keep zeros.)
+- [ ] Repeater: turn a TX screw onto the input frequency; while the repeater transmits, users get much weaker in.
+
 ## Patchouli guide book (added 2026-10-23)
 
 - [ ] In a dev client (Patchouli is in the dev runs), craft a book and wire, or take the "Radiocraft Handbook" from

@@ -15,10 +15,13 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Locale;
+import java.util.UUID;
 
 /**
  * Draws a radio's readout on its model's screen (the {@code DISPLAY} element, see {@link RadioDisplays}) when a player
@@ -44,6 +47,7 @@ public class RadioDisplayRenderer<T extends RadioBlockEntity> implements BlockEn
 
 	@Override
 	public void render(@NotNull T radio, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay) {
+		renderMicCord(radio, partialTick, poseStack, buffer);
 		if(!RadiocraftClientConfig.SHOW_RADIO_SCREENS.get() || !radio.wasPowered() || radio.getLevel() == null)
 			return;
 		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
@@ -73,6 +77,25 @@ public class RadioDisplayRenderer<T extends RadioBlockEntity> implements BlockEn
 		draw(poseStack, buffer, frequency, (width - font.width(frequency) * big) / 2.0F, top, big, COLOUR);
 		draw(poseStack, buffer, status, (width - font.width(status) * small) / 2.0F, top * 2.0F + big * font.lineHeight, small, DIM);
 		poseStack.popPose();
+	}
+
+	/** The hand mic's cord, from the radio to the hand of the player holding the mic, while it is out. */
+	private static void renderMicCord(RadioBlockEntity radio, float partialTick, PoseStack poseStack, MultiBufferSource buffer) {
+		UUID holder = radio.getMicHolder();
+		if(holder == null || radio.getLevel() == null)
+			return;
+		Player player = radio.getLevel().getPlayerByUUID(holder);
+		if(player == null)
+			return;
+		Vec3 from = radio.getBlockPos().getCenter().subtract(0.0D, 0.15D, 0.0D);
+		CordRenderer.render(radio.getLevel(), radio.getBlockPos(), from, player.getRopeHoldPosition(partialTick), poseStack, buffer);
+	}
+
+	/** Big enough to keep drawing the mic cord while its far end is off to the side. */
+	@Override
+	public @NotNull AABB getRenderBoundingBox(@NotNull T radio) {
+		AABB box = new AABB(radio.getBlockPos());
+		return radio.getMicHolder() == null ? box : box.inflate(RadioBlockEntity.MIC_CORD_LENGTH + 2.0D);
 	}
 
 	private void draw(PoseStack poseStack, MultiBufferSource buffer, String text, float x, float y, float scale, int colour) {

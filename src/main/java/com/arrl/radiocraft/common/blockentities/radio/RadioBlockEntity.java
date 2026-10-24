@@ -38,7 +38,20 @@ import com.arrl.radiocraft.common.radio.voice.Detuning;
 import com.arrl.radiocraft.common.radio.voice.RepeaterAudio;
 import com.arrl.radiocraft.common.radio.voice.ReceiverMix;
 import com.arrl.radiocraft.common.sounds.RadioMorseSoundInstance;
+import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.common.init.RadiocraftDataComponent;
+import com.arrl.radiocraft.common.init.RadiocraftItems;
+import com.arrl.radiocraft.common.items.CordedMicrophoneItem;
+import com.arrl.radiocraft.common.items.MicCord;
+import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio;
+import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadioManager;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -80,6 +93,15 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
     protected boolean tuneFail; // An automatic tuner on the coax gave up on the antenna; the screen says TUNE FAIL.
+
+    // The hand mic on its cord (see takeHandMic): who has it out, which lending it is, and whether it is keying us.
+    @Nullable
+    protected UUID micHolder = null;
+    @Nullable
+    protected UUID micId = null;
+    private boolean micKeyed = false;
+    /** How far from the radio, in blocks, the hand mic's cord reaches before it snaps back. */
+    public static final double MIC_CORD_LENGTH = 5.0D;
     protected boolean wasPowered; // Used for rendering clientside. The NetworkObject is the one actually controlling this.
 
     // Last received signal, server side only. Written from the voice thread, read on the game thread.
@@ -173,6 +195,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.tickParrot(serverLevel);
                 be.tickInterference(serverLevel, antenna);
                 be.tickBlowout(serverLevel);
+                be.tickHandMic(serverLevel);
                 be.tickMeter(serverLevel);
                 be.tickData(serverLevel, powered);
             }
@@ -425,6 +448,105 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(isBlown())
             return false;
         return canTransmitVoice() || (lastTransmitGameTime >= 0 && serverLevel.getGameTime() - lastTransmitGameTime <= 2);
+    }
+
+    // -------------------- HAND MIC ON A CORD --------------------
+
+    /** False for radios without a hand mic to lend (receivers, the repeater). */
+    public boolean canLendHandMic() {
+        return true;
+    }
+
+    /** The player who has this radio's hand mic out, null while it is on the radio (synced, for drawing the cord). */
+    @Nullable
+    public UUID getMicHolder() {
+        return micHolder;
+    }
+
+    /** Which lending the mic out now is, null while it is on the radio. */
+    @Nullable
+    public UUID getMicId() {
+        return micId;
+    }
+
+    /**
+     * Sneak-right-click with an empty hand: the radio's hand mic goes into the player's hand on its cord. One mic
+     * per radio. Holding right click with it talks (see {@link #tickHandMic}).
+     */
+    public void takeHandMic(ServerPlayer player) {
+        if(micHolder != null && !micHolder.equals(player.getUUID())) {
+            player.displayClientMessage(Component.translatable(Radiocraft.translationKey("message", "mic_in_use")), true);
+            return;
+        }
+        if(micHolder != null)
+            return; // Already in their hand.
+        if(!player.getMainHandItem().isEmpty()) {
+            player.displayClientMessage(Component.translatable(Radiocraft.translationKey("message", "mic_hand_full")), true);
+            return;
+        }
+        micHolder = player.getUUID();
+        micId = UUID.randomUUID();
+        ItemStack mic = new ItemStack(RadiocraftItems.CORDED_MICROPHONE.get());
+        mic.set(RadiocraftDataComponent.MIC_CORD.get(), new MicCord(worldPosition, micId));
+        player.setItemInHand(InteractionHand.MAIN_HAND, mic);
+        level.playSound(null, worldPosition, SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 0.6F, 1.4F);
+        setChanged();
+        updateBlock();
+    }
+
+    /** Right-click with the mic: it goes back on the radio. */
+    public void hangUpHandMic(@Nullable Player player) {
+        if(player != null)
+            removeMic(player);
+        releaseMic();
+        if(level != null)
+            level.playSound(null, worldPosition, SoundEvents.LEASH_KNOT_PLACE, SoundSource.BLOCKS, 0.6F, 1.0F);
+    }
+
+    /**
+     * While the mic is out: the cord snaps back if its holder has gone, is more than {@link #MIC_CORD_LENGTH} blocks
+     * away or no longer holds it in a hand, and otherwise holding right click (reported by their client, as for
+     * handhelds) with the mic in the main hand keys the radio.
+     */
+    private void tickHandMic(ServerLevel serverLevel) {
+        if(micHolder == null)
+            return;
+        Player player = serverLevel.getPlayerByUUID(micHolder);
+        boolean inHand = player != null && (CordedMicrophoneItem.isMicOf(player.getMainHandItem(), this) || CordedMicrophoneItem.isMicOf(player.getOffhandItem(), this));
+        if(player == null || !inHand || player.position().distanceTo(worldPosition.getCenter()) > MIC_CORD_LENGTH) {
+            if(player != null)
+                removeMic(player);
+            releaseMic();
+            serverLevel.playSound(null, worldPosition, SoundEvents.LEASH_KNOT_BREAK, SoundSource.BLOCKS, 0.8F, 1.2F);
+            return;
+        }
+        boolean talking = CordedMicrophoneItem.isMicOf(player.getMainHandItem(), this)
+                && PlayerRadioManager.get(micHolder).map(PlayerRadio::isUseHeld).orElse(false);
+        if(talking != micKeyed) {
+            micKeyed = talking;
+            setPTTDown(talking);
+        }
+    }
+
+    /** Takes this radio's mic out of the player's inventory, wherever it is. */
+    private void removeMic(Player player) {
+        Inventory inventory = player.getInventory();
+        for(int i = 0; i < inventory.getContainerSize(); i++) {
+            if(CordedMicrophoneItem.isMicOf(inventory.getItem(i), this))
+                inventory.setItem(i, ItemStack.EMPTY);
+        }
+    }
+
+    /** The mic is back on the radio: stop keying if it was, and forget the lending. */
+    private void releaseMic() {
+        if(micKeyed) {
+            micKeyed = false;
+            setPTTDown(false);
+        }
+        micHolder = null;
+        micId = null;
+        setChanged();
+        updateBlock();
     }
 
     // -------------------- BLOWN TRANSMITTER --------------------
@@ -1015,6 +1137,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putFloat("micGain", micGain);
         nbt.putDouble("antennaSWR", antennaSWR);
         nbt.putBoolean("tuneFail", tuneFail);
+        if(micHolder != null && micId != null) {
+            nbt.putUUID("micHolder", micHolder);
+            nbt.putUUID("micId", micId);
+        }
         nbt.putBoolean("wasPowered", wasPowered);
         nbt.putBoolean("pttDown", isPTTDown);
         nbt.putDouble("signal", syncedSignal);
@@ -1037,6 +1163,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         micGain = nbt.contains("micGain") ? nbt.getFloat("micGain") : 1.0F;
         antennaSWR = nbt.getDouble("antennaSWR");
         tuneFail = nbt.getBoolean("tuneFail");
+        micHolder = nbt.hasUUID("micHolder") ? nbt.getUUID("micHolder") : null;
+        micId = nbt.hasUUID("micId") ? nbt.getUUID("micId") : null;
         wasPowered = nbt.getBoolean("wasPowered");
         isPTTDown = nbt.getBoolean("pttDown");
         syncedSignal = nbt.getDouble("signal");

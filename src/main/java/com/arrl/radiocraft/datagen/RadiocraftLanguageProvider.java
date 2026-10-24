@@ -41,6 +41,10 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 				}
 			provider.addItem(RadiocraftItems.RADIO_SPEAKER, "Radio Speaker");
 			provider.addItem(RadiocraftItems.HAND_MICROPHONE, "Hand Microphone");
+			provider.addItem(RadiocraftItems.CORDED_MICROPHONE, "Hand Microphone");
+			provider.add(Radiocraft.translationKey("tooltip", "corded_microphone"), "On its radio's cord: hold right click to talk, right click the radio to hang it up. The cord reaches 5 blocks.");
+			provider.add(Radiocraft.translationKey("message", "mic_in_use"), "Someone else has this radio's microphone");
+			provider.add(Radiocraft.translationKey("message", "mic_hand_full"), "Empty your hand to take the microphone");
 			provider.addItem(RadiocraftItems.HF_CIRCUIT_BOARD, "HF Circuit Board");
 			provider.addItem(RadiocraftItems.ALL_BAND_CIRCUIT_BOARD, "All-Band Circuit Board");
 			provider.addItem(RadiocraftItems.SMALL_BATTERY, "Small Alkaline Battery");
