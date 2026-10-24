@@ -17,15 +17,21 @@
           "B": "radiocraft:balun_one_to_one[placed_on=down]",
           "P": "radiocraft:antenna_pole",
           "a": "radiocraft:coax_wire[north=true,south=true]",
-          "0": "radiocraft:hf_radio_20m[facing=north]"
+          "0": "radiocraft:hf_radio_20m[facing=north]",
+          "G": "radiocraft:solar_panel",
+          "Q": "radiocraft:charge_controller[facing=south]",
+          "V": "radiocraft:large_battery[facing=south]",
+          "r": "radiocraft:wire[east=true,west=true]"
         },
         "pattern": [
           [
-            "   P",
-            "    ",
-            "    ",
-            "    ",
-            "    ",
+            "G   ",
+            "G   ",
+            "G  P",
+            "Q   ",
+            "r   ",
+            "V   ",
+            "r   ",
             "0aaB",
             "T   ",
             "    ",
@@ -35,7 +41,7 @@
           ]
         ]
       },
-      "text": "A 20 m station with the teletype beside the radio."
+      "text": "A 20 m station with the teletype beside the radio. Solar panels, controller and battery power it."
     },
     {
       "type": "patchouli:crafting",

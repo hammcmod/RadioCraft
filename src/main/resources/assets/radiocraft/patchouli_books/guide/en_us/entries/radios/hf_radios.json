@@ -21,15 +21,21 @@
           "B": "radiocraft:balun_one_to_one[placed_on=down]",
           "P": "radiocraft:antenna_pole",
           "a": "radiocraft:coax_wire[north=true,south=true]",
-          "0": "radiocraft:hf_radio_20m[facing=north]"
+          "0": "radiocraft:hf_radio_20m[facing=north]",
+          "G": "radiocraft:solar_panel",
+          "Q": "radiocraft:charge_controller[facing=south]",
+          "V": "radiocraft:large_battery[facing=south]",
+          "r": "radiocraft:wire[east=true,west=true]"
         },
         "pattern": [
           [
-            "   P",
-            "    ",
-            "    ",
-            "    ",
-            "    ",
+            "G   ",
+            "G   ",
+            "G  P",
+            "Q   ",
+            "r   ",
+            "V   ",
+            "r   ",
             "0aaB",
             "    ",
             "    ",
@@ -39,7 +45,7 @@
           ]
         ]
       },
-      "text": "Radio, coax, a 1:1 balun and two poles. String antenna wire from the balun to each pole: 5 blocks each way on 20 m. See $(l:radiocraft:antennas/dipole)Dipole$(/l)."
+      "text": "Solar power, radio, coax, a 1:1 balun and two poles. String antenna wire from the balun to each pole, 5 blocks each way."
     },
     {
       "type": "patchouli:crafting",

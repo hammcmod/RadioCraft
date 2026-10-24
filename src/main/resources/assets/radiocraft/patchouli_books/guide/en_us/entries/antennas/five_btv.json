@@ -21,10 +21,21 @@
           "6": "radiocraft:5btv_antenna[segment=5]",
           "7": "radiocraft:5btv_antenna[segment=6]",
           "a": "radiocraft:coax_wire[east=true,west=true]",
-          "0": "radiocraft:hf_radio_20m[facing=south]"
+          "0": "radiocraft:hf_radio_20m[facing=south]",
+          "G": "radiocraft:solar_panel",
+          "Q": "radiocraft:charge_controller[facing=south]",
+          "V": "radiocraft:large_battery[facing=south]",
+          "r": "radiocraft:wire[east=true,west=true]"
         },
         "pattern": [
           [
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
             " ",
             " ",
             "7"
@@ -32,9 +43,23 @@
           [
             " ",
             " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
             "6"
           ],
           [
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
             " ",
             " ",
             "5"
@@ -42,9 +67,23 @@
           [
             " ",
             " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
             "4"
           ],
           [
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
             " ",
             " ",
             "3"
@@ -52,16 +91,30 @@
           [
             " ",
             " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
+            " ",
             "2"
           ],
           [
+            "G",
+            "G",
+            "G",
+            "Q",
+            "r",
+            "V",
+            "r",
             "0",
             "a",
             "1"
           ]
         ]
       },
-      "text": "Coax laid against its base runs in to the mast."
+      "text": "Coax laid against its base runs in to the mast. Solar panels, controller and battery power it."
     },
     {
       "type": "patchouli:crafting",

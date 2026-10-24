@@ -16,10 +16,21 @@
           "B": "radiocraft:balun_two_to_one[placed_on=down]",
           "K": "radiocraft:antenna_connector[placed_on=down]",
           "a": "radiocraft:coax_wire[north=true,south=true]",
-          "0": "radiocraft:hf_radio_20m[facing=north]"
+          "0": "radiocraft:hf_radio_20m[facing=north]",
+          "G": "radiocraft:solar_panel",
+          "Q": "radiocraft:charge_controller[facing=south]",
+          "V": "radiocraft:large_battery[facing=south]",
+          "r": "radiocraft:wire[east=true,west=true]"
         },
         "pattern": [
           [
+            "G        ",
+            "G        ",
+            "G        ",
+            "Q        ",
+            "r        ",
+            "V        ",
+            "r        ",
             "0aaB    K",
             "         ",
             "         ",
@@ -29,7 +40,7 @@
           ]
         ]
       },
-      "text": "Wire balun to connector to connector to connector and back: 5 blocks a side."
+      "text": "Wire balun to connector to connector to connector and back: 5 blocks a side. Solar panels, controller and battery power it."
     }
   ]
 }

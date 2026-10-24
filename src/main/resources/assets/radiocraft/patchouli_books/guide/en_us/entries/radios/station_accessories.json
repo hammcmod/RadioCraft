@@ -6,12 +6,27 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(li)$(item)Desk microphone$(): stands next to a radio, on whichever side the radio is.$(li)$(item)Simplex repeat controller$(): placed next to a radio, makes it echo back whatever it hears after a delay. Perfect for testing your own signal.$(li)$(item)Radio speaker$(): built into every radio."
+      "text": "Gear that sits on the desk beside a radio and works through it.$(li)$(item)Desk microphone$(): stands next to a radio, on whichever side it is.$(li)$(item)Hand mic$(): sneak and right click a radio with an empty hand to take its mic on a cord. Hold right click to talk; right click the radio to hang it up.$(li)$(item)Simplex repeat controller$(): echoes back what the radio hears after a delay, for testing your own signal."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Digital and weather",
+      "text": "$(li)$(l:radiocraft:digital/aprs)Radio Interface$(/l): touches a VHF radio and turns it into a packet station: call sign and TX switch.$(li)$(l:radiocraft:digital/aprs)H19 terminal$(/l): touches the interface; beacons, the station list, messages and maps.$(li)$(l:radiocraft:digital/teletype)Teletype Machine$(/l): RTTY on paper through an HF radio, and the solar report.$(li)$(l:radiocraft:sky/wefax)WEFAX Receiver$(/l): weather charts from HF."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "radiocraft:microphone",
       "recipe2": "radiocraft:parrot_controller"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:radio_interface",
+      "recipe2": "radiocraft:aprs_h19"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:teletype",
+      "recipe2": "radiocraft:wefax_receiver"
     }
   ]
 }

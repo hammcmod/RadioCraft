@@ -6,13 +6,17 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(li)Craft a pair of $(l:radiocraft:radios/vhf_handheld)VHF handhelds$(/l): set both to the same frequency and talk.$(li)Then build a $(l:radiocraft:radios/vhf_base_station)base station$(/l) with a $(l:radiocraft:antennas/vhf_antennas)J-pole$(/l) on $(l:radiocraft:antennas/coax)coax$(/l) and $(l:radiocraft:power/overview)power$(/l).$(li)When you want the world, an $(l:radiocraft:radios/hf_radios)HF radio$(/l) and a $(l:radiocraft:antennas/dipole)dipole$(/l)."
+      "text": "$(li)Craft a pair of $(l:radiocraft:radios/vhf_handheld)VHF handhelds$(/l): set both to the same frequency and talk.$(li)Then build a $(l:radiocraft:radios/vhf_base_station)base station$(/l) with a $(l:radiocraft:antennas/vhf_antennas)J-pole$(/l) on $(l:radiocraft:antennas/coax)coax$(/l), and $(l:radiocraft:power/overview)power$(/l) to run it.$(li)When you want the world, an $(l:radiocraft:radios/hf_radios)HF radio$(/l) and a $(l:radiocraft:antennas/dipole)dipole$(/l)."
     },
     {
       "type": "patchouli:multiblock",
       "name": "A VHF base station",
       "multiblock": {
         "mapping": {
+          "S": "radiocraft:solar_panel",
+          "K": "radiocraft:charge_controller[facing=south]",
+          "B": "radiocraft:large_battery[facing=south]",
+          "w": "radiocraft:wire[east=true,west=true]",
           "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
           "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
           "a": "radiocraft:coax_wire[north=true,south=true]",
@@ -20,14 +24,33 @@
         },
         "pattern": [
           [
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
             "   U"
           ],
           [
+            "S   ",
+            "S   ",
+            "S   ",
+            "K   ",
+            "w   ",
+            "B   ",
+            "w   ",
             "0aaJ"
           ]
         ]
       },
-      "text": "Radio, two blocks of coax and a J-pole. Any length of coax works. Power it too."
+      "text": "Solar panels and a charge controller fill the battery, wire takes it to the radio, coax to the J-pole."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Putting it together",
+      "text": "$(li)The $(item)solar panels$() touch each other and the $(item)charge controller$() at the end of the row: no wire between them.$(li)$(item)Wire$() runs from the controller to the $(item)large battery$(), and on to the radio.$(li)$(item)Coax$() runs from the radio to the $(item)J-pole$(). Any length works.$(br2)Panels only charge by day under open sky. Switch the radio on once the battery has some charge."
     }
   ]
 }

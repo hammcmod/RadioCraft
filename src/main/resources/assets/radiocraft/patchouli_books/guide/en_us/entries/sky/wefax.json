@@ -2,7 +2,7 @@
   "name": "Weather Fax",
   "icon": "radiocraft:wefax_receiver",
   "category": "radiocraft:sky",
-  "sortnum": 1,
+  "sortnum": 2,
   "pages": [
     {
       "type": "patchouli:text",

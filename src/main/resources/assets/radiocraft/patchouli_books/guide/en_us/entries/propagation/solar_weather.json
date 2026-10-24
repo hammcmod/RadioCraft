@@ -1,12 +1,12 @@
 {
   "name": "Solar Weather",
   "icon": "minecraft:sunflower",
-  "category": "radiocraft:propagation",
-  "sortnum": 1,
+  "category": "radiocraft:sky",
+  "sortnum": 0,
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The sun changes from day to day: $(thing)great, good, average, fair, poor$() or a $(thing)blackout$(). Each condition rates every HF band good, fair, poor or closed, by day and by night, and sets the static level. In a blackout HF is dead.$(br2)A $(l:radiocraft:digital/teletype)teletype$(/l) next to a radio prints the report."
+      "text": "The sun changes from day to day: $(thing)great, good, average, fair, poor$() or a $(thing)blackout$(). Each condition rates every HF band good, fair, poor or closed, by day and by night, and sets the static level. In a blackout HF is dead.$(br2)A $(l:radiocraft:digital/teletype)teletype$(/l) next to a radio with a real antenna prints the report from its blue SOLAR WX lamp, and a comparator on it reads 1 (blackout) to 6 (great)."
     },
     {
       "type": "patchouli:text",

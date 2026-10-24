@@ -5,6 +5,7 @@ import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObje
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blocks.antennas.DoubleVHFAntennaBlock;
 import com.arrl.radiocraft.common.blocks.antennas.IonosondeBlock;
+import com.arrl.radiocraft.common.blocks.antennas.JPoleAntennaBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.antenna.types.IonosondeAntennaType;
@@ -79,6 +80,20 @@ public class IonosondeGameTests {
         helper.assertFalse(helper.getBlockState(lower).getValue(IonosondeBlock.EAST), "A coax run on the east side with no coax there");
         helper.setBlock(lower.north(), Blocks.AIR);
         helper.assertFalse(helper.getBlockState(lower).getValue(IonosondeBlock.NORTH), "The coax run stayed after the coax went");
+        helper.succeed();
+    }
+
+    /** The J-pole shows the same run in to its mast from the side its coax comes in on. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20, batch = BATCH)
+    public static void coaxRunsInToTheJPole(GameTestHelper helper) {
+        BlockPos lower = new BlockPos(3, 2, 3);
+        helper.setBlock(lower, RadiocraftBlocks.J_POLE_ANTENNA.get().defaultBlockState().setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.LOWER));
+        helper.setBlock(lower.above(), RadiocraftBlocks.J_POLE_ANTENNA.get().defaultBlockState().setValue(DoubleVHFAntennaBlock.HALF, DoubleBlockHalf.UPPER));
+        GameTestUtil.placeWire(helper, lower.west(), RadiocraftBlocks.COAX_WIRE.get());
+        helper.assertTrue(helper.getBlockState(lower).getValue(JPoleAntennaBlock.WEST), "No coax run on the west side");
+        helper.assertFalse(helper.getBlockState(lower).getValue(JPoleAntennaBlock.NORTH), "A coax run on the north side with no coax there");
+        helper.setBlock(lower.west(), Blocks.AIR);
+        helper.assertFalse(helper.getBlockState(lower).getValue(JPoleAntennaBlock.WEST), "The coax run stayed after the coax went");
         helper.succeed();
     }
 

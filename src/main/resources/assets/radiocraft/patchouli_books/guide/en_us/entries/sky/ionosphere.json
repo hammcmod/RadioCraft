@@ -1,12 +1,17 @@
 {
-  "name": "Sounding Station",
+  "name": "Ionospheric Processor",
   "icon": "radiocraft:ionospheric_processor",
   "category": "radiocraft:sky",
-  "sortnum": 0,
+  "sortnum": 1,
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "An $(thing)ionosonde$() sweeps up the bands to measure the sky. Its $(item)antenna$() is two blocks tall, on coax. On a radio it is poor (SWR 3 on VHF, 8 on HF).$(br2)The $(item)Ionospheric Processor$() with its glowing valves will read the sky through it. For now both are for building the station."
+      "text": "The $(item)Ionospheric Processor$() is the heart of a sounding station: a rack of glowing valves that will send pulses straight up through an $(item)Ionosonde Antenna$() and time the echoes off the sky, to tell which bands are open before you call.$(br2)Today it is built and placed, valves aglow; the sky readings are still to come. Until then the teletype's report is your forecast."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The ionosonde",
+      "text": "The $(item)Ionosonde Antenna$() is two blocks tall and goes on coax like a J-pole. It is made for sounding, not talking: on a radio it matches poorly (SWR 3 on VHF, 8 on HF).$(br2)Making a processor takes an amethyst shard among its parts."
     },
     {
       "type": "patchouli:multiblock",
@@ -34,7 +39,7 @@
           ]
         ]
       },
-      "text": "Processor, coax, ionosonde antenna."
+      "text": "Processor, coax and the ionosonde antenna."
     },
     {
       "type": "patchouli:crafting",

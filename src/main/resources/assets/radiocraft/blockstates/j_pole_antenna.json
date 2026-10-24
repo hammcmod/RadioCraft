@@ -1,36 +1,123 @@
 {
-  "variants": {
-    "half=lower,facing=north": {
-      "model": "radiocraft:block/j_pole_antenna_lower",
-      "y": 90
+  "multipart": [
+    {
+      "when": {
+        "half": "lower",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "radiocraft:block/j_pole_antenna_lower",
+        "y": 90
+      }
     },
-    "half=lower,facing=south": {
-      "model": "radiocraft:block/j_pole_antenna_lower",
-      "y": 270
+    {
+      "when": {
+        "half": "lower",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/j_pole_antenna_lower",
+        "y": 270
+      }
     },
-    "half=lower,facing=east": {
-      "model": "radiocraft:block/j_pole_antenna_lower",
-      "y": 180
+    {
+      "when": {
+        "half": "lower",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/j_pole_antenna_lower",
+        "y": 180
+      }
     },
-    "half=lower,facing=west": {
-      "model": "radiocraft:block/j_pole_antenna_lower",
-      "y": 0
+    {
+      "when": {
+        "half": "lower",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/j_pole_antenna_lower",
+        "y": 0
+      }
     },
-    "half=upper,facing=north": {
-      "model": "radiocraft:block/j_pole_antenna_upper",
-      "y": 90
+    {
+      "when": {
+        "half": "upper",
+        "facing": "north"
+      },
+      "apply": {
+        "model": "radiocraft:block/j_pole_antenna_upper",
+        "y": 90
+      }
     },
-    "half=upper,facing=south": {
-      "model": "radiocraft:block/j_pole_antenna_upper",
-      "y": 270
+    {
+      "when": {
+        "half": "upper",
+        "facing": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/j_pole_antenna_upper",
+        "y": 270
+      }
     },
-    "half=upper,facing=east": {
-      "model": "radiocraft:block/j_pole_antenna_upper",
-      "y": 180
+    {
+      "when": {
+        "half": "upper",
+        "facing": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/j_pole_antenna_upper",
+        "y": 180
+      }
     },
-    "half=upper,facing=west": {
-      "model": "radiocraft:block/j_pole_antenna_upper",
-      "y": 0
+    {
+      "when": {
+        "half": "upper",
+        "facing": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/j_pole_antenna_upper",
+        "y": 0
+      }
+    },
+    {
+      "when": {
+        "half": "lower",
+        "north": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_coax"
+      }
+    },
+    {
+      "when": {
+        "half": "lower",
+        "east": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_coax",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "half": "lower",
+        "south": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_coax",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "half": "lower",
+        "west": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_coax",
+        "y": 270
+      }
     }
-  }
+  ]
 }

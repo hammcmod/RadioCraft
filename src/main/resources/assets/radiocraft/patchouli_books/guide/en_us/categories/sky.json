@@ -1,6 +1,6 @@
 {
-  "name": "Ionosphere & Weather",
-  "description": "The instruments of a sounding station and a weather fax: work in progress, but buildable now.",
-  "icon": "radiocraft:ionosonde",
-  "sortnum": 7
+  "name": "Solar Weather",
+  "description": "The sun decides which HF bands are open. How the weather works, how to read it, and the Ionospheric Processor that will measure the sky itself.",
+  "icon": "radiocraft:ionospheric_processor",
+  "sortnum": 5
 }

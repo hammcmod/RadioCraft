@@ -1,6 +1,6 @@
 {
   "name": "Propagation & Noise",
-  "description": "How far a signal goes: line of sight, skip, the sun, aurorae, and the noise that buries weak stations.",
+  "description": "How far a signal goes: line of sight, skip, hills and valleys, and the noise that buries weak stations. The sun has its own section, Solar Weather.",
   "icon": "radiocraft:teletype",
   "sortnum": 4
 }

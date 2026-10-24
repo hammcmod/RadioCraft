@@ -16,18 +16,36 @@
           "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
           "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
           "a": "radiocraft:coax_wire[north=true,south=true]",
-          "0": "radiocraft:vhf_base_station[facing=north]"
+          "0": "radiocraft:vhf_base_station[facing=north]",
+          "G": "radiocraft:solar_panel",
+          "Q": "radiocraft:charge_controller[facing=south]",
+          "V": "radiocraft:large_battery[facing=south]",
+          "r": "radiocraft:wire[east=true,west=true]"
         },
         "pattern": [
           [
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
+            "    ",
             "   U"
           ],
           [
+            "G   ",
+            "G   ",
+            "G   ",
+            "Q   ",
+            "r   ",
+            "V   ",
+            "r   ",
             "0aaJ"
           ]
         ]
       },
-      "text": "The J-pole matches the whole 2 m band (SWR 1)."
+      "text": "The J-pole matches the whole 2 m band (SWR 1). Solar panels, controller and battery power it."
     },
     {
       "type": "patchouli:crafting",
