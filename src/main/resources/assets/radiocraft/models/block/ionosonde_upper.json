@@ -9,7 +9,7 @@
 	"textures": {
 		"0": "radiocraft:block/ionosonde_bottom",
 		"1": "radiocraft:block/ionosonde_top",
-		"particle": "radiocraft:block/ionosonde_top"
+		"particle": "radiocraft:block/ionosonde_bottom"
 	},
 	"elements": [
 		{
@@ -247,7 +247,7 @@
 			"from": [
 				7.49497,
 				14.690000000000001,
-				-2.70503
+				-2.7050300000000007
 			],
 			"to": [
 				8.49497,
@@ -255,9 +255,8 @@
 				18.69497
 			],
 			"rotation": {
-				"x": 0,
-				"y": 135,
-				"z": 0,
+				"angle": -45.0,
+				"axis": "y",
 				"origin": [
 					7.99497,
 					15.190000000000001,
@@ -265,7 +264,7 @@
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						5.75,
 						2.25,
@@ -274,7 +273,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						1.5,
 						1.5,
@@ -283,7 +282,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						5.75,
 						2.5,
@@ -292,7 +291,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						1.5,
 						1.75,
@@ -308,7 +307,8 @@
 						1.75,
 						7.25
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -317,7 +317,8 @@
 						2,
 						7.25
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			}
 		},

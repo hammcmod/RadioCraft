@@ -7,19 +7,19 @@
 		64
 	],
 	"textures": {
-		"0": "radiocraft:block/ionospheric_solar_processor_top",
-		"1": "radiocraft:block/ionospheric_solar_processor_bottom",
-		"particle": "radiocraft:block/ionospheric_solar_processor_bottom"
+		"0": "radiocraft:block/ionospheric_solar_processor_bottom",
+		"1": "radiocraft:block/ionospheric_solar_processor_top",
+		"particle": "radiocraft:block/ionospheric_solar_processor_top"
 	},
 	"elements": [
 		{
 			"from": [
-				0,
+				4,
 				0,
 				0
 			],
 			"to": [
-				12,
+				16,
 				16,
 				16
 			],
@@ -27,13 +27,13 @@
 				"angle": 0,
 				"axis": "y",
 				"origin": [
+					16,
 					0,
-					0,
-					0
+					16
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						4,
 						0,
@@ -42,7 +42,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						0,
 						0,
@@ -51,7 +51,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						4,
 						4,
@@ -60,7 +60,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						0,
 						4,
@@ -76,7 +76,8 @@
 						10,
 						4
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -85,32 +86,33 @@
 						10,
 						8
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			}
 		},
 		{
 			"from": [
-				12,
 				0,
-				0
+				0,
+				11
 			],
 			"to": [
+				4,
 				16,
-				16,
-				5
+				16
 			],
 			"rotation": {
 				"angle": 0,
 				"axis": "y",
 				"origin": [
-					14,
+					2,
 					0,
-					-1
+					17
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						8,
 						8,
@@ -119,7 +121,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						0,
 						8,
@@ -128,7 +130,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						9,
 						8,
@@ -137,7 +139,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						1.25,
 						8,
@@ -153,7 +155,8 @@
 						11,
 						3
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -162,32 +165,33 @@
 						11,
 						4.25
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			}
 		},
 		{
 			"from": [
-				12,
+				0,
 				7,
-				5
+				0
 			],
 			"to": [
+				4,
 				16,
-				16,
-				16
+				11
 			],
 			"rotation": {
 				"angle": 0,
 				"axis": "y",
 				"origin": [
-					14,
+					2,
 					0,
-					4
+					12
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						6.5,
 						9.75,
@@ -196,7 +200,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						2.5,
 						7.5,
@@ -205,7 +209,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						10,
 						0,
@@ -214,7 +218,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						5.25,
 						8,
@@ -230,7 +234,8 @@
 						3.5,
 						12.5
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -239,32 +244,33 @@
 						4.5,
 						12.5
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			}
 		},
 		{
 			"from": [
-				12,
 				0,
-				15
+				0,
+				0
 			],
 			"to": [
-				16,
+				4,
 				7,
-				16
+				1
 			],
 			"rotation": {
 				"angle": 0,
 				"axis": "y",
 				"origin": [
-					14,
+					2,
 					0,
-					14
+					2
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						4.5,
 						9.75,
@@ -273,7 +279,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						11,
 						5.25,
@@ -282,7 +288,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						5.5,
 						10.25,
@@ -291,7 +297,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						11,
 						7.5,
@@ -307,7 +313,8 @@
 						12,
 						10
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -316,32 +323,33 @@
 						12,
 						10.25
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			}
 		},
 		{
 			"from": [
-				13.75,
+				1.75,
 				0,
-				9.75
+				5.75
 			],
 			"to": [
-				14.25,
+				2.25,
 				4,
-				10.25
+				6.25
 			],
 			"rotation": {
 				"angle": 0,
 				"axis": "y",
 				"origin": [
-					13.75,
+					2.25,
 					0,
-					9.75
+					6.25
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						9.625,
 						14,
@@ -350,7 +358,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						5.625,
 						14.25,
@@ -359,7 +367,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						15.625,
 						1,
@@ -368,7 +376,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						15.5,
 						1.5,
@@ -384,7 +392,8 @@
 						15.875,
 						2.625
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -393,7 +402,8 @@
 						15.875,
 						1.75
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			},
 			"neoforge_data": {
@@ -405,26 +415,26 @@
 		{
 			"name": "TUBE",
 			"from": [
-				13,
+				1,
 				0,
-				9
+				5
 			],
 			"to": [
-				15,
+				3,
 				6,
-				11
+				7
 			],
 			"rotation": {
 				"angle": 0,
 				"axis": "y",
 				"origin": [
-					13,
+					3,
 					0,
-					9
+					7
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						7.5,
 						9.75,
@@ -433,7 +443,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						10,
 						4.25,
@@ -442,7 +452,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						10,
 						6,
@@ -451,7 +461,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						10,
 						7.75,
@@ -467,7 +477,8 @@
 						11.5,
 						10.75
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -476,7 +487,8 @@
 						11.5,
 						11.25
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			},
 			"neoforge_data": {
@@ -487,26 +499,26 @@
 		},
 		{
 			"from": [
-				13.75,
+				1.75,
 				0,
-				12.75
+				2.75
 			],
 			"to": [
-				14.25,
+				2.25,
 				4,
-				13.25
+				3.25
 			],
 			"rotation": {
 				"angle": 0,
 				"axis": "y",
 				"origin": [
-					13.75,
+					2.25,
 					0,
-					12.75
+					3.25
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						9.625,
 						14,
@@ -515,7 +527,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						5.625,
 						14.25,
@@ -524,7 +536,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						15.625,
 						1,
@@ -533,7 +545,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						15.5,
 						1.5,
@@ -549,7 +561,8 @@
 						15.875,
 						2.625
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -558,7 +571,8 @@
 						15.875,
 						1.75
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			},
 			"neoforge_data": {
@@ -570,26 +584,26 @@
 		{
 			"name": "TUBE",
 			"from": [
-				13,
+				1,
 				0,
-				12
+				2
 			],
 			"to": [
-				15,
+				3,
 				6,
-				14
+				4
 			],
 			"rotation": {
 				"angle": 0,
 				"axis": "y",
 				"origin": [
-					13,
+					3,
 					0,
-					12
+					4
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						7.5,
 						9.75,
@@ -598,7 +612,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						10,
 						4.25,
@@ -607,7 +621,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						10,
 						6,
@@ -616,7 +630,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						10,
 						7.75,
@@ -632,7 +646,8 @@
 						11.5,
 						10.75
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -641,7 +656,8 @@
 						11.5,
 						11.25
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			},
 			"neoforge_data": {
@@ -652,26 +668,26 @@
 		},
 		{
 			"from": [
-				13.75,
+				1.75,
 				0,
-				6.75
+				8.75
 			],
 			"to": [
-				14.25,
+				2.25,
 				4,
-				7.25
+				9.25
 			],
 			"rotation": {
 				"angle": 0,
 				"axis": "y",
 				"origin": [
-					13.75,
+					2.25,
 					0,
-					6.75
+					9.25
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						9.625,
 						14,
@@ -680,7 +696,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						5.625,
 						14.25,
@@ -689,7 +705,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						15.625,
 						1,
@@ -698,7 +714,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						15.5,
 						1.5,
@@ -714,7 +730,8 @@
 						15.875,
 						2.625
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -723,7 +740,8 @@
 						15.875,
 						1.75
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			},
 			"neoforge_data": {
@@ -735,26 +753,26 @@
 		{
 			"name": "TUBE",
 			"from": [
-				13,
+				1,
 				0,
-				6
-			],
-			"to": [
-				15,
-				6,
 				8
 			],
+			"to": [
+				3,
+				6,
+				10
+			],
 			"rotation": {
 				"angle": 0,
 				"axis": "y",
 				"origin": [
-					13,
+					3,
 					0,
-					6
+					10
 				]
 			},
 			"faces": {
-				"north": {
+				"south": {
 					"uv": [
 						7.5,
 						9.75,
@@ -763,7 +781,7 @@
 					],
 					"texture": "#1"
 				},
-				"east": {
+				"west": {
 					"uv": [
 						10,
 						4.25,
@@ -772,7 +790,7 @@
 					],
 					"texture": "#1"
 				},
-				"south": {
+				"north": {
 					"uv": [
 						10,
 						6,
@@ -781,7 +799,7 @@
 					],
 					"texture": "#1"
 				},
-				"west": {
+				"east": {
 					"uv": [
 						10,
 						7.75,
@@ -797,7 +815,8 @@
 						11.5,
 						10.75
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				},
 				"down": {
 					"uv": [
@@ -806,7 +825,8 @@
 						11.5,
 						11.25
 					],
-					"texture": "#1"
+					"texture": "#1",
+					"rotation": 180
 				}
 			},
 			"neoforge_data": {

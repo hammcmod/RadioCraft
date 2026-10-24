@@ -19,6 +19,14 @@ as the existing radios and antennas.
 
 ## How a model gets into the game
 
+**Rotations:** Minecraft 1.21.1 only loads element rotations on one axis of -45, -22.5, 0, 22.5 or 45 degrees. Keep
+the Blockbench project on Minecraft 1.21.1 (an export stamped `"format_version": "1.21.11"` is for a later version
+and allows free angles, which then fail to load). `ModelFilesTest` checks every model the game uses.
+
+**Exports stay as they are:** Blockbench writes over its export each time it saves, so models that need splitting
+(two-tall blocks, lamps, glowing valves) or turning are built from the export by `python tools/build_models.py`
+under other names. Add a new model to its `BUILDS` list and run it after every re-export.
+
 What was done for the parrot controller, as the pattern for the next one:
 
 - Export the block model JSON from Blockbench, then split it by state: one model with the body, and one tiny model

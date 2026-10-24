@@ -4,6 +4,13 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Model fixes (added 2026-10-23, second pass)
+
+- [ ] The H19 and the Ionosonde Antenna now show (they failed to load: rotations Minecraft 1.21.1 cannot read). The
+  H19 screen's 2.5 degree tilt is flattened.
+- [ ] The Ionospheric Processor faces the other way round from before, its top half lights the area (level 7), and
+  the bottom half is no longer translucent.
+
 ## Ionospheric Processor (added 2026-10-23)
 
 - [ ] Placed and broken as one two-tall block; it faces the player when placed (check the front is the side you

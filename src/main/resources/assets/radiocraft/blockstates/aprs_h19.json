@@ -5,7 +5,7 @@
         "facing": "north"
       },
       "apply": {
-        "model": "radiocraft:block/aprs_h19"
+        "model": "radiocraft:block/aprs_h19_body"
       }
     },
     {
@@ -13,7 +13,7 @@
         "facing": "east"
       },
       "apply": {
-        "model": "radiocraft:block/aprs_h19",
+        "model": "radiocraft:block/aprs_h19_body",
         "y": 90
       }
     },
@@ -22,7 +22,7 @@
         "facing": "south"
       },
       "apply": {
-        "model": "radiocraft:block/aprs_h19",
+        "model": "radiocraft:block/aprs_h19_body",
         "y": 180
       }
     },
@@ -31,7 +31,7 @@
         "facing": "west"
       },
       "apply": {
-        "model": "radiocraft:block/aprs_h19",
+        "model": "radiocraft:block/aprs_h19_body",
         "y": 270
       }
     },

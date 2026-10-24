@@ -31,3 +31,4 @@ forge*changelog.txt
 
 # Caches for generated files
 src/generated/resources/.cache
+__pycache__/

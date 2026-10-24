@@ -160,6 +160,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [ ] TNC: handheld/Curios side (APRS from a handheld radio), message acks and retries
 - [ ] WX button on the teletype (maintainer, 2026-10-23): weather reports, shown only with a compatible weather mod
   (see [doc/TncRework.md](doc/TncRework.md)); we may end up writing our own weather mod
+- [ ] WEFAX receiver model: its Rotary elements are turned -85, 80 and 42.5 degrees, which Minecraft 1.21.1 cannot
+  load (it shows as missing). Re-export with Blockbench set to 1.21.1 and 22.5 degree steps (`ModelFilesTest` lists it)
 - [ ] WEFAX receiver (maintainer, 2026-10-23): prints weather charts, after the WX work. The block and model are in
   (dev tab, decorative, no recipe); the UI comes once the rest of the WX work is done
 

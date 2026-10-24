@@ -28,14 +28,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 /**
- * The Ionospheric Processor (maintainer's model, 2026-10-23): a rack two blocks tall with three glowing valves on top,
- * placed and broken as one. For now it is only the block; it will read the sky through an Ionosonde Antenna on its
- * coax (see doc/TncRework.md).
+ * The Ionospheric Processor (maintainer's model, 2026-10-23): a rack two blocks tall with three glowing valves on top
+ * that light the room a little ({@link #VALVE_LIGHT}), placed and broken as one. For now it is only the block; it will
+ * read the sky through an Ionosonde Antenna on its coax (see doc/TncRework.md).
  */
 public class IonosphericProcessorBlock extends Block {
 
 	public static final EnumProperty<DoubleBlockHalf> HALF = BlockStateProperties.DOUBLE_BLOCK_HALF;
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+	/** Light the valves give off, from the top half: a soft glow around the rack, about half a torch. */
+	public static final int VALVE_LIGHT = 7;
 
 	public IonosphericProcessorBlock(Properties properties) {
 		super(properties);

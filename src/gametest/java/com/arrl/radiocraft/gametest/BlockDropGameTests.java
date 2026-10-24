@@ -86,6 +86,17 @@ public class BlockDropGameTests {
         });
     }
 
+    /** The processor's valves light the room from its top half; the bottom half gives no light. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20)
+    public static void processorValvesGiveLight(GameTestHelper helper) {
+        BlockPos bottom = new BlockPos(3, 2, 3);
+        placeTall(helper, RadiocraftBlocks.IONOSPHERIC_PROCESSOR.get(), bottom);
+        helper.assertTrue(helper.getBlockState(bottom.above()).getLightEmission() == com.arrl.radiocraft.common.blocks.IonosphericProcessorBlock.VALVE_LIGHT,
+                "The top half gives light " + helper.getBlockState(bottom.above()).getLightEmission());
+        helper.assertTrue(helper.getBlockState(bottom).getLightEmission() == 0, "The bottom half gives light");
+        helper.succeed();
+    }
+
     private static void placeTall(GameTestHelper helper, Block block, BlockPos bottom) {
         helper.setBlock(bottom, block.defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER));
         helper.setBlock(bottom.above(), block.defaultBlockState().setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER));
