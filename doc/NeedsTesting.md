@@ -4,6 +4,20 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Proposal batch: gains, CW keys, callsigns, moderation, sporadic E (added 2026-10-24)
+
+- [ ] Gain and mic gain dials on every block radio: hover shows the percent; gain turns voice and static up and down,
+  mic gain how loud you go out. Which dial is which on the 10m and the VHF receiver (unlabelled, left alone)?
+- [ ] HF radio in CW: hold Left Alt in the screen to key. With `cw_keying = CHAT_MORSE`, type in the box under the
+  radio and press Enter: it goes out as Morse at about 24 wpm, "Sending..." while it does.
+- [ ] A new player right-clicking a radio gets the "Choose your callsign" screen; Later lets them through; a taken or
+  malformed callsign shows why. `/callsign claim K1ABC` works too.
+- [ ] Place a repeater: it gets an X#XX callsign (digit 0 near spawn). In its CW ID panel, "Make one up" and "Mine".
+- [ ] `/radio moderateall`: hear players on radios clean, with "On air: name (call), freq" over the hotbar; RTTY and
+  APRS packets in chat. `/radio moderate <player>`, `/radio moderate off`.
+- [ ] In a blackout the radio's S-meter jumps about instead of sitting at S9+.
+- [ ] `/rcdebug solar sporadic_e on`: 2m reaches stations 600-3000 blocks away.
+
 ## Electrical hazards, battery fires, lightning rod antennas (added 2026-10-24)
 
 - [ ] A 2x2 square of power wire on a charged battery: smoke, flames, the wire burns away after about 4 s. Is a

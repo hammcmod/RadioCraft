@@ -20,6 +20,11 @@ public class HFReceiverScreen extends HFRadioScreen<HFReceiverMenu> {
 	}
 
 	@Override
+	protected boolean canSendCw() {
+		return false; // A receiver has no transmitter.
+	}
+
+	@Override
 	protected void init() {
 		super.init();
 		addRenderableWidget(new ToggleButton(menu.isPowered(), leftPos + 5, topPos + 5, 20, 21, 0, 0, widgetsTexture, 256, 256, this::onPressPower)); // Power button

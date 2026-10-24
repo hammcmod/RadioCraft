@@ -51,7 +51,7 @@ public final class RepeaterAudio {
 	 * Key-down pattern of {@code text} in Morse, one entry per dot length: true while the tone is on. A dash is three
 	 * dots, the gap inside a letter one, between letters three, and between words seven.
 	 */
-	static List<Boolean> morseUnits(String text) {
+	public static List<Boolean> morseUnits(String text) {
 		List<Boolean> units = new ArrayList<>();
 		boolean firstLetter = true;
 		for(char c : text.toUpperCase(Locale.ROOT).toCharArray()) {

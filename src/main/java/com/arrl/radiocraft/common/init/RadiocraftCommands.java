@@ -27,5 +27,7 @@ public class RadiocraftCommands {
         event.getDispatcher().register(AprsCommands.BUILDER);
         event.getDispatcher().register(GuideCommands.BUILDER);
         event.getDispatcher().register(GuideCommands.SHORT_BUILDER);
+        event.getDispatcher().register(com.arrl.radiocraft.common.commands.ModerationCommands.BUILDER);
+        event.getDispatcher().register(com.arrl.radiocraft.common.commands.ModerationCommands.SHORT_BUILDER);
 	}
 }

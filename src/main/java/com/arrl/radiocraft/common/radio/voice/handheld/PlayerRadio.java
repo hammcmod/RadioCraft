@@ -337,6 +337,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         synchronized (this){
             for(SynchronousRadioState radio : radios) if(radio.canTransmit) currentlyTransmitting.add(radio);
         }
+        if(!currentlyTransmitting.isEmpty()) // Operators listening in (/radio moderateall).
+            com.arrl.radiocraft.common.radio.voice.RadioModeration.voice(level, sourcePlayer, rawAudio, currentlyTransmitting.getFirst().transmitFrequency());
         for(SynchronousRadioState radio : currentlyTransmitting) {    
             short[] audio = rawAudio.clone();
             for (int i = 0; i < audio.length; i++) {

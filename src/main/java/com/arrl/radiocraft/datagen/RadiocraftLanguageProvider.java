@@ -276,6 +276,15 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add("key.categories.radiocraft", "RadioCraft");
             provider.add("key.radiocraft.worn_ptt", "Talk on worn radio");
             provider.add("death.attack.radiocraft.electrocution", "%1$s was electrocuted");
+            provider.add("key.radiocraft.cw_key", "CW key (in a radio screen)");
+            provider.add(Radiocraft.translationKey("message", "moderate.on_air"), "On air: %s, %s MHz");
+            provider.add(Radiocraft.translationKey("commands", "moderate.all"), "Listening to all radio traffic; /radio moderate off to stop");
+            provider.add(Radiocraft.translationKey("commands", "moderate.one"), "Listening to %s's radio traffic; /radio moderate off to stop");
+            provider.add(Radiocraft.translationKey("commands", "moderate.off"), "Stopped listening to radio traffic");
+            provider.add(Radiocraft.translationKey("commands", "moderate.not_on"), "You were not listening to radio traffic");
+            provider.add(Radiocraft.translationKey("screen", "cw.chat"), "Type to send as Morse");
+            provider.add(Radiocraft.translationKey("screen", "cw.send"), "Send");
+            provider.add(Radiocraft.translationKey("screen", "cw.sending"), "Sending...");
             provider.add(Radiocraft.translationKey("screen", "callsign.title"), "Choose your callsign");
             provider.add(Radiocraft.translationKey("screen", "callsign.form"), "A letter, an optional letter, a digit, then one to three letters (K1ABC, W4X)");
             provider.add(Radiocraft.translationKey("screen", "callsign.digits"), "Digits allowed: %s");

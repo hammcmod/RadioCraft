@@ -18,10 +18,15 @@ public final class RadiocraftKeys {
     public static final KeyMapping WORN_PTT = new KeyMapping("key.radiocraft.worn_ptt", KeyConflictContext.IN_GAME,
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_B, "key.categories.radiocraft");
 
+    /** A straight key: hold to send CW from an open HF radio screen in CW mode (proposal: the Alt key). */
+    public static final KeyMapping CW_KEY = new KeyMapping("key.radiocraft.cw_key", KeyConflictContext.GUI,
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, "key.categories.radiocraft");
+
     private RadiocraftKeys() {}
 
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(WORN_PTT);
+        event.register(CW_KEY);
     }
 }

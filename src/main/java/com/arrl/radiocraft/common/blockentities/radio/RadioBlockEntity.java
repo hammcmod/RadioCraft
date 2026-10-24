@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.blockentities.radio;
 
+import com.arrl.radiocraft.common.radio.voice.RadioModeration;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
@@ -313,6 +314,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             return;
         if(!(IBENetworks.getObject(serverLevel, worldPosition) instanceof RadioNetworkObject networkObject))
             return;
+        RadioModeration.data(serverLevel, packet, getTunedFrequency()); // Operators reading along (/radio moderateall).
         List<AntennaNetworkObject> antennas = networkObject.getAntennas();
         if(antennas.size() == 1)
             antennas.get(0).transmitDataPacket(serverLevel, packet, band, getTunedFrequency());
@@ -1154,6 +1156,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             return;
         if(!(IBENetworks.getObject(this.level, worldPosition) instanceof RadioNetworkObject networkObject))
             return;
+        RadioModeration.voice(level, sourcePlayer, rawAudio, txHz); // Operators listening in (/radio moderateall).
         List<AntennaNetworkObject> antennas = networkObject.getAntennas();
         if(antennas.size() == 1)
             antennas.get(0).transmitAudioPacket(level, rawAudio, band, txHz, sourcePlayer, ctcssTone);

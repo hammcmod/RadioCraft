@@ -20,6 +20,10 @@ public class RadiocraftServerConfig {
 
     public static final ModConfigSpec.ConfigValue<Boolean> CALLSIGN_PERMISSIONS_ENABLED;
 	public static final ModConfigSpec.ConfigValue<Boolean> CALLSIGN_SELF_ASSIGN;
+	public static final ModConfigSpec.EnumValue<CwKeying> CW_KEYING;
+
+	/** How CW is sent from a radio's screen (proposal). Both have the keyboard key ({@code key.radiocraft.cw_key}). */
+	public enum CwKeying { TRUE_MORSE, CHAT_MORSE }
 	public static final ModConfigSpec.ConfigValue<String> CALLSIGN_DIGITS;
 	public static final ModConfigSpec.ConfigValue<Integer> CALLSIGN_ZONE_RADIUS;
 	public static final ModConfigSpec.EnumValue<com.arrl.radiocraft.common.radio.Callsigns.RepeaterMode> REPEATER_CALLSIGN_MODE;
@@ -171,6 +175,11 @@ public class RadiocraftServerConfig {
         BUILDER.push("Permissions");
         CALLSIGN_PERMISSIONS_ENABLED = BUILDER.comment(" Require op for callsign configuration").define("callsign_permissions_enabled", true);
         BUILDER.pop();
+
+		BUILDER.push("CW");
+		CW_KEYING = BUILDER.comment(" TRUE_MORSE: CW is keyed by hand only, with the screen's key button or the CW key (Left Alt by default).",
+				" CHAT_MORSE: as well, a text box under the radio sends typed text as Morse, in time").defineEnum("cw_keying", CwKeying.CHAT_MORSE);
+		BUILDER.pop();
 
 		BUILDER.push("Callsigns");
 		CALLSIGN_SELF_ASSIGN = BUILDER.comment(" Players may choose their own callsign (asked the first time they use a radio, or /callsign claim). False:",

@@ -91,7 +91,15 @@ In order. Each step gets GameTests where the server side can be checked; audio s
 ### Events, Commands & Config
 - [x] Callsign capability with `/callsign` tools implemented
 - [x] Implement administrative callsign commands (`/callsign set`, `reset`, `generate`: permission level 3)
-- [ ] Extend server config to cover callsign digit pools, HF static squelch, modern/vintage toggles, and “talk everywhere” overrides promised in the proposal
+- [x] Callsigns (2026-10-24, proposal): players choose their own in the !@#!@@ form (K1ABC), asked the first time
+  they reach for a radio (once a session) or with `/callsign claim`; taken ones refused; `callsign_self_assign`,
+  `callsign_digits`. Repeaters get X#XX callsigns whose digit is the distance from spawn (`callsign_zone_radius`), or
+  their owner's callsign; `repeater_callsign_mode` EITHER / AUTO / OWN
+- [x] Operator moderation (2026-10-24, maintainer): `/radio moderateall` hears all voice radio traffic clean with
+  who is talking over the hotbar, and RTTY/APRS in chat; `/radio moderate <player>` one player; `/radio moderate off`
+- [ ] Optional voice recording (maintainer, 2026-10-24): a server config to record radio voice traffic (for
+  moderation), off by default
+- [ ] Extend server config to cover HF static squelch, modern/vintage toggles, and “talk everywhere” overrides promised in the proposal
 - [x] Add `/bandcalculate` helper to complement antenna tuning (2026-10-23, see World & Progression)
 - [x] Redstone interference, receive side (2026-10-20): redstone switching near the feedline/antenna boosts the
   radio's static, band and distance dependent, server configurable. Design in doc/RedstoneInterference.md.
@@ -162,6 +170,13 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   repeater (maintainer, 2026-10-21, undecided)
 - [x] Radios and wires placed on the underside of a block hang from it (2026-10-21): radios the right way up (raised copies of their models made in datagen), wires as the floor logic upside down (hug, climb down beams)
 - [ ] Add multi-channel scan indicator to VHF receiver UI
+- [ ] Repeater speaker volume and antenna switch (proposal): the power, TX, mic and speaker switches work; a volume
+  dial and a switch for a second antenna wait for the UI rework (no room on the panel art)
+- [x] Sporadic E (2026-10-24, proposal): in good or great conditions about 5% a day that VHF opens for long range
+  (600-3000 blocks) for a quarter of a day to a day; `/rcdebug solar sporadic_e on|off`
+- [x] Block radio gain and mic gain dials work (2026-10-24); CW keyboard key (Left Alt, rebindable) and Chat Morse
+  (`cw_keying`, default CHAT_MORSE: a box under the radio sends typed text as Morse). CW already goes 1.5x as far as
+  voice, more than the proposal's 25%
 
 ### Digital & APRS Features
 - [ ] Rework the digital interface (TNC) into separate blocks (maintainer, 2026-10-22; plan in
