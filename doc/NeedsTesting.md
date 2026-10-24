@@ -17,7 +17,8 @@ Add to this list whenever a change cannot be fully verified by `test` / `runGame
 ## APRS Map, microphone element, desk mic (added 2026-10-23)
 
 - [ ] Right-clicking an H19 with an empty map gives an "APRS Map" (the empty map is used up). In hand and in an item
-  frame it shows dark greyscale terrain, a lighter grid, a target at the H19 and a white banner with the callsign at
+  frame it looks like an old terminal map: black land with grey contour lines every 8 blocks of height, water as a
+  dark dither with a bright shoreline, a dotted grid, a target at the H19 and a white banner with the callsign at
   each station heard; it re-centres and zooms out to fit as stations are heard, every 5 seconds. Unloaded ground is
   near black. A cartography table copy stays live.
 - [ ] Microphone Element: texture in the inventory; ` P `/`NCN` makes 2; the hand and desk mic recipes use it.

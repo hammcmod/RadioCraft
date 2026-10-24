@@ -3,8 +3,7 @@ package com.arrl.radiocraft.common.radio.data;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.saveddata.maps.MapDecorationTypes;
@@ -16,9 +15,9 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Paints an APRS map (a vanilla map an H19 made, see {@code AprsTerminalBlockEntity#createMap}): greyscale terrain
- * from the loaded chunks, kept dark so the markers stand out, near black where nothing is loaded, a lighter grid, a
- * target at the home station and a white banner, labelled with its callsign, at each station heard. It is centred on
+ * Paints an APRS map (a vanilla map an H19 made, see {@code AprsTerminalBlockEntity#createMap}) in the style of an old
+ * terminal: black land with contour lines, dithered water with a bright shoreline, a dotted grid (see {@link #paint}),
+ * a target at the home station and a white banner, labelled with its callsign, at each station heard. It is centred on
  * them all and scaled to fit, in powers of two so it does not jitter as stations come and go.
  * <p>
  * The map's own centre and scale are fixed when it is made (0, 0 at 1:1), so the painter works in map pixels and
@@ -79,41 +78,63 @@ public final class AprsMapPainter {
 		return new Fit(centerX, centerZ, blocksPerPixel);
 	}
 
-	/** The picture for {@code fit}: one packed map colour per pixel, row by row (x fastest), as map data holds them. */
+	/** Height between contour lines, in blocks. */
+	public static final int CONTOUR = 8;
+	// The few tones of the DOS-style map, as luminance 0 (black) to 1 (white).
+	private static final double LAND = 0.0D, CONTOUR_LINE = 0.42D, WATER_DOT = 0.22D, SHORE = 0.8D, GRID_DOT = 0.3D;
+
+	/**
+	 * The picture for {@code fit}, drawn like an old terminal's map rather than a shaded one: black land with grey
+	 * contour lines every {@link #CONTOUR} blocks of height, water as a dark dither edged by a bright shoreline, a
+	 * dotted grid, and black where nothing is loaded. One packed map colour per pixel, row by row (x fastest).
+	 */
 	public static byte[] paint(ServerLevel level, Fit fit) {
+		int[] height = new int[(SIZE + 1) * (SIZE + 1)]; // With a row and a column of neighbours to the north and west.
+		byte[] kind = new byte[(SIZE + 1) * (SIZE + 1)]; // 0 unknown, 1 land, 2 water.
+		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
+		for(int px = -1; px < SIZE; px++) {
+			for(int pz = -1; pz < SIZE; pz++) {
+				int x = blockAt(fit.centerX(), px, fit.blocksPerPixel()), z = blockAt(fit.centerZ(), pz, fit.blocksPerPixel());
+				int i = (px + 1) + (pz + 1) * (SIZE + 1);
+				if(!level.hasChunk(x >> 4, z >> 4))
+					continue;
+				int top = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1;
+				pos.set(x, top, z);
+				height[i] = top;
+				kind[i] = (byte)(level.getFluidState(pos).is(FluidTags.WATER) ? 2 : 1);
+			}
+		}
 		byte[] colors = new byte[SIZE * SIZE];
 		int grid = gridStep(fit.blocksPerPixel());
-		BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
 		for(int px = 0; px < SIZE; px++) {
-			int x = fit.centerX() + (px - SIZE / 2) * fit.blocksPerPixel() + fit.blocksPerPixel() / 2;
-			int northHeight = Integer.MIN_VALUE;
-			for(int pz = -1; pz < SIZE; pz++) { // Row -1 only gives the first row a northern neighbour to shade against.
-				int z = fit.centerZ() + (pz - SIZE / 2) * fit.blocksPerPixel() + fit.blocksPerPixel() / 2;
-				double luminance;
-				int height = Integer.MIN_VALUE;
-				if(!level.hasChunk(x >> 4, z >> 4))
-					luminance = 0.06D; // Not loaded: unknown ground.
-				else {
-					height = level.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) - 1;
-					pos.set(x, height, z);
-					BlockState state = level.getBlockState(pos);
-					MapColor color = state.getMapColor(level, pos);
-					int rgb = color == MapColor.NONE ? 0 : color.col;
-					double base = (0.299D * ((rgb >> 16) & 0xFF) + 0.587D * ((rgb >> 8) & 0xFF) + 0.114D * (rgb & 0xFF)) / 255.0D;
-					double shade = northHeight == Integer.MIN_VALUE ? 1.0D : height > northHeight ? 1.15D : height < northHeight ? 0.8D : 1.0D;
-					luminance = 0.12D + 0.4D * Mth.clamp(base * shade, 0.0D, 1.0D); // Kept dark: the markers are white.
+			for(int pz = 0; pz < SIZE; pz++) {
+				int i = (px + 1) + (pz + 1) * (SIZE + 1), west = i - 1, north = i - (SIZE + 1);
+				double tone = LAND;
+				if(kind[i] == 2) {
+					boolean shore = kind[west] == 1 || kind[north] == 1;
+					tone = shore ? SHORE : (px + pz) % 2 == 0 ? WATER_DOT : LAND;
 				}
-				northHeight = height;
-				if(pz < 0)
-					continue;
-				boolean onGrid = Math.floorMod(x - fit.blocksPerPixel() / 2, grid) < fit.blocksPerPixel()
-						|| Math.floorMod(z - fit.blocksPerPixel() / 2, grid) < fit.blocksPerPixel();
-				if(onGrid)
-					luminance = Math.max(luminance, 0.62D);
-				colors[px + pz * SIZE] = grey(luminance);
+				else if(kind[i] == 1) {
+					boolean shore = kind[west] == 2 || kind[north] == 2;
+					int band = Math.floorDiv(height[i], CONTOUR);
+					boolean contour = (kind[west] == 1 && Math.floorDiv(height[west], CONTOUR) != band)
+							|| (kind[north] == 1 && Math.floorDiv(height[north], CONTOUR) != band);
+					tone = shore ? SHORE : contour ? CONTOUR_LINE : LAND;
+				}
+				if(tone == LAND && (px + pz) % 2 == 0) { // The grid, dotted, under everything else.
+					int x = blockAt(fit.centerX(), px, fit.blocksPerPixel()), z = blockAt(fit.centerZ(), pz, fit.blocksPerPixel());
+					if(Math.floorMod(x - fit.blocksPerPixel() / 2, grid) < fit.blocksPerPixel() || Math.floorMod(z - fit.blocksPerPixel() / 2, grid) < fit.blocksPerPixel())
+						tone = GRID_DOT;
+				}
+				colors[px + pz * SIZE] = grey(tone);
 			}
 		}
 		return colors;
+	}
+
+	/** The block in the middle of map pixel {@code pixel} along one axis. */
+	private static int blockAt(int center, int pixel, int blocksPerPixel) {
+		return center + (pixel - SIZE / 2) * blocksPerPixel + blocksPerPixel / 2;
 	}
 
 	/** Grid lines about every 32 pixels, at a round number of blocks. */
