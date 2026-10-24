@@ -261,6 +261,9 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   - [ ] AT&T Long Lines site (maintainer, 2026-10-23)
   - [ ] Prepper bunker (maintainer, 2026-10-23)
 - [ ] Add something radio-related to villages (maintainer, 2026-10-23)
+- [ ] Tower foothold (maintainer, 2026-10-23): a block that works as a ladder or as something to stand on, for the
+  towers in structures. A foothold placed by worldgen has a 0.05% chance of breaking each time a player walks on or
+  climbs it, with a metal clang (the anvil sound, sped up); a blockstate marks player-placed ones, which never break.
 - [ ] Industrial radio block (maintainer, 2026-10-23; needs a model): broken and working versions, found in
   structures, not usable by players; breaking it drops a random rare radio component (the all-band circuit board and
   others to come)
