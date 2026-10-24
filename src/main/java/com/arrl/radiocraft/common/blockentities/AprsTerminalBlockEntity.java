@@ -37,6 +37,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -59,8 +61,8 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 	private static final int DISPLAY_CHECK_TICKS = 10;
 	/** Ticks between repaints of the APRS maps this terminal made. */
 	private static final int MAP_PAINT_TICKS = 100;
-	/** Most maps one terminal keeps painting; a new one past this takes over from the oldest. */
-	public static final int MAX_MAPS = 8;
+	/** Most map sets one terminal keeps painting; a new one past this takes over from the oldest. */
+	public static final int MAX_MAP_SETS = 8;
 
 	/** APRS terminals loaded on the server, for the admin commands that reach all of them. */
 	private static final Set<AprsTerminalBlockEntity> LOADED = ConcurrentHashMap.newKeySet();
@@ -76,7 +78,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 
 	private final List<Heard> beacons = new ArrayList<>(); // Newest first, one per station.
 	private final List<Logged> messages = new ArrayList<>(); // Newest first: those for this station and those it sent.
-	private final List<Integer> mapIds = new ArrayList<>(); // The APRS maps it made and keeps painting, oldest first.
+	private final List<MapSet> mapSets = new ArrayList<>(); // The APRS maps it made and keeps painting, oldest first.
 	private boolean syncPending = false;
 
 	// Server only, not saved.
@@ -147,50 +149,80 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		}
 		if(now % DISPLAY_CHECK_TICKS == 0)
 			updateDisplay();
-		if(now % MAP_PAINT_TICKS == 0 && !mapIds.isEmpty())
+		if(now % MAP_PAINT_TICKS == 0 && !mapSets.isEmpty())
 			paintMaps(level);
 	}
 
 	// -------------------- APRS MAPS --------------------
 
 	/**
-	 * A new APRS map for a framed or held display of the stations heard: a vanilla map (so frames, hands and the
-	 * cartography table all work) that this terminal paints from now on. Copies share it and stay live.
+	 * A set of APRS maps, {@code size} by {@code size}, painted as one picture: a wall of item frames. The ids are row by
+	 * row from the top left (north west).
 	 */
-	public ItemStack createMap(ServerLevel level) {
-		MapId id = level.getFreeMapId();
-		level.setMapData(id, MapItemSavedData.createFresh(0.0D, 0.0D, (byte)0, false, false, level.dimension()).locked());
-		mapIds.add(id.id());
-		while(mapIds.size() > MAX_MAPS)
-			mapIds.removeFirst();
+	public record MapSet(int size, int[] ids) {}
+
+	/**
+	 * A new set of APRS maps, {@code size} by {@code size} (1, 2 or 3), for a framed or held display of the stations
+	 * heard: vanilla maps (so frames, hands and the cartography table all work) that this terminal paints from now on.
+	 * Copies share them and stay live. Each map's tooltip says where it goes in the wall.
+	 */
+	public List<ItemStack> createMaps(ServerLevel level, int size) {
+		int[] ids = new int[size * size];
+		for(int i = 0; i < ids.length; i++) {
+			MapId id = level.getFreeMapId();
+			level.setMapData(id, MapItemSavedData.createFresh(0.0D, 0.0D, (byte)0, false, false, level.dimension()).locked());
+			ids[i] = id.id();
+		}
+		mapSets.add(new MapSet(size, ids));
+		while(mapSets.size() > MAX_MAP_SETS)
+			mapSets.removeFirst();
 		setChanged();
 		paintMaps(level);
-		ItemStack stack = new ItemStack(Items.FILLED_MAP);
-		stack.set(DataComponents.MAP_ID, id);
-		stack.set(DataComponents.ITEM_NAME, Component.translatable("item.radiocraft.aprs_map"));
-		stack.set(DataComponents.MAP_COLOR, new MapItemColor(0x3A3A3A));
-		stack.set(DataComponents.LORE, new ItemLore(List.of(Component.translatable("item.radiocraft.aprs_map.from",
-				worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()).withStyle(ChatFormatting.GRAY))));
-		return stack;
+		List<ItemStack> stacks = new ArrayList<>();
+		for(int i = 0; i < ids.length; i++) {
+			ItemStack stack = new ItemStack(Items.FILLED_MAP);
+			stack.set(DataComponents.MAP_ID, new MapId(ids[i]));
+			stack.set(DataComponents.ITEM_NAME, size == 1 ? Component.translatable("item.radiocraft.aprs_map")
+					: Component.translatable("item.radiocraft.aprs_map.wall", size, size));
+			stack.set(DataComponents.MAP_COLOR, new MapItemColor(0x3A3A3A));
+			List<Component> lore = new ArrayList<>();
+			if(size > 1)
+				lore.add(Component.translatable("item.radiocraft.aprs_map.tile", i / size + 1, i % size + 1, size, size).withStyle(ChatFormatting.WHITE));
+			lore.add(Component.translatable("item.radiocraft.aprs_map.from", worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()).withStyle(ChatFormatting.GRAY));
+			stack.set(DataComponents.LORE, new ItemLore(lore));
+			stacks.add(stack);
+		}
+		return stacks;
 	}
 
-	/** Repaints every map this terminal made: fitted to home and the stations heard, greyscale terrain, markers. */
+	/** One APRS map (see {@link #createMaps}). */
+	public ItemStack createMap(ServerLevel level) {
+		return createMaps(level, 1).getFirst();
+	}
+
+	/** Repaints every map set this terminal made, each as one picture fitted to home and the stations heard. */
 	public void paintMaps(ServerLevel level) {
 		List<AprsMapPainter.Station> stations = new ArrayList<>();
 		for(Heard heard : beacons)
 			if(heard.packet().position() != null)
 				stations.add(new AprsMapPainter.Station(heard.packet().from(), heard.packet().position()));
-		AprsMapPainter.Fit fit = AprsMapPainter.fit(worldPosition, stations.stream().map(AprsMapPainter.Station::pos).toList());
-		byte[] colors = AprsMapPainter.paint(level, fit);
-		for(int id : mapIds) {
-			MapItemSavedData data = level.getMapData(new MapId(id));
-			if(data != null)
-				AprsMapPainter.apply(level, data, fit, colors, worldPosition, stations);
+		List<BlockPos> positions = stations.stream().map(AprsMapPainter.Station::pos).toList();
+		Map<Integer, AprsMapPainter.Fit> fits = new HashMap<>(); // Sets of one size share a picture.
+		Map<Integer, byte[]> pictures = new HashMap<>();
+		for(MapSet set : mapSets) {
+			int pixels = set.size() * AprsMapPainter.SIZE;
+			AprsMapPainter.Fit fit = fits.computeIfAbsent(set.size(), ignored -> AprsMapPainter.fit(worldPosition, positions, pixels, pixels));
+			byte[] colors = pictures.computeIfAbsent(set.size(), ignored -> AprsMapPainter.paint(level, fit, worldPosition, stations));
+			for(int i = 0; i < set.ids().length; i++) {
+				MapItemSavedData data = level.getMapData(new MapId(set.ids()[i]));
+				if(data != null)
+					AprsMapPainter.applyTile(data, fit, colors, i % set.size(), i / set.size());
+			}
 		}
 	}
 
-	public List<Integer> getMapIds() {
-		return List.copyOf(mapIds);
+	public List<MapSet> getMapSets() {
+		return List.copyOf(mapSets);
 	}
 
 	/** What the screen shows: MSG over CONTACT over READY. */
@@ -451,7 +483,14 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			messageTags.add(entry);
 		}
 		tag.put("messages", messageTags);
-		tag.putIntArray("maps", mapIds);
+		ListTag mapTags = new ListTag();
+		for(MapSet set : mapSets) {
+			CompoundTag entry = new CompoundTag();
+			entry.putInt("size", set.size());
+			entry.putIntArray("ids", set.ids());
+			mapTags.add(entry);
+		}
+		tag.put("mapSets", mapTags);
 	}
 
 	@Override
@@ -475,9 +514,16 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			CompoundTag compound = (CompoundTag)entry;
 			messages.add(new Logged(TncPacket.load(compound), compound.getBoolean("outgoing"), compound.getLong("loggedAt")));
 		}
-		mapIds.clear();
-		for(int id : tag.getIntArray("maps"))
-			mapIds.add(id);
+		mapSets.clear();
+		for(Tag entry : tag.getList("mapSets", Tag.TAG_COMPOUND)) {
+			CompoundTag compound = (CompoundTag)entry;
+			int size = compound.getInt("size");
+			int[] ids = compound.getIntArray("ids");
+			if(size >= 1 && ids.length == size * size)
+				mapSets.add(new MapSet(size, ids));
+		}
+		for(int id : tag.getIntArray("maps")) // Single maps, from before map walls.
+			mapSets.add(new MapSet(1, new int[] { id }));
 	}
 
 	@Override

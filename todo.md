@@ -137,8 +137,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
     recipes
   - [ ] Redesigned UIs for the H19 and the Transfer Interface (maintainer); for now they are the old APRS/MSG and
     FILES tabs
-  - [ ] A display item for item frames near an H19 that shows a simplified black and green map of the stations
-    heard, centred and scaled to fit them (maintainer, 2026-10-23; built on vanilla map data)
+  - [x] APRS maps (2026-10-23): right click an H19 with empty maps for a map (sneak: a 2 x 2 or 3 x 3 wall) of the
+    stations heard, in an old-terminal style with pixel-font callsigns, repainted every 5 seconds
 - [x] Digital interface (TNC), first slice (2026-10-21): packets ride the radio like voice (AFSK burst everyone on
   the frequency hears, then the packet decodes whole if on frequency and above the noise, `tnc_min_snr`); APRS
   beacons (button, redstone pulse, timer) with a map of heard stations, messages to a callsign or ALL with an unread

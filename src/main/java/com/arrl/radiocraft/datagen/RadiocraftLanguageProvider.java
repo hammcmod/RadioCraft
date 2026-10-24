@@ -136,6 +136,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "teletype.tip.paper_out"), "Out of paper: right click the teletype with paper, or feed it with a hopper");
 			provider.add("item.radiocraft.aprs_map", "APRS Map");
 			provider.add("item.radiocraft.aprs_map.from", "From the H19 at %s, %s, %s");
+			provider.add("item.radiocraft.aprs_map.wall", "APRS Map (%s x %s wall)");
+			provider.add("item.radiocraft.aprs_map.tile", "Row %s, column %s of %s x %s (top left is north west)");
 			provider.add("container.radiocraft.transfer_interface", "Digital Transfer Interface");
 			provider.add("container.radiocraft.duplexer", "Duplexer");
 			provider.add("container.radiocraft.antenna_tuner", "Antenna Tuner");

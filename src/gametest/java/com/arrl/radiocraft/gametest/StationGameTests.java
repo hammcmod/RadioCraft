@@ -1,5 +1,7 @@
 package com.arrl.radiocraft.gametest;
 
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import com.arrl.radiocraft.common.radio.data.AprsMapPainter;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.AprsTerminalBlockEntity;
@@ -465,33 +467,66 @@ public class StationGameTests {
         helper.succeed();
     }
 
+    /** The picture pixel a block lands on in a wall of {@code size} by {@code size} maps, as the terminal fits it now. */
+    private static int[] pixel(AprsTerminalBlockEntity terminal, BlockPos home, BlockPos at, int size) {
+        List<BlockPos> stations = terminal.getBeacons().stream().map(heard -> heard.packet().position()).toList();
+        AprsMapPainter.Fit fit = AprsMapPainter.fit(home, stations, size * AprsMapPainter.SIZE, size * AprsMapPainter.SIZE);
+        return new int[] { fit.pixelX(at.getX() + 0.5D), fit.pixelZ(at.getZ() + 0.5D) };
+    }
+
+    private static byte colorAt(MapItemSavedData data, int x, int z) {
+        return data.colors[x + z * AprsMapPainter.SIZE];
+    }
+
     /**
-     * An APRS map made at the H19 shows home and every station heard, labelled with its callsign, on terrain painted
-     * from the loaded chunks.
+     * An APRS map made at the H19 is painted with home and every station heard: a white cross at each station with
+     * its callsign beside it, all in the picture, with no vanilla markers.
      */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 40, batch = BATCH)
     public static void aprsMapShowsStationsHeard(GameTestHelper helper) {
         station(helper, RADIO_A, 144_790, "W1MAP");
         AprsTerminalBlockEntity terminal = aprs(helper, APRS_A);
         BlockPos home = helper.absolutePos(APRS_A);
-        terminal.receiveDirect(TncPacket.beacon(21L, "W1EAS", home.offset(300, 0, 0), "", "HOUSE"));
+        BlockPos east = home.offset(300, 0, 0);
+        terminal.receiveDirect(TncPacket.beacon(21L, "W1EAS", east, "", "HOUSE"));
         terminal.receiveDirect(TncPacket.beacon(22L, "W1SOU", home.offset(-50, 0, 400), "", "HOUSE"));
-        net.minecraft.world.item.ItemStack map = terminal.createMap(helper.getLevel());
-        net.minecraft.world.level.saveddata.maps.MapItemSavedData data = net.minecraft.world.item.MapItem.getSavedData(map, helper.getLevel());
-        helper.assertTrue(map.is(net.minecraft.world.item.Items.FILLED_MAP) && data != null, "No map made: " + map);
+        ItemStack map = terminal.createMap(helper.getLevel());
+        MapItemSavedData data = MapItem.getSavedData(map, helper.getLevel());
+        helper.assertTrue(map.is(Items.FILLED_MAP) && data != null, "No map made: " + map);
         helper.assertTrue(data.locked, "The map is not locked: vanilla would paint over it");
-        java.util.Set<String> labels = new java.util.HashSet<>();
-        int markers = 0;
-        for(var decoration : data.getDecorations()) {
-            markers++;
-            decoration.name().ifPresent(name -> labels.add(name.getString()));
-        }
-        helper.assertTrue(markers == 3 && labels.equals(java.util.Set.of("W1EAS", "W1SOU")), markers + " markers, labels " + labels);
-        boolean painted = false;
-        for(byte color : data.colors)
-            painted |= color != 0;
-        helper.assertTrue(painted, "The map has no terrain painted");
-        helper.assertTrue(terminal.getMapIds().size() == 1, "The terminal does not keep painting its map");
+        helper.assertFalse(data.getDecorations().iterator().hasNext(), "The map has vanilla markers");
+        int[] at = pixel(terminal, home, east, 1);
+        helper.assertTrue(colorAt(data, at[0], at[1]) == AprsMapPainter.WHITE, "No white cross at the station's pixel " + at[0] + ", " + at[1]);
+        int label = 0;
+        for(int x = at[0] + 3; x < Math.min(AprsMapPainter.SIZE, at[0] + 3 + 5 * 4); x++)
+            for(int z = at[1] - 2; z <= at[1] + 2; z++)
+                label += colorAt(data, x, z) == AprsMapPainter.WHITE ? 1 : 0;
+        if(at[0] + 3 + 5 * 4 >= AprsMapPainter.SIZE) // Near the right edge the callsign goes on the left.
+            for(int x = Math.max(0, at[0] - 3 - 5 * 4); x < at[0] - 2; x++)
+                for(int z = at[1] - 2; z <= at[1] + 2; z++)
+                    label += colorAt(data, x, z) == AprsMapPainter.WHITE ? 1 : 0;
+        helper.assertTrue(label > 10, "No callsign beside the station (" + label + " white pixels)");
+        helper.assertTrue(terminal.getMapSets().size() == 1, "The terminal does not keep painting its map");
+        helper.succeed();
+    }
+
+    /** A 2 by 2 wall: four maps of one picture, and a station shows on the tile its pixel falls in. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 40, batch = BATCH)
+    public static void aprsMapWallSplitsOnePicture(GameTestHelper helper) {
+        station(helper, RADIO_A, 144_810, "W2MAP");
+        AprsTerminalBlockEntity terminal = aprs(helper, APRS_A);
+        BlockPos home = helper.absolutePos(APRS_A);
+        BlockPos far = home.offset(700, 0, -500);
+        terminal.receiveDirect(TncPacket.beacon(31L, "W2FAR", far, "", "HOUSE"));
+        List<ItemStack> maps = terminal.createMaps(helper.getLevel(), 2);
+        helper.assertTrue(maps.size() == 4, "A 2 by 2 wall made " + maps.size() + " maps");
+        helper.assertTrue(maps.stream().map(stack -> stack.get(DataComponents.MAP_ID)).distinct().count() == 4, "The wall's maps share ids");
+        helper.assertTrue(terminal.getMapSets().getFirst().size() == 2, "Not kept as a 2 by 2 set");
+        int[] at = pixel(terminal, home, far, 2);
+        int column = at[0] / AprsMapPainter.SIZE, row = at[1] / AprsMapPainter.SIZE;
+        MapItemSavedData tile = MapItem.getSavedData(maps.get(row * 2 + column), helper.getLevel());
+        helper.assertTrue(tile != null && colorAt(tile, at[0] % AprsMapPainter.SIZE, at[1] % AprsMapPainter.SIZE) == AprsMapPainter.WHITE,
+                "The station is not on tile row " + row + ", column " + column);
         helper.succeed();
     }
 

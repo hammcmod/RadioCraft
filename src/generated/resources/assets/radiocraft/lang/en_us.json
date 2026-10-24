@@ -94,6 +94,8 @@
   "item.radiocraft.antenna_wire": "Antenna Wire",
   "item.radiocraft.aprs_map": "APRS Map",
   "item.radiocraft.aprs_map.from": "From the H19 at %s, %s, %s",
+  "item.radiocraft.aprs_map.tile": "Row %s, column %s of %s x %s (top left is north west)",
+  "item.radiocraft.aprs_map.wall": "APRS Map (%s x %s wall)",
   "item.radiocraft.coaxial_core": "Coaxial Core",
   "item.radiocraft.crystal_10m_good": "Good 28 MHz (10m) Crystal",
   "item.radiocraft.crystal_10m_poor": "Poor 28 MHz (10m) Crystal",

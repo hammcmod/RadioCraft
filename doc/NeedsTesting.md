@@ -18,9 +18,12 @@ Add to this list whenever a change cannot be fully verified by `test` / `runGame
 
 - [ ] Right-clicking an H19 with an empty map gives an "APRS Map" (the empty map is used up). In hand and in an item
   frame it looks like an old terminal map: black land with grey contour lines every 8 blocks of height, water as a
-  dark dither with a bright shoreline, a dotted grid, a target at the H19 and a white banner with the callsign at
-  each station heard; it re-centres and zooms out to fit as stations are heard, every 5 seconds. Unloaded ground is
-  near black. A cartography table copy stays live.
+  dark dither with a bright shoreline, a dotted grid, a box at the H19, and a white cross at each station heard with
+  its callsign beside it in a small pixel font (on the left near the right edge). It re-centres and zooms out to fit
+  as stations are heard, every 5 seconds. Unloaded ground is black. A cartography table copy stays live.
+- [ ] Sneaking and right-clicking with 4 or more empty maps gives a 2 x 2 wall, 9 or more a 3 x 3: each map's tooltip
+  gives its row and column (top left is north west). Framed in that order, the picture, crosses and callsigns run
+  across the joins.
 - [ ] Microphone Element: texture in the inventory; ` P `/`NCN` makes 2; the hand and desk mic recipes use it.
 - [ ] Desk mic: the maintainer's smaller model stands on the side of the block nearest its radio (left or right as
   seen from the front) and moves when a radio is placed on the other side. Its outline fits the mic.

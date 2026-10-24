@@ -96,17 +96,22 @@ public final class AprsTerminalBlock extends BaseEntityBlock {
 		return RadioLinks.update(super.updateShape(state, direction, neighbour, level, pos, neighbourPos), direction, neighbour, RadioLinks.STATION);
 	}
 
-	/** An empty map used on the terminal becomes an APRS map of the stations it hears (see {@link AprsTerminalBlockEntity#createMap}). */
+	/**
+	 * Empty maps used on the terminal become APRS maps of the stations it hears: one, or sneaking, a 2 by 2 wall from 4
+	 * maps or a 3 by 3 from 9 (see {@link AprsTerminalBlockEntity#createMaps}).
+	 */
 	@Override
 	protected @NotNull ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
 	                                                   @NotNull Player player, @NotNull InteractionHand hand, @NotNull BlockHitResult hit) {
 		if(!stack.is(Items.MAP))
 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		if(level instanceof ServerLevel serverLevel && level.getBlockEntity(pos) instanceof AprsTerminalBlockEntity terminal) {
-			ItemStack map = terminal.createMap(serverLevel);
-			stack.consume(1, player);
-			if(!player.getInventory().add(map))
-				player.drop(map, false);
+			int have = player.getAbilities().instabuild ? 9 : stack.getCount();
+			int size = !player.isShiftKeyDown() ? 1 : have >= 9 ? 3 : have >= 4 ? 2 : 1;
+			for(ItemStack map : terminal.createMaps(serverLevel, size))
+				if(!player.getInventory().add(map))
+					player.drop(map, false);
+			stack.consume(size * size, player);
 			level.playSound(null, pos, SoundEvents.UI_CARTOGRAPHY_TABLE_TAKE_RESULT, SoundSource.BLOCKS, 1.0F, 1.0F);
 		}
 		return ItemInteractionResult.sidedSuccess(level.isClientSide);
