@@ -238,7 +238,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   - [ ] WEFAX receiver screen and printing from the air: a station sends charts, receivers print them (auto-print
     on warnings), paper use
   - [ ] Weather station block: APRS WX beacons from `WeatherReports.aprsWeather`, alert tone over SSB on hazards
-  - [ ] Antenna damage from Another Weather Mod's `WindDamageEvent`
+  - [x] Antenna damage (2026-10-25): with Another Weather Mod, winds over 33 m/s may blow antenna parts and wire
+    holders down (up to 30 % each time the wind picks one, at 60 m/s); `wind_antenna_damage_enabled`
 - [ ] WEFAX receiver model: its Rotary elements are turned -85, 80 and 42.5 degrees, which Minecraft 1.21.1 cannot
   load (it shows as missing). Re-export with Blockbench set to 1.21.1 and 22.5 degree steps (`ModelFilesTest` lists it)
 - [ ] WEFAX receiver (maintainer, 2026-10-23): prints weather charts, after the WX work. The block and model are in

@@ -124,6 +124,34 @@ public class WeatherGameTests {
 		helper.succeed();
 	}
 
+	/**
+	 * Hurricane winds blow an antenna pole down sooner or later (a 30 % chance each time the wind picks it at 60 m/s),
+	 * and never with {@code wind_antenna_damage_enabled} off.
+	 */
+	@GameTest(template = GameTestUtil.EMPTY)
+	public static void windBlowsAntennasDown(GameTestHelper helper) {
+		if(!AwmCompat.isLoaded()) {
+			helper.succeed();
+			return;
+		}
+		ServerLevel level = helper.getLevel();
+		BlockPos pole = new BlockPos(8, 2, 8);
+		helper.setBlock(pole, com.arrl.radiocraft.common.init.RadiocraftBlocks.ANTENNA_POLE.get());
+		com.arrl.radiocraft.RadiocraftServerConfig.WIND_ANTENNA_DAMAGE_ENABLED.set(false);
+		try {
+			for(int i = 0; i < 40; i++)
+				com.itcmd.anotherweathermod.world.WindDamage.apply(level, helper.absolutePos(pole), 60, 0, 60);
+			helper.assertBlockPresent(com.arrl.radiocraft.common.init.RadiocraftBlocks.ANTENNA_POLE.get(), pole);
+		}
+		finally {
+			com.arrl.radiocraft.RadiocraftServerConfig.WIND_ANTENNA_DAMAGE_ENABLED.set(true);
+		}
+		for(int i = 0; i < 60 && !helper.getBlockState(pole).isAir(); i++)
+			com.itcmd.anotherweathermod.world.WindDamage.apply(level, helper.absolutePos(pole), 60, 0, 60);
+		helper.assertBlockNotPresent(com.arrl.radiocraft.common.init.RadiocraftBlocks.ANTENNA_POLE.get(), pole);
+		helper.succeed();
+	}
+
 	/** With Another Weather Mod, the WX report sees its storms. Storms are level-wide: a batch of its own. */
 	@GameTest(template = GameTestUtil.EMPTY, batch = "awm_weather")
 	public static void anotherWeatherModStorms(GameTestHelper helper) {

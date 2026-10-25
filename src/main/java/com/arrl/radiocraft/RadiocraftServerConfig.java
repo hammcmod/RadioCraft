@@ -37,6 +37,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> REDSTONE_INTERFERENCE_TRANSMIT_CHANCE;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> LIGHTNING_STATIC_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Boolean> WIND_ANTENNA_DAMAGE_ENABLED;
 	public static final ModConfigSpec.ConfigValue<Boolean> SOLAR_EVENTS_ENABLED;
 	public static final ModConfigSpec.ConfigValue<Double> LIGHTNING_STATIC_STRENGTH;
 	public static final ModConfigSpec.ConfigValue<Integer> LIGHTNING_STATIC_RANGE;
@@ -218,6 +219,8 @@ public class RadiocraftServerConfig {
 		BUILDER.comment(" A lightning strike puts a crash of static on every powered radio in the dimension, loudest close by and fading",
 				" with distance. Long HF bands hear the most, 20m half, 10m and VHF a tenth, like redstone noise.");
 		LIGHTNING_STATIC_ENABLED = BUILDER.comment(" Set to false to turn lightning crashes off").define("lightning_static_enabled", true);
+		WIND_ANTENNA_DAMAGE_ENABLED = BUILDER.comment(" With Another Weather Mod, hurricane-force winds can blow antenna parts and wire holders down (dropped",
+				" as items). Set to false to keep antennas standing").define("wind_antenna_damage_enabled", true);
 		SOLAR_EVENTS_ENABLED = BUILDER.comment(" Solar weather and geomagnetic storms. Set to false to keep every dimension on average conditions (no blackouts,",
 				" storms or auroras from new events)").define("solar_events_enabled", true);
 		LIGHTNING_STATIC_STRENGTH = BUILDER.comment(" How much static a strike right next to the radio adds, on top of the solar noise floor (the total is capped at 1, so above 1 nearby strikes saturate and distant ones are still heard)").defineInRange("lightning_static_strength", 1.2, 0.0, 4.0);

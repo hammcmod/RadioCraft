@@ -17,6 +17,8 @@ Dev runs have Another Weather Mod (from `libs/`); its own checklist is in its re
   shows rings of isobars round each storm with an L and its pressure.
 - [ ] `/rcdebug wx` reads well; `/rcdebug wx aprs` gives a `_MMDDHHMMc...` packet.
 - [ ] Solar panels make less power only where it rains, and the slim jim only cuts out under a thunderstorm.
+- [ ] `/awm hazard hurricane` beside an antenna on poles: over a few minutes some parts blow down and drop as
+  items; the antenna stops working until they are put back.
 
 ## Teletype machine screen (added 2026-10-24)
 
