@@ -74,3 +74,25 @@ and the Ionospheric Processor are done (maintainer).
   with a paper feed. Its screen is the old FILES tab.
 - Lamps go in as separate named elements, like the H19's MSG / CONTACT / READY: `python tools/split_lamps.py <model>
   <LAMP>...` splits a Blockbench export into the body and one full-bright model per lamp.
+
+### Models: weather instruments (Another Weather Mod and RadioCraft)
+
+Requested by the maintainer 2026-10-25. None of these are built yet; they wait on models. The first five belong to
+Another Weather Mod (MIT, `E:\AnotherWeatherMod`, assets under `assets/anotherweathermod/`), the weather station to
+RadioCraft. Each is a plain JSON block model like the parrot controller, unless noted.
+
+- **Tornado siren**: a pole-mounted siren horn (the classic round or rotating horn), about one block, sits on a
+  fence or pole. Sounds when a tornado comes near or on a redstone signal. A rotating horn would need two models or
+  an animated part.
+- **Wind vane**: a weathercock or arrow on a short post with N/E/S/W letters; the arrow turns to the wind (separate
+  arrow model, turned in code, or 8 or 16 rotation states).
+- **Barometer**: a wall-mounted round brass dial with a needle (needle as its own small model, or states for a few
+  positions: stormy, rain, change, fair, very dry).
+- **Rain gauge**: a small clear cylinder with marks on a short post; shows a water level (a few fill states).
+- **Thermometer**: a wall-mounted tall thermometer with a red column (a few fill states, or the column as its own
+  model).
+- **Weather station** (RadioCraft, for APRS weather reports): a mast-top station combining a small anemometer cup
+  wheel, a wind vane and a radiation shield (the stacked white plates), as a block that sits on an antenna pole.
+  The cups could spin (GeckoLib) or be still.
+- **Storm Protector** (Another Weather Mod, creative only, built): currently uses the command block's textures. Wants
+  its own look: a command-block-like operator block with a storm or shield motif.
