@@ -54,6 +54,10 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_DELAY_TICKS;
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_MAX_HOPS;
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_BEACON_INTERVAL_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Integer> APRS_MESSAGE_RETRY_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Integer> APRS_MESSAGE_RETRIES;
+	public static final ModConfigSpec.ConfigValue<Boolean> APRS_BEACON_DEFAULT;
+	public static final ModConfigSpec.ConfigValue<Boolean> APRS_DIGIPEAT_DEFAULT;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_CONTACT_LAMP_MINUTES;
 	public static final ModConfigSpec.ConfigValue<Boolean> APRS_H19_STAINED_GLASS;
 	public static final ModConfigSpec.ConfigValue<Double> ANTENNA_TUNER_MAX_SWR;
@@ -249,6 +253,14 @@ public class RadiocraftServerConfig {
 				.defineInRange("tnc_digipeat_max_hops", 8, 0, 16);
 		TNC_BEACON_INTERVAL_SECONDS = BUILDER.comment(" Seconds between automatic beacons from an APRS terminal with beaconing enabled")
 				.defineInRange("tnc_beacon_interval_seconds", 600, 30, 86400);
+		APRS_MESSAGE_RETRY_SECONDS = BUILDER.comment(" Seconds an APRS message waits for its ack before it is sent again")
+				.defineInRange("aprs_message_retry_seconds", 20, 2, 600);
+		APRS_MESSAGE_RETRIES = BUILDER.comment(" Times an APRS message is sent again without an ack before it shows FAILED")
+				.defineInRange("aprs_message_retries", 5, 0, 20);
+		APRS_BEACON_DEFAULT = BUILDER.comment(" Whether a newly placed H19 APRS terminal beacons on a timer until someone switches it off")
+				.define("aprs_beacon_default", true);
+		APRS_DIGIPEAT_DEFAULT = BUILDER.comment(" Whether a newly placed radio interface digipeats until someone switches it off")
+				.define("aprs_digipeat_default", true);
 		APRS_CONTACT_LAMP_MINUTES = BUILDER.comment(" Minutes an APRS terminal's CONTACT light stays on after a new station is heard, unless someone opens it first; 0 keeps it on until opened")
 				.defineInRange("aprs_contact_lamp_minutes", 10, 0, 1440);
 		APRS_H19_STAINED_GLASS = BUILDER.comment(" Allow stained glass for the H19 APRS terminal's screen in its recipe, as well as tinted glass")

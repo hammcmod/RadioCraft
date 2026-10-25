@@ -21,7 +21,7 @@ public final class Rtty {
 	public static final double BITS_PER_CHAR = 7.5D;
 	/** Steady mark before the first character after a pause, so the far receiver can lock on. */
 	public static final double LEAD_IN_SECONDS = 0.3D;
-	private static final double LEVEL = 0.35D;
+	private static final double LEVEL = 0.2D; // Quiet under voice: a listener hears it, it does not drown the band.
 
 	/** What a teleprinter can print, besides letters, figures and the space; a newline ends the line. */
 	private static final String PUNCTUATION = "-?:$!&#'().,;/\"+=";

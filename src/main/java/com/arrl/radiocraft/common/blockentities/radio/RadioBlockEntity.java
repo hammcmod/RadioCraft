@@ -348,6 +348,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             strength *= ReceiverMix.fading(level.getGameTime() / 20.0D, pathSeed(packet), RadiocraftServerConfig.SKIP_FADING_DEPTH.get());
         double quality = strength / copyThreshold(getNoiseFloor());
         TncPacket payload = packet.getPayload();
+        if(payload.kind() == TncPacket.Kind.RTTY) {
+            double collision = rttyCollision(payload.from(), strength, level.getGameTime());
+            if(collision < 0.0D)
+                return false; // Lost under another station sending at the same time.
+            if(collision > 0.0D)
+                payload = payload.withText(Rtty.garble(payload.text(), collision, new java.util.Random(level.getRandom().nextLong())));
+        }
         if(payload.kind() == TncPacket.Kind.RTTY && quality >= RTTY_GARBLE_FLOOR && quality < 1.0D)
             payload = payload.withText(Rtty.garble(payload.text(), (1.0D - quality) / (1.0D - RTTY_GARBLE_FLOOR), new java.util.Random(level.getRandom().nextLong())));
         else if(!decodes(strength, getNoiseFloor()))
@@ -359,6 +366,33 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity teletype)
                 teletype.receive(payload);
         return true;
+    }
+
+    /** Ticks within which RTTY from two stations counts as sent at the same time (each sends a character every four). */
+    public static final int RTTY_COLLISION_TICKS = 6;
+    /** RTTY senders heard lately: callsign to {game time, strength}. Server only. */
+    private final java.util.Map<String, double[]> rttyHeard = new java.util.HashMap<>();
+
+    /**
+     * Two stations sending RTTY on one frequency at once garble each other. The one much stronger (four times) mostly
+     * copies (the capture effect), the one much weaker is lost, and between those most characters are wrong and some
+     * are lost. Returns the share of characters to garble, 0 for none, or -1 for lost.
+     */
+    private double rttyCollision(String from, double strength, long now) {
+        rttyHeard.values().removeIf(heard -> now - (long)heard[0] > RTTY_COLLISION_TICKS * 4L);
+        double strongest = 0.0D;
+        for(java.util.Map.Entry<String, double[]> entry : rttyHeard.entrySet())
+            if(!entry.getKey().equals(from) && now - (long)entry.getValue()[0] <= RTTY_COLLISION_TICKS)
+                strongest = Math.max(strongest, entry.getValue()[1]);
+        rttyHeard.put(from, new double[] { now, strength });
+        if(strongest <= 0.0D)
+            return 0.0D;
+        double ratio = strength / strongest;
+        if(ratio >= 4.0D)
+            return 0.05D;
+        if(ratio <= 0.25D || level.getRandom().nextFloat() < 0.3F)
+            return -1.0D;
+        return 0.6D;
     }
 
     /** RTTY below this share of the copy threshold is lost; between it and the threshold it prints garbled. */

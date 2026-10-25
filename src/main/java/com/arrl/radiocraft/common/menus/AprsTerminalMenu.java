@@ -50,7 +50,13 @@ public class AprsTerminalMenu extends AbstractContainerMenu implements StationMe
 					player.displayClientMessage(Component.translatable(StationMenu.failureKey(blockEntity.bus())), true);
 			}
 			case "settings" -> blockEntity.applySettings(data);
+			case "callsign" -> {
+				if(!blockEntity.setCallsign(player, data.getString("callsign")))
+					player.displayClientMessage(Component.translatable(blockEntity.bus().hasInterface() ? "screen.radiocraft.radio_interface.no_callsign"
+							: "screen.radiocraft.station.no_interface"), true);
+			}
 			case "read" -> blockEntity.markSeen();
+			case "booted" -> blockEntity.markBooted();
 			default -> {}
 		}
 	}

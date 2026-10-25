@@ -15,6 +15,32 @@
       "radiocraft:teletype"
     ]
   },
+  "teletype_key": {
+    "subtitle": "subtitles.radiocraft.teletype",
+    "sounds": [
+      "radiocraft:teletype_sound-01",
+      "radiocraft:teletype_sound-02",
+      "radiocraft:teletype_sound-03",
+      "radiocraft:teletype_sound-04",
+      "radiocraft:teletype_sound-05",
+      "radiocraft:teletype_sound-06",
+      "radiocraft:teletype_sound-07",
+      "radiocraft:teletype_sound-08",
+      "radiocraft:teletype_sound-09",
+      "radiocraft:teletype_sound-10",
+      "radiocraft:teletype_sound-11",
+      "radiocraft:teletype_sound-12",
+      "radiocraft:teletype_sound-13",
+      "radiocraft:teletype_sound-14",
+      "radiocraft:teletype_sound-15"
+    ]
+  },
+  "teletype_background": {
+    "subtitle": "subtitles.radiocraft.teletype",
+    "sounds": [
+      "radiocraft:teletype_background"
+    ]
+  },
   "teletype_ding": {
     "subtitle": "subtitles.radiocraft.teletype_ding",
     "sounds": [

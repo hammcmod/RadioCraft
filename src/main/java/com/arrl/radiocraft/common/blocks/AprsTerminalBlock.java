@@ -15,7 +15,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -118,8 +120,16 @@ public final class AprsTerminalBlock extends BaseEntityBlock {
 	}
 
 	@Override
+	public void setPlacedBy(@NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState state, @Nullable LivingEntity placer, @NotNull ItemStack stack) {
+		super.setPlacedBy(level, pos, state, placer, stack);
+		if(placer instanceof ServerPlayer player && level.getBlockEntity(pos) instanceof AprsTerminalBlockEntity terminal)
+			terminal.claimFor(player);
+	}
+
+	@Override
 	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
 		if(!level.isClientSide && player instanceof ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof AprsTerminalBlockEntity terminal) {
+			terminal.claimFor(serverPlayer); // The first to open it gives a station without a callsign theirs.
 			serverPlayer.openMenu(terminal, pos); // First, so the screen still sees what was new and opens on it.
 			terminal.markSeen();
 		}

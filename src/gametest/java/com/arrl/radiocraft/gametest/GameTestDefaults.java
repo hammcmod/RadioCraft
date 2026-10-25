@@ -25,6 +25,8 @@ public class GameTestDefaults {
             RadiocraftServerConfig.TERRAIN_ENABLED.set(false);
             RadiocraftServerConfig.WIRE_HAZARDS_ENABLED.set(false); // ElectricalHazardGameTests switches them on.
             RadiocraftServerConfig.BATTERY_FIRES_ENABLED.set(false);
+            RadiocraftServerConfig.APRS_BEACON_DEFAULT.set(false); // Stations stay quiet unless a test asks.
+            RadiocraftServerConfig.APRS_DIGIPEAT_DEFAULT.set(false);
         }
     }
 }

@@ -170,6 +170,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   repeater (maintainer, 2026-10-21, undecided)
 - [x] Radios and wires placed on the underside of a block hang from it (2026-10-21): radios the right way up (raised copies of their models made in datagen), wires as the floor logic upside down (hug, climb down beams)
 - [ ] Add multi-channel scan indicator to VHF receiver UI
+- [ ] Ionosonde and 5-BTV antenna hitboxes for players (maintainer, 2026-10-24): collision shapes that match the
+  models, so players cannot walk through them
 - [ ] Repeater speaker volume and antenna switch (proposal): the power, TX, mic and speaker switches work; a volume
   dial and a switch for a second antenna wait for the UI rework (no room on the panel art)
 - [x] Sporadic E (2026-10-24, proposal): in good or great conditions about 5% a day that VHF opens for long range
@@ -219,8 +221,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [x] Dummy load (2026-10-21, model by the maintainer): perfect SWR on every band, ~10 blocks, no skip; fits on a
   radio directly or on its coax and follows the radio's band (HF or VHF network)
 - [x] Duplexer on top of the repeater shows its coax down the repeater's back (maintainer's `duplexer_on_repeater`)
-- [ ] TNC: handheld/Curios side (APRS from a handheld radio), message acks and retries
-- [ ] WX button on the teletype (maintainer, 2026-10-23): weather reports, shown only with a compatible weather mod
+- [ ] TNC: handheld/Curios side (APRS from a handheld radio)
+- [ ] WX reports move to the WEFAX machine (maintainer, 2026-10-24): solar and standard weather reports there, with its
+  new UI; the teletype keeps the SOLAR WX code (and its comparator) until then. Standard weather only with a
+  compatible weather mod
   (see [doc/TncRework.md](doc/TncRework.md)); we may end up writing our own weather mod
 - [ ] WEFAX receiver model: its Rotary elements are turned -85, 80 and 42.5 degrees, which Minecraft 1.21.1 cannot
   load (it shows as missing). Re-export with Blockbench set to 1.21.1 and 22.5 degree steps (`ModelFilesTest` lists it)

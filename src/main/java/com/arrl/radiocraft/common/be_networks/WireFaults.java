@@ -6,6 +6,8 @@ import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.BatteryNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.ChargeControllerNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.SolarPanelNetworkObject;
 import com.arrl.radiocraft.common.blocks.WireBlock;
 import com.arrl.radiocraft.common.init.RadiocraftDamageTypes;
 import net.minecraft.core.BlockPos;
@@ -256,10 +258,18 @@ public final class WireFaults {
 
 	private static void recheckSupply(ServerLevel level, BlockPos pos, Fault fault) {
 		List<PowerNetworkObject> supply = new ArrayList<>();
-		for(BENetworkObject object : WireUtils.getConnections(level, pos, o -> o instanceof PowerNetworkObject, WireUtils.powerWires()).keySet())
+		for(BENetworkObject object : WireUtils.getConnections(level, pos, WireFaults::isSource, WireUtils.powerWires()).keySet())
 			supply.add((PowerNetworkObject)object);
 		fault.supply = supply;
 		fault.stored = stored(supply);
+	}
+
+	/**
+	 * What can feed a fault: batteries, solar panels and charge controllers. Not the radios and tuners on the run: their
+	 * own small buffers are not charge, and an empty battery bank behind them does nothing.
+	 */
+	private static boolean isSource(BENetworkObject object) {
+		return object instanceof BatteryNetworkObject || object instanceof SolarPanelNetworkObject || object instanceof ChargeControllerNetworkObject;
 	}
 
 	private static long stored(List<PowerNetworkObject> supply) {
@@ -327,7 +337,7 @@ public final class WireFaults {
 		drainShare(fault, time, pos);
 		if(level.random.nextDouble() < RadiocraftServerConfig.WIRE_WATER_BATTERY_IGNITE_CHANCE.get()) { // Now and then the batteries behind it catch.
 			for(PowerNetworkObject object : fault.supply) {
-				if(object instanceof BatteryNetworkObject)
+				if(object instanceof BatteryNetworkObject && object.getStorage().getEnergyStored() > 0)
 					BatteryFires.ignite(level, object.getPos());
 			}
 		}

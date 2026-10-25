@@ -82,7 +82,7 @@ public final class AntennaStrikes {
 					if(!(network instanceof PowerBENetwork))
 						continue;
 					for(BENetworkObject object : List.copyOf(network.getNetworkObjects())) {
-						if(object instanceof BatteryNetworkObject)
+						if(object instanceof BatteryNetworkObject battery && battery.getStorage().getEnergyStored() > 0)
 							BatteryFires.ignite(level, object.getPos());
 					}
 				}

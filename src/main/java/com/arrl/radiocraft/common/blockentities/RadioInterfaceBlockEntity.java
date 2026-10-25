@@ -45,7 +45,7 @@ public class RadioInterfaceBlockEntity extends BlockEntity implements MenuProvid
 	private String callsign = "";
 	private String callsignSetBy = "";
 	private boolean transmitEnabled = true;
-	private boolean digipeatEnabled = false;
+	private boolean digipeatEnabled = configDefault(RadiocraftServerConfig.APRS_DIGIPEAT_DEFAULT);
 	private long repeatLampUntilGameTime = -1L;
 	private boolean syncPending = false;
 
@@ -145,16 +145,16 @@ public class RadioInterfaceBlockEntity extends BlockEntity implements MenuProvid
 	}
 
 	/**
-	 * True if this interface repeats {@code packet}: digipeating and transmitting are on, it is a beacon or a message,
+	 * True if this interface repeats {@code packet}: digipeating and transmitting are on, it is a beacon, message or ack,
 	 * it has been through fewer than {@link RadiocraftServerConfig#TNC_DIGIPEAT_MAX_HOPS} digipeaters, and it is not a
-	 * message for this station.
+	 * message or ack for this station.
 	 */
 	private boolean shouldDigipeat(TncPacket packet) {
 		if(!digipeatEnabled || !transmitEnabled || packet.hops() >= RadiocraftServerConfig.TNC_DIGIPEAT_MAX_HOPS.get())
 			return false;
 		if(packet.kind() == TncPacket.Kind.BEACON)
 			return true;
-		return packet.kind() == TncPacket.Kind.MESSAGE && (callsign.isEmpty() || !packet.to().equals(callsign));
+		return (packet.kind() == TncPacket.Kind.MESSAGE || packet.kind() == TncPacket.Kind.ACK) && (callsign.isEmpty() || !packet.to().equals(callsign));
 	}
 
 	/** True while the RPT lamp is lit: a packet heard is waiting to go back out, or just went. */
@@ -163,6 +163,16 @@ public class RadioInterfaceBlockEntity extends BlockEntity implements MenuProvid
 	}
 
 	// -------------------- SETTINGS --------------------
+
+	/** A config's value for a new block, or true if the config is not loaded yet. */
+	static boolean configDefault(net.neoforged.neoforge.common.ModConfigSpec.ConfigValue<Boolean> value) {
+		try {
+			return value.get();
+		}
+		catch(IllegalStateException e) {
+			return true;
+		}
+	}
 
 	/** Sets this station to {@code player}'s callsign. False (and nothing changes) if they have none. */
 	public boolean claim(ServerPlayer player) {

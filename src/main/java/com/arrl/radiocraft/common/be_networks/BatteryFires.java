@@ -247,7 +247,8 @@ public final class BatteryFires {
 			BlockPos wirePos = at.immutable();
 			walked.add(wirePos);
 			for(BENetworkObject object : WireUtils.getConnections(level, wirePos, o -> o instanceof BatteryNetworkObject, WireUtils.powerWires()).keySet())
-				ignite(level, object.getPos());
+				if(((BatteryNetworkObject)object).getStorage().getEnergyStored() > 0) // An empty battery has nothing to burn with.
+					ignite(level, object.getPos());
 		}
 	}
 

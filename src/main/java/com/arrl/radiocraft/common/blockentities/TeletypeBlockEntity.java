@@ -52,27 +52,36 @@ import java.util.List;
 
 /**
  * The Teletype Machine (was the solar weather station): an RTTY teleprinter with its own terminal unit, so it works
- * straight through the radios it touches, no radio interface. What is typed goes out live, character by character,
- * under its own callsign, and prints here too; RTTY heard prints a line per sender, a sheet of paper every
- * {@link #LINES_PER_PAPER} lines. SOLAR WX prints the solar weather, which it reads through a radio with a real
+ * straight through the radios it touches, no radio interface. What is typed goes out a character every {@link #SECONDS_PER_CHAR}
+ * characters a second, as the real machine sends, and prints here as it goes; RTTY heard prints a line per sender, a
+ * sheet of paper every {@link #LINES_PER_PAPER} lines. Nothing identifies the sender on the paper: as on the air,
+ * operators give their callsign in what they type. (The teletype's callsign only tells stations apart on the air.) It cannot print what it hears while
+ * it is sending or being typed on (half duplex), and two stations sending at once on a frequency garble each other
+ * (see {@code RadioBlockEntity#receiveData}). Moderators listening in see each line sent, with who typed it. SOLAR WX prints the solar weather, which it reads through a radio with a real
  * antenna next to it (the comparator gives the same, 1 for a blackout to 6 for great).
  */
 public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 
 	/** The band the station reports on by name, the one the proposal calls out as opening and closing with the weather. */
 	public static final String REPORTED_BAND = "10m";
-	/** Ticks the printing sound lasts (2.79 s), so it is started again only when it has run out. */
-	public static final int PRINT_TICKS = 56;
 	/** The HF bands reported, in order. VHF is reported first as "Normal" since the sun does not touch it. */
 	public static final List<String> REPORTED_BANDS = List.of("10m", "20m", "40m", "80m");
 	/** RTTY lines one sheet of paper takes. */
 	public static final int LINES_PER_PAPER = 20;
 	/** RTTY lines kept on the roll. */
 	public static final int RTTY_HISTORY = 60;
-	/** Longest RTTY line before the printer starts a new one by itself. */
-	public static final int RTTY_LINE_MAX = 200;
+	/** Characters across the paper, the sender's callsign included; the printer starts a new line by itself after. */
+	public static final int RTTY_LINE_MAX = 32;
 	/** Who report lines print as. */
 	public static final String WX = "WX";
+	/** Characters a second it sends (RTTY at 45.45 baud manages about six). */
+	public static final double SECONDS_PER_CHAR = 0.158D; // The shortest keystroke sound (teletype_sound-08), so they do not overlap: about 6.3 a second.
+	/** Most characters typed ahead of what has gone out. */
+	public static final int TYPE_AHEAD = 256;
+	/** Ticks after the last key or character sent that it still cannot print what it hears. */
+	private static final int RX_BLOCKED_TICKS = 20;
+	/** Ticks the receiving lamp (and whir) stay on after a character heard. */
+	private static final int RECEIVING_TICKS = 20;
 
 	@Nullable
 	private SolarEventInstance lastSeenEvent;
@@ -98,6 +107,20 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 	private final StringBuilder rttyOpen = new StringBuilder();
 	private long lastPrintSoundGameTime = -1000L;
 	private boolean syncPending = false;
+	private int fedLines = 0; // Line feeds on the paper in the machine now; 0 for a fresh roll.
+	private boolean outOfPaper = true; // No paper threaded: a fresh roll is fed up to the head first (see loadPaper).
+	private final StringBuilder typedAhead = new StringBuilder(); // Typed, not yet sent.
+
+	// Server only, not saved.
+	private long lastTypedGameTime = -1000L;
+	private long secondKeyAt = -1L; // The second keystroke sound of the last character, a little after the first.
+	private long receivingUntil = -1L;
+	private boolean wasReceiving = false;
+	@Nullable
+	private java.util.UUID typist = null;
+	private String typistName = "";
+	private final StringBuilder sentLine = new StringBuilder(); // For moderators: the line going out.
+	private float sentFrequency = 0.0F;
 
 	// Server only, not saved.
 	private final SeenPackets seen = new SeenPackets();
@@ -106,7 +129,25 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 		super(RadiocraftBlockEntities.TELETYPE.get(), pos, state);
 	}
 
+	private static long charSlot(long gameTime) {
+		return (long)Math.floor(gameTime / 20.0D / SECONDS_PER_CHAR);
+	}
+
 	public static void tick(Level level, BlockPos pos, BlockState state, TeletypeBlockEntity be) {
+		if(!level.isClientSide) {
+			long now = level.getGameTime(); // A character each time the count of character times goes up: every 3 or 4 ticks.
+			if(!be.typedAhead.isEmpty() && charSlot(now) != charSlot(now - 1))
+				be.sendNext(level);
+			if(now == be.secondKeyAt)
+				be.keySound();
+			if(be.isReceiving() && now % MOTOR_TICKS == 0 && level instanceof net.minecraft.server.level.ServerLevel serverLevel)
+				be.motorSound(serverLevel);
+			boolean receiving = be.isReceiving();
+			if(receiving != be.wasReceiving) {
+				be.wasReceiving = receiving;
+				be.sync();
+			}
+		}
 		if(be.syncPending && level.getGameTime() % 2 == 0) { // At most ten updates a second, however fast RTTY prints.
 			be.syncPending = false;
 			level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
@@ -136,30 +177,96 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 	}
 
 	/**
-	 * Sends RTTY characters as they are typed, and prints them here too (the local copy). False if there is no
-	 * callsign, nothing printable, or no radio on to send it.
+	 * {@code player} typing: the characters wait their turn to go out, one every {@link #SECONDS_PER_CHAR}. A teletype with no
+	 * callsign takes theirs. False if there is still no callsign, nothing printable, or no radio on to send it.
+	 */
+	public boolean type(ServerPlayer player, String text) {
+		if(!typeRtty(text))
+			return false;
+		typist = player.getUUID();
+		typistName = player.getGameProfile().getName();
+		return true;
+	}
+
+	/** Who it sends as: its callsign, or failing that a tag for this machine (so stations still tell senders apart). */
+	private String sender() {
+		return callsign.isEmpty() ? "TT" + Integer.toHexString(worldPosition.hashCode() & 0xFFFFFF).toUpperCase(java.util.Locale.ROOT) : callsign;
+	}
+
+	/**
+	 * Types {@code text}: it goes out a character every {@link #SECONDS_PER_CHAR}, printing here as it does (the local
+	 * copy). False if
+	 * there is nothing printable or no radio on to send it.
 	 */
 	public boolean typeRtty(String text) {
-		if(level == null || callsign.isEmpty())
+		if(level == null || getRadios().stream().noneMatch(RadioBlockEntity::isPowered))
 			return false;
 		String clean = Rtty.sanitize(text, TncPacket.RTTY_TEXT_MAX);
 		if(clean.isEmpty())
 			return false;
-		TncPacket packet = TncPacket.rtty(level.getRandom().nextLong(), callsign, clean);
-		seen.remember(packet.id());
-		boolean sent = false;
-		for(RadioBlockEntity radio : getRadios())
-			sent |= radio.sendData(packet);
-		if(!sent)
-			return false;
-		print(callsign, clean);
+		long now = level.getGameTime();
+		typedAhead.append(clean, 0, Math.min(clean.length(), TYPE_AHEAD - typedAhead.length()));
+		lastTypedGameTime = now;
+		sync();
 		return true;
 	}
 
-	/** A packet a radio next to it decoded: RTTY prints, the rest is not for a teleprinter. */
+	/** Sends the next character typed, prints it here, and gives moderators each line as it ends. */
+	private void sendNext(Level level) {
+		String c = typedAhead.substring(0, 1);
+		typedAhead.deleteCharAt(0);
+		lastTypedGameTime = level.getGameTime();
+		TncPacket packet = TncPacket.rtty(level.getRandom().nextLong(), sender(), c);
+		seen.remember(packet.id());
+		boolean sent = false;
+		for(RadioBlockEntity radio : getRadios()) {
+			if(radio.sendData(packet)) {
+				sent = true;
+				sentFrequency = radio.getFrequency();
+			}
+		}
+		if(!sent) { // The radio went off: what was typed is lost.
+			typedAhead.setLength(0);
+			sync();
+			return;
+		}
+		print(sender(), c);
+		if(c.charAt(0) == '\n' || sentLine.length() >= RTTY_LINE_MAX)
+			lineSent(level);
+		if(c.charAt(0) != '\n')
+			sentLine.append(c);
+		if(typedAhead.isEmpty() && !sentLine.isEmpty())
+			lineSent(level); // A pause in the typing: what there is so far.
+		sync();
+	}
+
+	private void lineSent(Level level) {
+		if(!sentLine.isEmpty() && level instanceof net.minecraft.server.level.ServerLevel serverLevel)
+			com.arrl.radiocraft.common.radio.voice.RadioModeration.rttyLine(serverLevel, sentFrequency, typist, typistName,
+					typist == null ? "" : java.util.Objects.requireNonNullElse(com.arrl.radiocraft.common.radio.Callsigns.playerCallsign(serverLevel.getServer(), typist), ""),
+					sentLine.toString());
+		sentLine.setLength(0);
+	}
+
+	/** Characters typed that have not gone out yet. */
+	public int getTypedAhead() {
+		return typedAhead.length();
+	}
+
+	/** True for a second after it printed something it heard (its motor runs). */
+	public boolean isReceiving() {
+		return level != null && level.getGameTime() < receivingUntil;
+	}
+
+	/** A packet a radio next to it decoded: RTTY prints, unless it is sending or being typed on (half duplex). */
 	public void receive(TncPacket packet) {
-		if(packet.kind() == TncPacket.Kind.RTTY && seen.remember(packet.id()))
-			print(packet.from(), packet.text());
+		if(packet.kind() != TncPacket.Kind.RTTY || level == null || !seen.remember(packet.id()))
+			return;
+		long now = level.getGameTime();
+		if(!typedAhead.isEmpty() || now - lastTypedGameTime < RX_BLOCKED_TICKS)
+			return;
+		receivingUntil = now + RECEIVING_TICKS;
+		print(packet.from(), packet.text());
 	}
 
 	/** SOLAR WX: prints the solar weather report on the roll, a line each (as {@link #WX}). */
@@ -175,9 +282,16 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 	private void print(String from, String text) {
 		boolean printed = false;
 		for(char c : text.toCharArray()) {
-			if(c == '\n') {
+			if(c == '\n') { // Carriage return and line feed: the bell, and a blank line if nothing was printed on this one.
+				if(rttyOpenFrom == null && takePaperLine()) {
+					rttyOpenFrom = from;
+					rttyOpen.setLength(0);
+				}
 				if(rttyOpenFrom != null)
 					endLine(true);
+				else if(level != null) // No paper: the bell still rings.
+					level.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE_DING.get(), SoundSource.BLOCKS, 0.5F, 1.0F);
+				printed = true;
 				continue;
 			}
 			if(rttyOpenFrom == null || !rttyOpenFrom.equals(from) || rttyOpen.length() >= RTTY_LINE_MAX) {
@@ -191,32 +305,86 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 			rttyOpen.append(c);
 			printed = true;
 		}
-		if(printed && level != null && level.getGameTime() - lastPrintSoundGameTime >= PRINT_TICKS) {
+		if(printed && level != null && level.getGameTime() != lastPrintSoundGameTime) { // Two keystrokes per character, so they run together.
 			lastPrintSoundGameTime = level.getGameTime();
-			level.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE.get(), SoundSource.BLOCKS, 0.7F, 1.0F);
+			keySound();
+			secondKeyAt = level.getGameTime() + 2;
 		}
 		setChanged();
 		sync();
 	}
 
+	/** Ticks of teletype_background (0.46 s): played again each time it runs out while the machine prints. */
+	private static final int MOTOR_TICKS = 9;
+
+	/**
+	 * The motor running while it prints what it hears, for everyone near but whoever has its screen open: the screen
+	 * runs the motor for them.
+	 */
+	private void motorSound(net.minecraft.server.level.ServerLevel level) {
+		net.minecraft.core.Holder<net.minecraft.sounds.SoundEvent> sound = net.minecraft.core.Holder.direct(RadiocraftSoundEvents.TELETYPE_BACKGROUND.get());
+		long seed = level.getRandom().nextLong();
+		for(ServerPlayer player : level.players()) {
+			if(player.distanceToSqr(worldPosition.getCenter()) > 16.0D * 16.0D)
+				continue;
+			if(player.containerMenu instanceof TeletypeMenu menu && menu.blockEntity == this)
+				continue;
+			player.connection.send(new net.minecraft.network.protocol.game.ClientboundSoundPacket(sound, SoundSource.BLOCKS,
+					worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D, 0.3F, 1.0F, seed));
+		}
+	}
+
+	private void keySound() {
+		if(level != null)
+			level.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE_KEY.get(), SoundSource.BLOCKS, 0.7F, 0.95F + level.getRandom().nextFloat() * 0.1F);
+	}
+
 	private void endLine(boolean bell) {
-		rttyLines.add(rttyOpenFrom + ": " + rttyOpen);
+		rttyLines.add(rttyOpen.toString());
 		while(rttyLines.size() > RTTY_HISTORY)
 			rttyLines.removeFirst();
 		rttyOpenFrom = null;
 		rttyOpen.setLength(0);
-		if(bell && level != null)
-			level.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE_DING.get(), SoundSource.BLOCKS, 0.5F, 1.0F);
+		fedLines++;
+		if(level != null) { // The paper slides up a line.
+			level.playSound(null, worldPosition, net.minecraft.sounds.SoundEvents.BOOK_PAGE_TURN, SoundSource.BLOCKS, 0.5F, 1.5F + level.getRandom().nextFloat() * 0.2F);
+			if(bell)
+				level.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE_DING.get(), SoundSource.BLOCKS, 0.5F, 1.0F);
+		}
 	}
 
 	/** Takes one line's worth of paper: off the sheet in the printer, or a new sheet from the supply. */
 	private boolean takePaperLine() {
 		if(paperCredit <= 0) {
-			if(paper.extractItem(0, 1, false).isEmpty())
+			if(paper.extractItem(0, 1, false).isEmpty()) {
+				outOfPaper = true;
 				return false;
+			}
 			paperCredit = LINES_PER_PAPER;
+			if(outOfPaper) { // A fresh roll threaded in.
+				outOfPaper = false;
+				fedLines = 0;
+			}
 		}
 		paperCredit--;
+		return true;
+	}
+
+	/** True once paper is threaded up to the print head; false new, and again after it ran out. */
+	public boolean isPaperLoaded() {
+		return !outOfPaper;
+	}
+
+	/** Threads fresh paper up to the print head (the screen feeds it up first). False if there is none. */
+	public boolean loadPaper() {
+		if(!outOfPaper)
+			return true;
+		if(getPaperLines() <= 0)
+			return false;
+		outOfPaper = false;
+		fedLines = 0;
+		setChanged();
+		sync();
 		return true;
 	}
 
@@ -225,15 +393,20 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 		return paperCredit + paper.getStackInSlot(0).getCount() * LINES_PER_PAPER;
 	}
 
+	/** Line feeds on the paper in the machine (the screen slides the paper by these); 0 for a fresh roll. */
+	public int getFedLines() {
+		return fedLines;
+	}
+
 	/** Printed RTTY lines, oldest first, not counting the one being printed. */
 	public List<String> getRttyLines() {
 		return List.copyOf(rttyLines);
 	}
 
-	/** The line being printed ("CALL: text"), or null when none is open. */
+	/** The line being printed, or null when none is open. */
 	@Nullable
 	public String getRttyOpenLine() {
-		return rttyOpenFrom == null ? null : rttyOpenFrom + ": " + rttyOpen;
+		return rttyOpenFrom == null ? null : rttyOpen.toString();
 	}
 
 	public ItemStackHandler getPaper() {
@@ -430,6 +603,9 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 		tag.putString("callsignSetBy", callsignSetBy);
 		tag.put("paper", paper.serializeNBT(registries));
 		tag.putInt("paperCredit", paperCredit);
+		tag.putInt("fedLines", fedLines);
+		tag.putBoolean("outOfPaper", outOfPaper);
+		tag.putString("typedAhead", typedAhead.toString());
 		ListTag rttyTags = new ListTag();
 		for(String line : rttyLines)
 			rttyTags.add(StringTag.valueOf(line));
@@ -448,6 +624,11 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 		if(tag.contains("paper"))
 			paper.deserializeNBT(registries, tag.getCompound("paper"));
 		paperCredit = tag.getInt("paperCredit");
+		fedLines = tag.getInt("fedLines");
+		outOfPaper = !tag.contains("outOfPaper") || tag.getBoolean("outOfPaper");
+		typedAhead.setLength(0);
+		typedAhead.append(tag.getString("typedAhead"));
+		receivingUntil = tag.getBoolean("receiving") && level != null ? level.getGameTime() + RECEIVING_TICKS : receivingUntil; // Client copy.
 		rttyLines.clear();
 		for(Tag entry : tag.getList("rtty", Tag.TAG_STRING))
 			rttyLines.add(entry.getAsString());
@@ -458,7 +639,9 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 
 	@Override
 	public @NotNull CompoundTag getUpdateTag(@NotNull HolderLookup.Provider registries) {
-		return saveWithoutMetadata(registries);
+		CompoundTag tag = saveWithoutMetadata(registries);
+		tag.putBoolean("receiving", isReceiving());
+		return tag;
 	}
 
 	@Override

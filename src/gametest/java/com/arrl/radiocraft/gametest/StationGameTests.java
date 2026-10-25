@@ -3,6 +3,7 @@ package com.arrl.radiocraft.gametest;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import com.arrl.radiocraft.common.radio.data.AprsMapPainter;
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.AprsTerminalBlockEntity;
 import com.arrl.radiocraft.common.blockentities.RadioInterfaceBlockEntity;
@@ -165,11 +166,63 @@ public class StationGameTests {
                 .thenWaitUntil(() -> helper.assertTrue(aprs(helper, APRS_B).hasUnread(), "B never got its message"))
                 .thenExecute(() -> {
                     AprsTerminalBlockEntity.Logged logged = aprs(helper, APRS_B).getMessages().getFirst();
-                    helper.assertTrue(logged.packet().from().equals("W3AAA") && logged.packet().text().equals("hello there") && !logged.outgoing(),
+                    helper.assertTrue(logged.packet().from().equals("W3AAA") && logged.packet().messageBody().equals("hello there") && !logged.outgoing(),
                             "B logged the wrong message: " + logged);
                     helper.assertTrue(aprs(helper, APRS_B).getComparatorOutput() == 15, "Comparator does not show the unread message");
                     aprs(helper, APRS_B).markSeen();
                     helper.assertTrue(aprs(helper, APRS_B).getComparatorOutput() == 0, "Comparator still lit after reading");
+                })
+                .thenSucceed();
+    }
+
+    /** B acks A's message, and A's copy turns SENT; B logs it once even when it hears it again. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+    public static void messageIsAcknowledged(GameTestHelper helper) {
+        station(helper, RADIO_A, 144_450, "W3AAA");
+        station(helper, RADIO_B, 144_450, "W3BBB");
+        helper.startSequence()
+                .thenExecute(() -> {
+                    powerOn(helper, RADIO_A);
+                    powerOn(helper, RADIO_B);
+                })
+                .thenIdle(1)
+                .thenExecute(() -> {
+                    helper.assertTrue(aprs(helper, APRS_A).sendMessage("W3BBB", "ack me"), "A could not send");
+                    helper.assertTrue(aprs(helper, APRS_A).getMessages().getFirst().delivery() == AprsTerminalBlockEntity.Delivery.SENDING, "Not SENDING at first");
+                })
+                .thenWaitUntil(() -> helper.assertTrue(aprs(helper, APRS_A).getMessages().getFirst().delivery() == AprsTerminalBlockEntity.Delivery.SENT,
+                        "A never heard the ack: " + aprs(helper, APRS_A).getMessages().getFirst().delivery()))
+                .thenExecute(() -> {
+                    AprsTerminalBlockEntity.Logged sent = aprs(helper, APRS_A).getMessages().getFirst();
+                    aprs(helper, APRS_B).receiveDirect(sent.packet().withId(777L)); // A retry, as if the ack had been lost.
+                    long copies = aprs(helper, APRS_B).getMessages().stream().filter(logged -> !logged.outgoing()).count();
+                    helper.assertTrue(copies == 1, "B logged the retry again: " + copies);
+                })
+                .thenSucceed();
+    }
+
+    /** A message nobody acks is sent again, RETRYING, until it has FAILED. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = BATCH)
+    public static void unansweredMessageFails(GameTestHelper helper) {
+        station(helper, RADIO_A, 144_450, "W3AAA");
+        int seconds = RadiocraftServerConfig.APRS_MESSAGE_RETRY_SECONDS.get(), retries = RadiocraftServerConfig.APRS_MESSAGE_RETRIES.get();
+        RadiocraftServerConfig.APRS_MESSAGE_RETRY_SECONDS.set(2);
+        RadiocraftServerConfig.APRS_MESSAGE_RETRIES.set(2);
+        boolean[] retried = {false};
+        helper.startSequence()
+                .thenExecute(() -> powerOn(helper, RADIO_A))
+                .thenIdle(1)
+                .thenExecute(() -> helper.assertTrue(aprs(helper, APRS_A).sendMessage("W3ZZZ", "anyone?"), "A could not send"))
+                .thenWaitUntil(() -> {
+                    AprsTerminalBlockEntity.Logged logged = aprs(helper, APRS_A).getMessages().getFirst();
+                    retried[0] |= logged.delivery() == AprsTerminalBlockEntity.Delivery.RETRYING;
+                    helper.assertTrue(logged.delivery() == AprsTerminalBlockEntity.Delivery.FAILED, "Not failed yet: " + logged.delivery() + " " + logged.retries());
+                })
+                .thenExecute(() -> {
+                    RadiocraftServerConfig.APRS_MESSAGE_RETRY_SECONDS.set(seconds);
+                    RadiocraftServerConfig.APRS_MESSAGE_RETRIES.set(retries);
+                    helper.assertTrue(retried[0], "It never showed RETRYING");
+                    helper.assertTrue(aprs(helper, APRS_A).getMessages().getFirst().retries() == 2, "Retries: " + aprs(helper, APRS_A).getMessages().getFirst().retries());
                 })
                 .thenSucceed();
     }
@@ -425,6 +478,79 @@ public class StationGameTests {
                     terminal.receiveDirect(TncPacket.beacon(13L, "W9NEW", BlockPos.ZERO, "again", "HOUSE"));
                     helper.assertTrue(display(helper, APRS_A) == Display.READY, "A station already heard lit CONTACT");
                 })
+                .thenSucceed();
+    }
+
+    /**
+     * The H19 boots when a radio on its bus comes on, until the screen says it has; it knows the radio's frequency; and
+     * opening it marks the time, so messages after it show as new next time.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100, batch = BATCH)
+    public static void h19BootsWhenTheRadioComesOn(GameTestHelper helper) {
+        station(helper, RADIO_A, 144_390, "W9AAA");
+        helper.startSequence()
+                .thenExecute(() -> {
+                    AprsTerminalBlockEntity terminal = aprs(helper, APRS_A);
+                    terminal.markBooted();
+                    helper.assertFalse(terminal.isBootPending(), "Still boots after booting");
+                    helper.assertFalse(terminal.isRadioOn(), "Radio on before it is");
+                    powerOn(helper, RADIO_A);
+                })
+                .thenWaitUntil(() -> helper.assertTrue(aprs(helper, APRS_A).isRadioOn(), "Did not see the radio come on"))
+                .thenExecute(() -> {
+                    AprsTerminalBlockEntity terminal = aprs(helper, APRS_A);
+                    helper.assertTrue(terminal.isBootPending(), "The radio coming on did not make it boot");
+                    helper.assertTrue(Math.abs(terminal.getRadioFrequency() - 144_390_000.0F) < 1.0F, "Frequency " + terminal.getRadioFrequency());
+                    terminal.markBooted();
+                    helper.assertFalse(terminal.isBootPending(), "Booting did not stick");
+                    long before = terminal.getLastOpenedGameTime();
+                    terminal.markSeen();
+                    helper.assertTrue(terminal.getLastOpenedGameTime() > before, "Opening did not mark the time");
+                    terminal.receiveDirect(TncPacket.beacon(21L, "W9NEW", BlockPos.ZERO, "", "CAR"));
+                })
+                .thenIdle(5)
+                .thenExecute(() -> {
+                    AprsTerminalBlockEntity terminal = aprs(helper, APRS_A);
+                    long first = terminal.getBeacons().getFirst().firstHeard();
+                    terminal.receiveDirect(TncPacket.beacon(22L, "W9NEW", BlockPos.ZERO, "again", "CAR"));
+                    AprsTerminalBlockEntity.Heard again = terminal.getBeacons().getFirst();
+                    helper.assertTrue(again.firstHeard() == first && again.gameTime() > first, "Hearing it again moved first heard: " + again);
+                })
+                .thenSucceed();
+    }
+
+    /** The H19's SETUP sets the callsign on the radio interfaces of its bus. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 40, batch = BATCH)
+    public static void h19SetsTheCallsign(GameTestHelper helper) {
+        station(helper, RADIO_A, 144_390, "W9AAA");
+        net.minecraft.server.level.ServerPlayer player = net.neoforged.neoforge.common.util.FakePlayerFactory.get(helper.getLevel(),
+                new com.mojang.authlib.GameProfile(java.util.UUID.nameUUIDFromBytes("h19-callsign".getBytes()), "h19-callsign"));
+        helper.assertTrue(aprs(helper, APRS_A).setCallsign(player, "k1new"), "Setting a callsign failed");
+        helper.assertTrue(radioInterface(helper, IFACE_A).getCallsign().equals("K1NEW"), "The interface has " + radioInterface(helper, IFACE_A).getCallsign());
+        helper.assertTrue(aprs(helper, APRS_A).getCallsign().equals("K1NEW"), "The H19 sends as " + aprs(helper, APRS_A).getCallsign());
+        helper.succeed();
+    }
+
+    /** Stations not heard for REMOVE STATIONS AFTER drop off; NEVER keeps them. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 60, batch = BATCH)
+    public static void oldStationsAreRemoved(GameTestHelper helper) {
+        station(helper, RADIO_A, 144_390, "W9AAA");
+        helper.startSequence()
+                .thenExecute(() -> {
+                    AprsTerminalBlockEntity terminal = aprs(helper, APRS_A);
+                    helper.assertTrue(terminal.getStationExpiryMinutes() == 30, "Default is " + terminal.getStationExpiryMinutes());
+                    terminal.receiveDirect(TncPacket.beacon(31L, "W9OLD", BlockPos.ZERO, "", "HOUSE"));
+                    terminal.receiveDirect(TncPacket.beacon(32L, "W9NEW", BlockPos.ZERO, "", "HOUSE"));
+                    net.minecraft.nbt.CompoundTag tag = terminal.saveWithoutMetadata(helper.getLevel().registryAccess());
+                    for(net.minecraft.nbt.Tag entry : tag.getList("beacons", net.minecraft.nbt.Tag.TAG_COMPOUND)) {
+                        net.minecraft.nbt.CompoundTag beacon = (net.minecraft.nbt.CompoundTag)entry;
+                        if(beacon.getString("from").equals("W9OLD"))
+                            beacon.putLong("heardAt", helper.getLevel().getGameTime() - 31 * 1200L);
+                    }
+                    terminal.loadWithComponents(tag, helper.getLevel().registryAccess());
+                })
+                .thenWaitUntil(() -> helper.assertTrue(aprs(helper, APRS_A).getBeacons().size() == 1, "W9OLD was not removed"))
+                .thenExecute(() -> helper.assertTrue(aprs(helper, APRS_A).getBeacons().getFirst().packet().from().equals("W9NEW"), "The wrong station went"))
                 .thenSucceed();
     }
 

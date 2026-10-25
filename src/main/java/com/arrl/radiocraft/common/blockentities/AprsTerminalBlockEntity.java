@@ -10,6 +10,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.ChatFormatting;
 import com.arrl.radiocraft.common.radio.data.AprsMapPainter;
 import com.arrl.radiocraft.RadiocraftServerConfig;
+import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.blocks.AprsTerminalBlock;
 import com.arrl.radiocraft.common.blocks.AprsTerminalBlock.Display;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
@@ -24,6 +25,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.MenuProvider;
@@ -69,12 +71,20 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 
 	private String beaconComment = "";
 	private AprsIcon icon = AprsIcon.HOUSE;
-	private boolean beaconEnabled = false;
+	private boolean beaconEnabled = RadioInterfaceBlockEntity.configDefault(RadiocraftServerConfig.APRS_BEACON_DEFAULT);
 	private boolean contactBuzzer = true;
 	private boolean messageBuzzer = true;
 	private boolean unread = false;
 	private long newContactGameTime = -1L; // When the CONTACT light came on; -1 when it is off.
 	private long lastBeaconGameTime = -1L;
+	private long lastOpenedGameTime = -1L; // When someone last opened the screen; messages since then show as new.
+	private int nextMessageNumber = 1;
+	private int stationExpiryMinutes = 30; // Stations not heard for this long are dropped; 0 keeps them.
+	private boolean bootPending = true; // The screen boots the next time it is opened: a radio on the bus came on.
+
+	// Server only, sent with the update tag: the first radio on the bus that is switched on.
+	private boolean radioOn = false;
+	private float radioFrequency = 0.0F;
 
 	private final List<Heard> beacons = new ArrayList<>(); // Newest first, one per station.
 	private final List<Logged> messages = new ArrayList<>(); // Newest first: those for this station and those it sent.
@@ -85,11 +95,23 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 	private final SeenPackets seen = new SeenPackets();
 	private boolean wasRedstonePowered = false;
 
-	/** A beacon this station heard and when, in game time. */
-	public record Heard(TncPacket packet, long gameTime) {}
+	/** A beacon this station heard, when (in game time), and when this station was first heard. */
+	public record Heard(TncPacket packet, long gameTime, long firstHeard) {}
 
-	/** A message this station received ({@code outgoing} false) or sent. */
-	public record Logged(TncPacket packet, boolean outgoing, long gameTime) {}
+	/** How far a message this station sent has got. */
+	public enum Delivery { SENDING, RETRYING, SENT, FAILED }
+
+	/**
+	 * A message this station received ({@code outgoing} false) or sent: for one sent, whether its ack has come back
+	 * ({@link Delivery#SENT}), how many times it has been sent again and when it last went out.
+	 */
+	public record Logged(TncPacket packet, boolean outgoing, long gameTime, Delivery delivery, int retries, long lastSent) {
+
+		/** One received. */
+		public Logged(TncPacket packet, boolean outgoing, long gameTime) {
+			this(packet, outgoing, gameTime, Delivery.SENT, 0, gameTime);
+		}
+	}
 
 	public AprsTerminalBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.APRS_TERMINAL.get(), pos, state);
@@ -147,8 +169,12 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			newContactGameTime = -1L;
 			setChanged();
 		}
-		if(now % DISPLAY_CHECK_TICKS == 0)
+		if(now % DISPLAY_CHECK_TICKS == 0) {
+			retryMessages(now);
+			expireStations(now);
 			updateDisplay();
+			updateRadio();
+		}
 		if(now % MAP_PAINT_TICKS == 0 && !mapSets.isEmpty())
 			paintMaps(level);
 	}
@@ -225,6 +251,29 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		return List.copyOf(mapSets);
 	}
 
+	/**
+	 * Notes the first switched-on radio on the bus and its frequency for the screen; a radio coming on makes the
+	 * screen boot the next time it is opened.
+	 */
+	private void updateRadio() {
+		RadioBlockEntity on = null;
+		for(RadioInterfaceBlockEntity radioInterface : bus().interfaces())
+			for(RadioBlockEntity radio : radioInterface.getRadios())
+				if(on == null && radio.isPowered())
+					on = radio;
+		boolean nowOn = on != null;
+		float frequency = on == null ? 0.0F : on.getFrequency();
+		if(nowOn == radioOn && frequency == radioFrequency)
+			return;
+		if(nowOn && !radioOn) {
+			bootPending = true;
+			setChanged();
+		}
+		radioOn = nowOn;
+		radioFrequency = frequency;
+		sync();
+	}
+
 	/** What the screen shows: MSG over CONTACT over READY. */
 	public Display getDisplay() {
 		if(unread)
@@ -283,12 +332,78 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		StationBus bus = bus();
 		if(level == null || bus.callsign().isEmpty())
 			return false;
-		TncPacket packet = TncPacket.message(newId(), bus.callsign(), to, text);
-		if(packet.to().isEmpty() || packet.text().isEmpty() || !transmit(bus, packet))
+		boolean everyone = TncPacket.isForEveryone(TncPacket.sanitizeCallsign(to));
+		TncPacket packet = everyone ? TncPacket.message(newId(), bus.callsign(), to, text) : TncPacket.message(newId(), bus.callsign(), to, text, nextMessageNumber);
+		if(packet.to().isEmpty() || packet.messageBody().isEmpty() || !transmit(bus, packet))
 			return false;
-		log(new Logged(packet, true, level.getGameTime()));
+		if(!everyone)
+			nextMessageNumber = nextMessageNumber % 99999 + 1;
+		long now = level.getGameTime();
+		log(new Logged(packet, true, now, everyone ? Delivery.SENT : Delivery.SENDING, 0, now)); // A bulletin wants no ack.
 		sync();
 		return true;
+	}
+
+	/**
+	 * Sends again each message whose ack has not come back in {@link RadiocraftServerConfig#APRS_MESSAGE_RETRY_SECONDS},
+	 * under a new packet id so digipeaters repeat it; after {@link RadiocraftServerConfig#APRS_MESSAGE_RETRIES} it has
+	 * FAILED.
+	 */
+	private void retryMessages(long now) {
+		long wait = RadiocraftServerConfig.APRS_MESSAGE_RETRY_SECONDS.get() * 20L;
+		StationBus bus = null;
+		boolean changed = false;
+		for(int i = 0; i < messages.size(); i++) {
+			Logged logged = messages.get(i);
+			if(!logged.outgoing() || (logged.delivery() != Delivery.SENDING && logged.delivery() != Delivery.RETRYING))
+				continue;
+			if(now - logged.lastSent() < wait && now >= logged.lastSent())
+				continue;
+			changed = true;
+			if(logged.retries() >= RadiocraftServerConfig.APRS_MESSAGE_RETRIES.get()) {
+				messages.set(i, new Logged(logged.packet(), true, logged.gameTime(), Delivery.FAILED, logged.retries(), logged.lastSent()));
+				continue;
+			}
+			if(bus == null)
+				bus = bus();
+			TncPacket again = logged.packet().withId(newId());
+			transmit(bus, again); // Counts as a try even if no radio is on to take it.
+			messages.set(i, new Logged(again, true, logged.gameTime(), Delivery.RETRYING, logged.retries() + 1, now));
+		}
+		if(changed) {
+			setChanged();
+			sync();
+		}
+	}
+
+	/** Choices for REMOVE STATIONS AFTER, in minutes; 0 is never. */
+	public static final int[] STATION_EXPIRY_CHOICES = {10, 30, 60, 120, 240, 0};
+
+	/** Drops stations not heard for {@link #stationExpiryMinutes}. */
+	private void expireStations(long now) {
+		if(stationExpiryMinutes <= 0)
+			return;
+		long ticks = stationExpiryMinutes * 1200L;
+		if(beacons.removeIf(heard -> now - heard.gameTime() > ticks)) {
+			setChanged();
+			sync();
+		}
+	}
+
+	public int getStationExpiryMinutes() {
+		return stationExpiryMinutes;
+	}
+
+	/** {@code from} says it got our message {@code number}: that message is SENT. */
+	private boolean acknowledged(String from, String number) {
+		for(int i = 0; i < messages.size(); i++) {
+			Logged logged = messages.get(i);
+			if(logged.outgoing() && logged.delivery() != Delivery.SENT && logged.packet().to().equals(from) && logged.packet().messageNumber().equals(number)) {
+				messages.set(i, new Logged(logged.packet(), true, logged.gameTime(), Delivery.SENT, logged.retries(), logged.lastSent()));
+				return true;
+			}
+		}
+		return false;
 	}
 
 	// -------------------- RECEIVING --------------------
@@ -313,8 +428,10 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			return;
 		long now = level.getGameTime();
 		if(packet.kind() == TncPacket.Kind.BEACON) {
-			boolean known = beacons.removeIf(heard -> heard.packet().from().equals(packet.from()));
-			beacons.addFirst(new Heard(packet, now));
+			Heard before = beacons.stream().filter(heard -> heard.packet().from().equals(packet.from())).findFirst().orElse(null);
+			boolean known = before != null;
+			beacons.remove(before);
+			beacons.addFirst(new Heard(packet, now, known ? before.firstHeard() : now));
 			trim(beacons);
 			if(!known) {
 				newContactGameTime = now;
@@ -323,10 +440,21 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			}
 		}
 		else if(packet.kind() == TncPacket.Kind.MESSAGE && bus.isFor(packet.to())) {
+			String number = packet.messageNumber();
+			if(!number.isEmpty() && !TncPacket.isForEveryone(packet.to())) { // Ack it, every time: our last ack may have been lost.
+				transmit(bus, TncPacket.ack(newId(), packet.to(), packet.from(), number));
+				boolean again = messages.stream().anyMatch(logged -> !logged.outgoing() && logged.packet().from().equals(packet.from()) && logged.packet().messageNumber().equals(number));
+				if(again)
+					return; // A retry of one we have.
+			}
 			log(new Logged(packet, false, now));
 			unread = true;
 			if(messageBuzzer)
 				buzz(0.8F);
+		}
+		else if(packet.kind() == TncPacket.Kind.ACK && bus.isFor(packet.to())) {
+			if(!acknowledged(packet.from(), packet.text()))
+				return;
 		}
 		else
 			return;
@@ -365,6 +493,8 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		}
 		if(tag.contains("contactBuzzer"))
 			contactBuzzer = tag.getBoolean("contactBuzzer");
+		if(tag.contains("stationExpiry"))
+			stationExpiryMinutes = Math.max(0, tag.getInt("stationExpiry"));
 		if(tag.contains("messageBuzzer"))
 			messageBuzzer = tag.getBoolean("messageBuzzer");
 		if(tag.contains("digipeat")) // A setting of the radio interfaces, made from here as on a real terminal.
@@ -374,15 +504,68 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		sync();
 	}
 
+	/**
+	 * Sets the callsign of every radio interface on the bus: {@code value}, or {@code player}'s own if it is empty.
+	 * False if there is no radio interface, or they asked for their own and have none.
+	 */
+	public boolean setCallsign(ServerPlayer player, String value) {
+		List<RadioInterfaceBlockEntity> interfaces = bus().interfaces();
+		String callsign = TncPacket.sanitizeCallsign(value);
+		boolean done = !interfaces.isEmpty();
+		for(RadioInterfaceBlockEntity radioInterface : interfaces) {
+			if(callsign.isEmpty())
+				done &= radioInterface.claim(player);
+			else
+				radioInterface.setCallsign(callsign, player.getGameProfile().getName());
+		}
+		sync();
+		return done;
+	}
+
+	/** Gives the radio interfaces on the bus that have no callsign {@code player}'s: whoever places or first opens it. */
+	public void claimFor(ServerPlayer player) {
+		for(RadioInterfaceBlockEntity radioInterface : bus().interfaces())
+			if(radioInterface.getCallsign().isEmpty())
+				radioInterface.claim(player);
+	}
+
 	/** Someone opened the terminal: the CONTACT and MSG lights go out. */
 	public void markSeen() {
-		if(!unread && newContactGameTime < 0)
-			return;
+		if(level != null)
+			lastOpenedGameTime = level.getGameTime();
 		unread = false;
 		newContactGameTime = -1L;
 		setChanged();
 		sync();
 		updateDisplay();
+	}
+
+	/** The screen has finished booting. */
+	public void markBooted() {
+		if(!bootPending)
+			return;
+		bootPending = false;
+		setChanged();
+		sync();
+	}
+
+	public boolean isBootPending() {
+		return bootPending;
+	}
+
+	/** Game time the screen was last opened before this time, or -1: messages since then are new. */
+	public long getLastOpenedGameTime() {
+		return lastOpenedGameTime;
+	}
+
+	/** True if a radio on the bus is switched on (as the server last saw it). */
+	public boolean isRadioOn() {
+		return radioOn;
+	}
+
+	/** The frequency of the first radio on the bus that is on, in hertz; 0 if none is. */
+	public float getRadioFrequency() {
+		return radioFrequency;
 	}
 
 	/** Comparator output: 15 while a message waits to be read. */
@@ -468,10 +651,15 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		tag.putBoolean("unread", unread);
 		tag.putLong("newContact", newContactGameTime);
 		tag.putLong("lastBeacon", lastBeaconGameTime);
+		tag.putLong("lastOpened", lastOpenedGameTime);
+		tag.putInt("nextMessageNumber", nextMessageNumber);
+		tag.putInt("stationExpiry", stationExpiryMinutes);
+		tag.putBoolean("bootPending", bootPending);
 		ListTag beaconTags = new ListTag();
 		for(Heard heard : beacons) {
 			CompoundTag entry = heard.packet().save();
 			entry.putLong("heardAt", heard.gameTime());
+			entry.putLong("firstHeardAt", heard.firstHeard());
 			beaconTags.add(entry);
 		}
 		tag.put("beacons", beaconTags);
@@ -480,6 +668,9 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			CompoundTag entry = logged.packet().save();
 			entry.putLong("loggedAt", logged.gameTime());
 			entry.putBoolean("outgoing", logged.outgoing());
+			entry.putString("delivery", logged.delivery().name());
+			entry.putInt("retries", logged.retries());
+			entry.putLong("lastSent", logged.lastSent());
 			messageTags.add(entry);
 		}
 		tag.put("messages", messageTags);
@@ -504,15 +695,31 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		unread = tag.getBoolean("unread");
 		newContactGameTime = tag.contains("newContact") ? tag.getLong("newContact") : -1L;
 		lastBeaconGameTime = tag.contains("lastBeacon") ? tag.getLong("lastBeacon") : -1L;
+		lastOpenedGameTime = tag.contains("lastOpened") ? tag.getLong("lastOpened") : -1L;
+		nextMessageNumber = Math.max(1, tag.getInt("nextMessageNumber"));
+		stationExpiryMinutes = tag.contains("stationExpiry") ? Math.max(0, tag.getInt("stationExpiry")) : 30;
+		bootPending = !tag.contains("bootPending") || tag.getBoolean("bootPending");
+		radioOn = tag.getBoolean("radioOn"); // Only in the update tag.
+		radioFrequency = tag.getFloat("radioFrequency");
 		beacons.clear();
 		for(Tag entry : tag.getList("beacons", Tag.TAG_COMPOUND)) {
 			CompoundTag compound = (CompoundTag)entry;
-			beacons.add(new Heard(TncPacket.load(compound), compound.getLong("heardAt")));
+			long heardAt = compound.getLong("heardAt");
+			beacons.add(new Heard(TncPacket.load(compound), heardAt, compound.contains("firstHeardAt") ? compound.getLong("firstHeardAt") : heardAt));
 		}
 		messages.clear();
 		for(Tag entry : tag.getList("messages", Tag.TAG_COMPOUND)) {
 			CompoundTag compound = (CompoundTag)entry;
-			messages.add(new Logged(TncPacket.load(compound), compound.getBoolean("outgoing"), compound.getLong("loggedAt")));
+			Delivery delivery;
+			try {
+				delivery = Delivery.valueOf(compound.getString("delivery"));
+			}
+			catch(IllegalArgumentException e) {
+				delivery = Delivery.SENT; // From before acks.
+			}
+			long loggedAt = compound.getLong("loggedAt");
+			messages.add(new Logged(TncPacket.load(compound), compound.getBoolean("outgoing"), loggedAt, delivery, compound.getInt("retries"),
+					compound.contains("lastSent") ? compound.getLong("lastSent") : loggedAt));
 		}
 		mapSets.clear();
 		for(Tag entry : tag.getList("mapSets", Tag.TAG_COMPOUND)) {
@@ -528,7 +735,10 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 
 	@Override
 	public @NotNull CompoundTag getUpdateTag(@NotNull HolderLookup.Provider registries) {
-		return saveWithoutMetadata(registries);
+		CompoundTag tag = saveWithoutMetadata(registries);
+		tag.putBoolean("radioOn", radioOn);
+		tag.putFloat("radioFrequency", radioFrequency);
+		return tag;
 	}
 
 	@Override

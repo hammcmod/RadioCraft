@@ -32,7 +32,7 @@ class ModelFilesTest {
      * Models known not to load yet, to fix in Blockbench (see todo.md). The test fails once one of them is fine, so it
      * comes off this list.
      */
-    private static final Set<String> KNOWN_BROKEN = Set.of("radiocraft:block/wefax_receiver");
+    private static final Set<String> KNOWN_BROKEN = Set.of();
 
     @Test
     void usedModelsLoadInMinecraft1211() throws IOException {

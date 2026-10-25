@@ -145,12 +145,12 @@ public final class RadioModeration {
 		MinecraftServer server = level.getServer();
 		String mhz = String.format(Locale.ROOT, "%.3f", frequencyHz / 1_000_000.0D);
 		String text = switch(packet.kind()) {
-			case RTTY -> "[RTTY " + mhz + "] " + packet.from() + ": " + packet.text();
-			case MESSAGE -> "[APRS " + mhz + "] " + packet.from() + ">" + (packet.to().isEmpty() ? "ALL" : packet.to()) + ": " + packet.text();
+			case RTTY -> null; // A character at a time: the teletype gives moderators whole lines (see rttyLine).
+			case MESSAGE -> "[APRS " + mhz + "] " + packet.from() + ">" + (packet.to().isEmpty() ? "ALL" : packet.to()) + ": " + packet.messageBody();
 			case BEACON -> "[APRS " + mhz + "] " + packet.from() + (packet.position() == null ? "" : " at " + packet.position().getX() + ", " + packet.position().getZ())
 					+ (packet.text().isEmpty() ? "" : ": " + packet.text());
 			case FILE -> "[FILE " + mhz + "] " + packet.from() + ">" + packet.to() + ": " + packet.text();
-			case FILE_HEADER -> null;
+			case FILE_HEADER, ACK -> null;
 		};
 		if(text == null)
 			return;
@@ -166,6 +166,24 @@ public final class RadioModeration {
 					continue;
 			}
 			moderator.sendSystemMessage(line);
+		}
+	}
+
+	/**
+	 * A line of RTTY a player typed on a teletype on {@code frequencyHz}: shown to moderators listening to everyone or
+	 * to {@code typist}, with the player's name and the callsign it went out under.
+	 */
+	public static void rttyLine(ServerLevel level, float frequencyHz, @Nullable UUID typist, String typistName, String callsign, String line) {
+		if(MODERATORS.isEmpty())
+			return;
+		String mhz = String.format(Locale.ROOT, "%.3f", frequencyHz / 1_000_000.0D);
+		String who = typistName.isEmpty() ? callsign : typistName + (callsign.isEmpty() ? "" : " (" + callsign + ")");
+		Component text = Component.literal("[RTTY " + mhz + "] " + who + ": " + line).withStyle(ChatFormatting.GRAY);
+		MinecraftServer server = level.getServer();
+		for(Map.Entry<UUID, UUID> entry : MODERATORS.entrySet()) {
+			ServerPlayer moderator = server.getPlayerList().getPlayer(entry.getKey());
+			if(moderator != null && hears(entry.getValue(), typist))
+				moderator.sendSystemMessage(text);
 		}
 	}
 

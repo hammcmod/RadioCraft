@@ -4,6 +4,59 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Teletype machine screen (added 2026-10-24)
+
+- [ ] The screen is `teletype_machine.png` with the paper (`teletype_machine_paper.png`) coming up out of the platen
+  under the paper guide, which covers its edges and the slot. Text prints on the paper in even columns, 32 to a
+  line (the callsign included), and lines up with the sprocket holes' spacing well enough.
+- [ ] Each line feed slides the paper up a line (no jump) with a "ssht" (book page turn) and the bell on a new line.
+  A fresh roll shows its torn top edge; once the paper reaches the top of the copy holder the fold shows it going over
+  and behind, and it keeps feeding. Every fifth page has the crease.
+- [ ] Typing: characters go out about 6 a second (two of the 15 keystroke sounds each, so they run together) and
+  print as they go (type fast and watch it catch up). Enter (even on an empty line) rings the bell; a long line
+  wrapping does not. The mouse wheel pulls the paper back down to read older lines. Hovering the machine shows the
+  paper left. No callsign is needed: operators type theirs.
+- [ ] A listener on the frequency (voice mode) hears the RTTY tones, quieter than before. The receiving teletype
+  runs its motor (teletype_background, looped) and clacks as it prints, screen open or not. Opening the screen
+  plays a few power-up relay clicks, then loops the motor: twice as loud at
+  each keypress, fading back over 5 s.
+- [ ] Two players typing at once on one frequency: the stations hearing both print mostly garbage or nothing. A
+  teletype being typed on prints nothing it hears.
+- [ ] `/radio moderateall`: each line typed shows as `[RTTY 14.080] Player (CALL): text` when it ends or the typist
+  pauses, not character by character.
+
+## H19 terminal screen (added 2026-10-24)
+
+- [ ] Text is neon green, in a fixed 64 by 25 grid, inside the dark glass of `h19_gui.png` and nowhere else; the
+  scanlines and green cast sit on the glass only. Characters line up in columns (the APRS art is not ragged).
+- [ ] Turning on a radio on the H19's bus, then opening the H19, boots it: bell, ROM lines, `> APRS` typed at the
+  prompt with key clicks, disk seek clicks, the APRS art, then TNC/radio/frequency/callsign/message lines and READY.
+  Opening it again does not boot. Enter or Space skips; Escape mid-boot closes and it boots again next time.
+- [ ] INBOX: arrows, Page Up/Down, Home/End, scroll wheel and clicks move the selection; Enter or a click opens a
+  message; new ones (since the last opening) have a `*`. READ: REPLY fills MSG's TO, SHOW ON MAP centres the sender
+  (or says no position heard), BACK; up/down step through messages.
+- [ ] MAP: green terrain draws in top to bottom with clicks; contours, brighter index contours, water dots, bright
+  shoreline, tree stipple, dotted grid, faint dots where nothing is loaded. Each station has its symbol's icon (house,
+  person, car, boat, horse, tent, tower, digi), home has a ring. Arrows and dragging pan, +/- and the wheel zoom, C
+  fits, Tab selects the next station, Enter or a click opens its details box (MESSAGE / MAP / CLOSE).
+- [ ] LIST: stations heard with symbol, distance, bearing, age, path and comment; Enter or a click opens the details
+  box; M shows on the map, S messages it.
+- [ ] MSG: typing in TO and TEXT (the E key types, it does not close), Tab/Enter move on, Enter in TEXT sends with a
+  modem chirp; CLEAR; sent messages are listed. SETUP: beacon on/off, beacon now, symbol (left/right), comment edit,
+  buzzers, digipeat, REBOOT.
+- [ ] It opens on MAP. Number keys 1 to 5 (MAP, INBOX, LIST, MSG, SETUP) and the top-row tabs change pages, as do the
+  side buttons (MAP, INBX, LIST, MSG from `h19_gui_buttons.png`): grey, white while hovered or showing, and flashing
+  red for news: INBX for a message since the inbox was last up, MAP and LIST for a newly heard station.
+- [ ] S opens SETUP from any page (not while typing). SETUP: CALLSIGN (type one, or blank and Enter for your own)
+  sets it on the bus's radio interfaces; REMOVE STATIONS AFTER (10/30/60/120/240 MIN, NEVER; default 30) drops
+  stations not heard for that long. A new H19 beacons and a new radio interface digipeats by default
+  (`aprs_beacon_default`, `aprs_digipeat_default`); placing or first opening an H19 gives an interface on its bus
+  with no callsign yours.
+- [ ] With no callsign on the bus, the boot stops at CALLSIGN with a CALLSIGN> prompt: typing sets it, Enter alone
+  uses yours; it then carries on booting.
+- [ ] Message acks: a message to a station that is on shows SENDING then SENT once its ack comes back (direct or
+  through digipeaters); to one that is off, RETRYING 1/5 ... 5/5 every 20 s, then FAILED (dim).
+
 ## Proposal batch: gains, CW keys, callsigns, moderation, sporadic E (added 2026-10-24)
 
 - [ ] Gain and mic gain dials on every block radio: hover shows the percent; gain turns voice and static up and down,

@@ -225,6 +225,11 @@ public final class AprsMapPainter {
 				data.updateColor(px, pz, colors[(column * SIZE + px) + (row * SIZE + pz) * fit.width()]);
 	}
 
+	/** The 3 by 5 pixel glyph for {@code c}, rows of '#' (lit) and '.'; a dash for a character the font lacks. */
+	public static String[] glyph(char c) {
+		return FONT.getOrDefault(Character.toUpperCase(c), FONT.get('-'));
+	}
+
 	/** A 3 by 5 pixel font for callsigns: capitals, digits, dash and slash. */
 	private static final Map<Character, String[]> FONT = Map.ofEntries(
 			Map.entry('A', new String[] { ".#.", "#.#", "###", "#.#", "#.#" }), Map.entry('B', new String[] { "##.", "#.#", "##.", "#.#", "##." }),

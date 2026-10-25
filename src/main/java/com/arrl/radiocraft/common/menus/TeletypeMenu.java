@@ -44,12 +44,12 @@ public final class TeletypeMenu extends AbstractContainerMenu implements Station
 	public void handleAction(ServerPlayer player, String action, CompoundTag data) {
 		switch(action) {
 			case "rtty" -> {
-				if(!blockEntity.typeRtty(data.getString("text")))
-					player.displayClientMessage(Component.translatable(blockEntity.getCallsign().isEmpty() ? "screen.radiocraft.teletype.set_callsign_first"
-							: blockEntity.getRadios().stream().anyMatch(RadioBlockEntity::isPowered) ? "screen.radiocraft.teletype.send_failed"
+				if(!blockEntity.type(player, data.getString("text")))
+					player.displayClientMessage(Component.translatable(blockEntity.getRadios().stream().anyMatch(RadioBlockEntity::isPowered) ? "screen.radiocraft.teletype.send_failed"
 							: "screen.radiocraft.teletype.no_radio"), true);
 			}
 			case "solar" -> blockEntity.printReport();
+			case "load" -> blockEntity.loadPaper();
 			case "callsign" -> {
 				if(!TncPacket.sanitizeCallsign(data.getString("callsign")).isEmpty())
 					blockEntity.setCallsign(data.getString("callsign"), player.getGameProfile().getName());

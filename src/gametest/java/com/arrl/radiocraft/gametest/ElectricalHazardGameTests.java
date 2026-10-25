@@ -192,6 +192,7 @@ public class ElectricalHazardGameTests {
                             .anyMatch(n -> n.getNetworkObjects().size() > 1), "The battery is not wired to the radio yet");
                 })
                 .thenExecute(() -> {
+                    GameTestUtil.networkObject(helper, battery, BatteryNetworkObject.class).getStorage().setEnergy(CHARGE); // An empty one would not catch.
                     AntennaStrikes.strike(helper.getLevel(), net.minecraft.world.phys.Vec3.atBottomCenterOf(helper.absolutePos(jPole.above(2))));
                     RadiocraftServerConfig.LIGHTNING_BATTERY_IGNITE_CHANCE.set(ignite);
                     helper.assertTrue(helper.getBlockState(radio).getValue(RadioBlock.BLOWN), "The radio did not blow");
@@ -231,6 +232,39 @@ public class ElectricalHazardGameTests {
                 .thenSucceed();
     }
 
+    /**
+     * An empty battery bank does nothing: a short on it with a radio on the run (whose own buffer is not charge) does
+     * not burn through, and lightning on its wire does not light it.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 200, batch = "hazard_empty")
+    public static void emptyBatteryDoesNothing(GameTestHelper helper) {
+        RadiocraftServerConfig.WIRE_HAZARDS_ENABLED.set(true);
+        RadiocraftServerConfig.BATTERY_FIRES_ENABLED.set(true);
+        BlockPos closing = new BlockPos(3, 2, 2), radio = new BlockPos(1, 2, 2);
+        helper.setBlock(BATTERY, RadiocraftBlocks.LARGE_BATTERY.get());
+        helper.setBlock(radio, RadiocraftBlocks.VHF_BASE_STATION.get());
+        helper.startSequence()
+                .thenIdle(2)
+                .thenExecute(() -> {
+                    battery(helper, BATTERY).getStorage().setEnergy(0);
+                    wire(helper, new BlockPos(2, 2, 1), new BlockPos(3, 2, 1), new BlockPos(2, 2, 2), closing);
+                    helper.assertTrue(WireFaults.faultAt(helper.getLevel(), helper.absolutePos(closing)) == WireFaults.Kind.SHORT, "No short found");
+                })
+                .thenIdle(RadiocraftServerConfig.WIRE_SHORT_BURN_SECONDS.get() * 20 + 40)
+                .thenExecute(() -> {
+                    helper.assertTrue(helper.getBlockState(closing).is(RadiocraftBlocks.WIRE.get()), "A short on an empty battery burned through");
+                    LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(helper.getLevel());
+                    bolt.moveTo(net.minecraft.world.phys.Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(3, 3, 1))));
+                    bolt.setVisualOnly(true);
+                    helper.getLevel().addFreshEntity(bolt);
+                    boolean burning = BatteryFires.isBurning(helper.getLevel(), helper.absolutePos(BATTERY));
+                    RadiocraftServerConfig.WIRE_HAZARDS_ENABLED.set(false);
+                    RadiocraftServerConfig.BATTERY_FIRES_ENABLED.set(false);
+                    helper.assertFalse(burning, "Lightning lit an empty battery");
+                })
+                .thenSucceed();
+    }
+
     /** Lightning on power wire sets the battery that wire runs to alight; a big enough group then explodes. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = "battery_lightning")
     public static void lightningOnWireIgnitesBatteryGroup(GameTestHelper helper) {
@@ -247,6 +281,8 @@ public class ElectricalHazardGameTests {
                 .thenExecute(() -> {
                     wire(helper, new BlockPos(3, 2, 4), new BlockPos(2, 2, 4), new BlockPos(1, 2, 4));
                     helper.assertTrue(BatteryFires.groupSize(helper.getLevel(), helper.absolutePos(group.getFirst())) == 4, "The batteries are not one group");
+                    for(BlockPos pos : group)
+                        battery(helper, pos).getStorage().setEnergy(CHARGE);
                     LightningBolt bolt = EntityType.LIGHTNING_BOLT.create(helper.getLevel());
                     bolt.moveTo(net.minecraft.world.phys.Vec3.atBottomCenterOf(helper.absolutePos(new BlockPos(1, 3, 4))));
                     bolt.setVisualOnly(true);
