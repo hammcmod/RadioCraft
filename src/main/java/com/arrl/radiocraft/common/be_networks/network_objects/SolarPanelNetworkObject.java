@@ -8,6 +8,7 @@ import com.arrl.radiocraft.api.benetworks.PowerBENetwork;
 import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.common.be_networks.IPassThroughNetworkObject;
+import com.arrl.radiocraft.api.weather.WeatherSources;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -56,7 +57,7 @@ public class SolarPanelNetworkObject extends PowerNetworkObject implements IPass
     public void tick(Level level, BlockPos pos) {
         if(level.isDay() && level.canSeeSky(pos)) {
             int powerGenerated = CommonConfig.SOLAR_PANEL_MAX_OUTPUT.get();
-            if(level.isRaining())
+            if(WeatherSources.isRaining(level, pos)) // Local rain where a weather mod has storms.
                 powerGenerated = (int)(powerGenerated * CommonConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get());
 
             lastPowerTick = powerGenerated;

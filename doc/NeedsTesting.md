@@ -4,6 +4,20 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+## Weather and WEFAX charts (added 2026-10-25)
+
+Dev runs have Another Weather Mod (from `libs/`); its own checklist is in its repository's doc/NeedsTesting.md.
+
+- [ ] `/rcdebug wefax radar` (and `forecast`, `surface`) gives a map: hold it and put it in an item frame. It reads as
+  a fax print: white paper, black ink, a header with the chart and time, a dotted grid, coastlines near the sea, the
+  station's ring in the middle. Its tooltip is the text report. A cartography table copies it.
+- [ ] With storms about (`/awm approach thunderstorm 5`, `/awm spawn supercell` a few hundred blocks off): the radar
+  shows dot screens getting darker toward each storm's core with its symbol, label and a short motion arrow; the
+  forecast shows tracks with ticks every 15 minutes and dashed outlines where the storms will be; the surface chart
+  shows rings of isobars round each storm with an L and its pressure.
+- [ ] `/rcdebug wx` reads well; `/rcdebug wx aprs` gives a `_MMDDHHMMc...` packet.
+- [ ] Solar panels make less power only where it rains, and the slim jim only cuts out under a thunderstorm.
+
 ## Teletype machine screen (added 2026-10-24)
 
 - [ ] The screen is `teletype_machine.png` with the paper (`teletype_machine_paper.png`) coming up out of the platen

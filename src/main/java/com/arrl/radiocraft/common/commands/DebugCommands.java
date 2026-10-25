@@ -1,6 +1,11 @@
 package com.arrl.radiocraft.common.commands;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.api.weather.WeatherSource;
+import com.arrl.radiocraft.api.weather.WeatherSources;
+import com.arrl.radiocraft.common.radio.weather.WeatherReports;
+import com.arrl.radiocraft.common.radio.wefax.WefaxChart;
+import com.arrl.radiocraft.common.radio.wefax.WefaxPrints;
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.benetworks.BENetwork;
@@ -79,6 +84,13 @@ public class DebugCommands {
 			.then(Commands.literal("radio").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::radio)))
 			.then(Commands.literal("antenna").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::antenna)))
 			.then(Commands.literal("network").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::network)))
+			.then(Commands.literal("wx").executes(DebugCommands::wx)
+					.then(Commands.literal("aprs").executes(DebugCommands::wxAprs)))
+			.then(Commands.literal("wefax")
+					.then(Commands.argument("chart", StringArgumentType.word())
+							.suggests((ctx, builder) -> SharedSuggestionProvider.suggest(java.util.Arrays.stream(WefaxChart.Type.values())
+									.map(t -> t.name().toLowerCase(Locale.ROOT)), builder))
+							.executes(DebugCommands::wefax)))
 			.then(Commands.literal("solar").executes(DebugCommands::solar)
 					.then(Commands.literal("set").then(Commands.argument("event", StringArgumentType.word())
 							.suggests((ctx, builder) -> SharedSuggestionProvider.suggest(RadiocraftData.SOLAR_EVENTS.getKeys().stream().map(ResourceLocation::getPath), builder))
@@ -315,6 +327,40 @@ public class DebugCommands {
 					network.getUUID().toString().substring(0, 8), members));
 		}
 		return send(ctx, out);
+	}
+
+	/** The text WX report for where you stand, from the level's weather source. */
+	private static int wx(CommandContext<CommandSourceStack> ctx) {
+		ServerLevel level = ctx.getSource().getLevel();
+		WeatherSource source = WeatherSources.get(level);
+		List<String> out = new ArrayList<>();
+		out.add("source=" + source.name() + " local=" + source.isLocal());
+		out.addAll(WeatherReports.lines(level, source, BlockPos.containing(ctx.getSource().getPosition()), ""));
+		return send(ctx, out);
+	}
+
+	/** The APRS weather packet a station where you stand would send. */
+	private static int wxAprs(CommandContext<CommandSourceStack> ctx) {
+		ServerLevel level = ctx.getSource().getLevel();
+		WeatherSource source = WeatherSources.get(level);
+		var report = source.report(level, BlockPos.containing(ctx.getSource().getPosition()));
+		long t = ((level.getDayTime() % 24000) + 24000) % 24000;
+		String packet = WeatherReports.aprsWeather(report, 1, (int)(level.getDayTime() / 24000 % 28) + 1,
+				(int)((t / 1000 + 6) % 24), (int)(t % 1000 * 60 / 1000), report.windSpeed() * 1.3, report.rain() * 8);
+		return send(ctx, List.of(packet));
+	}
+
+	/** Prints a WEFAX chart of where you stand into your inventory (until the WEFAX receiver has its screen). */
+	private static int wefax(CommandContext<CommandSourceStack> ctx) throws com.mojang.brigadier.exceptions.CommandSyntaxException {
+		WefaxChart.Type type = WefaxChart.type(StringArgumentType.getString(ctx, "chart"));
+		if(type == null)
+			return fail(ctx, "Charts: radar, forecast, surface");
+		ServerLevel level = ctx.getSource().getLevel();
+		var player = ctx.getSource().getPlayerOrException();
+		var stack = WefaxPrints.print(level, WeatherSources.get(level), player.blockPosition(), type, "");
+		if(!player.getInventory().add(stack))
+			player.drop(stack, false);
+		return send(ctx, List.of("Printed a " + type.name().toLowerCase(Locale.ROOT) + " chart from " + WeatherSources.get(level).name() + " weather."));
 	}
 
 	private static int solar(CommandContext<CommandSourceStack> ctx) {

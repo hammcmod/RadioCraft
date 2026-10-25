@@ -196,6 +196,11 @@ dependencies {
     // is installed (common/compat/CuriosCompat). From maven.theillusivec4.top (declared above).
     compileOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}:api")
     runtimeOnly("top.theillusivec4.curios:curios-neoforge:${curios_version}")
+    // Another Weather Mod (MIT, https://github.com/ITCMD/AnotherWeatherMod), localized storms for WX reports and WEFAX
+    // charts. Optional for players: compat/anotherweathermod only runs when it is installed. The jar is kept in libs/
+    // until the mod is on a Maven (Modrinth); it is on the runtime classpath too, so dev runs have localized weather.
+    compileOnly(files("libs/anotherweathermod-neoforge-1.21.1-0.1.0.jar"))
+    runtimeOnly(files("libs/anotherweathermod-neoforge-1.21.1-0.1.0.jar"))
 
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")

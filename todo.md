@@ -226,6 +226,19 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   new UI; the teletype keeps the SOLAR WX code (and its comparator) until then. Standard weather only with a
   compatible weather mod
   (see [doc/TncRework.md](doc/TncRework.md)); we may end up writing our own weather mod
+  - [x] Our own weather mod (2026-10-24): Another Weather Mod, MIT, github.com/ITCMD/AnotherWeatherMod (localized
+    moving storms, hail, blizzards, sandstorms, hurricanes, regrowth, forecasts, an API). Its jar is in `libs/`
+    (compile and dev runtime) until it is on a Maven; it stays optional for players.
+  - [x] Weather API (2026-10-25): `api/weather` `WeatherSource` (vanilla always, Another Weather Mod when installed,
+    others can register), `WeatherReports` text lines and the APRS `_` weather packet, solar panels and the slim
+    jim use the local weather. `/rcdebug wx [aprs]`.
+  - [x] WEFAX charts (2026-10-25): radar, forecast and surface analysis painted fax style on locked vanilla maps (hold,
+    frame, copy at a cartography table), the text report in the tooltip. `/rcdebug wefax <chart>` prints one until
+    the receiver has its screen.
+  - [ ] WEFAX receiver screen and printing from the air: a station sends charts, receivers print them (auto-print
+    on warnings), paper use
+  - [ ] Weather station block: APRS WX beacons from `WeatherReports.aprsWeather`, alert tone over SSB on hazards
+  - [ ] Antenna damage from Another Weather Mod's `WindDamageEvent`
 - [ ] WEFAX receiver model: its Rotary elements are turned -85, 80 and 42.5 degrees, which Minecraft 1.21.1 cannot
   load (it shows as missing). Re-export with Blockbench set to 1.21.1 and 22.5 degree steps (`ModelFilesTest` lists it)
 - [ ] WEFAX receiver (maintainer, 2026-10-23): prints weather charts, after the WX work. The block and model are in

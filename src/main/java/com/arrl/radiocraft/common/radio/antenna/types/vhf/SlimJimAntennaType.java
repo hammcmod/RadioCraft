@@ -2,6 +2,7 @@ package com.arrl.radiocraft.common.radio.antenna.types.vhf;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
+import com.arrl.radiocraft.api.weather.WeatherSources;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
@@ -25,7 +26,7 @@ public class SlimJimAntennaType extends NonDirectionalAntennaType<EmptyAntennaDa
     @Override
     public double getTransmitEfficiency(IAntennaPacket packet, EmptyAntennaData data, BlockPos destination, boolean isCW) {
         ServerLevel level = packet.getLevel();
-        if(level.isThundering())
+        if(WeatherSources.isThundering(level, packet.getSource().getAntennaPos().position()))
             return 0.0D;
 
         return super.getTransmitEfficiency(packet, data, destination, isCW);
@@ -33,7 +34,7 @@ public class SlimJimAntennaType extends NonDirectionalAntennaType<EmptyAntennaDa
 
     @Override
     public double getReceiveEfficiency(IAntennaPacket packet, EmptyAntennaData data, BlockPos pos) {
-        if(packet.getLevel().isThundering())
+        if(WeatherSources.isThundering(packet.getLevel(), pos))
             return 0.0D;
 
         return getReceiveGainLinear() * packet.getStrength();

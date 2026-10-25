@@ -142,6 +142,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "teletype.tip.set_by"), "%s, set by %s");
 			provider.add(Radiocraft.translationKey("screen", "teletype.tip.paper_out"), "Out of paper: right click the teletype with paper, or feed it with a hopper");
 			provider.add("item.radiocraft.aprs_map", "APRS Map");
+			provider.add("item.radiocraft.wefax_chart.radar", "WEFAX Radar Chart");
+			provider.add("item.radiocraft.wefax_chart.forecast", "WEFAX Forecast Chart");
+			provider.add("item.radiocraft.wefax_chart.surface", "WEFAX Surface Analysis");
 			provider.add("item.radiocraft.aprs_map.from", "From the H19 at %s, %s, %s");
 			provider.add("item.radiocraft.aprs_map.wall", "APRS Map (%s x %s wall)");
 			provider.add("item.radiocraft.aprs_map.tile", "Row %s, column %s of %s x %s (top left is north west)");
