@@ -53,8 +53,14 @@ final class AwmWeatherSource implements WeatherSource {
 
 	static WeatherReport report(WeatherSample s) {
 		Set<WeatherReport.Hazard> hazards = EnumSet.noneOf(WeatherReport.Hazard.class);
-		for(Hazard hazard : s.hazards())
-			hazards.add(WeatherReport.Hazard.valueOf(hazard.name()));
+		for(Hazard hazard : s.hazards()) {
+			try {
+				hazards.add(WeatherReport.Hazard.valueOf(hazard.name()));
+			}
+			catch(IllegalArgumentException e) {
+				// A hazard from a newer version of the mod: leave it out rather than fail the report.
+			}
+		}
 		return new WeatherReport(WeatherReport.Precipitation.valueOf(s.precipitation().name()), s.rainLevel(),
 				s.thunderLevel(), s.windSpeed(), s.windFromDegrees(), s.temperature(), s.pressure(), s.humidity(),
 				Set.copyOf(hazards));
@@ -119,7 +125,9 @@ final class AwmWeatherSource implements WeatherSource {
 		catch(IllegalArgumentException e) {
 			kind = StormReport.Kind.OTHER;
 		}
-		return new StormReport(view.id(), kind, false, view.birthTick(), List.copyOf(track));
+		int category = kind == StormReport.Kind.HURRICANE ? view.category()
+				: kind == StormReport.Kind.TORNADO ? view.tornadoRating() : -1;
+		return new StormReport(view.id(), kind, false, view.birthTick(), List.copyOf(track), category);
 	}
 
 	@Override

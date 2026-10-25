@@ -16,6 +16,9 @@ Dev runs have Another Weather Mod (from `libs/`); its own checklist is in its re
   forecast shows tracks with ticks every 15 minutes and dashed outlines where the storms will be; the surface chart
   shows rings of isobars round each storm with an L and its pressure.
 - [ ] `/rcdebug wx` reads well; `/rcdebug wx aprs` gives a `_MMDDHHMMc...` packet.
+- [ ] With a hurricane, a tornadic storm and fog about (`/awm spawn hurricane_4`, `/awm spawn tornado_3`,
+  `/awm spawn dense_fog` some way off): charts label them "S12 C4", "S13 EF3" with a funnel symbol, three bars for
+  fog; `/rcdebug wx` names them HURCN 4, TOR EF3, FOG and lists TORNADO, DENSE FOG, HEAT WAVE or COLD SNAP hazards.
 - [ ] Solar panels make less power only where it rains, and the slim jim only cuts out under a thunderstorm.
 - [ ] `/awm hazard hurricane` beside an antenna on poles: over a few minutes some parts blow down and drop as
   items; the antenna stops working until they are put back.

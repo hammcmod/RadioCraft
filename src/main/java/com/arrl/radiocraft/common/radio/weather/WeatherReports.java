@@ -98,7 +98,7 @@ public final class WeatherReports {
 		if(next.isPresent()) {
 			WeatherSource.Arrival a = next.get();
 			StormReport storm = a.storm();
-			String name = storm.kind().abbreviation() + (storm.worldWide() ? "" : " S" + storm.id());
+			String name = storm.label() + (storm.worldWide() ? "" : " S" + storm.id());
 			if(a.arrivalTick() <= now)
 				lines.add(name + " OVERHEAD, ENDS IN " + duration(a.departureTick() - now));
 			else

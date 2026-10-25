@@ -200,12 +200,14 @@ public final class WefaxChart {
 				continue;
 			StormReport.TrackPoint at = storm.at(now);
 			int x = frame.pixelX(at.x()), z = frame.pixelZ(at.z());
-			if(storm.kind() == StormReport.Kind.SUPERCELL && at.intensity() > 0.7)
+			if((storm.kind() == StormReport.Kind.SUPERCELL || storm.kind() == StormReport.Kind.TORNADO)
+					&& at.intensity() > 0.7)
 				hailCore(canvas, x, z, (int)Math.max(2, at.radius() * 0.3 / frame.blocksPerPixel()));
 			StormReport.TrackPoint later = storm.at(now + VECTOR_MINUTES * 1200L);
 			canvas.arrow(x, z, frame.pixelX(later.x()), frame.pixelZ(later.z()), INK);
 			symbol(canvas, storm.kind(), x, z);
-			canvas.label("S" + storm.id(), x + 5, z - 7);
+			canvas.label(storm.category() >= 0 ? "S" + storm.id() + " " + (storm.kind() == StormReport.Kind.TORNADO
+					? "EF" : "C") + storm.category() : "S" + storm.id(), x + 5, z - 7);
 		}
 	}
 
@@ -232,8 +234,15 @@ public final class WefaxChart {
 		String[] glyph = switch(kind) {
 			// Shower: a triangle point down. Thunderstorm: the bolt. Hurricane: a ring with two arms.
 			case SHOWER -> new String[] { "#####", ".###.", "..#..", "", "" };
-			case THUNDERSTORM, SEVERE_THUNDERSTORM, SUPERCELL -> new String[] { "####.", "...#.", "..#..", ".#...", "#...." };
+			case THUNDERSTORM, STRONG_THUNDERSTORM, SEVERE_THUNDERSTORM, SUPERCELL ->
+					new String[] { "####.", "...#.", "..#..", ".#...", "#...." };
+			// Tornado: the funnel, wide at the top.
+			case TORNADO -> new String[] { "#####", ".###.", ".###.", "..#..", "..#.." };
 			case HURRICANE -> new String[] { "..##.", ".###.", "##.##", ".###.", ".##.." };
+			// Fog: three bars. Heat: an H. Cold: a star.
+			case DENSE_FOG -> new String[] { "#####", "", "#####", "", "#####" };
+			case HEAT_WAVE -> new String[] { "#...#", "#...#", "#####", "#...#", "#...#" };
+			case COLD_SNAP -> new String[] { "#.#.#", ".###.", "#####", ".###.", "#.#.#" };
 			case OTHER -> new String[] { ".###.", "#...#", "#...#", "#...#", ".###." };
 		};
 		for(int dz = -3; dz <= 3; dz++)
@@ -396,7 +405,7 @@ public final class WefaxChart {
 			case FORECAST -> {
 				Optional<WeatherSource.Arrival> next = source.nextArrival(level, center, source.forecastHorizon(level));
 				yield next.map(a -> a.arrivalTick() <= now ? "WX OVERHEAD"
-						: "ARR " + a.storm().kind().abbreviation() + " " + WeatherReports.duration(a.arrivalTick() - now))
+						: "ARR " + a.storm().label() + " " + WeatherReports.duration(a.arrivalTick() - now))
 						.orElse("NO WX EXPECTED");
 			}
 			case SURFACE -> "ISOBARS " + ISOBAR + " HPA " + frame.blocksPerPixel() * 32 + "/DIV";

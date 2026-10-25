@@ -22,7 +22,8 @@ public record WeatherReport(Precipitation precipitation, float rain, float thund
 	public enum Precipitation { NONE, RAIN, SNOW, HAIL, DUST }
 
 	/** Dangerous weather. */
-	public enum Hazard { LIGHTNING, HAIL, BLIZZARD, SANDSTORM, DAMAGING_WIND, HURRICANE_EYE }
+	public enum Hazard { LIGHTNING, HAIL, BLIZZARD, SANDSTORM, DAMAGING_WIND, HURRICANE_EYE, TORNADO, DENSE_FOG, HEAT_WAVE,
+		COLD_SNAP }
 
 	public static final WeatherReport CALM = new WeatherReport(Precipitation.NONE, 0, 0, 0, 0, 15, 1013.25, 50, Set.of());
 
