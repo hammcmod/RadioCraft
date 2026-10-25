@@ -15,14 +15,19 @@ public record StormReport(long id, Kind kind, boolean worldWide, long formsAt, L
 
 	/** What sort of storm. */
 	public enum Kind {
-		SHOWER, THUNDERSTORM, SUPERCELL, HURRICANE, OTHER;
+		SHOWER, THUNDERSTORM,
+		/** A thunderstorm with damaging gusts but no hail. */
+		SEVERE_THUNDERSTORM,
+		/** The strongest thunderstorm: hail, or a blizzard or sandstorm over snow and desert. */
+		SUPERCELL, HURRICANE, OTHER;
 
 		/** A short name for charts and teletype reports. */
 		public String abbreviation() {
 			return switch(this) {
 				case SHOWER -> "SHWR";
 				case THUNDERSTORM -> "TSTM";
-				case SUPERCELL -> "SVR TSTM";
+				case SEVERE_THUNDERSTORM -> "SVR TSTM";
+				case SUPERCELL -> "SUPERCELL";
 				case HURRICANE -> "HURCN";
 				case OTHER -> "WX";
 			};

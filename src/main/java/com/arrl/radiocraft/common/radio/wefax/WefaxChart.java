@@ -232,7 +232,7 @@ public final class WefaxChart {
 		String[] glyph = switch(kind) {
 			// Shower: a triangle point down. Thunderstorm: the bolt. Hurricane: a ring with two arms.
 			case SHOWER -> new String[] { "#####", ".###.", "..#..", "", "" };
-			case THUNDERSTORM, SUPERCELL -> new String[] { "####.", "...#.", "..#..", ".#...", "#...." };
+			case THUNDERSTORM, SEVERE_THUNDERSTORM, SUPERCELL -> new String[] { "####.", "...#.", "..#..", ".#...", "#...." };
 			case HURRICANE -> new String[] { "..##.", ".###.", "##.##", ".###.", ".##.." };
 			case OTHER -> new String[] { ".###.", "#...#", "#...#", "#...#", ".###." };
 		};
