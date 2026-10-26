@@ -57,12 +57,13 @@ def hammertone(x, y, w, h):
 class Painter:
     """Paints one texture. With a multi-texture region table, pass only the regions that live on this texture."""
 
-    def __init__(self, regions, size=32, seed=0):
+    def __init__(self, regions, size=32, seed=0, height=None):
+        """`height` makes a non-square image (a GUI texture); regions are then in pixels of a 16-unit-per-`size` scale."""
         self.regions = regions
         self.size = size
         self.scale = size / 16
         self.rnd = random.Random(seed)
-        self.img = [[(0, 0, 0, 0)] * size for _ in range(size)]
+        self.img = [[(0, 0, 0, 0)] * size for _ in range(height or size)]
 
     def px(self, region):
         return tuple(int(round(v * self.scale)) for v in self.regions[region][-4:])
@@ -94,7 +95,7 @@ class Painter:
         def chunk(tag, data):
             return struct.pack(">I", len(data)) + tag + data + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
 
-        png = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", self.size, self.size, 8, 6, 0, 0, 0))
+        png = b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", len(self.img[0]), len(self.img), 8, 6, 0, 0, 0))
         png += chunk(b"IDAT", zlib.compress(raw, 9)) + chunk(b"IEND", b"")
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(png)
@@ -194,26 +195,35 @@ def write_preview(root, namespace, textures_dir, rows, size=32, spacing=20):
          {"credit": "RadioCraft", "texture_size": [size, size], "textures": textures, "elements": elements})
 
 
-def write_scene(root, namespace, textures_dir, items, size=32, name=None):
-    """Like write_preview, but each item is (texture names, elements, (ox, oy, oz)) placed at its own offset, so
-    multi-block assemblies can be laid out in three dimensions. Textures are shared between items by name."""
+def write_scene(root, namespace, textures_dir, items, size=32, name=None, sources=None):
+    """Like write_preview, but each item is (textures, elements, (ox, oy, oz)) placed at its own offset, so
+    multi-block assemblies can be laid out in three dimensions. `textures` is a list of names in `namespace` or a
+    model's texture dict (key -> "ns:block/name"); `sources` maps other namespaces to their texture folders.
+    Textures are shared between items by name."""
     import copy
     import shutil
     from pathlib import Path
     root = Path(root)
-    (root / "assets" / namespace / "textures/block").mkdir(parents=True, exist_ok=True)
+    sources = {namespace: Path(textures_dir), **(sources or {})}
     textures, keys_by_name, elements = {}, {}, []
     for names, els, offset in items:
+        if not isinstance(names, dict):
+            names = {str(i): f"{namespace}:block/{n}" for i, n in enumerate(names)}
         keys = {}
-        for n in names:
-            if n not in keys_by_name:
-                shutil.copy(textures_dir / f"{n}.png", root / "assets" / namespace / "textures/block")
-                keys_by_name[n] = f"#{len(keys_by_name)}"
-                textures[keys_by_name[n][1:]] = f"{namespace}:block/{n}"
-            keys[f"#{len(keys)}"] = keys_by_name[n]
+        for key, full in names.items():
+            if key == "particle":
+                continue
+            if full not in keys_by_name:
+                ns, n = full.split(":block/")
+                dest = root / "assets" / ns / "textures/block"
+                dest.mkdir(parents=True, exist_ok=True)
+                shutil.copy(sources[ns] / f"{n}.png", dest)
+                keys_by_name[full] = f"#{len(keys_by_name)}"
+                textures[keys_by_name[full][1:]] = full
+            keys[f"#{key}"] = keys_by_name[full]
         for el in els:
             el = copy.deepcopy(el)
-            el["name"] = f"{names[0]}/{el.get('name', '')}"
+            el["name"] = f"{next(iter(names.values())).split('/')[-1]}/{el.get('name', '')}"
             for i in range(3):
                 el["from"][i] += offset[i]
                 el["to"][i] += offset[i]

@@ -128,6 +128,42 @@ Asked for by the maintainer 2026-10-26, drafted the same day (none registered ye
   north connector is the input (brass); outputs 1, 2, 3 are east, south, west, numbered on the plate. The pointer
   model is the knob's lever pointing north: turn it with the blockstate `y` rotation toward the output in use.
 
+### Models: speakers
+
+Asked for by the maintainer 2026-10-26, drafted the same day from `tools/speaker_models.py` (none registered yet):
+
+- **Desk speaker** (`desk_speaker_<wood>` for oak, spruce, birch, jungle, acacia, dark_oak, mangrove, cherry, bamboo,
+  crimson, warped): a 6x5x4 wooden cabinet with a cloth grille, knob and terminal strip. The cabinet faces use the
+  vanilla plank textures, so one grille texture (`desk_speaker.png`) serves every wood.
+- **Large speaker** (`large_speaker`): a full block after the National NC speaker: grey speckled cabinet, round
+  diamond-weave grille, three chrome bars, red diamond badge, chrome feet.
+- **Wall speaker** (`wall_speaker`): 16 wide and tall, 3 deep, back against the south face as vanilla wall blocks
+  are drawn (facing=north shows it as is); silver frame, marbled grey cloth, round badge, a terminal strip on the
+  back for a wire in the block behind.
+- **Premium desk speaker** (`premium_speaker_black`, `_silver`, `_gold`): an 8x6x6 metal cabinet with a slotted
+  grille, bezel strips, knob and feet; one geometry, a texture per colourway.
+- **Loudspeaker** (`loudspeaker`): a PA reflex horn, blue-grey stepped bell with a cream rim pointing north, an
+  octagonal driver, on a U-bracket and wooden base.
+
+### Models: direction finder, module, screen and handheld
+
+Asked for by the maintainer 2026-10-26, drafted the same day from `tools/direction_finder_models.py`:
+
+- **Direction finder** (`direction_finder`): a cream CRT cabinet in the H19's manner, taller (14) with a 12 x 9.5
+  screen, a power button and a pilot lamp on the lower panel, an SO-239 low on the back where the coax wire runs.
+  Overlays (cutout, full bright, for a `display` property as the H19 has): `direction_finder_on` (lamp amber and an
+  amber prompt on the screen) and `direction_finder_compass` (lamp amber and an amber compass rose).
+- **Direction finder module** (`direction_finder_module`): the same cabinet with a floppy slot and eject button and
+  one lamp; `direction_finder_module_red` and `_green` light it.
+- **Direction finder screen** (`textures/gui/direction_finder.png`, `direction_finder_widgets.png`, 300 x 200 like
+  the H19's): a black CRT for the amber TUI to draw on, a side panel with the DF-1 plate, PWR lamp and POWER button;
+  the widgets texture has the button pressed and the lamp lit at the same places. The script's `CRT`, `POWER_BUTTON`
+  and `GUI_LAMP` constants are the boxes. No screen class yet.
+- **Handheld direction finder** (`handheld_direction_finder`, with `display` transforms, for an item model to use as
+  its parent): a much simplified loop DF set, olive with a meter and dial, loop and whip on top, and a lamp on the
+  top edge; `handheld_direction_finder_lit` is the lamp flashing. Both live in `models/block` so `ModelFilesTest`
+  checks them.
+
 ### Models: weather instruments (Another Weather Mod and RadioCraft)
 
 Requested by the maintainer 2026-10-25. None of these are built yet; they wait on models. The first five belong to

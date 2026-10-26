@@ -1,0 +1,195 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"texture_size": [
+		32,
+		32
+	],
+	"textures": {
+		"0": "radiocraft:block/handheld_direction_finder",
+		"particle": "radiocraft:block/handheld_direction_finder"
+	},
+	"render_type": "minecraft:cutout",
+	"elements": [
+		{
+			"name": "lamp_lit",
+			"from": [
+				4.98,
+				8.48,
+				6.23
+			],
+			"to": [
+				6.02,
+				9.02,
+				7.27
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						4,
+						8,
+						5,
+						8.54
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						4,
+						8,
+						5,
+						8.54
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						4,
+						8,
+						5,
+						8.54
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						4,
+						8,
+						5,
+						8.54
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						4,
+						8,
+						5,
+						9
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						4,
+						8,
+						5,
+						9
+					],
+					"texture": "#0"
+				}
+			},
+			"neoforge_data": {
+				"block_light": 15,
+				"sky_light": 15,
+				"ambient_occlusion": false
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				2,
+				1
+			],
+			"scale": [
+				0.5,
+				0.5,
+				0.5
+			]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				0,
+				2,
+				1
+			],
+			"scale": [
+				0.5,
+				0.5,
+				0.5
+			]
+		},
+		"firstperson_righthand": {
+			"rotation": [
+				0,
+				-30,
+				0
+			],
+			"translation": [
+				1,
+				2,
+				1
+			],
+			"scale": [
+				0.6,
+				0.6,
+				0.6
+			]
+		},
+		"firstperson_lefthand": {
+			"rotation": [
+				0,
+				30,
+				0
+			],
+			"translation": [
+				1,
+				2,
+				1
+			],
+			"scale": [
+				0.6,
+				0.6,
+				0.6
+			]
+		},
+		"gui": {
+			"rotation": [
+				30,
+				225,
+				0
+			],
+			"translation": [
+				0,
+				-1,
+				0
+			],
+			"scale": [
+				0.55,
+				0.55,
+				0.55
+			]
+		},
+		"ground": {
+			"scale": [
+				0.4,
+				0.4,
+				0.4
+			]
+		},
+		"fixed": {
+			"rotation": [
+				0,
+				180,
+				0
+			],
+			"scale": [
+				0.6,
+				0.6,
+				0.6
+			]
+		}
+	}
+}

@@ -1,0 +1,291 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"texture_size": [
+		32,
+		32
+	],
+	"textures": {
+		"0": "radiocraft:block/desk_speaker",
+		"wood": "minecraft:block/dark_oak_planks",
+		"particle": "minecraft:block/dark_oak_planks"
+	},
+	"elements": [
+		{
+			"name": "cabinet",
+			"from": [
+				5,
+				0,
+				6
+			],
+			"to": [
+				11,
+				5,
+				10
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						6,
+						5
+					],
+					"texture": "#wood"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						6,
+						5
+					],
+					"texture": "#wood"
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						4,
+						5
+					],
+					"texture": "#wood"
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						4,
+						5
+					],
+					"texture": "#wood"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						6,
+						4
+					],
+					"texture": "#wood"
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						6,
+						4
+					],
+					"texture": "#wood"
+				}
+			}
+		},
+		{
+			"name": "grille",
+			"from": [
+				5.5,
+				0.5,
+				5.75
+			],
+			"to": [
+				9.5,
+				4.5,
+				6
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						4.0,
+						4.0
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						4.0,
+						4.0
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						0.25,
+						4.0
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						0.25,
+						4.0
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						4.0,
+						0.25
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						4.0,
+						0.25
+					],
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"name": "knob",
+			"from": [
+				10,
+				2,
+				5.5
+			],
+			"to": [
+				10.5,
+				2.5,
+				6
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						4,
+						1,
+						4.5,
+						1.5
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						4,
+						1,
+						4.5,
+						1.5
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						4,
+						1,
+						4.5,
+						1.5
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						4,
+						1,
+						4.5,
+						1.5
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						4,
+						1,
+						4.5,
+						1.5
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						4,
+						1,
+						4.5,
+						1.5
+					],
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"name": "terminal",
+			"from": [
+				7,
+				1,
+				10
+			],
+			"to": [
+				9,
+				2,
+				10.5
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						4,
+						0,
+						6,
+						1
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						4,
+						0,
+						6,
+						1
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						4,
+						0,
+						4.5,
+						1
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						4,
+						0,
+						4.5,
+						1
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						4,
+						0,
+						6,
+						0.5
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						4,
+						0,
+						6,
+						0.5
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

@@ -1,0 +1,75 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"texture_size": [
+		64,
+		64
+	],
+	"textures": {
+		"0": "radiocraft:block/direction_finder",
+		"1": "radiocraft:block/direction_finder_side",
+		"2": "radiocraft:block/direction_finder_screen",
+		"particle": "radiocraft:block/direction_finder"
+	},
+	"render_type": "minecraft:cutout",
+	"elements": [
+		{
+			"name": "lamp_lit",
+			"from": [
+				3,
+				1.25,
+				2.73
+			],
+			"to": [
+				4.25,
+				2.25,
+				3
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						1,
+						14,
+						2,
+						15.0
+					],
+					"texture": "#0"
+				}
+			},
+			"neoforge_data": {
+				"block_light": 15,
+				"sky_light": 15,
+				"ambient_occlusion": false
+			}
+		},
+		{
+			"name": "screen_lit",
+			"from": [
+				2,
+				3,
+				2.48
+			],
+			"to": [
+				14,
+				12.5,
+				2.48
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						4.75,
+						6,
+						9.5
+					],
+					"texture": "#2"
+				}
+			},
+			"neoforge_data": {
+				"block_light": 15,
+				"sky_light": 15,
+				"ambient_occlusion": false
+			}
+		}
+	]
+}

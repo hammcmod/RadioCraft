@@ -1,6 +1,7 @@
 """Builds the station furniture: the tape player, the commercial repeater rack and the commercial radio
-module (a GE MASTR II style cabinet), in the same vintage style as the rest. The microwave horn started here too; it
-is drawn in Blockbench now (doc/models/microwave_horn.bbmodel, built by build_models.py).
+module (a GE MASTR II style cabinet), in the same vintage style as the rest. The microwave horn and the manpack radio
+started here too; the horn is drawn in Blockbench now (doc/models/microwave_horn.bbmodel, built by build_models.py)
+and the manpack (manpack_radio.json and .png) is edited by hand, so this script leaves both alone.
 
     python tools/station_models.py [--preview DIR]
 
@@ -21,8 +22,6 @@ exists in the preview (Minecraft will not load a model past y 32).
                                  microwave_radio_screen is the lit screen overlay
 - telephone                      half a block wide and a quarter tall: cream desk phone, brown sloped keypad deck
                                  (22.5 degrees on x), handset in its cradle, line buttons, coiled cord
-- manpack_radio                  a PRC-25 style backpack for wearing: canvas pack, olive steel radio with webbing
-                                 straps, side pouch, handset, whip; 8 wide, 11 tall, 4 deep, straps on the south
 """
 import math
 import sys
@@ -462,64 +461,6 @@ def build_telephone():
     paint_telephone().write(TEXTURES / "telephone.png")
 
 
-# ---------------------------------------------------------------- manpack radio (a PRC-25 style backpack, worn)
-
-MP = {
-    "canvas":       [0, 0, 8, 8],       # olive drab webbing weave
-    "canvas_front": [8, 0, 16, 5],      # the lower pack's flap with its US stencil and buckles
-    "steel":        [0, 8, 8, 12],      # olive steel, scratched
-    "steel_front":  [8, 5, 16, 11],     # the radio's front with two webbing straps and buckles
-    "top_panel":    [0, 12, 8, 16],     # knobs, connectors, the whip base
-    "strap":        [8, 11, 10, 16],
-    "handset":      [10, 11, 12, 13],
-    "whip":         [12, 11, 13, 16],
-    "cord":         [13, 11, 14, 13],
-}
-OLIVE = (96, 102, 66)
-OLIVE_DARK = (70, 76, 48)
-OLIVE_STEEL = (82, 88, 58)
-OLIVE_STEEL_DARK = (56, 62, 40)
-US = ("#.#.###", "#.#.#..", "#.#.###", "#.#...#", "###.###")
-
-
-def paint_manpack():
-    p = Painter(MP, 64, seed=81)
-    weave = lambda x, y, w, h: OLIVE_DARK if (x + y) % 3 == 0 else None
-    p.fill("canvas", OLIVE, 5, weave)
-    p.fill("canvas_front", OLIVE, 5, lambda x, y, w, h: (40, 40, 36) if y == 6 else (120, 110, 80) if y in (12, 13) and x % 8 in (2, 3) else weave(x, y, w, h))
-    p.glyph("canvas_front", 12, 8, US, (30, 30, 28))
-    p.fill("steel", OLIVE_STEEL, 6, lambda x, y, w, h: OLIVE_STEEL_DARK if (x * 5 + y * 7) % 13 == 0 else (150, 150, 140) if (x * 3 + y) % 17 == 0 else None)
-    p.fill("steel_front", OLIVE_STEEL, 6, lambda x, y, w, h: OLIVE if 6 <= y <= 9 or 14 <= y <= 17 else (40, 40, 36) if y in (3, 21) else (170, 170, 160) if (y in (7, 8, 15, 16) and 20 <= x <= 23) else None)
-    p.fill("top_panel", OLIVE_STEEL_DARK, 5, lambda x, y, w, h: (30, 30, 30) if math.hypot(x - 8, y - 8) < 3 or math.hypot(x - 22, y - 8) < 3 else CHROME if math.hypot(x - 15, y - 6) < 2 or math.hypot(x - 26, y - 2) < 1.5 else (200, 200, 190) if y == 14 and x % 3 else None)
-    p.fill("strap", OLIVE, 5, lambda x, y, w, h: OLIVE_DARK if x in (0, w - 1) or y % 4 == 0 else None)
-    p.fill("handset", (36, 36, 36), 4, rim((60, 60, 60)))
-    p.fill("whip", (60, 62, 56), 4, lambda x, y, w, h: (90, 92, 86) if y % 3 == 0 else None)
-    p.fill("cord", (36, 36, 36), 4)
-    return p
-
-
-def manpack(b):
-    """Sized to a player's back: 8 wide, 11 tall, 4 deep, the straps on the south side towards the wearer."""
-    e = [b.box("pack", [4, 0, 6], [12, 5, 10], "canvas", {"north": "canvas_front"}),
-         b.box("pack_flap", [3.75, 4, 5.75], [12.25, 5.25, 10.25], "canvas"),
-         b.box("radio", [4, 5.25, 6], [12, 10.75, 10], "steel", {"north": "steel_front", "up": "top_panel"}),
-         b.box("radio_frame", [3.75, 10.5, 5.75], [12.25, 11, 10.25], "steel"),
-         b.box("side_pouch", [2.75, 1, 6.5], [4, 9, 9.5], "canvas"),
-         b.box("handset", [12, 7, 7], [13, 9.5, 9], "handset"),
-         b.box("handset_cord", [12.25, 9.5, 7.75], [12.75, 11.25, 8.25], "cord"),
-         b.box("whip_base", [10.5, 11, 7.5], [11.5, 12, 8.5], "handset"),
-         b.box("whip", [10.75, 12, 7.75], [11.25, 16, 8.25], "whip"),
-         b.box("strap_w", [5.5, 1, 10], [6.5, 10.5, 10.5], "strap"),
-         b.box("strap_e", [9.5, 1, 10], [10.5, 10.5, 10.5], "strap")]
-    return e
-
-
-def build_manpack():
-    b = Builder(MP, "radiocraft:block/manpack_radio", 64)
-    save(MODELS, "manpack_radio", b.model(manpack(b)))
-    paint_manpack().write(TEXTURES / "manpack_radio.png")
-
-
 # ---------------------------------------------------------------- preview
 
 def lift(elements, dy):
@@ -549,7 +490,6 @@ def build_preview(root):
     rows = [(["tape_player", "tape_player_reel"], tape_player_base(tp) + tape_player_reels(tp, 0.0)),
             (["microwave_radio"], microwave_radio_body(mr) + microwave_radio_screen(mr)),
             (["telephone"], telephone(Builder(TL, "", 64))),
-            (["manpack_radio"], manpack(Builder(MP, "", 64))),
             (["commercial_repeater"], stack(cr, commercial_repeater_cell, cr_lit)),
             (["commercial_radio_module"], stack(cm, commercial_radio_module_cell, cm_lit))]
     write_preview(root, "radiocraft", TEXTURES, rows, 64, spacing=24)
@@ -561,6 +501,5 @@ if __name__ == "__main__":
     build_commercial_radio_module()
     build_microwave_radio()
     build_telephone()
-    build_manpack()
     if len(sys.argv) > 2 and sys.argv[1] == "--preview":
         build_preview(sys.argv[2])
