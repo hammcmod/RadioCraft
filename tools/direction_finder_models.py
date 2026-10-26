@@ -34,6 +34,9 @@ TEXTURES = ROOT / "textures/block"
 GUI = ROOT / "textures/gui"
 
 CUTOUT = "minecraft:cutout"
+# Files the maintainer has since edited by hand: the script no longer writes these.
+HAND_EDITED = {"direction_finder.json", "direction_finder.png", "direction_finder_module.json",
+               "handheld_direction_finder.json", "handheld_direction_finder.png"}
 AMBER = (255, 176, 40)
 AMBER_DIM = (120, 80, 20)
 PANEL = (214, 204, 176)         # cream cabinet
@@ -384,25 +387,37 @@ def main():
     ap.add_argument("--preview", help="write a Blockbench preview under this directory")
     args = ap.parse_args()
 
+    def keep(name):
+        kept = name in HAND_EDITED
+        if kept:
+            print(f"kept {name} (edited by hand)")
+        return kept
+
     paint_side()
-    paint_front(DF, "direction_finder", df_front_detail)
-    paint_front(DFM, "direction_finder_module", module_front_detail)
+    if not keep("direction_finder.png"):
+        paint_front(DF, "direction_finder", df_front_detail)
+    if not keep("direction_finder_module.png"):
+        paint_front(DFM, "direction_finder_module", module_front_detail)
     paint_screen_texture()
     paint_gui()
-    paint_handheld()
+    if not keep("handheld_direction_finder.png"):
+        paint_handheld()
 
     b = df_builder()
-    save(MODELS, "direction_finder", b.model(df_elements(b)))
+    if not keep("direction_finder.json"):
+        save(MODELS, "direction_finder", b.model(df_elements(b)))
     save(MODELS, "direction_finder_on", b.model(df_overlay(b, "prompt"), CUTOUT))
     save(MODELS, "direction_finder_compass", b.model(df_overlay(b, "compass"), CUTOUT))
     m = module_builder()
-    save(MODELS, "direction_finder_module", m.model(module_elements(m)))
+    if not keep("direction_finder_module.json"):
+        save(MODELS, "direction_finder_module", m.model(module_elements(m)))
     for colour in ("red", "green"):
         save(MODELS, f"direction_finder_module_{colour}", m.model(module_overlay(m, colour), CUTOUT))
     h = handheld_builder()
     model = h.model(handheld_elements(h))
     model["display"] = HANDHELD_DISPLAY
-    save(MODELS, "handheld_direction_finder", model)
+    if not keep("handheld_direction_finder.json"):
+        save(MODELS, "handheld_direction_finder", model)
     lit = h.model(handheld_lit(h), CUTOUT)
     lit["display"] = HANDHELD_DISPLAY
     save(MODELS, "handheld_direction_finder_lit", lit)

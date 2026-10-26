@@ -37,6 +37,10 @@ TEXTURES = ROOT / "textures/block"
 
 WOODS = ["oak", "spruce", "birch", "jungle", "acacia", "dark_oak", "mangrove", "cherry", "bamboo", "crimson", "warped"]
 
+# Files the maintainer has since edited by hand (Blockbench, image editor): the script no longer writes these. The
+# loudspeaker's bell steps were added to the shipped file by hand too, from horn_steps() below.
+HAND_EDITED = {"loudspeaker.json", "wall_speaker.json", "wall_speaker.png"}
+
 CLOTH = (176, 150, 104)
 CLOTH_LIGHT = (214, 192, 140)
 CLOTH_DARK = (120, 98, 62)
@@ -309,9 +313,31 @@ def horn_elements(b):
               rotation={"angle": 45, "axis": "z", "origin": [HC, HY, 13]}),
         b.box("throat", [6.5, 7.5, 8], [9.5, 10.5, 11], "horn"),
     ]
-    for i, (z0, z1, half) in enumerate(((6, 8, 2.5), (4, 6, 3.5), (2, 4, 5), (0.5, 2, 7))):
+    for i, (z0, z1, half) in enumerate(BELL):
         els += ring(b, f"bell_{i}", z0, z1, half, 0.5, "horn", "horn_inner")
     els += ring(b, "rim", 0, 0.5, 7, 0.5, "rim", "rim")
+    return els + horn_steps(b)
+
+
+BELL = ((6, 8, 2.5), (4, 6, 3.5), (2, 4, 5), (0.5, 2, 7))   # each ring of the bell: z0, z1, half width
+
+
+def horn_steps(b):
+    """The step between each ring and the next, so the bell is closed: a frame half a unit thick at the front of
+    the smaller ring, out to the bigger ring's outline, and a plate closing the throat into the first ring."""
+    t = 0.5
+    z0, z1, half = BELL[0]
+    x0, x1, y0, y1 = HC - half, HC + half, HY - half, HY + half
+    els = [b.box("step_throat", [x0, y0, z1], [x1, y1, z1 + t], "horn", {"north": "horn_inner"})]
+    for i in range(len(BELL) - 1):
+        z = BELL[i][0]                       # the front of the smaller ring, where the bigger one begins
+        a, c = BELL[i][2], BELL[i + 1][2]    # the inner and outer half widths of the frame
+        els += [
+            b.box(f"step_{i}_top", [HC - c, HY + a, z], [HC + c, HY + c, z + t], "horn"),
+            b.box(f"step_{i}_bottom", [HC - c, HY - c, z], [HC + c, HY - a, z + t], "horn"),
+            b.box(f"step_{i}_west", [HC - c, HY - a, z], [HC - a, HY + a, z + t], "horn"),
+            b.box(f"step_{i}_east", [HC + a, HY - a, z], [HC + c, HY + a, z + t], "horn"),
+        ]
     return els
 
 
@@ -329,7 +355,8 @@ def main():
 
     paint_desk()
     paint_large()
-    paint_wall()
+    if "wall_speaker.png" not in HAND_EDITED:
+        paint_wall()
     for name, palette in COLOURWAYS.items():
         paint_premium(f"premium_speaker_{name}", palette)
     paint_horn()
@@ -346,7 +373,10 @@ def main():
     builders.append(("loudspeaker", horn_builder(), horn_elements))
     for i, (name, b, fn) in enumerate(builders):
         m = b.model(fn(b))
-        save(MODELS, name, m)
+        if f"{name}.json" in HAND_EDITED:
+            print(f"kept {name}.json (edited by hand)")
+        else:
+            save(MODELS, name, m)
         items.append((m["textures"], fn(b), (24 * i, 0, 0)))
     if args.preview:
         write_scene(args.preview, "radiocraft", TEXTURES, items, size=64,
