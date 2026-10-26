@@ -1,0 +1,44 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"texture_size": [
+		32,
+		32
+	],
+	"textures": {
+		"0": "radiocraft:block/radio_interface",
+		"particle": "radiocraft:block/radio_interface"
+	},
+	"render_type": "minecraft:cutout",
+	"elements": [
+		{
+			"name": "tx",
+			"from": [
+				6.5,
+				2.5,
+				3.74
+			],
+			"to": [
+				8.0,
+				4,
+				4
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						12.5,
+						0,
+						14.0,
+						1.5
+					],
+					"texture": "#0"
+				}
+			},
+			"neoforge_data": {
+				"block_light": 15,
+				"sky_light": 15,
+				"ambient_occlusion": false
+			}
+		}
+	]
+}

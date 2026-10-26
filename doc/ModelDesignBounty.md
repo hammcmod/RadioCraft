@@ -68,12 +68,60 @@ Requested by the maintainer 2026-10-22 (they plan to draw these). All are placeh
 From the TNC rework (2026-10-23, see [TncRework.md](TncRework.md)). The H19 APRS Terminal and the Ionosonde Antenna
 and the Ionospheric Processor are done (maintainer).
 
-- **Radio Interface** (`radio_interface`): still the old digital interface model. Wanted: a small modem box with
-  PWR, DCD, TX, RX and RPT lamps. Its screen is a callsign box and a TX switch on a plain panel.
-- **Digital Transfer Interface** (`transfer_interface`): a placeholder stone box. Wanted: a file and SSTV terminal
-  with a paper feed. Its screen is the old FILES tab.
+- **Radio Interface** (`radio_interface`): wanted a small modem box with PWR, DCD, TX, RX and RPT lamps. Its screen
+  is a callsign box and a TX switch on a plain panel. Draft 2026-10-25 from `tools/interface_models.py`: hammertone
+  modem with a bakelite panel, five brass-bezelled lamps and a TX toggle; `radio_interface_pwr/dcd/tx/rx/rpt` are the
+  lit lamp faces, waiting on lamp properties in the block. The old `digital_interface.png` is no longer used.
+- **Digital Transfer Interface** (`transfer_interface`): wanted a file and SSTV terminal with a paper feed. Its
+  screen is the old FILES tab. Draft 2026-10-25 from the same script: terminal with a key row, paper roll, tear bar
+  and a round meter; `transfer_interface_busy` is the lit BUSY lamp, waiting on a property.
 - Lamps go in as separate named elements, like the H19's MSG / CONTACT / READY: `python tools/split_lamps.py <model>
   <LAMP>...` splits a Blockbench export into the body and one full-bright model per lamp.
+
+### Models: station furniture, commercial gear, the horn and the manpack
+
+Asked for by the maintainer 2026-10-25, drafted the same day from `tools/station_models.py` (none registered yet):
+
+- **Tape player** (`tape_player`): a full block reel-to-reel in a walnut cabinet with a brushed deck, VU meters and
+  piano keys. `tape_player_base` plus `tape_player_reels_0..3`: the reel sprites turned in 22.5 degree steps, so
+  cycling the four frames while playing spins them (the four spokes repeat every 90 degrees).
+- **Commercial repeater** (`commercial_repeater_0..3`): four blocks of open silver rack: batteries and charger, the
+  repeater radio and amplifier, the duplexer cavities and harness, the controller under the roof. Lit lamps:
+  `commercial_repeater_1_pwr/_rx/_tx` and `commercial_repeater_3_beacon`.
+- **Commercial radio module** (`commercial_radio_module_0..3`): a GE MASTR II style closed cabinet, four blocks:
+  louvred door, badge and handle, the control panel with meter and lamps (`commercial_radio_module_2_pwr/_rx/_tx`),
+  top vent and cap.
+- **Microwave horn** (`microwave_horn_<x>_<y>_<z>`, x and z 0..1, y 0..3): the AT&T Long Lines horn-reflector, two by
+  two blocks and four tall, mouth facing north.
+- **Microwave radio** (`microwave_radio`): a full block with the open boards on top and a screen, jacks, knob and
+  DB9 on the front; `microwave_radio_screen` is the lit screen overlay.
+- **Telephone** (`telephone`): a cream desk phone, half a block wide and a quarter tall, with a sloped keypad deck.
+- **WEFAX receiver screen** (`textures/gui/wefax_receiver.png`, `wefax_receiver_paper.png`): drawn 2026-10-25 by
+  `tools/wefax_gui.py` in the teletype screen's manner; the script's constants give every box the screen needs
+  (paper slot, buttons up and down, paper-supply window steps, lamp). No screen class yet.
+- **Manpack radio** (`manpack_radio`): a PRC-25 style backpack sized to a player's back (8 wide, 11 tall, 4 deep,
+  straps on the south side) for a wearable renderer to draw.
+
+### Models: tower beams and the antenna switch
+
+Asked for by the maintainer 2026-10-26, drafted the same day (none registered yet):
+
+- **Tower beams** (`tower_beam_thick` 8x8, `tower_beam` 6x6, `tower_beam_thin` 4x4, all 16 tall straight up), from
+  `tools/tower_beam_models.py`: steel lattice beams in the iron bars palette that connect to any touching beam,
+  including the diagonal ones. Each thickness is a part set: `<beam>_core` (a cube at the centre) plus 26
+  `<beam>_arm_<direction>` arms (up/down, north/south, east/west, joined in that order: `up_north_east`), each from
+  the core to the block boundary where it meets the neighbour's matching arm. Face arms are boxes; edge arms (two
+  components) are boxes turned 45 degrees about the third axis and poke past the boundary to the shared block edge;
+  corner arms (three components) are stair-stepped cubes, since no single-axis rotation reaches a body diagonal.
+  `<beam>.json` is the straight column for the inventory. Showing the arms needs a dynamic baked model (or a block
+  entity's ModelData) that reads the 26 neighbours: 26 boolean properties would be 2^26 blockstates. A 2x2 column of
+  beams then cross-braces itself. The textures are opaque; see-through bars would show the hidden faces where parts
+  overlap unless the model drops them.
+- **Antenna switch** (`antenna_switch`, `antenna_switch_pointer`), from `tools/antenna_switch_model.py`: a Workman
+  CX-3 style coaxial switch, a 10x6x10 aluminium box with a cream label plate on top and a 2x2x2 SO-239 on each
+  side at ground level, one pixel inside the block face (x 7..9, y 0..2, where the coax wire model runs). The
+  north connector is the input (brass); outputs 1, 2, 3 are east, south, west, numbered on the plate. The pointer
+  model is the knob's lever pointing north: turn it with the blockstate `y` rotation toward the output in use.
 
 ### Models: weather instruments (Another Weather Mod and RadioCraft)
 
@@ -90,9 +138,15 @@ RadioCraft. Each is a plain JSON block model like the parrot controller, unless 
   positions: stormy, rain, change, fair, very dry).
 - **Rain gauge**: a small clear cylinder with marks on a short post; shows a water level (a few fill states).
 - **Thermometer**: a wall-mounted tall thermometer with a red column (a few fill states, or the column as its own
-  model).
+  model). Draft 2026-10-25: `thermometer_base` plus `thermometer_column_0..4`.
 - **Weather station** (RadioCraft, for APRS weather reports): a mast-top station combining a small anemometer cup
   wheel, a wind vane and a radiation shield (the stacked white plates), as a block that sits on an antenna pole.
   The cups could spin (GeckoLib) or be still.
-- **Storm Protector** (Another Weather Mod, creative only, built): currently uses the command block's textures. Wants
-  its own look: a command-block-like operator block with a storm or shield motif.
+  Draft model drawn 2026-10-25 (1960s look), from `tools/weather_station_model.py`: `weather_station` (whole),
+  `weather_station_base` plus `weather_station_cups_0..3` (four spin frames at 22.5 degree steps). Not registered yet.
+  Matching drafts for the single instruments (wind vane, barometer, rain gauge, solar detector, tornado siren) come
+  from `tools/weather_instruments_model.py` and land in Another Weather Mod's `models/block` and `textures/block`;
+  the tornado siren is two blocks (`tornado_siren_lower`, `tornado_siren_upper_0..3`). None are registered yet.
+- **Storm Protector** (Another Weather Mod, creative only, built): wanted its own look in place of the command
+  block's textures. Draft 2026-10-25: riveted slate with a brass frame, a shield and lightning bolt on the sides and
+  a storm spiral on the ends (`storm_protector_side.png`, `storm_protector_top.png`, model now `cube_column`).

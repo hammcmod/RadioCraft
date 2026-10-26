@@ -1,0 +1,88 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"textures": {
+		"0": "radiocraft:block/tower_beam",
+		"particle": "radiocraft:block/tower_beam"
+	},
+	"elements": [
+		{
+			"name": "arm",
+			"from": [
+				5.0,
+				8,
+				5.0
+			],
+			"to": [
+				11.0,
+				19.314,
+				11.0
+			],
+			"rotation": {
+				"angle": 45,
+				"axis": "x",
+				"origin": [
+					8,
+					8,
+					8
+				]
+			},
+			"faces": {
+				"north": {
+					"uv": [
+						5.0,
+						4.686,
+						11.0,
+						16
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						5.0,
+						4.686,
+						11.0,
+						16
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						5.0,
+						4.686,
+						11.0,
+						16
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						5.0,
+						4.686,
+						11.0,
+						16
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						5.0,
+						5.0,
+						11.0,
+						11.0
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						5.0,
+						5.0,
+						11.0,
+						11.0
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

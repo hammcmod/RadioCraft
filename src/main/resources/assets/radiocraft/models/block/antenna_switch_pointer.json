@@ -1,0 +1,83 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"texture_size": [
+		32,
+		32
+	],
+	"textures": {
+		"0": "radiocraft:block/antenna_switch",
+		"particle": "radiocraft:block/antenna_switch"
+	},
+	"elements": [
+		{
+			"name": "pointer",
+			"from": [
+				7,
+				7,
+				3
+			],
+			"to": [
+				9,
+				8.5,
+				8
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						10,
+						4,
+						12,
+						5.5
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						10,
+						4,
+						12,
+						5.5
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						10,
+						4,
+						14,
+						5.5
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						10,
+						4,
+						14,
+						5.5
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						14,
+						4,
+						16,
+						9
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						10,
+						4,
+						12,
+						8
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

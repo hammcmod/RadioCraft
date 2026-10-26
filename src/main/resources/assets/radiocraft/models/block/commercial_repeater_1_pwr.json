@@ -1,0 +1,44 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"texture_size": [
+		64,
+		64
+	],
+	"textures": {
+		"0": "radiocraft:block/commercial_repeater",
+		"particle": "radiocraft:block/commercial_repeater"
+	},
+	"render_type": "minecraft:cutout",
+	"elements": [
+		{
+			"name": "pwr",
+			"from": [
+				9.5,
+				5.25,
+				2.74
+			],
+			"to": [
+				10.5,
+				6.25,
+				3
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						15,
+						11,
+						16.0,
+						12.0
+					],
+					"texture": "#0"
+				}
+			},
+			"neoforge_data": {
+				"block_light": 15,
+				"sky_light": 15,
+				"ambient_occlusion": false
+			}
+		}
+	]
+}

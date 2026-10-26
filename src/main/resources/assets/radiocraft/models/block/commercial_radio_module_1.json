@@ -1,0 +1,221 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"texture_size": [
+		64,
+		64
+	],
+	"textures": {
+		"0": "radiocraft:block/commercial_radio_module",
+		"particle": "radiocraft:block/commercial_radio_module"
+	},
+	"elements": [
+		{
+			"name": "body",
+			"from": [
+				1,
+				0,
+				1
+			],
+			"to": [
+				15,
+				16,
+				15
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						8,
+						8
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						8,
+						8
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						0,
+						0,
+						8,
+						8
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						0,
+						8,
+						8
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						8,
+						8
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						8,
+						8
+					],
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"name": "handle",
+			"from": [
+				12.5,
+				6,
+				0.5
+			],
+			"to": [
+				13.5,
+				10,
+				1
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						11,
+						4,
+						12.0,
+						6
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						11,
+						4,
+						12.0,
+						6
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						11,
+						4,
+						11.5,
+						6
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						11,
+						4,
+						11.5,
+						6
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						11,
+						4,
+						12.0,
+						4.5
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						11,
+						4,
+						12.0,
+						4.5
+					],
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"name": "badge",
+			"from": [
+				2,
+				13,
+				0.75
+			],
+			"to": [
+				5,
+				14.5,
+				1
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						8,
+						4,
+						11,
+						5.5
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						8,
+						4,
+						11,
+						5.5
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						8,
+						4,
+						8.25,
+						5.5
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						8,
+						4,
+						8.25,
+						5.5
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						8,
+						4,
+						11,
+						4.25
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						8,
+						4,
+						11,
+						4.25
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}
