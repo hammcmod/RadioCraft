@@ -92,7 +92,12 @@ Asked for by the maintainer 2026-10-25, drafted the same day from `tools/station
   louvred door, badge and handle, the control panel with meter and lamps (`commercial_radio_module_2_pwr/_rx/_tx`),
   top vent and cap.
 - **Microwave horn** (`microwave_horn_<x>_<y>_<z>`, x and z 0..1, y 0..3): the AT&T Long Lines horn-reflector, two by
-  two blocks and four tall, mouth facing north.
+  two blocks and four tall, mouth facing north. Edit the whole horn in `doc/models/microwave_horn.bbmodel` (it links
+  `textures/block/microwave_horn.png`), save, and run `python tools/build_models.py` to cut it into the 16 block
+  models. No JSON export: Minecraft cannot load a model that size, so the build reads the `.bbmodel` itself. The
+  project is in Blockbench's Generic Model format on purpose: Java Block snaps every cube back inside 3x3x3 blocks.
+  Rotate on one axis only, by 22.5 or 45 degrees; a rotated cube cannot be cut at block edges, so keep each one
+  within a block of the block its middle is in (the reflector panels are).
 - **Microwave radio** (`microwave_radio`): a full block with the open boards on top and a screen, jacks, knob and
   DB9 on the front; `microwave_radio_screen` is the lit screen overlay.
 - **Telephone** (`telephone`): a cream desk phone, half a block wide and a quarter tall, with a sloped keypad deck.

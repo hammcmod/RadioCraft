@@ -1,5 +1,6 @@
-"""Builds the station furniture: the tape player, the commercial repeater rack, the commercial radio module (a GE
-MASTR II style cabinet) and the AT&T Long Lines microwave horn, in the same vintage style as the rest.
+"""Builds the station furniture: the tape player, the commercial repeater rack and the commercial radio
+module (a GE MASTR II style cabinet), in the same vintage style as the rest. The microwave horn started here too; it
+is drawn in Blockbench now (doc/models/microwave_horn.bbmodel, built by build_models.py).
 
     python tools/station_models.py [--preview DIR]
 
@@ -15,8 +16,6 @@ exists in the preview (Minecraft will not load a model past y 32).
                                  commercial_repeater_1_pwr/_rx/_tx and commercial_repeater_3_beacon are the lit lamps
 - commercial_radio_module_0..3   bottom to top: louvred door, door with badge and handle, the control panel (lamps),
                                  top vent and cap. commercial_radio_module_2_pwr/_rx/_tx are the lit lamps
-- microwave_horn_<x>_<y>_<z>     x and z 0..1, y 0..3: the horn-reflector antenna, 2 by 2 blocks and 4 tall, with
-                                 the mouth facing north. Feed at the bottom centre of the x0 z0 .. x1 z1 footprint
 - microwave_radio                a full block: beige chassis with its front panel set 3 back, the screen cut into
                                  it, rack handles, buttons, a knob, jacks and a lamp standing proud of the panel;
                                  microwave_radio_screen is the lit screen overlay
@@ -335,59 +334,6 @@ def build_commercial_radio_module():
     paint_commercial_radio_module().write(TEXTURES / "commercial_radio_module.png")
 
 
-# ---------------------------------------------------------------- microwave horn (2 x 2 footprint, 4 tall)
-
-MH = {
-    "skin":   [0, 0, 16, 8],     # cream-pink riveted panels
-    "inside": [0, 8, 16, 12],
-    "frame":  [0, 12, 16, 13],
-    "feed":   [0, 13, 4, 16],
-}
-HORN_SKIN = (214, 196, 184)
-HORN_SKIN_DARK = (178, 160, 150)
-HORN_FRAME = (118, 128, 118)
-HORN_INSIDE = (96, 104, 98)
-HORN_CELLS = {f"{x}_{y}_{z}": (16 * x, 16 * y, 16 * z) for x in range(2) for y in range(4) for z in range(2)}
-
-
-def paint_microwave_horn():
-    p = Painter(MH, 64, seed=51)
-    p.fill("skin", HORN_SKIN, 4, lambda x, y, w, h: HORN_SKIN_DARK if x % 16 == 0 or y % 16 == 0 else (236, 222, 212) if (x % 16 == 8 and y % 4 == 2) else None)
-    p.fill("inside", HORN_INSIDE, 4, lambda x, y, w, h: (80, 88, 82) if x % 8 == 0 else None)
-    p.fill("frame", HORN_FRAME, 5)
-    p.fill("feed", HORN_FRAME, 5, rim((90, 98, 90)))
-    return p
-
-
-def microwave_horn_specs():
-    """World-space boxes, x and z 0..32, y 0..64, the mouth facing north."""
-    inside = {"up": "inside"}
-    specs = [{"name": "flange", "frm": [10, 0, 10], "to": [22, 1, 22], "mat": "frame"},
-             {"name": "feed", "frm": [14, 1, 14], "to": [18, 6, 18], "mat": "feed"}]
-    for i in range(8):                                   # the pyramid, apex down
-        s = 3 + 1.5 * i
-        specs.append({"name": f"pyramid_{i}", "frm": [16 - s, 6 + 4 * i, 16 - s], "to": [16 + s, 10 + 4 * i, 16 + s],
-                      "mat": "skin", "overrides": inside})
-    for k in range(6):                                   # side walls, their top edge sloping down to the front
-        z0, z1 = 2 + 28 * k / 6, 2 + 28 * (k + 1) / 6
-        top = 47 + 3 * k
-        for side, (x0, x1) in (("w", (2, 4)), ("e", (28, 30))):
-            specs.append({"name": f"wall_{side}_{k}", "frm": [x0, 38, z0], "to": [x1, top, z1], "mat": "skin",
-                          "overrides": {"east" if side == "w" else "west": "inside"}})
-    for j in range(6):                                   # the reflector, leaning forward as it rises
-        specs.append({"name": f"reflector_{j}", "frm": [4, 38 + 4 * j, 26 - 3 * j], "to": [28, 42 + 4 * j, 30 - 3 * j],
-                      "mat": "skin", "overrides": {"north": "inside", "down": "inside"}})
-    specs.append({"name": "lip", "frm": [2, 46, 2], "to": [30, 47, 4], "mat": "frame"})
-    return specs
-
-
-def build_microwave_horn():
-    b = Builder(MH, "radiocraft:block/microwave_horn", 64)
-    for cell, elements in split_cells(b, microwave_horn_specs(), HORN_CELLS).items():
-        save(MODELS, f"microwave_horn_{cell}", b.model(elements))
-    paint_microwave_horn().write(TEXTURES / "microwave_horn.png")
-
-
 # ---------------------------------------------------------------- microwave radio (a full block, screen on the front)
 
 MR = {
@@ -596,24 +542,16 @@ def build_preview(root):
     tp = Builder(TP, "", 32, stretch=("reel",))
     cr = Builder(CR, "", 64)
     cm = Builder(CM, "", 64)
-    mh = Builder(MH, "", 64)
     cr_lit = lift([lamp(cr, n, [x, 5.25, 2.74], [x + 1, 6.25, 3], c) for n, c, x in CR_LAMPS], 16)
     cr_lit += lift([lamp(cr, "beacon", [7.5, 3, 2.74], [8.5, 4, 3], "amber")], 48)
     cm_lit = lift([lamp(cm, n, [x, 8.5, 0.24], [x + 1, 9.5, 0.5], c) for n, c, x in CM_LAMPS], 32)
-    horn = []
-    for cell, (ox, oy, oz) in HORN_CELLS.items():
-        for el in split_cells(mh, microwave_horn_specs(), {cell: (ox, oy, oz)})[cell]:
-            el["from"] = [el["from"][0] + ox, el["from"][1] + oy, el["from"][2] + oz]
-            el["to"] = [el["to"][0] + ox, el["to"][1] + oy, el["to"][2] + oz]
-            horn.append(el)
     mr = Builder(MR, "", 32)
     rows = [(["tape_player", "tape_player_reel"], tape_player_base(tp) + tape_player_reels(tp, 0.0)),
             (["microwave_radio"], microwave_radio_body(mr) + microwave_radio_screen(mr)),
             (["telephone"], telephone(Builder(TL, "", 64))),
             (["manpack_radio"], manpack(Builder(MP, "", 64))),
             (["commercial_repeater"], stack(cr, commercial_repeater_cell, cr_lit)),
-            (["commercial_radio_module"], stack(cm, commercial_radio_module_cell, cm_lit)),
-            (["microwave_horn"], horn)]
+            (["commercial_radio_module"], stack(cm, commercial_radio_module_cell, cm_lit))]
     write_preview(root, "radiocraft", TEXTURES, rows, 64, spacing=24)
 
 
@@ -621,7 +559,6 @@ if __name__ == "__main__":
     build_tape_player()
     build_commercial_repeater()
     build_commercial_radio_module()
-    build_microwave_horn()
     build_microwave_radio()
     build_telephone()
     build_manpack()
