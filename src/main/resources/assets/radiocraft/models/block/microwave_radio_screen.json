@@ -1,43 +1,20 @@
 {
+	"format_version": "26.3",
 	"credit": "RadioCraft",
 	"parent": "block/block",
-	"texture_size": [
-		32,
-		32
-	],
+	"render_type": "minecraft:cutout",
+	"texture_size": [32, 32],
 	"textures": {
 		"0": "radiocraft:block/microwave_radio",
 		"particle": "radiocraft:block/microwave_radio"
 	},
-	"render_type": "minecraft:cutout",
 	"elements": [
 		{
 			"name": "screen",
-			"from": [
-				3,
-				7,
-				3.98
-			],
-			"to": [
-				10,
-				13,
-				4
-			],
+			"from": [3, 7, 3.98],
+			"to": [10, 13, 4],
 			"faces": {
-				"north": {
-					"uv": [
-						0,
-						6,
-						4,
-						10
-					],
-					"texture": "#0"
-				}
-			},
-			"neoforge_data": {
-				"block_light": 15,
-				"sky_light": 15,
-				"ambient_occlusion": false
+				"north": {"uv": [0, 6, 4, 10], "texture": "#0"}
 			}
 		}
 	]
