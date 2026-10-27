@@ -124,6 +124,9 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 
 	// Server only, not saved.
 	private final SeenPackets seen = new SeenPackets();
+	/** How long SOLAR WX waits for an Ionospheric Processor to answer over the air. */
+	public static final int REQUEST_TICKS = 300;
+	private long requestUntil = -1L; // SOLAR WX asked over the air: until when it waits.
 
 	public TeletypeBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.TELETYPE.get(), pos, state);
@@ -140,6 +143,10 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 				be.sendNext(level);
 			if(now == be.secondKeyAt)
 				be.keySound();
+			if(be.requestUntil >= 0L && now >= be.requestUntil) { // Nobody answered.
+				be.requestUntil = -1L;
+				be.print(WX, "NO ANSWER\n");
+			}
 			if(be.isReceiving() && now % MOTOR_TICKS == 0 && level instanceof net.minecraft.server.level.ServerLevel serverLevel)
 				be.motorSound(serverLevel);
 			boolean receiving = be.isReceiving();
@@ -258,8 +265,16 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 		return level != null && level.getGameTime() < receivingUntil;
 	}
 
-	/** A packet a radio next to it decoded: RTTY prints, unless it is sending or being typed on (half duplex). */
+	/**
+	 * A packet a radio next to it decoded: RTTY prints, unless it is sending or being typed on (half duplex); a solar
+	 * bulletin prints if SOLAR WX is waiting for one.
+	 */
 	public void receive(TncPacket packet) {
+		if(packet.kind() == TncPacket.Kind.SOLAR && requestUntil >= 0L && level != null && seen.remember(packet.id())) {
+			requestUntil = -1L;
+			printLines(packet.from(), packet.solarLines());
+			return;
+		}
 		if(packet.kind() != TncPacket.Kind.RTTY || level == null || !seen.remember(packet.id()))
 			return;
 		long now = level.getGameTime();
@@ -269,10 +284,51 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 		print(packet.from(), packet.text());
 	}
 
-	/** SOLAR WX: prints the solar weather report on the roll, a line each (as {@link #WX}). */
+	/**
+	 * SOLAR WX. With the server's {@code solar_weather_station_needs_radio} off, the local report; with an Ionospheric
+	 * Processor beside it (or beside one of its radios), that processor's bulletin straight away; otherwise it asks over
+	 * the air through its radios and prints what a processor answers, or NO ANSWER after {@link #REQUEST_TICKS}.
+	 */
 	public void printReport() {
-		for(Component line : getReportLines())
-			print(WX, Rtty.sanitize(line.getString(), RTTY_LINE_MAX) + "\n");
+		if(level == null)
+			return;
+		if(!RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.get()) {
+			for(Component line : getReportLines())
+				print(WX, Rtty.sanitize(line.getString(), RTTY_LINE_MAX) + "\n");
+			return;
+		}
+		IonosphericProcessorBlockEntity processor = IonosphericProcessorBlockEntity.nearby(level, worldPosition, getRadios().stream().map(BlockEntity::getBlockPos).toList());
+		if(processor != null) {
+			if(processor.isOnline())
+				printLines(processor.sender(), processor.bulletinLines());
+			else
+				print(WX, "PROCESSOR HAS NO IONOSONDE\n");
+			return;
+		}
+		if(requestUntil >= 0L)
+			return; // Still waiting for the last one.
+		TncPacket query = TncPacket.query(level.getRandom().nextLong(), sender(), TncPacket.TOPIC_SOLAR);
+		seen.remember(query.id());
+		boolean sent = false;
+		for(RadioBlockEntity radio : getRadios())
+			sent |= radio.isPowered() && radio.sendData(query);
+		if(!sent) {
+			print(WX, "NO RADIO ON\n");
+			return;
+		}
+		requestUntil = level.getGameTime() + REQUEST_TICKS;
+		print(WX, "QRU SOLAR?\n");
+	}
+
+	/** True while SOLAR WX waits for an answer over the air. */
+	public boolean isRequesting() {
+		return requestUntil >= 0L;
+	}
+
+	/** Prints a report from {@code from}, a line each. */
+	private void printLines(String from, List<String> lines) {
+		for(String line : lines)
+			print(from, Rtty.sanitize(line, RTTY_LINE_MAX) + "\n");
 	}
 
 	/**
@@ -608,6 +664,10 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 		Component aurora = auroraLine(level);
 		if(aurora != null)
 			lines.add(aurora);
+		SolarEventManager.Upcoming upcoming = SolarEventManager.getUpcoming(level);
+		if(upcoming != null && SolarEventManager.isBlackout(upcoming.event()) && upcoming.startGameTime() > level.getGameTime())
+			lines.add(Component.translatable("message.radiocraft.solar_weather_station.blackout_expected",
+					(long)Math.ceil((upcoming.startGameTime() - level.getGameTime()) / 1200.0D)).withStyle(ChatFormatting.RED));
 		return lines;
 	}
 

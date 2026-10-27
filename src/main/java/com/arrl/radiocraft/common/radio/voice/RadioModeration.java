@@ -151,6 +151,9 @@ public final class RadioModeration {
 					+ (packet.text().isEmpty() ? "" : ": " + packet.text());
 			case FILE -> "[FILE " + mhz + "] " + packet.from() + ">" + packet.to() + ": " + packet.text();
 			case FAX_CALL -> "[FAX " + mhz + "] " + packet.from() + ">" + packet.to() + ": " + packet.faxLabel(); // The call says what is coming; the packets are just numbers.
+			case SOLAR -> "[SOLAR " + mhz + "] " + packet.from() + ": " + String.join(" / ", packet.solarLines());
+			case ALERT -> "[SOLAR ALERT " + mhz + "] " + packet.from() + ": " + String.join(" / ", packet.solarLines());
+			case QUERY -> "[QUERY " + mhz + "] " + packet.from() + ": " + packet.text();
 			case FILE_HEADER, ACK, FAX_ANSWER, FAX_PACKET, FAX_ACK -> null;
 		};
 		if(text == null)

@@ -22,7 +22,9 @@ public class WefaxGameTests {
 	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = "wefax")
 	public static void printsASheetOutOfTheFront(GameTestHelper helper) {
 		boolean needsRadio = RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.get();
-		RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.set(false); // Here it is about the paper, not the radio.
+		boolean solarAlways = RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.get();
+		RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.set(false); // Here it is about the paper, not the radio
+		RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.set(true); // or the Ionospheric Processor.
 		BlockPos pos = new BlockPos(6, 2, 6);
 		helper.setBlock(pos, RadiocraftBlocks.WEFAX_RECEIVER.get().defaultBlockState().setValue(WefaxReceiverBlock.FACING, Direction.SOUTH));
 		helper.startSequence()
@@ -30,7 +32,7 @@ public class WefaxGameTests {
 					WefaxReceiverBlockEntity receiver = GameTestUtil.blockEntity(helper, pos, WefaxReceiverBlockEntity.class);
 					helper.assertTrue("screen.radiocraft.wefax.no_paper".equals(receiver.cannotPrint(true)), "it printed without paper");
 					receiver.insertPaper(new ItemStack(Items.PAPER, 3));
-					receiver.printSolar();
+					receiver.printSolar(null);
 					helper.assertTrue(receiver.isPrinting(), "it is not printing");
 					helper.assertTrue(receiver.getPaper() == 2, "a sheet should be used, " + receiver.getPaper() + " left");
 					helper.assertTrue(receiver.getPixels().length == 128 * 128, "no picture to draw");
@@ -39,6 +41,7 @@ public class WefaxGameTests {
 				.thenExecute(() -> {
 					helper.assertFalse(GameTestUtil.blockEntity(helper, pos, WefaxReceiverBlockEntity.class).isPrinting(), "still printing");
 					RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.set(needsRadio);
+					RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.set(solarAlways);
 				})
 				.thenSucceed();
 	}

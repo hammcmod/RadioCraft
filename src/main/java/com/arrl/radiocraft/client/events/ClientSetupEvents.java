@@ -48,6 +48,7 @@ public class ClientSetupEvents {
 		event.register(RadiocraftMenuTypes.DIRECTION_FINDER.get(), DirectionFinderScreen::new);
 		event.register(RadiocraftMenuTypes.MICROWAVE_RADIO.get(), MicrowaveRadioScreen::new);
 		event.register(RadiocraftMenuTypes.TELEPHONE.get(), TelephoneScreen::new);
+		event.register(RadiocraftMenuTypes.IONOSPHERIC_PROCESSOR.get(), com.arrl.radiocraft.client.screens.IonosphericProcessorScreen::new);
 		event.register(RadiocraftMenuTypes.TAPE_PLAYER.get(), com.arrl.radiocraft.client.screens.TapePlayerScreen::new);
 		event.register(RadiocraftMenuTypes.WEFAX_RECEIVER.get(), com.arrl.radiocraft.client.screens.WefaxReceiverScreen::new);
 		event.register(RadiocraftMenuTypes.COMMERCIAL_RADIO_MODULE.get(), com.arrl.radiocraft.client.screens.CommercialRadioModuleScreen::new);
@@ -65,6 +66,7 @@ public class ClientSetupEvents {
 		// Use a lambda with an unchecked raw cast to avoid generic signature issues in the registration helper.
 		event.registerBlockEntityRenderer((net.minecraft.world.level.block.entity.BlockEntityType) RadiocraftBlockEntities.DESK_CHARGER.get(), ctx -> new DeskChargerBlockRenderer(ctx));
 		event.registerBlockEntityRenderer(RadiocraftBlockEntities.PASSTHROUGH.get(), com.arrl.radiocraft.client.render.PassthroughRenderer::new);
+		event.registerBlockEntityRenderer(RadiocraftBlockEntities.TELEPHONE.get(), com.arrl.radiocraft.client.render.TelephoneRenderer::new);
 		// Satellite dish geo renderer
 		event.registerBlockEntityRenderer((net.minecraft.world.level.block.entity.BlockEntityType) RadiocraftBlockEntities.SATELLITE_DISH.get(), ctx -> new com.arrl.radiocraft.client.render.SatelliteDishRenderer(ctx));
 		// The frequency, mode and S-meter on each radio's screen; a radio whose model has no DISPLAY draws nothing.
@@ -112,11 +114,24 @@ public class ClientSetupEvents {
 		event.register(com.arrl.radiocraft.client.render.TapePlayerRenderer.REEL);
 	}
 
+	/** A telephone handset raises its holder's arm to the face (vanilla's goat horn pose), the handset by the ear. */
+	@SubscribeEvent
+	public static void registerClientExtensions(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent event) {
+		event.registerItem(new net.neoforged.neoforge.client.extensions.common.IClientItemExtensions() {
+			@Override
+			public net.minecraft.client.model.HumanoidModel.ArmPose getArmPose(net.minecraft.world.entity.LivingEntity entity, net.minecraft.world.InteractionHand hand, net.minecraft.world.item.ItemStack stack) {
+				return net.minecraft.client.model.HumanoidModel.ArmPose.TOOT_HORN;
+			}
+		}, com.arrl.radiocraft.common.init.RadiocraftItems.TELEPHONE_HANDSET.get());
+	}
+
 	@SubscribeEvent
 	public static void addLayers(EntityRenderersEvent.AddLayers event) {
 		for(net.minecraft.client.resources.PlayerSkin.Model skin : event.getSkins()) {
-			if(event.getSkin(skin) instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer renderer)
+			if(event.getSkin(skin) instanceof net.minecraft.client.renderer.entity.player.PlayerRenderer renderer) {
 				renderer.addLayer(new com.arrl.radiocraft.client.render.ManpackLayer(renderer));
+				renderer.addLayer(new com.arrl.radiocraft.client.render.PhoneEarLayer(renderer));
+			}
 		}
 	}
 

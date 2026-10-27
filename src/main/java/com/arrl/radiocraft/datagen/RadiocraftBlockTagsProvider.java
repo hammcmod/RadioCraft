@@ -74,6 +74,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.YAGI_ANTENNA.get())
                 .add(RadiocraftBlocks.DUMMY_LOAD.get())
                 .add(RadiocraftBlocks.DIRECTION_FINDER_MODULE.get())
+                .add(RadiocraftBlocks.IONOSPHERIC_PROCESSOR.get()) // Its coax runs to the Ionosonde Antenna.
                 .add(RadiocraftBlocks.MICROWAVE_RADIO.get(), RadiocraftBlocks.SATELLITE_DISH.get(), RadiocraftBlocks.MICROWAVE_HORN.get())
                 .add(RadiocraftBlocks.ALL_BAND_RADIO.get())
                 .add(RadiocraftBlocks.HF_RADIO_10M_VARIANTS.values().toArray(Block[]::new))

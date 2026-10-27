@@ -42,6 +42,8 @@ public class RadiocraftMenuTypes {
 	public static final Supplier<MenuType<com.arrl.radiocraft.common.menus.CommercialRadioModuleMenu>> COMMERCIAL_RADIO_MODULE = MENU_TYPES.register("commercial_radio_module", () -> IMenuTypeExtension.create(com.arrl.radiocraft.common.menus.CommercialRadioModuleMenu::new));
 	public static final Supplier<MenuType<com.arrl.radiocraft.common.menus.WefaxReceiverMenu>> WEFAX_RECEIVER = MENU_TYPES.register("wefax_receiver", () -> IMenuTypeExtension.create(com.arrl.radiocraft.common.menus.WefaxReceiverMenu::new));
 	public static final Supplier<MenuType<TelephoneMenu>> TELEPHONE = MENU_TYPES.register("telephone", () -> IMenuTypeExtension.create(TelephoneMenu::new));
+	public static final Supplier<MenuType<com.arrl.radiocraft.common.menus.IonosphericProcessorMenu>> IONOSPHERIC_PROCESSOR = MENU_TYPES.register("ionospheric_processor",
+			() -> IMenuTypeExtension.create(com.arrl.radiocraft.common.menus.IonosphericProcessorMenu::new));
 	public static final Supplier<MenuType<VHFRepeaterMenu>> VHF_REPEATER = MENU_TYPES.register("vhf_repeater", () -> IMenuTypeExtension.create(VHFRepeaterMenu::new));
 
 }

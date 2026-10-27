@@ -16,7 +16,7 @@
     {
       "type": "patchouli:text",
       "title": "Trouble",
-      "text": "$(li)Another microwave radio within 30 MHz in your dish's beam is $(thing)interference$(): bearings and APRS get through half the time and calls break up. Move a frequency.$(li)A solar blackout shortens every link a little.$(li)The large $(item)Microwave Horn$() reaches six times as far as a dish, but cannot be crafted."
+      "text": "$(li)Another microwave radio within 30 MHz in your dish's beam is $(thing)interference$(): bearings and APRS get through half the time and calls break up. Move a frequency.$(li)A solar blackout shortens every link a little.$(li)The large $(item)Microwave Horn$() reaches six times as far as a dish, but cannot be crafted: it is only found in structures."
     }
   ]
 }

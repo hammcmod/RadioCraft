@@ -177,8 +177,15 @@ public class TeletypeGameTests {
         helper.setBlock(pos, RadiocraftBlocks.TELETYPE.get());
         TeletypeBlockEntity teletype = teletype(helper, pos);
         teletype.insertPaper(paper());
-        teletype.printReport();
-        helper.assertTrue(teletype.getRttyLines().size() >= teletype.getReportLines().size(), "Printed " + teletype.getRttyLines()); // Long lines wrap.
+        boolean needsRadio = com.arrl.radiocraft.RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.get();
+        com.arrl.radiocraft.RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.set(false); // The server-wide report: no processor needed.
+        try {
+            teletype.printReport();
+            helper.assertTrue(teletype.getRttyLines().size() >= teletype.getReportLines().size(), "Printed " + teletype.getRttyLines()); // Long lines wrap.
+        }
+        finally {
+            com.arrl.radiocraft.RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.set(needsRadio);
+        }
         helper.succeed();
     }
 

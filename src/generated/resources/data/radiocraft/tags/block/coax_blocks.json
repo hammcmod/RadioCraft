@@ -35,6 +35,7 @@
     "radiocraft:yagi_antenna",
     "radiocraft:dummy_load",
     "radiocraft:direction_finder_module",
+    "radiocraft:ionospheric_processor",
     "radiocraft:microwave_radio",
     "radiocraft:satellite_dish",
     "radiocraft:microwave_horn",

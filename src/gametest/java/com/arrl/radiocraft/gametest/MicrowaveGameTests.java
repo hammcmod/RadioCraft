@@ -61,6 +61,42 @@ public class MicrowaveGameTests {
 		helper.assertTrue(b.setIdentity(callB, 0x00F1), "B could not take its callsign");
 	}
 
+	/**
+	 * The large horn is a microwave antenna like the dish, with {@code microwave_horn_range_factor} times its reach: a
+	 * horn on A's coax pointing east at B's dish links the same way. A batch of its own, as dishes hear widely.
+	 */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH + "_horn")
+	public static void hornLinksLikeADish(GameTestHelper helper) {
+		helper.setBlock(A, RadiocraftBlocks.MICROWAVE_RADIO.get());
+		GameTestUtil.placeWire(helper, A.east(), RadiocraftBlocks.COAX_WIRE.get());
+		com.arrl.radiocraft.common.blocks.MicrowaveHornBlock horn = RadiocraftBlocks.MICROWAVE_HORN.get();
+		net.minecraft.world.level.block.state.BlockState state = horn.defaultBlockState().setValue(com.arrl.radiocraft.common.blocks.MicrowaveHornBlock.FACING, net.minecraft.core.Direction.EAST);
+		helper.setBlock(A.east(2), state);
+		horn.setPlacedBy(helper.getLevel(), helper.absolutePos(A.east(2)), state, null, new net.minecraft.world.item.ItemStack(com.arrl.radiocraft.common.init.RadiocraftItems.MICROWAVE_HORN.get()));
+		station(helper, B, -1);
+		helper.startSequence()
+				.thenIdle(3)
+				.thenExecute(() -> {
+					helper.assertTrue(dish(helper, A.east(2)).isHorn(), "the horn's block entity is not a horn");
+					helper.assertTrue(dish(helper, A.east(2)).getRange() > dish(helper, B.west(2)).getRange(), "the horn reaches no further than a dish");
+					link(helper, "MWH" + RUN, "MWI" + RUN);
+				})
+				.thenWaitUntil(() -> helper.assertTrue(radio(helper, A).isPowered() && radio(helper, A).getDishInfo().size() == 1 && radio(helper, A).getDishInfo().getFirst().horn(),
+						"A does not see its horn on the coax"))
+				.thenExecute(() -> {
+					helper.assertTrue(radio(helper, A).broadcast(), "A could not broadcast");
+					helper.assertTrue(radio(helper, B).search(), "B could not search");
+				})
+				.thenWaitUntil(() -> helper.assertTrue(radio(helper, B).getPhase() == Phase.FOUND, "B has not found A's horn: " + radio(helper, B).getPhase()))
+				.thenExecute(() -> radio(helper, B).confirm())
+				.thenWaitUntil(() -> helper.assertTrue(radio(helper, A).isLinked(), "A is not linked through its horn"))
+				.thenExecute(() -> { // Off again: test plots stay in the world, and a horn reaches the other batches' stations.
+					radio(helper, A).togglePower();
+					radio(helper, B).togglePower();
+				})
+				.thenSucceed();
+	}
+
 	/** Facing dishes: B finds A, asks, and once confirmed is linked; turning A's dish away loses the link. */
 	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
 	public static void linkFoundConfirmedAndLost(GameTestHelper helper) {

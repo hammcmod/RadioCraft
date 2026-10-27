@@ -1,39 +1,72 @@
 {
-  "multipart": [
-    {
-      "when": {
-        "facing": "north"
-      },
-      "apply": {
-        "model": "radiocraft:block/telephone"
-      }
-    },
-    {
-      "when": {
-        "facing": "east"
-      },
-      "apply": {
-        "model": "radiocraft:block/telephone",
-        "y": 90
-      }
-    },
-    {
-      "when": {
-        "facing": "south"
-      },
-      "apply": {
-        "model": "radiocraft:block/telephone",
-        "y": 180
-      }
-    },
-    {
-      "when": {
-        "facing": "west"
-      },
-      "apply": {
-        "model": "radiocraft:block/telephone",
-        "y": 270
-      }
-    }
-  ]
+	"variants": {
+		"facing=north,off_hook=false,wall=false": {
+			"model": "radiocraft:block/telephone"
+		},
+		"facing=north,off_hook=true,wall=false": {
+			"model": "radiocraft:block/telephone_off_hook"
+		},
+		"facing=north,off_hook=false,wall=true": {
+			"model": "radiocraft:block/telephone_wallmount",
+			"x": 90
+		},
+		"facing=north,off_hook=true,wall=true": {
+			"model": "radiocraft:block/telephone_wall_off_hook",
+			"x": 90
+		},
+		"facing=east,off_hook=false,wall=false": {
+			"model": "radiocraft:block/telephone",
+			"y": 90
+		},
+		"facing=east,off_hook=true,wall=false": {
+			"model": "radiocraft:block/telephone_off_hook",
+			"y": 90
+		},
+		"facing=east,off_hook=false,wall=true": {
+			"model": "radiocraft:block/telephone_wallmount",
+			"x": 90,
+			"y": 90
+		},
+		"facing=east,off_hook=true,wall=true": {
+			"model": "radiocraft:block/telephone_wall_off_hook",
+			"x": 90,
+			"y": 90
+		},
+		"facing=south,off_hook=false,wall=false": {
+			"model": "radiocraft:block/telephone",
+			"y": 180
+		},
+		"facing=south,off_hook=true,wall=false": {
+			"model": "radiocraft:block/telephone_off_hook",
+			"y": 180
+		},
+		"facing=south,off_hook=false,wall=true": {
+			"model": "radiocraft:block/telephone_wallmount",
+			"x": 90,
+			"y": 180
+		},
+		"facing=south,off_hook=true,wall=true": {
+			"model": "radiocraft:block/telephone_wall_off_hook",
+			"x": 90,
+			"y": 180
+		},
+		"facing=west,off_hook=false,wall=false": {
+			"model": "radiocraft:block/telephone",
+			"y": 270
+		},
+		"facing=west,off_hook=true,wall=false": {
+			"model": "radiocraft:block/telephone_off_hook",
+			"y": 270
+		},
+		"facing=west,off_hook=false,wall=true": {
+			"model": "radiocraft:block/telephone_wallmount",
+			"x": 90,
+			"y": 270
+		},
+		"facing=west,off_hook=true,wall=true": {
+			"model": "radiocraft:block/telephone_wall_off_hook",
+			"x": 90,
+			"y": 270
+		}
+	}
 }

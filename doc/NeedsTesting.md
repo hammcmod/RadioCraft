@@ -5,6 +5,54 @@ feel). Tick an item off once it has been played with, and note anything wrong in
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
 
+## Telephone handset, ring and wall phone (added 2026-10-27; GameTests pass)
+
+The maintainer's `block/telephone.json`, `block/telephone_wallmount.json` and `item/phone_item.json` are in.
+`tools/telephone_models.py` builds the off-hook models, the handset item's display slots and the blockstate from them;
+rerun it after any re-export. (`phone_Item.json` was renamed to `phone_item.json`: resource names must be lower case.)
+
+- [ ] Sneak + right click a phone with an empty hand: the handset (earpiece, handle, mouthpiece) leaves the model, the
+  handset is in your hand, and a cord runs from the phone to it. A ringing phone answers.
+- [ ] Third person (F5): the arm comes up to the face and the handset sits along the cheek by the ear, following the
+  head up and down. Tune it in `SLOTS["head"]` of `tools/telephone_models.py` (+x is the player's right, -z the face),
+  then rerun the script. First person, inventory and dropped: the handset centred and the right size (the other slots
+  there). Left-handed holders still get it by the right ear.
+- [ ] In a call with the handset up only the holder is heard at the far end, and the far end is heard at the holder's
+  ear (about 3 blocks around them) rather than from the phone. With the handset down it is a speakerphone as before.
+- [ ] Sneak + right click the phone with the handset: it goes back, the model shows it again, the call ends. A plain
+  right click with it opens the keypad (to dial with the handset up). Walking more than 5 blocks off, or putting it
+  away, snaps it back and ends the call.
+- [ ] The ring: note-block bell gongs alternating every tick for 2 seconds, then 4 seconds quiet. Sounds like an old
+  phone bell, not a buzz?
+- [ ] Placing a phone against the side of a block hangs it on the wall: the wallmount model stood up (blockstate x 90),
+  backplate on the wall, earpiece end at the top, on all four sides; the hitbox is the backplate plus the phone; the
+  cord leaves the bottom of it. Off the hook, the handset goes from the wall phone too.
+
+## Ionospheric Processor: SOLAR WX over the air, blackout alerts, terminal (added 2026-10-27; GameTests pass)
+
+- [ ] Right click the processor: an amber terminal with the call sign (the placer's), SOUNDER ONLINE / NO IONOSONDE,
+  the radio's frequency, any blackout forecast, what it has sent, and three controls (click or keys 1, 2, 3): timed
+  bulletins (default off), blackout alerts (default on), send a bulletin now. A low terminal hum while open.
+- [ ] WEFAX SOLR WX far away, its radio on the processor's radio's frequency: "Asking for the solar weather...", packet
+  tones out and back, then the bulletin prints with "FROM <call sign>". With no processor answering: after 15 seconds a
+  low beep and "no Ionospheric Processor answered".
+- [ ] Teletype SOLAR WX far away: prints "QRU SOLAR?", then the report under the processor's call sign, or NO ANSWER.
+- [ ] A WEFAX or teletype touching the processor, or touching one of its radios, prints the report straight away.
+  With the processor's ionosonde gone, the WEFAX says so.
+- [ ] `/rcdebug solar forecast blackout`: the processor's screen shows BLACKOUT IN n MIN; a WEFAX hearing it (or beside
+  it) beeps three times and prints SOLAR ALERT; a second alert within two minutes only beeps. With alerts switched off
+  on the terminal nothing goes out. `/rcdebug solar` shows the next event once it is picked (5 minutes ahead,
+  `solar_forecast_minutes`), and reports print "Blackout expected in about n min".
+- [ ] With timed bulletins on, a WEFAX on AUTO prints each bulletin it hears.
+
+## Finished items released to the creative tab (added 2026-10-27)
+
+- [ ] A release build (not `runClient`) shows the speakers, tower beams, microwave dish, microwave radio, telephone,
+  direction finders and their modules, the handheld DF, the HF manpack, the Ionospheric Processor and the microwave
+  horn in the RadioCraft tab: nothing is dev-only now.
+- [ ] In `runClient`, nothing shows the blue "dev" tile; batteries, solar panels, the repeater, duplexer,
+  radio interface, H19, all-band radio and microphone no longer do.
+
 ## VHF antennas deaf after a restart (fixed 2026-10-27)
 
 - [ ] After restarting the game (or leaving and rejoining the world), J-poles, slim jims and Yagis placed before the
@@ -1017,8 +1065,8 @@ network that cannot keep up, is "browned out": no static, hears nothing, and its
 - [ ] OCFD: 4:1 balun, arms 4 and 7 on the same level. Right click names `radiocraft:off_center_fed_dipole`; a 20m
   radio sees SWR 1, a 10m radio also 1, a 15m... there is no 15m radio, so check with `/rcdebug antenna`: 21 MHz
   is above 2. A 5 + 5 on the 4:1 is not recognized (that is a dipole, use the 1:1). A 40m OCFD is 7 + 14.
-- [ ] Creative tab: the HF station items are in the main section without the blue "dev" watermark; the duplexer,
-  repeater, digital interface, dish, microphone block and power blocks keep it (dev runs only).
+- [ ] Creative tab: the HF station items are in the main section without the blue "dev" watermark (see the
+  2026-10-27 release entry at the top for the rest).
 
 ## Tooltips (added 2026-10-21)
 

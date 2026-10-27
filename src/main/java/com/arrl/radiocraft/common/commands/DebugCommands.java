@@ -104,6 +104,9 @@ public class DebugCommands {
 					.then(Commands.literal("set").then(Commands.argument("event", StringArgumentType.word())
 							.suggests((ctx, builder) -> SharedSuggestionProvider.suggest(RadiocraftData.SOLAR_EVENTS.getKeys().stream().map(ResourceLocation::getPath), builder))
 							.executes(DebugCommands::setSolar)))
+					.then(Commands.literal("forecast").then(Commands.argument("event", StringArgumentType.word())
+							.suggests((ctx, builder) -> SharedSuggestionProvider.suggest(RadiocraftData.SOLAR_EVENTS.getKeys().stream().map(ResourceLocation::getPath), builder))
+							.executes(DebugCommands::forecastSolar)))
 					.then(Commands.literal("aurora")
 							.then(Commands.literal("on").executes(ctx -> aurora(ctx, true)))
 							.then(Commands.literal("off").executes(ctx -> aurora(ctx, false))))
@@ -373,6 +376,17 @@ public class DebugCommands {
 		return send(ctx, List.of("Printed a " + type.name().toLowerCase(Locale.ROOT) + " chart from " + WeatherSources.get(level).name() + " weather."));
 	}
 
+	/** Makes {@code event} the next one, starting when the current one ends: processors forecast it as they would. */
+	private static int forecastSolar(CommandContext<CommandSourceStack> ctx) {
+		String name = StringArgumentType.getString(ctx, "event");
+		com.arrl.radiocraft.common.radio.solar.SolarEvent event = RadiocraftData.SOLAR_EVENTS.getValue(Radiocraft.id(name));
+		if(event == null)
+			return send(ctx, List.of("no solar event " + name));
+		SolarEventManager.forecast(ctx.getSource().getLevel(), event);
+		SolarEventManager.Upcoming upcoming = SolarEventManager.getUpcoming(ctx.getSource().getLevel());
+		return send(ctx, List.of("next event " + name + " in " + (upcoming.startGameTime() - ctx.getSource().getLevel().getGameTime()) + " ticks"));
+	}
+
 	private static int solar(CommandContext<CommandSourceStack> ctx) {
 		ServerLevel level = ctx.getSource().getLevel();
 		SolarEventInstance event = SolarEventManager.getEvent(level);
@@ -398,6 +412,8 @@ public class DebugCommands {
 			out.add("aurora=expected in " + (aurora.start() - now) + " ticks, lasts " + (aurora.end() - aurora.start()));
 		else
 			out.add("aurora=active for " + (aurora.end() - now) + " more ticks, past |Z| " + Aurora.latitude());
+		SolarEventManager.Upcoming upcoming = SolarEventManager.getUpcoming(level);
+		out.add(upcoming == null ? "next=not picked yet" : "next=" + RadiocraftData.SOLAR_EVENTS.getKey(upcoming.event()) + " in " + (upcoming.startGameTime() - now) + " ticks");
 		return send(ctx, out);
 	}
 

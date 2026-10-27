@@ -2,15 +2,12 @@
 package com.arrl.radiocraft.client.events;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.init.RadiocraftItems;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.registries.DeferredHolder;
 
 import java.util.List;
 import java.util.Set;
@@ -21,69 +18,25 @@ public class ItemRenderEvents {
 
     private static final ResourceLocation DEV_BACKGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(Radiocraft.MOD_ID, "textures/gui/dev_item_background.png");
 
-    // Separate lists for different item types to avoid generic conflicts
-    private static final List<Supplier<? extends Item>> DEV_REGULAR_ITEMS = List.of(
-            RadiocraftItems.WATERPROOF_WIRE
-    );
-
-    private static final List<Supplier<BlockItem>> DEV_BLOCK_ITEMS = List.of(
-            RadiocraftItems.SOLAR_PANEL,
-            RadiocraftItems.LARGE_BATTERY,
-            RadiocraftItems.CHARGE_CONTROLLER,
-            RadiocraftItems.VHF_REPEATER,
-            RadiocraftItems.ALL_BAND_RADIO,
-            RadiocraftItems.DUPLEXER,
-            RadiocraftItems.RADIO_INTERFACE,
-            RadiocraftItems.APRS_TERMINAL,
-            RadiocraftItems.MICROPHONE
-    );
-
-    private static final List<DeferredHolder<Item, ?>> DEV_SPECIAL_ITEMS = List.of(
-            RadiocraftItems.SMALL_BATTERY
-    );
+    /** Items that are only in the creative tab in the development environment; they get the blue "dev" tile. */
+    private static final List<Supplier<? extends Item>> DEV_ITEMS = List.of(); // Everything is released at the moment.
 
     // Lazily initialized set of actual items
     private static Set<Item> devItems = null;
 
     private static Set<Item> getDevItems() {
         if (devItems == null) {
-            devItems = new HashSet<>();
-
-            // Add regular items
-            for (Supplier<? extends Item> holder : DEV_REGULAR_ITEMS) {
+            Set<Item> items = new HashSet<>();
+            for (Supplier<? extends Item> holder : DEV_ITEMS) {
                 try {
                     Item item = holder.get();
-                    if (item != null) {
-                        devItems.add(item);
-                    }
+                    if (item != null)
+                        items.add(item);
                 } catch (Exception e) {
                     // During data generation, items might not be bound yet
                 }
             }
-
-            // Add block items
-            for (Supplier<BlockItem> holder : DEV_BLOCK_ITEMS) {
-                try {
-                    Item item = holder.get();
-                    if (item != null) {
-                        devItems.add(item);
-                    }
-                } catch (Exception e) {
-                    // During data generation, items might not be bound yet
-                }
-            }
-
-            // Add special items
-            for (DeferredHolder<Item, ?> holder : DEV_SPECIAL_ITEMS) {
-                try {
-                    Item item = holder.get();
-                    if (item != null) {
-                        devItems.add(item);
-                    }
-                } catch (Exception e) {
-                    // During data generation, items might not be bound yet
-                }
-            }
+            devItems = items;
         }
         return devItems;
     }

@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The $(item)Teletype Machine$() sends $(thing)RTTY$() through the radio it touches: type, and it goes out live; weak copy prints garbled. It needs $(item)paper$() (by hand or hopper).$(br2)Its blue $(thing)SOLAR WX$() lamp prints the current solar report, if the radio has a real antenna."
+      "text": "The $(item)Teletype Machine$() sends $(thing)RTTY$() through the radio it touches: type, and it goes out live; weak copy prints garbled. It needs $(item)paper$() (by hand or hopper).$(br2)Its blue $(thing)SOLAR WX$() lamp asks an $(l:radiocraft:sky/ionosphere)Ionospheric Processor$(/l) for the solar report, over the air or directly if one touches it or its radio."
     },
     {
       "type": "patchouli:text",

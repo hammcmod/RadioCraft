@@ -42,7 +42,7 @@ public class WefaxReceiverMenu extends AbstractContainerMenu implements StationM
 				else if(action.equals("weather"))
 					blockEntity.printWeather();
 				else
-					blockEntity.printSolar();
+					blockEntity.printSolar(player);
 			}
 			case "auto" -> blockEntity.setAuto(!blockEntity.isAuto());
 			default -> {}

@@ -201,10 +201,21 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   - [x] Ionosonde Antenna (2026-10-23, maintainer's model): two blocks tall like the J-pole, its own antenna type.
     On a radio it hears VHF well and HF weakly, and matches poorly: SWR 3 on VHF, 8 on HF. Dev tab; recipe (2026-10-23): lightning rods, antenna wire, copper, coax.
   - [x] Ionospheric Processor block (2026-10-23, maintainer's model): two blocks tall, its three valves glow softly
-    (light 10) through translucent glass. Decorative so far, dev tab; recipe (2026-10-23): redstone torch valves,
-    glass, two amethyst shards, a board and a clock
-  - [ ] Steps 4 to 7: the processor reading the sky through its ionosonde, over-the-air requests and bulletins, WX,
-    recipes
+    (light 10) through translucent glass. Recipe (2026-10-23): redstone torch valves, glass, two amethyst shards, a
+    board and a clock
+  - [x] The processor works (2026-10-27, maintainer: "it's what sends the ionospheric weather out to the WEFAX
+    machines"): it reads the sky only with an Ionosonde Antenna on its coax, broadcasts a solar bulletin (packet kind
+    SOLAR) under the placer's call sign through a radio it touches (online, on any change of event, every
+    `ionospheric_bulletin_minutes`, default 5), straight to WEFAX receivers beside it or its radio; WEFAX SOLR WX
+    prints the last bulletin heard, AUTO prints each one; comparator 1-6; right click shows its status. Released.
+  - [x] Over the air and alerts (2026-10-27, maintainer): WEFAX SOLR WX and teletype SOLAR WX read a processor beside
+    them (or their radio) directly, else send a QUERY that any processor hearing it answers (at most every 3 s), or
+    time out after 15 s; the old local report only with the server configs. `SolarEventManager` picks the next event
+    `solar_forecast_minutes` (5) ahead (`getUpcoming`, `/rcdebug solar forecast <event>`); a processor with blackout
+    alerts on (default) sends an ALERT that WEFAX receivers print with three beeps. Amber terminal: timed bulletins
+    (now default off), blackout alerts, send now.
+  - [ ] Still open: a Jade provider for the processor; the teletype's comparator and Jade still read the local
+    conditions
   - [ ] Redesigned UI for the H19 (maintainer); for now it is the old APRS/MSG tabs. The Transfer Interface's
     redesign is the Radio Fax.
   - [x] APRS maps (2026-10-23): right click an H19 with empty maps for a map (sneak: a 2 x 2 or 3 x 3 wall) of the
@@ -322,7 +333,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   by the 4:1 balun, `DeltaLoopMoxonGameTests`, guide entry). Play the quads and the delta, then settle the loop gains.
 - [x] Release creative tab (2026-10-21, maintainer): the HF station (radios, receivers, VHF base station, coax,
   wire holders, baluns, tuner, VHF antennas, parrot controller, weather station) moved out of the dev-only list
-  and lost the dev watermark. Still dev-only: duplexer, repeater, radio interface and its terminals, dish, microphone block, power.
+  and lost the dev watermark. Everything finished followed on 2026-10-27 (maintainer): repeaters, power, packet,
+  speakers, tower beams, microwave dish/radio/telephone, direction finders and the manpack. Still dev-only, with the
+  dev watermark: nothing. The Ionospheric Processor and the microwave horn followed on 2026-10-27; the horn has no
+  recipe by design (maintainer, 2026-10-27): it is only found in structures.
 - [x] Solar panels join by touching (2026-10-21, maintainer request): a row of panels and the charge controller at
   its end are one network without wire; batteries still need wire. Jade shows a panel's output and the row's.
   Open: a device removed from the middle of a touching row does not split the row (wire removal does).
@@ -405,6 +419,14 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   bearings, and telephone calls (`TelephoneBlockEntity`, extensions from 0). Stations attach by touching or by the
   power wire. Both ends must be loaded.
   - [x] Microwave radio and telephone recipes (maintainer's, 2026-10-26); wall speaker too
+  - [x] Telephone handset (maintainer, 2026-10-27): sneak + right click picks it up on a 5 block cord (answering a
+    ringing phone), the earpiece, handle and mouthpiece cubes leave the model (`off_hook`), only its holder is heard
+    and the far end plays at their ear; the arm comes up to the face and `PhoneEarLayer` draws the handset by the ear.
+    Sneak + right click with it hangs up. New bell ring (note block bell, two gongs alternating every tick, 2 s on 4 s
+    off). Wall phone when placed on the side of a block (`wall`). `tools/telephone_models.py` builds the off-hook
+    models and blockstate.
+  - [x] Maintainer's models in (2026-10-27): `telephone_wallmount.json` (drawn lying down, stood up by blockstate x 90)
+    and `phone_item.json` (renamed from `phone_Item.json`); the script works out the handset item's display slots
   - [ ] Keep linked radios' chunks loaded? (today a far end in an unloaded chunk drops the link)
 - [x] HF manpack (2026-10-26): `HFManpackItem` worn on the chest or Curios back slot, `ManpackRadio` (QRP whip, SSB and
   CW on 10m/20m, re-placed every tick like the VHF handheld), olive panel `ManpackScreen`, handset `ManpackMicItem`,
@@ -413,7 +435,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   `TowerBeamModel`). Recipes 2026-10-27, all iron, 4 at a time: thin `N N/NIN/N N`, normal `I I/ I /I I`, thick `I I/ B /I I`.
 - [ ] More radio models and brands (maintainer, 2026-10-23)
 - [ ] Structures (maintainer, 2026-10-23): the worldgen plumbing to place the mod's own structures
-  - [ ] AT&T Long Lines site (maintainer, 2026-10-23)
+  - [ ] AT&T Long Lines site (maintainer, 2026-10-23); the microwave horn is only found in structures (2026-10-27),
+    so this is the natural home for one
   - [ ] Prepper bunker (maintainer, 2026-10-23)
 - [ ] Add something radio-related to villages (maintainer, 2026-10-23)
 - [x] Tower foothold (2026-10-24): `tower_foothold` (crafted: 3 from iron + stick, never breaks) and

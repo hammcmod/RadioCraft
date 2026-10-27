@@ -11,7 +11,7 @@
     {
       "type": "patchouli:text",
       "title": "Buttons",
-      "text": "$(li)$(thing)WX REPT$(): the next chart in turn: radar, forecast, surface analysis.$(li)$(thing)SOLR WX$(): the solar weather report.$(li)$(thing)AUTO$(): prints a forecast by itself when dangerous weather is here or coming, at most every five minutes.$(br)Charts are maps: hang them in item frames or copy them at a cartography table. The text report is in the tooltip."
+      "text": "$(li)$(thing)WX REPT$(): the next chart in turn: radar, forecast, surface analysis.$(li)$(thing)SOLR WX$(): the solar report from an $(l:radiocraft:sky/ionosphere)Ionospheric Processor$(/l): read directly if one touches it or its radio, otherwise asked for over the air (tune to the processor's frequency).$(li)$(thing)AUTO$(): prints a forecast when dangerous weather is coming.$(br)Blackout alerts always print, with three beeps."
     },
     {
       "type": "patchouli:crafting",

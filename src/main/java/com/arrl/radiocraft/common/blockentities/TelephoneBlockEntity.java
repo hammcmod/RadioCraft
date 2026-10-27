@@ -57,6 +57,12 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	/** Blocks from the phone a voice is still picked up, and how far its earpiece is heard. */
 	public static final double PICKUP = 4.0D;
 	public static final float EARPIECE = 8.0F;
+	/** How far the handset's cord reaches, and how far the far end is heard from the ear of whoever holds it. */
+	public static final double CORD_LENGTH = 5.0D;
+	public static final float HANDSET_EARPIECE = 3.0F;
+	/** The ring: {@link #RING_ON_TICKS} of bell, then quiet, every {@link #RING_CYCLE_TICKS} (a North American cadence). */
+	public static final int RING_CYCLE_TICKS = 120;
+	public static final int RING_ON_TICKS = 40;
 
 	public enum State { IDLE, CALLING, RINGING, IN_CALL }
 
@@ -77,6 +83,14 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	private LocationalAudioChannel earpiece = null; // Voice thread only.
 	private final RadioVoiceProcessor processor = new RadioVoiceProcessor();
 	private OpusEncoder encoder = null;
+
+	// The handset on its cord: who has it (synced, for the cord), which pick-up it is, and their ear for the voice thread.
+	@Nullable
+	private volatile UUID handsetHolder = null;
+	@Nullable
+	private UUID handsetId = null;
+	@Nullable
+	private volatile Vec3 holderEar = null;
 
 	public TelephoneBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.TELEPHONE.get(), pos, state);
@@ -176,7 +190,10 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	}
 
 	private void serverTick() {
-		if(level == null || state == State.IDLE)
+		if(level == null)
+			return;
+		tickHandset();
+		if(state == State.IDLE)
 			return;
 		stateTicks++;
 		TelephoneBlockEntity other = partner == null ? null : at(level, partner);
@@ -184,10 +201,8 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 			drop("CALL DROPPED");
 			return;
 		}
-		if(state == State.RINGING && stateTicks % 40 == 1) // The bell: two rings every two seconds.
-			level.playSound(null, worldPosition, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
-		if(state == State.RINGING && stateTicks % 40 == 6)
-			level.playSound(null, worldPosition, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.BLOCKS, 1.0F, 1.0F);
+		if(state == State.RINGING)
+			ring(level, stateTicks);
 		if(state == State.CALLING && stateTicks >= RING_TICKS) {
 			other.reset("MISSED CALL FROM " + extension);
 			reset("NO ANSWER");
@@ -208,6 +223,121 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		Map<BlockPos, TelephoneBlockEntity> map = LOADED.get(level.dimension());
 		TelephoneBlockEntity phone = map == null ? null : map.get(pos);
 		return phone == null || phone.isRemoved() ? null : phone;
+	}
+
+	/**
+	 * The bell, from vanilla's note block bell: for {@link #RING_ON_TICKS} of every {@link #RING_CYCLE_TICKS} the
+	 * clapper strikes its two gongs in turn, one a tick, a third apart: the "brrring" of an old desk phone.
+	 */
+	static void ring(Level level, BlockPos pos, int ticks) {
+		int phase = ticks % RING_CYCLE_TICKS;
+		if(phase >= RING_ON_TICKS)
+			return;
+		float pitch = phase % 2 == 0 ? 1.19F : 1.5F; // Two gongs a major third apart (D and F# above the bell's F#).
+		float volume = phase < 2 || phase >= RING_ON_TICKS - 2 ? 0.35F : 0.6F; // Softer as the clapper starts and stops.
+		level.playSound(null, pos, SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.BLOCKS, volume, pitch);
+	}
+
+	private void ring(Level level, int ticks) {
+		ring(level, worldPosition, ticks);
+	}
+
+	// -------------------- HANDSET --------------------
+
+	/** The player who has the handset up, null while it is on its cradle (synced, for drawing the cord). */
+	@Nullable
+	public UUID getHandsetHolder() {
+		return handsetHolder;
+	}
+
+	/** Which pick-up the handset out now is, null while it is on its cradle. */
+	@Nullable
+	public UUID getHandsetId() {
+		return handsetId;
+	}
+
+	/**
+	 * Sneak-right-click with an empty hand: the handset goes into the player's hand on its cord, and a ringing phone is
+	 * answered.
+	 */
+	public void pickUp(net.minecraft.server.level.ServerPlayer player) {
+		if(level == null)
+			return;
+		if(handsetHolder != null) {
+			if(!handsetHolder.equals(player.getUUID()))
+				player.displayClientMessage(Component.translatable(Radiocraft.translationKey("message", "handset_in_use")), true);
+			return;
+		}
+		if(!player.getMainHandItem().isEmpty()) {
+			player.displayClientMessage(Component.translatable(Radiocraft.translationKey("message", "handset_hand_full")), true);
+			return;
+		}
+		handsetHolder = player.getUUID();
+		handsetId = UUID.randomUUID();
+		holderEar = player.getEyePosition();
+		net.minecraft.world.item.ItemStack handset = new net.minecraft.world.item.ItemStack(com.arrl.radiocraft.common.init.RadiocraftItems.TELEPHONE_HANDSET.get());
+		handset.set(com.arrl.radiocraft.common.init.RadiocraftDataComponent.MIC_CORD.get(), new com.arrl.radiocraft.common.items.MicCord(worldPosition, handsetId));
+		player.setItemInHand(net.minecraft.world.InteractionHand.MAIN_HAND, handset);
+		level.playSound(null, worldPosition, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 0.6F, 1.4F);
+		setOffHook(true);
+		if(state == State.RINGING)
+			answer();
+		sync();
+	}
+
+	/** Sneak-right-click with the handset: it goes back on its cradle, ending any call. */
+	public void putDown(@Nullable Player player) {
+		if(player != null)
+			removeHandset(player);
+		hangUpHandset();
+		if(level != null)
+			level.playSound(null, worldPosition, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 0.7F, 0.8F);
+	}
+
+	/**
+	 * While the handset is up: the cord snaps back if its holder has gone, is more than {@link #CORD_LENGTH} blocks
+	 * away or no longer holds it in a hand; otherwise their ear is noted for the voice thread.
+	 */
+	private void tickHandset() {
+		if(handsetHolder == null || !(level instanceof net.minecraft.server.level.ServerLevel serverLevel))
+			return;
+		Player player = serverLevel.getPlayerByUUID(handsetHolder);
+		boolean inHand = player != null && (com.arrl.radiocraft.common.items.TelephoneHandsetItem.isHandsetOf(player.getMainHandItem(), this)
+				|| com.arrl.radiocraft.common.items.TelephoneHandsetItem.isHandsetOf(player.getOffhandItem(), this));
+		if(player == null || !inHand || player.position().distanceTo(worldPosition.getCenter()) > CORD_LENGTH) {
+			if(player != null)
+				removeHandset(player);
+			hangUpHandset();
+			serverLevel.playSound(null, worldPosition, SoundEvents.LEASH_KNOT_BREAK, SoundSource.BLOCKS, 0.8F, 1.2F);
+			return;
+		}
+		holderEar = player.getEyePosition();
+	}
+
+	/** Takes this phone's handset out of the player's inventory, wherever it is. */
+	private void removeHandset(Player player) {
+		net.minecraft.world.entity.player.Inventory inventory = player.getInventory();
+		for(int i = 0; i < inventory.getContainerSize(); i++)
+			if(com.arrl.radiocraft.common.items.TelephoneHandsetItem.isHandsetOf(inventory.getItem(i), this))
+				inventory.setItem(i, net.minecraft.world.item.ItemStack.EMPTY);
+	}
+
+	/** The handset is back on its cradle: any call ends, and the phone is a speakerphone again. */
+	private void hangUpHandset() {
+		handsetHolder = null;
+		handsetId = null;
+		holderEar = null;
+		setOffHook(false);
+		if(state != State.IDLE)
+			hangUp();
+		sync();
+	}
+
+	private void setOffHook(boolean offHook) {
+		BlockState blockState = getBlockState();
+		if(level != null && blockState.hasProperty(com.arrl.radiocraft.common.blocks.TelephoneBlock.OFF_HOOK)
+				&& blockState.getValue(com.arrl.radiocraft.common.blocks.TelephoneBlock.OFF_HOOK) != offHook)
+			level.setBlock(worldPosition, blockState.setValue(com.arrl.radiocraft.common.blocks.TelephoneBlock.OFF_HOOK, offHook), Block.UPDATE_ALL);
 	}
 
 	/** Dials {@code number}: rings that phone if it can be reached and is free. */
@@ -322,14 +452,22 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		acceptVoicePacket(level, rawAudio, sourcePlayer, null);
 	}
 
-	/** A voice near this phone in a call: out of the other phone, quieter the further the talker stands from this one. */
+	/**
+	 * A voice near this phone in a call: out of the other phone. With the handset up only its holder is heard, at full
+	 * level; on the cradle it is a speakerphone, quieter the further the talker stands from it.
+	 */
 	@Override
 	public void acceptVoicePacket(ServerLevel level, short[] rawAudio, UUID sourcePlayer, @Nullable Vec3 speakerPos) {
 		TelephoneBlockEntity other = partnerPhone;
 		if(other == null || state != State.IN_CALL)
 			return;
 		double gain = 1.0D;
-		if(speakerPos != null) {
+		UUID holder = handsetHolder;
+		if(holder != null) {
+			if(!holder.equals(sourcePlayer))
+				return;
+		}
+		else if(speakerPos != null) {
 			double distance = speakerPos.distanceTo(getPos());
 			if(distance > PICKUP)
 				return;
@@ -349,8 +487,16 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 					RadiocraftVoicePlugin.API.createPosition(worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D));
 			if(earpiece == null)
 				return;
-			earpiece.setDistance(EARPIECE);
 			encoder = RadiocraftVoicePlugin.API.createEncoder();
+		}
+		Vec3 ear = holderEar;
+		if(handsetHolder != null && ear != null) { // At the ear of whoever holds the handset, and only just audible around them.
+			earpiece.updateLocation(RadiocraftVoicePlugin.API.createPosition(ear.x, ear.y, ear.z));
+			earpiece.setDistance(HANDSET_EARPIECE);
+		}
+		else {
+			earpiece.updateLocation(RadiocraftVoicePlugin.API.createPosition(worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D));
+			earpiece.setDistance(EARPIECE);
 		}
 		earpiece.send(encoder.encode(processor.process(pcm, PHONE_QUALITY, Math.min(1.0D, gain), 0.0D)));
 	}
@@ -381,12 +527,19 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	protected void saveAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
 		super.saveAdditional(tag, registries);
 		tag.putInt("extension", extension);
+		UUID holder = handsetHolder;
+		if(holder != null && handsetId != null) {
+			tag.putUUID("handsetHolder", holder);
+			tag.putUUID("handsetId", handsetId);
+		}
 	}
 
 	@Override
 	protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
 		super.loadAdditional(tag, registries);
 		extension = tag.contains("extension") ? tag.getInt("extension") : -1;
+		handsetHolder = tag.hasUUID("handsetHolder") ? tag.getUUID("handsetHolder") : null;
+		handsetId = tag.hasUUID("handsetId") ? tag.getUUID("handsetId") : null;
 		if(tag.contains("state")) { // The client's copy.
 			try {
 				state = State.valueOf(tag.getString("state"));

@@ -24,28 +24,7 @@ public class RadiocraftTabs {
         // In the development environment, we load everything.
         // In the release version, we only enabled working items/blocks. So put all stuff not ready for release here.
         if (Radiocraft.IS_DEVELOPMENT_ENV) {
-			output.accept(RadiocraftItems.SATELLITE_DISH.get()); // The microwave dish.
-			output.accept(RadiocraftItems.IONOSPHERIC_PROCESSOR.get()); // Built and glowing, does not read the sky yet.
-			// Registered 2026-10-26, not yet playtested and without recipes (bar the map direction finder's).
-			output.accept(RadiocraftItems.TOWER_BEAM_THIN.get());
-			output.accept(RadiocraftItems.TOWER_BEAM.get());
-			output.accept(RadiocraftItems.TOWER_BEAM_THICK.get());
-			output.accept(RadiocraftItems.MICROWAVE_HORN.get());
-			RadiocraftItems.DESK_SPEAKERS.values().forEach(item -> output.accept(item.get()));
-			output.accept(RadiocraftItems.LARGE_SPEAKER.get());
-			output.accept(RadiocraftItems.PREMIUM_SPEAKER_MARBLE.get());
-			output.accept(RadiocraftItems.PREMIUM_SPEAKER_IRON.get());
-			output.accept(RadiocraftItems.PREMIUM_SPEAKER_GOLD.get());
-			output.accept(RadiocraftItems.WALL_SPEAKER.get());
-			output.accept(RadiocraftItems.LOUDSPEAKER.get());
-			output.accept(RadiocraftItems.DIRECTION_FINDER.get());
-			output.accept(RadiocraftItems.MAP_DIRECTION_FINDER.get());
-			output.accept(RadiocraftItems.DIRECTION_FINDER_MODULE.get());
-			output.accept(RadiocraftItems.WORLD_MAP_MODULE.get());
-			output.accept(RadiocraftItems.HANDHELD_DIRECTION_FINDER.get());
-			output.accept(RadiocraftItems.MICROWAVE_RADIO.get());
-			output.accept(RadiocraftItems.TELEPHONE.get());
-			output.accept(RadiocraftItems.HF_MANPACK.get());
+			// Nothing here at the moment: everything registered works.
 		}
 
 		// Anything below here should be in the release creative menu
@@ -85,6 +64,33 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.DUMMY_LOAD.get());
         output.accept(RadiocraftItems.FIVE_BTV_ANTENNA.get());
         output.accept(RadiocraftItems.IONOSONDE.get());
+        output.accept(RadiocraftItems.IONOSPHERIC_PROCESSOR.get());
+        output.accept(RadiocraftItems.HF_MANPACK.get());
+
+        // Towers and microwave links (released 2026-10-27)
+        output.accept(RadiocraftItems.TOWER_BEAM_THIN.get());
+        output.accept(RadiocraftItems.TOWER_BEAM.get());
+        output.accept(RadiocraftItems.TOWER_BEAM_THICK.get());
+        output.accept(RadiocraftItems.SATELLITE_DISH.get()); // The microwave dish.
+        output.accept(RadiocraftItems.MICROWAVE_HORN.get()); // The large horn: a dish with six times the reach.
+        output.accept(RadiocraftItems.MICROWAVE_RADIO.get());
+        output.accept(RadiocraftItems.TELEPHONE.get());
+
+        // Speakers (released 2026-10-27)
+        RadiocraftItems.DESK_SPEAKERS.values().forEach(item -> output.accept(item.get()));
+        output.accept(RadiocraftItems.LARGE_SPEAKER.get());
+        output.accept(RadiocraftItems.PREMIUM_SPEAKER_MARBLE.get());
+        output.accept(RadiocraftItems.PREMIUM_SPEAKER_IRON.get());
+        output.accept(RadiocraftItems.PREMIUM_SPEAKER_GOLD.get());
+        output.accept(RadiocraftItems.WALL_SPEAKER.get());
+        output.accept(RadiocraftItems.LOUDSPEAKER.get());
+
+        // Direction finding (released 2026-10-27)
+        output.accept(RadiocraftItems.DIRECTION_FINDER.get());
+        output.accept(RadiocraftItems.MAP_DIRECTION_FINDER.get());
+        output.accept(RadiocraftItems.DIRECTION_FINDER_MODULE.get());
+        output.accept(RadiocraftItems.WORLD_MAP_MODULE.get());
+        output.accept(RadiocraftItems.HANDHELD_DIRECTION_FINDER.get());
 
         // Repeaters
         output.accept(RadiocraftItems.VHF_REPEATER.get());

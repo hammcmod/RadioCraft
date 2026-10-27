@@ -78,6 +78,7 @@ public class RadiocraftCapabilities {
 				RadiocraftBlocks.WALL_SPEAKER.get(),
 				RadiocraftBlocks.LOUDSPEAKER.get(),
 				RadiocraftBlocks.DIRECTION_FINDER_MODULE.get(),
+				RadiocraftBlocks.IONOSPHERIC_PROCESSOR.get(),
 				RadiocraftBlocks.DIRECTION_FINDER.get(),
 				RadiocraftBlocks.MAP_DIRECTION_FINDER.get(),
 				RadiocraftBlocks.APRS_TERMINAL.get(),

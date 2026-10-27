@@ -1,6 +1,6 @@
 {
   "name": "Sun & Weather",
-  "description": "The sun decides which HF bands are open; the weather fills the fax charts and the APRS beacons. How to read both, and the Ionospheric Processor that will measure the sky itself.",
+  "description": "The sun decides which HF bands are open; the weather fills the fax charts and the APRS beacons. How to read both, and the Ionospheric Processor that measures the sky and broadcasts it.",
   "icon": "radiocraft:ionospheric_processor",
   "sortnum": 5
 }

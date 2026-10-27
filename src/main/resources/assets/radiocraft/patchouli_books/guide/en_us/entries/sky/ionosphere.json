@@ -6,7 +6,17 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The $(item)Ionospheric Processor$() is the heart of a sounding station: a rack of glowing valves that will send pulses straight up through an $(item)Ionosonde Antenna$() and time the echoes off the sky, to tell which bands are open before you call.$(br2)Today it is built and placed, valves aglow; the sky readings are still to come. Until then the teletype's report is your forecast."
+      "text": "The $(item)Ionospheric Processor$() is the heart of a sounding station: a rack of glowing valves that sends pulses straight up through an $(item)Ionosonde Antenna$() and times the echoes off the sky.$(br2)With its ionosonde on the coax of its lower half it knows the solar weather; a comparator reads 1 (blackout) to 6 (great). Right click for its terminal."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "On the air",
+      "text": "Put a radio against the rack. Any $(l:radiocraft:sky/wefax)WEFAX$(/l) or $(l:radiocraft:digital/teletype)teletype$(/l) on that frequency that presses SOLR WX gets an answer under the rack's call sign (the placer's). Machines touching the rack or its radio read it directly.$(br2)$(thing)Blackout alerts$() (on unless switched off) warn a few minutes before a blackout: WEFAX receivers that hear one print it and beep."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The terminal",
+      "text": "$(li)$(thing)[1] Timed bulletins$(): off by default. On, it also sends the report unasked: when it comes online, when the weather changes and every five minutes.$(li)$(thing)[2] Blackout alerts$(): the warnings, on by default.$(li)$(thing)[3] Send bulletin now$().$(br)It also shows its radio's frequency and any blackout forecast."
     },
     {
       "type": "patchouli:text",

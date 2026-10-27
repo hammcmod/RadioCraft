@@ -29,6 +29,8 @@ public class BENetworkTypes {
                 com.arrl.radiocraft.common.be_networks.network_objects.DummyLoadNetworkObject::new);
         BENetworkRegistry.registerObject(SpeakerNetworkObject.TYPE, SpeakerNetworkObject::new);
         BENetworkRegistry.registerObject(DirectionFinderModuleNetworkObject.TYPE, DirectionFinderModuleNetworkObject::new);
+        BENetworkRegistry.registerObject(com.arrl.radiocraft.common.be_networks.network_objects.IonosphericProcessorNetworkObject.TYPE,
+                com.arrl.radiocraft.common.be_networks.network_objects.IonosphericProcessorNetworkObject::new);
         BENetworkRegistry.registerObject(MicrowaveNetworkObjects.Dish.TYPE, MicrowaveNetworkObjects.Dish::new);
         BENetworkRegistry.registerObject(MicrowaveNetworkObjects.Radio.TYPE, MicrowaveNetworkObjects.Radio::new);
         BENetworkRegistry.registerObject(MicrowaveNetworkObjects.StationLink.TYPE, MicrowaveNetworkObjects.StationLink::new);

@@ -422,11 +422,18 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         recordSignal(strength);
         for(RadioInterfaceBlockEntity radioInterface : getRadioInterfaces())
             radioInterface.receive(this, payload);
-        for(Direction direction : Direction.values()) { // Teletypes and fax machines have their own modems and take packets straight from the radio.
+        for(Direction direction : Direction.values()) { // Teletypes, fax machines and WEFAX receivers have their own modems and take packets straight from the radio.
             if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity teletype)
                 teletype.receive(payload);
             else if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity fax)
                 fax.receive(payload);
+            else if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.WefaxReceiverBlockEntity wefax)
+                wefax.receive(payload); // Solar bulletins from an Ionospheric Processor.
+            else {
+                com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity processor = com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity.at(level, worldPosition.relative(direction));
+                if(processor != null)
+                    processor.receive(payload); // Requests for the solar weather.
+            }
         }
         return true;
     }

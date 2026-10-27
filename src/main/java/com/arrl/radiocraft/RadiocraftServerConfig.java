@@ -101,6 +101,8 @@ public class RadiocraftServerConfig {
 
 	public static final ModConfigSpec.ConfigValue<Boolean> TELETYPE_NEEDS_RADIO;
 	public static final ModConfigSpec.ConfigValue<Boolean> WEFAX_SOLAR_ALWAYS;
+	public static final ModConfigSpec.ConfigValue<Integer> IONOSPHERIC_BULLETIN_MINUTES;
+	public static final ModConfigSpec.ConfigValue<Integer> SOLAR_FORECAST_MINUTES;
 	public static final ModConfigSpec.ConfigValue<Boolean> WEFAX_WEATHER_ALWAYS;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_LATITUDE;
 	public static final ModConfigSpec.ConfigValue<Boolean> AURORA_AT_ANY_Z;
@@ -361,8 +363,15 @@ public class RadiocraftServerConfig {
 				" antenna on its coax; a dummy load does not count").define("solar_weather_station_needs_radio", true);
 		BUILDER.pop();
 
+		BUILDER.push("Ionospheric Processor");
+		IONOSPHERIC_BULLETIN_MINUTES = BUILDER.comment(" Minutes between the solar bulletins of an Ionospheric Processor with timed bulletins switched on (it",
+				" also sends one when the solar weather changes and when its ionosonde comes online); 0 sends only those").defineInRange("ionospheric_bulletin_minutes", 5, 0, 1440);
+		SOLAR_FORECAST_MINUTES = BUILDER.comment(" How many minutes before the solar weather changes the next event is known: processors with blackout",
+				" alerts on warn of a blackout this far ahead, and reports say one is expected").defineInRange("solar_forecast_minutes", 5, 1, 60);
+		BUILDER.pop();
+
 		BUILDER.push("WEFAX Receiver");
-		WEFAX_SOLAR_ALWAYS = BUILDER.comment(" The WEFAX receiver prints the solar weather report (SOLR WX) without a radio beside it")
+		WEFAX_SOLAR_ALWAYS = BUILDER.comment(" The WEFAX receiver prints the local solar weather report (SOLR WX) without having heard an Ionospheric Processor")
 				.define("wefax_solar_report_always_works", false);
 		WEFAX_WEATHER_ALWAYS = BUILDER.comment(" The WEFAX receiver prints the weather charts (WX REPT and AUTO) without a radio beside it")
 				.define("wefax_weather_report_always_works", false);

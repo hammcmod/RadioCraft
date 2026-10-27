@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -30,7 +31,7 @@ import java.util.Locale;
  */
 public record TncPacket(long id, Kind kind, String from, String to, String text, @Nullable BlockPos position, String icon, int hops, ItemStack item) {
 
-	public enum Kind { BEACON, MESSAGE, RTTY, FILE_HEADER, FILE, ACK, FAX_CALL, FAX_ANSWER, FAX_PACKET, FAX_ACK }
+	public enum Kind { BEACON, MESSAGE, RTTY, FILE_HEADER, FILE, ACK, FAX_CALL, FAX_ANSWER, FAX_PACKET, FAX_ACK, SOLAR, QUERY, ALERT }
 
 	/** A message to this callsign is for every station that hears it, as a bulletin. */
 	public static final String EVERYONE = "ALL";
@@ -100,6 +101,49 @@ public record TncPacket(long id, Kind kind, String from, String to, String text,
 
 	public static TncPacket rtty(long id, String from, String text) {
 		return new TncPacket(id, Kind.RTTY, sanitizeCallsign(from), "", Rtty.sanitize(text, RTTY_TEXT_MAX), null, AprsIcon.HOUSE.name(), 0, ItemStack.EMPTY);
+	}
+
+	/** Most characters a solar bulletin carries: the whole report, lines joined by {@link #SOLAR_LINE_BREAK}. */
+	public static final int SOLAR_TEXT_MAX = 600;
+	public static final String SOLAR_LINE_BREAK = "|";
+
+	/**
+	 * An Ionospheric Processor's solar weather bulletin, for everyone: the report's lines joined by
+	 * {@link #SOLAR_LINE_BREAK}. WEFAX receivers that hear it keep it for SOLR WX.
+	 */
+	public static TncPacket solar(long id, String from, List<String> lines) {
+		return report(id, Kind.SOLAR, from, lines);
+	}
+
+	/** An Ionospheric Processor's blackout warning, the lines of its notice: WEFAX receivers that hear one print it. */
+	public static TncPacket alert(long id, String from, List<String> lines) {
+		return report(id, Kind.ALERT, from, lines);
+	}
+
+	/** The topic of a {@link Kind#QUERY} asking for the solar weather. */
+	public static final String TOPIC_SOLAR = "SOLAR";
+
+	/** A request for a report on {@code topic} ({@link #TOPIC_SOLAR}): any Ionospheric Processor that hears it answers. */
+	public static TncPacket query(long id, String from, String topic) {
+		return new TncPacket(id, Kind.QUERY, sanitizeCallsign(from), "", sanitizeText(topic, MESSAGE_TEXT_MAX), null, AprsIcon.WX.name(), 0, ItemStack.EMPTY);
+	}
+
+	private static TncPacket report(long id, Kind kind, String from, List<String> lines) {
+		StringBuilder text = new StringBuilder();
+		for(String line : lines) {
+			String clean = sanitizeText(line.replace(SOLAR_LINE_BREAK, "/"), SOLAR_TEXT_MAX);
+			if(text.length() + clean.length() + 1 > SOLAR_TEXT_MAX)
+				break;
+			if(!text.isEmpty())
+				text.append(SOLAR_LINE_BREAK);
+			text.append(clean);
+		}
+		return new TncPacket(id, kind, sanitizeCallsign(from), "", text.toString(), null, AprsIcon.WX.name(), 0, ItemStack.EMPTY);
+	}
+
+	/** A solar bulletin's or alert's report, a line each. */
+	public List<String> solarLines() {
+		return text.isEmpty() ? List.of() : List.of(text.split(java.util.regex.Pattern.quote(SOLAR_LINE_BREAK)));
 	}
 
 	/** A file for {@code to} (empty for everyone): one of {@code item}, described for the screens. */
@@ -236,7 +280,7 @@ public record TncPacket(long id, Kind kind, String from, String to, String text,
 			kind = Kind.BEACON;
 		}
 		return new TncPacket(tag.getLong("id"), kind, sanitizeCallsign(tag.getString("from")), sanitizeCallsign(tag.getString("to")),
-				kind == Kind.RTTY ? Rtty.sanitize(tag.getString("text"), RTTY_TEXT_MAX) : sanitizeText(tag.getString("text"), MESSAGE_TEXT_MAX + 1 + MESSAGE_NUMBER_MAX), tag.contains("position") ? BlockPos.of(tag.getLong("position")) : null,
+				kind == Kind.RTTY ? Rtty.sanitize(tag.getString("text"), RTTY_TEXT_MAX) : kind == Kind.SOLAR || kind == Kind.ALERT ? sanitizeText(tag.getString("text"), SOLAR_TEXT_MAX) : sanitizeText(tag.getString("text"), MESSAGE_TEXT_MAX + 1 + MESSAGE_NUMBER_MAX), tag.contains("position") ? BlockPos.of(tag.getLong("position")) : null,
 				AprsIcon.byName(tag.getString("icon")).name(), tag.getInt("hops"), ItemStack.EMPTY);
 	}
 }

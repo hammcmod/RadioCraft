@@ -1,0 +1,104 @@
+{
+	"parent": "radiocraft:item/phone_item",
+	"display": {
+		"thirdperson_righthand": {
+			"scale": [
+				0,
+				0,
+				0
+			]
+		},
+		"thirdperson_lefthand": {
+			"scale": [
+				0,
+				0,
+				0
+			]
+		},
+		"gui": {
+			"rotation": [
+				30,
+				225,
+				0
+			],
+			"translation": [
+				-2.687,
+				5.443,
+				6.572
+			],
+			"scale": [
+				1.6,
+				1.6,
+				1.6
+			]
+		},
+		"ground": {
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"translation": [
+				2.5,
+				7.0,
+				-0.125
+			],
+			"scale": [
+				1.0,
+				1.0,
+				1.0
+			]
+		},
+		"fixed": {
+			"rotation": [
+				0,
+				90,
+				0
+			],
+			"translation": [
+				-0.2,
+				8.0,
+				-4.0
+			],
+			"scale": [
+				1.6,
+				1.6,
+				1.6
+			]
+		},
+		"firstperson_righthand": {
+			"rotation": [
+				-30,
+				0,
+				0
+			],
+			"translation": [
+				3.0,
+				8.121,
+				-3.13
+			],
+			"scale": [
+				1.2,
+				1.2,
+				1.2
+			]
+		},
+		"head": {
+			"rotation": [
+				-50,
+				0,
+				90
+			],
+			"translation": [
+				0.0,
+				0.767,
+				-3.993
+			],
+			"scale": [
+				1.5,
+				1.5,
+				1.5
+			]
+		}
+	}
+}
