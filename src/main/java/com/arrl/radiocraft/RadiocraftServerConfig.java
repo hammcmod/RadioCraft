@@ -10,6 +10,15 @@ public class RadiocraftServerConfig {
 
 	public static final ModConfigSpec.Builder BUILDER = new ModConfigSpec.Builder();
 	public static final ModConfigSpec SPEC;
+	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_DISH_RANGE;
+	public static final ModConfigSpec.ConfigValue<Double> MICROWAVE_HORN_RANGE_FACTOR;
+	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_BLACKOUT_LOSS;
+	public static final ModConfigSpec.ConfigValue<Double> MICROWAVE_BEAM_WIDTH;
+	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_INTERFERENCE_MHZ;
+	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_POWER_USE;
+	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_SEARCH_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Integer> MANPACK_RECEIVE_USE;
+	public static final ModConfigSpec.ConfigValue<Integer> MANPACK_TRANSMIT_USE;
 
 	public static final ModConfigSpec.ConfigValue<Integer> HF_FREQUENCY_STEP;
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_FREQUENCY_STEP;
@@ -38,6 +47,9 @@ public class RadiocraftServerConfig {
 
 	public static final ModConfigSpec.ConfigValue<Boolean> LIGHTNING_STATIC_ENABLED;
 	public static final ModConfigSpec.ConfigValue<Boolean> WIND_ANTENNA_DAMAGE_ENABLED;
+	public static final ModConfigSpec.ConfigValue<Integer> ALTERNATOR_FE_AT_256_RPM;
+	public static final ModConfigSpec.ConfigValue<Boolean> TAPES_IN_WORLD;
+	public static final ModConfigSpec.ConfigValue<Integer> ALTERNATOR_STRESS_AT_256_RPM;
 	public static final ModConfigSpec.ConfigValue<Boolean> SOLAR_EVENTS_ENABLED;
 	public static final ModConfigSpec.ConfigValue<Double> LIGHTNING_STATIC_STRENGTH;
 	public static final ModConfigSpec.ConfigValue<Integer> LIGHTNING_STATIC_RANGE;
@@ -55,6 +67,18 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_DELAY_TICKS;
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_DIGIPEAT_MAX_HOPS;
 	public static final ModConfigSpec.ConfigValue<Integer> TNC_BEACON_INTERVAL_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_SECONDS_MAP;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_SECONDS_PER_PAGE;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_SECONDS_ENCHANTED;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_SECONDS_PAPER;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_SLOWER_10M;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_SLOWER_20M;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_SLOWER_40M;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_SLOWER_80M;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_MICROWAVE_FASTER;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_PACKET_LOSS;
+	public static final ModConfigSpec.ConfigValue<Double> FAX_SOLID_SIGNAL;
+	public static final ModConfigSpec.ConfigValue<Integer> FAX_PACKET_RETRIES;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_MESSAGE_RETRY_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_MESSAGE_RETRIES;
 	public static final ModConfigSpec.ConfigValue<Boolean> APRS_BEACON_DEFAULT;
@@ -76,6 +100,8 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> SKIP_FADING_DEPTH;
 
 	public static final ModConfigSpec.ConfigValue<Boolean> TELETYPE_NEEDS_RADIO;
+	public static final ModConfigSpec.ConfigValue<Boolean> WEFAX_SOLAR_ALWAYS;
+	public static final ModConfigSpec.ConfigValue<Boolean> WEFAX_WEATHER_ALWAYS;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_LATITUDE;
 	public static final ModConfigSpec.ConfigValue<Boolean> AURORA_AT_ANY_Z;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MIN_RANGE;
@@ -228,10 +254,22 @@ public class RadiocraftServerConfig {
 		BUILDER.pop();
 
 		BUILDER.push("Power");
+		BUILDER.comment(" With Create installed (and not Create Crafts & Additions, which has its own), the alternator turns rotation",
+				" into Forge Energy for batteries and the power network. Its numbers follow Crafts & Additions' defaults.");
+		ALTERNATOR_FE_AT_256_RPM = BUILDER.comment(" FE per tick the alternator makes at 256 RPM (in proportion at other speeds)")
+				.defineInRange("alternator_fe_at_256_rpm", 360, 0, 1000000);
+		ALTERNATOR_STRESS_AT_256_RPM = BUILDER.comment(" Stress the alternator puts on its network at 256 RPM, in SU (takes effect on restart)")
+				.defineInRange("alternator_stress_at_256_rpm", 16384, 0, 1000000);
 		BUILDER.comment(" Block radios draw power from the wire network they are on (batteries, charge controllers): the per-radio",
 				" receive and transmit draw per tick is in the common config. A radio that cannot get its draw browns out:",
 				" it stays silent and its panel cycles on / PWR / dark until the power comes back.");
 		RADIO_POWER_REQUIRED = BUILDER.comment(" Set to false to let block radios run without any power (the pre-2026-10-21 behaviour)").define("radios_need_power", true);
+		BUILDER.pop();
+
+		BUILDER.push("Tapes");
+		TAPES_IN_WORLD = BUILDER.comment(" Where the server's tape recordings (.ogg files) are: false for config/radiocraft/tapes, shared by every world;",
+				" true for <world>/radiocraft/tapes, kept with the world. A 'numbers' folder inside holds what numbers stations read out")
+				.define("tapes_in_world", false);
 		BUILDER.pop();
 
 		BUILDER.push("No Antenna");
@@ -256,6 +294,19 @@ public class RadiocraftServerConfig {
 				.defineInRange("tnc_digipeat_max_hops", 8, 0, 16);
 		TNC_BEACON_INTERVAL_SECONDS = BUILDER.comment(" Seconds between automatic beacons from an APRS terminal with beaconing enabled")
 				.defineInRange("tnc_beacon_interval_seconds", 600, 30, 86400);
+		FAX_SECONDS_MAP = BUILDER.comment(" Seconds a radio fax takes to send a map on VHF").defineInRange("fax_seconds_map", 20.0D, 1.0D, 3600.0D);
+		FAX_SECONDS_PER_PAGE = BUILDER.comment(" Seconds a radio fax takes for each page of a book on VHF").defineInRange("fax_seconds_per_page", 10.0D, 1.0D, 3600.0D);
+		FAX_SECONDS_ENCHANTED = BUILDER.comment(" Seconds a radio fax takes to send an enchanted book on VHF (the book is used up)").defineInRange("fax_seconds_enchanted", 40.0D, 1.0D, 3600.0D);
+		FAX_SECONDS_PAPER = BUILDER.comment(" Seconds a radio fax takes to send a sheet of paper on VHF").defineInRange("fax_seconds_paper", 10.0D, 1.0D, 3600.0D);
+		FAX_SLOWER_10M = BUILDER.comment(" How many times slower than VHF a radio fax is on 10m").defineInRange("fax_slower_10m", 2.0D, 0.1D, 100.0D);
+		FAX_SLOWER_20M = BUILDER.comment(" How many times slower than VHF a radio fax is on 20m").defineInRange("fax_slower_20m", 4.0D, 0.1D, 100.0D);
+		FAX_SLOWER_40M = BUILDER.comment(" How many times slower than VHF a radio fax is on 40m").defineInRange("fax_slower_40m", 6.0D, 0.1D, 100.0D);
+		FAX_SLOWER_80M = BUILDER.comment(" How many times slower than VHF a radio fax is on 80m").defineInRange("fax_slower_80m", 8.0D, 0.1D, 100.0D);
+		FAX_MICROWAVE_FASTER = BUILDER.comment(" How many times faster than VHF a radio fax is over a microwave link").defineInRange("fax_microwave_faster", 10.0D, 0.1D, 1000.0D);
+		FAX_PACKET_LOSS = BUILDER.comment(" Share of fax packets lost at the weakest signal that still decodes, 0 to 1; none at fax_solid_signal and above")
+				.defineInRange("fax_packet_loss", 0.5D, 0.0D, 1.0D);
+		FAX_SOLID_SIGNAL = BUILDER.comment(" Signal strength (0 to 1) at and above which a radio fax loses no packets").defineInRange("fax_solid_signal", 0.5D, 0.0D, 1.0D);
+		FAX_PACKET_RETRIES = BUILDER.comment(" Times one fax packet is sent again without an ack before the fax fails").defineInRange("fax_packet_retries", 15, 0, 100);
 		APRS_MESSAGE_RETRY_SECONDS = BUILDER.comment(" Seconds an APRS message waits for its ack before it is sent again")
 				.defineInRange("aprs_message_retry_seconds", 20, 2, 600);
 		APRS_MESSAGE_RETRIES = BUILDER.comment(" Times an APRS message is sent again without an ack before it shows FAILED")
@@ -308,6 +359,13 @@ public class RadiocraftServerConfig {
 		BUILDER.push("Solar Weather Station");
 		TELETYPE_NEEDS_RADIO = BUILDER.comment(" The station only reports (and drives a comparator) with a radio of any kind next to it that has a real",
 				" antenna on its coax; a dummy load does not count").define("solar_weather_station_needs_radio", true);
+		BUILDER.pop();
+
+		BUILDER.push("WEFAX Receiver");
+		WEFAX_SOLAR_ALWAYS = BUILDER.comment(" The WEFAX receiver prints the solar weather report (SOLR WX) without a radio beside it")
+				.define("wefax_solar_report_always_works", false);
+		WEFAX_WEATHER_ALWAYS = BUILDER.comment(" The WEFAX receiver prints the weather charts (WX REPT and AUTO) without a radio beside it")
+				.define("wefax_weather_report_always_works", false);
 		BUILDER.pop();
 
 		BUILDER.push("Aurora");
@@ -419,6 +477,28 @@ public class RadiocraftServerConfig {
 		CRYSTAL_PURE_NOISE_FACTOR = BUILDER.comment(" Multiplier on the noise a radio with a pure crystal hears (0.95 = 5% quieter)").defineInRange("crystal_pure_noise_factor", 0.95, 0.0, 1.0);
 		CRYSTAL_POOR_EXTRA_NOISE = BUILDER.comment(" Noise a poor crystal adds on top of the noise floor (0 to 1)").defineInRange("crystal_poor_extra_noise", 0.05, 0.0, 1.0);
 		CRYSTAL_POOR_DRIFT_HZ = BUILDER.comment(" Furthest a poor crystal drifts off frequency, in Hz, wandering over a few minutes (SSB hears 500 Hz off as on frequency)").defineInRange("crystal_poor_drift_hz", 1000.0, 0.0, 10000.0);
+		BUILDER.pop();
+
+		BUILDER.push("Microwave");
+		BUILDER.comment(" Microwave links are lined up like real ones. Two dishes read each other's signal (RSSI, dBm) once each points",
+				" within 90 degrees of the other, nothing in the terrain blocks the straight line between them, and they are close",
+				" enough; peak one end then the other on the radio's ALIGN page. Past -90 dBm the far end decodes and a link can",
+				" come up; past -75 it is clean. Range is the geometric mean of the two ends: dish to dish the dish range, horn to",
+				" horn the horn's.");
+		MICROWAVE_DISH_RANGE = BUILDER.comment(" Range of the small microwave dish, in blocks").defineInRange("microwave_dish_range", 1500, 16, 100000);
+		MICROWAVE_HORN_RANGE_FACTOR = BUILDER.comment(" The large horn's range against the dish's").defineInRange("microwave_horn_range_factor", 6.0, 1.0, 100.0);
+		MICROWAVE_BLACKOUT_LOSS = BUILDER.comment(" Blocks a radio blackout takes off every microwave link's range").defineInRange("microwave_blackout_loss", 20, 0, 100000);
+		MICROWAVE_BEAM_WIDTH = BUILDER.comment(" A dish's beam width, degrees: pointing half this far off costs 3 dB at that end, the full width 12 dB, down",
+				" to 30 dB on its sidelobes. Wider is more forgiving to aim; it also sets how far off a stray dish interferes",
+				" (an existing world keeps the value it saved)").defineInRange("microwave_beam_width", 45.0, 1.0, 180.0);
+		MICROWAVE_INTERFERENCE_MHZ = BUILDER.comment(" Another dish in view on a frequency this close (MHz) spoils a link").defineInRange("microwave_interference_mhz", 30, 0, 1200);
+		MICROWAVE_POWER_USE = BUILDER.comment(" Power a microwave radio draws per tick while on (a 20m radio transmitting draws 26)").defineInRange("microwave_power_use", 26, 0, 10000);
+		MICROWAVE_SEARCH_SECONDS = BUILDER.comment(" About how long one sweep for a master link takes, in seconds").defineInRange("microwave_search_seconds", 12, 1, 600);
+		BUILDER.pop();
+
+		BUILDER.push("HF Manpack");
+		MANPACK_RECEIVE_USE = BUILDER.comment(" Energy per tick while it is on and listening").defineInRange("manpack_receive_use", 2, 0, 10000);
+		MANPACK_TRANSMIT_USE = BUILDER.comment(" Energy per tick while it transmits (QRP)").defineInRange("manpack_transmit_use", 13, 0, 10000);
 		BUILDER.pop();
 
 		SPEC = BUILDER.build();

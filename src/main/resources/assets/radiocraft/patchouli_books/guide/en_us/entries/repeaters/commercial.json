@@ -1,0 +1,22 @@
+{
+  "name": "Commercial Gear",
+  "icon": "radiocraft:commercial_repeater",
+  "category": "radiocraft:repeaters",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Professional racks meant to be found at radio sites rather than built. None can be crafted.$(br2)The $(item)Commercial Repeater$() is a four-block rack that works like a $(l:radiocraft:repeaters/repeater)VHF repeater$(/l) with its duplexer and power built in: switch it on and run coax to an antenna. It transmits twice as strong as the repeater you can build."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Commercial Radio Module",
+      "text": "A sealed four-block cabinet with its own antenna that sends one thing on one frequency, on any band, for ever. You cannot open it. What you may hear:$(li)a $(thing)numbers station$(): a chime, then groups of figures$(li)a $(thing)static beacon$() every 8 seconds$(li)$(thing)dead air$(): a carrier with the odd kerchunk$(li)a $(thing)DF beeper$() every 3 seconds: hunt it with a $(l:radiocraft:direction_finding/direction_finder)direction finder$(/l)$(li)a $(thing)CW beacon$(): VVV DE and a long dash"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Salvage",
+      "text": "Break a module for one rare part: a pure encased crystal, an all-band circuit board or, rarely, an ionospheric processor. It never drops itself."
+    }
+  ]
+}

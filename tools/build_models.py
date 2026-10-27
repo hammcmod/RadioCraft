@@ -69,6 +69,7 @@ BUILDS = [
         "bbmodel": "doc/models/microwave_horn.bbmodel",
         "cells": "block/microwave_horn_{x}_{y}_{z}", "grid": (2, 4, 2),
         "textures": {"0": "radiocraft:block/microwave_horn"},
+        "item": "item/microwave_horn",  # the whole horn at half size, which fits in one model
     },
 ]
 
@@ -366,6 +367,19 @@ def build_cells(spec):
               {"credit": "RadioCraft", "parent": "block/block", "texture_size": [resolution["width"], resolution["height"]],
                "textures": dict(textures, particle=next(iter(textures.values()))), "elements": part})
     print(f"  {len(cells)} cells, {sum(map(len, cells.values()))} elements from {len(elements)} cubes")
+    if spec.get("item"):  # The whole model at half size: 2 x 4 x 2 blocks shrink to 1 x 2 x 1, inside the -16 to 32 limit.
+        half = []
+        for element in elements:
+            element = copy.deepcopy(element)
+            element["from"] = [round(v / 2, 4) for v in element["from"]]
+            element["to"] = [round(v / 2, 4) for v in element["to"]]
+            if "origin" in element.get("rotation", {}):
+                element["rotation"]["origin"] = [round(v / 2, 4) for v in element["rotation"]["origin"]]
+            half.append(element)
+        write(spec["item"], {"credit": "RadioCraft", "texture_size": [resolution["width"], resolution["height"]],
+                             "textures": dict(textures, particle=next(iter(textures.values()))), "elements": half,
+                             "display": TALL_DISPLAY})
+        print(f"  {spec['item']}: {len(half)} elements at half size")
 
 
 def main():

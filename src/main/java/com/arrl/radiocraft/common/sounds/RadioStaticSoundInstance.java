@@ -19,22 +19,39 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 
 	private final RadioBlockEntity radio;
 	private double duck = 1.0D;
+	/** The wired speaker this copy of the static plays through, null for the radio itself. */
+	@org.jetbrains.annotations.Nullable
+	private final com.arrl.radiocraft.common.radio.BEVoiceReceiver.WiredSpeaker speaker;
 
 	public RadioStaticSoundInstance(RadioBlockEntity radio) {
+		this(radio, null);
+	}
+
+	/**
+	 * The radio's static as heard through {@code speaker} (null: from the radio itself). A loudspeaker's copy is turned
+	 * up past full, which Minecraft hears as full volume carried further (16 blocks per unit of volume).
+	 */
+	public RadioStaticSoundInstance(RadioBlockEntity radio, @org.jetbrains.annotations.Nullable com.arrl.radiocraft.common.radio.BEVoiceReceiver.WiredSpeaker speaker) {
 		super(RadiocraftSoundEvents.STATIC.get(), SoundSource.VOICE, SoundInstance.createUnseededRandom());
 		this.radio = radio;
+		this.speaker = speaker;
 		this.looping = true;
 		this.delay = 0;
-		this.x = radio.getBlockPos().getX() + 0.5D;
-		this.y = radio.getBlockPos().getY() + 0.5D;
-		this.z = radio.getBlockPos().getZ() + 0.5D;
+		net.minecraft.core.BlockPos at = speaker == null ? radio.getBlockPos() : speaker.pos();
+		this.x = at.getX() + 0.5D;
+		this.y = at.getY() + 0.5D;
+		this.z = at.getZ() + 0.5D;
 		this.volume = 1.0F;
+	}
+
+	public com.arrl.radiocraft.common.radio.BEVoiceReceiver.WiredSpeaker getSpeaker() {
+		return speaker;
 	}
 
 	@Override
 	public void tick() {
-		if(radio.isRemoved())
-			stop();
+		if(radio.isRemoved() || (speaker != null && !radio.getWiredSpeakers().contains(speaker)))
+			stop(); // The radio is gone, or this speaker came off its wire.
 		else {
 			if(radio.wasPowered() && radio.isBlown() && radio.isPTTDown())
 				volume = BLOWN_VOLUME; // Keying a blown transmitter: nothing goes out, the speaker just roars.
@@ -48,10 +65,10 @@ public class RadioStaticSoundInstance extends AbstractTickableSoundInstance {
 				duck += (wanted - duck) * (wanted < duck ? DUCK_ATTACK : DUCK_RELEASE);
 				volume = (float)(noise * duck * radio.getStaticVolume() * radio.getSpeakerGain());
 			}
-			else if(radio.wasPowered() && radio.isFM() && !radio.isReceiverMuted()) // FM: hiss only under a weak signal.
-				volume = (float)(ReceiverMix.fmHiss(radio.getSyncedSignal(), radio.getCrystalEffect().applyNoise(RadiocraftServerConfig.VHF_NOISE_FLOOR.get())) * radio.getStaticVolume() * radio.getSpeakerGain());
 			else
 				volume = 0.0F;
+			if(speaker != null && volume > 0.0F)
+				volume *= speaker.kind().distance / 16.0F; // The loudspeaker's reaches 64 blocks.
 		}
 	}
 

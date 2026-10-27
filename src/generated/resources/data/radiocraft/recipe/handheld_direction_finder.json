@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "radiocraft:all_band_circuit_board"
+    },
+    "C": {
+      "item": "minecraft:compass"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "III",
+    "IBI",
+    "ICI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:handheld_direction_finder"
+  }
+}

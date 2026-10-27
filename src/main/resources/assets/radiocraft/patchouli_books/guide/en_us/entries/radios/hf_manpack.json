@@ -1,0 +1,21 @@
+{
+  "name": "HF Manpack",
+  "icon": "radiocraft:hf_manpack",
+  "category": "radiocraft:radios",
+  "sortnum": 8,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "An HF radio you carry: low-power $(thing)SSB and CW$() on 10 and 20 m, with its own whip. Sneak and right click to wear it on your chest (or in a Curios back slot). Right click it in hand, or press $(thing)J$() (Open Worn Manpack), for the panel: power, mode, band, the tuning knob, AF and mic gain, PTT and the battery.$(br2)The whip is fine by ground wave but poor for skip, and weaker indoors."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Handset and battery",
+      "text": "Click the handset on the panel to take it in hand: hold right click to talk, sneak and right click to hang it up.$(br2)The battery runs about four days listening (2 FE/t, 13 transmitting). To swap it, hold a $(item)small battery$() in your other hand and sneak-use: the two trade charge."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:hf_manpack"
+    }
+  ]
+}

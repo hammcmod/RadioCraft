@@ -1,0 +1,18 @@
+{
+  "name": "Create Alternator",
+  "icon": "radiocraft:alternator",
+  "category": "radiocraft:power",
+  "sortnum": 2,
+  "flag": "mod:create",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "With $(thing)Create$() installed (and not Create Crafts & Additions, which has its own), Radiocraft adds an $(item)Alternator$(): turn its shaft and it pushes power into the block beside it, such as a $(item)large battery$().$(br2)It makes 360 FE/t at 256 RPM, in proportion: one large water wheel geared to 8 RPM gives about 11 FE/t, enough for a VHF base station."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Making one",
+      "text": "On a $(thing)mechanical crafter$() grid: a shaft in the middle, antenna wire round it, iron sheets round that and andesite alloy at the two ends.$(br2)The $(item)large battery$() takes power from other mods' generators too."
+    }
+  ]
+}

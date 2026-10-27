@@ -182,6 +182,26 @@ public class TeletypeGameTests {
         helper.succeed();
     }
 
+    /** The printed roll tears off as an item with its lines, the machine starts fresh, and the roll feeds back in. */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 40)
+    public static void rollTearsOffAndFeedsBackIn(GameTestHelper helper) {
+        BlockPos pos = new BlockPos(4, 2, 4);
+        helper.setBlock(pos, RadiocraftBlocks.TELETYPE.get());
+        TeletypeBlockEntity teletype = teletype(helper, pos);
+        helper.assertTrue(teletype.tearOff().isEmpty(), "A blank machine gave a roll");
+        teletype.insertPaper(paper());
+        teletype.printReport();
+        java.util.List<String> printed = teletype.getRttyLines();
+        int fed = teletype.getFedLines();
+        ItemStack roll = teletype.tearOff();
+        helper.assertTrue(roll.is(com.arrl.radiocraft.common.init.RadiocraftItems.TELETYPE_ROLL.get()), "Tore off " + roll);
+        helper.assertTrue(com.arrl.radiocraft.common.items.TeletypeRollItem.contents(roll).lines().equals(printed), "The roll has " + com.arrl.radiocraft.common.items.TeletypeRollItem.contents(roll).lines());
+        helper.assertTrue(teletype.getRttyLines().isEmpty() && teletype.getFedLines() == 0, "The machine kept " + teletype.getRttyLines());
+        teletype.loadRoll(com.arrl.radiocraft.common.items.TeletypeRollItem.contents(roll));
+        helper.assertTrue(teletype.getRttyLines().equals(printed) && teletype.getFedLines() == fed, "Fed back in: " + teletype.getRttyLines());
+        helper.succeed();
+    }
+
     /** A teletype with no callsign still sends: on RTTY the operator gives it in what they type. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
     public static void rttyNeedsNoCallsign(GameTestHelper helper) {

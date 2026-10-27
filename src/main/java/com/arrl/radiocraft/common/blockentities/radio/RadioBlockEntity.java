@@ -94,6 +94,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
     protected boolean tuneFail; // An automatic tuner on the coax gave up on the antenna; the screen says TUNE FAIL.
+    /**
+     * More than one radio (or direction finder module) shares this radio's antenna coax, or it has more than one
+     * antenna: overdrawn, it hears nothing and cannot match. The screen says COAX SHARED, so the silence has a reason.
+     */
+    protected boolean coaxShared;
 
     // The hand mic on its cord (see takeHandMic): who has it out, which lending it is, and whether it is keying us.
     @Nullable
@@ -182,6 +187,12 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                     newSWR = 10.0D;
             }
 
+            boolean shared = powered && ((antenna != null && antenna.isOverdrawn()) || networkObject.getAntennas().size() > 1);
+            if(shared != be.coaxShared) {
+                be.coaxShared = shared;
+                shouldUpdate = true;
+            }
+
             boolean tuneFail = antenna != null && antenna.isTuneFailed();
             if(tuneFail != be.tuneFail) {
                 be.tuneFail = tuneFail;
@@ -200,6 +211,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.updateBlock();
             }
             if(level instanceof ServerLevel serverLevel) {
+                be.voiceReceiver.tickSquelchTail(serverLevel.getGameTime()); // FM: a burst of static as a signal drops.
                 be.tickParrot(serverLevel);
                 be.tickInterference(serverLevel, antenna);
                 be.tickBlowout(serverLevel);
@@ -207,9 +219,52 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.tickDeskMic(serverLevel);
                 be.tickMeter(serverLevel);
                 be.tickData(serverLevel, powered);
+                if((serverLevel.getGameTime() + pos.asLong()) % 20L == 0L) // Speakers come and go rarely: once a second is plenty.
+                    be.refreshSpeakers(serverLevel, networkObject);
             }
             be.additionalTick();
         }
+    }
+
+    // -------------------- SPEAKERS --------------------
+
+    /**
+     * Finds what the radio plays through: the best speaker touching it ({@link com.arrl.radiocraft.common.blocks.SpeakerBlock},
+     * else its own built-in one), and every wired speaker on the power wire it is on
+     * ({@link com.arrl.radiocraft.common.blocks.WiredSpeakerBlock}).
+     */
+    protected void refreshSpeakers(ServerLevel serverLevel, @Nullable RadioNetworkObject networkObject) {
+        com.arrl.radiocraft.common.radio.voice.SpeakerKind best = com.arrl.radiocraft.common.radio.voice.SpeakerKind.BUILT_IN;
+        for(Direction direction : Direction.values()) {
+            BlockPos at = worldPosition.relative(direction);
+            if(serverLevel.isLoaded(at) && serverLevel.getBlockState(at).getBlock() instanceof com.arrl.radiocraft.common.blocks.SpeakerBlock speaker)
+                best = com.arrl.radiocraft.common.radio.voice.SpeakerKind.better(best, speaker.getKind());
+        }
+        voiceReceiver.setSpeaker(best);
+
+        List<BEVoiceReceiver.WiredSpeaker> wired = new java.util.ArrayList<>();
+        if(networkObject != null) {
+            java.util.Set<BlockPos> seen = new java.util.HashSet<>();
+            for(com.arrl.radiocraft.api.benetworks.BENetwork network : networkObject.getNetworks().values()) {
+                if(!(network instanceof com.arrl.radiocraft.api.benetworks.PowerBENetwork))
+                    continue;
+                for(BENetworkObject object : network.getNetworkObjects()) {
+                    if(object instanceof com.arrl.radiocraft.common.be_networks.network_objects.SpeakerNetworkObject && seen.add(object.getPos())
+                            && serverLevel.isLoaded(object.getPos())
+                            && serverLevel.getBlockState(object.getPos()).getBlock() instanceof com.arrl.radiocraft.common.blocks.WiredSpeakerBlock speaker)
+                        wired.add(new BEVoiceReceiver.WiredSpeaker(object.getPos(), speaker.getKind()));
+                }
+            }
+        }
+        if(!wired.equals(voiceReceiver.getWiredSpeakers())) {
+            voiceReceiver.setWiredSpeakers(wired);
+            updateBlock(); // Clients play the static through them too.
+        }
+    }
+
+    /** The wired speakers as the client last heard of them (see {@link #refreshSpeakers}); the server's own on the server. */
+    public List<BEVoiceReceiver.WiredSpeaker> getWiredSpeakers() {
+        return voiceReceiver.getWiredSpeakers();
     }
 
     // -------------------- BARE CONNECTOR (NO ANTENNA) --------------------
@@ -289,6 +344,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 transmitData(serverLevel, sendingData.header()); // Receivers learn a file is coming and how long it takes.
                 dataFrames = FileTransfer.audio(sendingData.item(), serverLevel, sendingData.id());
             }
+            else if(sendingData.isFax())
+                dataFrames = com.arrl.radiocraft.common.radio.voice.FaxAudio.frames(sendingData);
             else
                 dataFrames = Afsk.burst(sendingData.airBytes(), sendingData.id());
             dataFrame = 0;
@@ -359,12 +416,18 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             payload = payload.withText(Rtty.garble(payload.text(), (1.0D - quality) / (1.0D - RTTY_GARBLE_FLOOR), new java.util.Random(level.getRandom().nextLong())));
         else if(!decodes(strength, getNoiseFloor()))
             return false;
+        if((payload.kind() == TncPacket.Kind.FAX_PACKET || payload.kind() == TncPacket.Kind.FAX_ACK) // A weak signal drops fax packets now and then: they are sent again.
+                && level.getRandom().nextDouble() < com.arrl.radiocraft.common.radio.data.FaxRates.lossChance(strength, getNoiseFloor()))
+            return false;
         recordSignal(strength);
         for(RadioInterfaceBlockEntity radioInterface : getRadioInterfaces())
             radioInterface.receive(this, payload);
-        for(Direction direction : Direction.values()) // Teletypes have their own terminal unit and take RTTY straight from the radio.
+        for(Direction direction : Direction.values()) { // Teletypes and fax machines have their own modems and take packets straight from the radio.
             if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity teletype)
                 teletype.receive(payload);
+            else if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity fax)
+                fax.receive(payload);
+        }
         return true;
     }
 
@@ -569,6 +632,9 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(talking != micKeyed) {
             micKeyed = talking;
             setPTTDown(talking);
+            // The mic's PTT switch clicks in the player's hand, as the desk mic's button does; softer letting go.
+            serverLevel.playSound(null, player.getX(), player.getY() + 1.0D, player.getZ(), talking ? SoundEvents.STONE_BUTTON_CLICK_ON : SoundEvents.STONE_BUTTON_CLICK_OFF,
+                    SoundSource.PLAYERS, talking ? 0.4F : 0.25F, talking ? 1.6F : 1.8F);
         }
     }
 
@@ -925,8 +991,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(isParrot()) // Queue the audio as it arrived, before the receiver scales it, so the echo carries one path's loss, not two.
             parrotVoiceQueue.add(new QueuedVoice(packet.getRawAudio().clone(), packet.getSourcePlayer(), lastSignalGameTime + parrotDelayTicks));
         double rasp = skip && band != null && band.isVhf() ? 1.0D : 0.0D; // A VHF signal beyond line of sight came off the aurora.
-        getVoiceReceiver().receive(packet, ReceiverMix.voiceLevel(strength, getNoiseFloor()) * speakerGain, rasp,
-                effect.pitchShiftHz(), effect.splatter(), Detuning.splatterOn(1.0D, getAdjacentQrm(), strength));
+        // FM holds its volume as the signal fades and gets noisier instead; SSB sinks into the noise.
+        double level = isFM() ? speakerGain : ReceiverMix.voiceLevel(strength, getNoiseFloor()) * speakerGain;
+        getVoiceReceiver().receive(packet, level, rasp, effect.pitchShiftHz(), effect.splatter(),
+                Detuning.splatterOn(1.0D, getAdjacentQrm(), strength), isFM() ? strength : -1.0D);
         return true;
     }
 
@@ -1193,7 +1261,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         RadioModeration.voice(level, sourcePlayer, rawAudio, txHz); // Operators listening in (/radio moderateall).
         List<AntennaNetworkObject> antennas = networkObject.getAntennas();
         if(antennas.size() == 1)
-            antennas.get(0).transmitAudioPacket(level, rawAudio, band, txHz, sourcePlayer, ctcssTone);
+            antennas.get(0).transmitAudioPacket(level, rawAudio, band, txHz, sourcePlayer, ctcssTone, transmitPower());
         else if(antennas.size() > 1)
             overdraw();
         else {
@@ -1201,6 +1269,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             if(bare != null)
                 bare.transmitAudioPacket(level, rawAudio, band, txHz, sourcePlayer, ctcssTone);
         }
+    }
+
+    /** How strong this transmitter is against a standard radio's (1): the commercial repeater runs hotter. */
+    protected float transmitPower() {
+        return 1.0F;
     }
 
     /** Where the radio transmits: its frequency, or with a repeater offset on VHF radios. */
@@ -1236,6 +1309,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     }
 
     /** True while an automatic tuner on the coax has given up on the antenna (synced, for the screen's TUNE FAIL). */
+    /** True while the antenna coax is shared with another radio or DF module (or the radio has two antennas): it hears nothing. */
+    public boolean isCoaxShared() {
+        return coaxShared;
+    }
+
     public boolean isTuneFailed() {
         return tuneFail;
     }
@@ -1280,6 +1358,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putFloat("micGain", micGain);
         nbt.putDouble("antennaSWR", antennaSWR);
         nbt.putBoolean("tuneFail", tuneFail);
+        nbt.putBoolean("coaxShared", coaxShared);
         if(micHolder != null && micId != null) {
             nbt.putUUID("micHolder", micHolder);
             nbt.putUUID("micId", micId);
@@ -1287,6 +1366,9 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putBoolean("wasPowered", wasPowered);
         nbt.putBoolean("pttDown", isPTTDown);
         nbt.putDouble("signal", syncedSignal);
+        List<BEVoiceReceiver.WiredSpeaker> wired = voiceReceiver.getWiredSpeakers();
+        nbt.putLongArray("wiredSpeakers", wired.stream().mapToLong(speaker -> speaker.pos().asLong()).toArray());
+        nbt.putIntArray("wiredSpeakerKinds", wired.stream().mapToInt(speaker -> speaker.kind().ordinal()).toArray());
     }
 
     /**
@@ -1306,11 +1388,21 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         micGain = nbt.contains("micGain") ? nbt.getFloat("micGain") : 1.0F;
         antennaSWR = nbt.getDouble("antennaSWR");
         tuneFail = nbt.getBoolean("tuneFail");
+        coaxShared = nbt.getBoolean("coaxShared");
         micHolder = nbt.hasUUID("micHolder") ? nbt.getUUID("micHolder") : null;
         micId = nbt.hasUUID("micId") ? nbt.getUUID("micId") : null;
         wasPowered = nbt.getBoolean("wasPowered");
         isPTTDown = nbt.getBoolean("pttDown");
         syncedSignal = nbt.getDouble("signal");
+        if(nbt.contains("wiredSpeakers")) {
+            long[] positions = nbt.getLongArray("wiredSpeakers");
+            int[] kinds = nbt.getIntArray("wiredSpeakerKinds");
+            List<BEVoiceReceiver.WiredSpeaker> wired = new java.util.ArrayList<>();
+            for(int i = 0; i < positions.length && i < kinds.length; i++)
+                wired.add(new BEVoiceReceiver.WiredSpeaker(BlockPos.of(positions[i]),
+                        com.arrl.radiocraft.common.radio.voice.SpeakerKind.values()[Math.max(0, Math.min(kinds[i], com.arrl.radiocraft.common.radio.voice.SpeakerKind.values().length - 1))]));
+            voiceReceiver.setWiredSpeakers(wired);
+        }
 
         if(band != null) { // Reset the frequency if the saved one is outside the band, and put it back on a step.
             if(frequency > band.maxFrequency() || frequency < band.minFrequency())

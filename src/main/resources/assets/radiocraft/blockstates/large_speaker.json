@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "radiocraft:block/large_speaker"
+    },
+    "facing=east": {
+      "model": "radiocraft:block/large_speaker",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "radiocraft:block/large_speaker",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/large_speaker",
+      "y": 270
+    }
+  }
+}

@@ -117,6 +117,17 @@ public final class WeatherReports {
 	}
 
 	/**
+	 * {@link #aprsWeather(WeatherReport, int, int, int, int, double, double)} stamped with the level's date and time
+	 * (28-day months, the day starting at 6:00 like a Minecraft morning).
+	 */
+	public static String aprsWeather(ServerLevel level, WeatherReport report, double gust, double rainHour) {
+		long t = ((level.getDayTime() % 24000) + 24000) % 24000;
+		long days = level.getDayTime() / 24000;
+		return aprsWeather(report, (int)(days / 28 % 12) + 1, (int)(days % 28) + 1, (int)((t / 1000 + 6) % 24),
+				(int)(t % 1000 * 60 / 1000), gust, rainHour);
+	}
+
+	/**
 	 * The APRS positionless weather report (APRS 1.0.1, chapter 12), e.g. {@code _10241430c270s012g018t064r000h85b10040}:
 	 * month, day, hour and minute, wind direction (degrees), speed and gust (mph), temperature (Fahrenheit), rain in
 	 * the last hour (hundredths of an inch), humidity (percent, 00 for 100) and pressure (tenths of a millibar).

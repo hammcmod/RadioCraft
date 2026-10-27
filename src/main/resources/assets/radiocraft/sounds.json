@@ -52,5 +52,13 @@
     "sounds": [
       "radiocraft:teletypefadeout"
     ]
+  },
+  "h19_whirr": {
+    "sounds": [
+      {
+        "name": "radiocraft:h19_whirr",
+        "stream": false
+      }
+    ]
   }
 }

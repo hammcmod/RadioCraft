@@ -1,0 +1,332 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north",
+        "part": "0"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_0"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "1"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "2"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_2"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "3"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_3"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "1",
+        "pwr": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_pwr"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "1",
+        "rx": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_rx"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "1",
+        "tx": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_tx"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "part": "3",
+        "pwr": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_3_beacon"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "0"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_0",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "1"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "2"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_2",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "3"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_3",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "1",
+        "pwr": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_pwr",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "1",
+        "rx": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_rx",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "1",
+        "tx": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_tx",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "part": "3",
+        "pwr": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_3_beacon",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "0"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_0",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "1"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "2"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_2",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "3"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_3",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "1",
+        "pwr": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_pwr",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "1",
+        "rx": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_rx",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "1",
+        "tx": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_tx",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "part": "3",
+        "pwr": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_3_beacon",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "0"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_0",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "1"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "2"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_2",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "3"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_3",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "1",
+        "pwr": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_pwr",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "1",
+        "rx": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_rx",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "1",
+        "tx": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_1_tx",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "part": "3",
+        "pwr": "true"
+      },
+      "apply": {
+        "model": "radiocraft:block/commercial_repeater_3_beacon",
+        "y": 270
+      }
+    }
+  ]
+}

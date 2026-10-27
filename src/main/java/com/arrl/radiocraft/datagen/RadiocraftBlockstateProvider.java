@@ -43,7 +43,7 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		complexHorizontalBlockWithItem(RadiocraftBlocks.AUTO_TUNER.get());
 		horizontalWithRadioLinks(RadiocraftBlocks.TELETYPE.get(), "solar_weather_station"); // The maintainer's model, from before the rename.
 		horizontalWithRadioLinks(RadiocraftBlocks.RADIO_INTERFACE.get());
-		horizontalWithRadioLinks(RadiocraftBlocks.TRANSFER_INTERFACE.get());
+		RadiocraftBlocks.RADIO_FAXES.forEach((wood, block) -> horizontalWithRadioLinks(block.get(), "radio_fax_" + wood));
 		duplexer();
 		complexHorizontalBlockWithItem(RadiocraftBlocks.DUMMY_LOAD.get());
 		deskMicrophone();

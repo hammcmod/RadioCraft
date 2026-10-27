@@ -141,6 +141,35 @@ public class RepeaterGameTests {
     }
 
     /**
+     * The repeater's tail: after the user lets go it keeps its transmitter up for its hang time (carrier, then the
+     * courtesy beep), so B still hears it, and only then drops (where listeners hear their squelch tail).
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+    public static void holdsTheCarrierForItsHangTime(GameTestHelper helper) {
+        buildWithDuplexer(helper);
+        long[] spokeAt = new long[1];
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(repeater(helper, REPEATER).hasDuplexer(), "Repeater does not see its duplexer"))
+                .thenExecute(() -> setUp(helper, 147_300, 147_900)) // Hang time 20 ticks.
+                .thenIdle(1)
+                .thenExecute(() -> {
+                    spokeAt[0] = helper.getLevel().getGameTime();
+                    speak(helper, STATION_A);
+                })
+                .thenIdle(VHFRepeaterBlockEntity.INPUT_GAP_TICKS + 12) // Let go, and well into the hang.
+                .thenExecute(() -> {
+                    helper.assertFalse(repeater(helper, REPEATER).isInputActive(), "A still counts as talking");
+                    helper.assertTrue(repeater(helper, REPEATER).isTransmitting(), "The repeater dropped before its hang time was up");
+                    helper.assertTrue(heardNow(helper, STATION_B) || station(helper, STATION_B).getLastSignalGameTime() >= helper.getLevel().getGameTime() - 2,
+                            "B does not hear the repeater's carrier in the hang time");
+                })
+                .thenWaitUntil(() -> helper.assertFalse(repeater(helper, REPEATER).isTransmitting(), "The repeater never dropped"))
+                .thenExecute(() -> helper.assertTrue(helper.getLevel().getGameTime() >= spokeAt[0] + 20,
+                        "The repeater dropped " + (helper.getLevel().getGameTime() - spokeAt[0]) + " ticks after the over, inside its hang time"))
+                .thenSucceed();
+    }
+
+    /**
      * The duplexer on top of the repeater, its coax to the J-pole either at the duplexer's own height ({@code behind}
      * false) or on the ground straight behind the repeater, where the duplexer's cable drapes down ({@code behind} true).
      */

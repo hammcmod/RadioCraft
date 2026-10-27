@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "N": {
+      "item": "minecraft:iron_nugget"
+    }
+  },
+  "pattern": [
+    "N N",
+    "NIN",
+    "N N"
+  ],
+  "result": {
+    "count": 4,
+    "id": "radiocraft:tower_beam_thin"
+  }
+}

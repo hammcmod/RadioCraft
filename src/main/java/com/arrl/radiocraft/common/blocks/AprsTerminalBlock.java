@@ -151,6 +151,14 @@ public final class AprsTerminalBlock extends BaseEntityBlock {
 		return level.getBlockEntity(pos) instanceof AprsTerminalBlockEntity terminal ? terminal.getComparatorOutput() : 0;
 	}
 
+	/** Off the power wire it may be on (a microwave radio's station line). */
+	@Override
+	protected void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+		if(!newState.is(this))
+			AbstractNetworkBlock.leaveNetworks(level, pos);
+		super.onRemove(state, level, pos, newState, movedByPiston);
+	}
+
 	@Override
 	public @NotNull RenderShape getRenderShape(@NotNull BlockState state) {
 		return RenderShape.MODEL;

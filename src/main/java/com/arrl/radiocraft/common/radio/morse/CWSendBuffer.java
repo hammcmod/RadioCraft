@@ -14,7 +14,7 @@ import java.util.List;
  */
 public class CWSendBuffer {
 
-	private final BlockPos pos;
+	private final java.util.function.Consumer<List<CWBuffer>> sink;
 
 	private final boolean[] partialBuffer = new boolean[CWBuffer.BUFFER_LENGTH];
 	private int currentId = 0;
@@ -24,7 +24,12 @@ public class CWSendBuffer {
 	private boolean accumulateInput = false;
 
 	public CWSendBuffer(BlockPos pos) {
-		this.pos = pos;
+		this(buffers -> PacketDistributor.sendToServer(new SCWBufferPacket(pos, buffers)));
+	}
+
+	/** A key whose buffers go wherever {@code sink} sends them (the HF manpack's are not at a block). */
+	public CWSendBuffer(java.util.function.Consumer<List<CWBuffer>> sink) {
+		this.sink = sink;
 	}
 
 	public void tick() {
@@ -33,15 +38,15 @@ public class CWSendBuffer {
 
 			if(currentIndex == partialBuffer.length) {
 				currentIndex = 0;
-				PacketDistributor.sendToServer(new SCWBufferPacket(pos, List.of(new CWBuffer(currentId++, partialBuffer.clone()))));
+				sink.accept(List.of(new CWBuffer(currentId++, partialBuffer.clone())));
 			}
 		}
 		else {
 			if(currentIndex != 0) {
-				PacketDistributor.sendToServer(new SCWBufferPacket(pos, List.of(
+				sink.accept(List.of(
 						new CWBuffer(currentId++, partialBuffer.clone()),
 						new CWBuffer(currentId++, new boolean[CWBuffer.BUFFER_LENGTH])
-				)));
+				));
 				Arrays.fill(partialBuffer, false);
 				currentIndex = 0;
 			}

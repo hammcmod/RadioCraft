@@ -4,6 +4,248 @@ Things that are implemented and pass the automated tests but still need a human 
 feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
 Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+
+## VHF antennas deaf after a restart (fixed 2026-10-27)
+
+- [ ] After restarting the game (or leaving and rejoining the world), J-poles, slim jims and Yagis placed before the
+  restart still hear VHF: base stations, direction finders and the commercial module all work without re-placing
+  anything. `/rcdebug antenna <pos>` shows `antennaNetwork=radiocraft:vhf onTheAir=true radiosOnCoax=1`; the radio's
+  `/rcdebug radio <pos>` shows the same line under each antenna. A J-pole from an old save that was on the HF network
+  moves itself back within two seconds (a WARN line in the log says so).
+## Batteries share charge evenly (added 2026-10-27; GameTest written, not yet run)
+
+- [ ] Two or three large batteries on one wire with a charge controller: they all fill together, each slower than
+  one alone, instead of one after another. Under a load they all drain together too (open each one's screen).
+- [ ] Charge levels are the same after leaving and rejoining the world.
+
+## Hand mic click, VHF base station lamps, COAX SHARED (added 2026-10-27)
+
+- [ ] Hand mic (sneak + right click a radio with an empty hand): a click when you start talking, a softer one on
+  letting go, heard at the player.
+- [ ] VHF base station (all three grades): the red TX lamp lights while keyed, the green RX lamp while a signal comes
+  in; both line up with the dark lamps painted on the front, on all four facings and hanging from a ceiling.
+- [ ] A radio whose antenna coax also reaches another radio or a DF module shows COAX SHARED on its readout (it hears
+  nothing then); it clears when the other is broken or the coax between them is cut. New GameTest
+  `CoaxSharedGameTests` (compiled, not yet run).
+
+## Commercial VHF antennas: Ringo and folded dipole (added 2026-10-27; GameTests written, not yet run)
+
+- [ ] VHF Ringo (`tools/commercial_vhf_antenna_models.py`): two blocks, white radiator, band clamp, the open matching
+  ring near the foot with the coax coming off it. Looks right from all four facings; item icon reads in the hand and
+  in the creative tab.
+- [ ] VHF folded dipole: mast on the side the player faced when placing it (against a tower), two arms with tall
+  narrow folded loops standing off away from it, coax down the mast; the two blocks join up without a seam.
+- [ ] Both hear and talk on 2m like a J-pole, a bit further; the Ringo crafts from ` I `/` A `/`DBC` (iron ingot,
+  antenna wire, diamond, iron block, coax). Needs `./gradlew runData` for the recipe, loot, tags and names.
+- [ ] Lightning on them does damage about one strike in four.
+
+## Solar panels under severe weather, WEFAX through station gear (added 2026-10-27)
+
+- [ ] With Another Weather Mod, panels under hail, a blizzard or sandstorm, damaging wind, a tornado or a hurricane
+  make half again what they make in rain (`solar_panel_severe_multiplier`, 0.5). Checked every 2 seconds.
+- [ ] A WEFAX receiver works with a radio, TNC and H-19 in a row beside it (it reaches the radio through the station
+  gear); GameTest `receivesThroughTheStationGear` covers this, not yet run.
+
+## FM squelch tails (added 2026-10-27)
+
+- [ ] When an FM signal drops (someone lets go of PTT, a repeater unkeys after its hang time), VHF base stations,
+  all-band radios in FM, handhelds and wired speakers give a short burst of static: about 120 ms and crisp after a
+  strong signal, up to 200 ms and louder after a weak one. Not mid-sentence on a steady PTT; with voice activation a
+  pause between phrases may tail (as VOX does).
+- [ ] A repeater holds its carrier through its hang time (its TX lamp stays lit), beeps, then drops, and listeners hear
+  the tail only then. GameTest `holdsTheCarrierForItsHangTime` covers the hang; not yet run.
+
+## FM fade on VHF (added 2026-10-27)
+
+- [ ] Walking a handheld (or moving a base station) away from a VHF transmitter: the voice stays at full volume, hiss
+  rises under it past about 70% of the range, then it cuts in and out to static, then only static, then silence.
+  Block radios, wired speakers and handhelds alike. No separate client hiss any more.
+
+## Handheld TXT / RXT tone keys (added 2026-10-27; unit tests written but not yet run)
+
+- [ ] On the VHF handheld (all three grades) the TXT and RXT keys light on hover and open "TX Tone" / "RX Tone";
+  the arrows step the tone there, and pressing the same key again (or ENTER) goes back to the frequency.
+- [ ] ENTER from the frequency opens the Offset page, ENTER again goes back; typed frequency entry still ends on ENTER.
+- [ ] A TX tone alone opens a toned repeater while the handheld still hears untoned stations; an RX tone shuts it to
+  stations without that tone. The frequency line shows T and R markers. Retuning keeps tones and offset (it used to
+  reset them).
+
+## Direction finder lock sounds (added 2026-10-27)
+
+- [ ] A beep when the signal is first heard; each module then takes about 2.5 seconds to lock, with a low beep and a
+  lock click as it does; once every module has locked, a DING ding DING chime (high, low, high). Heard at the block,
+  screen open or not.
+
+## Microwave dishes placed level (added 2026-10-27)
+
+- [ ] A freshly placed satellite dish faces the way you face and sits level (elevation 0), not tilted down where you
+  looked; two placed facing each other link without touching them. Hovering the coax (Jade) now lists the microwave
+  radio and each dish with its azimuth and elevation.
+
+## Microwave alignment rework (added 2026-10-27; unit tests pass, GameTests compiled but not run)
+
+- [ ] Dishes are drawn the way the link maths sees them: azimuth 0 faces north, elevation 0 is level (before, the
+  model was drawn turned 180 degrees and tilted 40 degrees up from what the maths used). Check a dish at AZ 090 faces
+  east, EL +20 looks up, EL -20 down. Dishes already in a world keep their numbers, so they may now be seen pointing
+  away or down: turn them on SETUP or ALIGN.
+- [ ] A newly placed dish faces back at the player who placed it, level: standing between two spots and placing a dish
+  at each makes them face each other.
+- [ ] Rough aim (each dish within 90 degrees of the other) reads something on ALIGN, as low as -118 dBm, with FAR END
+  "SIGNAL, NOT DECODED". Peaking one dish, then the other, raises it; past -90 the far end's callsign shows (DECODES)
+  and a search finds it; past -75 it reads GOOD. Two dishes a dozen blocks apart link even with one roughly aimed.
+  A master's ALIGN page reads a would-be subscriber on its frequency too, before any link.
+- [ ] A search is one sweep (about `microwave_search_seconds`), its line shows the real RSSI with a bar and DECODES /
+  TOO WEAK rather than made-up numbers. An established link holds down to -93 before dropping.
+- [ ] Ticks as the boot screen prints each line and a beep at READY; soft ticks as each page draws in; two rising
+  beeps when switched on with the screen open.
+- [ ] Switch a radio on, leave and rejoin the world: it comes back on, and a confirmed subscriber finds its master
+  again by itself (it keeps retrying while the master is not up yet).
+- [ ] A link below -75 dBm (marginal) makes telephone calls over it break up, like interference does.
+
+## Dyed coax (added 2026-10-26, late)
+
+- [ ] Sixteen dyed coaxial wires in the creative tab (a coloured stripe along the jacket; the coil icon striped).
+  Craft eight coax round a dye for eight dyed. Use a dye on laid coax: the whole run that joins it takes the colour
+  (sneak: only that block).
+- [ ] Runs of different colours laid side by side are drawn apart and stay separate networks: the direction finder
+  layout with one colour per module run now shows each module READY with its own antenna. Plain coax still joins
+  every colour (use it to tee a dyed run off on purpose). Coax climbing walls and hanging from ceilings follow the
+  same rule. Jade's coax readout covers dyed coax.
+
+## WEFAX receiver, creative module setup, fixes (added 2026-10-26, late)
+
+- [ ] WEFAX receiver: its screen is the machine from tools/wefax_gui.py. Paper used on it fills the supply (the window
+  shows empty to full in five steps; hover for the count). With a radio with an antenna beside it the power lamp
+  lights. WX REPT: a sheet rises out of the slot behind the drum over twelve seconds, the chart appearing on it top
+  first, the drum motor running, then a ding and the chart (a map) drops out of the front; pressing again prints the
+  next chart (radar, forecast, surface analysis). SOLR WX prints the solar report as a text sheet. AUTO stays down
+  while on, and prints a forecast by itself when a hazard is here or forecast. JEI moves aside for it.
+- [ ] The WEFAX receiver's block model still has rotations Minecraft 1.21.1 cannot load (see todo): it may show as
+  missing until it is re-exported.
+- [ ] Commercial radio module in creative: right click opens a setup screen (program button, frequency in MHz, SET);
+  in survival it still says it is sealed.
+- [ ] Commercial repeater: right click no longer disconnects you (the menu refused the repeater's subclass).
+- [ ] H19: no snare during boot; typing keys tick softly, the side keys keep the stone click.
+
+## Commercial repeater, commercial radio module, tapes (added 2026-10-26, night)
+
+- [ ] Commercial repeater (creative only): places as a four-block rack facing you, the parts stacked right (batteries,
+  radio with lamps, cavities, controller). Right click any part: the VHF repeater's screen. Switched on it runs with no
+  battery or duplexer; the PWR lamp and the controller beacon light, RX while someone comes in, TX while it repeats.
+  Heard from farther off and cleaner than a VHF repeater at the same spot. Breaking any part takes the rack down and
+  drops one.
+- [ ] Commercial radio module: a four-block cabinet; right click says it is sealed; its PWR lamp lights and TX
+  flickers as it sends. `/rcdebug module <x y z> <program> <MHz>` sets it (numbers, static_beacon, dead_air,
+  df_beeper, cw_beacon); `/rcdebug module <x y z>` says what it is doing. Tune a radio to it and listen: the numbers
+  station's chime then Morse figure groups every five minutes, static bursts, a dead carrier with the odd kerchunk,
+  a beep every three seconds (a direction finder homes in on it), or VVV DE and a long dash. HF modules are heard far
+  off on skip. Broken in survival it gives one rare part (a pure encased crystal, the all-band board or the
+  ionospheric processor), never itself.
+- [ ] Tapes: put .ogg files in config/radiocraft/tapes (and numbers/ inside it); `/rcdebug tapes` lists them,
+  `/rcdebug tapes give <file>` hands you one as found, `/rcdebug tapes reload` after changing files. A numbers
+  station module then reads out a numbers/ recording instead of Morse (Morse the first time while it decodes).
+- [ ] Tape reels: twelve reel colours in the creative tab, sixty colourways in all (reel and label tinted).
+  Tooltip: Blank, the found tape's name, or Recorded m:ss.
+- [ ] Tape player: use a reel on it to load it, sneak with an empty hand to take it out, empty hand for the controls.
+  PLAY plays it out loud nearby and into any radio touching it (the radio keys up and transmits it); the reels turn
+  smoothly while it plays or records and stop after. MODE: MANUAL, LOOP (again a second after it ends), INTERVAL
+  (every n minutes, - and +, shift for tens), REDSTONE (a pulse plays it once). REC on a blank or recorded tape:
+  talk within six blocks, STOP (or a minute) saves it; it plays back telephone-quality. A found tape will not record.
+- [ ] The tape player's screen is plain (wood, a dark window, vanilla buttons) until it has panel art.
+
+## Playtest fixes (added 2026-10-26, evening)
+
+- [ ] JEI no longer covers the microwave radio, telephone or direction finder screens (it moves aside as it does for
+  the H19).
+- [ ] Weather station: the vane swings round smoothly to point into the wind (`/awm here` gives the bearing) and holds
+  still in a calm; the cups spin smoothly, faster in stronger wind, spinning up and coasting down rather than
+  jumping. Check it from all sides and that it renders at a distance.
+- [ ] H19: a quiet fan-and-transformer whirr while its screen is open (spinning up over a second, gone on close).
+  Page changes and station details tick softly instead of clicking; the map's own refresh every ten seconds gives a
+  quiet beep and a couple of ticks, nothing louder. Typing still clicks.
+- [ ] Direction finder: no button clicks or drum; keys tick softly, the power switch gives two quiet tones, and its
+  whirr is louder than the H19's. Microwave radio: the same soft ticks and a whirr; STATUS and SETUP give a falling
+  and a rising two-tone, power a low two-tone, a rising blip sweep while searching, a slow low pulse while
+  broadcasting, a chime when a master is found, a rising chirp when linked, falling tones when lost or not found.
+
+- [ ] Volume on every radio: the 10m radio's top-right knob, the all-band radio's knob under the frequency buttons
+  (and its lower-right knob is now mic gain), and the VHF receiver's right-hand knob turn the speaker volume, showing
+  the percentage while turned or hovered, 0 to 200 %, as the other radios' gain dials do. The VHF repeater: scroll
+  over its SPEAKER button (the tooltip shows "volume N% (scroll)"). Each setting survives closing the screen and a
+  restart, and changes how loud the radio's own speaker (and wired speakers) plays.
+
+## Alternator, with Create (added 2026-10-26)
+
+Run with Create: `./gradlew runClient -PwithCreate` (Create Crafts & Additions not installed).
+
+- [ ] The alternator is in the RadioCraft creative tab; it looks like Crafts & Additions' alternator (orange coil),
+  facing the way it was placed, with half shafts out of both ends that turn with the network.
+- [ ] Driven by a creative motor or water wheels next to a large battery, the battery fills; Create's goggles show
+  "Energy Production" in FE/t at the current speed (360 FE/t at 256 RPM by default) and the stress it puts on the
+  network. The recipe shows in JEI as mechanical crafting (andesite alloy, iron sheets, antenna wire, a shaft).
+- [ ] With Crafts & Additions installed too, only its alternator exists (no second one from RadioCraft).
+
+## Weather station and APRS WX (added 2026-10-26)
+
+- [ ] Weather station (APRS tab in creative; copper, quartz slabs, a comparator, iron bars): the model shows, the cups spin faster in stronger wind
+  (`/awm hazard severe` nearby) and stop in a calm. Right click: wind, gusts, temperature, humidity, pressure, rain
+  in the last hour.
+- [ ] An H19 within 64 blocks of it: SETUP's SYMBOL line reads `WX (WEATHER STATION n BLOCKS AWAY)`. Its beacons
+  show at another H19 with the WX symbol (a circled W on the map) and a `WX 270/12G18 64F 85% 1004MB` line in
+  STATIONS HEARD; the station's details add WIND and WEATHER lines above the buttons, and the comment shows on its own.
+
+## Microwave links, telephone, HF manpack, handheld direction finder (added 2026-10-26, second round)
+
+- [ ] Microwave dish (the old satellite dish, recipe III / IC_ / IWI): placed, it points where you look, up and down
+  included. Check the model's bowl really faces that way and tilts the right way for elevation (the renderer turns it
+  by the exact azimuth and tilts the `lnb_arm` bone); the setup page turns and tilts it a degree at a time.
+- [ ] Microwave radio: green terminal behind the beige rack front. POWER boots it; SETUP sets callsign, hex ID,
+  frequency (5925-7125 MHz, FREQ knob scrolls) and the dishes; STATUS has BROADCAST MASTER LINK, SEARCH FOR MASTER LINK
+  (spinner, progress bar, sweeps) and the confirm prompt with both callsigns. A second dish within 30 MHz in view shows
+  INTERFERENCE. The block's screen glows while on.
+- [ ] Over a link: an H19 at each end shares APRS (the far end also re-sends on its radio with hops reset); direction
+  finders on the same frequency get each other's bearings (FIX page, L rows) and fix automatically.
+- [ ] Telephone: EXT shows its extension; key another extension and CALL: the far phone rings (bell), CALL answers,
+  voices near each phone come out of the other clean and a little fuller than SSB; HANG ends it. EXT + number + CALL
+  changes the extension. Phones work touching a microwave radio or on its power wire.
+- [ ] HF manpack (recipe: bundle, leather chestplate, 20m QRP, any 10m radio): sneak right click wears it (chest; or the
+  Curios back slot), the pack draws on the back (check its position), right click in hand or the J key opens the
+  olive panel: PWR, SSB/CW, BAND 10/20, FREQ knob (wheel or click halves), AF, MIC, PTT, TX lamp, battery %. Static
+  follows you while it is on; voice from a station on frequency comes out where you stand; CW sends with PTT or the CW
+  key and plays back. Click the handset: the panel closes and you hold it; hold right click to talk; sneak right click
+  hangs it up.
+- [ ] Handheld direction finder: right click sets a frequency; held while a station transmits there within line of
+  sight range, it beeps and blinks, faster as you face the station. No audio comes through.
+- [ ] Wired speakers play the radio's static as well as its voice (the loudspeaker's carries further).
+
+## Direction finder, speakers, tower beams, microwave horn (added 2026-10-26)
+
+All in the development creative list. The GameTests cover the server side (locking on, bearing, module states, speaker
+lookup, horn placement); these need eyes and ears.
+
+- [ ] Direction finder: place one, stack 3 to 8 Direction Finder Modules against it (or against each other), run
+  coax from each module to an antenna of the same type, open it. POWER on the side panel: the amber screen boots with
+  the DF art and a module and antenna report; the PWR lamp lights; the block's own screen shows the amber prompt.
+- [ ] DF page: arrows (or the scroll wheel, or clicking the < > marks) tune, up and down change band, F types a
+  frequency in MHz. Have someone transmit on it: *RX* flashes, the meter moves, the modules lock one a second
+  (their lamps go green, a module with no antenna or a different one is red), and from three locked the compass
+  needle appears with its error wedge, narrowing as more lock. The block's screen switches to the compass.
+- [ ] FIX page: A types another station's X, Z, bearing and accuracy; D deletes the selected one. With two stations
+  at least 48 blocks apart and bearings crossing well, a blinking point in a box marks the fix, with its X, Z, box
+  size and range on the left; otherwise the reason it cannot fix.
+- [ ] Map Enabled Direction Finder (a direction finder crafted with a World Map Module): the boot loads the map off
+  the floppy with a progress bar and disk noises, and the FIX page draws an amber map (as the H19's, recoloured)
+  under the stations, lines and box. Journeyman cartographers sell the module (12 emeralds and a compass); its item
+  texture is a placeholder floppy.
+- [ ] Speakers: a radio sounds thinner on its own than before (80% of the passband), a little fuller with a desk or
+  large speaker touching it, and as it used to with a premium speaker touching it. Wall speakers and the loudspeaker
+  on the radio's power wire each play the voice where they stand: the wall speaker a bit rough, the loudspeaker loud,
+  distorted and audible out to 64 blocks. Static still only plays at the radio.
+- [ ] Tower beams (thin, normal, thick): beams join every beam they touch, edges and corners included; a 2x2 of
+  columns braces itself; a lone beam is a straight post. The hit box covers the core and the straight arms.
+- [ ] Microwave horn: placing it puts up the whole 2x2x4 horn facing where you look (clicked block is its back left
+  corner); breaking any part takes it all down and drops one. The item shows the whole horn at half size.
+
 ## Weather and WEFAX charts (added 2026-10-25)
 
 Dev runs have Another Weather Mod (from `libs/`); its own checklist is in its repository's doc/NeedsTesting.md.
@@ -298,7 +540,49 @@ Dev runs have Another Weather Mod (from `libs/`); its own checklist is in its re
 - [ ] On coax to a VHF base station the radio shows SWR 3; to an HF radio, SWR 8, and keying up wastes most of the
   power. Receiving on VHF is about as good as a J-pole; HF is faint.
 
-## Radio Interface, H19 and Transfer Interface (added 2026-10-23)
+## Radio Fax and the teletype roll (added 2026-10-27)
+
+The Digital Transfer Interface is gone; the **Radio Fax** (one per log, in the dev tab and craftable from that log,
+glass, wire, an HF board and paper) replaces it. Audio needs voice chat.
+
+- [ ] Model: a log-clad desk fax facing the player, a cream deck with a keypad and LCD at the front, a sheet in the
+  front tray and one standing in the feeder at the back; the floor cable runs to a Radio Interface or a radio beside
+  it. All eleven woods look right (bamboo, crimson and warped use the block / stem textures).
+- [ ] Screen: a cream fascia with the document slot and SEND key on the left, PAPER / BOOK / MAP supplies and the
+  four-slot RECEIVED tray along the bottom, the grey LCD top right, and the vanilla inventory below. Hover tips on
+  each.
+- [ ] LCD: typing goes into TO (upper case, callsign characters only, a blinking cursor); TAB or a click on the MY
+  row moves to MY (ENTER there sets the machine's own callsign, empty claims yours); ENTER in TO or the SEND key
+  sends. 'e' does not close the screen; ESC does. Key clicks on each character.
+- [ ] RECENT: up to six callsigns, newest first, two a row; clicking one fills TO.
+- [ ] Sending a two-page book to the other station on VHF: the LCD reads CALLING, then SENDING PACKET x/30 with the
+  bar filling, about 20 seconds in all; the counter ticks faintly as it moves. The far machine shows RECEIVING FROM
+  and its own count, prints a copy (generation up one) into its tray on one of its blank books, dings; the sender
+  shows SENT BOOK ... for ten seconds, then READY.
+- [ ] On the air (any radio on the frequency): the CNG beep, the long CED answer, then the warbling carrier in bursts
+  with a short beep after each; nothing on the air over a microwave link.
+- [ ] Standing by either machine: the same tones quietly from the machine itself (its monitor speaker), while the fax
+  runs; silence when idle.
+- [ ] Far apart or with a high noise floor (a storm): RETRY appears on the status, R<n> at the right of it, the bar
+  stalls and goes on; a hopeless signal ends in FAILED x/30 and the receiver in LOST.
+- [ ] A fax to a callsign nobody has ends in NO ANSWER after three calls (about 15 s); to a station with no blank of
+  the right kind, "<CALL>: NO BOOK" (or PAPER / MAP); with a full tray, TRAY FULL; while it is busy, BUSY.
+- [ ] A map takes about 20 s on VHF, an enchanted book 40 s and is gone from the sender's slot when done; on 10m a map
+  takes about 40 s, on 80m about 160 s; over a microwave link about 2 s.
+- [ ] A fax touching the radio with no Radio Interface works under the callsign set on its MY row.
+- [ ] Hoppers: one on top or beside stocks paper, books and maps; one underneath takes the copies.
+- [ ] Teletype: the wheel, Page Up / Page Down, Home and End scroll back up the roll (a "-n" tag at the top right of
+  the paper shows how far); typing snaps back to the head. 400 lines are kept.
+- [ ] Sneak-right-click the teletype with an empty hand: the printed roll comes off as a Teletype Roll item (tooltip:
+  how many lines and the first), with a paper rustle, and the machine shows a fresh roll. Nothing happens if nothing
+  was printed.
+- [ ] Right click the roll in hand: a scrollable strip of the paper, opened at its end; wheel, Page Up / Down, Home,
+  End, arrows. ESC closes.
+- [ ] Right click a teletype whose roll is empty with the roll: it feeds back in and the item is used up; on a machine
+  with lines on it the roll opens to read instead.
+- [ ] JEI's item list stays clear of the fax screen.
+
+## Radio Interface, H19 and Transfer Interface (added 2026-10-23; the Transfer Interface is now the Radio Fax)
 
 The digital interface is now three blocks (dev tab): the **Radio Interface** touching a VHF radio, and the **H19
 APRS Terminal** and **Digital Transfer Interface** touching it, or touching each other in a chain back to it.

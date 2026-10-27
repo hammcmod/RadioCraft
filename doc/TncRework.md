@@ -7,8 +7,9 @@ Planning notes from 2026-10-23, updated with the maintainer's answers the same d
 
 - **Built:** the station bus (`StationBus`), the TNC renamed the **Radio Interface** (`radio_interface`: callsign and
   TX switch, digipeating), the APRS Interface as the **H19 APRS Terminal** (`aprs_h19`, the maintainer's model; its
-  screen shows READY, CONTACT or MSG) and the **Digital Transfer Interface** (`transfer_interface`, placeholder box).
-  The H19 and Transfer screens are the old tabs until the maintainer redesigns them.
+  screen shows READY, CONTACT or MSG) and the Digital Transfer Interface, since replaced (2026-10-27) by the **Radio
+  Fax** (`radio_fax_<wood>`): the same bus terminal, with a call-and-answer protocol, thirty acknowledged packets and
+  fax tones. The H19 screen is the old tabs until the maintainer redesigns it.
 - **Changed from the plan below:** the Radio Interface's only UI is a callsign box and a TX on/off switch. Digipeating
   and the beacon settings are set from the H19, the way a real terminal configures its TNC. The H19's CONTACT light
   goes out when it is opened or after `aprs_contact_lamp_minutes`; MSG only when opened. There is no claim button: an

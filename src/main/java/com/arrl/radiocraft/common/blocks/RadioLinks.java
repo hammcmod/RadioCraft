@@ -30,7 +30,7 @@ public final class RadioLinks {
 	public static final Predicate<BlockState> RADIO = state -> state.getBlock() instanceof RadioBlock && !state.getValue(RadioBlock.CEILING);
 	/** A block on the station bus: a radio interface or one of its terminals. */
 	public static final Predicate<BlockState> STATION = state -> state.getBlock() instanceof RadioInterfaceBlock
-			|| state.getBlock() instanceof AprsTerminalBlock || state.getBlock() instanceof TransferInterfaceBlock;
+			|| state.getBlock() instanceof AprsTerminalBlock || state.getBlock() instanceof RadioFaxBlock;
 
 	private RadioLinks() {}
 

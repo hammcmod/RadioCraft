@@ -1,0 +1,58 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "conditions": [
+        {
+          "block": "radiocraft:commercial_radio_module",
+          "condition": "minecraft:block_state_property",
+          "properties": {
+            "part": "0"
+          }
+        },
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "radiocraft:encased_crystal_80m_pure",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "radiocraft:encased_crystal_40m_pure",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "radiocraft:encased_crystal_20m_pure",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "radiocraft:encased_crystal_10m_pure",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "radiocraft:encased_crystal_vhf_pure",
+          "weight": 4
+        },
+        {
+          "type": "minecraft:item",
+          "name": "radiocraft:all_band_circuit_board",
+          "weight": 3
+        },
+        {
+          "type": "minecraft:item",
+          "name": "radiocraft:ionospheric_processor"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "radiocraft:blocks/commercial_radio_module"
+}

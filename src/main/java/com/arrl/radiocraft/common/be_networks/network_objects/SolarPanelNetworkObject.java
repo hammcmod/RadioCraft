@@ -29,6 +29,9 @@ public class SolarPanelNetworkObject extends PowerNetworkObject implements IPass
     public static final ResourceLocation TYPE = Radiocraft.id("solar_panel");
 
     private boolean canSeeSky = false;
+    /** Severe weather over the panel, checked every {@link #SEVERE_CHECK_TICKS} (a full weather report is not cheap). */
+    private boolean severe = false;
+    private static final int SEVERE_CHECK_TICKS = 40;
     public int lastPowerTick = 0;
 
     public SolarPanelNetworkObject(Level level, BlockPos pos) {
@@ -59,6 +62,10 @@ public class SolarPanelNetworkObject extends PowerNetworkObject implements IPass
             int powerGenerated = CommonConfig.SOLAR_PANEL_MAX_OUTPUT.get();
             if(WeatherSources.isRaining(level, pos)) // Local rain where a weather mod has storms.
                 powerGenerated = (int)(powerGenerated * CommonConfig.SOLAR_PANEL_RAIN_MULTIPLIER.get());
+            if((level.getGameTime() + pos.asLong()) % SEVERE_CHECK_TICKS == 0L)
+                severe = WeatherSources.isSevere(level, pos);
+            if(severe) // Severe weather on top: the sky is darker still, and hail and dust coat the cells.
+                powerGenerated = (int)(powerGenerated * CommonConfig.SOLAR_PANEL_SEVERE_MULTIPLIER.get());
 
             lastPowerTick = powerGenerated;
 

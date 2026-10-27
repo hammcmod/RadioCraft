@@ -17,6 +17,8 @@ public class RadiocraftSoundEvents {
 	public static Supplier<SoundEvent> TELETYPE = SOUND_EVENTS.register("teletype", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("teletype"), 16.0F));
 	/** The bell at the end of the report, and on placing the station. */
 	/** The machine's motor running. */
+	/** The H19 terminal's fan and transformer hum, a loop played while its screen is open. */
+	public static Supplier<SoundEvent> H19_WHIRR = SOUND_EVENTS.register("h19_whirr", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("h19_whirr"), 16.0F));
 	public static Supplier<SoundEvent> TELETYPE_BACKGROUND = SOUND_EVENTS.register("teletype_background", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("teletype_background"), 16.0F));
 	/** One keystroke of the machine printing; sounds.json picks one of fifteen at random. */
 	public static Supplier<SoundEvent> TELETYPE_KEY = SOUND_EVENTS.register("teletype_key", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("teletype_key"), 16.0F));

@@ -29,6 +29,24 @@ public final class RadioDisplays {
 
 	private static final Map<String, Optional<Display>> CACHE = new ConcurrentHashMap<>();
 
+	/**
+	 * A front panel lamp painted on a radio's texture, in model pixels as {@link Display} (left and right as seen from
+	 * the front, bottom and top, the depth of the face it is on): lit in {@code colour} while the radio transmits
+	 * ({@code tx}) or while it hears a signal.
+	 */
+	public record Lamp(float x1, float x2, float y1, float y2, float front, int colour, boolean tx) {}
+
+	/** The lamps of each radio model that has them; the texture holds them dark, the renderer lights them. */
+	private static final Map<String, java.util.List<Lamp>> LAMPS = Map.of(
+			"vhf_base_station", java.util.List.of(
+					new Lamp(4.5F, 5.5F, 2.75F, 3.75F, 1.75F, 0xFFFF3B30, true), // TX, red, right of the display's left edge.
+					new Lamp(6.5F, 7.5F, 2.75F, 3.75F, 1.75F, 0xFF3BFF6A, false))); // RX, green.
+
+	/** The lamps of the radio block {@code blockPath}, none if its model has none. */
+	public static java.util.List<Lamp> lamps(String blockPath) {
+		return LAMPS.getOrDefault(blockPath.replaceAll("_(pure|poor)$", ""), java.util.List.of());
+	}
+
 	private RadioDisplays() {}
 
 	/** Forgets what was read, after a resource reload. */

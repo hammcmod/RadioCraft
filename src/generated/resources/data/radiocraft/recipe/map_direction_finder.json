@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "radiocraft:direction_finder"
+    },
+    {
+      "item": "radiocraft:world_map_module"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:map_direction_finder"
+  }
+}

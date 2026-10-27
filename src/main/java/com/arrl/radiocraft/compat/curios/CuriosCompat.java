@@ -29,6 +29,11 @@ public final class CuriosCompat {
             CuriosIntegration.register();
     }
 
+    /** The HF manpacks a player wears on the back slot; empty without Curios. */
+    public static List<ItemStack> wornManpacks(Player player) {
+        return LOADED ? CuriosIntegration.wornManpacks(player) : List.of();
+    }
+
     /** The VHF handhelds a player wears, in slot order; empty without Curios. */
     public static List<ItemStack> wornHandhelds(Player player) {
         return LOADED ? CuriosIntegration.wornHandhelds(player) : List.of();

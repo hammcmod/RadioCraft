@@ -14,10 +14,11 @@ public class MenuUtils {
         if (data == null) {
             throw new NullPointerException("data cannot be null. This wasn't gonna work. " + clazz.getName());
         }
-        BlockEntity be = playerInventory.player.level().getBlockEntity(data.readBlockPos());
+        net.minecraft.core.BlockPos pos = data.readBlockPos();
+        BlockEntity be = playerInventory.player.level().getBlockEntity(pos);
 
-        if(be != null && be.getClass() != clazz)
-            throw new IllegalStateException("BlockEntity at " + data.readBlockPos() + " is not the correct type");
+        if(be != null && !clazz.isInstance(be)) // A subclass is fine: the commercial repeater opens the repeater's menu.
+            throw new IllegalStateException("BlockEntity at " + pos + " is not the correct type");
 
         return (C)be; // IntelliJ hates this, but it SHOULD be safe given the class check above.
     }

@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:bundle"
+    },
+    {
+      "item": "minecraft:leather_chestplate"
+    },
+    {
+      "item": "radiocraft:qrp_radio_20m"
+    },
+    [
+      {
+        "item": "radiocraft:hf_radio_10m_pure"
+      },
+      {
+        "item": "radiocraft:hf_radio_10m"
+      },
+      {
+        "item": "radiocraft:hf_radio_10m_poor"
+      }
+    ]
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:hf_manpack"
+  }
+}

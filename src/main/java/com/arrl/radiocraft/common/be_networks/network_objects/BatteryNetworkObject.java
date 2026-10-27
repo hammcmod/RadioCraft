@@ -30,20 +30,10 @@ public class BatteryNetworkObject extends PowerNetworkObject {
 
     @Override
     public void tick(Level level, BlockPos pos) {
-        int toPush = Math.min(energyStorage.getMaxExtract(), energyStorage.getEnergyStored());
-        int pushed = 0;
-
-        for(BENetwork n : networks.values()) {
-            if(n instanceof PowerBENetwork network) {
-                int amountPushed = network.pushPower(toPush, false, false,false);
-                toPush -= amountPushed;
-                pushed += amountPushed;
-            }
-            if(toPush <= 0)
-                break;
-        }
-
-        energyStorage.setEnergy(energyStorage.getEnergyStored() - pushed);
+        // The batteries on a wire discharge together, each an even share: the first to tick does it for them all.
+        for(BENetwork n : networks.values())
+            if(n instanceof PowerBENetwork network)
+                network.dischargeBatteries(level.getGameTime());
 
         // The charge is saved by the block entity (networks are not), so tell it whenever the charge has moved,
         // whether we pushed it out or a charge controller pushed it in.

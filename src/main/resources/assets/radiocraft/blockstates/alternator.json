@@ -1,0 +1,29 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "radiocraft:block/alternator/block",
+      "x": 270,
+      "y": 90
+    },
+    "facing=east": {
+      "model": "radiocraft:block/alternator/block",
+      "y": 270
+    },
+    "facing=north": {
+      "model": "radiocraft:block/alternator/block",
+      "y": 180
+    },
+    "facing=south": {
+      "model": "radiocraft:block/alternator/block"
+    },
+    "facing=up": {
+      "model": "radiocraft:block/alternator/block",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west": {
+      "model": "radiocraft:block/alternator/block",
+      "y": 90
+    }
+  }
+}

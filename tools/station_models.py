@@ -9,6 +9,7 @@ Writes under assets/radiocraft (models/block and textures/block). Every model's 
 `facing` blockstate turns it. The tall ones come as one 16x16x16 model per block cell; the whole thing stacked only
 exists in the preview (Minecraft will not load a model past y 32).
 
+- tape_player_reel               one reel centred on the front, spun at each hub by TapePlayerRenderer
 - tape_player                    whole, reels at frame 0 (item); tape_player_base (tan steel cabinet, recessed
                                  deck, heads, tape, keys and knobs); tape_player_reels_0..3 (both reels turned 0,
                                  22.5, 45 and 67.5 degrees: cycle them while playing; the four spokes repeat every 90)
@@ -162,10 +163,16 @@ def tape_player_reels(b, angle):
     return e
 
 
+def tape_player_reel(b):
+    """One reel, centred on the block's front at (8, 8): TapePlayerRenderer moves it to each hub and spins it."""
+    return [b.box("reel", [5, 5, 1.5], [11, 11, 2], "clear", {"north": "reel"})]
+
+
 def build_tape_player():
     b = Builder(TP, TP_TEXTURES, 32, stretch=("reel",))
     save(MODELS, "tape_player", b.model(tape_player_base(b) + tape_player_reels(b, 0.0), CUTOUT))
     save(MODELS, "tape_player_base", b.model(tape_player_base(b)))
+    save(MODELS, "tape_player_reel", b.model(tape_player_reel(b), CUTOUT))
     for i, a in enumerate(FRAMES):
         save(MODELS, f"tape_player_reels_{i}", b.model(tape_player_reels(b, a), CUTOUT))
     paint_tape_player()

@@ -23,6 +23,20 @@ public abstract class AbstractNetworkBlock extends BaseEntityBlock {
 	// no network object to connect yet. It happens when the object is created instead, see
 	// INetworkObjectProvider#getNetworkObject and WireUtils#connectToWires.
 
+	/**
+	 * Takes the network object at {@code pos} off its networks and out of the level's list: for blocks that are not
+	 * network blocks by family but put an object on a wire (the H19, the direction finder), from their onRemove.
+	 */
+	public static void leaveNetworks(Level level, BlockPos pos) {
+		if(level.isClientSide)
+			return;
+		IBENetworks cap = BENetworksCapability.get(level);
+		BENetworkObject networkObject = cap.getObject(pos);
+		if(networkObject != null)
+			networkObject.clearNetworks();
+		cap.removeObject(pos);
+	}
+
 	@Override
 	public void onRemove(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean isMoving) {
 		if(!level.isClientSide) {

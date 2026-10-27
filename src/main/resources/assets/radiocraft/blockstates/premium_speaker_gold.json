@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=north": {
+      "model": "radiocraft:block/premium_speaker_gold"
+    },
+    "facing=east": {
+      "model": "radiocraft:block/premium_speaker_gold",
+      "y": 90
+    },
+    "facing=south": {
+      "model": "radiocraft:block/premium_speaker_gold",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "radiocraft:block/premium_speaker_gold",
+      "y": 270
+    }
+  }
+}

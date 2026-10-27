@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_all_band_circuit_board": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:all_band_circuit_board"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "radiocraft:handheld_direction_finder"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_all_band_circuit_board"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "radiocraft:handheld_direction_finder"
+    ]
+  }
+}

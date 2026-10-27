@@ -1,0 +1,21 @@
+{
+  "name": "Radio Fax",
+  "icon": "radiocraft:radio_fax_oak",
+  "category": "radiocraft:digital",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(item)Radio Fax$() sends $(thing)books$(), $(thing)paper$(), $(thing)maps$() and $(thing)enchanted books$() to another fax by call sign, through the radio it touches or the $(item)Radio Interface$() on its station. The far machine prints a copy on its own blank (paper, book or empty map); the sender keeps the original, except an enchanted book, which is used up."
+    },
+    {
+      "type": "patchouli:text",
+      "text": "Type the call sign on the little LCD (or click one used lately) and press $(thing)SEND$(). The fax calls, the far end answers once it has a blank and room in its tray, and thirty packets follow, each acknowledged. Over a weak signal some are lost and go again: the LCD counts them.$(br2)On VHF a map takes 20 seconds and a book 10 a page; HF bands are slower (10m twice, 80m eight times), a microwave link ten times faster."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:radio_fax_oak",
+      "text": "One per log. Hoppers stock its blanks; one underneath takes what it prints."
+    }
+  ]
+}

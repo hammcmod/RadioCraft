@@ -9,6 +9,10 @@
       "text": "The $(item)Teletype Machine$() sends $(thing)RTTY$() through the radio it touches: type, and it goes out live; weak copy prints garbled. It needs $(item)paper$() (by hand or hopper).$(br2)Its blue $(thing)SOLAR WX$() lamp prints the current solar report, if the radio has a real antenna."
     },
     {
+      "type": "patchouli:text",
+      "text": "Scroll back up the roll with the wheel, or Page Up and Down. Sneak and right click the machine with an empty hand to tear the $(item)Teletype Roll$() off and keep it: right click the roll to read it anywhere, or right click a teletype whose roll is empty to feed it back in."
+    },
+    {
       "type": "patchouli:multiblock",
       "name": "Teletype station",
       "multiblock": {

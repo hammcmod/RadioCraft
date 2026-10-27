@@ -137,7 +137,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         final float gain;
         final float micGain;
 
-        final float ctcssTone; // Sent under the voice, and needed to open the squelch; 0 for none.
+        final float ctcssTone; // Sent under the voice (TX tone); 0 for none.
+        final float rxTone; // Needed to open the squelch (RX tone); 0 for none.
         final int offsetHz; // Repeater offset: transmits this far from frequency.
 
         //used for calculating average amplitude for power meter
@@ -145,11 +146,12 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         volatile long runningSampleCount=0; //number of samples since last tick
 
         public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, float frequency, HandheldLocation itemLocation, float gain, float micGain){
-            this(item, canReceive, canTransmit, frequency, itemLocation, gain, micGain, 0.0f, 0);
+            this(item, canReceive, canTransmit, frequency, itemLocation, gain, micGain, 0.0f, 0, 0.0f);
         }
 
-        public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, float frequency, HandheldLocation itemLocation, float gain, float micGain, float ctcssTone, int offsetHz){
+        public SynchronousRadioState(ItemStack item, boolean canReceive, boolean canTransmit, float frequency, HandheldLocation itemLocation, float gain, float micGain, float ctcssTone, int offsetHz, float rxTone){
             this.ctcssTone = ctcssTone;
+            this.rxTone = rxTone;
             this.offsetHz = offsetHz;
             this.item = item;
             this.canReceive = canReceive;
@@ -162,7 +164,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         }
 
         public SynchronousRadioState(ItemStack item, IVHFHandheldCapability cap, HandheldLocation itemLocation, float frequency) {
-            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), frequency, itemLocation, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz());
+            this(item, cap.isPowered(), cap.isPowered() && cap.isPTTDown(), frequency, itemLocation, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz(), cap.getRxTone());
         }
 
         /** Where this radio transmits: its frequency plus the repeater offset, kept inside 2m. */
@@ -199,7 +201,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     //if the current radio is the held item, put it before the offhand and other radios
                     //otherwise add the radio to the end of the list, so the order is held, then offhand, then all others
                     if (i == playerInventory.selected) {
-                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), tunedFrequency(player, itemStack, cap, i), HandheldLocation.HELD, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz()));
+                        out.addFirst(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.isUseHeld), tunedFrequency(player, itemStack, cap, i), HandheldLocation.HELD, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz(), cap.getRxTone()));
                     } else {
                         out.addLast(new SynchronousRadioState(itemStack, cap, Inventory.isHotbarSlot(i) ? HandheldLocation.HOT_BAR : HandheldLocation.BACKPACK, tunedFrequency(player, itemStack, cap, i)));
                     }
@@ -213,7 +215,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             IVHFHandheldCapability cap = itemStack.getCapability(RadiocraftCapabilities.VHF_HANDHELDS);
             if(cap != null)
                 out.addLast(new SynchronousRadioState(itemStack, cap.isPowered(), cap.isPowered() && (cap.isPTTDown() || this.wornPttHeld),
-                        tunedFrequency(player, itemStack, cap, 1000 + worn++), HandheldLocation.HOT_BAR, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz()));
+                        tunedFrequency(player, itemStack, cap, 1000 + worn++), HandheldLocation.HOT_BAR, cap.getGain(), cap.getMicGain(), cap.getCtcssTone(), cap.getOffsetHz(), cap.getRxTone()));
         }
         return out;
     }
@@ -266,6 +268,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
     @Override
     public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer, float ctcssTone) {
+        com.arrl.radiocraft.common.radio.TransmitterLog.record(this, getAntennaPos(), band, frequencyHertz); // On the air: direction finders can hear it.
 
         AntennaNetwork network;
         synchronized (this) {
@@ -293,7 +296,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
                     AntennaPos pos = antenna.getAntennaPos();
 
-                    if(pos == null || BandUtils.outOfReach(band, thisPos.position(), pos.position())) continue;
+                    if(pos == null || pos.level() != thisPos.level() || BandUtils.outOfReach(band, thisPos.position(), pos.position())) continue;
 
                     double distance = Math.sqrt(thisPos.position().distSqr(pos.position()));
                     packet.setDestination(antenna);
@@ -359,6 +362,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
     private static final long ADJACENT_QRM_HOLD_NANOS = 100_000_000L;
     private double adjacentQrm = 0.0D;
     private long adjacentQrmNanos = Long.MIN_VALUE / 2;
+    private final com.arrl.radiocraft.common.radio.voice.SquelchTail squelchTail = new com.arrl.radiocraft.common.radio.voice.SquelchTail();
 
     @Override
     public synchronized void receive(AntennaVoicePacket antennaPacket) {
@@ -388,7 +392,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             for(SynchronousRadioState state : this.radios) {
                 if(state.canReceive) {
                     Detuning.Effect effect = Detuning.fm(state.frequency, packetFrequency, channelStep);
-                    if(effect.audible() && !Ctcss.opens(state.ctcssTone, antennaPacket.getCtcssTone()))
+                    if(effect.audible() && !Ctcss.opens(state.rxTone, antennaPacket.getCtcssTone()))
                         continue; // Tone squelch: not this radio's tone.
                     if(effect.audible()) {
                         shouldRecieve = true;
@@ -420,15 +424,17 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             AntennaPos here = getAntennaPos();
             boolean beyondLos = source != null && here != null && antennaPacket.getBand() != null
                     && source.position().distSqr(here.position()) > (double)antennaPacket.getBand().losRange() * antennaPacket.getBand().losRange();
-            double level = ReceiverMix.voiceLevel(packetStrength, crystal.applyNoise(RadiocraftServerConfig.VHF_NOISE_FLOOR.get())) * (isHeld ? 1.0D : 0.5D) * gain;
-            short[] rawAudio = processor.process(antennaPacket.getRawAudio(), RadioVoiceProcessor.currentSettings(), level, beyondLos ? 1.0D : 0.0D, 0.0D, 0.0D, splatter);
+            // FM: full volume however weak the signal; it fades into hiss and dropouts instead (RadioVoiceProcessor#fmFade).
+            double level = (isHeld ? 1.0D : 0.5D) * gain;
+            short[] rawAudio = processor.process(antennaPacket.getRawAudio(), com.arrl.radiocraft.common.radio.voice.SpeakerKind.BUILT_IN.apply(RadioVoiceProcessor.currentSettings()), level, beyondLos ? 1.0D : 0.0D, 0.0D, 0.0D, splatter);
+            processor.fmFade(rawAudio, packetStrength, level);
             long runningTotal = 0;
             for(short sample : rawAudio)
                 runningTotal = sample * sample;
 
             //TODO rework receiving to be per handheld, when frequency support is added
             for(SynchronousRadioState state : this.radios) {
-                if(state.canReceive && Detuning.fm(state.frequency, packetFrequency, channelStep).audible() && Ctcss.opens(state.ctcssTone, antennaPacket.getCtcssTone())) {
+                if(state.canReceive && Detuning.fm(state.frequency, packetFrequency, channelStep).audible() && Ctcss.opens(state.rxTone, antennaPacket.getCtcssTone())) {
                     state.runningSampleCount += rawAudio.length;
                     state.runningSampleSum += runningTotal;
                 }
@@ -436,7 +442,18 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
             byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
             receiveChannel.send(opusAudio);
+            squelchTail.heard(packetStrength, level, antennaPacket.getSourcePlayer(), System.nanoTime());
         }
+    }
+
+    /** The squelch tail once a signal drops: a short burst of static through the handheld. Server thread, each tick. */
+    private synchronized void tickSquelchTail(long gameTime) {
+        List<short[]> frames = squelchTail.drain(System.nanoTime(), gameTime % 2 == 0 ? 3 : 2);
+        if(frames.isEmpty() || receiveChannel == null || RadiocraftVoicePlugin.API == null || !isReceiving())
+            return;
+        de.maxhenkel.voicechat.api.opus.OpusEncoder encoder = RadiocraftVoicePlugin.encodingManager.getOrCreate(squelchTail.source()).getEncoder();
+        for(short[] frame : frames)
+            receiveChannel.send(encoder.encode(frame));
     }
 
     public void setNetwork(AntennaNetwork network) {
@@ -448,6 +465,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
     public void tick() {
         Player player = getPlayer();
+        if(player != null)
+            tickSquelchTail(player.level().getGameTime());
         List<SynchronousRadioState> radios = player == null ? Collections.emptyList() : genHandheldStates(player);
         List<SynchronousRadioState> lastTickRadios;
 

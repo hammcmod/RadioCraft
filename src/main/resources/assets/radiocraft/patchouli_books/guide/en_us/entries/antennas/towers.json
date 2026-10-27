@@ -1,0 +1,21 @@
+{
+  "name": "Towers",
+  "icon": "radiocraft:tower_foothold",
+  "category": "radiocraft:antennas",
+  "sortnum": 12,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Height helps every antenna. $(item)Tower footholds$() are rungs to climb a mast: place them against a wall like a ladder, climb them, or stand on them.$(br2)$(item)Old tower footholds$() are the weathered kind meant for old towers. Now and then one gives way under a climber with a clang, and a bent rung holds nobody. The ones you craft never break."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tower beams",
+      "text": "Thin, normal and thick $(item)tower beams$() join every beam they touch, edges and corners included, to make lattice towers. They cannot be crafted yet."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:tower_foothold"
+    }
+  ]
+}

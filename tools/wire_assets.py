@@ -77,6 +77,12 @@ models = {
 # Each wire kind has its own texture; the models are identical otherwise. "wire_*" models are the power wire's
 # (the waterproof wire shares them); "coax_wire_*" models use the coax texture the maintainer drew (2026-10-21).
 VARIANTS = {"wire": "radiocraft:block/wire", "coax_wire": "radiocraft:block/coaxial_wire"}
+# Dyed coax (tools/coax_colours.py paints the textures): the same parts with a coloured stripe. Coax only joins coax of
+# its own colour or plain coax (WireBlock#joins).
+DYES = ["white", "orange", "magenta", "light_blue", "yellow", "lime", "pink", "gray", "light_gray", "cyan", "purple",
+        "blue", "brown", "green", "red", "black"]
+for dye in DYES:
+    VARIANTS[f"coax_wire_{dye}"] = f"radiocraft:block/coaxial_wire_{dye}"
 BASE_MODELS = ["middle", "horizontal", "vertical"]  # hand-made in Blockbench for the power wire, copied for coax
 
 
@@ -102,7 +108,7 @@ for prefix, texture in VARIANTS.items():
 for prefix in VARIANTS:
     json.dump({"loader": "radiocraft:wire", "prefix": f"radiocraft:block/{prefix}_"},
               open(f"{BASE}models/block/{prefix}_dynamic.json", "w", newline="\n"), indent="\t")
-for name, prefix in [("wire", "wire"), ("waterproof_wire", "wire"), ("coax_wire", "coax_wire")]:
+for name, prefix in [("wire", "wire"), ("waterproof_wire", "wire"), ("coax_wire", "coax_wire")] + [(f"coax_wire_{d}", f"coax_wire_{d}") for d in DYES]:
     json.dump({"variants": {"": {"model": f"radiocraft:block/{prefix}_dynamic"}}},
               open(f"{BASE}blockstates/{name}.json", "w", newline="\n"), indent=2)
 print("part models:", ", ".join(models), "x", len(VARIANTS), "textures; dynamic block models and blockstates written")

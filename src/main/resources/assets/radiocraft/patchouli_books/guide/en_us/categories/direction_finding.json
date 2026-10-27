@@ -1,0 +1,6 @@
+{
+  "name": "Direction Finding",
+  "description": "Find a transmitter: a direction finder with an antenna array for bearings, bearings from other stations for a fix, and a handheld to walk the last stretch.",
+  "icon": "radiocraft:direction_finder",
+  "sortnum": 9
+}

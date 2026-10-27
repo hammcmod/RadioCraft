@@ -14,7 +14,7 @@ desk speaker in three colourways, and a vintage PA horn loudspeaker.
                             facing=north shows it as drawn); a silver frame round marbled grey cloth with a round
                             badge, and a terminal strip on the back for a wire in the block behind
                             (wall_speaker.png front, wall_speaker_side.png edges and back)
-- premium_speaker_black / _silver / _gold
+- premium_speaker_marble / _iron / _gold
                             an 8x6x6 metal desk speaker with a slotted grille, bezel strips, a volume knob and four
                             feet; one geometry, a texture per colourway
 - loudspeaker               a PA reflex horn: a blue-grey stepped bell with a cream rim pointing north, an octagonal
@@ -229,8 +229,8 @@ PREMIUM = {
 }
 
 COLOURWAYS = {
-    "black": ((34, 34, 36), (62, 62, 64), (16, 16, 18), (186, 188, 192)),
-    "silver": ((178, 180, 184), (210, 212, 216), (126, 128, 132), (52, 52, 54)),
+    "marble": ((226, 224, 218), (244, 242, 238), (150, 148, 146), (60, 58, 56)),   # polished stone, grey veins
+    "iron": ((178, 180, 184), (210, 212, 216), (126, 128, 132), (52, 52, 54)),
     "gold": ((198, 162, 76), (228, 198, 112), (150, 116, 46), (44, 38, 30)),
 }
 
@@ -239,6 +239,8 @@ def paint_premium(name, palette):
     body, light, dark, trim = palette
     p = Painter(PREMIUM, 32, seed=8)
     brushed = lambda x, y, w, h: light if (x * 3 + y) % 7 == 0 else dark if (x * 5 + y) % 11 == 0 else None
+    if name.endswith("marble"):  # Veins wandering across the stone instead of brushed metal.
+        brushed = lambda x, y, w, h: dark if (x + 2 * y) % 13 in (0, 1) and (x * 7 + y * 3) % 5 != 0 else light if (x * 5 + y * 2) % 17 == 0 else None
     p.fill("side", body, 3, brushed)
     p.fill("top", body, 3, brushed)
     p.fill("back", dark, 3, lambda x, y, w, h: BRASS if 6 <= x < 10 and y in (8, 9) else None)

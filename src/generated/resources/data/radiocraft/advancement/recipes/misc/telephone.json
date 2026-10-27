@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_microphone_element": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:microphone_element"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "radiocraft:telephone"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_microphone_element"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "radiocraft:telephone"
+    ]
+  }
+}

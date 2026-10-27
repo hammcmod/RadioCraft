@@ -25,6 +25,8 @@ public class RadiocraftAntennaTypes {
 	public static JPoleAntennaType J_POLE;
 	public static com.arrl.radiocraft.common.radio.antenna.types.DummyLoadAntennaType DUMMY_LOAD; // Every band.
 	public static SlimJimAntennaType SLIM_JIM;
+	public static com.arrl.radiocraft.common.radio.antenna.types.vhf.CommercialVHFAntennaType RINGO;
+	public static com.arrl.radiocraft.common.radio.antenna.types.vhf.CommercialVHFAntennaType FOLDED_DIPOLE;
 	public static YagiAntennaType YAGI;
 	public static com.arrl.radiocraft.common.radio.antenna.types.vhf.SatelliteDishAntennaType SATELLITE_DISH;
 	public static com.arrl.radiocraft.common.radio.antenna.types.IonosondeAntennaType IONOSONDE;
@@ -48,6 +50,8 @@ public class RadiocraftAntennaTypes {
 		J_POLE = AntennaTypes.registerType(new JPoleAntennaType());
 		DUMMY_LOAD = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.DummyLoadAntennaType());
 		SLIM_JIM = AntennaTypes.registerType(new SlimJimAntennaType());
+		RINGO = AntennaTypes.registerType(com.arrl.radiocraft.common.radio.antenna.types.vhf.CommercialVHFAntennaType.ringo());
+		FOLDED_DIPOLE = AntennaTypes.registerType(com.arrl.radiocraft.common.radio.antenna.types.vhf.CommercialVHFAntennaType.foldedDipole());
 		YAGI = AntennaTypes.registerType(new YagiAntennaType());
 		SATELLITE_DISH = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.vhf.SatelliteDishAntennaType());
 		IONOSONDE = AntennaTypes.registerType(new com.arrl.radiocraft.common.radio.antenna.types.IonosondeAntennaType());

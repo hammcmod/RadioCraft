@@ -1,0 +1,29 @@
+{
+  "name": "Speakers",
+  "icon": "radiocraft:desk_speaker_oak",
+  "category": "radiocraft:radios",
+  "sortnum": 7,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A radio's own little speaker plays 80% of the voice band, a bit thin. Place a speaker $(thing)touching$() the radio (any side, on top too) and it sounds better; only the best one counts.$(li)$(item)Desk speaker$() (eleven woods) or $(item)large speaker$(): 90%.$(li)$(item)Premium speaker$() (iron, gold or marble): the whole band, as clean as it gets."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Wired speakers",
+      "text": "A $(item)wall speaker$() or $(item)loudspeaker$() goes on the radio's $(l:radiocraft:power/wire)power wire$(/l), which doubles as the speaker line, and plays the radio where it stands, static and all. As many as you like can share one radio, and they use no power.$(li)Wall speaker: 80%, a little rough.$(li)Loudspeaker: loud and distorted, heard out to 64 blocks. It has no recipe yet."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:desk_speaker_oak",
+      "recipe2": "radiocraft:large_speaker",
+      "text": "Each desk speaker takes its own wood's planks."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:premium_speaker_iron",
+      "recipe2": "radiocraft:wall_speaker",
+      "text": "Gold ingots make the gold speaker, calcite the marble one."
+    }
+  ]
+}

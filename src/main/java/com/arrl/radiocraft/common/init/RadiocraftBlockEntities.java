@@ -57,14 +57,23 @@ public class RadiocraftBlockEntities {
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.RadioInterfaceBlockEntity::new, RadiocraftBlocks.RADIO_INTERFACE.get()).build(null));
 	public static final Supplier<BlockEntityType<?>> APRS_TERMINAL = BLOCK_ENTITY_TYPES.register("aprs_h19",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.AprsTerminalBlockEntity::new, RadiocraftBlocks.APRS_TERMINAL.get()).build(null));
-	public static final Supplier<BlockEntityType<?>> TRANSFER_INTERFACE = BLOCK_ENTITY_TYPES.register("transfer_interface",
-			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.TransferInterfaceBlockEntity::new, RadiocraftBlocks.TRANSFER_INTERFACE.get()).build(null));
+	public static final Supplier<BlockEntityType<?>> RADIO_FAX = BLOCK_ENTITY_TYPES.register("radio_fax",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity::new,
+					RadiocraftBlocks.RADIO_FAXES.values().stream().map(net.neoforged.neoforge.registries.DeferredHolder::get).toArray(Block[]::new)).build(null));
 	public static final Supplier<BlockEntityType<?>> DUPLEXER = BLOCK_ENTITY_TYPES.register("duplexer",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.DuplexerBlockEntity::new, RadiocraftBlocks.DUPLEXER.get()).build(null));
 	public static final Supplier<BlockEntityType<?>> ANTENNA_TUNER = BLOCK_ENTITY_TYPES.register("antenna_tuner",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.AntennaTunerBlockEntity::new, RadiocraftBlocks.ANTENNA_TUNER.get()).build(null));
 	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.AutoTunerBlockEntity>> AUTO_TUNER = BLOCK_ENTITY_TYPES.register("auto_tuner",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.AutoTunerBlockEntity::new, RadiocraftBlocks.AUTO_TUNER.get()).build(null));
+	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.WefaxReceiverBlockEntity>> WEFAX_RECEIVER = BLOCK_ENTITY_TYPES.register("wefax_receiver",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.WefaxReceiverBlockEntity::new, RadiocraftBlocks.WEFAX_RECEIVER.get()).build(null));
+	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.TapePlayerBlockEntity>> TAPE_PLAYER = BLOCK_ENTITY_TYPES.register("tape_player",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.TapePlayerBlockEntity::new, RadiocraftBlocks.TAPE_PLAYER.get()).build(null));
+	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.CommercialRadioModuleBlockEntity>> COMMERCIAL_RADIO_MODULE = BLOCK_ENTITY_TYPES.register("commercial_radio_module",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.CommercialRadioModuleBlockEntity::new, RadiocraftBlocks.COMMERCIAL_RADIO_MODULE.get()).build(null));
+	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.CommercialRepeaterBlockEntity>> COMMERCIAL_REPEATER = BLOCK_ENTITY_TYPES.register("commercial_repeater",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.CommercialRepeaterBlockEntity::new, RadiocraftBlocks.COMMERCIAL_REPEATER.get()).build(null));
 	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity>> VHF_REPEATER = BLOCK_ENTITY_TYPES.register("vhf_repeater",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.VHFRepeaterBlockEntity::new, RadiocraftBlocks.VHF_REPEATER.get()).build(null));
 
@@ -75,6 +84,8 @@ public class RadiocraftBlockEntities {
 					RadiocraftBlocks.BALUN_NINE_TO_ONE.get(),
 					RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
 					RadiocraftBlocks.J_POLE_ANTENNA.get(),
+					RadiocraftBlocks.RINGO_ANTENNA.get(),
+					RadiocraftBlocks.FOLDED_DIPOLE_ANTENNA.get(),
 					RadiocraftBlocks.IONOSONDE.get(),
 					RadiocraftBlocks.FIVE_BTV_ANTENNA.get(),
 					RadiocraftBlocks.DUMMY_LOAD.get(),
@@ -83,6 +94,22 @@ public class RadiocraftBlockEntities {
 
 	public static final Supplier<BlockEntityType<?>> DESK_CHARGER = BLOCK_ENTITY_TYPES.register("desk_charger",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.DeskChargerBlockEntity::new, RadiocraftBlocks.DESK_CHARGER.get()).build(null));
+
+	public static final Supplier<BlockEntityType<WiredSpeakerBlockEntity>> WIRED_SPEAKER = BLOCK_ENTITY_TYPES.register("wired_speaker",
+			() -> BlockEntityType.Builder.of(WiredSpeakerBlockEntity::new, RadiocraftBlocks.WALL_SPEAKER.get(), RadiocraftBlocks.LOUDSPEAKER.get()).build(null));
+	public static final Supplier<BlockEntityType<DirectionFinderBlockEntity>> DIRECTION_FINDER = BLOCK_ENTITY_TYPES.register("direction_finder",
+			() -> BlockEntityType.Builder.of(DirectionFinderBlockEntity::new, RadiocraftBlocks.DIRECTION_FINDER.get(), RadiocraftBlocks.MAP_DIRECTION_FINDER.get()).build(null));
+	public static final Supplier<BlockEntityType<DirectionFinderModuleBlockEntity>> DIRECTION_FINDER_MODULE = BLOCK_ENTITY_TYPES.register("direction_finder_module",
+			() -> BlockEntityType.Builder.of(DirectionFinderModuleBlockEntity::new, RadiocraftBlocks.DIRECTION_FINDER_MODULE.get()).build(null));
+
+	public static final Supplier<BlockEntityType<MicrowaveRadioBlockEntity>> MICROWAVE_RADIO = BLOCK_ENTITY_TYPES.register("microwave_radio",
+			() -> BlockEntityType.Builder.of(MicrowaveRadioBlockEntity::new, RadiocraftBlocks.MICROWAVE_RADIO.get()).build(null));
+	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.WeatherStationBlockEntity>> WEATHER_STATION = BLOCK_ENTITY_TYPES.register("weather_station",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.WeatherStationBlockEntity::new, RadiocraftBlocks.WEATHER_STATION.get()).build(null));
+	public static final Supplier<BlockEntityType<TelephoneBlockEntity>> TELEPHONE = BLOCK_ENTITY_TYPES.register("telephone",
+			() -> BlockEntityType.Builder.of(TelephoneBlockEntity::new, RadiocraftBlocks.TELEPHONE.get()).build(null));
+	public static final Supplier<BlockEntityType<MicrowaveDishBlockEntity>> MICROWAVE_HORN = BLOCK_ENTITY_TYPES.register("microwave_horn",
+			() -> BlockEntityType.Builder.of(MicrowaveDishBlockEntity::horn, RadiocraftBlocks.MICROWAVE_HORN.get()).build(null));
 
 	public static final Supplier<BlockEntityType<?>> SATELLITE_DISH = BLOCK_ENTITY_TYPES.register("satellite_dish",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.SatelliteDishBlockEntity::new, RadiocraftBlocks.SATELLITE_DISH.get()).build(null));

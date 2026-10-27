@@ -12,6 +12,7 @@ import com.arrl.radiocraft.common.radio.Callsigns;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.voice.Ctcss;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.util.Mth;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -284,6 +285,24 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 		return super.keyPressed(keyCode, scanCode, modifiers);
 	}
 
+	/** Gain steps per notch of the wheel over the SPEAKER button, out of 1 (full) and up to {@link #MAX_VOLUME}. */
+	private static final float VOLUME_STEP = 0.1F, MAX_VOLUME = 2.0F;
+	/** The SPEAKER button's place among the face's toggles (see {@link #initFace}). */
+	private static final int SPEAKER_TOGGLE = 8;
+
+	/** The panel has no room for a volume knob, so the wheel over the SPEAKER button sets the monitor's volume. */
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if(panel == Panel.NONE && toggles.size() > SPEAKER_TOGGLE && toggles.get(SPEAKER_TOGGLE).isHovered() && scrollY != 0.0D) {
+			float gain = Mth.clamp(repeater().getSpeakerGain() + (scrollY > 0 ? VOLUME_STEP : -VOLUME_STEP), 0.0F, MAX_VOLUME);
+			int percent = Math.round(gain * 100.0F);
+			repeater().setSpeakerGainClient(percent / 100.0F); // Shown at once; the server syncs it back.
+			SBlockRadioControlPacket.updateServer(repeater().getBlockPos(), SBlockRadioControlPacket.Action.SET_SPEAKER_GAIN, percent);
+			return true;
+		}
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+	}
+
 	// -------------------- RENDERING --------------------
 
 	@Override
@@ -349,7 +368,9 @@ public class VHFRepeaterScreen extends AbstractContainerScreen<VHFRepeaterMenu> 
 			String[] keys = { "power", "prt_rx", "prt_tx", "cw_id", "ctc_rx", "ctc_tx", "mic", "tx", "speaker" };
 			for(int i = 0; i < toggles.size() && i < keys.length; i++)
 				if(toggles.get(i).isHovered())
-					tip = buttonTip(keys[i]);
+					tip = keys[i].equals("speaker")
+							? buttonTip(keys[i]).copy().append(String.format(Locale.ROOT, " - volume %d%% (scroll)", Math.round(repeater().getSpeakerGain() * 100.0F)))
+							: buttonTip(keys[i]);
 		}
 		if(tip != null)
 			guiGraphics.renderTooltip(font, tip, mouseX, mouseY);

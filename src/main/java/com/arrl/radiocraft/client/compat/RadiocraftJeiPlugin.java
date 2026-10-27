@@ -3,7 +3,7 @@ package com.arrl.radiocraft.client.compat;
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.client.screens.AprsTerminalScreen;
 import com.arrl.radiocraft.client.screens.StationPanelScreen;
-import com.arrl.radiocraft.client.screens.TransferInterfaceScreen;
+import com.arrl.radiocraft.client.screens.RadioFaxScreen;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.gui.handlers.IGuiProperties;
@@ -28,8 +28,12 @@ public class RadiocraftJeiPlugin implements IModPlugin {
 	@Override
 	public void registerGuiHandlers(IGuiHandlerRegistration registration) {
 		registration.addGuiScreenHandler(AprsTerminalScreen.class, RadiocraftJeiPlugin::properties);
-		registration.addGuiScreenHandler(TransferInterfaceScreen.class, RadiocraftJeiPlugin::properties);
+		registration.addGuiScreenHandler(RadioFaxScreen.class, RadiocraftJeiPlugin::properties);
 		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.TeletypeScreen.class, RadiocraftJeiPlugin::properties);
+		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.DirectionFinderScreen.class, RadiocraftJeiPlugin::properties);
+		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.MicrowaveRadioScreen.class, RadiocraftJeiPlugin::properties);
+		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.TelephoneScreen.class, RadiocraftJeiPlugin::properties);
+		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.WefaxReceiverScreen.class, RadiocraftJeiPlugin::properties);
 	}
 
 	private static IGuiProperties properties(StationPanelScreen<?> screen) {

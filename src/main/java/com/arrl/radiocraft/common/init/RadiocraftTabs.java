@@ -24,9 +24,28 @@ public class RadiocraftTabs {
         // In the development environment, we load everything.
         // In the release version, we only enabled working items/blocks. So put all stuff not ready for release here.
         if (Radiocraft.IS_DEVELOPMENT_ENV) {
-			output.accept(RadiocraftItems.SATELLITE_DISH.get()); // Decorative, no recipe yet.
+			output.accept(RadiocraftItems.SATELLITE_DISH.get()); // The microwave dish.
 			output.accept(RadiocraftItems.IONOSPHERIC_PROCESSOR.get()); // Built and glowing, does not read the sky yet.
-			output.accept(RadiocraftItems.WEFAX_RECEIVER.get()); // Prints nothing yet.
+			// Registered 2026-10-26, not yet playtested and without recipes (bar the map direction finder's).
+			output.accept(RadiocraftItems.TOWER_BEAM_THIN.get());
+			output.accept(RadiocraftItems.TOWER_BEAM.get());
+			output.accept(RadiocraftItems.TOWER_BEAM_THICK.get());
+			output.accept(RadiocraftItems.MICROWAVE_HORN.get());
+			RadiocraftItems.DESK_SPEAKERS.values().forEach(item -> output.accept(item.get()));
+			output.accept(RadiocraftItems.LARGE_SPEAKER.get());
+			output.accept(RadiocraftItems.PREMIUM_SPEAKER_MARBLE.get());
+			output.accept(RadiocraftItems.PREMIUM_SPEAKER_IRON.get());
+			output.accept(RadiocraftItems.PREMIUM_SPEAKER_GOLD.get());
+			output.accept(RadiocraftItems.WALL_SPEAKER.get());
+			output.accept(RadiocraftItems.LOUDSPEAKER.get());
+			output.accept(RadiocraftItems.DIRECTION_FINDER.get());
+			output.accept(RadiocraftItems.MAP_DIRECTION_FINDER.get());
+			output.accept(RadiocraftItems.DIRECTION_FINDER_MODULE.get());
+			output.accept(RadiocraftItems.WORLD_MAP_MODULE.get());
+			output.accept(RadiocraftItems.HANDHELD_DIRECTION_FINDER.get());
+			output.accept(RadiocraftItems.MICROWAVE_RADIO.get());
+			output.accept(RadiocraftItems.TELEPHONE.get());
+			output.accept(RadiocraftItems.HF_MANPACK.get());
 		}
 
 		// Anything below here should be in the release creative menu
@@ -51,11 +70,14 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.BALUN_TWO_TO_ONE.get());
         output.accept(RadiocraftItems.BALUN_NINE_TO_ONE.get());
         output.accept(RadiocraftItems.COAX_WIRE.get());
+        RadiocraftItems.COLOURED_COAX.values().forEach(coax -> output.accept(coax.get()));
         output.accept(RadiocraftItems.PASSTHROUGH.get());
         output.accept(RadiocraftItems.PARROT_CONTROLLER.get());
         output.accept(RadiocraftItems.YAGI_ANTENNA.get());
         output.accept(RadiocraftItems.J_POLE_ANTENNA.get());
         output.accept(RadiocraftItems.SLIM_JIM_ANTENNA.get());
+        output.accept(RadiocraftItems.RINGO_ANTENNA.get());
+        output.accept(RadiocraftItems.FOLDED_DIPOLE_ANTENNA.get());
         output.accept(RadiocraftItems.TELETYPE.get());
         output.accept(RadiocraftItems.ALL_BAND_RADIO.get());
         output.accept(RadiocraftItems.MICROPHONE.get());
@@ -66,12 +88,24 @@ public class RadiocraftTabs {
 
         // Repeaters
         output.accept(RadiocraftItems.VHF_REPEATER.get());
+        output.accept(RadiocraftItems.COMMERCIAL_REPEATER.get());
+        output.accept(RadiocraftItems.COMMERCIAL_RADIO_MODULE.get());
         output.accept(RadiocraftItems.DUPLEXER.get());
 
         // APRS and packet
         output.accept(RadiocraftItems.RADIO_INTERFACE.get());
         output.accept(RadiocraftItems.APRS_TERMINAL.get());
-        output.accept(RadiocraftItems.TRANSFER_INTERFACE.get());
+        RadiocraftItems.RADIO_FAXES.values().forEach(item -> output.accept(item.get()));
+        output.accept(RadiocraftItems.TELETYPE_ROLL.get());
+        output.accept(RadiocraftItems.WEATHER_STATION.get());
+        output.accept(RadiocraftItems.WEFAX_RECEIVER.get());
+        output.accept(RadiocraftItems.TAPE_PLAYER.get());
+        for(int reel = 0; reel < com.arrl.radiocraft.common.datacomponents.TapeContents.REEL_COLOURS; reel++) {
+            net.minecraft.world.item.ItemStack tape = new net.minecraft.world.item.ItemStack(RadiocraftItems.TAPE_REEL.get());
+            tape.set(com.arrl.radiocraft.common.init.RadiocraftDataComponent.TAPE_CONTENTS.get(),
+                    com.arrl.radiocraft.common.datacomponents.TapeContents.BLANK.withColorway(reel * com.arrl.radiocraft.common.datacomponents.TapeContents.LABEL_COLOURS));
+            output.accept(tape);
+        }
 
         // Power: radios need it by default (radios_need_power)
         output.accept(RadiocraftItems.SOLAR_PANEL.get());

@@ -48,7 +48,7 @@ public class VHFReceiverScreen extends VHFRadioScreen<VHFReceiverMenu> {
 		addRenderableWidget(new ToggleButton(false, leftPos + 190, topPos + 73, 19, 19, 93, 190, widgetsTexture, 256, 256, (btn) -> onMemoryButton(6)));
 		
 		addRenderableWidget(new Dial(leftPos + 30, topPos + 12, 28, 31, 28, 0, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown));
-		addRenderableWidget(new Dial(leftPos + 188, topPos + 12, 28, 31, 28, 0, widgetsTexture, 256, 256, this::doNothing, this::doNothing));
+		speakerGainDial = addRenderableWidget(new Dial(leftPos + 188, topPos + 12, 28, 31, 28, 0, widgetsTexture, 256, 256, this::onGainUp, this::onGainDown)); // Gain dial
 	}
 
 	@Override

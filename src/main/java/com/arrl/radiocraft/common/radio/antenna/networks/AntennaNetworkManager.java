@@ -41,6 +41,15 @@ public class AntennaNetworkManager {
 	}
 
     /**
+     * Empties every antenna network. The networks are static, so in single player a world left and joined again (or
+     * another world) would otherwise still have the old world's antennas on the air, unreachable and kept in memory.
+     */
+    public static void clearAll() {
+        for(AntennaNetwork network : networks.values())
+            network.allAntennas().clear();
+    }
+
+    /**
      * Get all antennas in all networks. Because aint nobody got time for just getting one network of antennas.
      * @return Set of antennas
      */

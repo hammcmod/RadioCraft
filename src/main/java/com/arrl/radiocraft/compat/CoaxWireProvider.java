@@ -7,6 +7,7 @@ import com.arrl.radiocraft.common.be_networks.ICoaxNetworkObject;
 import com.arrl.radiocraft.common.be_networks.ICoaxPassThrough;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.AntennaTunerNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.MicrowaveNetworkObjects;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
@@ -55,7 +56,7 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         Level level = accessor.getLevel();
         BlockPos pos = accessor.getPosition();
-        if(level.getBlockState(pos).getBlock() != RadiocraftBlocks.COAX_WIRE.get())
+        if(!com.arrl.radiocraft.common.be_networks.WireUtils.isCoax(level.getBlockState(pos)))
             return;
 
         Set<BlockPos> visitedObjects = new HashSet<>();
@@ -66,8 +67,13 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
         int tunerCount = 0;
         for(BlockPos objectPos : visitedObjects) {
             BENetworkObject object = IBENetworks.getObject(level, objectPos);
-            if(object instanceof RadioNetworkObject) {
+            if(object instanceof RadioNetworkObject || object instanceof MicrowaveNetworkObjects.Radio) {
                 data.putString("coaxRadio_" + radioCount++, describeBlock(level, objectPos));
+            }
+            else if(object instanceof MicrowaveNetworkObjects.Dish) { // A dish or horn: where it points.
+                String aim = level.getBlockEntity(objectPos) instanceof com.arrl.radiocraft.common.blockentities.MicrowaveDishBlockEntity dish
+                        ? String.format(java.util.Locale.ROOT, ", az %.0f el %+.0f", dish.getAzimuth(), dish.getElevation()) : "";
+                data.putString("coaxAntenna_" + antennaCount++, describeBlock(level, objectPos) + aim);
             }
             else if(object instanceof AntennaNetworkObject antennaObject) {
                 data.putString("coaxAntenna_" + antennaCount++, describeAntenna(level, antennaObject));
@@ -84,7 +90,7 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
 
     public static void collectConnections(Level level, BlockPos pos, Set<BlockPos> visitedObjects) {
         Set<BlockPos> visitedWires = new HashSet<>();
-        if(level.getBlockState(pos).getBlock() == RadiocraftBlocks.COAX_WIRE.get()) {
+        if(com.arrl.radiocraft.common.be_networks.WireUtils.isCoax(level.getBlockState(pos))) {
             collectWireConnections(level, pos, visitedWires, visitedObjects);
             return;
         }
@@ -93,7 +99,7 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
         if(origin instanceof ICoaxNetworkObject)
             visitedObjects.add(pos);
 
-        for(BlockPos checkPos : WireBlock.wireLinksAround(level, pos, Set.of(RadiocraftBlocks.COAX_WIRE.get())).keySet())
+        for(BlockPos checkPos : WireBlock.wireLinksAround(level, pos, Set.of(com.arrl.radiocraft.common.be_networks.WireUtils.coaxWires())).keySet())
             collectWireConnections(level, checkPos, visitedWires, visitedObjects); // Neighbours and climbers coming up to this device.
         for(Direction direction : Direction.values()) {
             BlockPos checkPos = pos.relative(direction);
@@ -109,7 +115,7 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
             return;
 
         for(BlockPos checkPos : wire.getLinks(level, pos).keySet()) { // Six neighbours plus climb links, see WireBlock#getLinks.
-            if(level.getBlockState(checkPos).getBlock() == RadiocraftBlocks.COAX_WIRE.get()) {
+            if(com.arrl.radiocraft.common.be_networks.WireUtils.isCoax(level.getBlockState(checkPos))) {
                 collectWireConnections(level, checkPos, visitedWires, visitedObjects);
                 continue;
             }
@@ -117,7 +123,7 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
             BENetworkObject object = IBENetworks.getObject(level, checkPos);
             if(object instanceof ICoaxNetworkObject && visitedObjects.add(checkPos) && object instanceof ICoaxPassThrough) {
                 // The run carries on through a tuner.
-                for(BlockPos beyondPos : WireBlock.wireLinksAround(level, checkPos, Set.of(RadiocraftBlocks.COAX_WIRE.get())).keySet())
+                for(BlockPos beyondPos : WireBlock.wireLinksAround(level, checkPos, Set.of(com.arrl.radiocraft.common.be_networks.WireUtils.coaxWires())).keySet())
                     collectWireConnections(level, beyondPos, visitedWires, visitedObjects);
             }
         }

@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "radiocraft:coax_wire"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "X": {
+      "item": "radiocraft:encased_crystal_vhf_pure"
+    }
+  },
+  "pattern": [
+    "GXG",
+    "CEC",
+    "III"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:microwave_radio"
+  }
+}

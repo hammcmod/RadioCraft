@@ -28,6 +28,12 @@ final class CuriosIntegration {
         RadiocraftItems.VHF_HANDHELD_VARIANTS.values().forEach(item -> CuriosApi.registerCurio(item, WORN_HANDHELD));
     }
 
+    static List<ItemStack> wornManpacks(Player player) {
+        return CuriosApi.getCuriosInventory(player)
+                .map(inventory -> inventory.findCurios(stack -> stack.getItem() instanceof com.arrl.radiocraft.common.items.HFManpackItem).stream().map(SlotResult::stack).toList())
+                .orElse(List.of());
+    }
+
     static List<ItemStack> wornHandhelds(Player player) {
         return CuriosApi.getCuriosInventory(player)
                 .map(inventory -> inventory.findCurios(stack -> stack.getItem() instanceof VHFHandheldItem).stream().map(SlotResult::stack).toList())

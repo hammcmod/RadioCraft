@@ -84,6 +84,15 @@ public class DebugCommands {
 			.then(Commands.literal("radio").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::radio)))
 			.then(Commands.literal("antenna").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::antenna)))
 			.then(Commands.literal("network").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::network)))
+			.then(Commands.literal("tapes").executes(DebugCommands::tapes)
+					.then(Commands.literal("give").then(Commands.argument("track", StringArgumentType.greedyString()).executes(DebugCommands::giveTape)))
+					.then(Commands.literal("reload").executes(ctx -> {
+						com.arrl.radiocraft.common.radio.tape.TapeLibrary.clearCache();
+						return tapes(ctx);
+					})))
+			.then(Commands.literal("module").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::module)
+					.then(Commands.argument("program", StringArgumentType.word()).then(Commands.argument("mhz", DoubleArgumentType.doubleArg(0))
+							.executes(DebugCommands::setModule)))))
 			.then(Commands.literal("wx").executes(DebugCommands::wx)
 					.then(Commands.literal("aprs").executes(DebugCommands::wxAprs)))
 			.then(Commands.literal("wefax")
@@ -278,6 +287,7 @@ public class DebugCommands {
 			out.add(String.format(Locale.ROOT, "  %s %s swr=%.2f%s", antenna.getPos().toShortString(),
 					a == null ? "unrecognized" : a.type.getId().toString(), a == null ? 0.0D : antenna.getSWR(radio.getFrequency()),
 					antenna.hasTuner() ? String.format(Locale.ROOT, " (tuner: antenna swr=%.2f, power to antenna=%.0f%%)", antenna.getRawSWR(radio.getFrequency()), antenna.getMatchEfficiency(radio.getFrequency()) * 100.0D) : ""));
+			out.add("    " + antenna.diagnose());
 		}
 		return send(ctx, out);
 	}
@@ -299,8 +309,10 @@ public class DebugCommands {
 			float centre = (live.minFrequency() + live.maxFrequency()) / 2.0F;
 			out.add(String.format(Locale.ROOT, "  %-4s %.3fMHz swr=%.2f", live.name(), centre / 1e6, antenna.getSWR(centre)));
 		}
-		if(IBENetworks.getObject(level, pos) instanceof AntennaNetworkObject obj)
+		if(IBENetworks.getObject(level, pos) instanceof AntennaNetworkObject obj) {
 			out.add("networkObject antenna=" + (obj.getAntenna() == null ? "none (not yet recalculated?)" : obj.getAntenna().type.getId()));
+			out.add(obj.diagnose());
+		}
 		return send(ctx, out);
 	}
 
@@ -344,9 +356,7 @@ public class DebugCommands {
 		ServerLevel level = ctx.getSource().getLevel();
 		WeatherSource source = WeatherSources.get(level);
 		var report = source.report(level, BlockPos.containing(ctx.getSource().getPosition()));
-		long t = ((level.getDayTime() % 24000) + 24000) % 24000;
-		String packet = WeatherReports.aprsWeather(report, 1, (int)(level.getDayTime() / 24000 % 28) + 1,
-				(int)((t / 1000 + 6) % 24), (int)(t % 1000 * 60 / 1000), report.windSpeed() * 1.3, report.rain() * 8);
+		String packet = WeatherReports.aprsWeather(level, report, report.windSpeed() * 1.3, report.rain() * 8);
 		return send(ctx, List.of(packet));
 	}
 
@@ -467,6 +477,51 @@ public class DebugCommands {
 			line.append(' ').append(Math.round(Math.toDegrees(angle)));
 		out.add(line.toString());
 		return send(ctx, out);
+	}
+
+	/** The server's tapes, and where they are kept. */
+	private static int tapes(CommandContext<CommandSourceStack> ctx) {
+		var server = ctx.getSource().getServer();
+		List<String> out = new ArrayList<>();
+		out.add("tape folder: " + com.arrl.radiocraft.common.radio.tape.TapeLibrary.folder(server));
+		List<String> tracks = new ArrayList<>(com.arrl.radiocraft.common.radio.tape.TapeLibrary.tracks(server, ""));
+		tracks.addAll(com.arrl.radiocraft.common.radio.tape.TapeLibrary.tracks(server, com.arrl.radiocraft.common.radio.tape.TapeLibrary.NUMBERS));
+		out.add(tracks.isEmpty() ? "no .ogg files (numbers stations read out the ones in numbers/)" : String.join(", ", tracks));
+		return send(ctx, out);
+	}
+
+	/** Gives you a tape as found in a structure, with {@code track} on it (a path in the tape folder) in a random colourway. */
+	private static int giveTape(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		var player = ctx.getSource().getPlayerOrException();
+		String track = StringArgumentType.getString(ctx, "track");
+		net.minecraft.world.item.ItemStack tape = new net.minecraft.world.item.ItemStack(com.arrl.radiocraft.common.init.RadiocraftItems.TAPE_REEL.get());
+		tape.set(com.arrl.radiocraft.common.init.RadiocraftDataComponent.TAPE_CONTENTS.get(), new com.arrl.radiocraft.common.datacomponents.TapeContents(
+				player.getRandom().nextInt(com.arrl.radiocraft.common.datacomponents.TapeContents.COLORWAYS), track, "", 0));
+		if(!player.getInventory().add(tape))
+			player.drop(tape, false);
+		return send(ctx, List.of("gave a tape of " + track));
+	}
+
+	/** A commercial radio module's program and frequency. */
+	private static int module(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
+		if(!(ctx.getSource().getLevel().getBlockEntity(pos) instanceof com.arrl.radiocraft.common.blockentities.CommercialRadioModuleBlockEntity module))
+			return fail(ctx, "No commercial radio module (its bottom cell) at " + pos.toShortString());
+		return send(ctx, List.of(String.format(java.util.Locale.ROOT, "module at %s: %s on %s, %.4f MHz", pos.toShortString(),
+				module.getKind() == null ? "not started" : module.getKind().name().toLowerCase(java.util.Locale.ROOT), module.getBandName(), module.getFrequency() / 1e6)));
+	}
+
+	/** Sets a commercial radio module's program (numbers, static_beacon, dead_air, df_beeper, cw_beacon) and frequency. */
+	private static int setModule(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
+		if(!(ctx.getSource().getLevel().getBlockEntity(pos) instanceof com.arrl.radiocraft.common.blockentities.CommercialRadioModuleBlockEntity module))
+			return fail(ctx, "No commercial radio module (its bottom cell) at " + pos.toShortString());
+		float hz = (float)(DoubleArgumentType.getDouble(ctx, "mhz") * 1e6);
+		com.arrl.radiocraft.common.radio.Band band = com.arrl.radiocraft.common.radio.Band.getBand(hz);
+		if(band == null)
+			return fail(ctx, "That frequency is in no band");
+		module.configure(com.arrl.radiocraft.common.radio.voice.StationProgram.Kind.byName(StringArgumentType.getString(ctx, "program")), band, hz);
+		return module(ctx);
 	}
 
 	private static int send(CommandContext<CommandSourceStack> ctx, List<String> lines) {

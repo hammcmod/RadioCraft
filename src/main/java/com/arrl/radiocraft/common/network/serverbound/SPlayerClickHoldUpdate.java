@@ -37,6 +37,8 @@ public record SPlayerClickHoldUpdate(boolean held) implements CustomPacketPayloa
     }
 
     public static void updateServer(boolean held){
+        if(net.minecraft.client.Minecraft.getInstance().getConnection() == null)
+            return; // Between worlds, or just disconnected: there is no server to tell.
         PacketDistributor.sendToServer(new SPlayerClickHoldUpdate(held));
     }
 }

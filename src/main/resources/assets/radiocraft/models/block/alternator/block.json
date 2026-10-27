@@ -1,0 +1,59 @@
+{
+	"textures": {
+		"particle": "radiocraft:block/alternator/alternator",
+		"main": "radiocraft:block/alternator/alternator"
+	},
+	"elements": [
+		{
+			"name": "coil",
+			"from": [0, 0, 3],
+			"to": [16, 16, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 7]},
+			"faces": {
+				"north": {"uv": [8, 8, 16, 16], "texture": "#main"},
+				"east": {"uv": [1.5, 0, 6.5, 8], "rotation": 180, "texture": "#main", "cullface": "east"},
+				"south": {"uv": [8, 8, 16, 16], "texture": "#main"},
+				"west": {"uv": [1.5, 0, 6.5, 8], "texture": "#main"},
+				"up": {"uv": [1.5, 0, 6.5, 8], "rotation": 90, "texture": "#main", "cullface": "up"},
+				"down": {"uv": [1.5, 0, 6.5, 8], "rotation": 270, "texture": "#main", "cullface": "down"}
+			}
+		},
+		{
+			"name": "housing_n",
+			"from": [2, 2, 2],
+			"to": [14, 14, 4],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 7]},
+			"faces": {
+				"north": {"uv": [1, 9, 7, 15], "texture": "#main", "cullface": "north"},
+				"east": {"uv": [15, 1, 16, 7], "texture": "#main"},
+				"south": {"uv": [1, 9, 7, 15], "texture": "#main"},
+				"west": {"uv": [8, 1, 9, 7], "texture": "#main"},
+				"up": {"uv": [9, 0, 15, 1], "texture": "#main"},
+				"down": {"uv": [9, 7, 15, 8], "texture": "#main"}
+			}
+		},
+		{
+			"name": "housing_s",
+			"from": [2, 2, 12],
+			"to": [14, 14, 14],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 17]},
+			"faces": {
+				"north": {"uv": [1, 9, 7, 15], "texture": "#main", "cullface": "north"},
+				"east": {"uv": [8, 1, 9, 7], "texture": "#main"},
+				"south": {"uv": [1, 9, 7, 15], "texture": "#main"},
+				"west": {"uv": [15, 1, 16, 7], "texture": "#main"},
+				"up": {"uv": [9, 7, 15, 8], "texture": "#main"},
+				"down": {"uv": [9, 0, 15, 1], "texture": "#main"}
+			}
+		}
+	],
+	"groups": [
+		{
+			"name": "block",
+			"origin": [8, 8, 8],
+			"scope": 0,
+			"color": 0,
+			"children": [0, 1, 2]
+		}
+	]
+}

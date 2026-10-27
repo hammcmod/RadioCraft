@@ -27,8 +27,18 @@ public class AntennaBlockEntity extends BlockEntity implements INetworkObjectPro
 	// Cache the results of antenna/radio updates and only update them at delays, cutting down on resource usage.
 	private int antennaCheckCooldown = -1;
 
+	/**
+	 * The constructor the block entity type uses, which is how every antenna is made as its chunk loads from the save.
+	 * The network follows the block, as {@code newBlockEntity} does when it is placed: a VHF antenna (J-pole, slim jim,
+	 * Yagi) built here on the HF network would be deaf to VHF after every restart.
+	 */
 	public AntennaBlockEntity(BlockPos pos, BlockState state) {
-		this(pos, state, AntennaNetworkManager.HF_ID);
+		this(pos, state, networkFor(state));
+	}
+
+	/** The antenna network a block's antenna belongs on. */
+	public static ResourceLocation networkFor(BlockState state) {
+		return state.getBlock() instanceof com.arrl.radiocraft.common.blocks.antennas.VHFAntennaCenterBlock ? AntennaNetworkManager.VHF_ID : AntennaNetworkManager.HF_ID;
 	}
 
 	public AntennaBlockEntity(BlockPos pos, BlockState state, ResourceLocation networkId) {

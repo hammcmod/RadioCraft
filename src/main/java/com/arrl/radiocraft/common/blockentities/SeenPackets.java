@@ -9,6 +9,11 @@ public class SeenPackets {
 	private static final int MAX = 256;
 	private final LinkedHashSet<Long> seen = new LinkedHashSet<>();
 
+	/** True if the packet id was noted before. */
+	public boolean contains(long id) {
+		return seen.contains(id);
+	}
+
 	/** Notes a packet id; false if it was already noted. */
 	public boolean remember(long id) {
 		if(!seen.add(id))

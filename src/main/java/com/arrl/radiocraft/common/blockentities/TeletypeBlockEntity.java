@@ -68,8 +68,8 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 	public static final List<String> REPORTED_BANDS = List.of("10m", "20m", "40m", "80m");
 	/** RTTY lines one sheet of paper takes. */
 	public static final int LINES_PER_PAPER = 20;
-	/** RTTY lines kept on the roll. */
-	public static final int RTTY_HISTORY = 60;
+	/** RTTY lines kept on the roll (scroll back through them, or tear the roll off and keep it). */
+	public static final int RTTY_HISTORY = 400;
 	/** Characters across the paper, the sender's callsign included; the printer starts a new line by itself after. */
 	public static final int RTTY_LINE_MAX = 32;
 	/** Who report lines print as. */
@@ -370,6 +370,35 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 		return true;
 	}
 
+	/**
+	 * Tears the printed roll off (sneak and right click with an empty hand): everything printed goes with it and the
+	 * machine starts a fresh roll. Empty if nothing was printed.
+	 */
+	public ItemStack tearOff() {
+		if(rttyLines.isEmpty())
+			return ItemStack.EMPTY;
+		ItemStack roll = com.arrl.radiocraft.common.items.TeletypeRollItem.of(com.arrl.radiocraft.common.init.RadiocraftItems.TELETYPE_ROLL.get(), rttyLines, fedLines);
+		rttyLines.clear();
+		fedLines = 0;
+		if(level != null)
+			level.playSound(null, worldPosition, net.minecraft.sounds.SoundEvents.BOOK_PAGE_TURN, SoundSource.BLOCKS, 0.8F, 0.6F);
+		setChanged();
+		sync();
+		return roll;
+	}
+
+	/** Feeds a torn-off roll back in, when nothing is on the machine's own. */
+	public void loadRoll(com.arrl.radiocraft.common.datacomponents.TeletypeRollContents contents) {
+		if(!rttyLines.isEmpty())
+			return;
+		rttyLines.addAll(contents.lines());
+		while(rttyLines.size() > RTTY_HISTORY)
+			rttyLines.removeFirst();
+		fedLines = Math.max(contents.fedLines(), rttyLines.size());
+		setChanged();
+		sync();
+	}
+
 	/** True once paper is threaded up to the print head; false new, and again after it ran out. */
 	public boolean isPaperLoaded() {
 		return !outOfPaper;
@@ -454,8 +483,11 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 	/** The solar event in this station's dimension, null before the manager has picked one. */
 	@Nullable
 	public SolarEvent getCurrentEvent() {
-		if(level == null)
-			return null;
+		return level == null ? null : currentEvent(level);
+	}
+
+	@Nullable
+	private static SolarEvent currentEvent(Level level) {
 		SolarEventInstance instance = SolarEventManager.getEvent(level);
 		return instance == null ? null : instance.getEvent();
 	}
@@ -499,11 +531,16 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 	 */
 	@Nullable
 	public BandCondition getBandCondition(String band) {
-		SolarEvent event = getCurrentEvent();
-		if(event == null || level == null)
+		return level == null ? null : bandCondition(level, worldPosition, band);
+	}
+
+	@Nullable
+	private static BandCondition bandCondition(Level level, BlockPos pos, String band) {
+		SolarEvent event = currentEvent(level);
+		if(event == null)
 			return null;
 		BandCondition condition = event.getCondition(band, level.isDay());
-		return Aurora.affects(level, worldPosition) ? condition.worse() : condition;
+		return Aurora.affects(level, pos) ? condition.worse() : condition;
 	}
 
 	/** Whether {@link #REPORTED_BAND} propagates at all right now (any condition but closed). */
@@ -515,8 +552,11 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 	/** "Aurora: active beyond Z ±10000" or "Aurora expected ...", null when there is none. */
 	@Nullable
 	public Component auroraLine() {
-		if(level == null)
-			return null;
+		return level == null ? null : auroraLine(level);
+	}
+
+	@Nullable
+	private static Component auroraLine(Level level) {
 		int latitude = Aurora.latitude();
 		if(Aurora.isActive(level))
 			return Component.translatable("message.radiocraft.solar_weather_station.aurora_active", latitude).withStyle(ChatFormatting.GREEN);
@@ -545,19 +585,27 @@ public class TeletypeBlockEntity extends BlockEntity implements MenuProvider {
 	public List<Component> getReportLines() {
 		if(!hasRadio())
 			return List.of(Component.translatable("message.radiocraft.solar_weather_station.no_radio"));
-		SolarEvent event = getCurrentEvent();
+		return level == null ? List.of() : reportLines(level, worldPosition);
+	}
+
+	/**
+	 * The solar weather report at {@code pos}, one line per entry: header, overall conditions, noise floor, then each
+	 * band. Shared with the WEFAX receiver's SOLR WX.
+	 */
+	public static List<Component> reportLines(Level level, BlockPos worldPosition) {
+		SolarEvent event = currentEvent(level);
 		if(event == null)
 			return List.of(Component.translatable("message.radiocraft.solar_weather_station.no_data"));
 		List<Component> lines = new ArrayList<>();
 		lines.add(Component.translatable("message.radiocraft.solar_weather_station.header").withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
-		lines.add(Component.translatable("message.radiocraft.solar_weather_station.overall", eventName(getCurrentEventKey())));
+		lines.add(Component.translatable("message.radiocraft.solar_weather_station.overall", eventName(RadiocraftData.SOLAR_EVENTS.getKey(event))));
 		lines.add(Component.translatable("message.radiocraft.solar_weather_station.noise", Math.round(event.getNoise() * 100.0F)));
-		boolean underAurora = level != null && Aurora.affects(level, worldPosition);
+		boolean underAurora = Aurora.affects(level, worldPosition);
 		lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", "VHF",
 				Component.translatable(underAurora ? "message.radiocraft.solar_weather_station.aurora" : "message.radiocraft.solar_weather_station.normal")));
 		for(String band : REPORTED_BANDS)
-			lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", band, conditionName(getBandCondition(band))));
-		Component aurora = auroraLine();
+			lines.add(Component.translatable("message.radiocraft.solar_weather_station.band", band, conditionName(bandCondition(level, worldPosition, band))));
+		Component aurora = auroraLine(level);
 		if(aurora != null)
 			lines.add(aurora);
 		return lines;

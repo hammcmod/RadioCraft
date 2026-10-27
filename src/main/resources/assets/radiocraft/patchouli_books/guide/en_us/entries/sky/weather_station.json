@@ -1,0 +1,21 @@
+{
+  "name": "Weather Station",
+  "icon": "radiocraft:weather_station",
+  "category": "radiocraft:sky",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Put a $(item)weather station$() up high in the open. Right click it for the wind and gusts, temperature, humidity, pressure and the rain in the last hour (it only catches rain with open sky above it).$(br2)Any $(l:radiocraft:digital/aprs)H19 terminal$(/l) within $(thing)64 blocks$() sends that weather in its beacons, and other H19s show it with the WX symbol."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Real weather",
+      "text": "With plain Minecraft weather there is no wind. With $(thing)Another Weather Mod$() installed the weather is local: moving storms, wind, hail and hurricanes, and the charts and reports describe them.$(br2)Strong winds (over 33 m/s) can blow antenna parts and wire holders down. Rain halves a solar panel's output where it falls, and severe weather halves it again."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:weather_station"
+    }
+  ]
+}

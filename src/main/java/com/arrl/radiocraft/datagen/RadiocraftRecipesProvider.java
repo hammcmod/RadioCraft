@@ -35,6 +35,163 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
 
     @Override
     protected void buildRecipes(@NotNull RecipeOutput recipeOutput) {
+        // Maintainer's recipes, 2026-10-26.
+        // The HF manpack: a 20m QRP rig and a 10m radio in a bundle on a leather chestplate.
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, RadiocraftItems.HF_MANPACK.get())
+                .requires(Items.BUNDLE)
+                .requires(Items.LEATHER_CHESTPLATE)
+                .requires(RadiocraftItems.QRP_RADIO_20M.get())
+                .requires(Ingredient.of(RadiocraftItems.HF_RADIO_10M_VARIANTS.pure().get(), RadiocraftItems.HF_RADIO_10M_VARIANTS.good().get(), RadiocraftItems.HF_RADIO_10M_VARIANTS.poor().get()))
+                .unlockedBy("has_qrp_radio_20m", has(RadiocraftItems.QRP_RADIO_20M.get()))
+                .save(recipeOutput, Radiocraft.id("hf_manpack"));
+        // The direction finder: an HF and a VHF scanner, a clock and an amethyst crystal.
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, RadiocraftItems.DIRECTION_FINDER.get())
+                .requires(RadiocraftItems.HF_RECEIVER.get())
+                .requires(RadiocraftItems.VHF_RECEIVER.get())
+                .requires(Items.CLOCK)
+                .requires(Items.AMETHYST_SHARD)
+                .unlockedBy("has_hf_receiver", has(RadiocraftItems.HF_RECEIVER.get()))
+                .save(recipeOutput, Radiocraft.id("direction_finder"));
+        // Its module: a compass and a pure crystal of any band, in iron.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.DIRECTION_FINDER_MODULE.get(), 1)
+                .pattern("III")
+                .pattern("ICI")
+                .pattern("IXI")
+                .define('I', Items.IRON_INGOT)
+                .define('C', Items.COMPASS)
+                .define('X', Ingredient.of(pureCrystals()))
+                .unlockedBy("has_compass", has(Items.COMPASS))
+                .save(recipeOutput, Radiocraft.id("direction_finder_module"));
+        // The handheld direction finder: a multiband (all-band) HF board and a compass, in iron.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.HANDHELD_DIRECTION_FINDER.get(), 1)
+                .pattern("III")
+                .pattern("IBI")
+                .pattern("ICI")
+                .define('I', Items.IRON_INGOT)
+                .define('B', RadiocraftItems.ALL_BAND_CIRCUIT_BOARD.get())
+                .define('C', Items.COMPASS)
+                .unlockedBy("has_all_band_circuit_board", has(RadiocraftItems.ALL_BAND_CIRCUIT_BOARD.get()))
+                .save(recipeOutput, Radiocraft.id("handheld_direction_finder"));
+        // The small microwave dish. The large horn has no recipe: it only turns up in structures.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.SATELLITE_DISH.get(), 1)
+                .pattern("III")
+                .pattern("IC ")
+                .pattern("IWI")
+                .define('I', Items.IRON_INGOT)
+                .define('C', Items.COPPER_INGOT)
+                .define('W', RadiocraftItems.WIRE.get())
+                .unlockedBy("has_copper_ingot", has(Items.COPPER_INGOT))
+                .save(recipeOutput, Radiocraft.id("microwave_dish"));
+
+        // The microwave radio (maintainer's, mid-game): gold waveguides, a pure VHF crystal as the frequency reference,
+        // an ender pearl for the beam, coax and an iron chassis.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.MICROWAVE_RADIO.get(), 1)
+                .pattern("GXG")
+                .pattern("CEC")
+                .pattern("III")
+                .define('G', Items.GOLD_INGOT)
+                .define('X', RadiocraftItems.ENCASED_CRYSTALS.get(com.arrl.radiocraft.common.radio.crystal.CrystalBand.VHF).get(com.arrl.radiocraft.common.radio.crystal.CrystalQuality.PURE).get())
+                .define('C', RadiocraftItems.COAX_WIRE.get())
+                .define('E', Items.ENDER_PEARL)
+                .define('I', Items.IRON_INGOT)
+                .unlockedBy("has_ender_pearl", has(Items.ENDER_PEARL))
+                .save(recipeOutput, Radiocraft.id("microwave_radio"));
+        // Desk speakers, one per wood: that wood's planks, wool grille cloth, a speaker and a nugget terminal strip.
+        RadiocraftItems.DESK_SPEAKERS.forEach((wood, item) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item.get(), 1)
+                .pattern("PWP")
+                .pattern("PSP")
+                .pattern("PNP")
+                .define('P', net.minecraft.core.registries.BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.withDefaultNamespace(wood + "_planks")))
+                .define('W', ItemTags.WOOL)
+                .define('S', RadiocraftItems.RADIO_SPEAKER.get())
+                .define('N', Items.IRON_NUGGET)
+                .unlockedBy("has_radio_speaker", has(RadiocraftItems.RADIO_SPEAKER.get()))
+                .save(recipeOutput, Radiocraft.id("desk_speaker_" + wood)));
+        // The large speaker: two drivers (woofer and tweeter) behind a big wool grille, chrome feet.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.LARGE_SPEAKER.get(), 1)
+                .pattern("PWP")
+                .pattern("SWS")
+                .pattern("PIP")
+                .define('P', ItemTags.PLANKS)
+                .define('W', ItemTags.WOOL)
+                .define('S', RadiocraftItems.RADIO_SPEAKER.get())
+                .define('I', Items.IRON_INGOT)
+                .unlockedBy("has_radio_speaker", has(RadiocraftItems.RADIO_SPEAKER.get()))
+                .save(recipeOutput, Radiocraft.id("large_speaker"));
+        // Premium speakers: two drivers and a copper crossover in a case of marble (calcite), iron or gold.
+        premiumSpeaker(recipeOutput, RadiocraftItems.PREMIUM_SPEAKER_MARBLE.get(), Items.CALCITE, "marble");
+        premiumSpeaker(recipeOutput, RadiocraftItems.PREMIUM_SPEAKER_IRON.get(), Items.IRON_INGOT, "iron");
+        premiumSpeaker(recipeOutput, RadiocraftItems.PREMIUM_SPEAKER_GOLD.get(), Items.GOLD_INGOT, "gold");
+
+        // The telephone: a carbon capsule for the handset, redstone for the ringer and dial, a terracotta case.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TELEPHONE.get(), 1)
+                .pattern(" M ")
+                .pattern("PRP")
+                .pattern("PPP")
+                .define('M', RadiocraftItems.MICROPHONE_ELEMENT.get())
+                .define('R', Items.REDSTONE)
+                .define('P', Items.TERRACOTTA)
+                .unlockedBy("has_microphone_element", has(RadiocraftItems.MICROPHONE_ELEMENT.get()))
+                .save(recipeOutput, Radiocraft.id("telephone"));
+        // The weather station: copper cups, a quartz radiation shield, a comparator for the electronics, a bars mast mount.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.WEATHER_STATION.get(), 1)
+                .pattern("C C")
+                .pattern("QRQ")
+                .pattern(" B ")
+                .define('C', Items.COPPER_INGOT)
+                .define('Q', Items.SMOOTH_QUARTZ_SLAB)
+                .define('R', Items.COMPARATOR)
+                .define('B', Items.IRON_BARS)
+                .unlockedBy("has_comparator", has(Items.COMPARATOR))
+                .save(recipeOutput, Radiocraft.id("weather_station"));
+        // Wall speakers, two at a time: an iron frame, wool grille cloth, a speaker and a nugget terminal strip.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.WALL_SPEAKER.get(), 2)
+                .pattern("IWI")
+                .pattern("WSW")
+                .pattern("INI")
+                .define('I', Items.IRON_INGOT)
+                .define('W', ItemTags.WOOL)
+                .define('S', RadiocraftItems.RADIO_SPEAKER.get())
+                .define('N', Items.IRON_NUGGET)
+                .unlockedBy("has_radio_speaker", has(RadiocraftItems.RADIO_SPEAKER.get()))
+                .save(recipeOutput, Radiocraft.id("wall_speaker"));
+        // The loudspeaker: a cone of iron round a radio speaker.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.LOUDSPEAKER.get(), 1)
+                .pattern("III")
+                .pattern("ISI")
+                .pattern("III")
+                .define('I', Items.IRON_INGOT)
+                .define('S', RadiocraftItems.RADIO_SPEAKER.get())
+                .unlockedBy("has_radio_speaker", has(RadiocraftItems.RADIO_SPEAKER.get()))
+                .save(recipeOutput, Radiocraft.id("loudspeaker"));
+        // The tape player: a wooden case, an iron capstan, two speakers either side of the redstone works.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TAPE_PLAYER.get(), 1)
+                .pattern("PIP")
+                .pattern("SRS")
+                .pattern("PPP")
+                .define('P', ItemTags.PLANKS)
+                .define('I', Items.IRON_INGOT)
+                .define('S', RadiocraftItems.RADIO_SPEAKER.get())
+                .define('R', Items.REDSTONE)
+                .unlockedBy("has_radio_speaker", has(RadiocraftItems.RADIO_SPEAKER.get()))
+                .save(recipeOutput, Radiocraft.id("tape_player"));
+        // A blank tape reel (they do not stack): nugget hubs, kelp tape on a paper label.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TAPE_REEL.get(), 1)
+                .pattern("NKN")
+                .pattern("KPK")
+                .pattern("NKN")
+                .define('N', Items.IRON_NUGGET)
+                .define('K', Items.DRIED_KELP)
+                .define('P', Items.PAPER)
+                .unlockedBy("has_dried_kelp", has(Items.DRIED_KELP))
+                .save(recipeOutput, Radiocraft.id("tape_reel"));
+
+        // A direction finder with the world map module in its drive plots fixes on a map.
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, RadiocraftItems.MAP_DIRECTION_FINDER.get())
+                .requires(RadiocraftItems.DIRECTION_FINDER.get())
+                .requires(RadiocraftItems.WORLD_MAP_MODULE.get())
+                .unlockedBy("has_world_map_module", has(RadiocraftItems.WORLD_MAP_MODULE.get()))
+                .save(recipeOutput, Radiocraft.id("map_direction_finder"));
         // Basic components
         buildWireRecipe(recipeOutput);
         buildWaterproofWireRecipe(recipeOutput);
@@ -50,6 +207,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         buildEncasedCrystalRecipes(recipeOutput);
         buildRadioSpeakerRecipe(recipeOutput);
         buildCoaxWireRecipe(recipeOutput);
+        buildDyedCoaxRecipes(recipeOutput);
         buildDuplexerRecipe(recipeOutput);
         buildSmallBatteryRecipe(recipeOutput);
         buildRadioInterfaceRecipe(recipeOutput);
@@ -86,7 +244,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         buildFiveBtvRecipe(recipeOutput);
         buildAutoTunerRecipe(recipeOutput);
         buildAprsTerminalRecipe(recipeOutput);
-        buildTransferInterfaceRecipe(recipeOutput);
+        buildRadioFaxRecipes(recipeOutput);
         buildIonosondeRecipes(recipeOutput);
         buildWefaxReceiverRecipe(recipeOutput);
     }
@@ -145,18 +303,28 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .save(recipeOutput);
     }
 
-    /** The digital transfer interface: a board and a book for the files. */
-    private void buildTransferInterfaceRecipe(RecipeOutput recipeOutput) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TRANSFER_INTERFACE.get(), 1)
-                .pattern("IWI")
+    /** The radio fax, one per log: that log's case round a modem board, scanner glass on top and paper in the tray. */
+    private void buildRadioFaxRecipes(RecipeOutput recipeOutput) {
+        RadiocraftItems.RADIO_FAXES.forEach((wood, item) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item.get(), 1)
+                .pattern("LGL")
                 .pattern("WBW")
-                .pattern("IKI")
-                .define('I', Items.IRON_INGOT)
+                .pattern("LPL")
+                .define('L', BuiltInRegistries.ITEM.get(net.minecraft.resources.ResourceLocation.withDefaultNamespace(logName(wood))))
+                .define('G', Items.GLASS_PANE)
                 .define('W', RadiocraftItems.WIRE.get())
                 .define('B', RadiocraftItems.HF_CIRCUIT_BOARD.get())
-                .define('K', Items.BOOK)
+                .define('P', Items.PAPER)
                 .unlockedBy("has_hf_circuit_board", has(RadiocraftItems.HF_CIRCUIT_BOARD.get()))
-                .save(recipeOutput);
+                .save(recipeOutput, Radiocraft.id("radio_fax_" + wood)));
+    }
+
+    /** The vanilla log item of a wood: stems in the nether, the bamboo block. */
+    private static String logName(String wood) {
+        return switch(wood) {
+            case "crimson", "warped" -> wood + "_stem";
+            case "bamboo" -> "bamboo_block";
+            default -> wood + "_log";
+        };
     }
 
     /**
@@ -246,6 +414,30 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .pattern("I ")
                 .define('I', Items.IRON_INGOT)
                 .define('S', Items.STICK)
+                .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
+                .save(recipeOutput);
+        // Tower beams, all iron, four at a time: an X of lattice round a heavier core.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TOWER_BEAM_THIN.get(), 4)
+                .pattern("N N")
+                .pattern("NIN")
+                .pattern("N N")
+                .define('N', Items.IRON_NUGGET)
+                .define('I', Items.IRON_INGOT)
+                .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
+                .save(recipeOutput);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TOWER_BEAM.get(), 4)
+                .pattern("I I")
+                .pattern(" I ")
+                .pattern("I I")
+                .define('I', Items.IRON_INGOT)
+                .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
+                .save(recipeOutput);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TOWER_BEAM_THICK.get(), 4)
+                .pattern("I I")
+                .pattern(" B ")
+                .pattern("I I")
+                .define('I', Items.IRON_INGOT)
+                .define('B', Items.IRON_BLOCK)
                 .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
                 .save(recipeOutput);
     }
@@ -353,6 +545,18 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .define('I', Items.IRON_INGOT) // The magnet.
                 .unlockedBy("has_note_block", has(Items.NOTE_BLOCK))
                 .save(recipeOutput);
+    }
+
+    /** Eight coax round a dye: eight of that colour, which joins only its own colour and plain coax. */
+    private void buildDyedCoaxRecipes(RecipeOutput recipeOutput) {
+        RadiocraftItems.COLOURED_COAX.forEach((colour, coax) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, coax.get(), 8)
+                .pattern("CCC")
+                .pattern("CDC")
+                .pattern("CCC")
+                .define('C', RadiocraftItems.COAX_WIRE.get())
+                .define('D', net.minecraft.world.item.DyeItem.byColor(colour))
+                .unlockedBy("has_coax_wire", has(RadiocraftItems.COAX_WIRE.get()))
+                .save(recipeOutput, com.arrl.radiocraft.Radiocraft.id("coax_wire_" + colour.getSerializedName())));
     }
 
     private void buildCoaxWireRecipe(RecipeOutput recipeOutput) {
@@ -495,6 +699,17 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .pattern("CCC")
                 .define('C', Items.COPPER_INGOT) // One bent tube, a J.
                 .define('O', RadiocraftItems.COAX_WIRE.get())
+                .unlockedBy("has_coax_wire", has(RadiocraftItems.COAX_WIRE.get()))
+                .save(recipeOutput);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.RINGO_ANTENNA.get(), 1)
+                .pattern(" I ")
+                .pattern(" A ")
+                .pattern("DBC")
+                .define('I', Items.IRON_INGOT) // The mast tip.
+                .define('A', RadiocraftItems.ANTENNA_WIRE.get()) // The radiator.
+                .define('D', Items.DIAMOND)
+                .define('B', Items.IRON_BLOCK) // The base and the matching ring.
+                .define('C', RadiocraftItems.COAX_WIRE.get())
                 .unlockedBy("has_coax_wire", has(RadiocraftItems.COAX_WIRE.get()))
                 .save(recipeOutput);
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.SLIM_JIM_ANTENNA.get(), 1)
@@ -783,7 +998,25 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                         .unlockedBy("has_radio_speaker", has(RadiocraftItems.RADIO_SPEAKER.get())));
     }
 
+    /** Every pure crystal, raw or encased, of any band. */
+    private static net.minecraft.world.item.ItemStack[] pureCrystals() {
+        java.util.List<net.minecraft.world.item.ItemStack> out = new java.util.ArrayList<>();
+        for(com.arrl.radiocraft.common.radio.crystal.CrystalBand band : com.arrl.radiocraft.common.radio.crystal.CrystalBand.values()) {
+            out.add(new net.minecraft.world.item.ItemStack(RadiocraftItems.CRYSTALS.get(band).get(com.arrl.radiocraft.common.radio.crystal.CrystalQuality.PURE).get()));
+            out.add(new net.minecraft.world.item.ItemStack(RadiocraftItems.ENCASED_CRYSTALS.get(band).get(com.arrl.radiocraft.common.radio.crystal.CrystalQuality.PURE).get()));
+        }
+        return out.toArray(net.minecraft.world.item.ItemStack[]::new);
+    }
 
-
-
+    private static void premiumSpeaker(RecipeOutput recipeOutput, Item speaker, Item material, String name) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, speaker, 1)
+                .pattern("MSM")
+                .pattern("MCM")
+                .pattern("MSM")
+                .define('M', material)
+                .define('S', RadiocraftItems.RADIO_SPEAKER.get())
+                .define('C', Items.COPPER_INGOT)
+                .unlockedBy("has_radio_speaker", has(RadiocraftItems.RADIO_SPEAKER.get()))
+                .save(recipeOutput, Radiocraft.id("premium_speaker_" + name));
+    }
 }

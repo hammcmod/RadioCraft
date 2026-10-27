@@ -58,7 +58,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 				old.gain(),
 				old.micGain(),
 				old.receiveIndicatorStrength()
-			)
+			).withTonesOf(old) // Retuning keeps the tones and offset.
 		);
 	}
 
@@ -69,7 +69,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPowered(boolean value) {
-		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength()).withToneAndOffset(old.ctcssTone(), old.offsetHz()));
+		updateState((old) -> new HandheldRadioState(value, old.ptt(), old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength()).withTonesOf(old));
 	}
 
 	@Override
@@ -79,12 +79,12 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setPTTDown(boolean value) {
-		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength()).withToneAndOffset(old.ctcssTone(), old.offsetHz()));
+		updateState((old) -> new HandheldRadioState(old.power(), value, old.freq(), old.gain(), old.micGain(), old.receiveIndicatorStrength()).withTonesOf(old));
 	}
 
 	@Override
 	public void setReceiveStrength(float rec) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), old.micGain(), rec).withToneAndOffset(old.ctcssTone(), old.offsetHz()));
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), old.micGain(), rec).withTonesOf(old));
 	}
 
 	@Override
@@ -99,7 +99,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setGain(float gain) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), gain, old.micGain(), old.receiveIndicatorStrength()).withToneAndOffset(old.ctcssTone(), old.offsetHz()));
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), gain, old.micGain(), old.receiveIndicatorStrength()).withTonesOf(old));
 	}
 
 	@Override
@@ -109,7 +109,7 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 
 	@Override
 	public void setMicGain(float micGain) {
-		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), micGain, old.receiveIndicatorStrength()).withToneAndOffset(old.ctcssTone(), old.offsetHz()));
+		updateState((old) -> new HandheldRadioState(old.power(), old.ptt(), old.freq(), old.gain(), micGain, old.receiveIndicatorStrength()).withTonesOf(old));
 	}
 
 	@Override
@@ -120,6 +120,16 @@ public class VHFHandheldCapability implements IVHFHandheldCapability {
 	@Override
 	public void setCtcssTone(float tone) {
 		updateState((old) -> old.withToneAndOffset(Ctcss.sanitize(tone), old.offsetHz()));
+	}
+
+	@Override
+	public float getRxTone() {
+		return getState().rxTone();
+	}
+
+	@Override
+	public void setRxTone(float tone) {
+		updateState((old) -> old.withRxTone(Ctcss.sanitize(tone)));
 	}
 
 	@Override

@@ -65,9 +65,14 @@ public final class AntennaStrikes {
 			IAntenna.AntennaPos pos = antenna.getAntennaPos();
 			if(pos == null || pos.level() != level || antenna.getPlayer() != null)
 				continue;
-			if(pos.position().getCenter().distanceTo(at) <= HIT_RANGE)
+			if(pos.position().getCenter().distanceTo(at) <= HIT_RANGE && damages(antenna.getType().lightningDamageFactor(), level.random.nextDouble()))
 				surge(level, pos.position());
 		}
+	}
+
+	/** Whether a strike does damage, for an antenna with {@code factor} (see {@link IAntenna#getType()}) and a roll of 0 to 1. */
+	public static boolean damages(double factor, double roll) {
+		return roll < factor;
 	}
 
 	/** The antenna at {@code antennaPos} was hit. */

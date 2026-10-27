@@ -27,6 +27,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
+import com.arrl.radiocraft.common.blockentities.DirectionFinderModuleBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
 import org.jetbrains.annotations.Nullable;
@@ -57,9 +58,14 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
 
     /** As above, with a CTCSS tone under the voice (0 for none). */
     public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequency, UUID sourcePlayer, float ctcssTone) {
+        transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer, ctcssTone, 1.0F);
+    }
+
+    /** As above, from a transmitter {@code power} times as strong as a standard one. */
+    public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequency, UUID sourcePlayer, float ctcssTone, float power) {
         StaticAntenna<?> antenna = this.antenna; // Read once: voice arrives on Simple Voice Chat's thread.
         if(antenna != null)
-            antenna.transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer, ctcssTone);
+            antenna.transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer, ctcssTone, power);
     }
 
     public void receiveAudioPacket(AntennaVoicePacket packet) {
@@ -67,9 +73,12 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         if(radios.size() == 1) {
             BlockPos checkPos = radios.iterator().next().getPos();
             if(level.isLoaded(checkPos)) {
-                if(level.getChunkAt(checkPos).getBlockEntity(checkPos, LevelChunk.EntityCreationType.IMMEDIATE) instanceof RadioBlockEntity radio) {
+                BlockEntity be = level.getChunkAt(checkPos).getBlockEntity(checkPos, LevelChunk.EntityCreationType.IMMEDIATE);
+                if(be instanceof RadioBlockEntity radio) {
                     radio.receiveVoice(packet); // The radio decides whether it is close enough in frequency (Detuning).
                 }
+                else if(be instanceof DirectionFinderModuleBlockEntity module)
+                    module.hear(packet);
             }
         }
         else if(radios.size() > 1)
@@ -89,6 +98,8 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
                     if(BandUtils.areFrequenciesEqualWithTolerance(radio.getTunedFrequency(), packet.getFrequency(), 1000.0F)) // Only receive if listening to correct frequency.
                         radio.receiveCW(packet);
                 }
+                else if(be instanceof DirectionFinderModuleBlockEntity module)
+                    module.hear(packet);
             }
         }
         else if(radios.size() > 1)
@@ -109,6 +120,8 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
             BlockPos checkPos = radios.iterator().next().getPos();
             if(level.isLoaded(checkPos) && level.getBlockEntity(checkPos) instanceof RadioBlockEntity radio)
                 radio.receiveData(packet);
+            else if(level.isLoaded(checkPos) && level.getBlockEntity(checkPos) instanceof DirectionFinderModuleBlockEntity module)
+                module.hear(packet);
         }
         else if(radios.size() > 1)
             overdraw(level);
@@ -245,6 +258,46 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
 
     public StaticAntenna<?> getAntenna() {
         return antenna;
+    }
+
+    /** How often (ticks) the antenna checks it is still where transmissions reach it. */
+    private static final int CHECK_TICKS = 40;
+
+    /**
+     * Keeps the antenna on the air: it must be on the antenna network its block belongs to (a VHF antenna on VHF) and in
+     * that network's set, or nothing transmitted reaches it and its radio goes deaf without a word. Puts it right if
+     * not; cheap, every couple of seconds.
+     */
+    @Override
+    public void tick(Level level, BlockPos pos) {
+        if((level.getGameTime() + pos.asLong()) % CHECK_TICKS != 0L)
+            return;
+        if(level.getBlockEntity(pos) instanceof com.arrl.radiocraft.common.blockentities.AntennaBlockEntity be
+                && be.getClass() == com.arrl.radiocraft.common.blockentities.AntennaBlockEntity.class) {
+            ResourceLocation wanted = com.arrl.radiocraft.common.blockentities.AntennaBlockEntity.networkFor(be.getBlockState());
+            if(!wanted.equals(networkId)) {
+                Radiocraft.LOGGER.warn("Antenna at {} was on the {} antenna network; moving it to {}", pos.toShortString(), networkId, wanted);
+                setNetworkId(wanted);
+            }
+        }
+        StaticAntenna<?> current = antenna;
+        AntennaNetwork network = AntennaNetworkManager.getNetwork(networkId);
+        if(current != null && network != null && !network.allAntennas().contains(current)) {
+            Radiocraft.LOGGER.warn("Antenna at {} had dropped off the {} antenna network; putting it back", pos.toShortString(), networkId);
+            current.setNetwork(network);
+        }
+    }
+
+    /** One line for /rcdebug: which antenna network, whether the antenna is on it, and the radios on its coax. */
+    public String diagnose() {
+        StaticAntenna<?> current = antenna;
+        AntennaNetwork network = AntennaNetworkManager.getNetwork(networkId);
+        boolean onAir = current != null && network != null && network.allAntennas().contains(current);
+        StringBuilder radiosText = new StringBuilder();
+        for(RadioNetworkObject radio : getRadios())
+            radiosText.append(radiosText.isEmpty() ? "" : ", ").append(radio.getType().getPath()).append('@').append(radio.getPos().toShortString());
+        return "antennaNetwork=" + networkId + " onTheAir=" + onAir + " radiosOnCoax=" + getRadios().size()
+                + (radiosText.isEmpty() ? "" : " (" + radiosText + ")") + (getRadios().size() > 1 ? " OVERDRAWN: nothing is heard" : "");
     }
 
     public ResourceLocation getNetworkId() {

@@ -14,6 +14,11 @@
       "title": "Baluns"
     },
     {
+      "type": "patchouli:text",
+      "title": "Coloured coax",
+      "text": "Coax comes in sixteen colours. Coax joins only its own colour or plain coax, so runs of different colours can lie side by side and stay apart (a $(l:radiocraft:direction_finding/direction_finder)direction finder$(/l) needs this). Plain coax joins any colour.$(br2)Use a dye on laid coax to colour the whole run, or sneak to colour one block. Recipes that take coax want plain coax."
+    },
+    {
       "type": "patchouli:crafting",
       "recipe": "radiocraft:balun_one_to_one",
       "recipe2": "radiocraft:balun_two_to_one"
@@ -22,6 +27,11 @@
       "type": "patchouli:crafting",
       "recipe": "radiocraft:balun_four_to_one",
       "recipe2": "radiocraft:balun_nine_to_one"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:coax_wire_red",
+      "text": "Eight coax round any dye."
     }
   ]
 }

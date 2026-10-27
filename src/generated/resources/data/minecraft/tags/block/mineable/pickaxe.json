@@ -8,6 +8,8 @@
     "radiocraft:vhf_base_station_pure",
     "radiocraft:vhf_receiver",
     "radiocraft:vhf_repeater",
+    "radiocraft:commercial_radio_module",
+    "radiocraft:commercial_repeater",
     "radiocraft:hf_radio_10m_poor",
     "radiocraft:hf_radio_10m",
     "radiocraft:hf_radio_10m_pure",
@@ -26,7 +28,6 @@
     "radiocraft:qrp_radio_40m",
     "radiocraft:radio_interface",
     "radiocraft:aprs_h19",
-    "radiocraft:transfer_interface",
     "radiocraft:parrot_controller",
     "radiocraft:duplexer",
     "radiocraft:antenna_tuner",
@@ -41,6 +42,8 @@
     "radiocraft:balun_nine_to_one",
     "radiocraft:dummy_load",
     "radiocraft:j_pole_antenna",
+    "radiocraft:ringo_antenna",
+    "radiocraft:folded_dipole_antenna",
     "radiocraft:ionospheric_processor",
     "radiocraft:5btv_antenna",
     "radiocraft:ionosonde",
@@ -49,6 +52,19 @@
     "radiocraft:satellite_dish",
     "radiocraft:teletype",
     "radiocraft:wefax_receiver",
-    "radiocraft:microphone"
+    "radiocraft:microphone",
+    "radiocraft:tower_beam_thin",
+    "radiocraft:tower_beam",
+    "radiocraft:tower_beam_thick",
+    "radiocraft:microwave_horn",
+    "radiocraft:direction_finder",
+    "radiocraft:map_direction_finder",
+    "radiocraft:direction_finder_module",
+    "radiocraft:microwave_radio",
+    "radiocraft:telephone",
+    {
+      "id": "radiocraft:alternator",
+      "required": false
+    }
   ]
 }

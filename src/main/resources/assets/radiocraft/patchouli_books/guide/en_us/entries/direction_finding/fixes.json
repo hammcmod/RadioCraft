@@ -1,0 +1,22 @@
+{
+  "name": "Taking a Fix",
+  "icon": "minecraft:compass",
+  "category": "radiocraft:direction_finding",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "One bearing gives a direction; two bearings from different places cross where the transmitter is. Press 2 (or TAB) for the $(thing)FIX$() page.$(br2)Press A and type another station's X, Z, its bearing and its accuracy (enter alone means 5 degrees). Up to six can be typed in; D deletes the one selected."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "A good fix",
+      "text": "The fix shows its X and Z, how many blocks it is good to, and its range and bearing from you. It needs:$(li)two bearings or more$(li)two stations at least $(thing)48 blocks$() apart$(li)bearings crossing at 15 degrees or more$(br)Otherwise the page says why it cannot fix. Bearings at a wide angle give the smallest box."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Over a link",
+      "text": "A direction finder touching a $(l:radiocraft:microwave/microwave_radio)microwave radio$(/l) gets the bearings of direction finders at the other end of its link tuned to the same frequency, and adds them to the fix by itself (the L rows)."
+    }
+  ]
+}

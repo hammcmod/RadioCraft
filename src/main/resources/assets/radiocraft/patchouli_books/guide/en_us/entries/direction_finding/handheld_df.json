@@ -1,0 +1,16 @@
+{
+  "name": "Handheld Direction Finder",
+  "icon": "radiocraft:handheld_direction_finder",
+  "category": "radiocraft:direction_finding",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "For walking in on a transmitter. Right click to set its frequency in MHz (it starts on 146.520). Hold it, in either hand, while a station transmits there: it $(thing)beeps and blinks$(), from once a second facing away to ten a second pointed straight at it, higher and louder as you get closer.$(br2)It only hears by line of sight, never skip, and plays none of the station's audio."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:handheld_direction_finder"
+    }
+  ]
+}

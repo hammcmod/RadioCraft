@@ -58,8 +58,8 @@ public class HFRadioAllBandScreen extends HFRadioScreen<HFRadioAllBandMenu> {
         addRenderableWidget(new HoldButton(leftPos + 194, topPos + 94, 18, 17, 46, 49, widgetsTexture, 256, 256, (btn) -> onFrequencyButtonUp(null), (btn) -> {}));
         addRenderableWidget(new HoldButton(leftPos + 194, topPos + 112, 18, 17, 46, 83, widgetsTexture, 256, 256, (btn) -> onFrequencyButtonDown(null), (btn) -> {}));
         addRenderableWidget(new Dial(leftPos + 125, topPos + 62, 62, 68, 108, 87, widgetsTexture, 256, 256, this::onFrequencyDialUp, this::onFrequencyDialDown)); // Frequency dial
-        addRenderableWidget(new Dial(leftPos + 194, topPos + 62, 28, 31, 52, 125, widgetsTexture, 256, 256, (dial) -> {}, (dial) -> {}));
-        addRenderableWidget(new Dial(leftPos + 217, topPos + 101, 28, 31, 52, 125, widgetsTexture, 256, 256, (dial) -> {}, (dial) -> {}));
+        speakerGainDial = addRenderableWidget(new Dial(leftPos + 194, topPos + 62, 28, 31, 52, 125, widgetsTexture, 256, 256, this::onGainUp, this::onGainDown)); // Gain dial
+        micGainDial = addRenderableWidget(new Dial(leftPos + 217, topPos + 101, 28, 31, 52, 125, widgetsTexture, 256, 256, this::onMicGainUp, this::onMicGainDown)); // Mic gain dial
     }
 
     private void onTurnBand(int index) {

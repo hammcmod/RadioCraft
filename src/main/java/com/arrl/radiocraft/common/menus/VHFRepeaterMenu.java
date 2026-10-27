@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 public class VHFRepeaterMenu extends RadioMenu<VHFRepeaterBlockEntity> {
 
 	public VHFRepeaterMenu(int id, VHFRepeaterBlockEntity blockEntity) {
-		super(RadiocraftMenuTypes.VHF_REPEATER.get(), id, blockEntity, RadiocraftBlocks.VHF_REPEATER.get());
+		super(RadiocraftMenuTypes.VHF_REPEATER.get(), id, blockEntity, blockEntity.getBlockState().getBlock()); // The VHF or the commercial repeater.
 	}
 
 	public VHFRepeaterMenu(final int id, final Inventory playerInventory, final FriendlyByteBuf data) {

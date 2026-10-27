@@ -1,0 +1,21 @@
+{
+  "name": "Telephones",
+  "icon": "radiocraft:telephone",
+  "category": "radiocraft:microwave",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A $(item)Telephone$() touching a $(l:radiocraft:microwave/microwave_radio)microwave radio$(/l), or on its power wire, can call any phone on the same radio or at the far end of its links. The radio must be switched on.$(br2)Each phone has an $(thing)extension$() number. Key a number and press CALL; the far phone rings for 30 seconds. CALL answers, HANG ends it."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Talking",
+      "text": "Speak within a few blocks of the phone (closer is louder); the other end hears you from its earpiece, clean and a little fuller than SSB. Interference or a weak link makes it break up.$(br2)To change a phone's extension press EXT, key the new number and CALL. No two phones that can reach each other may share one."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:telephone"
+    }
+  ]
+}

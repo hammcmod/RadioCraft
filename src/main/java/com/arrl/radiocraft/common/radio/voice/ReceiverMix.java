@@ -31,17 +31,30 @@ public final class ReceiverMix {
 
 	/** Signal strength from which an FM receiver is fully quiet (full quieting): no hiss under the voice. */
 	public static final double FM_QUIETING = 0.3D;
+	/** Below this an FM signal starts to cut in and out (picket fencing). */
+	public static final double FM_DROPOUT_START = 0.15D;
+	/** Below this the voice is gone: the squelch is open on static alone. */
+	public static final double FM_STATIC_ONLY = 0.04D;
 
 	/**
-	 * The hiss under an FM signal: none while the squelch is shut (no signal), loudest on a signal that only just
-	 * opens it, fading to nothing as the signal reaches {@link #FM_QUIETING}. Unlike SSB, FM is silent between
-	 * signals and clean on a good one; only a weak, distant station comes in noisy.
+	 * The hiss under an FM signal, 0 to 1: none on a signal at {@link #FM_QUIETING} or above, rising as it weakens.
+	 * FM does not get quieter as the signal fades, only noisier; the voice stays at full volume.
 	 */
-	public static double fmHiss(double signal, double floor) {
-		if(signal <= 0.0D || signal >= FM_QUIETING)
+	public static double fmHiss(double signal) {
+		if(signal <= 0.0D)
+			return 1.0D;
+		if(signal >= FM_QUIETING)
 			return 0.0D;
 		double below = 1.0D - signal / FM_QUIETING;
-		return floor * below * below;
+		return below * below;
+	}
+
+	/**
+	 * Share of the time a weak FM signal drops out to static, 0 to 1: none above {@link #FM_DROPOUT_START}, all of it
+	 * below {@link #FM_STATIC_ONLY}. Past that the signal is out of reach and the squelch shuts: silence.
+	 */
+	public static double fmDropout(double signal) {
+		return Math.max(0.0D, Math.min(1.0D, (FM_DROPOUT_START - signal) / (FM_DROPOUT_START - FM_STATIC_ONLY)));
 	}
 
 	/**

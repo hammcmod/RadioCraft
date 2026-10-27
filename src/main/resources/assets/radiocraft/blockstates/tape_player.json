@@ -1,0 +1,34 @@
+{
+  "variants": {
+    "facing=north,running=false": {
+      "model": "radiocraft:block/tape_player_base"
+    },
+    "facing=north,running=true": {
+      "model": "radiocraft:block/tape_player_base"
+    },
+    "facing=east,running=false": {
+      "model": "radiocraft:block/tape_player_base",
+      "y": 90
+    },
+    "facing=east,running=true": {
+      "model": "radiocraft:block/tape_player_base",
+      "y": 90
+    },
+    "facing=south,running=false": {
+      "model": "radiocraft:block/tape_player_base",
+      "y": 180
+    },
+    "facing=south,running=true": {
+      "model": "radiocraft:block/tape_player_base",
+      "y": 180
+    },
+    "facing=west,running=false": {
+      "model": "radiocraft:block/tape_player_base",
+      "y": 270
+    },
+    "facing=west,running=true": {
+      "model": "radiocraft:block/tape_player_base",
+      "y": 270
+    }
+  }
+}

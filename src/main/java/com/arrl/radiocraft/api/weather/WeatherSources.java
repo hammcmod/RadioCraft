@@ -39,6 +39,27 @@ public final class WeatherSources {
 		return level.isRaining();
 	}
 
+	/** Hazards that make weather severe. */
+	private static final java.util.Set<WeatherReport.Hazard> SEVERE = java.util.EnumSet.of(WeatherReport.Hazard.HAIL,
+			WeatherReport.Hazard.BLIZZARD, WeatherReport.Hazard.SANDSTORM, WeatherReport.Hazard.DAMAGING_WIND,
+			WeatherReport.Hazard.TORNADO, WeatherReport.Hazard.HURRICANE_EYE);
+
+	/**
+	 * Whether there is severe weather at {@code pos}: hail, a blizzard or sandstorm, damaging wind, a tornado or a
+	 * hurricane. Only a local source (a weather mod with storms) reports it; vanilla weather never is severe.
+	 */
+	public static boolean isSevere(Level level, BlockPos pos) {
+		if(!(level instanceof ServerLevel server))
+			return false;
+		WeatherSource source = get(level);
+		if(!source.isLocal())
+			return false;
+		for(WeatherReport.Hazard hazard : source.report(server, pos).hazards())
+			if(SEVERE.contains(hazard))
+				return true;
+		return false;
+	}
+
 	/** Whether it thunders at {@code pos} (vanilla's threshold, 0.9). Client levels ask vanilla. */
 	public static boolean isThundering(Level level, BlockPos pos) {
 		if(level instanceof ServerLevel server)

@@ -1,0 +1,117 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module"
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "lamp": "red"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module_red"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "lamp": "red"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module_red",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "lamp": "red"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module_red",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "lamp": "red"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module_red",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "lamp": "green"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module_green"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "lamp": "green"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module_green",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "lamp": "green"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module_green",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "lamp": "green"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_module_green",
+        "y": 270
+      }
+    }
+  ]
+}

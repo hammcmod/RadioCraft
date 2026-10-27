@@ -67,6 +67,9 @@ public class RadiocraftVoicePlugin implements VoicechatPlugin {
 			if(encodedAudio.length == 0)
 				encodingData.reset();
 			else {
+				// The wearer's HF manpack, keyed by its PTT or handset, hears only its wearer.
+				com.arrl.radiocraft.common.radio.voice.handheld.ManpackRadio.get(sender.getUuid())
+						.ifPresent(manpack -> manpack.acceptVoicePacket(sender.getServerLevel(), decodedAudio, sender.getUuid()));
 				PlayerRadioManager.get(sender.getUuid()).ifPresent(playerRadio -> {
 					//still need to reconsider the structure for static antennas so not deleting this just yet, but for synchronization the check is moved inside
 //					if (playerRadio.canTransmitVoice()){ //TODO reconsider this structure, should the onus be on the radio to know if it should transmit instead?

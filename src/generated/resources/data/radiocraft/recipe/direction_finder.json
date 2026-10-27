@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "radiocraft:hf_receiver"
+    },
+    {
+      "item": "radiocraft:vhf_receiver"
+    },
+    {
+      "item": "minecraft:clock"
+    },
+    {
+      "item": "minecraft:amethyst_shard"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:direction_finder"
+  }
+}

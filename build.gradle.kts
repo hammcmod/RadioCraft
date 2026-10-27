@@ -171,6 +171,8 @@ repositories {
     // GeckoLib Cloudsmith repository (contains geckolib-neoforge artifacts)
     maven("https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/") { name = "GeckoLib Cloudsmith" }
     maven("https://maven.theillusivec4.top/") { name = "Curios Maven" }
+    maven("https://maven.createmod.net") { name = "Create Maven" } // Create, Ponder, Flywheel
+    maven("https://mvn.devos.one/snapshots") { name = "Registrate Maven" } // Registrate, which Create needs at runtime
 }
 
 val jade_version = "15.10.0+neoforge"
@@ -179,6 +181,10 @@ val jei_version="19.9.1.125" // Same JEI as TOP brings in at runtime
 val geckolib_version = "4.7.5.1"
 val patchouli_version = "1.21.1-92-NEOFORGE"
 val curios_version = "9.5.1+1.21.1"
+val create_version = "6.0.10-280"
+val ponder_version = "1.0.82"
+val flywheel_version = "1.0.6"
+val registrate_version = "MC1.21-1.3.0+67"
 
 dependencies {
     compileOnly(libs.mixinextras.common)
@@ -201,6 +207,25 @@ dependencies {
     // until the mod is on a Maven (Modrinth); it is on the runtime classpath too, so dev runs have localized weather.
     compileOnly(files("libs/anotherweathermod-neoforge-1.21.1-0.1.0.jar"))
     runtimeOnly(files("libs/anotherweathermod-neoforge-1.21.1-0.1.0.jar"))
+
+    // JOrbis (LGPL, Maven Central), to decode the server's tape .ogg files into audio on a dedicated server, where
+    // Minecraft's own Vorbis decoder (LWJGL) is not present. Bundled in the mod jar.
+    implementation("org.jcraft:jorbis:0.0.17")
+    jarJar("org.jcraft:jorbis:[0.0.17,0.1)")
+    additionalRuntimeClasspath("org.jcraft:jorbis:0.0.17")
+
+    // Create (https://github.com/Creators-of-Create/Create), for the alternator: compat/create only loads when Create is
+    // installed and Create Crafts & Additions is not (it has its own). From maven.createmod.net (declared above).
+    // Dev runs leave Create out unless asked: ./gradlew runClient -PwithCreate (or runGameTestServer -PwithCreate).
+    compileOnly("com.simibubi.create:create-${mcVersion}:${create_version}:slim") { isTransitive = false }
+    compileOnly("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${mcVersion}") { isTransitive = false }
+    compileOnly("dev.engine-room.flywheel:flywheel-neoforge-api-${mcVersion}:${flywheel_version}")
+    if(project.hasProperty("withCreate")) {
+        runtimeOnly("com.simibubi.create:create-${mcVersion}:${create_version}:slim") { isTransitive = false }
+        runtimeOnly("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${mcVersion}") { isTransitive = false }
+        runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${mcVersion}:${flywheel_version}")
+        runtimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
+    }
 
     testImplementation(platform("org.junit:junit-bom:5.10.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")

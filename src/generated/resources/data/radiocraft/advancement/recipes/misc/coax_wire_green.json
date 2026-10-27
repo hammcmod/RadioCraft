@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_coax_wire": {
+      "conditions": {
+        "items": [
+          {
+            "items": "radiocraft:coax_wire"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "radiocraft:coax_wire_green"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_coax_wire"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "radiocraft:coax_wire_green"
+    ]
+  }
+}

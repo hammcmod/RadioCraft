@@ -1,0 +1,17 @@
+{
+  "parent": "radiocraft:block/commercial_radio_module_2",
+  "display": {
+    "gui": {
+      "rotation": [
+        30,
+        225,
+        0
+      ],
+      "scale": [
+        0.625,
+        0.625,
+        0.625
+      ]
+    }
+  }
+}

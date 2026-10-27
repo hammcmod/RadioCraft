@@ -33,7 +33,14 @@ public class WireUtils {
 
 	/** The wire blocks a coax network can run through. */
 	public static WireBlock[] coaxWires() {
-		return new WireBlock[] { RadiocraftBlocks.COAX_WIRE.get(), RadiocraftBlocks.PASSTHROUGH.get() };
+		java.util.List<WireBlock> wires = new java.util.ArrayList<>(List.of(RadiocraftBlocks.COAX_WIRE.get(), RadiocraftBlocks.PASSTHROUGH.get()));
+		RadiocraftBlocks.COLOURED_COAX.values().forEach(coax -> wires.add(coax.get())); // Which colours join is WireBlock#joins.
+		return wires.toArray(WireBlock[]::new);
+	}
+
+	/** True for coax of any colour (not a passthrough). */
+	public static boolean isCoax(BlockState state) {
+		return state.getBlock() instanceof WireBlock wire && !wire.isPower && !wire.conductsAll();
 	}
 
 	/**

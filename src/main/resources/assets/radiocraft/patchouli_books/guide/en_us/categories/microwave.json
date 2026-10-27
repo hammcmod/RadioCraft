@@ -1,0 +1,6 @@
+{
+  "name": "Microwave Links",
+  "description": "Point-to-point links over dishes: carry APRS, direction finder bearings and telephone calls between sites.",
+  "icon": "radiocraft:microwave_radio",
+  "sortnum": 10
+}

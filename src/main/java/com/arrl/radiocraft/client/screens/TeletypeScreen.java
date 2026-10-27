@@ -161,6 +161,25 @@ public class TeletypeScreen extends StationPanelScreen<TeletypeMenu> {
 			return super.keyPressed(keyCode, scanCode, modifiers);
 		if(isLoading())
 			return true;
+		switch(keyCode) { // Scrolling back through the roll.
+			case GLFW.GLFW_KEY_PAGE_UP -> {
+				scrollLines += 5;
+				return true;
+			}
+			case GLFW.GLFW_KEY_PAGE_DOWN -> {
+				scrollLines = Math.max(0, scrollLines - 5);
+				return true;
+			}
+			case GLFW.GLFW_KEY_HOME -> {
+				scrollLines = Integer.MAX_VALUE / 2; // Clamped to the top of the roll when drawn.
+				return true;
+			}
+			case GLFW.GLFW_KEY_END -> {
+				scrollLines = 0;
+				return true;
+			}
+			default -> {}
+		}
 		if(keyCode == GLFW.GLFW_KEY_ENTER || keyCode == GLFW.GLFW_KEY_KP_ENTER)
 			send("\n");
 		return true; // The keyboard is the teleprinter's: no closing on 'e', no hotbar keys. Characters come in charTyped.
@@ -298,6 +317,8 @@ public class TeletypeScreen extends StationPanelScreen<TeletypeMenu> {
 
 		if(paperTop < clipTop) // The paper has reached the top: it goes over and down the back.
 			blitPaper(guiGraphics, FOLD, leftPos + PAPER_X, y(FOLD_Y));
+		if(scrollLines > 0) // How far back up the roll the view is.
+			text(guiGraphics, "-" + scrollLines, leftPos + PAPER_X + PAPER_WIDTH - 4, y(CLIP_TOP) + 2, 0.5F, 0xFF8A7A66, true);
 	}
 
 	/** A click of the platen's ratchet feeding new paper, the paper rustling now and then. */
@@ -327,6 +348,8 @@ public class TeletypeScreen extends StationPanelScreen<TeletypeMenu> {
 		List<Component> tip = new ArrayList<>();
 		int paperLines = teletype.getPaperLines();
 		tip.add(paperLines > 0 ? Component.translatable("screen.radiocraft.teletype.paper", paperLines) : Component.translatable("screen.radiocraft.teletype.paper_out"));
+		if(!teletype.getRttyLines().isEmpty())
+			tip.add(Component.translatable("screen.radiocraft.teletype.tip.roll").withStyle(net.minecraft.ChatFormatting.GRAY));
 		guiGraphics.renderComponentTooltip(font, tip, mouseX, mouseY);
 	}
 }

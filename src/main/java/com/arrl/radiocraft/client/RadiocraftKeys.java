@@ -22,11 +22,16 @@ public final class RadiocraftKeys {
     public static final KeyMapping CW_KEY = new KeyMapping("key.radiocraft.cw_key", KeyConflictContext.GUI,
             InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_LEFT_ALT, "key.categories.radiocraft");
 
+    /** Opens the panel of the HF manpack the player is wearing. */
+    public static final KeyMapping OPEN_MANPACK = new KeyMapping("key.radiocraft.open_manpack", KeyConflictContext.IN_GAME,
+            InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_J, "key.categories.radiocraft");
+
     private RadiocraftKeys() {}
 
     @SubscribeEvent
     public static void register(RegisterKeyMappingsEvent event) {
         event.register(WORN_PTT);
         event.register(CW_KEY);
+        event.register(OPEN_MANPACK);
     }
 }

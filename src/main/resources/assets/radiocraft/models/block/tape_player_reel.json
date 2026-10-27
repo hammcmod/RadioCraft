@@ -1,0 +1,85 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"texture_size": [
+		32,
+		32
+	],
+	"textures": {
+		"0": "radiocraft:block/tape_player",
+		"1": "radiocraft:block/tape_player_reel",
+		"particle": "radiocraft:block/tape_player"
+	},
+	"render_type": "minecraft:cutout",
+	"elements": [
+		{
+			"name": "reel",
+			"from": [
+				5,
+				5,
+				1.5
+			],
+			"to": [
+				11,
+				11,
+				2
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#1"
+				},
+				"south": {
+					"uv": [
+						0,
+						8,
+						2,
+						10
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						0,
+						8,
+						0.5,
+						10
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						8,
+						0.5,
+						10
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						0,
+						8,
+						2,
+						8.5
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						0,
+						8,
+						2,
+						8.5
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

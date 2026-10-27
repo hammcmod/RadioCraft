@@ -47,6 +47,40 @@
     {
       "type": "patchouli:crafting",
       "recipe": "radiocraft:yagi_antenna"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Commercial antennas",
+      "text": "Two commercial 2 m antennas, both DC grounded: a lightning strike on one does damage only a quarter as often as on any other antenna.$(li)$(item)VHF Ringo$(): a tall vertical with its matching ring near the foot, 10% more gain than a J-pole.$(li)$(item)VHF folded dipole$(): two folded loops stacked on a mast, made for the side of a tower, 25% more gain. Not made at a crafting table: found on towers."
+    },
+    {
+      "type": "patchouli:multiblock",
+      "name": "Ringo, folded dipole",
+      "multiblock": {
+        "mapping": {
+          "R": "radiocraft:ringo_antenna[half=upper,facing=north]",
+          "0": "radiocraft:ringo_antenna[half=lower,facing=north]",
+          "F": "radiocraft:folded_dipole_antenna[half=upper,facing=north]",
+          "D": "radiocraft:folded_dipole_antenna[half=lower,facing=north]"
+        },
+        "pattern": [
+          [
+            "R",
+            " ",
+            "F"
+          ],
+          [
+            "0",
+            " ",
+            "D"
+          ]
+        ]
+      },
+      "text": "The folded dipole's mast goes against the tower; its loops stand off away from it."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:ringo_antenna"
     }
   ]
 }

@@ -1,0 +1,27 @@
+{
+  "name": "Microwave Radio",
+  "icon": "radiocraft:microwave_radio",
+  "category": "radiocraft:microwave",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A $(item)Microwave Radio$() links two or more sites over $(item)microwave dishes$(). It carries:$(li)APRS between $(l:radiocraft:digital/aprs)H19 terminals$(/l) (the far one sends it on again)$(li)$(l:radiocraft:direction_finding/fixes)direction finder bearings$(/l)$(li)$(l:radiocraft:microwave/telephone)telephone calls$(/l)$(br)Stations join it by touching it or by sharing its power wire. Dishes go on its coax."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Setting up",
+      "text": "It runs on power (26 FE/t while on). Press POWER, then SETUP: [C] a call sign, [I] a four digit ID, [F] a frequency from 5925 to 7125 MHz in 10 MHz steps. Each call sign and ID pair can only be used once.$(br2)Both ends of a link must be on the same frequency."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Linking",
+      "text": "One end is the $(thing)master$(): on STATUS press [B] to broadcast. The others are $(thing)subscribers$(): press [S] to search, and [Y] to confirm the master it finds. A master can have many subscribers, and they reach each other through it.$(br2)A confirmed subscriber finds its master again on its own after a restart. Both ends must be loaded."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:microwave_radio",
+      "recipe2": "radiocraft:microwave_dish"
+    }
+  ]
+}

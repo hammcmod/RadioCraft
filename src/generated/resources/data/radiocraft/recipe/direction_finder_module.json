@@ -1,0 +1,53 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:compass"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "X": [
+      {
+        "item": "radiocraft:crystal_80m_pure"
+      },
+      {
+        "item": "radiocraft:encased_crystal_80m_pure"
+      },
+      {
+        "item": "radiocraft:crystal_40m_pure"
+      },
+      {
+        "item": "radiocraft:encased_crystal_40m_pure"
+      },
+      {
+        "item": "radiocraft:crystal_20m_pure"
+      },
+      {
+        "item": "radiocraft:encased_crystal_20m_pure"
+      },
+      {
+        "item": "radiocraft:crystal_10m_pure"
+      },
+      {
+        "item": "radiocraft:encased_crystal_10m_pure"
+      },
+      {
+        "item": "radiocraft:crystal_vhf_pure"
+      },
+      {
+        "item": "radiocraft:encased_crystal_vhf_pure"
+      }
+    ]
+  },
+  "pattern": [
+    "III",
+    "ICI",
+    "IXI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:direction_finder_module"
+  }
+}

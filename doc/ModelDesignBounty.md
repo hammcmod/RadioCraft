@@ -63,7 +63,7 @@ Requested by the maintainer 2026-10-22 (they plan to draw these). All are placeh
   `textures/gui/<radio>_<pure|poor>.png` and `..._widgets.png` for hf_radio_10m/20m/40m/80m and vhf_base_station,
   and `textures/item/vhf_handheld_<pure|poor>.png` plus its GUI pair. All copies of the plain radio's art.
 
-### Radio Interface and Digital Transfer Interface
+### Radio Interface and Radio Fax
 
 From the TNC rework (2026-10-23, see [TncRework.md](TncRework.md)). The H19 APRS Terminal and the Ionosonde Antenna
 and the Ionospheric Processor are done (maintainer).
@@ -72,9 +72,12 @@ and the Ionospheric Processor are done (maintainer).
   is a callsign box and a TX switch on a plain panel. Draft 2026-10-25 from `tools/interface_models.py`: hammertone
   modem with a bakelite panel, five brass-bezelled lamps and a TX toggle; `radio_interface_pwr/dcd/tx/rx/rpt` are the
   lit lamp faces, waiting on lamp properties in the block. The old `digital_interface.png` is no longer used.
-- **Digital Transfer Interface** (`transfer_interface`): wanted a file and SSTV terminal with a paper feed. Its
-  screen is the old FILES tab. Draft 2026-10-25 from the same script: terminal with a key row, paper roll, tear bar
-  and a round meter; `transfer_interface_busy` is the lit BUSY lamp, waiting on a property.
+- **Radio Fax** (`radio_fax_<wood>`, 2026-10-27, replacing the Digital Transfer Interface): a desk fax machine
+  clad in each vanilla log (the log textures, so one detail texture `radio_fax.png` and a model per wood) from
+  `tools/radio_fax_models.py`: a cream deck with a keypad and a small LCD, a sheet in the front tray and one standing
+  in the feeder behind. Its screen is a painted fascia (`textures/gui/radio_fax.png`) over the vanilla chest's
+  inventory half: wanted, a proper inventory panel in the same style. The old `interface_models.py` transfer
+  interface draft (`transfer_interface.json`, `transfer_interface_busy.json`) is no longer used.
 - Lamps go in as separate named elements, like the H19's MSG / CONTACT / READY: `python tools/split_lamps.py <model>
   <LAMP>...` splits a Blockbench export into the body and one full-bright model per lamp.
 
@@ -88,6 +91,9 @@ Asked for by the maintainer 2026-10-25, drafted the same day from `tools/station
 - **Commercial repeater** (`commercial_repeater_0..3`): four blocks of open silver rack: batteries and charger, the
   repeater radio and amplifier, the duplexer cavities and harness, the controller under the roof. Lit lamps:
   `commercial_repeater_1_pwr/_rx/_tx` and `commercial_repeater_3_beacon`.
+- **Tape player screen** (wanted 2026-10-26): a panel for the tape player's GUI in the wood-and-brushed-deck style
+  of its model, with a window for the tape's name and time, PLAY / STOP / REC / EJECT keys, a mode switch (manual,
+  loop, interval, redstone) and an interval knob. It is drawn plainly in code for now (`TapePlayerScreen`).
 - **Commercial radio module** (`commercial_radio_module_0..3`): a GE MASTR II style closed cabinet, four blocks:
   louvred door, badge and handle, the control panel with meter and lamps (`commercial_radio_module_2_pwr/_rx/_tx`),
   top vent and cap.
@@ -109,7 +115,8 @@ Asked for by the maintainer 2026-10-25, drafted the same day from `tools/station
 
 ### Models: tower beams and the antenna switch
 
-Asked for by the maintainer 2026-10-26, drafted the same day (none registered yet):
+Asked for by the maintainer 2026-10-26, drafted the same day (the beams were registered the same day, with a
+dynamic model that reads the 26 neighbours, `client/model/TowerBeamModel`; the antenna switch is not registered yet):
 
 - **Tower beams** (`tower_beam_thick` 8x8, `tower_beam` 6x6, `tower_beam_thin` 4x4, all 16 tall straight up), from
   `tools/tower_beam_models.py`: steel lattice beams in the iron bars palette that connect to any touching beam,
@@ -128,9 +135,21 @@ Asked for by the maintainer 2026-10-26, drafted the same day (none registered ye
   north connector is the input (brass); outputs 1, 2, 3 are east, south, west, numbered on the plate. The pointer
   model is the knob's lever pointing north: turn it with the blockstate `y` rotation toward the output in use.
 
+### GUI textures drawn 2026-10-26 by `tools/link_guis.py`
+
+- `microwave_radio.png` (beige rack front), `telephone.png` (desk phone from above) and `hf_manpack.png` (olive drab
+  PRC panel), each with its `_widgets.png`: procedural first drafts; hand-drawn versions are welcome as long as the
+  boxes in the script stay where they are (the screens' hit boxes).
+
+### Item: world map module
+
+- **World map module** (`textures/item/world_map_module.png`, 16x16): a 3.5 inch floppy with a scrap of map on its
+  label, crafted with a direction finder into the map enabled one. The current texture is a quick placeholder drawn
+  2026-10-26 (`scratchpad` script, no source kept); a proper one is welcome.
+
 ### Models: speakers
 
-Asked for by the maintainer 2026-10-26, drafted the same day from `tools/speaker_models.py` (none registered yet):
+Asked for by the maintainer 2026-10-26, drafted the same day from `tools/speaker_models.py`; registered the same day:
 
 - **Desk speaker** (`desk_speaker_<wood>` for oak, spruce, birch, jungle, acacia, dark_oak, mangrove, cherry, bamboo,
   crimson, warped): a 6x5x4 wooden cabinet with a cloth grille, knob and terminal strip. The cabinet faces use the
@@ -140,7 +159,7 @@ Asked for by the maintainer 2026-10-26, drafted the same day from `tools/speaker
 - **Wall speaker** (`wall_speaker`): 16 wide and tall, 3 deep, back against the south face as vanilla wall blocks
   are drawn (facing=north shows it as is); silver frame, marbled grey cloth, round badge, a terminal strip on the
   back for a wire in the block behind.
-- **Premium desk speaker** (`premium_speaker_black`, `_silver`, `_gold`): an 8x6x6 metal cabinet with a slotted
+- **Premium desk speaker** (`premium_speaker_marble`, `_iron`, `_gold`; marble was black until 2026-10-26): an 8x6x6 metal cabinet with a slotted
   grille, bezel strips, knob and feet; one geometry, a texture per colourway.
 - **Loudspeaker** (`loudspeaker`): a PA reflex horn, blue-grey stepped bell with a cream rim pointing north, an
   octagonal driver, on a U-bracket and wooden base.
@@ -158,7 +177,7 @@ Asked for by the maintainer 2026-10-26, drafted the same day from `tools/directi
 - **Direction finder screen** (`textures/gui/direction_finder.png`, `direction_finder_widgets.png`, 300 x 200 like
   the H19's): a black CRT for the amber TUI to draw on, a side panel with the DF-1 plate, PWR lamp and POWER button;
   the widgets texture has the button pressed and the lamp lit at the same places. The script's `CRT`, `POWER_BUTTON`
-  and `GUI_LAMP` constants are the boxes. No screen class yet.
+  and `GUI_LAMP` constants are the boxes. Used by `DirectionFinderScreen` (2026-10-26).
 - **Handheld direction finder** (`handheld_direction_finder`, with `display` transforms, for an item model to use as
   its parent): a much simplified loop DF set, olive with a meter and dial, loop and whip on top, and a lamp on the
   top edge; `handheld_direction_finder_lit` is the lamp flashing. Both live in `models/block` so `ModelFilesTest`
@@ -184,10 +203,14 @@ RadioCraft. Each is a plain JSON block model like the parrot controller, unless 
   wheel, a wind vane and a radiation shield (the stacked white plates), as a block that sits on an antenna pole.
   The cups could spin (GeckoLib) or be still.
   Draft model drawn 2026-10-25 (1960s look), from `tools/weather_station_model.py`: `weather_station` (whole),
-  `weather_station_base` plus `weather_station_cups_0..3` (four spin frames at 22.5 degree steps). Not registered yet.
+  `weather_station_base` plus `weather_station_cups_0..3` (four spin frames at 22.5 degree steps). Registered
+  2026-10-26 with these models; the cups spin by blockstate.
   Matching drafts for the single instruments (wind vane, barometer, rain gauge, solar detector, tornado siren) come
   from `tools/weather_instruments_model.py` and land in Another Weather Mod's `models/block` and `textures/block`;
-  the tornado siren is two blocks (`tornado_siren_lower`, `tornado_siren_upper_0..3`). None are registered yet.
+  the tornado siren is two blocks (`tornado_siren_lower`, `tornado_siren_upper_0..3`). All registered 2026-10-26.
+- **Tornado acoustic sensor** (Another Weather Mod, built 2026-10-26): a half-height equipment cabinet with a white
+  radome on top, like the small domes storm chasers park in tornado alley. Draft from
+  `tools/weather_instruments_model.py` (`tornado_sensor`); the dome is stacked layers and could be rounder.
 - **Storm Protector** (Another Weather Mod, creative only, built): wanted its own look in place of the command
   block's textures. Draft 2026-10-25: riveted slate with a brass frame, a shield and lightning bolt on the sides and
   a storm spiral on the ends (`storm_protector_side.png`, `storm_protector_top.png`, model now `cube_column`).

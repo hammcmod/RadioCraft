@@ -40,6 +40,38 @@ public class RadiocraftDataComponent {
                     .networkSynchronized(com.arrl.radiocraft.common.items.MicCord.STREAM_CODEC)
     );
 
+    /** The frequency a handheld direction finder listens on, in Hz. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Float>> DF_FREQUENCY = DATA_COMPONENTS.registerComponentType(
+            "df_frequency",
+            builder -> builder
+                    .persistent(com.mojang.serialization.Codec.FLOAT)
+                    .networkSynchronized(net.minecraft.network.codec.ByteBufCodecs.FLOAT)
+    );
+
+    /** What is on a tape reel (blank, a server tape, or a recording) and its colourway. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.arrl.radiocraft.common.datacomponents.TapeContents>> TAPE_CONTENTS = DATA_COMPONENTS.registerComponentType(
+            "tape_contents",
+            builder -> builder
+                    .persistent(com.arrl.radiocraft.common.datacomponents.TapeContents.CODEC)
+                    .networkSynchronized(com.arrl.radiocraft.common.datacomponents.TapeContents.STREAM_CODEC)
+    );
+
+    /** The lines on a roll torn off a teletype. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.arrl.radiocraft.common.datacomponents.TeletypeRollContents>> TELETYPE_ROLL_CONTENTS = DATA_COMPONENTS.registerComponentType(
+            "teletype_roll_contents",
+            builder -> builder
+                    .persistent(com.arrl.radiocraft.common.datacomponents.TeletypeRollContents.CODEC)
+                    .networkSynchronized(com.arrl.radiocraft.common.datacomponents.TeletypeRollContents.STREAM_CODEC)
+    );
+
+    /** The HF manpack's settings and battery. */
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<com.arrl.radiocraft.common.datacomponents.ManpackState>> MANPACK_STATE = DATA_COMPONENTS.registerComponentType(
+            "manpack_state",
+            builder -> builder
+                    .persistent(com.arrl.radiocraft.common.datacomponents.ManpackState.CODEC)
+                    .networkSynchronized(com.arrl.radiocraft.common.datacomponents.ManpackState.STREAM_CODEC)
+    );
+
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<HandheldRadioState>> HANDHELD_RADIO_STATE_COMPONENT = DATA_COMPONENTS.registerComponentType(
             "handheld_radio_state",
             builder -> builder

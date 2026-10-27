@@ -1,0 +1,22 @@
+{
+  "name": "Aiming Dishes",
+  "icon": "radiocraft:satellite_dish",
+  "category": "radiocraft:microwave",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A new dish faces back at whoever placed it, level. Place one at each end facing each other and they are close already. A dish reaches about $(thing)1500 blocks$() and needs a clear line of sight: hills and buildings in between block the path.$(br2)SETUP lists the dishes on the coax with their azimuth (0 is north) and elevation; the arrow keys turn them a degree at a time."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The ALIGN page",
+      "text": "Press A for ALIGN: the signal in dBm, a graph and a beep that rises as it gets stronger. Peak your dish with the arrows (half a degree, shift for five), then peak the far end's the same way.$(li)$(thing)-90$(): it decodes; the far call sign shows and a link can come up$(li)$(thing)-75$(): GOOD$(br)Below -75 the link is marginal and phone calls break up."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Trouble",
+      "text": "$(li)Another microwave radio within 30 MHz in your dish's beam is $(thing)interference$(): bearings and APRS get through half the time and calls break up. Move a frequency.$(li)A solar blackout shortens every link a little.$(li)The large $(item)Microwave Horn$() reaches six times as far as a dish, but cannot be crafted."
+    }
+  ]
+}

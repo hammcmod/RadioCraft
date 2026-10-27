@@ -55,7 +55,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * {@link RadiocraftServerConfig#APRS_CONTACT_LAMP_MINUTES}), otherwise READY while a radio interface on its bus has a
  * VHF radio switched on.
  */
-public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider, StationTerminal {
+public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider, StationTerminal, com.arrl.radiocraft.api.benetworks.INetworkObjectProvider {
 
 	/** Beacons and messages each keep the last this many. */
 	public static final int HISTORY = 20;
@@ -85,6 +85,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 	// Server only, sent with the update tag: the first radio on the bus that is switched on.
 	private boolean radioOn = false;
 	private float radioFrequency = 0.0F;
+	private int weatherStationDistance = -1; // To the weather station whose weather it beacons; -1 for none. Only in the update tag.
 
 	private final List<Heard> beacons = new ArrayList<>(); // Newest first, one per station.
 	private final List<Logged> messages = new ArrayList<>(); // Newest first: those for this station and those it sent.
@@ -124,8 +125,47 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 	@Override
 	public void onLoad() {
 		super.onLoad();
-		if(level != null && !level.isClientSide)
+		if(level != null && !level.isClientSide) {
 			LOADED.add(this);
+			getNetworkObject(level, worldPosition); // On the power wire, a microwave radio can serve it there.
+		}
+	}
+
+	@Override
+	public com.arrl.radiocraft.api.benetworks.BENetworkObject createNetworkObject() {
+		return new com.arrl.radiocraft.common.be_networks.network_objects.MicrowaveNetworkObjects.StationLink(level, worldPosition);
+	}
+
+	// -------------------- MICROWAVE LINK --------------------
+
+	/**
+	 * Sends a packet this terminal heard or sent across every microwave link it is on, to the H19s at the other ends:
+	 * two APRS networks joined into one. Interference loses half of them.
+	 */
+	private void relayToLink(TncPacket packet) {
+		if(level == null || level.isClientSide)
+			return;
+		for(MicrowaveRadioBlockEntity radio : MicrowaveRadioBlockEntity.servingStation(level, worldPosition)) {
+			if(!radio.isLinked() || !radio.getsThrough())
+				continue;
+			for(MicrowaveRadioBlockEntity peer : radio.peers())
+				for(BlockEntity station : peer.stations())
+					if(station instanceof AprsTerminalBlockEntity terminal && terminal != this)
+						terminal.receiveFromLink(packet);
+		}
+	}
+
+	/**
+	 * A packet that came over a microwave link: kept as if heard, and sent out on this terminal's radio with its hop
+	 * count started over, so the local digipeaters carry it as far as they would one of their own.
+	 */
+	public void receiveFromLink(TncPacket packet) {
+		if(level == null || seen.contains(packet.id()))
+			return;
+		take(packet, bus(), false);
+		StationBus bus = bus();
+		if(bus.hasInterface())
+			bus.transmit(packet.hopsReset());
 	}
 
 	@Override
@@ -174,6 +214,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			expireStations(now);
 			updateDisplay();
 			updateRadio();
+			updateWeatherStation();
 		}
 		if(now % MAP_PAINT_TICKS == 0 && !mapSets.isEmpty())
 			paintMaps(level);
@@ -274,6 +315,20 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		sync();
 	}
 
+	private void updateWeatherStation() {
+		WeatherStationBlockEntity station = level == null ? null : WeatherStationBlockEntity.nearest(level, worldPosition);
+		int distance = station == null ? -1 : (int)Math.round(Math.sqrt(station.getBlockPos().distSqr(worldPosition)));
+		if(distance != weatherStationDistance) {
+			weatherStationDistance = distance;
+			sync();
+		}
+	}
+
+	/** Blocks to the weather station this terminal beacons the weather of, or -1 if none is in range. */
+	public int getWeatherStationDistance() {
+		return weatherStationDistance;
+	}
+
 	/** What the screen shows: MSG over CONTACT over READY. */
 	public Display getDisplay() {
 		if(unread)
@@ -310,6 +365,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 
 	private boolean transmit(StationBus bus, TncPacket packet) {
 		seen.remember(packet.id());
+		relayToLink(packet); // Our own packets cross the link too.
 		return bus.transmit(packet);
 	}
 
@@ -317,14 +373,20 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		return level == null ? System.nanoTime() : level.getRandom().nextLong();
 	}
 
-	/** Beacons this station's position and comment. False if there is no callsign on the bus or no radio on to send it. */
+	/**
+	 * Beacons this station's position and comment, and with a weather station in range its weather (as the WX symbol).
+	 * False if there is no callsign on the bus or no radio on to send it.
+	 */
 	public boolean beacon() {
 		StationBus bus = bus();
 		if(level == null || bus.callsign().isEmpty())
 			return false;
 		lastBeaconGameTime = level.getGameTime();
 		setChanged();
-		return transmit(bus, TncPacket.beacon(newId(), bus.callsign(), worldPosition, beaconComment, icon.name()));
+		WeatherStationBlockEntity station = WeatherStationBlockEntity.nearest(level, worldPosition);
+		String weather = station == null ? "" : station.aprsWeather();
+		return transmit(bus, weather.isEmpty() ? TncPacket.beacon(newId(), bus.callsign(), worldPosition, beaconComment, icon.name())
+				: TncPacket.weatherBeacon(newId(), bus.callsign(), worldPosition, weather, beaconComment));
 	}
 
 	/** Sends {@code text} to {@code to} and logs it. False if there is no callsign, no recipient or no radio on. */
@@ -424,8 +486,15 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 	}
 
 	private void take(TncPacket packet, StationBus bus) {
+		take(packet, bus, true);
+	}
+
+	/** Keeps a packet that is news; {@code relay} also passes it on over any microwave link. */
+	private void take(TncPacket packet, StationBus bus, boolean relay) {
 		if(level == null || !seen.remember(packet.id()))
 			return;
+		if(relay)
+			relayToLink(packet);
 		long now = level.getGameTime();
 		if(packet.kind() == TncPacket.Kind.BEACON) {
 			Heard before = beacons.stream().filter(heard -> heard.packet().from().equals(packet.from())).findFirst().orElse(null);
@@ -701,6 +770,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		bootPending = !tag.contains("bootPending") || tag.getBoolean("bootPending");
 		radioOn = tag.getBoolean("radioOn"); // Only in the update tag.
 		radioFrequency = tag.getFloat("radioFrequency");
+		weatherStationDistance = tag.contains("weatherStation") ? tag.getInt("weatherStation") : -1;
 		beacons.clear();
 		for(Tag entry : tag.getList("beacons", Tag.TAG_COMPOUND)) {
 			CompoundTag compound = (CompoundTag)entry;
@@ -738,6 +808,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		CompoundTag tag = saveWithoutMetadata(registries);
 		tag.putBoolean("radioOn", radioOn);
 		tag.putFloat("radioFrequency", radioFrequency);
+		tag.putInt("weatherStation", weatherStationDistance);
 		return tag;
 	}
 

@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "radiocraft:block/tower_beam_dynamic"
+    }
+  }
+}

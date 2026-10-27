@@ -35,7 +35,6 @@ public class ItemRenderEvents {
             RadiocraftItems.DUPLEXER,
             RadiocraftItems.RADIO_INTERFACE,
             RadiocraftItems.APRS_TERMINAL,
-            RadiocraftItems.TRANSFER_INTERFACE,
             RadiocraftItems.MICROPHONE
     );
 

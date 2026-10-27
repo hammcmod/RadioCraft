@@ -273,5 +273,8 @@ public final class TerrainPropagation {
     public static void onServerStopped(ServerStoppedEvent event) {
         ATLASES.clear();
         clearCaches();
+        com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager.clearAll(); // The next world starts with no antennas on the air.
+        com.arrl.radiocraft.common.radio.TransmitterLog.clear();
+        com.arrl.radiocraft.common.radio.VoiceTransmitters.LISTENERS.clear();
     }
 }

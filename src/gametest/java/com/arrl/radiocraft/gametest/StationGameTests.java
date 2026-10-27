@@ -8,15 +8,18 @@ import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject
 import com.arrl.radiocraft.common.blockentities.AprsTerminalBlockEntity;
 import com.arrl.radiocraft.common.blockentities.RadioInterfaceBlockEntity;
 import com.arrl.radiocraft.common.blockentities.StationBus;
-import com.arrl.radiocraft.common.blockentities.TransferInterfaceBlockEntity;
+import com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.blocks.AprsTerminalBlock;
 import com.arrl.radiocraft.common.blocks.RadioLinks;
 import com.arrl.radiocraft.common.blocks.AprsTerminalBlock.Display;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
+import com.arrl.radiocraft.common.radio.data.AprsIcon;
+import com.arrl.radiocraft.common.radio.data.AprsWeather;
 import com.arrl.radiocraft.common.radio.data.TncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
@@ -65,20 +68,20 @@ public class StationGameTests {
         return GameTestUtil.blockEntity(helper, pos, AprsTerminalBlockEntity.class);
     }
 
-    private static TransferInterfaceBlockEntity files(GameTestHelper helper, BlockPos pos) {
-        return GameTestUtil.blockEntity(helper, pos, TransferInterfaceBlockEntity.class);
+    private static RadioFaxBlockEntity fax(GameTestHelper helper, BlockPos pos) {
+        return GameTestUtil.blockEntity(helper, pos, RadioFaxBlockEntity.class);
     }
 
     /**
      * A VHF base station on {@code kHz} with a radio interface north of it set to {@code callsign}, an APRS terminal
-     * north of that and a transfer interface west of it.
+     * north of that and a radio fax west of it.
      */
     private static void station(GameTestHelper helper, BlockPos radioPos, int kHz, String callsign) {
         BlockPos interfacePos = radioPos.north();
         helper.setBlock(radioPos, RadiocraftBlocks.VHF_BASE_STATION.get());
         helper.setBlock(interfacePos, RadiocraftBlocks.RADIO_INTERFACE.get());
         helper.setBlock(interfacePos.north(), RadiocraftBlocks.APRS_TERMINAL.get());
-        helper.setBlock(interfacePos.west(), RadiocraftBlocks.TRANSFER_INTERFACE.get());
+        helper.setBlock(interfacePos.west(), RadiocraftBlocks.RADIO_FAXES.get("oak").get());
         radio(helper, radioPos).setFrequency(kHz * 1000.0F);
         radioInterface(helper, interfacePos).setCallsign(callsign, "gametest");
     }
@@ -121,6 +124,37 @@ public class StationGameTests {
                     TncPacket packet = aprs(helper, APRS_B).getBeacons().getFirst().packet();
                     helper.assertTrue(helper.absolutePos(APRS_A).equals(packet.position()), "The beacon carries " + packet.position() + ", not A's position");
                     helper.assertTrue(packet.hops() == 0, "A direct beacon came through " + packet.hops() + " digipeaters");
+                })
+                .thenSucceed();
+    }
+
+    /**
+     * With a weather station in range an H19 beacons its weather: the WX symbol, the weather data first and its own
+     * comment after. In a batch of its own, as the station reaches the H19s of the plots beside it.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 200, batch = "station_wx")
+    public static void weatherStationBeaconsWeather(GameTestHelper helper) {
+        station(helper, RADIO_A, 144_390, "W1WXA");
+        station(helper, RADIO_B, 144_390, "W1WXB");
+        helper.setBlock(new BlockPos(12, 2, 12), RadiocraftBlocks.WEATHER_STATION.get());
+        helper.startSequence()
+                .thenExecute(() -> {
+                    powerOn(helper, RADIO_A);
+                    powerOn(helper, RADIO_B);
+                    CompoundTag settings = new CompoundTag();
+                    settings.putString("comment", "ROOF WX");
+                    aprs(helper, APRS_A).applySettings(settings);
+                })
+                .thenIdle(25) // The station reads the weather once a second.
+                .thenExecute(() -> helper.assertTrue(aprs(helper, APRS_A).beacon(), "A did not send its beacon"))
+                .thenWaitUntil(() -> helper.assertTrue(heardBeaconFrom(helper, APRS_B, "W1WXA"), "B never heard A's beacon"))
+                .thenExecute(() -> {
+                    TncPacket packet = aprs(helper, APRS_B).getBeacons().getFirst().packet();
+                    helper.assertTrue(AprsIcon.byName(packet.icon()) == AprsIcon.WX, "The symbol is " + packet.icon() + ", not WX");
+                    AprsWeather weather = AprsWeather.parse(packet.text());
+                    helper.assertTrue(weather != null && weather.pressure() != null && weather.humidity() != null,
+                            "No weather in \"" + packet.text() + "\"");
+                    helper.assertTrue(AprsWeather.commentOf(packet.text()).equals("ROOF WX"), "The comment is lost: \"" + packet.text() + "\"");
                 })
                 .thenSucceed();
     }
@@ -369,7 +403,7 @@ public class StationGameTests {
         BlockPos end = files.north();
         helper.setBlock(RADIO_A, RadiocraftBlocks.VHF_BASE_STATION.get());
         helper.setBlock(IFACE_A, RadiocraftBlocks.RADIO_INTERFACE.get());
-        helper.setBlock(files, RadiocraftBlocks.TRANSFER_INTERFACE.get());
+        helper.setBlock(files, RadiocraftBlocks.RADIO_FAXES.get("oak").get());
         helper.setBlock(end, RadiocraftBlocks.APRS_TERMINAL.get());
         radio(helper, RADIO_A).setFrequency(144_710_000.0F);
         radioInterface(helper, IFACE_A).setCallsign("W7AAA", "gametest");
@@ -580,14 +614,14 @@ public class StationGameTests {
         helper.setBlock(IFACE_A, RadiocraftBlocks.RADIO_INTERFACE.get()); // First: setBlock skips placement, so the
         helper.setBlock(RADIO_A, RadiocraftBlocks.VHF_BASE_STATION.get()); // others arrive as neighbour updates.
         helper.setBlock(APRS_A, RadiocraftBlocks.APRS_TERMINAL.get());
-        helper.setBlock(FILES_A, RadiocraftBlocks.TRANSFER_INTERFACE.get());
+        helper.setBlock(FILES_A, RadiocraftBlocks.RADIO_FAXES.get("oak").get());
         var iface = helper.getBlockState(IFACE_A);
         helper.assertTrue(iface.getValue(RadioLinks.SOUTH), "No cable from the interface to its radio");
         helper.assertTrue(iface.getValue(RadioLinks.NORTH), "No cable from the interface to the H19");
-        helper.assertTrue(iface.getValue(RadioLinks.WEST), "No cable from the interface to the transfer interface");
+        helper.assertTrue(iface.getValue(RadioLinks.WEST), "No cable from the interface to the fax");
         helper.assertFalse(iface.getValue(RadioLinks.EAST), "A cable from the interface to nothing");
         helper.assertTrue(helper.getBlockState(APRS_A).getValue(RadioLinks.SOUTH), "No cable from the H19 to the interface");
-        helper.assertTrue(helper.getBlockState(FILES_A).getValue(RadioLinks.EAST), "No cable from the transfer interface to the interface");
+        helper.assertTrue(helper.getBlockState(FILES_A).getValue(RadioLinks.EAST), "No cable from the fax to the interface");
         helper.setBlock(RADIO_A, Blocks.AIR);
         helper.assertFalse(helper.getBlockState(IFACE_A).getValue(RadioLinks.SOUTH), "The cable stayed after the radio went");
         helper.succeed();
@@ -654,101 +688,5 @@ public class StationGameTests {
         helper.assertTrue(tile != null && colorAt(tile, at[0] % AprsMapPainter.SIZE, at[1] % AprsMapPainter.SIZE) == AprsMapPainter.WHITE,
                 "The station is not on tile row " + row + ", column " + column);
         helper.succeed();
-    }
-
-    // -------------------- FILES --------------------
-
-    private static ItemStack book(int generation) {
-        ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
-        book.set(DataComponents.WRITTEN_BOOK_CONTENT, new WrittenBookContent(Filterable.passThrough("Station Log"), "W1AW", generation,
-                List.of(Filterable.passThrough(Component.literal("Page one")), Filterable.passThrough(Component.literal("Page two"))), true));
-        return book;
-    }
-
-    private static int generation(ItemStack stack) {
-        WrittenBookContent content = stack.get(DataComponents.WRITTEN_BOOK_CONTENT);
-        return content == null ? -1 : content.generation();
-    }
-
-    /** A book sent to B's callsign prints at B as a copy on B's blank book; A keeps the original. */
-    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
-    public static void bookArrivesAsCopy(GameTestHelper helper) {
-        station(helper, RADIO_A, 144_610, "W1FAA");
-        station(helper, RADIO_B, 144_610, "W1FBB");
-        helper.startSequence()
-                .thenExecute(() -> {
-                    powerOn(helper, RADIO_A);
-                    powerOn(helper, RADIO_B);
-                    files(helper, FILES_A).getOutbox().setStackInSlot(0, book(0));
-                    files(helper, FILES_B).insertSupply(new ItemStack(Items.BOOK, 2));
-                })
-                .thenIdle(1)
-                .thenExecute(() -> helper.assertTrue(files(helper, FILES_A).sendFile("w1fbb"), "A could not send the book"))
-                .thenIdle(2)
-                .thenExecute(() -> helper.assertTrue(files(helper, FILES_B).isTransferring(), "B did not get the header"))
-                .thenWaitUntil(() -> helper.assertFalse(files(helper, FILES_B).getReceived().getStackInSlot(0).isEmpty(), "B never printed the book"))
-                .thenExecute(() -> {
-                    ItemStack copy = files(helper, FILES_B).getReceived().getStackInSlot(0);
-                    helper.assertTrue(copy.is(Items.WRITTEN_BOOK) && generation(copy) == 1, "B printed " + copy + " generation " + generation(copy));
-                    helper.assertTrue(files(helper, FILES_B).getSupplies().getStackInSlot(TransferInterfaceBlockEntity.SLOT_BOOK).getCount() == 1, "B did not use one blank book");
-                    helper.assertTrue(generation(files(helper, FILES_A).getOutbox().getStackInSlot(0)) == 0, "A lost its original");
-                })
-                .thenSucceed();
-    }
-
-    /** A file for someone else, or with no blank to print on, leaves nothing; a copy of a copy cannot be sent. */
-    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = BATCH)
-    public static void fileNeedsAddresseeAndBlank(GameTestHelper helper) {
-        station(helper, RADIO_A, 144_630, "W2FAA");
-        station(helper, RADIO_B, 144_630, "W2FBB");
-        helper.startSequence()
-                .thenExecute(() -> {
-                    powerOn(helper, RADIO_A);
-                    powerOn(helper, RADIO_B);
-                    files(helper, FILES_A).getOutbox().setStackInSlot(0, book(2));
-                })
-                .thenIdle(1)
-                .thenExecute(() -> {
-                    helper.assertFalse(files(helper, FILES_A).sendFile(""), "A sent a copy of a copy");
-                    files(helper, FILES_A).getOutbox().setStackInSlot(0, book(0));
-                    helper.assertTrue(files(helper, FILES_A).sendFile("W2XYZ"), "A could not send");
-                })
-                .thenWaitUntil(() -> helper.assertFalse(files(helper, FILES_A).isTransferring(), "A is still sending"))
-                .thenExecute(() -> {
-                    helper.assertTrue(files(helper, FILES_B).getFileLog().isEmpty(), "B took a file for W2XYZ: " + files(helper, FILES_B).getFileLog());
-                    helper.assertTrue(files(helper, FILES_A).sendFile(""), "A could not send to everyone");
-                })
-                .thenWaitUntil(() -> helper.assertFalse(files(helper, FILES_B).getFileLog().isEmpty(), "B logged nothing"))
-                .thenExecute(() -> {
-                    helper.assertTrue(files(helper, FILES_B).getFileLog().getFirst().contains("NO BLANK BOOK"), "B logged " + files(helper, FILES_B).getFileLog());
-                    helper.assertTrue(files(helper, FILES_B).getReceived().getStackInSlot(0).isEmpty(), "B printed without a blank");
-                })
-                .thenSucceed();
-    }
-
-    /** A map goes as SSTV (about 26 seconds) and prints on an empty map: the same map. */
-    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 800, batch = BATCH)
-    public static void mapGoesBySstv(GameTestHelper helper) {
-        station(helper, RADIO_A, 144_650, "W3FAA");
-        station(helper, RADIO_B, 144_650, "W3FBB");
-        ItemStack map = MapItem.create(helper.getLevel(), 0, 0, (byte)0, false, false);
-        helper.startSequence()
-                .thenExecute(() -> {
-                    powerOn(helper, RADIO_A);
-                    powerOn(helper, RADIO_B);
-                    files(helper, FILES_A).getOutbox().setStackInSlot(0, map.copy());
-                    files(helper, FILES_B).insertSupply(new ItemStack(Items.MAP));
-                })
-                .thenIdle(1)
-                .thenExecute(() -> helper.assertTrue(files(helper, FILES_A).sendFile(""), "A could not send the map"))
-                .thenIdle(200)
-                .thenExecute(() -> helper.assertTrue(files(helper, FILES_B).getReceived().getStackInSlot(0).isEmpty(), "The map arrived far too fast for SSTV"))
-                .thenWaitUntil(() -> helper.assertFalse(files(helper, FILES_B).getReceived().getStackInSlot(0).isEmpty(), "B never printed the map"))
-                .thenExecute(() -> {
-                    ItemStack copy = files(helper, FILES_B).getReceived().getStackInSlot(0);
-                    helper.assertTrue(copy.is(Items.FILLED_MAP) && java.util.Objects.equals(copy.get(DataComponents.MAP_ID), map.get(DataComponents.MAP_ID)),
-                            "B printed " + copy);
-                })
-                .thenSucceed();
     }
 }

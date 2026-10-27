@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "radiocraft:item/tape_reel_tape",
+    "layer1": "radiocraft:item/tape_reel_spool",
+    "layer2": "radiocraft:item/tape_reel_label"
+  }
+}

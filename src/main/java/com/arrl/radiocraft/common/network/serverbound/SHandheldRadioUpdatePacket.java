@@ -24,8 +24,9 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
     float frequencyHertz; //TODO change to allow server to control frequency steps
     float ctcssTone;
     int offsetHz;
+    float rxTone;
 
-    public SHandheldRadioUpdatePacket(int index, boolean powered, boolean ptt, float gain, float micGain, float frequencyHertz, float ctcssTone, int offsetHz) {
+    public SHandheldRadioUpdatePacket(int index, boolean powered, boolean ptt, float gain, float micGain, float frequencyHertz, float ctcssTone, int offsetHz, float rxTone) {
         this.index = index;
         this.powered = powered;
         this.ptt = ptt;
@@ -34,6 +35,7 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
         this.frequencyHertz = frequencyHertz;
         this.ctcssTone = ctcssTone;
         this.offsetHz = offsetHz;
+        this.rxTone = rxTone;
     }
 
     //constructor for StreamCodec decoding
@@ -47,6 +49,7 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
         this.frequencyHertz = buf.readFloat();
         this.ctcssTone = buf.readFloat();
         this.offsetHz = buf.readInt();
+        this.rxTone = buf.readFloat();
     }
 
     private void write(ByteBuf buf) {
@@ -57,6 +60,7 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
         buf.writeFloat(frequencyHertz);
         buf.writeFloat(ctcssTone);
         buf.writeInt(offsetHz);
+        buf.writeFloat(rxTone);
     }
 
     public float getFrequencyHertz() {
@@ -111,11 +115,12 @@ public class SHandheldRadioUpdatePacket implements CustomPacketPayload {
             cap.setFrequencyHertz(this.frequencyHertz); //TODO server should handle frequency steps
             cap.setCtcssTone(this.ctcssTone);
             cap.setOffsetHz(this.offsetHz);
+            cap.setRxTone(this.rxTone);
 
         });
     }
 
     public static void updateServer(int inventoryIndex, IVHFHandheldCapability cap) {
-        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(inventoryIndex, cap.isPowered(), cap.isPTTDown(), cap.getGain(), cap.getMicGain(), cap.getFrequencyHertz(), cap.getCtcssTone(), cap.getOffsetHz()));
+        PacketDistributor.sendToServer(new SHandheldRadioUpdatePacket(inventoryIndex, cap.isPowered(), cap.isPTTDown(), cap.getGain(), cap.getMicGain(), cap.getFrequencyHertz(), cap.getCtcssTone(), cap.getOffsetHz(), cap.getRxTone()));
     }
 }

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": {
+      "item": "minecraft:iron_nugget"
+    },
+    "P": {
+      "item": "minecraft:birch_planks"
+    },
+    "S": {
+      "item": "radiocraft:radio_speaker"
+    },
+    "W": {
+      "tag": "minecraft:wool"
+    }
+  },
+  "pattern": [
+    "PWP",
+    "PSP",
+    "PNP"
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:desk_speaker_birch"
+  }
+}

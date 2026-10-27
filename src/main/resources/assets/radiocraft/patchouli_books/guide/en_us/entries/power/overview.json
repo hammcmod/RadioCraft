@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Block radios draw energy (FE) every tick from the power network they are wired to, more while transmitting. Starved, a radio $(thing)browns out$(): its panel cycles on, PWR, dark.$(li)HF radio 8 / 26 FE/t$(li)QRP 2 / 13$(li)VHF base station 2 / 13$(li)Repeater 4 / 17$(li)Automatic tuner 4"
+      "text": "Block radios draw energy (FE) every tick from the power network they are wired to, more while transmitting. Starved, a radio $(thing)browns out$(): its panel cycles on, PWR, dark.$(li)HF and all-band radio 8 / 26 FE/t$(li)QRP 2 / 13$(li)VHF base station 2 / 13$(li)Repeater 4 / 17$(li)Automatic tuner 4$(li)Microwave radio 26 while on"
     },
     {
       "type": "patchouli:text",
@@ -38,6 +38,11 @@
         ]
       },
       "text": "Three panels, controller, battery, radio."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Numbers",
+      "text": "A $(item)solar panel$() makes 9 FE/t by day under open sky, half that in rain. A $(item)large battery$() holds 260,000 FE, about a Minecraft day of a VHF base station; a $(item)small battery$() 60,000, and a new one comes half to two thirds charged.$(br2)Batteries wired together fill and drain together, each taking an even share."
     },
     {
       "type": "patchouli:crafting",

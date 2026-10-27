@@ -10,7 +10,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "Set a $(l:radiocraft:repeaters/duplexer)duplexer$(/l) on top of it (its back or bottom work too). Run the antenna's coax from the duplexer, or from the ground straight behind the repeater, where the duplexer's cable comes down. Without one it deafens itself: \"psht... psht...\".$(br2)Settings: input/output, $(thing)CTCSS$() tones, CW ID, hang time and a timeout.",
+      "text": "Set a $(l:radiocraft:repeaters/duplexer)duplexer$(/l) on top of it (its back or bottom work too). Run the antenna's coax from the duplexer, or from the ground straight behind the repeater, where the duplexer's cable comes down. Without one it deafens itself: \"psht... psht...\".$(br2)Settings: input/output, $(thing)CTCSS$() tones, CW ID, hang time and a timeout. After you let go it holds its carrier for the hang time and beeps; when it drops, every FM radio listening gives a short \"kssh\" of squelch tail.",
       "title": "Setting up"
     },
     {

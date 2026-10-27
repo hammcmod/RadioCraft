@@ -2,7 +2,7 @@ package com.arrl.radiocraft.common.capabilities;
 
 import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.api.capabilities.*;
-import com.arrl.radiocraft.common.blockentities.TransferInterfaceBlockEntity;
+import com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity;
 import com.arrl.radiocraft.common.data.BlockEntityCallsignSavedData;
 import com.arrl.radiocraft.common.data.PlayerCallsignSavedData;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
@@ -59,6 +59,7 @@ public class RadiocraftCapabilities {
 				RadiocraftBlocks.VHF_BASE_STATION.get(),
 				RadiocraftBlocks.VHF_RECEIVER.get(),
 				RadiocraftBlocks.VHF_REPEATER.get(),
+				RadiocraftBlocks.COMMERCIAL_REPEATER.get(),
 				RadiocraftBlocks.DUPLEXER.get(),
 				RadiocraftBlocks.ANTENNA_TUNER.get(),
 				RadiocraftBlocks.AUTO_TUNER.get(),
@@ -66,12 +67,23 @@ public class RadiocraftCapabilities {
 				RadiocraftBlocks.BALUN_FOUR_TO_ONE.get(), RadiocraftBlocks.BALUN_TWO_TO_ONE.get(),
 				RadiocraftBlocks.BALUN_NINE_TO_ONE.get(),
 				RadiocraftBlocks.J_POLE_ANTENNA.get(),
+				RadiocraftBlocks.RINGO_ANTENNA.get(),
+				RadiocraftBlocks.FOLDED_DIPOLE_ANTENNA.get(),
 				RadiocraftBlocks.IONOSONDE.get(),
 				RadiocraftBlocks.FIVE_BTV_ANTENNA.get(),
 				RadiocraftBlocks.DUMMY_LOAD.get(),
 				RadiocraftBlocks.SLIM_JIM_ANTENNA.get(),
 				RadiocraftBlocks.YAGI_ANTENNA.get(),
 				RadiocraftBlocks.SATELLITE_DISH.get(),
+				RadiocraftBlocks.WALL_SPEAKER.get(),
+				RadiocraftBlocks.LOUDSPEAKER.get(),
+				RadiocraftBlocks.DIRECTION_FINDER_MODULE.get(),
+				RadiocraftBlocks.DIRECTION_FINDER.get(),
+				RadiocraftBlocks.MAP_DIRECTION_FINDER.get(),
+				RadiocraftBlocks.APRS_TERMINAL.get(),
+				RadiocraftBlocks.MICROWAVE_RADIO.get(),
+				RadiocraftBlocks.TELEPHONE.get(),
+				RadiocraftBlocks.MICROWAVE_HORN.get(),
 				net.minecraft.world.level.block.Blocks.LIGHTNING_ROD); // An antenna when coax runs to it (LightningRodAntennas).
 		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> BENetworksCapability.get(level), premiumAndCheapRadios()); // The plain ones are above.
 		event.registerBlock(ANTENNA_NETWORKS, (level, pos, state, be, side) -> new AntennaNetworkCapability(), RadiocraftBlocks.HF_RADIO_10M_VARIANTS.values().toArray(Block[]::new));
@@ -80,12 +92,12 @@ public class RadiocraftCapabilities {
 
         event.registerBlockEntity(BLOCK_ENTITY_CALLSIGNS, RadiocraftBlockEntities.HF_RADIO_ALL_BAND.get(), (entity, ignored) -> BlockEntityCallsignSavedData.get(entity.getLevel().getServer().overworld()));
 
-		// Hoppers stock a transfer interface's paper, books and maps; one underneath takes the copies of files received.
+		// Hoppers stock a radio fax's paper, books and maps; one underneath takes the copies received.
 		event.registerBlock(Capabilities.ItemHandler.BLOCK, (level, pos, state, be, side) -> be instanceof com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity teletype
 				? teletype.getPaper() : null, RadiocraftBlocks.TELETYPE.get()); // Hoppers feed the teletype paper.
-		event.registerBlock(Capabilities.ItemHandler.BLOCK, (level, pos, state, be, side) -> be instanceof TransferInterfaceBlockEntity transfer
-						? side == net.minecraft.core.Direction.DOWN ? transfer.getReceived() : transfer.getSupplies() : null,
-				RadiocraftBlocks.TRANSFER_INTERFACE.get());
+		event.registerBlock(Capabilities.ItemHandler.BLOCK, (level, pos, state, be, side) -> be instanceof RadioFaxBlockEntity fax
+						? side == net.minecraft.core.Direction.DOWN ? fax.getReceived() : fax.getSupplies() : null,
+				RadiocraftBlocks.RADIO_FAXES.values().stream().map(net.neoforged.neoforge.registries.DeferredHolder::get).toArray(Block[]::new));
 
 		event.registerItem(VHF_HANDHELDS, (itemStack, context) -> new VHFHandheldCapability(itemStack), handhelds());
 		

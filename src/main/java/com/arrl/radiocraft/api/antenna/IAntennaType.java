@@ -87,4 +87,12 @@ public interface IAntennaType<T extends AntennaData> {
 	 */
 	T getDefaultData();
 
+	/**
+	 * The chance a lightning strike on this antenna does damage (burns the coax, blows the radios), as a share of an
+	 * ordinary antenna's: 1 for most, less for a DC-grounded commercial antenna that sheds the surge to ground.
+	 */
+	default double lightningDamageFactor() {
+		return 1.0D;
+	}
+
 }

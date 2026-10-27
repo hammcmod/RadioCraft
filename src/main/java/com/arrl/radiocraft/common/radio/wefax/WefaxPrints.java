@@ -37,27 +37,49 @@ public final class WefaxPrints {
 	 * @param station the sending station's callsign, or empty
 	 */
 	public static ItemStack print(ServerLevel level, WeatherSource source, BlockPos center, WefaxChart.Type type, String station) {
+		return printChart(level, source, center, type, station).stack();
+	}
+
+	/** A printed sheet, and its picture (for the receiver's screen to draw as it prints). */
+	public record Print(ItemStack stack, byte[] pixels) {}
+
+	/** {@link #print}, with the picture. */
+	public static Print printChart(ServerLevel level, WeatherSource source, BlockPos center, WefaxChart.Type type, String station) {
 		byte[] pixels = WefaxChart.paint(level, source, center, type, station);
+		List<Component> lore = new ArrayList<>();
+		for(String line : WeatherReports.lines(level, source, center, station))
+			lore.add(Component.literal(line).withStyle(ChatFormatting.GRAY));
+		Component name = Component.translatableWithFallback(
+				Radiocraft.translationKey("item", "wefax_chart." + type.name().toLowerCase(java.util.Locale.ROOT)),
+				switch(type) {
+					case RADAR -> "WEFAX Radar Chart";
+					case FORECAST -> "WEFAX Forecast Chart";
+					case SURFACE -> "WEFAX Surface Analysis";
+				});
+		return new Print(sheet(level, center, pixels, name, lore), pixels);
+	}
+
+	/** A sheet of text, {@code lines} under {@code title}: the solar weather report. */
+	public static Print printText(ServerLevel level, BlockPos center, Component name, String title, List<String> lines) {
+		byte[] pixels = WefaxChart.paintText(title, lines);
+		List<Component> lore = new ArrayList<>();
+		for(String line : lines)
+			lore.add(Component.literal(line).withStyle(ChatFormatting.GRAY));
+		return new Print(sheet(level, center, pixels, name, lore), pixels);
+	}
+
+	/** A locked map of {@code pixels}, named and with {@code lore}, on fax paper. */
+	private static ItemStack sheet(ServerLevel level, BlockPos center, byte[] pixels, Component name, List<Component> lore) {
 		MapId id = level.getFreeMapId();
 		MapItemSavedData data = MapItemSavedData.createFresh(center.getX(), center.getZ(), (byte)0, false, false, level.dimension()).locked();
 		for(int z = 0; z < WefaxChart.SIZE; z++)
 			for(int x = 0; x < WefaxChart.SIZE; x++)
 				data.updateColor(x, z, pixels[x + z * WefaxChart.SIZE]);
 		level.setMapData(id, data);
-
 		ItemStack stack = new ItemStack(Items.FILLED_MAP);
 		stack.set(DataComponents.MAP_ID, id);
-		stack.set(DataComponents.ITEM_NAME, Component.translatableWithFallback(
-				Radiocraft.translationKey("item", "wefax_chart." + type.name().toLowerCase(java.util.Locale.ROOT)),
-				switch(type) {
-					case RADAR -> "WEFAX Radar Chart";
-					case FORECAST -> "WEFAX Forecast Chart";
-					case SURFACE -> "WEFAX Surface Analysis";
-				}));
+		stack.set(DataComponents.ITEM_NAME, name);
 		stack.set(DataComponents.MAP_COLOR, new MapItemColor(PAPER_TINT));
-		List<Component> lore = new ArrayList<>();
-		for(String line : WeatherReports.lines(level, source, center, station))
-			lore.add(Component.literal(line).withStyle(ChatFormatting.GRAY));
 		stack.set(DataComponents.LORE, new ItemLore(lore));
 		return stack;
 	}

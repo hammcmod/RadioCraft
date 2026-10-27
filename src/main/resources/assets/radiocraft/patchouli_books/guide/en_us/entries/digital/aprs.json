@@ -15,7 +15,7 @@
         "mapping": {
           "I": "radiocraft:radio_interface[facing=north]",
           "H": "radiocraft:aprs_h19[facing=north]",
-          "T": "radiocraft:transfer_interface[facing=north]",
+          "T": "radiocraft:radio_fax_oak[facing=north]",
           "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
           "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
           "a": "radiocraft:coax_wire[north=true,south=true]",
@@ -54,11 +54,11 @@
           ]
         ]
       },
-      "text": "Base station, Radio Interface, H19, Transfer Interface, and a J-pole. Solar panels, controller and battery power it."
+      "text": "Base station, Radio Interface, H19, Radio Fax, and a J-pole. Solar panels, controller and battery power it."
     },
     {
       "type": "patchouli:text",
-      "text": "The H19's screen says READY, CONTACT when a new station is heard and MSG when a message arrives.$(br2)Right click it with an $(item)empty map$() for an $(thing)APRS map$() of the stations heard. Sneak with 4 or 9 maps for a 2x2 or 3x3 map wall.",
+      "text": "The H19's screen says READY, CONTACT when a new station is heard and MSG when a message arrives.$(br2)Right click it with an $(item)empty map$() for an $(thing)APRS map$() of the stations heard. Sneak with 4 or 9 maps for a 2x2 or 3x3 map wall.$(br2)A $(l:radiocraft:sky/weather_station)weather station$(/l) nearby adds the weather to its beacons; a $(l:radiocraft:microwave/microwave_radio)microwave link$(/l) carries APRS to far sites.",
       "title": "The H19"
     },
     {

@@ -32,6 +32,10 @@ Gradle fails if a *required* test fails. To see results:
 grep -E "LogTestReporter|tests failed|tests passed|   - " build/gametest.log
 ```
 
+Create is left out of dev runs unless asked for: add `-PwithCreate` (to `runGameTestServer`, `runClient` or
+`runServer`) to load Create, Ponder, Flywheel and Registrate, so `CreateGameTests` really turns an alternator
+(without Create it passes at once). Run the GameTests both ways before committing Create compat changes.
+
 Writing tests:
 
 - Put them in a class annotated `@GameTestHolder(Radiocraft.MOD_ID)` and `@PrefixGameTestTemplate(false)`, with

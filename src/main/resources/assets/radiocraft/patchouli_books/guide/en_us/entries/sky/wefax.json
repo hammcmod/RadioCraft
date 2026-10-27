@@ -6,7 +6,12 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The $(item)WEFAX receiver$() will print weather charts sent over HF on a paper drum. It can be built and placed now; the charts come with the weather work."
+      "text": "The $(item)WEFAX receiver$() prints weather charts on paper. It needs a radio with a real antenna beside it (or reached through station gear it touches), and $(item)paper$(): use paper on it to fill the tray, up to 64 sheets.$(br2)Each sheet takes twelve seconds to come off the drum and drops out of the front."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Buttons",
+      "text": "$(li)$(thing)WX REPT$(): the next chart in turn: radar, forecast, surface analysis.$(li)$(thing)SOLR WX$(): the solar weather report.$(li)$(thing)AUTO$(): prints a forecast by itself when dangerous weather is here or coming, at most every five minutes.$(br)Charts are maps: hang them in item frames or copy them at a cartography table. The text report is in the tooltip."
     },
     {
       "type": "patchouli:crafting",

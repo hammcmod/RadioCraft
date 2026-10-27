@@ -542,6 +542,23 @@ public final class WefaxChart {
 			'>', new String[] { "#..", ".#.", "..#", ".#.", "#.." },
 			'<', new String[] { "..#", ".#.", "#..", ".#.", "..#" });
 
+	/** Characters across a text sheet, and lines down it under its title. */
+	public static final int TEXT_COLUMNS = 31, TEXT_LINES = 17;
+
+	/** A sheet of text in the chart font: {@code title} at the top, ruled off, then up to {@link #TEXT_LINES} lines. */
+	public static byte[] paintText(String title, List<String> lines) {
+		Canvas canvas = new Canvas();
+		canvas.fill(PAPER);
+		String head = title.toUpperCase(Locale.ROOT);
+		canvas.text(head.length() > TEXT_COLUMNS ? head.substring(0, TEXT_COLUMNS) : head, 2, 3, INK);
+		canvas.line(2, 11, SIZE - 3, 11, INK);
+		for(int i = 0; i < lines.size() && i < TEXT_LINES; i++) {
+			String line = lines.get(i).toUpperCase(Locale.ROOT);
+			canvas.text(line.length() > TEXT_COLUMNS ? line.substring(0, TEXT_COLUMNS) : line, 2, 15 + i * 7, INK);
+		}
+		return canvas.pixels;
+	}
+
 	/** The chart a name like "radar" means, ignoring case, or null. */
 	public static Type type(String name) {
 		try {

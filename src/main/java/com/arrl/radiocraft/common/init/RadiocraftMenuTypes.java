@@ -33,9 +33,15 @@ public class RadiocraftMenuTypes {
 	public static final Supplier<MenuType<TeletypeMenu>> TELETYPE = MENU_TYPES.register("teletype", () -> IMenuTypeExtension.create(TeletypeMenu::new));
 	public static final Supplier<MenuType<RadioInterfaceMenu>> RADIO_INTERFACE = MENU_TYPES.register("radio_interface", () -> IMenuTypeExtension.create(RadioInterfaceMenu::new));
 	public static final Supplier<MenuType<AprsTerminalMenu>> APRS_TERMINAL = MENU_TYPES.register("aprs_h19", () -> IMenuTypeExtension.create(AprsTerminalMenu::new));
-	public static final Supplier<MenuType<TransferInterfaceMenu>> TRANSFER_INTERFACE = MENU_TYPES.register("transfer_interface", () -> IMenuTypeExtension.create(TransferInterfaceMenu::new));
+	public static final Supplier<MenuType<RadioFaxMenu>> RADIO_FAX = MENU_TYPES.register("radio_fax", () -> IMenuTypeExtension.create(RadioFaxMenu::new));
 	public static final Supplier<MenuType<DuplexerMenu>> DUPLEXER = MENU_TYPES.register("duplexer", () -> IMenuTypeExtension.create(DuplexerMenu::new));
 	public static final Supplier<MenuType<AntennaTunerMenu>> ANTENNA_TUNER = MENU_TYPES.register("antenna_tuner", () -> IMenuTypeExtension.create(AntennaTunerMenu::new));
+	public static final Supplier<MenuType<DirectionFinderMenu>> DIRECTION_FINDER = MENU_TYPES.register("direction_finder", () -> IMenuTypeExtension.create(DirectionFinderMenu::new));
+	public static final Supplier<MenuType<MicrowaveRadioMenu>> MICROWAVE_RADIO = MENU_TYPES.register("microwave_radio", () -> IMenuTypeExtension.create(MicrowaveRadioMenu::new));
+	public static final Supplier<MenuType<com.arrl.radiocraft.common.menus.TapePlayerMenu>> TAPE_PLAYER = MENU_TYPES.register("tape_player", () -> IMenuTypeExtension.create(com.arrl.radiocraft.common.menus.TapePlayerMenu::new));
+	public static final Supplier<MenuType<com.arrl.radiocraft.common.menus.CommercialRadioModuleMenu>> COMMERCIAL_RADIO_MODULE = MENU_TYPES.register("commercial_radio_module", () -> IMenuTypeExtension.create(com.arrl.radiocraft.common.menus.CommercialRadioModuleMenu::new));
+	public static final Supplier<MenuType<com.arrl.radiocraft.common.menus.WefaxReceiverMenu>> WEFAX_RECEIVER = MENU_TYPES.register("wefax_receiver", () -> IMenuTypeExtension.create(com.arrl.radiocraft.common.menus.WefaxReceiverMenu::new));
+	public static final Supplier<MenuType<TelephoneMenu>> TELEPHONE = MENU_TYPES.register("telephone", () -> IMenuTypeExtension.create(TelephoneMenu::new));
 	public static final Supplier<MenuType<VHFRepeaterMenu>> VHF_REPEATER = MENU_TYPES.register("vhf_repeater", () -> IMenuTypeExtension.create(VHFRepeaterMenu::new));
 
 }

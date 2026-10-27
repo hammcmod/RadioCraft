@@ -5,13 +5,13 @@ hammertone transmitter box, galvanized mast).
 
 Writes under assets/radiocraft:
 - models/block/weather_station.json        the whole station, cups still (item and static use)
-- models/block/weather_station_base.json   everything but the cups
-- models/block/weather_station_cups_0..3   the cup wheel at 0, 22.5, 45 and 67.5 degrees; the wheel has four cups,
-                                           so it repeats every 90 degrees and cycling 0-1-2-3 spins it
+- models/block/weather_station_base.json   everything but the cups and the vane (what the block draws)
+- models/block/weather_station_vane.json   the wind vane, arrow pointing north, pivoting at x 13, z 8
+- models/block/weather_station_cups.json   the cup wheel, turning about x 8, z 8
+                                           (WeatherStationRenderer turns both smoothly with the wind)
 - textures/block/weather_station.png       32x32
 
-Minecraft 1.21.1 element rotations are -45, -22.5, 0, 22.5 or 45 on one axis; frame 3 uses -22.5, which is the
-same picture as 67.5 for a four-fold wheel. The matching single instruments are in weather_instruments_model.py.
+The matching single instruments are in weather_instruments_model.py.
 """
 import sys
 from pathlib import Path
@@ -92,15 +92,21 @@ def base_elements():
     # transmitter box on the mast, front facing east
     e.append(B.box("transmitter", [9, 2.5, 6.5], [12, 6, 9.5], "box", {"east": "front"}))
     e.append(B.box("conduit", [9.75, 6, 7.75], [10.25, 7, 8.25], "rod"))
-    # wind vane on the east end, arrow pointing north
+    # the wind vane's pivot post on the east end (the vane itself turns: vane_elements)
     e.append(B.box("vane_pivot", [12.75, 8, 7.75], [13.25, 9.25, 8.25], "rod"))
+    # hub (round, so it does not need to turn)
+    e.append(B.box("hub", [7, 13, 7], [9, 14.75, 9], "hub"))
+    e.append(B.box("hub_cap", [7.25, 14.75, 7.25], [8.75, 15.5, 8.75], "hub"))
+    return e
+
+
+def vane_elements():
+    """The wind vane, arrow pointing north, about its pivot at x 13, z 8."""
+    e = []
     e.append(B.box("vane_shaft", [12.75, 9.25, 3.5], [13.25, 9.75, 13], "vane"))
     e.append(B.box("vane_fin", [12.875, 8.5, 11], [13.125, 12, 14], "vane"))
     e.append(B.box("vane_head", [12.6, 9, 2.5], [13.4, 10, 4], "arrow"))
     e.append(B.box("vane_tip", [12.85, 9.25, 2], [13.15, 9.75, 2.5], "arrow"))
-    # hub (round, so it does not need to turn)
-    e.append(B.box("hub", [7, 13, 7], [9, 14.75, 9], "hub"))
-    e.append(B.box("hub_cap", [7.25, 14.75, 7.25], [8.75, 15.5, 8.75], "hub"))
     return e
 
 
@@ -119,8 +125,8 @@ def cup_elements(angle):
 
 if __name__ == "__main__":
     models = ASSETS / "models/block"
-    save(models, "weather_station", B.model(base_elements() + cup_elements(0.0)))
+    save(models, "weather_station", B.model(base_elements() + vane_elements() + cup_elements(0.0)))
     save(models, "weather_station_base", B.model(base_elements()))
-    for i, a in enumerate((0.0, 22.5, 45.0, -22.5)):
-        save(models, f"weather_station_cups_{i}", B.model(cup_elements(a)))
+    save(models, "weather_station_vane", B.model(vane_elements()))
+    save(models, "weather_station_cups", B.model(cup_elements(0.0)))
     paint().write(ASSETS / "textures/block/weather_station.png")

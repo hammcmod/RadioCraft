@@ -1,0 +1,11 @@
+{
+  "parent": "radiocraft:block/handheld_direction_finder",
+  "overrides": [
+    {
+      "predicate": {
+        "radiocraft:lit": 1
+      },
+      "model": "radiocraft:item/handheld_direction_finder_lit"
+    }
+  ]
+}

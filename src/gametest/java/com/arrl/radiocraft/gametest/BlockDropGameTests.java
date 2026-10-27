@@ -41,8 +41,15 @@ public class BlockDropGameTests {
             if(state.requiresCorrectToolForDrops() && !pickaxe.isCorrectToolForDrops(state))
                 problems.add(name + " cannot be mined with a pickaxe");
             List<ItemStack> drops = Block.getDrops(state, helper.getLevel(), pos, null, null, pickaxe);
-            if(drops.size() != 1 || !drops.get(0).is(block.asItem()) || drops.get(0).getCount() != 1)
+            if(block == RadiocraftBlocks.COMMERCIAL_RADIO_MODULE.get()) { // Sealed: it gives up one rare part instead.
+                if(drops.size() != 1 || drops.get(0).is(block.asItem()))
+                    problems.add(name + " drops " + drops + ", not one rare part");
+            }
+            else if(drops.size() != 1 || !drops.get(0).is(block.asItem()) || drops.get(0).getCount() != 1)
                 problems.add(name + " drops " + drops);
+            if(state.hasProperty(com.arrl.radiocraft.common.blocks.StackedBlocks.PART)
+                    && !Block.getDrops(state.setValue(com.arrl.radiocraft.common.blocks.StackedBlocks.PART, 2), helper.getLevel(), pos, null, null, pickaxe).isEmpty())
+                problems.add(name + "'s upper cells drop a second one");
             if(block.defaultBlockState().hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
                     && !Block.getDrops(state.setValue(BlockStateProperties.DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER), helper.getLevel(), pos, null, null, pickaxe).isEmpty())
                 problems.add(name + "'s top half drops a second antenna");

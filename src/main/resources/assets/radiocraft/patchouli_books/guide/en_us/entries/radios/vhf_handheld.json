@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The handheld is the easiest radio: no antenna, no wiring.$(li)$(thing)Hold right click$() to talk (push to talk).$(li)$(thing)Sneak and right click$() to open it: frequency, volume, and the $(thing)tone$() and $(thing)offset$() pages (press ENTER) used with $(l:radiocraft:repeaters/repeater)repeaters$(/l)."
+      "text": "The handheld is the easiest radio: no antenna, no wiring.$(li)$(thing)Hold right click$() to talk (push to talk).$(li)$(thing)Sneak and right click$() to open it: frequency, volume, the $(thing)TX tone$() and $(thing)RX tone$() pages (the TXT and RXT keys) and the $(thing)offset$() page (ENTER), used with $(l:radiocraft:repeaters/repeater)repeaters$(/l)."
     },
     {
       "type": "patchouli:text",

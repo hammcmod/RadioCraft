@@ -1,0 +1,22 @@
+{
+  "name": "Tapes & Tape Player",
+  "icon": "radiocraft:tape_player",
+  "category": "radiocraft:radios",
+  "sortnum": 9,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "The $(item)Tape Player$() plays a $(item)tape reel$() out loud and into every radio touching it: the radio keys up and transmits the tape, then lets go when it ends.$(br2)Use a reel on the player to load it, an empty hand for the controls, and sneak with an empty hand (or EJECT) to take it out."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Modes",
+      "text": "$(li)$(thing)Manual$(): plays when you press PLAY.$(li)$(thing)Loop$(): again a second after it ends.$(li)$(thing)Interval$(): every 1 to 60 minutes (- and +, shift for tens).$(li)$(thing)Redstone$(): once for each redstone pulse.$(br)A beacon that calls every five minutes is one tape on Interval."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Recording",
+      "text": "Press REC with a blank or recorded tape in, talk (everyone within six blocks is picked up), and STOP. A tape holds a minute, in telephone quality. Recording again wipes it. $(thing)Found$() tapes, with their own labels, cannot be recorded over.$(br2)Tapes and the tape player have no crafting recipe yet."
+    }
+  ]
+}

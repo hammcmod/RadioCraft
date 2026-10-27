@@ -1,0 +1,130 @@
+{
+	"credit": "Wire running up the north edge of the block, from the floor stub to the ceiling",
+	"parent": "block/block",
+	"textures": {
+		"0": "radiocraft:block/coaxial_wire_orange",
+		"particle": "radiocraft:block/coaxial_wire_orange"
+	},
+	"elements": [
+		{
+			"name": "wire",
+			"from": [
+				7,
+				2,
+				-1
+			],
+			"to": [
+				9,
+				9,
+				1
+			],
+			"faces": {
+				"east": {
+					"uv": [
+						0,
+						2,
+						7,
+						4
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						6,
+						7,
+						8
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"north": {
+					"uv": [
+						0,
+						4,
+						7,
+						6
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						7,
+						2
+					],
+					"rotation": 90,
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"name": "wire",
+			"from": [
+				7,
+				9,
+				-1
+			],
+			"to": [
+				9,
+				16,
+				1
+			],
+			"faces": {
+				"east": {
+					"uv": [
+						0,
+						2,
+						7,
+						4
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						6,
+						7,
+						8
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"north": {
+					"uv": [
+						0,
+						4,
+						7,
+						6
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0,
+						0,
+						7,
+						2
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						7,
+						0,
+						9,
+						2
+					],
+					"rotation": 180,
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

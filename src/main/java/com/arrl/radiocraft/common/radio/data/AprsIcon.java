@@ -18,7 +18,9 @@ public enum AprsIcon {
 	HORSE(() -> Items.SADDLE),
 	CAMP(() -> Items.CAMPFIRE),
 	TOWER(() -> Items.LIGHTNING_ROD),
-	DIGI(() -> Items.ENDER_EYE);
+	DIGI(() -> Items.ENDER_EYE),
+	/** A weather station: H19s with one in range beacon with it. */
+	WX(() -> com.arrl.radiocraft.common.init.RadiocraftItems.WEATHER_STATION.get());
 
 	private final Supplier<Item> item;
 

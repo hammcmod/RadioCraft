@@ -13,6 +13,7 @@ import com.arrl.radiocraft.RadiocraftServerConfig;
  *     <li>Soft clipping: a little speaker overdrive on the peaks.</li>
  *     <li>Aurora rasp, when asked: the buzzy flutter of a VHF signal scattered off an aurora.</li>
  *     <li>Output level from {@link ReceiverMix#voiceLevel}.</li>
+ *     <li>FM only ({@link #fmFade}): hiss under a weak signal, and dropouts to static as it fades out.</li>
  * </ol>
  * Audio is 48 kHz mono 16-bit, as Simple Voice Chat hands it over.
  */
@@ -62,6 +63,36 @@ public class RadioVoiceProcessor {
 	private double shiftPhase = 0.0D;
 	private double splatterEnvelope = 0.0D;
 	private double qrmFlutter = 0.0D;
+	private boolean fmOpen = true;
+	private int fmGateLeft = 0;
+	private double fmGate = 1.0D;
+	private double fmHiss = 0.0D;
+
+	/** Loudness of the static an FM receiver plays with the squelch open on nothing, as a fraction of full scale. */
+	static final double FM_STATIC = 0.3D;
+
+	/**
+	 * Fades a processed FM frame (in place) by {@code signal}, its strength: hiss rising under the voice as it weakens,
+	 * then the voice cutting in and out to static in bursts of 40 to 180 ms, until there is only static. The voice
+	 * keeps its volume throughout. {@code gain} is the output level the frame was made at, so the static matches it.
+	 */
+	public short[] fmFade(short[] pcm, double signal, double gain) {
+		double hiss = ReceiverMix.fmHiss(signal), dropout = ReceiverMix.fmDropout(signal);
+		if(hiss <= 0.0D && dropout <= 0.0D && fmGate >= 1.0D)
+			return pcm;
+		double smooth = coefficient(0.003D); // No clicks where the voice drops out and comes back.
+		for(int i = 0; i < pcm.length; i++) {
+			if(--fmGateLeft <= 0) {
+				fmOpen = nextRandom() >= dropout;
+				fmGateLeft = (int)(SAMPLE_RATE * (0.04D + 0.14D * nextRandom()));
+			}
+			fmGate = smooth * fmGate + (1.0D - smooth) * (fmOpen ? 1.0D : 0.0D);
+			fmHiss = 0.5D * fmHiss + 0.5D * (nextRandom() * 2.0D - 1.0D); // A little softened: hiss, not fizz.
+			double noise = FM_STATIC * (hiss * fmGate + (1.0D - fmGate)) * fmHiss * gain;
+			pcm[i] = clamp(pcm[i] * fmGate + noise * 32767.0D);
+		}
+		return pcm;
+	}
 
 	/**
 	 * Processes one frame in place and returns it.

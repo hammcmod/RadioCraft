@@ -45,6 +45,14 @@ public interface IAntenna {
 	}
 
 	/**
+	 * As above, from a transmitter {@code power} times as strong as a standard one (1): what the far end hears is that
+	 * much stronger, still only out to the band's range. Antennas that do not model it send at standard strength.
+	 */
+	default void transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer, float ctcssTone, float power) {
+		transmitAudioPacket(level, rawAudio, band, frequencyHertz, sourcePlayer, ctcssTone);
+	}
+
+	/**
 	 * Handle receiving an audio packet from another {@link IAntenna} on the network.
 	 * @param packet The {@link AntennaVoicePacket} being received.
 	 */

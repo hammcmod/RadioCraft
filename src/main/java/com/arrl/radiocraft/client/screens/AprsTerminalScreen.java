@@ -9,6 +9,7 @@ import com.arrl.radiocraft.common.blockentities.StationBus;
 import com.arrl.radiocraft.common.menus.AprsTerminalMenu;
 import com.arrl.radiocraft.common.network.serverbound.SStationPacket;
 import com.arrl.radiocraft.common.radio.data.AprsIcon;
+import com.arrl.radiocraft.common.radio.data.AprsWeather;
 import com.arrl.radiocraft.common.radio.data.TncPacket;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -164,9 +165,24 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 		return menu.blockEntity;
 	}
 
+	/** The terminal's fan and transformer, humming quietly while the screen is open. */
+	@org.jetbrains.annotations.Nullable
+	private TerminalWhirr whirr;
+
+	@Override
+	protected void init() {
+		super.init();
+		if(whirr == null)
+			whirr = TerminalWhirr.start(0.12F);
+	}
+
 	@Override
 	public void removed() {
 		super.removed();
+		if(whirr != null) {
+			whirr.finish();
+			whirr = null;
+		}
 		if(map != null) {
 			map.close();
 			map = null;
@@ -461,8 +477,6 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 				case SEEK -> {
 					if(now >= nextNoise) {
 						seek();
-						if(random.nextInt(3) == 0)
-							motor();
 						nextNoise = now + 30 + random.nextInt(90);
 					}
 					if(elapsed < current.millis())
@@ -949,17 +963,20 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 	}
 
 	private void keyClick() {
-		play(SoundEvents.STONE_BUTTON_CLICK_ON, 1.8F + random.nextFloat() * 0.2F, 0.12F);
+		play(SoundEvents.NOTE_BLOCK_HAT.value(), 1.75F + random.nextFloat() * 0.2F, 0.08F);
 	}
 
-	/** The drive head stepping. */
+	/** The drive head stepping: the printing's tick, a little lower. */
 	private void seek() {
-		play(SoundEvents.COMPARATOR_CLICK, 0.6F + random.nextFloat() * 0.8F, 0.18F);
+		play(SoundEvents.NOTE_BLOCK_HAT.value(), 1.5F + random.nextFloat() * 0.15F, 0.05F);
 	}
 
-	/** The drive motor's grind under the seeks. */
-	private void motor() {
-		play(SoundEvents.NOTE_BLOCK_SNARE.value(), 0.5F, 0.05F);
+	/** The map refreshing on its own: a quiet beep, then a couple of ticks as it starts redrawing. */
+	private void refreshCue() {
+		play(SoundEvents.NOTE_BLOCK_BIT.value(), 1.3F, 0.053F);
+		long at = System.currentTimeMillis();
+		pending.add(new Pending(at + 120L, this::printTick));
+		pending.add(new Pending(at + 210L, this::printTick));
 	}
 
 	/** The terminal's bell. */
@@ -1255,8 +1272,10 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 			int index = listScroll + i;
 			Heard heard = stations.get(index);
 			TncPacket packet = heard.packet();
+			AprsWeather weather = AprsWeather.parse(packet.text());
 			String line = String.format(Locale.ROOT, " %-11s %-8s %6s %-3s %4s  %-6s %s", clip(packet.from(), 11), AprsIcon.byName(packet.icon()).name(),
-					distance(packet.position()), bearing(packet.position()), age(heard.gameTime()), packet.hops() == 0 ? "DIRECT" : packet.hops() + " DIGI", packet.text());
+					distance(packet.position()), bearing(packet.position()), age(heard.gameTime()), packet.hops() == 0 ? "DIRECT" : packet.hops() + " DIGI",
+					weather == null ? packet.text() : weather.summary());
 			spot(LIST_TOP + i, 0, pad(line, COLS - 1), index == listSel ? INVERSE : NORMAL, () -> {
 				listSel = index;
 				openPopup(packet.from());
@@ -1274,7 +1293,9 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 		}
 		spots.clear(); // Only the box answers clicks.
 		TncPacket packet = heard.packet();
-		int left = 10, right = 53, top = 6, bottom = 16;
+		AprsWeather weather = AprsWeather.parse(packet.text());
+		int extra = weather == null ? 0 : 2; // Two more lines for a weather report.
+		int left = 10, right = 53, top = 6, bottom = 16 + extra;
 		for(int row = top; row <= bottom; row++) {
 			put(row, left, "|" + " ".repeat(right - left - 1) + "|", NORMAL);
 			for(int col = left; col <= right; col++)
@@ -1290,12 +1311,16 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 		put(top + 3, left + 2, "POSITION: " + (at == null ? "UNKNOWN" : at.getX() + " " + at.getY() + " " + at.getZ()), NORMAL);
 		put(top + 4, left + 2, "RANGE...: " + (at == null ? "-" : distance(at) + " " + bearing(at)), NORMAL);
 		put(top + 5, left + 2, "HEARD...: " + age(heard.gameTime()) + " AGO, " + via(packet.hops()), NORMAL);
-		put(top + 6, left + 2, "COMMENT.: " + clip(packet.text(), right - left - 14), NORMAL);
+		put(top + 6, left + 2, "COMMENT.: " + clip(AprsWeather.commentOf(packet.text()), right - left - 14), NORMAL);
+		if(weather != null) {
+			put(top + 7, left + 2, "WIND....: " + clip(weather.windLine(), right - left - 14), NORMAL);
+			put(top + 8, left + 2, "WEATHER.: " + clip(weather.airLine(), right - left - 14), NORMAL);
+		}
 		String[] options = {"[ MESSAGE ]", "[ MAP ]", "[ CLOSE ]"};
 		int col = left + 2;
 		for(int i = 0; i < options.length; i++) {
 			int option = i;
-			spot(top + 8, col, options[i], i == popupOption ? INVERSE : NORMAL, () -> popupAction(option));
+			spot(top + 8 + extra, col, options[i], i == popupOption ? INVERSE : NORMAL, () -> popupAction(option));
 			col += options[i].length() + 2;
 		}
 		footer(pad(" <> CHOOSE  ENTER OK  ESC CLOSE", COLS));
@@ -1354,7 +1379,8 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 			String value = switch(i) {
 				case 0 -> onOff(terminal.isBeaconEnabled());
 				case SETUP_CALLSIGN -> editingCallsign ? "[" + callsignDraft + "]" : callsign.isEmpty() ? "NOT SET" : callsign;
-				case SETUP_SYMBOL -> "< " + terminal.getIcon().name() + " >";
+				case SETUP_SYMBOL -> terminal.getWeatherStationDistance() >= 0 ? "WX  (WEATHER STATION " + terminal.getWeatherStationDistance() + " BLOCKS AWAY)"
+						: "< " + terminal.getIcon().name() + " >";
 				case SETUP_COMMENT -> editingComment ? "[" + commentDraft + "]" : "\"" + terminal.getBeaconComment() + "\"";
 				case 5 -> onOff(terminal.isContactBuzzer());
 				case 6 -> onOff(terminal.isMessageBuzzer());
@@ -1416,8 +1442,8 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 				marks.add(new H19Map.Mark(heard.packet().from(), heard.packet().position(), AprsIcon.byName(heard.packet().icon()), false, heard.packet().from().equals(mapSelected)));
 		if(revealed < ROWS)
 			return;
-		if(map.update(minecraft.level, marks) && random.nextInt(4) == 0)
-			seek();
+		if(map.update(minecraft.level, marks) && map.takeRepaintStarted())
+			refreshCue();
 		guiGraphics.blit(H19Map.LOCATION, leftPos + MAP_AREA[0], topPos + MAP_AREA[1], MAP_AREA[2], MAP_AREA[3], 0.0F, 0.0F, map.width(), map.height(), map.width(), map.height());
 	}
 

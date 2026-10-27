@@ -50,6 +50,6 @@ public final class CoaxStubs {
 	}
 
 	public static boolean isCoax(BlockState state) {
-		return state.is(RadiocraftBlocks.COAX_WIRE.get());
+		return com.arrl.radiocraft.common.be_networks.WireUtils.isCoax(state); // Any colour.
 	}
 }

@@ -1,0 +1,117 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder"
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "display": "on"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_on"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "display": "on"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_on",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "display": "on"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_on",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "display": "on"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_on",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "display": "compass"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_compass"
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "display": "compass"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_compass",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "display": "compass"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_compass",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "display": "compass"
+      },
+      "apply": {
+        "model": "radiocraft:block/direction_finder_compass",
+        "y": 270
+      }
+    }
+  ]
+}

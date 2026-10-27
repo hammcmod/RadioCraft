@@ -57,10 +57,24 @@ public class H19Map implements AutoCloseable {
 	private double centerX, centerZ, blocksPerPixel = 1.0D;
 	private int paintRow;
 	private long paintedAt;
+	/** Set when a timed repaint (not the first paint) starts; {@link #takeRepaintStarted} clears it. */
+	private boolean repaintStarted;
 	private List<Mark> composedMarks = null;
 	private boolean dirty = true;
+	private final ResourceLocation location;
+	private final boolean amber;
 
 	public H19Map(int width, int height) {
+		this(width, height, LOCATION, false);
+	}
+
+	/**
+	 * A map drawn into its own texture at {@code location}. An {@code amber} map is the same picture on an amber
+	 * screen (the direction finder's): each green tone becomes the amber of the same brightness.
+	 */
+	public H19Map(int width, int height, ResourceLocation location, boolean amber) {
+		this.location = location;
+		this.amber = amber;
 		this.width = width;
 		this.height = height;
 		this.texture = new DynamicTexture(width, height, false);
@@ -68,7 +82,12 @@ public class H19Map implements AutoCloseable {
 		this.heights = new int[width * height];
 		this.kinds = new byte[width * height];
 		java.util.Arrays.fill(terrain, BLACK);
-		Minecraft.getInstance().getTextureManager().register(LOCATION, texture);
+		Minecraft.getInstance().getTextureManager().register(location, texture);
+	}
+
+	/** Where the map's texture is registered, to blit it from. */
+	public ResourceLocation location() {
+		return location;
 	}
 
 	public int width() {
@@ -133,8 +152,10 @@ public class H19Map implements AutoCloseable {
 	 */
 	public boolean update(ClientLevel level, List<Mark> marks) {
 		long now = System.currentTimeMillis();
-		if(!isPainting() && now - paintedAt > REPAINT_MILLIS)
+		if(!isPainting() && now - paintedAt > REPAINT_MILLIS) {
+			repaintStarted = paintedAt > 0;
 			paintRow = 0;
+		}
 		boolean painted = false;
 		if(isPainting()) {
 			int end = Math.min(height, paintRow + ROWS_PER_FRAME);
@@ -151,6 +172,13 @@ public class H19Map implements AutoCloseable {
 			dirty = false;
 		}
 		return painted;
+	}
+
+	/** True once after a timed repaint has started (the map refreshing on its own), for the screen's beep. */
+	public boolean takeRepaintStarted() {
+		boolean started = repaintStarted;
+		repaintStarted = false;
+		return started;
 	}
 
 	private void paintRow(ClientLevel level, int py) {
@@ -231,7 +259,7 @@ public class H19Map implements AutoCloseable {
 		drawScale(out, 4, height - 9);
 		for(int py = 0; py < height; py++)
 			for(int px = 0; px < width; px++)
-				image.setPixelRGBA(px, py, abgr(out[px + py * width]));
+				image.setPixelRGBA(px, py, abgr(amber ? toAmber(out[px + py * width]) : out[px + py * width]));
 		texture.upload();
 	}
 
@@ -302,6 +330,12 @@ public class H19Map implements AutoCloseable {
 			out[x + z * width] = colour;
 	}
 
+	/** A green phosphor tone as amber of the same brightness. */
+	public static int toAmber(int argb) {
+		int level = (argb >> 8) & 0xFF;
+		return (argb & 0xFF000000) | level << 16 | (level * 176 / 255) << 8 | (level * 32 / 255);
+	}
+
 	/** NativeImage keeps pixels as ABGR. */
 	private static int abgr(int argb) {
 		return (argb & 0xFF00FF00) | (argb & 0xFF) << 16 | (argb >> 16) & 0xFF;
@@ -309,7 +343,7 @@ public class H19Map implements AutoCloseable {
 
 	@Override
 	public void close() {
-		Minecraft.getInstance().getTextureManager().release(LOCATION);
+		Minecraft.getInstance().getTextureManager().release(location);
 	}
 
 	/** Black and white 7 by 7 symbols for the APRS icons. */
@@ -323,6 +357,7 @@ public class H19Map implements AutoCloseable {
 		ICONS.put(AprsIcon.HORSE, new String[] { "##.....", "###....", ".######", "..#####", "..#...#", "..#...#", "......." });
 		ICONS.put(AprsIcon.CAMP, new String[] { "...#...", "..#.#..", "..#.#..", ".#.#.#.", ".#.#.#.", "#..#..#", "#######" });
 		ICONS.put(AprsIcon.TOWER, new String[] { "#..#..#", ".#.#.#.", "...#...", "..###..", "..#.#..", ".#.#.#.", ".#...#." });
+		ICONS.put(AprsIcon.WX, new String[] { "..###..", ".#...#.", "#.#.#.#", "#.#.#.#", "#..#..#", ".#...#.", "..###.." });
 		ICONS.put(AprsIcon.DIGI, new String[] { "...#...", "..#.#..", ".#.#.#.", "#.###.#", ".#.#.#.", "..#.#..", "...#..." });
 	}
 }

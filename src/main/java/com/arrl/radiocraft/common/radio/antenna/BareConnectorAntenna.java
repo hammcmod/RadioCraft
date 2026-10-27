@@ -94,6 +94,7 @@ public class BareConnectorAntenna implements IAntenna {
 
 	@Override
 	public void transmitAudioPacket(de.maxhenkel.voicechat.api.ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer, float ctcssTone) {
+		com.arrl.radiocraft.common.radio.TransmitterLog.record(this, pos, band, frequencyHertz); // On the air: direction finders can hear it.
 		for(IAntenna other : others()) {
 			double strength = strengthAt(distanceTo(other));
 			if(strength <= 0.0D)
@@ -112,6 +113,7 @@ public class BareConnectorAntenna implements IAntenna {
 
 	@Override
 	public void transmitCWPacket(ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequencyHertz) {
+		com.arrl.radiocraft.common.radio.TransmitterLog.record(this, pos, band, frequencyHertz); // On the air: direction finders can hear it.
 		for(IAntenna other : others()) {
 			double strength = strengthAt(distanceTo(other));
 			if(strength > 0.0D)
@@ -129,6 +131,7 @@ public class BareConnectorAntenna implements IAntenna {
 
 	@Override
 	public void transmitDataPacket(ServerLevel level, TncPacket payload, Band band, float frequencyHertz) {
+		com.arrl.radiocraft.common.radio.TransmitterLog.record(this, pos, band, frequencyHertz); // On the air: direction finders can hear it.
 		for(IAntenna other : others()) {
 			double strength = strengthAt(distanceTo(other));
 			if(strength > 0.0D)

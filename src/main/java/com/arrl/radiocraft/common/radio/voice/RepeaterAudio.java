@@ -80,23 +80,7 @@ public final class RepeaterAudio {
 
 	/** {@code text} in Morse as tone frames, with a short pause before it. Empty for empty text. */
 	public static List<short[]> morse(String text) {
-		List<Boolean> units = morseUnits(text);
-		if(units.isEmpty())
-			return List.of();
-		int unitSamples = (int)Math.round(1.2D / ID_WPM * SAMPLE_RATE);
-		int lead = (int)(0.2D * SAMPLE_RATE);
-		double[] samples = new double[lead + units.size() * unitSamples];
-		int start = -1;
-		for(int u = 0; u <= units.size(); u++) {
-			boolean on = u < units.size() && units.get(u);
-			if(on && start < 0)
-				start = u;
-			else if(!on && start >= 0) { // One element: write it as a tone with soft edges.
-				tone(samples, lead + start * unitSamples, (u - start) * unitSamples, ID_TONE_HZ, ID_LEVEL);
-				start = -1;
-			}
-		}
-		return frames(samples);
+		return morse(text, ID_WPM, ID_TONE_HZ);
 	}
 
 	/** The courtesy beep: a short tone after a user lets go, so the next one knows they can talk. */
@@ -104,6 +88,34 @@ public final class RepeaterAudio {
 		int gap = (int)(0.15D * SAMPLE_RATE);
 		double[] samples = new double[gap + (int)(0.12D * SAMPLE_RATE)];
 		tone(samples, gap, samples.length - gap, BEEP_HZ, BEEP_LEVEL);
+		return frames(samples);
+	}
+
+	/** A steady tone of {@code hz} for {@code seconds} at {@code level} (0 to 1), with soft edges. */
+	public static List<short[]> tone(double hz, double seconds, double level) {
+		double[] samples = new double[(int)(seconds * SAMPLE_RATE)];
+		tone(samples, 0, samples.length, hz, level);
+		return frames(samples);
+	}
+
+	/** {@code text} in Morse as tone frames at {@code wpm} and {@code hz}, with a short pause before it. */
+	public static List<short[]> morse(String text, int wpm, double hz) {
+		List<Boolean> units = morseUnits(text);
+		if(units.isEmpty())
+			return List.of();
+		int unitSamples = (int)Math.round(1.2D / wpm * SAMPLE_RATE);
+		int lead = (int)(0.2D * SAMPLE_RATE);
+		double[] samples = new double[lead + units.size() * unitSamples];
+		int start = -1;
+		for(int u = 0; u <= units.size(); u++) {
+			boolean on = u < units.size() && units.get(u);
+			if(on && start < 0)
+				start = u;
+			else if(!on && start >= 0) {
+				tone(samples, lead + start * unitSamples, (u - start) * unitSamples, hz, ID_LEVEL);
+				start = -1;
+			}
+		}
 		return frames(samples);
 	}
 

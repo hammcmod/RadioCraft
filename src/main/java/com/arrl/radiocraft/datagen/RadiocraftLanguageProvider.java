@@ -64,6 +64,15 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			addCrystalRadio(provider, RadiocraftItems.VHF_BASE_STATION_VARIANTS, "VHF Base Station");
 			provider.addBlock(RadiocraftBlocks.VHF_RECEIVER, "VHF Receiver");
 			provider.addBlock(RadiocraftBlocks.VHF_REPEATER, "VHF Repeater");
+			provider.addBlock(RadiocraftBlocks.COMMERCIAL_REPEATER, "Commercial Repeater");
+			provider.addBlock(RadiocraftBlocks.COMMERCIAL_RADIO_MODULE, "Commercial Radio Module");
+			provider.addItem(RadiocraftItems.TAPE_REEL, "Tape Reel");
+			provider.addBlock(RadiocraftBlocks.TAPE_PLAYER, "Tape Player");
+			provider.add("container.radiocraft.tape_player", "Tape Player");
+			provider.add("item.radiocraft.tape_reel.blank", "Blank");
+			provider.add("item.radiocraft.tape_reel.recorded", "Recorded, %s:%s");
+			provider.add("screen.radiocraft.commercial_radio_module.no_band", "That frequency is in no band");
+			provider.add("block.radiocraft.commercial_radio_module.sealed", "The cabinet is sealed. Whatever it sends, it sends on its own.");
 			addCrystalRadio(provider, RadiocraftItems.HF_RADIO_10M_VARIANTS, "10m Radio");
 			addCrystalRadio(provider, RadiocraftItems.HF_RADIO_20M_VARIANTS, "20m Radio");
 			addCrystalRadio(provider, RadiocraftItems.HF_RADIO_40M_VARIANTS, "40m Radio");
@@ -84,23 +93,76 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.BALUN_TWO_TO_ONE, "Balun (2:1)");
 			provider.addBlock(RadiocraftBlocks.BALUN_NINE_TO_ONE, "Balun (9:1)");
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
+			RadiocraftBlocks.COLOURED_COAX.forEach((colour, block) -> provider.addBlock(block, dyeName(colour) + " Coaxial Wire"));
 			provider.addBlock(RadiocraftBlocks.RADIO_INTERFACE, "Radio Interface");
 			provider.addBlock(RadiocraftBlocks.APRS_TERMINAL, "H19 APRS Terminal");
-			provider.addBlock(RadiocraftBlocks.TRANSFER_INTERFACE, "Digital Transfer Interface");
+			RadiocraftBlocks.RADIO_FAXES.forEach((wood, block) -> provider.addBlock(block, woodName(wood) + " Radio Fax"));
+			provider.addItem(RadiocraftItems.TELETYPE_ROLL, "Teletype Roll");
+			provider.add("item.radiocraft.teletype_roll.lines", "%s lines printed");
+			provider.add(Radiocraft.translationKey("tooltip", "teletype_roll"), "Torn off a teletype. Right click to read it; right click a teletype with an empty roll to feed it back in.");
+			provider.add(Radiocraft.translationKey("tooltip", "radio_fax"), "Faxes books, paper, maps and enchanted books to another fax by callsign, through the radio it touches or its station's radio interface. Stock it with paper, books and maps for what it receives.");
 			provider.addBlock(RadiocraftBlocks.PARROT_CONTROLLER, "Simplex Repeat Controller");
 			provider.addBlock(RadiocraftBlocks.CHARGE_CONTROLLER, "Charge Controller");
 			provider.addBlock(RadiocraftBlocks.MICROPHONE, "Microphone");
 			provider.addBlock(RadiocraftBlocks.YAGI_ANTENNA, "Yagi Antenna");
 			provider.addBlock(RadiocraftBlocks.J_POLE_ANTENNA, "J-Pole Antenna");
+			provider.addBlock(RadiocraftBlocks.RINGO_ANTENNA, "VHF Ringo Antenna");
+			provider.addBlock(RadiocraftBlocks.FOLDED_DIPOLE_ANTENNA, "VHF Folded Dipole Antenna");
 			provider.addBlock(RadiocraftBlocks.DUMMY_LOAD, "Dummy Load");
 			provider.add("tooltip.radiocraft.dummy_load", "A perfect match on every band that hardly radiates: about 10 blocks. Fits on a radio or its coax.");
 			provider.addBlock(RadiocraftBlocks.SLIM_JIM_ANTENNA, "Slim Jim Antenna");
-			provider.addBlock(RadiocraftBlocks.SATELLITE_DISH, "Satellite Dish");
+			provider.addBlock(RadiocraftBlocks.SATELLITE_DISH, "Microwave Dish");
 			provider.addBlock(RadiocraftBlocks.IONOSONDE, "Ionosonde Antenna");
 			provider.addBlock(RadiocraftBlocks.FIVE_BTV_ANTENNA, "5-BTV Multiband HF Antenna");
 			provider.addBlock(RadiocraftBlocks.IONOSPHERIC_PROCESSOR, "Ionospheric Processor");
 			provider.addBlock(RadiocraftBlocks.WEFAX_RECEIVER, "WEFAX Receiver");
 			provider.addBlock(RadiocraftBlocks.DESK_CHARGER, "Desk Charger");
+			provider.addBlock(RadiocraftBlocks.TOWER_BEAM_THIN, "Thin Tower Beam");
+			provider.addBlock(RadiocraftBlocks.TOWER_BEAM, "Tower Beam");
+			provider.addBlock(RadiocraftBlocks.TOWER_BEAM_THICK, "Thick Tower Beam");
+			provider.addBlock(RadiocraftBlocks.MICROWAVE_HORN, "Microwave Horn Antenna");
+			RadiocraftBlocks.DESK_SPEAKERS.forEach((wood, block) -> provider.addBlock(block, woodName(wood) + " Desk Speaker"));
+			provider.addBlock(RadiocraftBlocks.LARGE_SPEAKER, "Large Speaker");
+			provider.addBlock(RadiocraftBlocks.PREMIUM_SPEAKER_MARBLE, "Marble Premium Speaker");
+			provider.addBlock(RadiocraftBlocks.PREMIUM_SPEAKER_IRON, "Iron Premium Speaker");
+			provider.addBlock(RadiocraftBlocks.PREMIUM_SPEAKER_GOLD, "Gold Premium Speaker");
+			provider.addBlock(RadiocraftBlocks.WALL_SPEAKER, "Wall Speaker");
+			provider.addBlock(RadiocraftBlocks.LOUDSPEAKER, "Loudspeaker");
+			provider.addBlock(RadiocraftBlocks.DIRECTION_FINDER, "Direction Finder");
+			provider.addBlock(RadiocraftBlocks.MAP_DIRECTION_FINDER, "Map Enabled Direction Finder");
+			provider.addBlock(RadiocraftBlocks.DIRECTION_FINDER_MODULE, "Direction Finder Module");
+			provider.addItem(RadiocraftItems.WORLD_MAP_MODULE, "World Map Module");
+			provider.addItem(RadiocraftItems.HANDHELD_DIRECTION_FINDER, "Handheld Direction Finder");
+			provider.addBlock(RadiocraftBlocks.MICROWAVE_RADIO, "Microwave Radio");
+			provider.addItem(RadiocraftItems.HF_MANPACK, "HF Manpack Radio");
+			provider.addItem(RadiocraftItems.MANPACK_MIC, "Manpack Handset");
+			provider.add("tooltip.radiocraft.hf_manpack", "A QRP 10m/20m SSB and CW radio you carry. Wear it (sneak right click), open it with right click or the Open Worn Manpack key.");
+			provider.add("tooltip.radiocraft.manpack_mic", "Hold right click to talk. Sneak right click hangs it back up.");
+			provider.add("key.radiocraft.open_manpack", "Open Worn Manpack");
+			provider.addBlock(RadiocraftBlocks.TELEPHONE, "Telephone");
+			provider.addBlock(RadiocraftBlocks.WEATHER_STATION, "Weather Station");
+			// The alternator only exists with Create (compat/create), so it is named by key.
+			provider.add("block.radiocraft.alternator", "Alternator");
+			provider.add("radiocraft.goggles.alternator.production", "Energy Production:");
+			provider.add("container.radiocraft.microwave_radio", "Microwave Radio");
+			provider.add("container.radiocraft.telephone", "Telephone");
+			provider.add("tooltip.radiocraft.microwave_radio", "A digital point to multipoint link over microwave dishes on its coax. Carries APRS between H19s, bearings between direction finders, and telephone calls.");
+			provider.add("tooltip.radiocraft.microwave_dish", "One end of a microwave link: coax it to a microwave radio and point it at the other end's dish.");
+			provider.add("tooltip.radiocraft.telephone", "Put it on a microwave radio (touching, or on its wire) and dial another phone's extension.");
+			provider.add("tooltip.radiocraft.weather_station", "Put it up high in the open. Any H19 APRS terminal within 64 blocks sends its weather in its beacons.");
+			provider.add("screen.radiocraft.microwave.identity_taken", "Another microwave radio already has that callsign and ID");
+			provider.add("screen.radiocraft.telephone.extension_taken", "A phone on this line already has that extension");
+			provider.add("tooltip.radiocraft.handheld_direction_finder", "Right click to set the frequency. Held, it beeps faster the more you face a station transmitting there.");
+			provider.add("container.radiocraft.direction_finder", "Direction Finder");
+			provider.add("container.radiocraft.map_direction_finder", "Map Enabled Direction Finder");
+			provider.add("tooltip.radiocraft.speaker", "Place it touching a radio: the radio sounds fuller than through its own little speaker.");
+			provider.add("tooltip.radiocraft.premium_speaker", "Place it touching a radio: the radio's whole audio range, as clean as it gets.");
+			provider.add("tooltip.radiocraft.wall_speaker", "Run wire from a radio to it: plays the radio here. Several can share one radio. A little rough.");
+			provider.add("tooltip.radiocraft.loudspeaker", "Run wire from a radio to it: plays the radio loud enough to hear far away, with some distortion.");
+			provider.add("tooltip.radiocraft.direction_finder", "Stack 3 to 8 direction finder modules against it, each with the same kind of antenna, and tune to a signal.");
+			provider.add("tooltip.radiocraft.map_direction_finder", "A direction finder that plots its fix on a map of the world.");
+			provider.add("tooltip.radiocraft.direction_finder_module", "One antenna input of a direction finder: coax to an antenna, and stack it against the direction finder or another module.");
+			provider.add("tooltip.radiocraft.world_map_module", "Craft it with a direction finder to plot fixes on a map. Cartographers sell them.");
 
 			provider.addEntityType(RadiocraftEntityTypes.ANTENNA_WIRE, "Antenna Wire");
 
@@ -145,10 +207,23 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("item.radiocraft.wefax_chart.radar", "WEFAX Radar Chart");
 			provider.add("item.radiocraft.wefax_chart.forecast", "WEFAX Forecast Chart");
 			provider.add("item.radiocraft.wefax_chart.surface", "WEFAX Surface Analysis");
+			provider.add("item.radiocraft.wefax_chart.solar", "WEFAX Solar Weather Report");
+			provider.add("tooltip.radiocraft.wefax_receiver", "Put a radio with an antenna beside it and paper in it: prints weather charts and the solar report.");
+			provider.add("screen.radiocraft.wefax.weather", "WX REPT: print the next weather chart (radar, forecast, surface analysis)");
+			provider.add("screen.radiocraft.wefax.solar", "SOLR WX: print the solar weather report");
+			provider.add("screen.radiocraft.wefax.auto", "AUTO: print a forecast when dangerous weather is on its way");
+			provider.add("screen.radiocraft.wefax.auto_on", "On");
+			provider.add("screen.radiocraft.wefax.auto_off", "Off");
+			provider.add("screen.radiocraft.wefax.paper", "Paper: %s sheets");
+			provider.add("screen.radiocraft.wefax.paper_full", "The paper tray is full");
+			provider.add("screen.radiocraft.wefax.radio", "Power: a radio is beside it");
+			provider.add("screen.radiocraft.wefax.no_radio", "No radio with an antenna beside it");
+			provider.add("screen.radiocraft.wefax.no_paper", "Out of paper");
+			provider.add("screen.radiocraft.wefax.busy", "Still printing");
 			provider.add("item.radiocraft.aprs_map.from", "From the H19 at %s, %s, %s");
 			provider.add("item.radiocraft.aprs_map.wall", "APRS Map (%s x %s wall)");
 			provider.add("item.radiocraft.aprs_map.tile", "Row %s, column %s of %s x %s (top left is north west)");
-			provider.add("container.radiocraft.transfer_interface", "Digital Transfer Interface");
+			provider.add("container.radiocraft.radio_fax", "Radio Fax");
 			provider.add("container.radiocraft.duplexer", "Duplexer");
 			provider.add("container.radiocraft.antenna_tuner", "Antenna Tuner");
 
@@ -219,8 +294,19 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("screen", "aprs.tip.rpt"), "RPT: lit while repeating a packet");
 			provider.add(Radiocraft.translationKey("screen", "aprs.tip.heard"), "Heard %s min ago, direct");
 			provider.add(Radiocraft.translationKey("screen", "aprs.tip.heard_via"), "Heard %s min ago, via %s digipeater(s)");
-			provider.add(Radiocraft.translationKey("screen", "transfer_interface.busy"), "A file is already going out or coming in");
-			provider.add(Radiocraft.translationKey("screen", "transfer_interface.nothing_to_send"), "Put a book, paper or map in the SEND slot");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.busy"), "A fax is already going out or coming in");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.nothing_to_send"), "Put a book, paper, map or enchanted book in the document slot");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.no_callsign"), "Type the callsign to fax to");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.to_self"), "That is this station's own callsign");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.no_radio"), "No radio switched on next to the fax or its radio interface");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.tip.send"), "SEND: fax the document to the callsign on the LCD (ENTER does too)");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.tip.to"), "TO: the callsign to fax to; click a recent one to use it again");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.tip.my"), "MY: this fax's callsign (empty takes yours, or its radio interface's)");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.tip.document"), "The document to send: a book, paper, a map or an enchanted book (used up when sent)");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.tip.tray"), "Copies received");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.tip.supplies"), "Blank paper, books and maps it prints on");
+			provider.add(Radiocraft.translationKey("screen", "radio_fax.log"), "LOG");
+			provider.add(Radiocraft.translationKey("screen", "teletype.tip.roll"), "Sneak and right click the machine with an empty hand to tear the roll off");
 			provider.add(Radiocraft.translationKey("commands", "aprs.sent"), "APRS packet delivered to %s APRS terminal(s)");
 			provider.add(Radiocraft.translationKey("commands", "aprs.bad_frequency"), "Frequency must be in MHz (such as 144.390) or \"all\"");
 			
@@ -318,13 +404,15 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "antenna_pole"), "Holds the end of an antenna wire. Use antenna wire on this and another holder to string a wire between them.");
             provider.add(Radiocraft.translationKey("tooltip", "antenna_connector"), "Joins antenna wires and coax: a wire holder you can also run coax into.");
             provider.add(Radiocraft.translationKey("tooltip", "j_pole_antenna"), "VHF antenna for 2m base stations and repeaters. Connect it with coax.");
+            provider.add(Radiocraft.translationKey("tooltip", "ringo_antenna"), "Commercial 2m vertical: 10% more gain than a J-pole, and DC grounded, so lightning seldom does damage.");
+            provider.add(Radiocraft.translationKey("tooltip", "folded_dipole_antenna"), "Commercial two-bay 2m folded dipole for towers: 25% more gain than a J-pole, and DC grounded, so lightning seldom does damage.");
             provider.add(Radiocraft.translationKey("tooltip", "five_btv_antenna"), "Trap vertical, seven blocks tall: matched on every HF band and VHF. On HF it sends its power low, so it reaches less by line of sight and further by skip. Coax goes to the base.");
             provider.add(Radiocraft.translationKey("tooltip", "ionosonde"), "Sounding antenna for the Ionospheric Processor. On a radio it hears VHF well but matches poorly everywhere, worst on HF.");
             provider.add(Radiocraft.translationKey("tooltip", "slim_jim_antenna"), "VHF antenna for 2m base stations and repeaters. Connect it with coax.");
             provider.add(Radiocraft.translationKey("tooltip", "yagi_antenna"), "Directional VHF antenna: strongest in the direction it points. Connect it with coax.");
             provider.add(Radiocraft.translationKey("tooltip", "solar_panel"), "Makes power in daylight. Wire it to a charge controller.");
             provider.add(Radiocraft.translationKey("tooltip", "charge_controller"), "Sits between solar panels and batteries and manages the charge. Wire panels in and batteries out.");
-            provider.add(Radiocraft.translationKey("tooltip", "large_battery"), "Stores power from the charge controller. Radios do not draw power yet, so a station runs without one for now.");
+            provider.add(Radiocraft.translationKey("tooltip", "large_battery"), "Stores power for the station: charged from a charge controller, it runs the radios on its wire. Batteries wired together share charge evenly.");
             provider.add(Radiocraft.translationKey("tooltip", "hf_radio_10m"), "HF transceiver for the 10m band (28 MHz). SSB voice and CW. Needs a 10m antenna on coax.");
             provider.add(Radiocraft.translationKey("tooltip", "hf_radio_20m"), "HF transceiver for the 20m band (14 MHz). SSB voice and CW. Needs a 20m antenna on coax.");
             provider.add(Radiocraft.translationKey("tooltip", "hf_radio_40m"), "HF transceiver for the 40m band (7 MHz). SSB voice and CW. Needs a 40m antenna on coax.");
@@ -383,4 +471,22 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 		TRANSLATION_PROVIDERS.get(locale).accept(this);
 	}
 
+	/** {@code dark_oak} as {@code Dark Oak}. */
+	private static String woodName(String wood) {
+		StringBuilder out = new StringBuilder();
+		for(String word : wood.split("_")) {
+			if(!out.isEmpty())
+				out.append(' ');
+			out.append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+		}
+		return out.toString();
+	}
+
+	/** "light_blue" as "Light Blue". */
+	private static String dyeName(net.minecraft.world.item.DyeColor colour) {
+		StringBuilder out = new StringBuilder();
+		for(String word : colour.getSerializedName().split("_"))
+			out.append(out.isEmpty() ? "" : " ").append(Character.toUpperCase(word.charAt(0))).append(word.substring(1));
+		return out.toString();
+	}
 }

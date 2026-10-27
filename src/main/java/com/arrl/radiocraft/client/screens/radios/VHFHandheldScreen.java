@@ -116,6 +116,8 @@ public class VHFHandheldScreen extends Screen {
         }
 
         addRenderableWidget(new HoverableImageButton(leftPos + 103, topPos + 225, 42, 14, 192, 112, 192, 42, widgetsTexture, 256, 256, this::onPressEnter));
+        addRenderableWidget(new HoverableImageButton(leftPos + 103, topPos + 187, 20, 14, 192, 70, 192, 0, widgetsTexture, 256, 256, b -> toggleMenu(MenuState.TX_TONE))); // TXT
+        addRenderableWidget(new HoverableImageButton(leftPos + 125, topPos + 187, 20, 14, 192, 84, 192, 14, widgetsTexture, 256, 256, b -> toggleMenu(MenuState.RX_TONE))); // RXT
 
         addRenderableWidget(TX_LED);
         addRenderableWidget(RX_LED);
@@ -123,12 +125,24 @@ public class VHFHandheldScreen extends Screen {
         addRenderableWidget(POWER_METER);
     }
 
-    /** DEFAULT shows the frequency; ENTER steps through the TONE and OFFSET pages, where the arrows change the setting. */
+    /**
+     * DEFAULT shows the frequency; TXT and RXT open the TX and RX tone pages, ENTER the OFFSET page, and on those the
+     * arrows change the setting.
+     */
     protected enum MenuState{
         DEFAULT,
         SET_FREQ,
-        TONE,
+        TX_TONE,
+        RX_TONE,
         OFFSET
+    }
+
+    /** TXT or RXT: opens that tone page, or closes it back to the frequency if it is already open. */
+    private void toggleMenu(MenuState page) {
+        if(!cap.isPowered())
+            return;
+        frequencyEntryState.reset();
+        menuState = menuState == page ? MenuState.DEFAULT : page;
     }
 
     @Override
@@ -184,15 +198,18 @@ public class VHFHandheldScreen extends Screen {
         if (cap.isPowered()) {
             if (menuState == MenuState.DEFAULT) {
                 pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", cap.getFrequencyHertz() / 1000_000.0f), leftPos + 80, topPos + 119, 0xFFFFFF);
-                String settings = (cap.getOffsetHz() == 0 ? "" : cap.getOffsetHz() < 0 ? "- " : "+ ") + (cap.getCtcssTone() > 0 ? "T" : "");
-                if (!settings.isEmpty()) // Offset and tone markers, left of the battery reading.
+                String settings = (cap.getOffsetHz() == 0 ? "" : cap.getOffsetHz() < 0 ? "- " : "+ ") + (cap.getCtcssTone() > 0 ? "T" : "") + (cap.getRxTone() > 0 ? "R" : "");
+                if (!settings.isEmpty()) // Offset and tone markers (T: TX tone, R: RX tone), left of the battery reading.
                     pGuiGraphics.drawString(this.font, settings, leftPos + 80, topPos + 133, 0xFFFFFF);
             } else if (menuState == MenuState.SET_FREQ) {
                 pGuiGraphics.drawString(this.font, "Set Freq", leftPos + 80, topPos + 119, 0xFFFFFF);
                 pGuiGraphics.drawString(this.font, String.format("%03.3f MHz", frequencyEntryState.getFrequencyHz() / 1000_000.0f), leftPos + 80, topPos + 133, 0xFFFFFF);
-            } else if (menuState == MenuState.TONE) {
-                pGuiGraphics.drawString(this.font, "Tone", leftPos + 80, topPos + 119, 0xFFFFFF);
+            } else if (menuState == MenuState.TX_TONE) {
+                pGuiGraphics.drawString(this.font, "TX Tone", leftPos + 80, topPos + 119, 0xFFFFFF);
                 pGuiGraphics.drawString(this.font, Ctcss.format(cap.getCtcssTone()), leftPos + 80, topPos + 133, 0xFFFFFF);
+            } else if (menuState == MenuState.RX_TONE) {
+                pGuiGraphics.drawString(this.font, "RX Tone", leftPos + 80, topPos + 119, 0xFFFFFF);
+                pGuiGraphics.drawString(this.font, Ctcss.format(cap.getRxTone()), leftPos + 80, topPos + 133, 0xFFFFFF);
             } else if (menuState == MenuState.OFFSET) {
                 pGuiGraphics.drawString(this.font, "Offset", leftPos + 80, topPos + 119, 0xFFFFFF);
                 pGuiGraphics.drawString(this.font, Ctcss.formatOffset(cap.getOffsetHz()), leftPos + 80, topPos + 133, 0xFFFFFF);
@@ -324,15 +341,11 @@ public class VHFHandheldScreen extends Screen {
      */
     private void onPressEnter(Button button) {
         if(!cap.isPowered()) return;
-        if(menuState == MenuState.DEFAULT) { // ENTER pages through the settings and back.
-            menuState = MenuState.TONE;
-            return;
-        }
-        if(menuState == MenuState.TONE) {
+        if(menuState == MenuState.DEFAULT) { // ENTER opens the offset page; ENTER again (or on a tone page) goes back.
             menuState = MenuState.OFFSET;
             return;
         }
-        if(menuState == MenuState.OFFSET) {
+        if(menuState == MenuState.OFFSET || menuState == MenuState.TX_TONE || menuState == MenuState.RX_TONE) {
             menuState = MenuState.DEFAULT;
             return;
         }
@@ -349,10 +362,12 @@ public class VHFHandheldScreen extends Screen {
         }
     }
 
-    /** On the TONE or OFFSET page the arrows change that setting instead of the frequency; true if they did. */
+    /** On a tone or the OFFSET page the arrows change that setting instead of the frequency; true if they did. */
     private boolean changeSetting(int direction) {
-        if(menuState == MenuState.TONE)
+        if(menuState == MenuState.TX_TONE)
             cap.setCtcssTone(Ctcss.step(cap.getCtcssTone(), direction));
+        else if(menuState == MenuState.RX_TONE)
+            cap.setRxTone(Ctcss.step(cap.getRxTone(), direction));
         else if(menuState == MenuState.OFFSET)
             cap.setOffsetHz(Ctcss.nextOffset(cap.getOffsetHz()));
         else

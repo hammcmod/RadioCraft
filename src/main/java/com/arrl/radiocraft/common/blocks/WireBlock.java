@@ -69,6 +69,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	public final boolean isPower;
 	public final boolean isWaterproof;
+	/** Dyed coax's colour: it only joins coax of the same colour, or plain coax (null). */
+	@Nullable
+	public final net.minecraft.world.item.DyeColor colour;
 
 	public static final BooleanProperty NORTH = BooleanProperty.create("north");
 	public static final BooleanProperty EAST = BooleanProperty.create("east");
@@ -187,9 +190,15 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		EDGE_SHAPES.put(Direction.EAST, makePaddedBox(14.0D, 0.0D, 7.0D, 16.0D, 16.0D, 9.0D));
 	}
 
-    @SuppressWarnings("this-escape")
 	public WireBlock(Properties properties, boolean isPower, boolean isWaterproof) {
+		this(properties, isPower, isWaterproof, null);
+	}
+
+	/** {@code colour} for dyed coax (null for plain): see {@link #joins}. */
+    @SuppressWarnings("this-escape")
+	public WireBlock(Properties properties, boolean isPower, boolean isWaterproof, @Nullable net.minecraft.world.item.DyeColor colour) {
 		super(properties);
+		this.colour = colour;
 		// trySetValue: a subclass may define fewer properties (the passthrough only has the six connections).
 		registerDefaultState(defaultBlockState()
 				.trySetValue(BlockStateProperties.WATERLOGGED, false)
@@ -248,7 +257,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				.trySetValue(CEILING, ceiling);
 
 		for(Direction direction : Direction.values())
-			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(level.getBlockState(pos.relative(direction)), isPower));
+			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(level.getBlockState(pos.relative(direction))));
 		Direction arrive = arrival(level, pos, state);
 
 		// A climb if there is one, trying the edge the run from below is already on first so the cable keeps its line.
@@ -278,7 +287,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			end = isSameKind(level.getBlockState(above(pos.relative(hug), ceiling))) ? WireLook.End.CLIMB_WIRE : WireLook.End.CLIMB_DEVICE;
 		else if(hug != null) {
 			BlockState above = level.getBlockState(above(pos, ceiling));
-			if(!isSameKind(above) && canConnectTo(above, isPower))
+			if(!isSameKind(above) && canConnectTo(above))
 				end = WireLook.End.UP_DEVICE; // The run up the edge ends at a device above: turn in to its middle.
 		}
 		return new WireLook.Look(hug, arrival(level, pos, state), end, climb == Climb.BOTH);
@@ -383,7 +392,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	/** A solid face we can run a cable up: sturdy towards us and not something the wire links to instead. */
 	private boolean isWall(BlockGetter level, BlockPos wallPos, Direction faceTowardsUs) {
 		BlockState wall = level.getBlockState(wallPos);
-		return !canConnectTo(wall, isPower) && wall.isFaceSturdy(level, wallPos, faceTowardsUs);
+		return !canConnectTo(wall) && wall.isFaceSturdy(level, wallPos, faceTowardsUs);
 	}
 
 	/**
@@ -426,13 +435,13 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		if(!isWall(level, wall, direction.getOpposite()))
 			return false;
 		BlockState target = level.getBlockState(above(wall, ceiling));
-		if(!canConnectTo(target, isPower) || (isSameKind(target) && isCeiling(target) != ceiling))
+		if(!canConnectTo(target) || (isSameKind(target) && isCeiling(target) != ceiling))
 			return false; // Nothing to climb to, or a wire the other way up (it could not take the climb in).
 		return !isSameKind(level.getBlockState(above(pos, ceiling)));
 	}
 
 	private boolean isSameKind(BlockState state) {
-		return state.getBlock() instanceof WireBlock wire && !wire.conductsAll() && wire.isPower == isPower;
+		return state.getBlock() instanceof WireBlock wire && !wire.conductsAll() && wire.isPower == isPower && joins(wire);
 	}
 
 	/**
@@ -471,11 +480,11 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		if(state.getValue(CLIMB) != Climb.NONE) {
 			Direction hug = state.getValue(HUG).direction();
 			BlockPos top = above(pos.relative(hug), ceiling);
-			if(canConnectTo(level.getBlockState(top), isPower))
+			if(canConnectTo(level.getBlockState(top)))
 				out.put(top, hug.getOpposite());
 			if(state.getValue(CLIMB) == Climb.BOTH) {
 				BlockPos back = above(pos.relative(hug.getOpposite()), ceiling);
-				if(canConnectTo(level.getBlockState(back), isPower))
+				if(canConnectTo(level.getBlockState(back)))
 					out.put(back, hug);
 			}
 		}
@@ -493,15 +502,16 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 */
 	public static Map<BlockPos, Direction> wireLinksAround(BlockGetter level, BlockPos pos, Set<WireBlock> wires) {
 		Map<BlockPos, Direction> out = new LinkedHashMap<>();
+		WireBlock self = level.getBlockState(pos).getBlock() instanceof WireBlock here ? here : null; // A device joins any wire.
 		for(Direction dir : Direction.values()) {
 			BlockPos next = pos.relative(dir);
-			if(wires.contains(level.getBlockState(next).getBlock()))
+			if(wires.contains(level.getBlockState(next).getBlock()) && (self == null || self.joins((WireBlock)level.getBlockState(next).getBlock())))
 				out.put(next, dir);
 			if(dir.getAxis().isHorizontal()) {
 				for(boolean ceiling : new boolean[] { false, true }) {
 					BlockPos foot = below(next, ceiling); // Below-diagonal for a floor climber, above for a ceiling one.
 					BlockState footState = level.getBlockState(foot);
-					if(footState.getBlock() instanceof WireBlock wire && wires.contains(wire) && isCeiling(footState) == ceiling
+					if(footState.getBlock() instanceof WireBlock wire && wires.contains(wire) && (self == null || self.joins(wire)) && isCeiling(footState) == ceiling
 							&& climbsTowards(footState, dir.getOpposite()))
 						out.put(foot, dir);
 				}
@@ -667,10 +677,59 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return result.isEmpty() ? MIDDLE_SHAPE : result;
 	}
 
-	private static boolean canConnectTo(BlockState state, boolean isPower) {
+	/** Most coax a dye recolours at once: the run it is used on, as far as this. */
+	public static final int DYE_RUN_MAX = 256;
+
+	/**
+	 * A dye used on coax recolours it, and every piece of the same coax joined to it (sneak: only that one), so runs laid
+	 * side by side can be kept apart (see {@link #joins}).
+	 */
+	@Override
+	protected @NotNull net.minecraft.world.ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
+			@NotNull net.minecraft.world.entity.player.Player player, @NotNull net.minecraft.world.InteractionHand hand, @NotNull net.minecraft.world.phys.BlockHitResult hit) {
+		if(isPower || conductsAll() || !(stack.getItem() instanceof net.minecraft.world.item.DyeItem dye))
+			return super.useItemOn(stack, state, level, pos, player, hand, hit);
+		WireBlock target = com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_COAX.get(dye.getDyeColor()).get();
+		if(target == this)
+			return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+		if(!level.isClientSide) {
+			List<BlockPos> run = new java.util.ArrayList<>();
+			java.util.ArrayDeque<BlockPos> queue = new java.util.ArrayDeque<>(List.of(pos));
+			java.util.Set<BlockPos> seen = new java.util.HashSet<>(List.of(pos));
+			while(!queue.isEmpty() && run.size() < DYE_RUN_MAX) {
+				BlockPos at = queue.poll();
+				run.add(at);
+				if(player.isShiftKeyDown())
+					break;
+				for(BlockPos next : wireLinksAround(level, at, java.util.Set.of(this)).keySet())
+					if(seen.add(next))
+						queue.add(next);
+			}
+			for(BlockPos at : run)
+				level.setBlock(at, target.withPropertiesOf(level.getBlockState(at)), Block.UPDATE_ALL);
+			level.playSound(null, pos, net.minecraft.sounds.SoundEvents.DYE_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
+			if(!player.getAbilities().instabuild)
+				stack.shrink(1);
+		}
+		return net.minecraft.world.ItemInteractionResult.sidedSuccess(level.isClientSide);
+	}
+
+	private boolean canConnectTo(BlockState state) {
 		if(state.getBlock() instanceof WireBlock wire)
-			return wire.conductsAll() || wire.isPower == isPower; // The same kind of wire, a passthrough, or a device.
+			return joins(wire); // The same kind of wire (of a colour that matches), a passthrough, or a device.
 		return isValidConnection(state, isPower);
+	}
+
+	/**
+	 * True if this wire and {@code other} join up when they touch: the same kind (power or coax), and for coax, the same
+	 * colour or either one plain. So dyed runs laid side by side stay apart. A passthrough joins anything.
+	 */
+	public boolean joins(WireBlock other) {
+		if(conductsAll() || other.conductsAll())
+			return true;
+		if(isPower != other.isPower)
+			return false;
+		return colour == null || other.colour == null || colour == other.colour;
 	}
 
 	/** True for a conductor every kind of wire runs through (the passthrough block). */

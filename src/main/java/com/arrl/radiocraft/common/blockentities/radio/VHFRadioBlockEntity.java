@@ -80,7 +80,7 @@ public abstract class VHFRadioBlockEntity extends RadioBlockEntity {
         return ctcssTone;
     }
 
-    /** FM is squelched: no background static (the static instance plays only the hiss under a weak signal, see ReceiverMix#fmHiss, and a blown transmitter's roar). */
+    /** FM is squelched: no background static (a weak signal's hiss is in its audio, see RadioVoiceProcessor#fmFade; the static instance plays only a blown transmitter's roar). */
     @Override
     public boolean shouldPlayStatic() {
         return false;

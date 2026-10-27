@@ -14,6 +14,7 @@ public class CommonConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> CHARGE_CONTROLLER_BATTERY_CHARGE;
 	public static final ModConfigSpec.ConfigValue<Integer> SOLAR_PANEL_MAX_OUTPUT;
 	public static final ModConfigSpec.ConfigValue<Double> SOLAR_PANEL_RAIN_MULTIPLIER;
+	public static final ModConfigSpec.ConfigValue<Double> SOLAR_PANEL_SEVERE_MULTIPLIER;
 
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_10M_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> HF_RADIO_10M_TRANSMIT_TICK;
@@ -52,6 +53,8 @@ public class CommonConfig {
 		CHARGE_CONTROLLER_BATTERY_CHARGE = BUILDER.comment("*Amount of power a charge controller can transfer to a small battery each tick. #default 8 integer").define("charge_controller_battery_charge", 8);
 		SOLAR_PANEL_MAX_OUTPUT = BUILDER.comment("*Maximum output of a solar power per tick. #default 9").define("solar_panel_max_output integer", 9);
 		SOLAR_PANEL_RAIN_MULTIPLIER = BUILDER.comment("*Multiplier for solar panel output while raining #default 0.5").define("solar_panel_rain_multiplier double", 0.5D);
+		SOLAR_PANEL_SEVERE_MULTIPLIER = BUILDER.comment("*Further multiplier for solar panel output under severe weather (hail, blizzard, sandstorm, damaging wind, tornado, hurricane), where a weather mod reports it #default 0.5")
+				.define("solar_panel_severe_multiplier double", 0.5D);
 		BUILDER.pop();
 
 		BUILDER.push("Radio Options ( * = Restart game to take effect)");

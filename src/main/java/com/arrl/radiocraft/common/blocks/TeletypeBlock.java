@@ -115,9 +115,22 @@ public final class TeletypeBlock extends BaseEntityBlock {
 		return level.isClientSide ? null : createTickerHelper(type, RadiocraftBlockEntities.TELETYPE.get(), TeletypeBlockEntity::tick);
 	}
 
+	/** Sneaking with an empty hand tears the printed roll off; otherwise it opens. */
 	@Override
 	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
-		if(!level.isClientSide && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof TeletypeBlockEntity be)
+		if(!(level.getBlockEntity(pos) instanceof TeletypeBlockEntity be))
+			return InteractionResult.PASS;
+		if(player.isShiftKeyDown()) {
+			if(be.getRttyLines().isEmpty())
+				return InteractionResult.PASS;
+			if(!level.isClientSide) {
+				net.minecraft.world.item.ItemStack roll = be.tearOff();
+				if(!player.getInventory().add(roll))
+					player.drop(roll, false);
+			}
+			return InteractionResult.sidedSuccess(level.isClientSide);
+		}
+		if(!level.isClientSide && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer)
 			serverPlayer.openMenu(be, pos);
 		return InteractionResult.sidedSuccess(level.isClientSide);
 	}

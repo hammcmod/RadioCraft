@@ -93,10 +93,15 @@ public interface IVHFHandheldCapability {
      */
     void setMicGain(float micGain);
 
-    /** CTCSS tone sent under the voice and needed to open the squelch, 0 for none. */
+    /** CTCSS tone sent under the voice (the TX tone), 0 for none. */
     float getCtcssTone();
 
     void setCtcssTone(float tone);
+
+    /** CTCSS tone needed to open the squelch (the RX tone), 0 for none: the radio hears every signal. */
+    float getRxTone();
+
+    void setRxTone(float tone);
 
     /** Repeater offset in Hz: the radio transmits this far from its frequency (0 for simplex). */
     int getOffsetHz();

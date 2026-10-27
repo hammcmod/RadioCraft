@@ -65,6 +65,12 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 
 	@Override
 	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer, float ctcssTone) {
+		transmitAudioPacket(level, rawAudio, band, frequencyHertz, sourcePlayer, ctcssTone, 1.0F);
+	}
+
+	@Override
+	public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequencyHertz, UUID sourcePlayer, float ctcssTone, float power) {
+		com.arrl.radiocraft.common.radio.TransmitterLog.record(this, pos.get(), band, frequencyHertz); // On the air: direction finders can hear it.
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
 			double matchEfficiency = getMatchEfficiency(frequencyHertz);
@@ -77,12 +83,12 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
 
-					if(destination == null || BandUtils.outOfReach(band, pos.get().position(), destination.position())) continue;
+					if(destination == null || destination.level() != pos.get().level() || BandUtils.outOfReach(band, pos.get().position(), destination.position())) continue;
 
 //					if(ssbSendCache.containsKey(antenna.getBlockPos())) // Recalculate if value wasn't already present.
 //						packet.setStrength(ssbSendCache.get(destination));
 //					else {
-					packet.setStrength(type.getTransmitEfficiency(packet, data, destination.position(), false) * matchEfficiency);
+					packet.setStrength((float)Math.min(1.0D, type.getTransmitEfficiency(packet, data, destination.position(), false) * matchEfficiency * power));
 //						ssbSendCache.put(destination, packet.getStrength());
 //					}
 
@@ -111,6 +117,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 
 	@Override
 	public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequencyHertz) {
+		com.arrl.radiocraft.common.radio.TransmitterLog.record(this, pos.get(), band, frequencyHertz); // On the air: direction finders can hear it.
 		if(network != null) {
 			Set<IAntenna> antennas = network.allAntennas();
 			double matchEfficiency = getMatchEfficiency(frequencyHertz);
@@ -122,7 +129,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
 
-					if(destination == null || BandUtils.outOfReach(band, pos.get().position(), destination.position())) continue;
+					if(destination == null || destination.level() != pos.get().level() || BandUtils.outOfReach(band, pos.get().position(), destination.position())) continue;
 
 //					if(cwSendCache.containsKey(destination))
 //						packet.setStrength(cwSendCache.get(destination));
@@ -158,11 +165,12 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 
 	@Override
 	public void transmitDataPacket(net.minecraft.server.level.ServerLevel level, TncPacket payload, Band band, float frequencyHertz) {
+		com.arrl.radiocraft.common.radio.TransmitterLog.record(this, pos.get(), band, frequencyHertz); // On the air: direction finders can hear it.
 		if(network != null) {
 			double matchEfficiency = getMatchEfficiency(frequencyHertz);
 			for(IAntenna antenna : network.allAntennas()) {
 				AntennaPos destination = antenna.getAntennaPos();
-				if(antenna == this || destination == null || BandUtils.outOfReach(band, pos.get().position(), destination.position()))
+				if(antenna == this || destination == null || destination.level() != pos.get().level() || BandUtils.outOfReach(band, pos.get().position(), destination.position()))
 					continue;
 				AntennaDataPacket packet = new AntennaDataPacket(level, payload, band, frequencyHertz, 1.0D, this);
 				packet.setDestination(antenna);

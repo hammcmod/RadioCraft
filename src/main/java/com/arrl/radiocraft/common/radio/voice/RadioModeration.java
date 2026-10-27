@@ -150,7 +150,8 @@ public final class RadioModeration {
 			case BEACON -> "[APRS " + mhz + "] " + packet.from() + (packet.position() == null ? "" : " at " + packet.position().getX() + ", " + packet.position().getZ())
 					+ (packet.text().isEmpty() ? "" : ": " + packet.text());
 			case FILE -> "[FILE " + mhz + "] " + packet.from() + ">" + packet.to() + ": " + packet.text();
-			case FILE_HEADER, ACK -> null;
+			case FAX_CALL -> "[FAX " + mhz + "] " + packet.from() + ">" + packet.to() + ": " + packet.faxLabel(); // The call says what is coming; the packets are just numbers.
+			case FILE_HEADER, ACK, FAX_ANSWER, FAX_PACKET, FAX_ACK -> null;
 		};
 		if(text == null)
 			return;

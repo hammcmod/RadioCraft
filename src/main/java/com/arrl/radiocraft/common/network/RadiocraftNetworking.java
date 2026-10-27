@@ -35,6 +35,12 @@ public class RadiocraftNetworking {
         registrar.playToClient(CInterferencePacket.TYPE, CInterferencePacket.STREAM_CODEC, CInterferencePacket::handle);
         registrar.playToServer(SRepeaterSettingsPacket.TYPE, SRepeaterSettingsPacket.STREAM_CODEC, SRepeaterSettingsPacket::handle);
         registrar.playToServer(SStationPacket.TYPE, SStationPacket.STREAM_CODEC, SStationPacket::handle);
+        registrar.playToServer(com.arrl.radiocraft.common.network.serverbound.SManpackPacket.TYPE, com.arrl.radiocraft.common.network.serverbound.SManpackPacket.STREAM_CODEC, com.arrl.radiocraft.common.network.serverbound.SManpackPacket::handle);
+        registrar.playToServer(com.arrl.radiocraft.common.network.serverbound.SManpackCWPacket.TYPE, com.arrl.radiocraft.common.network.serverbound.SManpackCWPacket.STREAM_CODEC, com.arrl.radiocraft.common.network.serverbound.SManpackCWPacket::handle);
+        registrar.playToClient(com.arrl.radiocraft.common.network.clientbound.CManpackPacket.TYPE, com.arrl.radiocraft.common.network.clientbound.CManpackPacket.STREAM_CODEC, com.arrl.radiocraft.common.network.clientbound.CManpackPacket::handle);
+        registrar.playToClient(com.arrl.radiocraft.common.network.clientbound.CManpackCWPacket.TYPE, com.arrl.radiocraft.common.network.clientbound.CManpackCWPacket.STREAM_CODEC, com.arrl.radiocraft.common.network.clientbound.CManpackCWPacket::handle);
+        registrar.playToServer(com.arrl.radiocraft.common.network.serverbound.SHandheldDfFrequencyPacket.TYPE, com.arrl.radiocraft.common.network.serverbound.SHandheldDfFrequencyPacket.STREAM_CODEC, com.arrl.radiocraft.common.network.serverbound.SHandheldDfFrequencyPacket::handle);
+        registrar.playToClient(com.arrl.radiocraft.common.network.clientbound.CHandheldDfPacket.TYPE, com.arrl.radiocraft.common.network.clientbound.CHandheldDfPacket.STREAM_CODEC, com.arrl.radiocraft.common.network.clientbound.CHandheldDfPacket::handle);
         registrar.playToServer(SAntennaTunerDialPacket.TYPE, SAntennaTunerDialPacket.STREAM_CODEC, SAntennaTunerDialPacket::handle);
         registrar.playToServer(SDuplexerScrewPacket.TYPE, SDuplexerScrewPacket.STREAM_CODEC, SDuplexerScrewPacket::handle);
         registrar.playToServer(SChargeControllerTogglePacket.TYPE, SChargeControllerTogglePacket.STREAM_CODEC, SChargeControllerTogglePacket::handle);

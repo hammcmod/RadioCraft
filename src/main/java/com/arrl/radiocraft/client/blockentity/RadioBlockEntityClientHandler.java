@@ -40,6 +40,22 @@ public class RadioBlockEntityClientHandler {
 		Minecraft.getInstance().getSoundManager().play(sound);
 	}
 
+	/**
+	 * A radio that plays static plays it through each of its wired speakers too: one loop per speaker, started when the
+	 * speaker turns up and dropped when it goes.
+	 */
+	private static void syncSpeakerStatic(RadioBlockEntity radio, List<SoundInstance> sounds) {
+		if(sounds.stream().noneMatch(sound -> sound instanceof RadioStaticSoundInstance stat && stat.getSpeaker() == null))
+			return; // This radio has no static of its own.
+		sounds.removeIf(sound -> sound instanceof RadioStaticSoundInstance stat && stat.getSpeaker() != null && !radio.getWiredSpeakers().contains(stat.getSpeaker()));
+		for(com.arrl.radiocraft.common.radio.BEVoiceReceiver.WiredSpeaker speaker : radio.getWiredSpeakers())
+			if(sounds.stream().noneMatch(sound -> sound instanceof RadioStaticSoundInstance stat && speaker.equals(stat.getSpeaker()))) {
+				RadioStaticSoundInstance sound = new RadioStaticSoundInstance(radio, speaker);
+				sounds.add(sound);
+				Minecraft.getInstance().getSoundManager().play(sound);
+			}
+	}
+
 	/** Restarts any of the radio's sounds the engine dropped, and forgets radios that are gone. */
 	public static void keepSoundsPlaying(RadioBlockEntity radio) {
 		Minecraft mc = Minecraft.getInstance();
@@ -48,6 +64,7 @@ public class RadioBlockEntityClientHandler {
 		List<SoundInstance> sounds = SOUNDS.get(radio);
 		if(sounds == null)
 			return;
+		syncSpeakerStatic(radio, sounds);
 		SoundManager soundManager = mc.getSoundManager();
 		for(SoundInstance sound : sounds) {
 			if(!soundManager.isActive(sound))

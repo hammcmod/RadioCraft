@@ -50,7 +50,8 @@ public class TransmitInterference {
 
 	/** Antenna types that radiate sideways only, for the height rule. */
 	public static final Set<ResourceLocation> VERTICAL_ANTENNAS = Set.of(
-			Radiocraft.id("quarter_wave_vertical"), Radiocraft.id("j_pole"), Radiocraft.id("slim_jim"));
+			Radiocraft.id("quarter_wave_vertical"), Radiocraft.id("j_pole"), Radiocraft.id("slim_jim"), Radiocraft.id("ringo"),
+			Radiocraft.id("folded_dipole"));
 
 	/** What one transmission hits: dust positions with their induced level, and switches to flip at key-up. */
 	public record Targets(Map<BlockPos, Integer> dust, List<BlockPos> switches) {

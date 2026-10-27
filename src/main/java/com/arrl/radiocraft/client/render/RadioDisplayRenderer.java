@@ -48,18 +48,23 @@ public class RadioDisplayRenderer<T extends RadioBlockEntity> implements BlockEn
 	@Override
 	public void render(@NotNull T radio, float partialTick, @NotNull PoseStack poseStack, @NotNull MultiBufferSource buffer, int packedLight, int packedOverlay) {
 		renderMicCord(radio, partialTick, poseStack, buffer);
-		if(!RadiocraftClientConfig.SHOW_RADIO_SCREENS.get() || !radio.wasPowered() || radio.getLevel() == null)
+		if(!radio.wasPowered() || radio.getLevel() == null)
+			return;
+		BlockState state = radio.getBlockState();
+		if(!state.hasProperty(RadioBlock.HORIZONTAL_FACING))
+			return;
+		String path = BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath();
+		RadioDisplays.Display display = RadioDisplays.get(path);
+		renderLamps(radio, state, display, RadioDisplays.lamps(path), poseStack, buffer);
+		if(!RadiocraftClientConfig.SHOW_RADIO_SCREENS.get() || display == null)
 			return;
 		Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
 		if(camera.distanceToSqr(radio.getBlockPos().getCenter()) > VIEW_DISTANCE * VIEW_DISTANCE)
 			return;
-		BlockState state = radio.getBlockState();
-		RadioDisplays.Display display = RadioDisplays.get(BuiltInRegistries.BLOCK.getKey(state.getBlock()).getPath());
-		if(display == null || !state.hasProperty(RadioBlock.HORIZONTAL_FACING))
-			return;
 
 		String frequency = String.format(Locale.ROOT, "%.3f", radio.getFrequency() / 1_000_000.0D);
-		String status = radio.isTuneFailed() ? "TUNE FAIL" : mode(radio) + " " + meter(radio); // The automatic tuner gave up.
+		// Another radio on the antenna's coax (it hears nothing then), or the automatic tuner gave up.
+		String status = radio.isCoaxShared() ? "COAX SHARED" : radio.isTuneFailed() ? "TUNE FAIL" : mode(radio) + " " + meter(radio);
 		float width = (display.x2() - display.x1()) / 16.0F, height = (display.y2() - display.y1()) / 16.0F;
 		float big = Math.min(width * 0.9F / font.width(frequency), height * 0.55F / font.lineHeight);
 		float small = Math.min(big * 0.6F, width * 0.9F / font.width(status));
@@ -76,6 +81,35 @@ public class RadioDisplayRenderer<T extends RadioBlockEntity> implements BlockEn
 		float top = (height - big * font.lineHeight - small * font.lineHeight) / 3.0F;
 		draw(poseStack, buffer, frequency, (width - font.width(frequency) * big) / 2.0F, top, big, COLOUR);
 		draw(poseStack, buffer, status, (width - font.width(status) * small) / 2.0F, top * 2.0F + big * font.lineHeight, small, DIM);
+		poseStack.popPose();
+	}
+
+	/** Lights the front panel's TX lamp while keyed and its RX lamp while a signal comes in, full bright over the dark ones painted on. */
+	private static void renderLamps(RadioBlockEntity radio, BlockState state, @org.jetbrains.annotations.Nullable RadioDisplays.Display display,
+	                                java.util.List<RadioDisplays.Lamp> lamps, PoseStack poseStack, MultiBufferSource buffer) {
+		if(lamps.isEmpty())
+			return;
+		boolean tx = radio.isPTTDown(), rx = !tx && radio.getSyncedSignal() > 0.0D;
+		if(!tx && !rx)
+			return;
+		poseStack.pushPose();
+		poseStack.translate(0.5D, 0.5D, 0.5D); // As the blockstate turns the model.
+		poseStack.mulPose(Axis.YP.rotationDegrees(-((state.getValue(RadioBlock.HORIZONTAL_FACING).toYRot() + 180.0F) % 360.0F)));
+		poseStack.translate(-0.5D, -0.5D, -0.5D);
+		if(display != null && state.hasProperty(RadioBlock.CEILING) && state.getValue(RadioBlock.CEILING))
+			poseStack.translate(0.0D, display.rise() / 16.0D, 0.0D);
+		com.mojang.blaze3d.vertex.VertexConsumer consumer = buffer.getBuffer(net.minecraft.client.renderer.RenderType.textBackground());
+		org.joml.Matrix4f pose = poseStack.last().pose();
+		for(RadioDisplays.Lamp lamp : lamps) {
+			if(lamp.tx() != tx)
+				continue;
+			float x1 = lamp.x1() / 16.0F, x2 = lamp.x2() / 16.0F, y1 = lamp.y1() / 16.0F, y2 = lamp.y2() / 16.0F, z = lamp.front() / 16.0F - 0.003F;
+			float[][] corners = { { x1, y1 }, { x1, y2 }, { x2, y2 }, { x2, y1 } };
+			for(int i = 0; i < 8; i++) { // Wound both ways, so it shows whichever way culling takes it.
+				float[] corner = corners[i < 4 ? i : 7 - i];
+				consumer.addVertex(pose, corner[0], corner[1], z).setColor(lamp.colour()).setLight(LightTexture.FULL_BRIGHT);
+			}
+		}
 		poseStack.popPose();
 	}
 

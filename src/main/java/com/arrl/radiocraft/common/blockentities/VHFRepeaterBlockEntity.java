@@ -90,7 +90,11 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 	private final UUID voiceId;
 
 	public VHFRepeaterBlockEntity(BlockPos pos, BlockState state) {
-		super(RadiocraftBlockEntities.VHF_REPEATER.get(), pos, state, Band.getBand("2m"));
+		this(RadiocraftBlockEntities.VHF_REPEATER.get(), pos, state);
+	}
+
+	protected VHFRepeaterBlockEntity(net.minecraft.world.level.block.entity.BlockEntityType<? extends com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity> type, BlockPos pos, BlockState state) {
+		super(type, pos, state, Band.getBand("2m"));
 		frequency = DEFAULT_INPUT;
 		voiceId = UUID.nameUUIDFromBytes(("radiocraft-repeater-" + pos.asLong()).getBytes(StandardCharsets.UTF_8));
 	}
@@ -342,6 +346,11 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 		return hasAntenna && !hasDuplexer;
 	}
 
+	/** True for a repeater with its duplexer built in (the commercial repeater): no duplexer block needed. */
+	protected boolean hasBuiltInDuplexer() {
+		return false;
+	}
+
 	public boolean hasDuplexer() {
 		return hasDuplexer;
 	}
@@ -369,8 +378,8 @@ public class VHFRepeaterBlockEntity extends VHFRadioBlockEntity {
 		RadioNetworkObject networkObject = IBENetworks.getObject(level, worldPosition) instanceof RadioNetworkObject no ? no : null;
 		boolean powered = networkObject != null && networkObject.isPowered;
 		Direction duplexerSide = RepeaterNetworkObject.findDuplexerSide(level, worldPosition);
-		boolean duplexer = duplexerSide != null;
-		DuplexerNetworkObject cavities = duplexer && IBENetworks.getObject(level, worldPosition.relative(duplexerSide)) instanceof DuplexerNetworkObject found ? found : null;
+		boolean duplexer = duplexerSide != null || hasBuiltInDuplexer();
+		DuplexerNetworkObject cavities = duplexerSide != null && IBENetworks.getObject(level, worldPosition.relative(duplexerSide)) instanceof DuplexerNetworkObject found ? found : null;
 		if(cavities != null)
 			cavities.followRepeater(frequency, txFrequency); // Factory tuned until a player turns a screw.
 		duplexerCavities = cavities;
