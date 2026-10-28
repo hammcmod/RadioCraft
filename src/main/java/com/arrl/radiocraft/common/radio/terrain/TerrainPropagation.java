@@ -6,6 +6,7 @@ import com.arrl.radiocraft.api.antenna.IAntenna;
 import com.arrl.radiocraft.api.antenna.IAntennaPacket;
 import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
+import com.arrl.radiocraft.compat.sable.Sublevels;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -76,7 +77,8 @@ public final class TerrainPropagation {
     }
 
     /**
-     * Share of a signal the terrain lets through between the packet's source and {@code destination}: line of sight
+     * Share of a signal the terrain lets through between the packet's source and {@code destination} (where it really
+     * is, see {@link IAntenna.AntennaPos#world()}): line of sight
      * ({@code skip} false) through hills and over cliffs, or skip out over both stations' horizons. 1 when terrain is
      * off.
      */
@@ -86,8 +88,11 @@ public final class TerrainPropagation {
             return 1.0D;
         long start = System.nanoTime();
         IAntenna target = packet.getDestination();
-        boolean fixed = source.getPlayer() == null && target != null && target.getPlayer() == null; // Two stations that never move.
-        double factor = factor(packet.getLevel(), packet.getBand(), source.getAntennaPos().position(), source.isIndoors(),
+        // Two stations that never move: not players, and not on a Sable ship.
+        boolean fixed = source.getPlayer() == null && target != null && target.getPlayer() == null
+                && !Sublevels.onSublevel(packet.getLevel(), source.getAntennaPos().position())
+                && (target.getAntennaPos() == null || !Sublevels.onSublevel(packet.getLevel(), target.getAntennaPos().position()));
+        double factor = factor(packet.getLevel(), packet.getBand(), source.getAntennaPos().world(), source.isIndoors(),
                 destination, target != null && target.isIndoors(), skip, fixed);
         CALLS.increment();
         CALL_NANOS.add(System.nanoTime() - start);

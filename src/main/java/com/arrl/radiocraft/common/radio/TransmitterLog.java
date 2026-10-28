@@ -30,7 +30,8 @@ public final class TransmitterLog {
 	public static void record(Object source, Level level, BlockPos pos, @Nullable Band band, float frequency) {
 		if(source == null || level == null || pos == null)
 			return;
-		ENTRIES.put(source, new Entry(level.dimension(), pos.immutable(), band, frequency, level.getGameTime()));
+		// Where it really is: a transmitter on a Sable ship is heard from the ship, not from its plot.
+		ENTRIES.put(source, new Entry(level.dimension(), com.arrl.radiocraft.compat.sable.Sublevels.world(level, pos).immutable(), band, frequency, level.getGameTime()));
 	}
 
 	/** As {@link #record(Object, Level, BlockPos, Band, float)}, from an antenna's position (ignored when null). */
@@ -46,6 +47,7 @@ public final class TransmitterLog {
 	@Nullable
 	public static Entry nearest(Level level, BlockPos from, float frequency, double toleranceHz, double maxDistance, long withinTicks) {
 		long now = level.getGameTime();
+		from = com.arrl.radiocraft.compat.sable.Sublevels.world(level, from);
 		Entry best = null;
 		double bestDistance = maxDistance * maxDistance;
 		for(Map.Entry<Object, Entry> slot : ENTRIES.entrySet()) {

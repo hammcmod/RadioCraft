@@ -7,26 +7,26 @@ import net.minecraft.client.resources.sounds.SoundInstance;
 import net.minecraft.sounds.SoundSource;
 
 /**
- * The buzz a radio makes when something keeps switching near its antenna: silent for the odd lever flip, fading in once
- * the redstone interference level stays up (a clock, a piston loop). Plays on top of the static, which also rises.
- * <p>
- * Placeholder audio: the morse tone pitched down to a low hum. A proper mains-style buzz loop is on the asset list in
- * {@code doc/ModelDesignBounty.md}; swapping it in is a one-line change here.
+ * The noise a radio makes when redstone switches near its antenna: the maintainer's {@code redstone_rfi.ogg} (2026-10-27,
+ * 19 s of broadband switching hash), played at the radio with its loudness following the interference level. A single
+ * lever flip is a short burst that dies away with the level (a second or so of the file); a clock or a piston loop keeps
+ * it going, looping the file. Plays on top of the static, which also rises. Only redstone drives it: lightning static
+ * feeds the same meter and had it grunting through a whole storm (2026-10-27), so it follows the redstone part alone.
  */
 public class RadioInterferenceHumSoundInstance extends AbstractTickableSoundInstance {
 
-	/** Interference level below which the hum stays silent, so single pops only show in the static. */
-	public static final double THRESHOLD = 0.25D;
-	private static final float MAX_VOLUME = 0.6F;
+	/** Redstone interference level below which the noise is off: just under a single pop's tail, so a flip is heard and then stops. */
+	public static final double THRESHOLD = 0.06D;
+	private static final float MAX_VOLUME = 0.8F;
 
 	private final RadioBlockEntity radio;
 
 	public RadioInterferenceHumSoundInstance(RadioBlockEntity radio) {
-		super(RadiocraftSoundEvents.MORSE.get(), SoundSource.VOICE, SoundInstance.createUnseededRandom());
+		super(RadiocraftSoundEvents.REDSTONE_RFI.get(), SoundSource.VOICE, SoundInstance.createUnseededRandom());
 		this.radio = radio;
 		this.looping = true;
 		this.delay = 0;
-		this.pitch = 0.5F;
+		this.pitch = 1.0F;
 		this.x = radio.getBlockPos().getX() + 0.5D;
 		this.y = radio.getBlockPos().getY() + 0.5D;
 		this.z = radio.getBlockPos().getZ() + 0.5D;
@@ -40,8 +40,9 @@ public class RadioInterferenceHumSoundInstance extends AbstractTickableSoundInst
 			return;
 		}
 		if(radio.wasPowered() && radio.shouldPlayStatic() && !radio.isReceiverMuted()) {
-			double sustained = Math.max(0.0D, radio.getInterference() - THRESHOLD) / (1.0D - THRESHOLD);
-			volume = (float)(sustained * MAX_VOLUME * radio.getStaticVolume());
+			double level = radio.getRedstoneInterference(); // Redstone only: lightning static is the static's business.
+			double heard = level < THRESHOLD ? 0.0D : Math.min(1.0D, Math.sqrt(level)); // Loud quickly, like switching hash does.
+			volume = (float)(heard * MAX_VOLUME * radio.getStaticVolume());
 		}
 		else
 			volume = 0.0F;

@@ -33,6 +33,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
         tag(RadiocraftTags.Blocks.POWER_BLOCKS)
                 .add(RadiocraftBlocks.WIRE.get())
                 .add(RadiocraftBlocks.WATERPROOF_WIRE.get())
+                .add(RadiocraftBlocks.COLOURED_WIRE.values().stream().map(net.neoforged.neoforge.registries.DeferredHolder::get).toArray(Block[]::new))
                 .add(RadiocraftBlocks.SOLAR_PANEL.get())
                 .add(RadiocraftBlocks.LARGE_BATTERY.get())
                 .add(RadiocraftBlocks.CHARGE_CONTROLLER.get())
@@ -48,6 +49,8 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.VHF_BASE_STATION_VARIANTS.values().toArray(Block[]::new))
                 .add(RadiocraftBlocks.VHF_RECEIVER.get())
                 .add(RadiocraftBlocks.VHF_REPEATER.get())
+                .add(RadiocraftBlocks.COMMERCIAL_REPEATER.get()) // Its charger runs off the station's power wire, to any cell of the rack.
+                .add(RadiocraftBlocks.DIRECTION_FINDER_MODULE.get()) // Passes power on to the finder and the next module.
                 .add(RadiocraftBlocks.WALL_SPEAKER.get(), RadiocraftBlocks.LOUDSPEAKER.get()) // The wire is their speaker line.
                 .add(RadiocraftBlocks.MICROWAVE_RADIO.get()) // Its power, and the line to the stations it serves:
                 .add(RadiocraftBlocks.TELEPHONE.get(), RadiocraftBlocks.APRS_TERMINAL.get(),

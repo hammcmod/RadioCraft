@@ -215,15 +215,20 @@ public class RedstoneInterference {
 			BlockPos pos = queue.poll();
 			if(!seen.add(pos))
 				continue;
-			BlockState state = level.getBlockState(pos);
-			if(!coax.contains(state.getBlock()))
-				continue;
-			out.add(pos);
-			for(BlockPos next : ((WireBlock)state.getBlock()).getLinks(level, pos, state).keySet()) { // Includes climb links.
-				BENetworkObject obj = IBENetworks.getObject(level, next);
-				if(obj == null)
-					queue.add(next); // Wires end at network objects (radio, antenna, tuner); don't walk through them.
+			boolean any = false;
+			for(BlockState state : com.arrl.radiocraft.common.blocks.Strand.statesAt(level, pos)) { // A coax block, or a bundle's coax strands.
+				WireBlock wire = (WireBlock)state.getBlock();
+				if(!coax.contains(wire))
+					continue;
+				any = true;
+				for(BlockPos next : wire.getLinks(level, pos, state).keySet()) { // Includes climb links.
+					BENetworkObject obj = IBENetworks.getObject(level, next);
+					if(obj == null)
+						queue.add(next); // Wires end at network objects (radio, antenna, tuner); don't walk through them.
+				}
 			}
+			if(any)
+				out.add(pos);
 		}
 	}
 

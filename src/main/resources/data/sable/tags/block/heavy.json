@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "radiocraft:large_battery",
+    "radiocraft:tower_foothold",
+    "radiocraft:old_tower_foothold",
+    "radiocraft:tower_beam_thick"
+  ]
+}

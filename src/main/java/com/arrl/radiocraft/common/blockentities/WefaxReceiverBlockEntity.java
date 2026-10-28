@@ -14,6 +14,7 @@ import com.arrl.radiocraft.common.init.RadiocraftSoundEvents;
 import com.arrl.radiocraft.common.menus.WefaxReceiverMenu;
 import com.arrl.radiocraft.common.radio.data.TncPacket;
 import com.arrl.radiocraft.common.radio.wefax.WefaxChart;
+import com.arrl.radiocraft.common.radio.weather.WeatherReports;
 import com.arrl.radiocraft.common.radio.wefax.WefaxPrints;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -56,10 +57,17 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 	public static final int AUTO_GAP_TICKS = 5 * 60 * 20;
 	public static final int PAPER_MAX = 64;
 	/** How long SOLR WX waits for an Ionospheric Processor to answer over the air. */
-	public static final int REQUEST_TICKS = 300;
+	/** How long SOLR WX waits for an answer: the query's burst, the processor's fax-tone bulletin ({@code wefax_bulletin_seconds}) and some slack. */
+	public static final int REQUEST_TICKS = 900;
 	/** Alerts closer together than this are one warning: printed once. */
 	public static final int ALERT_GAP_TICKS = 2400;
-	private static final WefaxChart.Type[] SCHEDULE = { WefaxChart.Type.RADAR, WefaxChart.Type.FORECAST, WefaxChart.Type.SURFACE };
+	/** Blocks around the station the forecast sheet lists storms in. */
+	public static final int FORECAST_RANGE = 1500;
+	/** The sheet to print once the one in hand is out (WX REPT prints two). */
+	@Nullable
+	private WefaxPrints.Print queuedPrint = null;
+	/** A printed sheet waiting in the tray (shown on the screen and the model) until someone takes it. */
+	private ItemStack ready = ItemStack.EMPTY;
 
 	private final ItemStackHandler paper = new ItemStackHandler(1) {
 		@Override
@@ -115,6 +123,8 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), paper.getStackInSlot(0));
 		if(!printing.isEmpty())
 			Containers.dropItemStack(level, worldPosition.getX(), worldPosition.getY(), worldPosition.getZ(), printing);
+		if(!ready.isEmpty() && level != null)
+			Containers.dropItemStack(level, worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D, ready);
 	}
 
 	// -------------------- RADIO --------------------
@@ -174,13 +184,21 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		return null;
 	}
 
-	/** WX REPT: the next chart in the schedule. */
+	/**
+	 * WX REPT: two sheets, the radar chart (rain, each storm named and numbered with an arrow where it is going, YOU in
+	 * the middle) and then a forecast sheet (the report, and every storm by number: how far and which way, where it is
+	 * heading, when it arrives). The forecast map and the surface analysis are still there for {@code /rcdebug wefax}.
+	 */
 	public void printWeather() {
 		if(!(level instanceof ServerLevel serverLevel) || cannotPrint(false) != null)
 			return;
-		WefaxChart.Type type = SCHEDULE[scheduleIndex % SCHEDULE.length];
-		scheduleIndex = (scheduleIndex + 1) % SCHEDULE.length;
-		start(WefaxPrints.printChart(serverLevel, WeatherSources.get(serverLevel), worldPosition, type, ""));
+		WeatherSource source = WeatherSources.get(serverLevel);
+		BlockPos here = com.arrl.radiocraft.compat.sable.Sublevels.world(serverLevel, worldPosition); // On a Sable ship: the weather where the ship is.
+		List<String> lines = new ArrayList<>(WeatherReports.lines(serverLevel, source, here, ""));
+		lines.add("");
+		lines.addAll(WeatherReports.stormList(serverLevel, source, here, FORECAST_RANGE));
+		queuedPrint = WefaxPrints.printText(serverLevel, here, Component.translatable("item.radiocraft.wefax_chart.forecast"), "FORECAST", lines);
+		start(WefaxPrints.printChart(serverLevel, source, here, WefaxChart.Type.RADAR, ""));
 	}
 
 	/** Radios beside it, and those reached through the station gear it touches. */
@@ -219,7 +237,7 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 			List<String> lines = new ArrayList<>();
 			for(Component line : TeletypeBlockEntity.reportLines(serverLevel, worldPosition))
 				lines.add(line.getString());
-			start(WefaxPrints.printText(serverLevel, worldPosition, Component.translatable("item.radiocraft.wefax_chart.solar"), "SOLAR WEATHER", lines));
+			start(WefaxPrints.printText(serverLevel, worldPosition, Component.translatable("item.radiocraft.wefax_chart.solar"), "SOLAR WEATHER", lines, true));
 			return;
 		}
 		IonosphericProcessorBlockEntity processor = localProcessor();
@@ -254,7 +272,7 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 	private void printBulletin(ServerLevel serverLevel, String from, List<String> lines) {
 		List<String> sheet = new ArrayList<>(lines);
 		sheet.add("FROM " + from);
-		start(WefaxPrints.printText(serverLevel, worldPosition, Component.translatable("item.radiocraft.wefax_chart.solar"), "SOLAR WEATHER " + from, sheet));
+		start(WefaxPrints.printText(serverLevel, worldPosition, Component.translatable("item.radiocraft.wefax_chart.solar"), "SOLAR WEATHER " + from, sheet, true));
 	}
 
 	/** True once it has heard a solar bulletin from an Ionospheric Processor. */
@@ -330,6 +348,8 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 	}
 
 	private void start(WefaxPrints.Print print) {
+		if(!ready.isEmpty() && level instanceof ServerLevel serverLevel)
+			eject(serverLevel); // The next sheet pushes the one nobody took out of the front.
 		paper.extractItem(0, 1, false);
 		pixels = print.pixels();
 		printing = print.stack();
@@ -385,9 +405,16 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 			start(WefaxPrints.printText(level, worldPosition, Component.translatable("item.radiocraft.wefax_chart.solar"), "SOLAR ALERT", sheet));
 			return;
 		}
+		if(queuedPrint != null) {
+			if(getPaper() > 0) {
+				WefaxPrints.Print next = queuedPrint;
+				queuedPrint = null;
+				start(next);
+			}
+			return;
+		}
 		if(auto && now % 100 == 0 && now - lastAuto >= AUTO_GAP_TICKS && cannotPrint(false) == null && dangerAhead(level)) {
 			lastAuto = now;
-			scheduleIndex = 1; // The forecast.
 			printWeather();
 		}
 	}
@@ -395,22 +422,62 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 	/** True if dangerous weather is here, or due within the weather mod's forecast horizon. */
 	private boolean dangerAhead(ServerLevel level) {
 		WeatherSource source = WeatherSources.get(level);
-		if(!source.report(level, worldPosition).hazards().isEmpty())
+		BlockPos here = com.arrl.radiocraft.compat.sable.Sublevels.world(level, worldPosition);
+		if(!source.report(level, here).hazards().isEmpty())
 			return true;
-		return source.nextArrival(level, worldPosition, source.forecastHorizon(level))
+		return source.nextArrival(level, here, source.forecastHorizon(level))
 				.map(arrival -> !arrival.peak().hazards().isEmpty()).orElse(false);
 	}
 
-	/** The sheet comes out of the front. */
+	/** Printed: the sheet waits in the tray, on the screen and sticking out of the model, until someone takes it. */
 	private void finish(ServerLevel level) {
-		Direction front = getBlockState().hasProperty(WefaxReceiverBlock.FACING) ? getBlockState().getValue(WefaxReceiverBlock.FACING) : Direction.NORTH;
-		BlockPos out = worldPosition.relative(front);
-		Containers.dropItemStack(level, out.getX() + 0.5D, worldPosition.getY() + 0.4D, out.getZ() + 0.5D, printing);
+		ready = printing;
 		printing = ItemStack.EMPTY;
 		printStart = -1L;
+		setReady(level, !ready.isEmpty());
 		level.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE_DING.get(), SoundSource.BLOCKS, 0.4F, 1.4F);
 		setChanged();
 		sync();
+	}
+
+	/** True while a printed sheet waits in the tray. */
+	public boolean hasReadySheet() {
+		return !ready.isEmpty();
+	}
+
+	/** Takes the sheet in the tray: into {@code player}'s inventory (or at their feet), empty if there is none. */
+	public ItemStack takeSheet(@Nullable ServerPlayer player) {
+		if(ready.isEmpty() || !(level instanceof ServerLevel serverLevel))
+			return ItemStack.EMPTY;
+		ItemStack sheet = ready;
+		ready = ItemStack.EMPTY;
+		setReady(serverLevel, false);
+		if(player != null && !player.getInventory().add(sheet))
+			player.drop(sheet, false);
+		else if(player == null)
+			eject(serverLevel, sheet);
+		sync();
+		return sheet;
+	}
+
+	/** The sheet in the tray comes out of the front. */
+	private void eject(ServerLevel level) {
+		ItemStack sheet = ready;
+		ready = ItemStack.EMPTY;
+		setReady(level, false);
+		eject(level, sheet);
+	}
+
+	private void eject(ServerLevel level, ItemStack sheet) {
+		Direction front = getBlockState().hasProperty(WefaxReceiverBlock.FACING) ? getBlockState().getValue(WefaxReceiverBlock.FACING) : Direction.NORTH;
+		BlockPos out = worldPosition.relative(front);
+		Containers.dropItemStack(level, out.getX() + 0.5D, worldPosition.getY() + 0.4D, out.getZ() + 0.5D, sheet);
+	}
+
+	private void setReady(ServerLevel level, boolean ready) {
+		BlockState state = getBlockState();
+		if(state.hasProperty(WefaxReceiverBlock.READY) && state.getValue(WefaxReceiverBlock.READY) != ready)
+			level.setBlock(worldPosition, state.setValue(WefaxReceiverBlock.READY, ready), Block.UPDATE_CLIENTS);
 	}
 
 	// -------------------- MENU, SAVE & SYNC --------------------
@@ -441,6 +508,8 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		tag.putLong("printStart", printStart);
 		if(!printing.isEmpty())
 			tag.put("printing", printing.save(registries));
+		if(!ready.isEmpty())
+			tag.put("ready", ready.save(registries));
 		if(hasSolarBulletin()) {
 			tag.putString("solarFrom", solarFrom);
 			tag.putString("solarLines", String.join(TncPacket.SOLAR_LINE_BREAK, solarLines));
@@ -459,6 +528,7 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		pixels = tag.getByteArray("pixels");
 		printStart = tag.contains("printStart") ? tag.getLong("printStart") : -1L;
 		printing = tag.contains("printing") ? ItemStack.parseOptional(registries, tag.getCompound("printing")) : ItemStack.EMPTY;
+		ready = tag.contains("ready") ? ItemStack.parseOptional(registries, tag.getCompound("ready")) : ItemStack.EMPTY;
 		solarFrom = tag.getString("solarFrom");
 		solarLines = tag.getString("solarLines").isEmpty() ? List.of()
 				: List.of(tag.getString("solarLines").split(java.util.regex.Pattern.quote(TncPacket.SOLAR_LINE_BREAK)));

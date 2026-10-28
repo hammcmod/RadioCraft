@@ -66,6 +66,12 @@ public class WefaxReceiverScreen extends StationPanelScreen<WefaxReceiverMenu> {
 	protected boolean panelClicked(double mouseX, double mouseY, int button) {
 		if(button != 0)
 			return false;
+		WefaxReceiverBlockEntity receiver = menu.blockEntity;
+		if(receiver.hasReadySheet() && !receiver.isPrinting() && inside(screen(sheetBox()), mouseX, mouseY)) { // The printed sheet: take it.
+			minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ITEM_PICKUP, 0.6F, 1.1F));
+			SStationPacket.send(menu.getBlockPos(), "take");
+			return true;
+		}
 		for(int i = 0; i < BUTTONS.length; i++) {
 			if(inside(screen(BUTTONS[i]), mouseX, mouseY)) {
 				minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.STONE_BUTTON_CLICK_ON, 0.9F, 0.4F));
@@ -99,12 +105,20 @@ public class WefaxReceiverScreen extends StationPanelScreen<WefaxReceiverMenu> {
 		graphics.blit(SPRITES, leftPos + at[0], topPos + at[1], from[0], from[1], from[2], from[3], SIZE, SIZE);
 	}
 
-	/** The sheet: as much of it as has printed stands up out of the slot, the chart drawn on it down to the print head. */
+	/** Where the whole sheet stands once printed: click it to take it. */
+	private int[] sheetBox() {
+		return new int[] { SLOT[0], SLOT[1] - PAPER[3], PAPER[2], PAPER[3] };
+	}
+
+	/**
+	 * The sheet: as much of it as has printed stands up out of the slot, the chart drawn on it down to the print head;
+	 * printed, it stays up until it is clicked and taken (maintainer, 2026-10-27).
+	 */
 	private void renderSheet(GuiGraphics graphics, WefaxReceiverBlockEntity receiver, float partialTick) {
-		if(!receiver.isPrinting() || minecraft == null || minecraft.level == null)
+		if(!(receiver.isPrinting() || receiver.hasReadySheet()) || minecraft == null || minecraft.level == null)
 			return;
 		updateChart(receiver.getPixels());
-		float progress = receiver.progress(minecraft.level.getGameTime());
+		float progress = receiver.isPrinting() ? receiver.progress(minecraft.level.getGameTime()) : 1.0F;
 		int risen = Math.round(PAPER[3] * progress);
 		int slotTop = topPos + SLOT[1];
 		int x = leftPos + SLOT[0];
@@ -149,7 +163,9 @@ public class WefaxReceiverScreen extends StationPanelScreen<WefaxReceiverMenu> {
 				graphics.renderComponentTooltip(font, lines, mouseX, mouseY);
 				return;
 			}
-		if(inside(screen(LEVEL), mouseX, mouseY))
+		if(receiver.hasReadySheet() && !receiver.isPrinting() && inside(screen(sheetBox()), mouseX, mouseY))
+			graphics.renderTooltip(font, Component.translatable("screen.radiocraft.wefax.take"), mouseX, mouseY);
+		else if(inside(screen(LEVEL), mouseX, mouseY))
 			graphics.renderTooltip(font, Component.translatable("screen.radiocraft.wefax.paper", receiver.getPaper()), mouseX, mouseY);
 		else if(inside(screen(LAMP), mouseX, mouseY))
 			graphics.renderTooltip(font, Component.translatable(receiver.clientHasRadio() ? "screen.radiocraft.wefax.radio" : "screen.radiocraft.wefax.no_radio"), mouseX, mouseY);

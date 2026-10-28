@@ -1,6 +1,7 @@
 {
   "required": true,
   "package": "com.arrl.radiocraft.mixin",
+  "plugin": "com.arrl.radiocraft.mixin.RadiocraftMixinPlugin",
   "compatibilityLevel": "JAVA_21",
   "refmap": "radiocraft.refmap.json",
   "mixins": [

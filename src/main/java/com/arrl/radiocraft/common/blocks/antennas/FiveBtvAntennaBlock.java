@@ -83,7 +83,7 @@ public final class FiveBtvAntennaBlock extends AntennaCenterBlock {
         if(direction == Direction.DOWN && segment > 0 && !(neighbour.is(this) && neighbour.getValue(SEGMENT) == segment - 1))
             return Blocks.AIR.defaultBlockState();
         BlockState updated = super.updateShape(state, direction, neighbour, level, pos, neighbourPos);
-        return segment == 0 && updated.is(this) ? CoaxStubs.update(updated, direction, neighbour) : updated; // Coax runs in at the base.
+        return segment == 0 && updated.is(this) ? CoaxStubs.update(updated, direction, level, neighbourPos) : updated; // Coax runs in at the base.
     }
 
     @Override

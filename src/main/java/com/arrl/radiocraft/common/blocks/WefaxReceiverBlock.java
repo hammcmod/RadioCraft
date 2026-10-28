@@ -48,6 +48,8 @@ public class WefaxReceiverBlock extends BaseEntityBlock {
 
 	public static final MapCodec<WefaxReceiverBlock> CODEC = simpleCodec(WefaxReceiverBlock::new);
 	public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+	/** A printed sheet waits in the tray (the model shows it sticking out of the front) until someone takes it. */
+	public static final net.minecraft.world.level.block.state.properties.BooleanProperty READY = net.minecraft.world.level.block.state.properties.BooleanProperty.create("ready");
 	private static final Map<Direction, VoxelShape> SHAPES = new EnumMap<>(Direction.class);
 
 	static {
@@ -59,8 +61,10 @@ public class WefaxReceiverBlock extends BaseEntityBlock {
 		SHAPES.put(Direction.WEST, Shapes.or(base, Block.box(2.0D, 3.0D, 0.0D, 16.0D, 8.0D, 16.0D)));
 	}
 
+	@SuppressWarnings("this-escape")
 	public WefaxReceiverBlock(Properties properties) {
 		super(properties);
+		registerDefaultState(stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(READY, false));
 	}
 
 	@Override
@@ -70,13 +74,13 @@ public class WefaxReceiverBlock extends BaseEntityBlock {
 
 	@Override
 	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-		builder.add(FACING);
+		builder.add(FACING, READY);
 	}
 
 	@Nullable
 	@Override
 	public BlockState getStateForPlacement(BlockPlaceContext context) {
-		return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+		return defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()).setValue(READY, false);
 	}
 
 	@Override

@@ -6,7 +6,12 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "Professional racks meant to be found at radio sites rather than built. None can be crafted.$(br2)The $(item)Commercial Repeater$() is a four-block rack that works like a $(l:radiocraft:repeaters/repeater)VHF repeater$(/l) with its duplexer and power built in: switch it on and run coax to an antenna. It transmits twice as strong as the repeater you can build."
+      "text": "Professional racks meant to be found at radio sites rather than built. None can be crafted.$(br2)The $(item)Commercial Repeater$() is a four-block rack that works like a $(l:radiocraft:repeaters/repeater)VHF repeater$(/l) with its duplexer, a battery and a charge controller built in: run the station's power wire to any cell of the rack, coax to an antenna, and switch it on. It transmits twice as strong as the repeater you can build, and draws twice as much to do it."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Its own battery",
+      "text": "The wire may come from batteries, or straight from solar panels with no charge controller of your own: the rack takes what it is given and keeps its battery topped up. Pull the wire or lose the sun and it runs on from the battery, about twenty minutes listening or a few minutes of steady transmitting; the beacon on the controller cell blinks while it does."
     },
     {
       "type": "patchouli:text",

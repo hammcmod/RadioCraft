@@ -83,7 +83,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
 
-					if(destination == null || destination.level() != pos.get().level() || BandUtils.outOfReach(band, pos.get().position(), destination.position())) continue;
+					if(destination == null || destination.level() != pos.get().level() || BandUtils.outOfReach(band, pos.get().world(), destination.world())) continue;
 
 //					if(ssbSendCache.containsKey(antenna.getBlockPos())) // Recalculate if value wasn't already present.
 //						packet.setStrength(ssbSendCache.get(destination));
@@ -129,7 +129,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 					// Calculate the strength this packet should be sent at.
 					AntennaPos destination = antenna.getAntennaPos();
 
-					if(destination == null || destination.level() != pos.get().level() || BandUtils.outOfReach(band, pos.get().position(), destination.position())) continue;
+					if(destination == null || destination.level() != pos.get().level() || BandUtils.outOfReach(band, pos.get().world(), destination.world())) continue;
 
 //					if(cwSendCache.containsKey(destination))
 //						packet.setStrength(cwSendCache.get(destination));
@@ -170,7 +170,7 @@ public class StaticAntenna<T extends AntennaData> implements IAntenna, INBTSeria
 			double matchEfficiency = getMatchEfficiency(frequencyHertz);
 			for(IAntenna antenna : network.allAntennas()) {
 				AntennaPos destination = antenna.getAntennaPos();
-				if(antenna == this || destination == null || destination.level() != pos.get().level() || BandUtils.outOfReach(band, pos.get().position(), destination.position()))
+				if(antenna == this || destination == null || destination.level() != pos.get().level() || BandUtils.outOfReach(band, pos.get().world(), destination.world()))
 					continue;
 				AntennaDataPacket packet = new AntennaDataPacket(level, payload, band, frequencyHertz, 1.0D, this);
 				packet.setDestination(antenna);

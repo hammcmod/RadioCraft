@@ -155,10 +155,21 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 		this.imageHeight = TEXTURE_HEIGHT;
 		this.openedBefore = menu.blockEntity.getLastOpenedGameTime(); // Not yet updated for this opening.
 		this.inboxViewedAt = this.stationsViewedAt = openedBefore;
-		if(menu.blockEntity.isBootPending())
+		wasOn = menu.blockEntity.isOn();
+		if(!wasOn)
+			page = Page.MAP; // Dark: nothing is drawn until it comes on, and then it boots.
+		else if(menu.blockEntity.isBootPending())
 			startBoot();
 		else
 			switchPage(Page.MAP);
+	}
+
+	/** Whether the terminal was on last frame: coming on while the screen is open boots it. */
+	private boolean wasOn;
+
+	/** True while the terminal is dark (no power, or no powered radio): the glass shows nothing and takes no input. */
+	private boolean dark() {
+		return !terminal().isOn();
 	}
 
 	private AprsTerminalBlockEntity terminal() {
@@ -533,6 +544,8 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 
 	@Override
 	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+		if(dark())
+			return keyCode == GLFW.GLFW_KEY_ESCAPE ? super.keyPressed(keyCode, scanCode, modifiers) : true; // Off: nothing to type into or click.
 		if(page == Page.BOOT) {
 			if(keyCode == GLFW.GLFW_KEY_ESCAPE)
 				return super.keyPressed(keyCode, scanCode, modifiers);
@@ -762,7 +775,7 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 
 	/** Fits home and every station heard on the map, at a power-of-two scale. */
 	private void fitMap() {
-		BlockPos home = terminal().getBlockPos();
+		BlockPos home = terminal().here(); // Where it really is, on a Sable ship.
 		int minX = home.getX(), maxX = minX, minZ = home.getZ(), maxZ = minZ;
 		for(Heard heard : terminal().getBeacons()) {
 			BlockPos at = heard.packet().position();
@@ -833,6 +846,8 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 
 	@Override
 	public boolean charTyped(char codePoint, int modifiers) {
+		if(dark())
+			return true; // Off: nothing to type into or click.
 		if(isAsking()) {
 			bootInput = TncPacket.sanitizeCallsign(bootInput + codePoint);
 			return true;
@@ -854,6 +869,8 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 
 	@Override
 	protected boolean panelClicked(double mouseX, double mouseY, int button) {
+		if(dark())
+			return false; // Off: nothing to type into or click.
 		if(button != 0)
 			return false;
 		for(int i = 0; i < SIDE_BUTTONS.length; i++) {
@@ -1098,7 +1115,7 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 	private String distance(@Nullable BlockPos at) {
 		if(at == null)
 			return "-";
-		BlockPos here = terminal().getBlockPos();
+		BlockPos here = terminal().here();
 		double dx = at.getX() - here.getX(), dz = at.getZ() - here.getZ();
 		int distance = (int)Math.round(Math.sqrt(dx * dx + dz * dz));
 		return distance >= 1000 ? String.format(Locale.ROOT, "%.1fK", distance / 1000.0D) : distance + "M";
@@ -1107,7 +1124,7 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 	private String bearing(@Nullable BlockPos at) {
 		if(at == null)
 			return "-";
-		BlockPos here = terminal().getBlockPos();
+		BlockPos here = terminal().here();
 		int dx = at.getX() - here.getX(), dz = at.getZ() - here.getZ();
 		if(dx == 0 && dz == 0)
 			return "-";
@@ -1409,6 +1426,18 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 	@Override
 	protected void renderBg(@NotNull GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
 		long now = System.currentTimeMillis();
+		boolean on = !dark();
+		if(on != wasOn) {
+			wasOn = on;
+			if(on)
+				startBoot();
+		}
+		if(!on) { // Dark glass: the box is off.
+			guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, imageWidth, imageHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
+			renderGlass(guiGraphics);
+			renderSideButtons(guiGraphics, mouseX, mouseY);
+			return;
+		}
 		runPending(now);
 		if(page == Page.BOOT)
 			runBoot(now);
@@ -1436,7 +1465,7 @@ public class AprsTerminalScreen extends StationPanelScreen<AprsTerminalMenu> {
 		map.view(mapX, mapZ, mapBpp);
 		List<H19Map.Mark> marks = new ArrayList<>();
 		AprsTerminalBlockEntity terminal = terminal();
-		marks.add(new H19Map.Mark(callsign().isEmpty() ? "HOME" : callsign(), terminal.getBlockPos(), terminal.getIcon(), true, false));
+		marks.add(new H19Map.Mark(callsign().isEmpty() ? "HOME" : callsign(), terminal.here(), terminal.getIcon(), true, false));
 		for(Heard heard : terminal.getBeacons())
 			if(heard.packet().position() != null)
 				marks.add(new H19Map.Mark(heard.packet().from(), heard.packet().position(), AprsIcon.byName(heard.packet().icon()), false, heard.packet().from().equals(mapSelected)));

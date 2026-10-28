@@ -16,6 +16,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> MICROWAVE_BEAM_WIDTH;
 	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_INTERFERENCE_MHZ;
 	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_POWER_USE;
+	public static final ModConfigSpec.ConfigValue<Integer> DIRECTION_FINDER_POWER_USE;
 	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_SEARCH_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Integer> MANPACK_RECEIVE_USE;
 	public static final ModConfigSpec.ConfigValue<Integer> MANPACK_TRANSMIT_USE;
@@ -80,6 +81,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> FAX_SOLID_SIGNAL;
 	public static final ModConfigSpec.ConfigValue<Integer> FAX_PACKET_RETRIES;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_MESSAGE_RETRY_SECONDS;
+	public static final ModConfigSpec.ConfigValue<Integer> APRS_TERMINAL_POWER_USE;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_MESSAGE_RETRIES;
 	public static final ModConfigSpec.ConfigValue<Boolean> APRS_BEACON_DEFAULT;
 	public static final ModConfigSpec.ConfigValue<Boolean> APRS_DIGIPEAT_DEFAULT;
@@ -104,6 +106,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> IONOSPHERIC_BULLETIN_MINUTES;
 	public static final ModConfigSpec.ConfigValue<Integer> SOLAR_FORECAST_MINUTES;
 	public static final ModConfigSpec.ConfigValue<Boolean> WEFAX_WEATHER_ALWAYS;
+	public static final ModConfigSpec.ConfigValue<Integer> WEFAX_BULLETIN_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_LATITUDE;
 	public static final ModConfigSpec.ConfigValue<Boolean> AURORA_AT_ANY_Z;
 	public static final ModConfigSpec.ConfigValue<Integer> AURORA_VHF_MIN_RANGE;
@@ -309,6 +312,7 @@ public class RadiocraftServerConfig {
 				.defineInRange("fax_packet_loss", 0.5D, 0.0D, 1.0D);
 		FAX_SOLID_SIGNAL = BUILDER.comment(" Signal strength (0 to 1) at and above which a radio fax loses no packets").defineInRange("fax_solid_signal", 0.5D, 0.0D, 1.0D);
 		FAX_PACKET_RETRIES = BUILDER.comment(" Times one fax packet is sent again without an ack before the fax fails").defineInRange("fax_packet_retries", 15, 0, 100);
+		APRS_TERMINAL_POWER_USE = BUILDER.comment(" Power the H19 terminal draws per tick, always: dark without it (radios_need_power = false runs it free)").defineInRange("aprs_terminal_power_use", 3, 0, 10000);
 		APRS_MESSAGE_RETRY_SECONDS = BUILDER.comment(" Seconds an APRS message waits for its ack before it is sent again")
 				.defineInRange("aprs_message_retry_seconds", 20, 2, 600);
 		APRS_MESSAGE_RETRIES = BUILDER.comment(" Times an APRS message is sent again without an ack before it shows FAILED")
@@ -375,6 +379,7 @@ public class RadiocraftServerConfig {
 				.define("wefax_solar_report_always_works", false);
 		WEFAX_WEATHER_ALWAYS = BUILDER.comment(" The WEFAX receiver prints the weather charts (WX REPT and AUTO) without a radio beside it")
 				.define("wefax_weather_report_always_works", false);
+		WEFAX_BULLETIN_SECONDS = BUILDER.comment(" Seconds an Ionospheric Processor's solar bulletin takes to go out over the air, as fax tones (a WEFAX asking for one waits for it)").defineInRange("wefax_bulletin_seconds", 20, 1, 120);
 		BUILDER.pop();
 
 		BUILDER.push("Aurora");
@@ -502,6 +507,7 @@ public class RadiocraftServerConfig {
 				" (an existing world keeps the value it saved)").defineInRange("microwave_beam_width", 45.0, 1.0, 180.0);
 		MICROWAVE_INTERFERENCE_MHZ = BUILDER.comment(" Another dish in view on a frequency this close (MHz) spoils a link").defineInRange("microwave_interference_mhz", 30, 0, 1200);
 		MICROWAVE_POWER_USE = BUILDER.comment(" Power a microwave radio draws per tick while on (a 20m radio transmitting draws 26)").defineInRange("microwave_power_use", 26, 0, 10000);
+		DIRECTION_FINDER_POWER_USE = BUILDER.comment(" Power a direction finder draws per tick while on, from a wire to it or to any of its modules (radios_need_power = false runs it free)").defineInRange("direction_finder_power_use", 6, 0, 10000);
 		MICROWAVE_SEARCH_SECONDS = BUILDER.comment(" About how long one sweep for a master link takes, in seconds").defineInRange("microwave_search_seconds", 12, 1, 600);
 		BUILDER.pop();
 

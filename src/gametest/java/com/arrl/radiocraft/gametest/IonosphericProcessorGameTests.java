@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.gametest;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity;
 import com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity;
@@ -32,6 +33,17 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 public class IonosphericProcessorGameTests {
 
 	private static final String BATCH = "ionospheric";
+
+	/** A bulletin's fax tones take {@code wefax_bulletin_seconds}; two is enough to see them go out and keeps the tests short. */
+	@net.minecraft.gametest.framework.BeforeBatch(batch = BATCH)
+	public static void quickBulletins(net.minecraft.server.level.ServerLevel level) {
+		RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.set(2);
+	}
+
+	@net.minecraft.gametest.framework.AfterBatch(batch = BATCH)
+	public static void normalBulletins(net.minecraft.server.level.ServerLevel level) {
+		RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.set(RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.getDefault());
+	}
 
 	/** The processor at {@code lower} (two tall), coax west of it, and {@code antenna} (two tall) west of that. */
 	private static void processor(GameTestHelper helper, BlockPos lower, Block antenna) {

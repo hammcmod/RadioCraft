@@ -208,6 +208,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         buildRadioSpeakerRecipe(recipeOutput);
         buildCoaxWireRecipe(recipeOutput);
         buildDyedCoaxRecipes(recipeOutput);
+        buildDyedWireRecipes(recipeOutput);
         buildDuplexerRecipe(recipeOutput);
         buildSmallBatteryRecipe(recipeOutput);
         buildRadioInterfaceRecipe(recipeOutput);
@@ -545,6 +546,18 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .define('I', Items.IRON_INGOT) // The magnet.
                 .unlockedBy("has_note_block", has(Items.NOTE_BLOCK))
                 .save(recipeOutput);
+    }
+
+    /** Eight wire round a dye: eight of that colour, which joins only its own colour and plain wire. */
+    private void buildDyedWireRecipes(RecipeOutput recipeOutput) {
+        RadiocraftItems.COLOURED_WIRE.forEach((colour, wire) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, wire.get(), 8)
+                .pattern("WWW")
+                .pattern("WDW")
+                .pattern("WWW")
+                .define('W', RadiocraftItems.WIRE.get())
+                .define('D', net.minecraft.world.item.DyeItem.byColor(colour))
+                .unlockedBy("has_wire", has(RadiocraftItems.WIRE.get()))
+                .save(recipeOutput, com.arrl.radiocraft.Radiocraft.id("wire_" + colour.getSerializedName())));
     }
 
     /** Eight coax round a dye: eight of that colour, which joins only its own colour and plain coax. */

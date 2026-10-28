@@ -38,6 +38,15 @@ public class RadiocraftBlocks {
 	// Power related blocks
 	public static final DeferredHolder<Block, WireBlock> WIRE = BLOCKS.register("wire", () -> new WireBlock(PROPERTIES_WIRES, true, false));
 	public static final Supplier<Block> WATERPROOF_WIRE = BLOCKS.register("waterproof_wire", () -> new WireBlock(PROPERTIES_WIRES, true, true));
+	/** Dyed power wire, one block per colour: it joins only its own colour and plain wire, so parallel runs stay apart (as dyed coax). */
+	public static final java.util.Map<net.minecraft.world.item.DyeColor, DeferredHolder<Block, WireBlock>> COLOURED_WIRE = colouredWire();
+
+	private static java.util.Map<net.minecraft.world.item.DyeColor, DeferredHolder<Block, WireBlock>> colouredWire() {
+		java.util.Map<net.minecraft.world.item.DyeColor, DeferredHolder<Block, WireBlock>> out = new java.util.EnumMap<>(net.minecraft.world.item.DyeColor.class);
+		for(net.minecraft.world.item.DyeColor colour : net.minecraft.world.item.DyeColor.values())
+			out.put(colour, BLOCKS.register("wire_" + colour.getSerializedName(), () -> new WireBlock(PROPERTIES_WIRES, true, false, colour)));
+		return out;
+	}
 	public static final DeferredHolder<Block, SolarPanelBlock> SOLAR_PANEL = BLOCKS.register("solar_panel", () -> new SolarPanelBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, LargeBatteryBlock> LARGE_BATTERY = BLOCKS.register("large_battery", () -> new LargeBatteryBlock(PROPERTIES_RADIO));
 	public static final DeferredHolder<Block, ChargeControllerBlock> CHARGE_CONTROLLER = BLOCKS.register("charge_controller", () -> new ChargeControllerBlock(PROPERTIES_STONE));
@@ -91,6 +100,8 @@ public class RadiocraftBlocks {
 	}
 	/** A wall block wire runs through; made with the passthrough item, looks like the block it replaced. */
 	public static final DeferredHolder<Block, PassthroughBlock> PASSTHROUGH = BLOCKS.register("passthrough", () -> new PassthroughBlock(Properties.ofFullCopy(Blocks.STONE)));
+	/** Several wires in one block (see WireBundleBlock); no item, made by using a wire item on a wire of another kind. */
+	public static final DeferredHolder<Block, com.arrl.radiocraft.common.blocks.WireBundleBlock> WIRE_BUNDLE = BLOCKS.register("wire_bundle", () -> new com.arrl.radiocraft.common.blocks.WireBundleBlock(PROPERTIES_WIRES));
 	/** Rungs on a tower: the old ones (structures, creative) may give way under a player; crafted ones never do. */
 	public static final DeferredHolder<Block, TowerFootholdBlock> TOWER_FOOTHOLD = BLOCKS.register("tower_foothold", () -> new TowerFootholdBlock(PROPERTIES_FOOTHOLD, false));
 	public static final DeferredHolder<Block, TowerFootholdBlock> OLD_TOWER_FOOTHOLD = BLOCKS.register("old_tower_foothold", () -> new TowerFootholdBlock(PROPERTIES_FOOTHOLD, true));

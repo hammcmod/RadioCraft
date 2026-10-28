@@ -107,4 +107,25 @@ class MicrowaveMathTest {
         assertEquals(6185, MicrowaveMath.tune(6175, 1));
         assertEquals("00FF", MicrowaveMath.hex(255));
     }
+
+    @Test
+    void justOutOfRangeStillReadsWeak() {
+        MicrowaveMath.End west = dish(0, 0, 90);
+        MicrowaveMath.Signal edge = MicrowaveMath.signal(null, west, dish(1500, 0, 270), 30, 0);
+        assertEquals(MicrowaveMath.Result.OK, edge.result());
+        assertEquals(MicrowaveMath.EDGE_DBM, edge.rssi(), 1e-9, "dead on at the edge of range");
+        MicrowaveMath.Signal past = MicrowaveMath.signal(null, west, dish(1725, 0, 270), 30, 0); // 15 % past the edge: below what decodes.
+        assertEquals(MicrowaveMath.Result.WEAK, past.result(), "just out of range still shows on the meter");
+        assertTrue(past.rssi() < MicrowaveMath.SENSITIVITY_DBM && past.rssi() > MicrowaveMath.FLOOR_DBM, "weak, not gone: " + past.rssi());
+        assertEquals(MicrowaveMath.Result.OUT_OF_RANGE, MicrowaveMath.signal(null, west, dish(1900, 0, 270), 30, 0).result(), "a quarter past the edge is gone");
+    }
+
+    @Test
+    void gradesByLevelOnly() {
+        assertEquals(MicrowaveMath.Grade.GOOD, MicrowaveMath.grade(-60));
+        assertEquals(MicrowaveMath.Grade.FAIR, MicrowaveMath.grade(-80));
+        assertEquals(MicrowaveMath.Grade.POOR, MicrowaveMath.grade(-88));
+        assertEquals(MicrowaveMath.Grade.WEAK, MicrowaveMath.grade(-100));
+        assertEquals(MicrowaveMath.Grade.NONE, MicrowaveMath.grade(MicrowaveMath.NO_SIGNAL_DBM));
+    }
 }

@@ -5,6 +5,7 @@ import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.common.blockentities.AprsTerminalBlockEntity;
 import com.arrl.radiocraft.common.blockentities.MicrowaveDishBlockEntity;
 import com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity;
+import com.arrl.radiocraft.common.radio.microwave.MicrowaveMath;
 import com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity.Phase;
 import com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity;
 import com.arrl.radiocraft.common.blockentities.TelephoneBlockEntity;
@@ -14,6 +15,7 @@ import com.arrl.radiocraft.common.radio.TransmitterLog;
 import com.arrl.radiocraft.common.radio.data.TncPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
@@ -93,6 +95,50 @@ public class MicrowaveGameTests {
 				.thenExecute(() -> { // Off again: test plots stay in the world, and a horn reaches the other batches' stations.
 					radio(helper, A).togglePower();
 					radio(helper, B).togglePower();
+				})
+				.thenSucceed();
+	}
+
+	/**
+	 * A radio with coax up a two-block pole to a dish on top, at {@code radio}, the pole {@code step} blocks along x and
+	 * the dish pointing {@code azimuth}: the maintainer's yard layout of 2026-10-27.
+	 */
+	private static BlockPos poleStation(GameTestHelper helper, BlockPos radio, int step, double azimuth) {
+		helper.setBlock(radio, RadiocraftBlocks.MICROWAVE_RADIO.get());
+		BlockPos foot = radio.offset(step, 0, 0), pole = radio.offset(2 * step, 0, 0);
+		helper.setBlock(pole, Blocks.STONE);
+		helper.setBlock(pole.above(), Blocks.STONE);
+		GameTestUtil.placeWire(helper, foot, RadiocraftBlocks.COAX_WIRE.get());
+		GameTestUtil.placeWire(helper, foot.above(), RadiocraftBlocks.COAX_WIRE.get()); // Climbs onto the pole's top.
+		BlockPos top = pole.above(2);
+		helper.setBlock(top, RadiocraftBlocks.SATELLITE_DISH.get());
+		helper.runAfterDelay(1, () -> dish(helper, top).setAzimuth(azimuth));
+		return top;
+	}
+
+	/**
+	 * Two dishes on short poles nine blocks apart see each other over a one-block step in the ground between them (the
+	 * terrain atlas used to call that blocked), and not through a spruce tree in the beam.
+	 */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100, batch = BATCH + "_path")
+	public static void beamClearsAStepButNotATree(GameTestHelper helper) {
+		BlockPos a = new BlockPos(1, 1, 4), b = new BlockPos(14, 1, 4);
+		poleStation(helper, a, 1, 90.0D);
+		poleStation(helper, b, -1, 270.0D);
+		helper.setBlock(new BlockPos(7, 1, 4), Blocks.STONE); // The step, under the beam.
+		helper.setBlock(new BlockPos(8, 1, 4), Blocks.STONE);
+		helper.startSequence()
+				.thenIdle(4)
+				.thenWaitUntil(() -> helper.assertTrue(radio(helper, a).getDishInfo().size() == 1 && radio(helper, b).getDishInfo().size() == 1, "A dish is missing from its coax"))
+				.thenExecute(() -> {
+					MicrowaveMath.Signal signal = MicrowaveRadioBlockEntity.bestSignal(helper.getLevel(), radio(helper, a), radio(helper, b));
+					helper.assertTrue(signal.result() == MicrowaveMath.Result.OK, "Over a one-block step the beam reads " + signal.result());
+					helper.setBlock(new BlockPos(8, 2, 4), Blocks.SPRUCE_LOG);
+					helper.setBlock(new BlockPos(8, 3, 4), Blocks.SPRUCE_LEAVES.defaultBlockState().setValue(net.minecraft.world.level.block.LeavesBlock.PERSISTENT, true));
+				})
+				.thenExecute(() -> {
+					MicrowaveMath.Signal signal = MicrowaveRadioBlockEntity.bestSignal(helper.getLevel(), radio(helper, a), radio(helper, b));
+					helper.assertTrue(signal.result() == MicrowaveMath.Result.BLOCKED, "Through a tree the beam reads " + signal.result());
 				})
 				.thenSucceed();
 	}

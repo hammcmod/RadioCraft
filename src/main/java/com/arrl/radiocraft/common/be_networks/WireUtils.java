@@ -1,5 +1,7 @@
 package com.arrl.radiocraft.common.be_networks;
 
+import com.arrl.radiocraft.common.blocks.Strand;
+import com.arrl.radiocraft.common.blocks.StackedBlocks;
 import net.minecraft.world.level.BlockGetter;
 import com.arrl.radiocraft.common.blocks.radios.VHFRepeaterBlock;
 import com.arrl.radiocraft.common.blocks.antennas.DuplexerBlock;
@@ -18,17 +20,25 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import org.apache.commons.lang3.tuple.Pair;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+/**
+ * The walk along wires that joins devices into networks. It moves between {@link Strand}s (a kind of cable at a
+ * position: a wire block, or one cable of a bundle), entering the next block only along the strands the current one
+ * joins ({@link WireBlock#joins}), so dyed coax stays apart from other colours whether it runs as blocks of its own or
+ * inside a bundle. Positions already walked are kept as strands too, a device as a strand with no kind.
+ */
 public class WireUtils {
 
 	/** The wire blocks a power network can run through. */
 	public static WireBlock[] powerWires() {
-		return new WireBlock[] { RadiocraftBlocks.WIRE.get(), (WireBlock)RadiocraftBlocks.WATERPROOF_WIRE.get(), RadiocraftBlocks.PASSTHROUGH.get() };
+		java.util.List<WireBlock> wires = new java.util.ArrayList<>(List.of(RadiocraftBlocks.WIRE.get(), (WireBlock)RadiocraftBlocks.WATERPROOF_WIRE.get(), RadiocraftBlocks.PASSTHROUGH.get()));
+		RadiocraftBlocks.COLOURED_WIRE.values().forEach(wire -> wires.add(wire.get())); // Which colours join is WireBlock#joins.
+		return wires.toArray(WireBlock[]::new);
 	}
 
 	/** The wire blocks a coax network can run through. */
@@ -43,17 +53,38 @@ public class WireUtils {
 		return state.getBlock() instanceof WireBlock wire && !wire.isPower && !wire.conductsAll();
 	}
 
+	/** True if there is coax of any colour at {@code pos}: a coax block, or a bundle with a coax strand. */
+	public static boolean hasCoax(BlockGetter level, BlockPos pos) {
+		for(Strand strand : Strand.at(level, pos))
+			if(strand.kind() != null && !strand.kind().isPower && !strand.kind().conductsAll())
+				return true;
+		return false;
+	}
+
+	/** True if the walk through {@code wires} is the power one (they include the power wire) rather than the coax one. */
+	public static boolean isPowerWalk(Set<WireBlock> wires) {
+		return wires.contains(RadiocraftBlocks.WIRE.get());
+	}
+
 	/**
-	 * Merges all connections to a wire into a single network, or creates a new one.
+	 * Merges all connections to a strand into a single network, or creates a new one.
 	 * @param level The {@link Level} to check.
-	 * @param pos The {@link BlockPos} to merge from.
+	 * @param strand The strand to merge from.
 	 * @param connection {@link Predicate} determining what counts as a valid connection.
 	 * @param wires List of valid {@link WireBlock}s
 	 */
-	public static void mergeNetworks(Level level, BlockPos pos, Predicate<BENetworkObject> connection, Supplier<BENetwork> fallbackSupplier, WireBlock... wires) {
-		Map<BENetworkObject, Direction> connections = getConnections(level, pos, connection, wires);
+	public static void mergeNetworks(Level level, Strand strand, Predicate<BENetworkObject> connection, Supplier<BENetwork> fallbackSupplier, WireBlock... wires) {
+		Map<BENetworkObject, Direction> connections = getConnections(new HashMap<>(), new HashSet<>(), level, strand, connection, Set.of(wires));
 		if(!connections.isEmpty())
 			joinAll(level, connections, fallbackSupplier);
+	}
+
+	/** {@link #mergeNetworks(Level, Strand, Predicate, Supplier, WireBlock...)} for every strand at {@code pos} of a kind in {@code wires}. */
+	public static void mergeNetworks(Level level, BlockPos pos, Predicate<BENetworkObject> connection, Supplier<BENetwork> fallbackSupplier, WireBlock... wires) {
+		Set<WireBlock> wireSet = Set.of(wires);
+		for(Strand strand : Strand.at(level, pos))
+			if(wireSet.contains(strand.kind()))
+				mergeNetworks(level, strand, connection, fallbackSupplier, wires);
 	}
 
 	/**
@@ -98,38 +129,39 @@ public class WireUtils {
 	}
 
 	/**
-	 * Splits what a wire used to join into separate networks: the blocks in {@code links} are walked (without passing
-	 * through the wire at {@code pos} if it is gone) and every group that is still connected to each other gets a
-	 * network of its own.
+	 * Splits what a strand used to join into separate networks: the blocks in {@code links} are walked (without passing
+	 * through any strand in {@code gone}) and every group that is still connected to each other gets a network of its
+	 * own.
 	 *
 	 * @param level The {@link Level} to check.
-	 * @param pos The {@link BlockPos} of the wire being split.
-	 * @param links The blocks the wire was linked to, with the side of each it touched ({@link WireBlock#getLinks}).
-	 * @param wireGone True if the wire at {@code pos} has been removed; false if it is still there but lost a link
-	 *                 (a climb that ended), in which case the walk may still pass through it.
+	 * @param from The strand being split: the walk out of each link follows the strands its kind joins.
+	 * @param gone The strands that have been removed (none if {@code from} is still there but lost a link, a climb
+	 *             that ended, in which case the walk may still pass through it).
+	 * @param links The blocks the strand was linked to, with the side of each it touched ({@link WireBlock#getLinks}).
 	 * @param connection A {@link Predicate} determining if a {@link BENetworkObject} is a valid connection or not.
 	 * @param wires List of valid {@link WireBlock}s.
 	 */
-	public static void splitNetworks(Level level, BlockPos pos, Map<BlockPos, Direction> links, boolean wireGone, Predicate<BENetworkObject> connection, WireBlock... wires) {
+	public static void splitNetworks(Level level, Strand from, Set<Strand> gone, Map<BlockPos, Direction> links, Predicate<BENetworkObject> connection, WireBlock... wires) {
 		Map<BlockPos, Map<BENetworkObject, Direction>> connectionsPerSide = new LinkedHashMap<>();
 		Set<WireBlock> wireSet = Set.of(wires);
-		Set<BlockPos> blacklist = new HashSet<>(); // Sharing a set means sides connected to each other actually won't get double processed.
-		if(wireGone)
-			blacklist.add(pos);
+		Set<Strand> blacklist = new HashSet<>(gone); // Sharing a set means sides connected to each other actually won't get double processed.
 
 		for(Map.Entry<BlockPos, Direction> link : links.entrySet()) {
 			BlockPos checkPos = linkTarget(level, link.getKey(), link.getValue());
 
 			BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
-			if(blacklist.contains(checkPos))
+			if(blacklist.contains(Strand.device(checkPos)))
 				continue; // Already reached through another side (a loop), leave it with that side.
 			if(networkObject != null && connection.test(networkObject)) {
 				Map<BENetworkObject, Direction> side = new HashMap<>();
 				addConnection(side, blacklist, level, checkPos, networkObject, link.getValue(), connection, wireSet); // Keeps what lies beyond a tuner with it.
 				connectionsPerSide.put(checkPos, side);
 			}
-			else if(wireSet.contains(level.getBlockState(checkPos).getBlock()))
-				connectionsPerSide.put(checkPos, getConnections(new HashMap<>(), blacklist, level, checkPos, connection, wireSet));
+			else {
+				Map<BENetworkObject, Direction> side = enter(new HashMap<>(), blacklist, level, checkPos, from.kind(), connection, wireSet);
+				if(!side.isEmpty())
+					connectionsPerSide.put(checkPos, side);
+			}
 		}
 
 		for(BlockPos side : connectionsPerSide.keySet()) {
@@ -194,12 +226,13 @@ public class WireUtils {
 			return;
 
 		Set<WireBlock> wireSet = Set.of(wires);
+		boolean power = isPowerWalk(wireSet);
 
 		// A pass-through device (antenna tuner) is one node for all its sides: everything reachable from any side goes
 		// on one network, otherwise the radio on one side and the antenna on the other would never meet.
-		boolean passThrough = networkObject instanceof IPassThroughNetworkObject;
-		Set<BlockPos> sharedBlacklist = new HashSet<>();
-		sharedBlacklist.add(pos);
+		boolean passThrough = networkObject instanceof IPassThroughNetworkObject through && through.passesThrough(power);
+		Set<Strand> sharedBlacklist = new HashSet<>();
+		sharedBlacklist.add(Strand.device(pos));
 		Map<BENetworkObject, Direction> allConnections = new HashMap<>();
 		Direction firstSide = null;
 
@@ -209,15 +242,15 @@ public class WireUtils {
 			Direction dir = link.getValue();
 
 			if(passThrough) {
-				getConnections(allConnections, sharedBlacklist, level, checkPos, validConnection, wireSet);
+				enter(allConnections, sharedBlacklist, level, checkPos, null, validConnection, wireSet);
 				if(firstSide == null)
 					firstSide = dir;
 				continue;
 			}
 
-			Set<BlockPos> blacklist = new HashSet<>();
-			blacklist.add(pos); // Don't walk back into ourselves through the wire.
-			Map<BENetworkObject, Direction> connections = getConnections(new HashMap<>(), blacklist, level, checkPos, validConnection, wireSet);
+			Set<Strand> blacklist = new HashSet<>();
+			blacklist.add(Strand.device(pos)); // Don't walk back into ourselves through the wire.
+			Map<BENetworkObject, Direction> connections = enter(new HashMap<>(), blacklist, level, checkPos, null, validConnection, wireSet);
 			if(connections.isEmpty())
 				continue; // Nothing on the other end yet; whatever loads there later will connect to us.
 
@@ -229,7 +262,7 @@ public class WireUtils {
 		for(Direction dir : Direction.values()) {
 			BlockPos checkPos = pos.relative(dir);
 			BENetworkObject other = IBENetworks.getObject(level, checkPos);
-			if(other == null || !validConnection.test(other) || !linksDirectly(networkObject, other) || sharedBlacklist.contains(checkPos))
+			if(other == null || !validConnection.test(other) || !linksDirectly(networkObject, other, power) || sharedBlacklist.contains(Strand.device(checkPos)))
 				continue;
 			if(passThrough) {
 				addConnection(allConnections, sharedBlacklist, level, checkPos, other, dir.getOpposite(), validConnection, wireSet);
@@ -237,8 +270,8 @@ public class WireUtils {
 					firstSide = dir;
 				continue;
 			}
-			Set<BlockPos> blacklist = new HashSet<>();
-			blacklist.add(pos);
+			Set<Strand> blacklist = new HashSet<>();
+			blacklist.add(Strand.device(pos));
 			Map<BENetworkObject, Direction> connections = new HashMap<>();
 			addConnection(connections, blacklist, level, checkPos, other, dir.getOpposite(), validConnection, wireSet);
 			connections.put(networkObject, dir);
@@ -253,7 +286,8 @@ public class WireUtils {
 
 
 	/**
-	 * Get all connections found on a set of wires.
+	 * Get all connections found along the cables at {@code pos}: the walk starts down every strand there of a kind in
+	 * {@code wires}.
 	 *
 	 * @param level The {@link Level} to check in.
 	 * @param pos The {@link BlockPos} of the starting wire.
@@ -261,81 +295,119 @@ public class WireUtils {
 	 * @param wires List of valid {@link WireBlock}s
 	 */
 	public static Map<BENetworkObject, Direction> getConnections(Level level, BlockPos pos, Predicate<BENetworkObject> connection, WireBlock... wires) {
-		return getConnections(new HashMap<>(), new HashSet<>(), level, pos, connection, Set.of(wires));
+		return enter(new HashMap<>(), new HashSet<>(), level, pos, null, connection, Set.of(wires));
 	}
 
-	public static Map<BENetworkObject, Direction> getConnections(Map<BENetworkObject, Direction> connections, Set<BlockPos> blackList, Level level, BlockPos pos, Predicate<BENetworkObject> connection, Set<WireBlock> wires) {
-		blackList.add(pos);
-		BlockState state = level.getBlockState(pos);
+	/**
+	 * Walks into the cables at {@code pos}: down every strand there whose kind is in {@code wires} and that
+	 * {@code from} (the kind of the strand we come from, null for a device, which joins any) joins, unless already walked.
+	 */
+	public static Map<BENetworkObject, Direction> enter(Map<BENetworkObject, Direction> connections, Set<Strand> blackList, Level level, BlockPos pos,
+			@Nullable WireBlock from, Predicate<BENetworkObject> connection, Set<WireBlock> wires) {
+		for(Strand strand : Strand.at(level, pos)) {
+			WireBlock kind = strand.kind();
+			if(kind == null || !wires.contains(kind) || (from != null && !from.joins(kind)) || blackList.contains(strand))
+				continue;
+			getConnections(connections, blackList, level, strand, connection, wires);
+		}
+		return connections;
+	}
 
-		if(wires.contains(state.getBlock())) {
-			WireBlock wire = (WireBlock)state.getBlock();
+	/** Get all connections found along {@code strand} and the cables it links to. */
+	public static Map<BENetworkObject, Direction> getConnections(Map<BENetworkObject, Direction> connections, Set<Strand> blackList, Level level, Strand strand, Predicate<BENetworkObject> connection, Set<WireBlock> wires) {
+		blackList.add(strand);
+		WireBlock wire = strand.kind();
+		BlockState state = strand.state(level);
+		if(wire == null || state == null)
+			return connections;
 
-			for(Map.Entry<BlockPos, Direction> link : wire.getLinks(level, pos, state).entrySet()) {
-				BlockPos checkPos = linkTarget(level, link.getKey(), link.getValue());
-				if(blackList.contains(checkPos))
-					continue;
+		for(Map.Entry<BlockPos, Direction> link : wire.getLinks(level, strand.pos(), state).entrySet()) {
+			BlockPos checkPos = linkTarget(level, link.getKey(), link.getValue());
+			if(blackList.contains(Strand.device(checkPos)))
+				continue;
 
-				BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
-				if(networkObject == null)
-					networkObject = LightningRodAntennas.ensure(level, checkPos); // A rod has no block entity to make it.
-				if(networkObject != null && connection.test(networkObject))
-					addConnection(connections, blackList, level, checkPos, networkObject, link.getValue(), connection, wires);
-				else
-					getConnections(connections, blackList, level, checkPos, connection, wires);
-			}
+			BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
+			if(networkObject == null)
+				networkObject = LightningRodAntennas.ensure(level, checkPos); // A rod has no block entity to make it.
+			if(networkObject != null && connection.test(networkObject))
+				addConnection(connections, blackList, level, checkPos, networkObject, link.getValue(), connection, wires);
+			else
+				enter(connections, blackList, level, checkPos, wire, connection, wires);
 		}
 		return connections;
 	}
 
 	/**
-	 * Records a device the walk reached and, if it is an {@link IPassThroughNetworkObject}, keeps walking out of its other
-	 * sides, so devices beyond it join the same connection set.
+	 * Records a device the walk reached and, if it is an {@link IPassThroughNetworkObject} for this kind of network,
+	 * keeps walking out of its other sides, so devices beyond it join the same connection set.
 	 */
-	private static void addConnection(Map<BENetworkObject, Direction> connections, Set<BlockPos> blackList, Level level, BlockPos pos, BENetworkObject networkObject, Direction side, Predicate<BENetworkObject> connection, Set<WireBlock> wires) {
+	private static void addConnection(Map<BENetworkObject, Direction> connections, Set<Strand> blackList, Level level, BlockPos pos, BENetworkObject networkObject, Direction side, Predicate<BENetworkObject> connection, Set<WireBlock> wires) {
 		connections.put(networkObject, side);
-		if(!(networkObject instanceof IPassThroughNetworkObject) || !blackList.add(pos))
+		boolean power = isPowerWalk(wires);
+		if(!(networkObject instanceof IPassThroughNetworkObject through) || !through.passesThrough(power) || !blackList.add(Strand.device(pos)))
 			return;
 
-		for(BlockPos checkPos : wireLinksOf(level, pos, wires).keySet()) {
-			if(!blackList.contains(checkPos))
-				getConnections(connections, blackList, level, checkPos, connection, wires);
-		}
+		for(BlockPos checkPos : wireLinksOf(level, pos, wires).keySet())
+			enter(connections, blackList, level, checkPos, null, connection, wires);
 		// ...and into devices it links to by touching (the next solar panel in a row, the charge controller at its end).
 		for(Direction dir : Direction.values()) {
 			BlockPos checkPos = pos.relative(dir);
 			BENetworkObject other = IBENetworks.getObject(level, checkPos);
-			if(other != null && connection.test(other) && linksDirectly(networkObject, other) && !blackList.contains(checkPos))
+			if(other != null && connection.test(other) && linksDirectly(networkObject, other, power) && !blackList.contains(Strand.device(checkPos)))
 				addConnection(connections, blackList, level, checkPos, other, dir.getOpposite(), connection, wires);
 		}
 	}
 
 	/**
 	 * Where a wire's link into {@code target} (touching its {@code side}) really goes. Coax laid straight behind a
-	 * repeater with a duplexer on top goes up the duplexer's cable, so it reaches the duplexer, not the repeater.
+	 * repeater with a duplexer on top goes up the duplexer's cable, so it reaches the duplexer, not the repeater. A wire
+	 * touching an upper cell of a stacked block (the commercial repeater's rack) reaches the block entity in its bottom
+	 * cell.
 	 */
 	public static BlockPos linkTarget(BlockGetter level, BlockPos target, Direction side) {
-		return duplexerOnTop(level, target) && side == repeaterBack(level.getBlockState(target)) ? target.above() : target;
+		BlockState state = level.getBlockState(target);
+		if(state.hasProperty(StackedBlocks.PART) && state.getValue(StackedBlocks.PART) > 0)
+			return StackedBlocks.bottom(target, state, StackedBlocks.PART);
+		return duplexerOnTop(level, target) && side == repeaterBack(state) ? target.above() : target;
 	}
 
 	/**
 	 * The wires a device at {@code pos} is linked to ({@link WireBlock#wireLinksAround}), with the duplexer's cable:
-	 * a repeater with a duplexer on top does not take the coax behind it, the duplexer does.
+	 * a repeater with a duplexer on top does not take the coax behind it, the duplexer does. A stacked block (the
+	 * commercial repeater's rack) takes wire touching any of its cells.
 	 */
 	public static Map<BlockPos, Direction> wireLinksOf(BlockGetter level, BlockPos pos, Set<WireBlock> wires) {
 		Map<BlockPos, Direction> links = WireBlock.wireLinksAround(level, pos, wires);
+		BlockState state = level.getBlockState(pos);
+		if(state.hasProperty(StackedBlocks.PART) && state.getValue(StackedBlocks.PART) == 0) {
+			for(int cell = 1; cell < StackedBlocks.HEIGHT; cell++) {
+				BlockPos upper = pos.above(cell);
+				BlockState upperState = level.getBlockState(upper);
+				if(!upperState.is(state.getBlock()) || upperState.getValue(StackedBlocks.PART) != cell)
+					break;
+				for(Map.Entry<BlockPos, Direction> link : WireBlock.wireLinksAround(level, upper, wires).entrySet())
+					if(!link.getKey().equals(pos) && !Strand.at(level, link.getKey()).isEmpty() && !isCellOf(level, link.getKey(), pos))
+						links.putIfAbsent(link.getKey(), link.getValue());
+			}
+		}
 		if(duplexerOnTop(level, pos)) {
-			Direction back = repeaterBack(level.getBlockState(pos));
+			Direction back = repeaterBack(state);
 			links.remove(pos.relative(back));
 		}
 		BlockPos below = pos.below();
-		if(level.getBlockState(pos).getBlock() instanceof DuplexerBlock && duplexerOnTop(level, below)) {
+		if(state.getBlock() instanceof DuplexerBlock && duplexerOnTop(level, below)) {
 			Direction back = repeaterBack(level.getBlockState(below));
 			BlockPos behind = below.relative(back);
-			if(wires.contains(level.getBlockState(behind).getBlock()))
+			if(!Strand.at(level, behind).isEmpty())
 				links.put(behind, back);
 		}
 		return links;
+	}
+
+	/** True if {@code pos} is a cell of the stacked block whose bottom is {@code bottom}. */
+	private static boolean isCellOf(BlockGetter level, BlockPos pos, BlockPos bottom) {
+		BlockState state = level.getBlockState(pos);
+		return state.hasProperty(StackedBlocks.PART) && StackedBlocks.bottom(pos, state, StackedBlocks.PART).equals(bottom);
 	}
 
 	private static boolean duplexerOnTop(BlockGetter level, BlockPos pos) {
@@ -346,46 +418,8 @@ public class WireUtils {
 		return repeater.getValue(VHFRepeaterBlock.HORIZONTAL_FACING).getOpposite();
 	}
 
-	/** True if either object says it joins the other by touching, see {@link BENetworkObject#linksDirectlyTo}. */
-	private static boolean linksDirectly(BENetworkObject a, BENetworkObject b) {
-		return a.linksDirectlyTo(b) || b.linksDirectlyTo(a);
+	/** True if either object says it joins the other by touching on this kind of network, see {@link BENetworkObject#linksDirectlyTo}. */
+	private static boolean linksDirectly(BENetworkObject a, BENetworkObject b, boolean power) {
+		return a.linksDirectlyTo(b, power) || b.linksDirectlyTo(a, power);
 	}
-
-	/**
-	 * Get the first connection found on a set of wires. First meaning the first the algorithm finds.
-	 *
-	 * @param level The {@link Level} to check in.
-	 * @param pos The {@link BlockPos} of the starting wire.
-	 * @param connection A {@link Predicate} determining if a {@link BENetworkObject} is a valid connection or not.
-	 * @param wires List of valid {@link WireBlock}s
-	 */
-	public static Pair<BENetworkObject, Direction> getFirstConnection(Level level, BlockPos pos, Predicate<BENetworkObject> connection, WireBlock... wires) {
-		return getFirstConnection(new HashSet<>(), level, pos, connection, Set.of(wires));
-	}
-
-	public static Pair<BENetworkObject, Direction> getFirstConnection(Set<BlockPos> blackList, Level level, BlockPos pos, Predicate<BENetworkObject> connection, Set<WireBlock> wires) {
-		blackList.add(pos); // Add self to blacklist, stops infinite loops.
-		BlockState state = level.getBlockState(pos);
-
-		if(wires.contains(state.getBlock())) { // This call is fine, IntelliJ just dislikes the type mismatch.
-			WireBlock wire = (WireBlock)state.getBlock();
-
-			for(Map.Entry<BlockPos, Direction> link : wire.getLinks(level, pos, state).entrySet()) {
-				BlockPos checkPos = linkTarget(level, link.getKey(), link.getValue());
-				if(blackList.contains(checkPos))
-					continue;
-
-				BENetworkObject networkObject = IBENetworks.getObject(level, checkPos);
-				if(networkObject != null && connection.test(networkObject))
-					return Pair.of(networkObject, link.getValue());
-				else {
-					Pair<BENetworkObject, Direction> next = getFirstConnection(blackList, level, checkPos, connection, wires);
-					if(next != null)
-						return next;
-				}
-			}
-		}
-		return null;
-	}
-
 }

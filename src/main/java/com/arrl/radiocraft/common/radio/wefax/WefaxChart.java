@@ -166,11 +166,13 @@ public final class WefaxChart {
 		}
 	}
 
+	/** Where the station (and so the reader) is: a ringed dot in the middle, named. */
 	static void stationMark(Canvas canvas, Frame frame, BlockPos center) {
 		int x = frame.pixelX(center.getX() + 0.5), z = frame.pixelZ(center.getZ() + 0.5);
 		canvas.ring(x, z, 3, PAPER);
 		canvas.ring(x, z, 2, INK);
 		canvas.set(x, z, INK);
+		canvas.label("YOU", x + 4, z + 2);
 	}
 
 	// ---------------------------------------------------------------- Radar
@@ -206,8 +208,10 @@ public final class WefaxChart {
 			StormReport.TrackPoint later = storm.at(now + VECTOR_MINUTES * 1200L);
 			canvas.arrow(x, z, frame.pixelX(later.x()), frame.pixelZ(later.z()), INK);
 			symbol(canvas, storm.kind(), x, z);
-			canvas.label(storm.category() >= 0 ? "S" + storm.id() + " " + (storm.kind() == StormReport.Kind.TORNADO
-					? "EF" : "C") + storm.category() : "S" + storm.id(), x + 5, z - 7);
+			// Its number and plain name ("S3 SVR T-STORM"), kept on the sheet; the arrow shows where it is going.
+			String name = "S" + storm.id() + " " + storm.chartName(WeatherReports.tornadoDown(level, source, storm, now));
+			int lx = Math.max(1, Math.min(SIZE - 1 - Canvas.width(name), x + 5)), lz = z - 7 < CHART_TOP + 1 ? z + 5 : z - 7;
+			canvas.label(name, lx, lz);
 		}
 	}
 
@@ -400,7 +404,7 @@ public final class WefaxChart {
 						for(int dx = 0; dx < 6; dx++)
 							if(screen(b, 2 + (b - 1) * 8 + dx, top + 2 + dy))
 								canvas.set(2 + (b - 1) * 8 + dx, top + 2 + dy, INK);
-				yield "LGT-EXT " + frame.blocksPerPixel() * 32 + "/DIV";
+				yield "LGT..HVY RAIN  N UP  " + frame.blocksPerPixel() * 32 + "/SQ";
 			}
 			case FORECAST -> {
 				Optional<WeatherSource.Arrival> next = source.nextArrival(level, center, source.forecastHorizon(level));
@@ -545,10 +549,52 @@ public final class WefaxChart {
 	/** Characters across a text sheet, and lines down it under its title. */
 	public static final int TEXT_COLUMNS = 31, TEXT_LINES = 17;
 
-	/** A sheet of text in the chart font: {@code title} at the top, ruled off, then up to {@link #TEXT_LINES} lines. */
+	/**
+	 * The maintainer's WEFAX banner (2026-10-27), a figlet "WEFAX": drawn 3 pixels a character in the bottom right
+	 * corner of the solar weather sheets, where nothing else goes. Each character is a stroke in its 3 x 3 cell.
+	 */
+	private static final String[] WEFAX_BANNER = {
+			" __        __   _____ _    __  __",
+			" \\ \\      / /__|  ___/ \\   \\ \\/ /",
+			"  \\ \\ /\\ / / _ \\ |_ / _ \\   \\  / ",
+			"   \\ V  V /  __/  _/ ___ \\  /  \\ ",
+			"    \\_/\\_/ \\___|_|/_/   \\_\\/_/\\_\\",
+	};
+	/** The pixels (x, y in a 3 x 3 cell) each banner character lights. */
+	private static final Map<Character, int[][]> STROKES = Map.of(
+			'_', new int[][] { { 0, 2 }, { 1, 2 }, { 2, 2 } },
+			'|', new int[][] { { 1, 0 }, { 1, 1 }, { 1, 2 } },
+			'/', new int[][] { { 2, 0 }, { 1, 1 }, { 0, 2 } },
+			'\\', new int[][] { { 0, 0 }, { 1, 1 }, { 2, 2 } },
+			'V', new int[][] { { 0, 0 }, { 2, 0 }, { 0, 1 }, { 2, 1 }, { 1, 2 } });
+
+	/** Draws {@link #WEFAX_BANNER} with its bottom right corner two pixels in from the sheet's. */
+	static void banner(Canvas canvas) {
+		int columns = 0;
+		for(String row : WEFAX_BANNER)
+			columns = Math.max(columns, row.length());
+		int x0 = SIZE - 2 - columns * 3, y0 = SIZE - 2 - WEFAX_BANNER.length * 3;
+		for(int row = 0; row < WEFAX_BANNER.length; row++)
+			for(int col = 0; col < WEFAX_BANNER[row].length(); col++) {
+				int[][] strokes = STROKES.get(WEFAX_BANNER[row].charAt(col));
+				if(strokes == null)
+					continue;
+				for(int[] p : strokes)
+					canvas.set(x0 + col * 3 + p[0], y0 + row * 3 + p[1], INK);
+			}
+	}
+
+	/** {@link #paintText(String, List, boolean)} without the banner. */
 	public static byte[] paintText(String title, List<String> lines) {
+		return paintText(title, lines, false);
+	}
+
+	/** A sheet of text in the chart font: {@code title} at the top, ruled off, then up to {@link #TEXT_LINES} lines; the WEFAX banner bottom right if asked. */
+	public static byte[] paintText(String title, List<String> lines, boolean banner) {
 		Canvas canvas = new Canvas();
 		canvas.fill(PAPER);
+		if(banner)
+			banner(canvas);
 		String head = title.toUpperCase(Locale.ROOT);
 		canvas.text(head.length() > TEXT_COLUMNS ? head.substring(0, TEXT_COLUMNS) : head, 2, 3, INK);
 		canvas.line(2, 11, SIZE - 3, 11, INK);

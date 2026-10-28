@@ -33,6 +33,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -41,6 +42,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -64,6 +66,10 @@ import java.util.function.Supplier;
  * block. {@link #refresh} also merges or splits the networks when the climb link appears, disappears or moves,
  * since no wire is placed or removed then. Everything that follows direct neighbours is kept up to date by
  * {@link #updateShape} as well.
+ * <p>
+ * Several wires can share a block as a {@link WireBundleBlock}: each cable in it (a {@link Strand}) keeps the state
+ * it would have as a wire block of its own, and every rule here is written against strands, so a neighbour that is a
+ * bundle counts for the kinds of cable it holds. Using a wire item on a wire of another kind makes the bundle.
  */
 public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
@@ -166,28 +172,35 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		}
 	}
 
-	private static final double SHAPE_PADDING = 1.0D; // A 2 px cable with 1 px either side: enough to click, tight enough to read as the cable.
-	private static final VoxelShape MIDDLE_SHAPE =
-			makePaddedBox(7.0D, 0.0D, 7.0D, 9.0D, 2.0D, 9.0D);
-	private static final VoxelShape CENTRE_VERTICAL_SHAPE = makePaddedBox(7.0D, 2.0D, 7.0D, 9.0D, 16.0D, 9.0D);
-	private static final HashMap<Direction, VoxelShape> STUB_SHAPES = new HashMap<>();
-	private static final HashMap<Direction, VoxelShape> EDGE_SHAPES = new HashMap<>();
-	private static final HashMap<Direction, VoxelShape> CORNER_SHAPES = new HashMap<>();
+	private static final double SHAPE_PADDING = 1.0D; // The cable with 1 px either side: enough to click, tight enough to read as the cable.
 
-	static {
-		CORNER_SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 1.0D));
-		CORNER_SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 15.0D, 9.0D, 2.0D, 16.0D));
-		CORNER_SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 1.0D, 2.0D, 9.0D));
-		CORNER_SHAPES.put(Direction.EAST, makePaddedBox(15.0D, 0.0D, 7.0D, 16.0D, 2.0D, 9.0D));
-		STUB_SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 2.0D, 7.0D));
-		STUB_SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 9.0D, 9.0D, 2.0D, 16.0D));
-		STUB_SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 7.0D, 2.0D, 9.0D));
-		STUB_SHAPES.put(Direction.EAST, makePaddedBox(9.0D, 0.0D, 7.0D, 16.0D, 2.0D, 9.0D));
-		// The vertical run along an edge, floor to ceiling.
-		EDGE_SHAPES.put(Direction.NORTH, makePaddedBox(7.0D, 0.0D, 0.0D, 9.0D, 16.0D, 2.0D));
-		EDGE_SHAPES.put(Direction.SOUTH, makePaddedBox(7.0D, 0.0D, 14.0D, 9.0D, 16.0D, 16.0D));
-		EDGE_SHAPES.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, 7.0D, 2.0D, 16.0D, 9.0D));
-		EDGE_SHAPES.put(Direction.EAST, makePaddedBox(14.0D, 0.0D, 7.0D, 16.0D, 16.0D, 9.0D));
+	/** The outline pieces of a cable {@code w} pixels square, centred on the middle of the block (see tools/wire_assets.py). */
+	private record Pieces(VoxelShape middle, VoxelShape vertical, Map<Direction, VoxelShape> stubs, Map<Direction, VoxelShape> edges, Map<Direction, VoxelShape> corners) {
+		static Pieces of(double w) {
+			double lo = 8.0D - w / 2.0D, hi = 8.0D + w / 2.0D, h = w / 2.0D;
+			Map<Direction, VoxelShape> stubs = new HashMap<>(), edges = new HashMap<>(), corners = new HashMap<>();
+			corners.put(Direction.NORTH, makePaddedBox(lo, 0.0D, 0.0D, hi, w, h));
+			corners.put(Direction.SOUTH, makePaddedBox(lo, 0.0D, 16.0D - h, hi, w, 16.0D));
+			corners.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, lo, h, w, hi));
+			corners.put(Direction.EAST, makePaddedBox(16.0D - h, 0.0D, lo, 16.0D, w, hi));
+			stubs.put(Direction.NORTH, makePaddedBox(lo, 0.0D, 0.0D, hi, w, lo));
+			stubs.put(Direction.SOUTH, makePaddedBox(lo, 0.0D, hi, hi, w, 16.0D));
+			stubs.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, lo, lo, w, hi));
+			stubs.put(Direction.EAST, makePaddedBox(hi, 0.0D, lo, 16.0D, w, hi));
+			// The vertical run along an edge, floor to ceiling (it straddles the face; only the half inside the block counts).
+			edges.put(Direction.NORTH, makePaddedBox(lo, 0.0D, 0.0D, hi, 16.0D, h));
+			edges.put(Direction.SOUTH, makePaddedBox(lo, 0.0D, 16.0D - h, hi, 16.0D, 16.0D));
+			edges.put(Direction.WEST, makePaddedBox(0.0D, 0.0D, lo, h, 16.0D, hi));
+			edges.put(Direction.EAST, makePaddedBox(16.0D - h, 0.0D, lo, 16.0D, 16.0D, hi));
+			return new Pieces(makePaddedBox(lo, 0.0D, lo, hi, w, hi), makePaddedBox(lo, w, lo, hi, 16.0D, hi), stubs, edges, corners);
+		}
+	}
+
+	private static final Map<Double, Pieces> PIECES = new ConcurrentHashMap<>();
+
+	/** How thick the cable is drawn, pixels: power wire 1, coax 2 (thin hookup wire against fat RG-8, so they tell apart however dyed). */
+	public double width() {
+		return isPower ? 1.0D : 2.0D;
 	}
 
 	public WireBlock(Properties properties, boolean isPower, boolean isWaterproof) {
@@ -236,8 +249,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		BlockGetter level = context.getLevel();
 		BlockPos pos = context.getClickedPos();
 		BlockPos against = pos.relative(face.getOpposite());
-		if(level.getBlockState(against).getBlock() instanceof WireBlock)
-			return isCeiling(level.getBlockState(against));
+		if(Strand.isCable(level.getBlockState(against)))
+			return Strand.isCeilingAt(level, against);
 		BlockPos floor = pos.below(), ceiling = pos.above();
 		return !level.getBlockState(floor).isFaceSturdy(level, floor, Direction.UP) && level.getBlockState(ceiling).isFaceSturdy(level, ceiling, Direction.DOWN);
 	}
@@ -247,7 +260,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 * keeping whether the wire already there hangs from the ceiling.
 	 */
 	public BlockState getBlockState(BlockGetter level, BlockPos pos) {
-		return getBlockState(level, pos, isCeiling(level.getBlockState(pos)));
+		return getBlockState(level, pos, Strand.isCeilingAt(level, pos));
 	}
 
 	/** As {@link #getBlockState(BlockGetter, BlockPos)}, for a wire on the floor or hanging from the ceiling. */
@@ -257,14 +270,14 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				.trySetValue(CEILING, ceiling);
 
 		for(Direction direction : Direction.values())
-			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(level.getBlockState(pos.relative(direction))));
+			state = state.setValue(PROPERTY_BY_DIRECTION.get(direction), canConnectTo(level, pos.relative(direction)));
 		Direction arrive = arrival(level, pos, state);
 
 		// A climb if there is one, trying the edge the run from below is already on first so the cable keeps its line.
 		for(Direction dir : wallOrder(Edge.of(arrive))) {
 			if(canClimb(level, pos, dir, ceiling)) {
 				Direction back = dir.getOpposite();
-				boolean climbBack = canClimb(level, pos, back, ceiling) && isSameKind(level.getBlockState(above(pos.relative(back), ceiling)));
+				boolean climbBack = canClimb(level, pos, back, ceiling) && sameKindState(level, above(pos.relative(back), ceiling)) != null;
 				return state.setValue(HUG, Edge.of(dir)).setValue(CLIMB, climbBack ? Climb.BOTH : Climb.ONE);
 			}
 		}
@@ -284,10 +297,10 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		boolean ceiling = isCeiling(state);
 		WireLook.End end = WireLook.End.NONE;
 		if(hug != null && climb != Climb.NONE)
-			end = isSameKind(level.getBlockState(above(pos.relative(hug), ceiling))) ? WireLook.End.CLIMB_WIRE : WireLook.End.CLIMB_DEVICE;
+			end = sameKindState(level, above(pos.relative(hug), ceiling)) != null ? WireLook.End.CLIMB_WIRE : WireLook.End.CLIMB_DEVICE;
 		else if(hug != null) {
-			BlockState above = level.getBlockState(above(pos, ceiling));
-			if(!isSameKind(above) && canConnectTo(above))
+			BlockPos abovePos = above(pos, ceiling);
+			if(sameKindState(level, abovePos) == null && canConnectTo(level, abovePos))
 				end = WireLook.End.UP_DEVICE; // The run up the edge ends at a device above: turn in to its middle.
 		}
 		return new WireLook.Look(hug, arrival(level, pos, state), end, climb == Climb.BOTH);
@@ -336,8 +349,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	@Nullable
 	private Direction arrival(BlockGetter level, BlockPos pos, BlockState state) {
 		boolean ceiling = isCeiling(state);
-		BlockState below = level.getBlockState(below(pos, ceiling));
-		if(state.getValue(downLink(ceiling)) && isSameKind(below)) {
+		BlockState below = sameKindState(level, below(pos, ceiling));
+		if(state.getValue(downLink(ceiling)) && below != null) {
 			if(isCeiling(below) == ceiling)
 				return below.getValue(HUG).direction();
 			// A floor wire and a ceiling wire joined end to end (a ceiling run turning up a wall, say): one run between
@@ -363,8 +376,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		if(arrive != null)
 			return arrive;
 		// A floor wire and a ceiling wire running towards each other share the run: follow the edge the other is on.
-		BlockState facing = level.getBlockState(above(pos, ceiling));
-		if(isSameKind(facing) && isCeiling(facing) != ceiling && facing.getValue(HUG).direction() != null)
+		BlockState facing = sameKindState(level, above(pos, ceiling));
+		if(facing != null && isCeiling(facing) != ceiling && facing.getValue(HUG).direction() != null)
 			return facing.getValue(HUG).direction();
 		// Of the solid walls around, prefer the one on the side the run leads to at the top, so the cable goes
 		// straight up to the wire it joins instead of up the nearest wall and across.
@@ -380,8 +393,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 */
 	@Nullable
 	private Direction destinationSide(BlockGetter level, BlockPos pos, boolean ceiling) {
-		BlockState above = level.getBlockState(above(pos, ceiling));
-		if(!isSameKind(above))
+		BlockState above = sameKindState(level, above(pos, ceiling));
+		if(above == null)
 			return null;
 		for(Direction dir : Direction.Plane.HORIZONTAL)
 			if(above.getValue(PROPERTY_BY_DIRECTION.get(dir)))
@@ -391,8 +404,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	/** A solid face we can run a cable up: sturdy towards us and not something the wire links to instead. */
 	private boolean isWall(BlockGetter level, BlockPos wallPos, Direction faceTowardsUs) {
-		BlockState wall = level.getBlockState(wallPos);
-		return !canConnectTo(wall) && wall.isFaceSturdy(level, wallPos, faceTowardsUs);
+		return !canConnectTo(level, wallPos) && level.getBlockState(wallPos).isFaceSturdy(level, wallPos, faceTowardsUs);
 	}
 
 	/**
@@ -400,8 +412,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 * the same way up as {@code ceiling} (a floor wire climbs up, a ceiling wire down).
 	 */
 	public boolean climbsTowards(BlockGetter level, BlockPos climberPos, Direction towards, boolean ceiling) {
-		BlockState state = level.getBlockState(climberPos);
-		return isSameKind(state) && isCeiling(state) == ceiling && climbsTowards(state, towards);
+		BlockState state = sameKindState(level, climberPos);
+		return state != null && isCeiling(state) == ceiling && climbsTowards(state, towards);
 	}
 
 	/** True if a wire in {@code state} climbs the wall in direction {@code towards} (its main climb or the second one). */
@@ -434,14 +446,38 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		BlockPos wall = pos.relative(direction);
 		if(!isWall(level, wall, direction.getOpposite()))
 			return false;
-		BlockState target = level.getBlockState(above(wall, ceiling));
-		if(!canConnectTo(target) || (isSameKind(target) && isCeiling(target) != ceiling))
+		BlockPos targetPos = above(wall, ceiling);
+		BlockState target = sameKindState(level, targetPos);
+		if(!canConnectTo(level, targetPos) || (target != null && isCeiling(target) != ceiling))
 			return false; // Nothing to climb to, or a wire the other way up (it could not take the climb in).
-		return !isSameKind(level.getBlockState(above(pos, ceiling)));
+		return sameKindState(level, above(pos, ceiling)) == null;
 	}
 
-	private boolean isSameKind(BlockState state) {
-		return state.getBlock() instanceof WireBlock wire && !wire.conductsAll() && wire.isPower == isPower && joins(wire);
+	/** True if {@code other} is a wire this one runs on as (power with power, coax with coax of a colour that joins). */
+	public boolean isSameKind(WireBlock other) {
+		return !other.conductsAll() && other.isPower == isPower && joins(other);
+	}
+
+	/**
+	 * The state of the wire of this kind at {@code pos}: the wire block there if it is one, or in a bundle the strand of
+	 * exactly this kind, else the first strand of the same kind. Null if there is none.
+	 */
+	@Nullable
+	public BlockState sameKindState(BlockGetter level, BlockPos pos) {
+		BlockState state = level.getBlockState(pos);
+		if(state.getBlock() instanceof WireBlock wire)
+			return isSameKind(wire) ? state : null;
+		if(!(state.getBlock() instanceof WireBundleBlock))
+			return null;
+		BlockState fallback = null;
+		for(BlockState strand : Strand.statesAt(level, pos)) {
+			WireBlock kind = (WireBlock)strand.getBlock();
+			if(kind == this)
+				return strand;
+			if(fallback == null && isSameKind(kind))
+				fallback = strand;
+		}
+		return fallback;
 	}
 
 	/**
@@ -480,11 +516,11 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		if(state.getValue(CLIMB) != Climb.NONE) {
 			Direction hug = state.getValue(HUG).direction();
 			BlockPos top = above(pos.relative(hug), ceiling);
-			if(canConnectTo(level.getBlockState(top)))
+			if(canConnectTo(level, top))
 				out.put(top, hug.getOpposite());
 			if(state.getValue(CLIMB) == Climb.BOTH) {
 				BlockPos back = above(pos.relative(hug.getOpposite()), ceiling);
-				if(canConnectTo(level.getBlockState(back)))
+				if(canConnectTo(level, back))
 					out.put(back, hug);
 			}
 		}
@@ -496,24 +532,27 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	}
 
 	/**
-	 * The wires of the given kinds that a device at {@code pos} is linked to: its six neighbours, any climber at the
+	 * The cables of the given kinds that a device at {@code pos} is linked to: its six neighbours, any climber at the
 	 * foot of a block below-diagonal that climbs up to it, and any ceiling wire above-diagonal that climbs down to it.
-	 * The value is the side of the device the wire touches.
+	 * A bundle counts if any of its strands is of one of the kinds. The value is the side of the device the wire touches.
 	 */
 	public static Map<BlockPos, Direction> wireLinksAround(BlockGetter level, BlockPos pos, Set<WireBlock> wires) {
 		Map<BlockPos, Direction> out = new LinkedHashMap<>();
-		WireBlock self = level.getBlockState(pos).getBlock() instanceof WireBlock here ? here : null; // A device joins any wire.
 		for(Direction dir : Direction.values()) {
 			BlockPos next = pos.relative(dir);
-			if(wires.contains(level.getBlockState(next).getBlock()) && (self == null || self.joins((WireBlock)level.getBlockState(next).getBlock())))
-				out.put(next, dir);
+			for(Strand strand : Strand.at(level, next))
+				if(wires.contains(strand.kind())) {
+					out.put(next, dir);
+					break;
+				}
 			if(dir.getAxis().isHorizontal()) {
 				for(boolean ceiling : new boolean[] { false, true }) {
 					BlockPos foot = below(next, ceiling); // Below-diagonal for a floor climber, above for a ceiling one.
-					BlockState footState = level.getBlockState(foot);
-					if(footState.getBlock() instanceof WireBlock wire && wires.contains(wire) && (self == null || self.joins(wire)) && isCeiling(footState) == ceiling
-							&& climbsTowards(footState, dir.getOpposite()))
-						out.put(foot, dir);
+					for(BlockState footState : Strand.statesAt(level, foot))
+						if(wires.contains((WireBlock)footState.getBlock()) && isCeiling(footState) == ceiling && climbsTowards(footState, dir.getOpposite())) {
+							out.put(foot, dir);
+							break;
+						}
 				}
 			}
 		}
@@ -552,9 +591,13 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			return;
 		if(oldState.is(this))
 			return;
+		strandPlaced(level, pos, state);
+	}
 
+	/** The network bookkeeping for a strand of this kind that has just appeared at {@code pos} (as a block or in a bundle). */
+	public void strandPlaced(Level level, BlockPos pos, BlockState state) {
 		if(checkMultipleSides(level, pos, state)) // Only bother running merge if this wire is actually connecting things.
-			WireUtils.mergeNetworks(level, pos, connectionPredicate(), networkSupplier(), networkWires());
+			WireUtils.mergeNetworks(level, new Strand(pos, this), connectionPredicate(), networkSupplier(), networkWires());
 		if(isPower && level instanceof ServerLevel serverLevel)
 			WireFaults.check(serverLevel, pos); // Shorted, wet, or an open end in the rain.
 	}
@@ -576,11 +619,21 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			return;
 		if(level.isClientSide)
 			return;
+		if(newState.getBlock() instanceof WireBundleBlock)
+			return; // Another cable is joining it: this one carries on as a strand of the bundle (see WireBundleBlock#add).
 
-		Map<BlockPos, Direction> links = getLinks(level, pos, state); // The old state: the block at pos is already gone.
-		if(links.size() >= 2) // Only bother running split if this wire was actually connecting things.
-			WireUtils.splitNetworks(level, pos, links, true, connectionPredicate(), networkWires());
+		strandRemoved(level, pos, state, Set.of(new Strand(pos, this)));
 		super.onRemove(state, level, pos, newState, isMoving);
+	}
+
+	/**
+	 * The network bookkeeping for a strand of this kind that was at {@code pos} in {@code state} and is gone, with
+	 * every strand gone at the same time in {@code gone} (the walk must not pass through any of them).
+	 */
+	public void strandRemoved(Level level, BlockPos pos, BlockState state, Set<Strand> gone) {
+		Map<BlockPos, Direction> links = getLinks(level, pos, state); // The old state: the strand is already gone.
+		if(links.size() >= 2) // Only bother running split if this wire was actually connecting things.
+			WireUtils.splitNetworks(level, new Strand(pos, this), gone, links, connectionPredicate(), networkWires());
 	}
 
 	/**
@@ -594,25 +647,36 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		BlockState old = level.getBlockState(pos);
 		if(!old.is(this))
 			return;
-		BlockState fresh = getBlockState(level, pos);
+		refreshStrand(level, pos, old, fresh -> level.setBlock(pos, fresh, Block.UPDATE_ALL));
+	}
+
+	/**
+	 * {@link #refresh} for a strand of this kind at {@code pos} whose current state is {@code old}: works out the fresh
+	 * state and, if it differs, hands it to {@code store} (which must make it the strand's state before returning, as
+	 * the network walk that follows reads it back) and settles the networks. Returns whether anything changed.
+	 */
+	public boolean refreshStrand(Level level, BlockPos pos, BlockState old, Consumer<BlockState> store) {
+		BlockState fresh = getBlockState(level, pos, isCeiling(old));
 		if(fresh == old)
-			return;
+			return false;
 
 		boolean climbChanged = !climbTargets(pos, old).equals(climbTargets(pos, fresh));
 		Map<BlockPos, Direction> oldLinks = climbChanged ? getLinks(level, pos, old) : Map.of();
 
-		level.setBlock(pos, fresh, Block.UPDATE_ALL);
+		store.accept(fresh);
 		if(!climbChanged)
-			return;
+			return true;
 
 		Map<BlockPos, Direction> newLinks = getLinks(level, pos, fresh);
+		Strand strand = new Strand(pos, this);
 		if(!oldLinks.keySet().containsAll(newLinks.keySet()))
-			WireUtils.mergeNetworks(level, pos, connectionPredicate(), networkSupplier(), networkWires());
+			WireUtils.mergeNetworks(level, strand, connectionPredicate(), networkSupplier(), networkWires());
 		if(!newLinks.keySet().containsAll(oldLinks.keySet())) {
 			Map<BlockPos, Direction> all = new LinkedHashMap<>(oldLinks);
 			all.putAll(newLinks);
-			WireUtils.splitNetworks(level, pos, all, false, connectionPredicate(), networkWires());
+			WireUtils.splitNetworks(level, strand, Set.of(), all, connectionPredicate(), networkWires());
 		}
+		return true;
 	}
 
 	@Override
@@ -622,9 +686,15 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 		if(isPower && level instanceof ServerLevel serverLevel)
 			WireFaults.queue(serverLevel, pos); // Water next to it, a wire joined on: look again next tick.
-		// Everything that follows direct neighbours is recomputed; the climb (which depends on a diagonal block and
-		// carries network bookkeeping) is left to refresh().
-		BlockState fresh = getBlockState(level, pos).setValue(BlockStateProperties.WATERLOGGED, state.getValue(BlockStateProperties.WATERLOGGED));
+		return followNeighbours(level, pos, state);
+	}
+
+	/**
+	 * {@code state} with everything that follows direct neighbours recomputed; the climb (which depends on a diagonal
+	 * block and carries network bookkeeping) is left to {@link #refresh}.
+	 */
+	public BlockState followNeighbours(BlockGetter level, BlockPos pos, BlockState state) {
+		BlockState fresh = getBlockState(level, pos, isCeiling(state)).setValue(BlockStateProperties.WATERLOGGED, state.getValue(BlockStateProperties.WATERLOGGED));
 		if(state.getValue(CLIMB) != Climb.NONE)
 			return fresh.setValue(CLIMB, state.getValue(CLIMB)).setValue(HUG, state.getValue(HUG));
 		if(fresh.getValue(CLIMB) != Climb.NONE)
@@ -632,7 +702,20 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return fresh;
 	}
 
-	private record ShapeKey(List<WireLook.Placed> parts, boolean ceiling) {}
+	private record ShapeKey(List<WireLook.Placed> parts, boolean ceiling, double offset, WireLook.Faces faces, double width) {}
+
+	/**
+	 * Where a strand of this kind at {@code pos}, drawn {@code offset} off the middle, meets the cable in each
+	 * neighbouring block: halfway between its offset and the neighbour's ({@link Strand#offsetOf}), so both sides draw
+	 * the crossing in the same place.
+	 */
+	public WireLook.Faces faces(BlockGetter level, BlockPos pos, double offset) {
+		double[] at = new double[6];
+		for(Direction dir : Direction.values())
+			at[dir.ordinal()] = (offset + Strand.offsetOf(level, pos.relative(dir), this)) / 2.0D;
+		return new WireLook.Faces(at[Direction.DOWN.ordinal()], at[Direction.UP.ordinal()], at[Direction.NORTH.ordinal()],
+				at[Direction.SOUTH.ordinal()], at[Direction.WEST.ordinal()], at[Direction.EAST.ordinal()]);
+	}
 
 	private static final Map<ShapeKey, VoxelShape> SHAPE_CACHE = new ConcurrentHashMap<>();
 
@@ -648,65 +731,100 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	/** The outline follows the cable: the pieces {@link WireLook#parts} picks, except the overhangs outside the block. */
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+		return shapeFor(level, pos, state, 0.0D);
+	}
+
+	/** The outline of a wire of this kind in {@code state} at {@code pos}, drawn {@code offset} sixteenths off the middle. */
+	public VoxelShape shapeFor(BlockGetter level, BlockPos pos, BlockState state, double offset) {
 		List<WireLook.Placed> parts = WireLook.parts(look(level, pos, state), lookConnections(state));
-		return SHAPE_CACHE.computeIfAbsent(new ShapeKey(parts, isCeiling(state)),
-				key -> key.ceiling() ? flipVertically(buildShape(key.parts())) : buildShape(key.parts()));
+		WireLook.Faces faces = faces(level, pos, offset);
+		return SHAPE_CACHE.computeIfAbsent(new ShapeKey(parts, isCeiling(state), offset, faces, width()), key -> buildShape(key));
 	}
 
 	/** {@code shape} upside down within its block: a ceiling wire's outline. */
 	private static VoxelShape flipVertically(VoxelShape shape) {
 		VoxelShape out = Shapes.empty();
-		for(net.minecraft.world.phys.AABB box : shape.toAabbs())
+		for(AABB box : shape.toAabbs())
 			out = Shapes.or(out, Shapes.box(box.minX, 1.0D - box.maxY, box.minZ, box.maxX, 1.0D - box.minY, box.maxZ));
 		return out;
 	}
 
-	private static VoxelShape buildShape(List<WireLook.Placed> parts) {
+	/** The pieces of {@code key}, each moved and slanted for its strand ({@link WireLook#affine}), flipped for a ceiling. */
+	private static VoxelShape buildShape(ShapeKey key) {
+		Pieces pieces = PIECES.computeIfAbsent(key.width(), Pieces::of);
+		boolean plain = key.offset() == 0 && key.faces().equals(WireLook.Faces.all(0.0D));
 		VoxelShape result = Shapes.empty();
-		for(WireLook.Placed placed : parts) {
+		for(WireLook.Placed placed : key.parts()) {
 			VoxelShape piece = switch(placed.part()) {
-				case MIDDLE -> MIDDLE_SHAPE;
-				case HORIZONTAL -> STUB_SHAPES.get(placed.dir());
-				case CORNER -> CORNER_SHAPES.get(placed.dir());
-				case VERTICAL -> CENTRE_VERTICAL_SHAPE;
-				case EDGE, EDGE_FULL -> EDGE_SHAPES.get(placed.dir());
+				case MIDDLE -> pieces.middle();
+				case HORIZONTAL -> pieces.stubs().get(placed.dir());
+				case CORNER -> pieces.corners().get(placed.dir());
+				case VERTICAL -> pieces.vertical();
+				case EDGE, EDGE_FULL -> pieces.edges().get(placed.dir());
 				case CLIMB_OVERHANG, UP_OVERHANG -> Shapes.empty();
 			};
-			result = Shapes.or(result, piece);
+			if(key.ceiling())
+				piece = flipVertically(piece);
+			result = Shapes.or(result, plain ? piece : moved(piece, WireLook.affine(placed, key.offset(), key.faces(), key.ceiling())));
 		}
-		return result.isEmpty() ? MIDDLE_SHAPE : result;
+		if(!result.isEmpty())
+			return result;
+		VoxelShape middle = key.ceiling() ? flipVertically(pieces.middle()) : pieces.middle();
+		return plain ? middle : moved(middle, WireLook.affine(new WireLook.Placed(WireLook.Part.MIDDLE, null), key.offset(), key.faces(), key.ceiling()));
+	}
+
+	/** {@code shape} with {@code affine} applied to its boxes (the box round each box's moved corners), kept inside the block. */
+	private static VoxelShape moved(VoxelShape shape, WireLook.Affine affine) {
+		VoxelShape out = Shapes.empty();
+		for(AABB box : shape.toAabbs()) {
+			double x0 = 1.0D, x1 = 0.0D, z0 = 1.0D, z1 = 0.0D;
+			for(int corner = 0; corner < 8; corner++) {
+				double x = (corner & 1) == 0 ? box.minX : box.maxX, y = (corner & 2) == 0 ? box.minY : box.maxY, z = (corner & 4) == 0 ? box.minZ : box.maxZ;
+				double mx = affine.x(x, y, z), mz = affine.z(x, y, z);
+				x0 = Math.min(x0, mx);
+				x1 = Math.max(x1, mx);
+				z0 = Math.min(z0, mz);
+				z1 = Math.max(z1, mz);
+			}
+			x0 = Math.max(0.0D, x0);
+			x1 = Math.min(1.0D, x1);
+			z0 = Math.max(0.0D, z0);
+			z1 = Math.min(1.0D, z1);
+			if(x1 > x0 && z1 > z0)
+				out = Shapes.or(out, Shapes.box(x0, box.minY, z0, x1, box.maxY, z1));
+		}
+		return out;
 	}
 
 	/** Most coax a dye recolours at once: the run it is used on, as far as this. */
 	public static final int DYE_RUN_MAX = 256;
 
 	/**
-	 * A dye used on coax recolours it, and every piece of the same coax joined to it (sneak: only that one), so runs laid
-	 * side by side can be kept apart (see {@link #joins}).
+	 * A dye used on coax or power wire recolours it, and every piece of the same cable joined to it (sneak: only that
+	 * one), so runs laid side by side can be kept apart (see {@link #joins}); waterproof wire stays plain. A wire item
+	 * of another kind used on a wire lays that cable in the same block, making a {@link WireBundleBlock}; the same kind
+	 * (or sneaking) places it next to it as usual.
 	 */
 	@Override
 	protected @NotNull net.minecraft.world.ItemInteractionResult useItemOn(@NotNull ItemStack stack, @NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos,
 			@NotNull net.minecraft.world.entity.player.Player player, @NotNull net.minecraft.world.InteractionHand hand, @NotNull net.minecraft.world.phys.BlockHitResult hit) {
-		if(isPower || conductsAll() || !(stack.getItem() instanceof net.minecraft.world.item.DyeItem dye))
+		if(!conductsAll() && stack.getItem() instanceof net.minecraft.world.item.BlockItem item && item.getBlock() instanceof WireBlock kind
+				&& !kind.conductsAll() && kind != this && WireBundleBlock.canAdd(level, pos, kind)) {
+			if(!level.isClientSide) {
+				WireBundleBlock.add(level, pos, kind);
+				level.playSound(null, pos, getSoundType(state, level, pos, player).getPlaceSound(), net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 0.8F);
+				if(!player.getAbilities().instabuild)
+					stack.shrink(1);
+			}
+			return net.minecraft.world.ItemInteractionResult.sidedSuccess(level.isClientSide);
+		}
+		if(isWaterproof || conductsAll() || !(stack.getItem() instanceof net.minecraft.world.item.DyeItem dye))
 			return super.useItemOn(stack, state, level, pos, player, hand, hit);
-		WireBlock target = com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_COAX.get(dye.getDyeColor()).get();
+		WireBlock target = (isPower ? com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_WIRE : com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_COAX).get(dye.getDyeColor()).get();
 		if(target == this)
 			return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		if(!level.isClientSide) {
-			List<BlockPos> run = new java.util.ArrayList<>();
-			java.util.ArrayDeque<BlockPos> queue = new java.util.ArrayDeque<>(List.of(pos));
-			java.util.Set<BlockPos> seen = new java.util.HashSet<>(List.of(pos));
-			while(!queue.isEmpty() && run.size() < DYE_RUN_MAX) {
-				BlockPos at = queue.poll();
-				run.add(at);
-				if(player.isShiftKeyDown())
-					break;
-				for(BlockPos next : wireLinksAround(level, at, java.util.Set.of(this)).keySet())
-					if(seen.add(next))
-						queue.add(next);
-			}
-			for(BlockPos at : run)
-				level.setBlock(at, target.withPropertiesOf(level.getBlockState(at)), Block.UPDATE_ALL);
+			dyeRun(level, new Strand(pos, this), target, player.isShiftKeyDown());
 			level.playSound(null, pos, net.minecraft.sounds.SoundEvents.DYE_USE, net.minecraft.sounds.SoundSource.BLOCKS, 1.0F, 1.0F);
 			if(!player.getAbilities().instabuild)
 				stack.shrink(1);
@@ -714,9 +832,55 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		return net.minecraft.world.ItemInteractionResult.sidedSuccess(level.isClientSide);
 	}
 
-	private boolean canConnectTo(BlockState state) {
+	/**
+	 * Recolours the strand {@code start} to {@code target} and, unless {@code single}, every strand of exactly its
+	 * kind joined to it, up to {@link #DYE_RUN_MAX}. In a bundle that already holds {@code target} the strand is left as
+	 * it is (two cables of one kind in a block would be one cable).
+	 */
+	public static void dyeRun(Level level, Strand start, WireBlock target, boolean single) {
+		WireBlock kind = Objects.requireNonNull(start.kind());
+		List<Strand> run = new ArrayList<>();
+		ArrayDeque<Strand> queue = new ArrayDeque<>(List.of(start));
+		Set<Strand> seen = new HashSet<>(List.of(start));
+		while(!queue.isEmpty() && run.size() < DYE_RUN_MAX) {
+			Strand at = queue.poll();
+			BlockState state = at.state(level);
+			if(state == null)
+				continue;
+			run.add(at);
+			if(single)
+				break;
+			for(BlockPos next : kind.getLinks(level, at.pos(), state).keySet()) {
+				Strand same = new Strand(next, kind);
+				if(same.state(level) != null && seen.add(same))
+					queue.add(same);
+			}
+		}
+		for(Strand at : run) {
+			BlockState state = at.state(level);
+			if(state == null)
+				continue;
+			if(level.getBlockState(at.pos()).getBlock() == kind)
+				level.setBlock(at.pos(), target.withPropertiesOf(state), Block.UPDATE_ALL);
+			else
+				WireBundleBlock.recolour(level, at.pos(), kind, target);
+		}
+	}
+
+	/**
+	 * True if a wire of this kind at some position links to the block at {@code pos}: a cable there of a kind it
+	 * joins (a wire block, a strand of a bundle, or a passthrough), or a device its kind connects to.
+	 */
+	public boolean canConnectTo(BlockGetter level, BlockPos pos) {
+		BlockState state = level.getBlockState(pos);
 		if(state.getBlock() instanceof WireBlock wire)
 			return joins(wire); // The same kind of wire (of a colour that matches), a passthrough, or a device.
+		if(state.getBlock() instanceof WireBundleBlock) {
+			for(Strand strand : Strand.at(level, pos))
+				if(joins(strand.kind()))
+					return true;
+			return false;
+		}
 		return isValidConnection(state, isPower);
 	}
 
@@ -756,5 +920,6 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
     public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
         tooltipComponents.add(Component.translatable("tooltip.radiocraft." + (isPower ? (isWaterproof ? "waterproof_wire" : "wire") : "coax_wire")));
+        tooltipComponents.add(Component.translatable("tooltip.radiocraft.wire_bundle").withStyle(net.minecraft.ChatFormatting.GRAY));
     }
 }

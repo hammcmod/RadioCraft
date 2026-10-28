@@ -19,6 +19,7 @@ public class JadeCompat implements IWailaPlugin {
         registration.registerBlockDataProvider(AntennaWireProvider.INSTANCE, AntennaCenterBlock.class);
         registration.registerBlockDataProvider(AntennaInfoProvider.INSTANCE, AntennaCenterBlock.class);
         registration.registerBlockDataProvider(CoaxWireProvider.INSTANCE, WireBlock.class);
+        registration.registerBlockDataProvider(CoaxWireProvider.INSTANCE, com.arrl.radiocraft.common.blocks.WireBundleBlock.class);
         registration.registerBlockDataProvider(RadioProvider.INSTANCE, HFRadio10mBlock.class);
         registration.registerBlockDataProvider(RadioProvider.INSTANCE, HFRadio20mBlock.class);
         registration.registerBlockDataProvider(RadioProvider.INSTANCE, HFRadio40mBlock.class);
@@ -40,6 +41,7 @@ public class JadeCompat implements IWailaPlugin {
         registration.registerBlockComponent(AntennaWireProvider.INSTANCE, AntennaCenterBlock.class);
         registration.registerBlockComponent(AntennaInfoProvider.INSTANCE, AntennaCenterBlock.class);
         registration.registerBlockComponent(CoaxWireProvider.INSTANCE, WireBlock.class);
+        registration.registerBlockComponent(CoaxWireProvider.INSTANCE, com.arrl.radiocraft.common.blocks.WireBundleBlock.class);
         registration.registerBlockComponent(RadioProvider.INSTANCE, RadioBlock.class);
         registration.registerBlockComponent(ParrotControllerProvider.INSTANCE, ParrotControllerBlock.class);
         registration.registerBlockComponent(TeletypeProvider.INSTANCE, TeletypeBlock.class);

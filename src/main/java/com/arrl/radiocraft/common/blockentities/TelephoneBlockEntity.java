@@ -444,7 +444,7 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 
 	@Override
 	public Vec3 getPos() {
-		return worldPosition.getCenter();
+		return com.arrl.radiocraft.compat.sable.Sublevels.worldCenter(level, worldPosition);
 	}
 
 	@Override
@@ -495,7 +495,8 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 			earpiece.setDistance(HANDSET_EARPIECE);
 		}
 		else {
-			earpiece.updateLocation(RadiocraftVoicePlugin.API.createPosition(worldPosition.getX() + 0.5D, worldPosition.getY() + 0.5D, worldPosition.getZ() + 0.5D));
+			Vec3 at = com.arrl.radiocraft.compat.sable.Sublevels.worldCenter(level, worldPosition); // Rides a Sable ship.
+			earpiece.updateLocation(RadiocraftVoicePlugin.API.createPosition(at.x, at.y, at.z));
 			earpiece.setDistance(EARPIECE);
 		}
 		earpiece.send(encoder.encode(processor.process(pcm, PHONE_QUALITY, Math.min(1.0D, gain), 0.0D)));

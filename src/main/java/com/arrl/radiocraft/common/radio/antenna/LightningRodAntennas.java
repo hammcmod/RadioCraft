@@ -82,9 +82,11 @@ public final class LightningRodAntennas {
 			IAntenna.AntennaPos at = antenna.getAntennaPos();
 			if(at == null || at.level() != level || antenna.getPlayer() != null)
 				continue;
-			BlockPos pos = at.position();
+			if(!level.isLoaded(at.position()))
+				continue;
+			BlockPos pos = at.world(); // On a Sable ship: the bolt goes where the ship really is (Sable stops it in plots).
 			int dx = pos.getX() - target.getX(), dz = pos.getZ() - target.getZ();
-			if(dx * dx + dz * dz > range * range || !level.isLoaded(pos))
+			if(dx * dx + dz * dz > range * range)
 				continue;
 			if((best == null || pos.getY() > best.getY()) && level.isRainingAt(pos.above()))
 				best = pos;

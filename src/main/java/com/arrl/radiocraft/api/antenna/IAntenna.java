@@ -112,7 +112,17 @@ public interface IAntenna {
 	 * @param position current {@link BlockPos} of the antenna
 	 * @param level current {@link Level} of the antenna
 	 */
-	record AntennaPos(BlockPos position, Level level) {}
+	record AntennaPos(BlockPos position, Level level) {
+
+		/**
+		 * Where the antenna really is: {@link #position()} unless it is on a moving Sable sub-level (an airship, a
+		 * boat), whose blocks live in a plot far away. Use this for range, terrain and weather, and {@code position}
+		 * for the block itself.
+		 */
+		public BlockPos world() {
+			return com.arrl.radiocraft.compat.sable.Sublevels.world(level, position);
+		}
+	}
 
 	/**
 	 * True while this antenna has no sky above it (a handheld indoors or underground), which costs it some signal when

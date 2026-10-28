@@ -53,7 +53,7 @@ public class JPoleAntennaBlock extends DoubleVHFAntennaBlock {
     public @NotNull BlockState updateShape(BlockState state, Direction facing, @NotNull BlockState facingState, @NotNull LevelAccessor level, @NotNull BlockPos currentPos, @NotNull BlockPos facingPos) {
         BlockState updated = super.updateShape(state, facing, facingState, level, currentPos, facingPos);
         if(updated.is(this) && facing.getAxis().isHorizontal() && updated.getValue(HALF) == DoubleBlockHalf.LOWER)
-            return CoaxStubs.update(updated, facing, facingState);
+            return CoaxStubs.update(updated, facing, level, facingPos);
         return updated;
     }
 

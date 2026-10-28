@@ -133,7 +133,41 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 
 	@Override
 	public com.arrl.radiocraft.api.benetworks.BENetworkObject createNetworkObject() {
-		return new com.arrl.radiocraft.common.be_networks.network_objects.MicrowaveNetworkObjects.StationLink(level, worldPosition);
+		return new com.arrl.radiocraft.common.be_networks.network_objects.AprsTerminalNetworkObject(level, worldPosition);
+	}
+
+	/** Whether the wire feeds it this tick (synced; the screen is dark without it). */
+	private boolean powered = false;
+
+	/** True while the wire feeds it (see {@link com.arrl.radiocraft.common.be_networks.network_objects.AprsTerminalNetworkObject}). */
+	public boolean isPowered() {
+		return powered;
+	}
+
+	/**
+	 * Running: fed by its wire, and with a powered radio to talk to, reached through the station gear (a TNC) or a
+	 * microwave radio serving it. Dark otherwise: nothing boots, nothing shows (maintainer, 2026-10-27).
+	 */
+	public boolean isOn() {
+		return powered && (radioOn || microwaveOn);
+	}
+
+	private boolean microwaveOn = false;
+
+	private void updatePower() {
+		boolean now = level != null && getNetworkObject(level, worldPosition) instanceof com.arrl.radiocraft.common.be_networks.network_objects.AprsTerminalNetworkObject terminal && terminal.isPowered;
+		boolean mw = false;
+		if(level != null)
+			for(MicrowaveRadioBlockEntity radio : MicrowaveRadioBlockEntity.servingStation(level, worldPosition))
+				mw |= radio.isPowered();
+		if(now == powered && mw == microwaveOn)
+			return;
+		boolean wasOn = isOn();
+		powered = now;
+		microwaveOn = mw;
+		if(isOn() && !wasOn)
+			bootPending = true; // Coming on: the screen boots the next time it is opened.
+		sync();
 	}
 
 	// -------------------- MICROWAVE LINK --------------------
@@ -212,8 +246,9 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		if(now % DISPLAY_CHECK_TICKS == 0) {
 			retryMessages(now);
 			expireStations(now);
-			updateDisplay();
 			updateRadio();
+			updatePower();
+			updateDisplay();
 			updateWeatherStation();
 		}
 		if(now % MAP_PAINT_TICKS == 0 && !mapSets.isEmpty())
@@ -255,7 +290,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 			List<Component> lore = new ArrayList<>();
 			if(size > 1)
 				lore.add(Component.translatable("item.radiocraft.aprs_map.tile", i / size + 1, i % size + 1, size, size).withStyle(ChatFormatting.WHITE));
-			lore.add(Component.translatable("item.radiocraft.aprs_map.from", worldPosition.getX(), worldPosition.getY(), worldPosition.getZ()).withStyle(ChatFormatting.GRAY));
+			lore.add(Component.translatable("item.radiocraft.aprs_map.from", here().getX(), here().getY(), here().getZ()).withStyle(ChatFormatting.GRAY));
 			stack.set(DataComponents.LORE, new ItemLore(lore));
 			stacks.add(stack);
 		}
@@ -278,8 +313,8 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		Map<Integer, byte[]> pictures = new HashMap<>();
 		for(MapSet set : mapSets) {
 			int pixels = set.size() * AprsMapPainter.SIZE;
-			AprsMapPainter.Fit fit = fits.computeIfAbsent(set.size(), ignored -> AprsMapPainter.fit(worldPosition, positions, pixels, pixels));
-			byte[] colors = pictures.computeIfAbsent(set.size(), ignored -> AprsMapPainter.paint(level, fit, worldPosition, stations));
+			AprsMapPainter.Fit fit = fits.computeIfAbsent(set.size(), ignored -> AprsMapPainter.fit(here(), positions, pixels, pixels));
+			byte[] colors = pictures.computeIfAbsent(set.size(), ignored -> AprsMapPainter.paint(level, fit, here(), stations));
 			for(int i = 0; i < set.ids().length; i++) {
 				MapItemSavedData data = level.getMapData(new MapId(set.ids()[i]));
 				if(data != null)
@@ -306,8 +341,8 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		float frequency = on == null ? 0.0F : on.getFrequency();
 		if(nowOn == radioOn && frequency == radioFrequency)
 			return;
-		if(nowOn && !radioOn) {
-			bootPending = true;
+		if(nowOn && !radioOn && powered) {
+			bootPending = true; // A radio coming on makes it boot (if the wire feeds it; else coming on later does).
 			setChanged();
 		}
 		radioOn = nowOn;
@@ -315,9 +350,14 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		sync();
 	}
 
+	/** Where the terminal really is: its block, or its place in the world when it rides a Sable ship. */
+	public BlockPos here() {
+		return com.arrl.radiocraft.compat.sable.Sublevels.world(level, worldPosition);
+	}
+
 	private void updateWeatherStation() {
 		WeatherStationBlockEntity station = level == null ? null : WeatherStationBlockEntity.nearest(level, worldPosition);
-		int distance = station == null ? -1 : (int)Math.round(Math.sqrt(station.getBlockPos().distSqr(worldPosition)));
+		int distance = station == null ? -1 : (int)Math.round(Math.sqrt(com.arrl.radiocraft.compat.sable.Sublevels.distSqr(level, station.getBlockPos(), worldPosition)));
 		if(distance != weatherStationDistance) {
 			weatherStationDistance = distance;
 			sync();
@@ -329,8 +369,10 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		return weatherStationDistance;
 	}
 
-	/** What the screen shows: MSG over CONTACT over READY. */
+	/** What the screen shows: MSG over CONTACT over READY; OFF without power or a powered radio. */
 	public Display getDisplay() {
+		if(!isOn())
+			return Display.OFF;
 		if(unread)
 			return Display.MSG;
 		if(newContactGameTime >= 0)
@@ -385,8 +427,8 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		setChanged();
 		WeatherStationBlockEntity station = WeatherStationBlockEntity.nearest(level, worldPosition);
 		String weather = station == null ? "" : station.aprsWeather();
-		return transmit(bus, weather.isEmpty() ? TncPacket.beacon(newId(), bus.callsign(), worldPosition, beaconComment, icon.name())
-				: TncPacket.weatherBeacon(newId(), bus.callsign(), worldPosition, weather, beaconComment));
+		return transmit(bus, weather.isEmpty() ? TncPacket.beacon(newId(), bus.callsign(), here(), beaconComment, icon.name())
+				: TncPacket.weatherBeacon(newId(), bus.callsign(), here(), weather, beaconComment));
 	}
 
 	/** Sends {@code text} to {@code to} and logs it. False if there is no callsign, no recipient or no radio on. */
@@ -769,6 +811,8 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		stationExpiryMinutes = tag.contains("stationExpiry") ? Math.max(0, tag.getInt("stationExpiry")) : 30;
 		bootPending = !tag.contains("bootPending") || tag.getBoolean("bootPending");
 		radioOn = tag.getBoolean("radioOn"); // Only in the update tag.
+		powered = tag.getBoolean("powered");
+		microwaveOn = tag.getBoolean("microwaveOn");
 		radioFrequency = tag.getFloat("radioFrequency");
 		weatherStationDistance = tag.contains("weatherStation") ? tag.getInt("weatherStation") : -1;
 		beacons.clear();
@@ -807,6 +851,8 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 	public @NotNull CompoundTag getUpdateTag(@NotNull HolderLookup.Provider registries) {
 		CompoundTag tag = saveWithoutMetadata(registries);
 		tag.putBoolean("radioOn", radioOn);
+		tag.putBoolean("powered", powered);
+		tag.putBoolean("microwaveOn", microwaveOn);
 		tag.putFloat("radioFrequency", radioFrequency);
 		tag.putInt("weatherStation", weatherStationDistance);
 		return tag;

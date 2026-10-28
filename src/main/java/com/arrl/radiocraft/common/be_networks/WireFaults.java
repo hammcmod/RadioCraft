@@ -8,7 +8,11 @@ import com.arrl.radiocraft.api.benetworks.PowerNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.BatteryNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.ChargeControllerNetworkObject;
 import com.arrl.radiocraft.common.be_networks.network_objects.SolarPanelNetworkObject;
+import com.arrl.radiocraft.common.blocks.Strand;
 import com.arrl.radiocraft.common.blocks.WireBlock;
+import com.arrl.radiocraft.common.blocks.WireBundleBlock;
+import net.minecraft.world.level.BlockGetter;
+import org.jetbrains.annotations.Nullable;
 import com.arrl.radiocraft.common.init.RadiocraftDamageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -47,9 +51,9 @@ import java.util.Set;
  *     <li><b>Spark</b>: an open end of plain wire out in the rain sparks, drawing as much as a transmitting HF rig, and
  *     zaps anything that touches it (six times that draw for a second).</li>
  * </ul>
- * Waterproof wire neither gets wet nor sparks, but can short. Wires carry no block entity, so candidates are reported
- * by the wire itself (placed, a neighbour changed, a random tick) and kept here, server side and unsaved: after a
- * restart random ticks find them again.
+ * Waterproof wire neither gets wet nor sparks, but can short. Plain wires carry no block entity, so candidates are
+ * reported by the wire itself (placed, a neighbour changed, a random tick) and kept here, server side and unsaved: after
+ * a restart random ticks find them again. The power cable of a bundle ({@link WireBundleBlock}) is checked the same way.
  */
 @EventBusSubscriber(modid = Radiocraft.MOD_ID)
 public final class WireFaults {
@@ -100,7 +104,7 @@ public final class WireFaults {
 			return;
 		Map<BlockPos, Fault> faults = FAULTS.computeIfAbsent(level.dimension(), k -> new HashMap<>());
 		Fault fault = faults.get(pos);
-		Kind kind = fault != null && fault.kind == Kind.SHORT && isPowerWire(level.getBlockState(pos)) ? Kind.SHORT : classify(level, pos);
+		Kind kind = fault != null && fault.kind == Kind.SHORT && hasPowerWire(level, pos) ? Kind.SHORT : classify(level, pos);
 		if(kind == null)
 			faults.remove(pos);
 		else if(fault == null) {
@@ -121,23 +125,47 @@ public final class WireFaults {
 
 	/** What is wrong with the wire at {@code pos}, or null for nothing (or no power wire there). */
 	public static Kind classify(Level level, BlockPos pos) {
-		BlockState state = level.getBlockState(pos);
-		if(!isPowerWire(state))
-			return null;
-		WireBlock wire = (WireBlock)state.getBlock();
-		if(closesLoop(level, pos))
+		for(Strand strand : powerStrands(level, pos)) { // The worst of a bundle's power cables.
+			Kind kind = classify(level, strand);
+			if(kind != null)
+				return kind;
+		}
+		return null;
+	}
+
+	@Nullable
+	private static Kind classify(Level level, Strand strand) {
+		WireBlock wire = strand.kind();
+		if(closesLoop(level, strand))
 			return Kind.SHORT;
 		if(wire.isWaterproof)
 			return null;
-		if(touchesWater(level, pos))
+		if(touchesWater(level, strand.pos()))
 			return Kind.WET;
-		if(level.isRainingAt(pos) && wireLinks(level, pos, state).size() + deviceLinks(level, pos, state) <= 1)
+		if(level.isRainingAt(strand.pos()) && wireLinks(level, strand).size() + deviceLinks(level, strand) <= 1)
 			return Kind.SPARK;
 		return null;
 	}
 
-	private static boolean isPowerWire(BlockState state) {
-		return state.getBlock() instanceof WireBlock wire && wire.isPower;
+	/** The power wires at {@code pos}: the wire block, or a bundle's power cables (dyed ones of different colours may share a block). A passthrough is not one. */
+	private static List<Strand> powerStrands(BlockGetter level, BlockPos pos) {
+		List<Strand> out = new ArrayList<>();
+		for(Strand strand : Strand.at(level, pos))
+			if(strand.kind() != null && strand.kind().isPower && !strand.kind().conductsAll())
+				out.add(strand);
+		return out;
+	}
+
+	/** The power wire at {@code pos} (the first, in a bundle), or null for none. */
+	@Nullable
+	private static Strand powerStrand(BlockGetter level, BlockPos pos) {
+		List<Strand> strands = powerStrands(level, pos);
+		return strands.isEmpty() ? null : strands.getFirst();
+	}
+
+	/** True if there is power wire at {@code pos} (see {@link #powerStrands}). */
+	public static boolean hasPowerWire(BlockGetter level, BlockPos pos) {
+		return !powerStrands(level, pos).isEmpty();
 	}
 
 	private static boolean touchesWater(Level level, BlockPos pos) {
@@ -150,52 +178,62 @@ public final class WireFaults {
 		return false;
 	}
 
-	/** The power wires the wire at {@code pos} links to. */
-	private static List<BlockPos> wireLinks(Level level, BlockPos pos, BlockState state) {
-		List<BlockPos> out = new ArrayList<>();
-		for(BlockPos link : ((WireBlock)state.getBlock()).getLinks(level, pos, state).keySet()) {
-			if(isPowerWire(level.getBlockState(link)))
-				out.add(link);
-		}
+	/** The power wire strands the wire {@code strand} links to and joins (its own colour, or plain). */
+	private static List<Strand> wireLinks(Level level, Strand strand) {
+		List<Strand> out = new ArrayList<>();
+		BlockState state = strand.state(level);
+		if(state == null)
+			return out;
+		for(BlockPos link : strand.kind().getLinks(level, strand.pos(), state).keySet())
+			for(Strand next : powerStrands(level, link))
+				if(strand.kind().joins(next.kind()))
+					out.add(next);
 		return out;
 	}
 
-	/** How many devices (batteries, radios) the wire at {@code pos} runs into. */
-	private static int deviceLinks(Level level, BlockPos pos, BlockState state) {
+	/** How many devices (batteries, radios) the wire {@code strand} runs into. */
+	private static int deviceLinks(Level level, Strand strand) {
 		int devices = 0;
-		for(BlockPos link : ((WireBlock)state.getBlock()).getLinks(level, pos, state).keySet()) {
-			if(!isPowerWire(level.getBlockState(link)))
+		BlockState state = strand.state(level);
+		if(state == null)
+			return 0;
+		for(BlockPos link : strand.kind().getLinks(level, strand.pos(), state).keySet()) {
+			if(!hasPowerWire(level, link))
 				devices++;
 		}
 		return devices;
 	}
 
 	/**
-	 * True when the wire at {@code pos} joins a run of power wire back to itself: two of its neighbouring wires reach
-	 * each other without going through it.
+	 * True when the power wire at {@code pos} joins a run of power wire back to itself: two of its neighbouring wires
+	 * reach each other without going through it. For a bundle, any of its power cables.
 	 */
 	public static boolean closesLoop(Level level, BlockPos pos) {
-		BlockState state = level.getBlockState(pos);
-		if(!isPowerWire(state))
-			return false;
-		List<BlockPos> neighbours = wireLinks(level, pos, state);
+		for(Strand strand : powerStrands(level, pos))
+			if(closesLoop(level, strand))
+				return true;
+		return false;
+	}
+
+	/** {@link #closesLoop(Level, BlockPos)} for one strand, walking only the strands it joins (its colour, or plain). */
+	public static boolean closesLoop(Level level, Strand strand) {
+		List<Strand> neighbours = wireLinks(level, strand);
 		if(neighbours.size() < 2)
 			return false;
-		Set<BlockPos> seen = new HashSet<>();
-		seen.add(pos);
-		for(BlockPos start : neighbours) {
+		Set<Strand> seen = new HashSet<>();
+		seen.add(strand);
+		for(Strand start : neighbours) {
 			if(seen.contains(start))
-				return true; // Reached from an earlier neighbour without passing through pos.
-			ArrayDeque<BlockPos> queue = new ArrayDeque<>();
+				return true; // Reached from an earlier neighbour without passing through the strand.
+			ArrayDeque<Strand> queue = new ArrayDeque<>();
 			queue.add(start);
 			seen.add(start);
 			while(!queue.isEmpty()) {
 				if(seen.size() > MAX_LOOP_SEARCH)
 					return false;
-				BlockPos at = queue.poll();
-				BlockState atState = level.getBlockState(at);
-				for(BlockPos next : wireLinks(level, at, atState)) {
-					if(next.equals(pos) || !seen.add(next))
+				Strand at = queue.poll();
+				for(Strand next : wireLinks(level, at)) {
+					if(next.equals(strand) || !seen.add(next))
 						continue;
 					queue.add(next);
 				}
@@ -231,7 +269,7 @@ public final class WireFaults {
 			if(!level.isLoaded(pos))
 				continue;
 			if((time + pos.hashCode()) % RECHECK_TICKS == 0) {
-				Kind kind = fault.kind == Kind.SHORT && isPowerWire(level.getBlockState(pos)) ? Kind.SHORT : classify(level, pos);
+				Kind kind = fault.kind == Kind.SHORT && hasPowerWire(level, pos) ? Kind.SHORT : classify(level, pos);
 				if(kind == null) {
 					it.remove();
 					continue;
@@ -320,11 +358,18 @@ public final class WireFaults {
 		return fault.burning >= RadiocraftServerConfig.WIRE_SHORT_BURN_SECONDS.get() * 20;
 	}
 
-	/** The short has burned through: the wire is gone, leaving fire where fire can burn. */
+	/** The short has burned through: the wire is gone (out of a bundle, the other cables stay), leaving fire where fire can burn. */
 	private static void burnThrough(ServerLevel level, BlockPos pos) {
-		if(!isPowerWire(level.getBlockState(pos)))
+		Strand strand = null;
+		for(Strand candidate : powerStrands(level, pos)) // The cable that shorted, else the first.
+			if(strand == null || closesLoop(level, candidate))
+				strand = candidate;
+		if(strand == null)
 			return;
-		level.removeBlock(pos, false);
+		if(level.getBlockState(pos).getBlock() instanceof WireBundleBlock)
+			WireBundleBlock.remove(level, pos, strand.kind());
+		else
+			level.removeBlock(pos, false);
 		level.sendParticles(ParticleTypes.LARGE_SMOKE, pos.getX() + 0.5D, pos.getY() + 0.2D, pos.getZ() + 0.5D, 6, 0.2D, 0.1D, 0.2D, 0.02D);
 		if(BaseFireBlock.canBePlacedAt(level, pos, Direction.UP))
 			level.setBlockAndUpdate(pos, BaseFireBlock.getState(level, pos));

@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=east": {
-      "model": "radiocraft:block/wefax_receiver",
+    "facing=east,ready=false": {
+      "model": "radiocraft:block/wefax_receiver_idle",
       "y": 90
     },
-    "facing=north": {
-      "model": "radiocraft:block/wefax_receiver"
+    "facing=east,ready=true": {
+      "model": "radiocraft:block/wefax_receiver_ready",
+      "y": 90
     },
-    "facing=south": {
-      "model": "radiocraft:block/wefax_receiver",
+    "facing=north,ready=false": {
+      "model": "radiocraft:block/wefax_receiver_idle"
+    },
+    "facing=north,ready=true": {
+      "model": "radiocraft:block/wefax_receiver_ready"
+    },
+    "facing=south,ready=false": {
+      "model": "radiocraft:block/wefax_receiver_idle",
       "y": 180
     },
-    "facing=west": {
-      "model": "radiocraft:block/wefax_receiver",
+    "facing=south,ready=true": {
+      "model": "radiocraft:block/wefax_receiver_ready",
+      "y": 180
+    },
+    "facing=west,ready=false": {
+      "model": "radiocraft:block/wefax_receiver_idle",
+      "y": 270
+    },
+    "facing=west,ready=true": {
+      "model": "radiocraft:block/wefax_receiver_ready",
       "y": 270
     }
   }

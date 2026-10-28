@@ -123,6 +123,13 @@ public class NewBlocksGameTests {
 	}
 
 	/** A module with coax running out of it {@code outward} to a J-pole. */
+	/** A charged battery on a wire above {@code finder} (its sides are taken by modules): the finder draws power now. */
+	private static void power(GameTestHelper helper, BlockPos finder) {
+		GameTestUtil.placeWire(helper, finder.above(), RadiocraftBlocks.WIRE.get());
+		helper.setBlock(finder.above(2), RadiocraftBlocks.LARGE_BATTERY.get());
+		helper.runAfterDelay(2, () -> GameTestUtil.networkObject(helper, finder.above(2), com.arrl.radiocraft.common.be_networks.network_objects.BatteryNetworkObject.class).getStorage().setEnergy(1_000_000));
+	}
+
 	private static void module(GameTestHelper helper, BlockPos at, Direction outward, boolean antenna) {
 		helper.setBlock(at, RadiocraftBlocks.DIRECTION_FINDER_MODULE.get());
 		GameTestUtil.placeWire(helper, at.relative(outward), RadiocraftBlocks.COAX_WIRE.get());
@@ -152,6 +159,7 @@ public class NewBlocksGameTests {
 		module(helper, finder.east(), Direction.EAST, true);
 		module(helper, finder.north(), Direction.NORTH, true);
 		module(helper, finder.south(), Direction.SOUTH, true);
+		power(helper, finder);
 		BlockPos station = new BlockPos(13, 1, 12);
 		GameTestUtil.radioWithJPole(helper, station); // J-pole at (13, 1, 14).
 		BlockPos jPole = helper.absolutePos(station.south(2));
@@ -200,6 +208,7 @@ public class NewBlocksGameTests {
 		module(helper, finder.west(), Direction.WEST, true);
 		module(helper, finder.east(), Direction.EAST, true);
 		module(helper, finder.north(), Direction.NORTH, false);
+		power(helper, finder);
 		helper.startSequence()
 				.thenIdle(3)
 				.thenExecute(() -> GameTestUtil.blockEntity(helper, finder, DirectionFinderBlockEntity.class).togglePower())

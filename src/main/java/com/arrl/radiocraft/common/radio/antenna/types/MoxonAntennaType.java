@@ -9,6 +9,7 @@ import com.arrl.radiocraft.common.radio.Band;
 import com.arrl.radiocraft.common.radio.BandUtils;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import com.arrl.radiocraft.common.radio.antenna.data.MoxonAntennaData;
+import com.arrl.radiocraft.compat.sable.Sublevels;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -135,12 +136,14 @@ public class MoxonAntennaType extends NonDirectionalAntennaType<MoxonAntennaData
 
 	@Override
 	public double getTransmitEfficiency(IAntennaPacket packet, MoxonAntennaData data, BlockPos destination, boolean isCW) {
-		return super.getTransmitEfficiency(packet, data, destination, isCW) * pattern(data.getFacing(), packet.getSource().getAntennaPos().position(), destination);
+		BlockPos from = packet.getSource().getAntennaPos().position();
+		return super.getTransmitEfficiency(packet, data, destination, isCW) * pattern(data.getFacing(), from, Sublevels.inFrameOf(packet.getLevel(), from, destination));
 	}
 
 	@Override
 	public double getReceiveEfficiency(IAntennaPacket packet, MoxonAntennaData data, BlockPos pos) {
-		return super.getReceiveEfficiency(packet, data, pos) * pattern(data.getFacing(), pos, packet.getSource().getAntennaPos().position());
+		BlockPos source = Sublevels.inFrameOf(packet.getLevel(), pos, packet.getSource().getAntennaPos().position());
+		return super.getReceiveEfficiency(packet, data, pos) * pattern(data.getFacing(), pos, source);
 	}
 
 	/** The width and depth a Moxon wants on a band. */

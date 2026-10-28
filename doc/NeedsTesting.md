@@ -1,9 +1,144 @@
 # Needs Testing
 
 Things that are implemented and pass the automated tests but still need a human at a client (rendering, GUI, audio,
-feel). Tick an item off once it has been played with, and note anything wrong in [todo.md](../todo.md) or fix it.
-Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
+feel). Add to this list whenever a change cannot be fully verified by `test` / `runGameTestServer`.
 
+Work through it with `python tools/needs_testing.py` (a local page: pass, needs work, comments, screenshots), which
+writes back here: `- [ ]` not tested, `- [x]` passed, `- [!]` needs work, with `Note (date): ...` comments and
+`![caption](testing_shots/...)` screenshots indented under the item. Whoever picks up a `[!]` item fixes it (or moves
+it to [todo.md](../todo.md)), then sets it back to `[ ]` for the next playtest.
+
+
+## Radios on Sable ships (added 2026-10-28; GameTests pass without Sable)
+
+Run `./gradlew runClient -PwithSable` (Sable 2.0.6 with Veil and its Rapier physics; add `-PwithCreate` for Create).
+Build a small station on a platform (HF radio, battery, coax, a dipole on two antenna poles, a speaker), then make it
+a ship with `/sable assemble area <from> <to>`. Another station stays on the ground for the far end.
+`/rcdebug sable <pos>` on a ship block says where it really is. Checked on the dev server (2026-10-28): assembly
+carries a wire strung between two poles, it survives aboard, and `/rcdebug sable` follows the ship through a teleport
+and a 90 degree turn.
+
+- [ ] The game loads with Sable, and with it absent (Sable Companion is bundled in our jar either way).
+- [ ] After assembling, the station still works: power, coax, the radio hears the ground station and is heard.
+- [ ] The dipole's antenna wires came along with the ship (both poles aboard) and still count as the antenna.
+- [ ] Move or fly the ship away: signal strength follows the ship's real distance (not the far-away plot); past line
+  of sight it goes to skip as on the ground.
+- [ ] The radio's speaker audio comes from the ship as it moves, and a player talking next to the radio's mic on the
+  ship still keys it.
+- [ ] Radio, fax, tape player, telephone and microwave screens stay open while standing on the moving ship.
+- [ ] A Yagi (or Moxon) on the ship: turn the ship and the far station's signal changes as the beam turns away.
+- [ ] A direction finder on the ground points at the ship; one on the ship points at the ground station.
+- [ ] An H19's APRS beacon from the ship shows the ship's real position on the ground station's map.
+- [ ] A WEFAX receiver or weather station on the ship reports the weather where the ship is.
+- [ ] A microwave dish on the ship: aimed at a ground dish it links, and turning the ship breaks the link.
+- [ ] Sable's mass: batteries and tower footholds weigh the ship down, wires and poles hardly at all.
+
+
+Reported 2026-10-27: two radios on 6275 MHz, dishes at AZ 179.8 / 359.0, both "NONE IN VIEW" with no RSSI. The meter
+only listened for a radio of the other role (one end had to be Broadcast Master first) and said nothing about it.
+
+- [x] Two powered radios on one frequency, neither made master: the ALIGN page already shows the far end's signal and,
+  once it decodes, its callsign, so the dishes can be peaked before choosing a master.
+- [x] The screens only say what the meter knows (maintainer, 2026-10-27 evening): `NO SIGNAL`, `TOO WEAK` (shows but
+  will not link), `POOR`, `FAIR`, `GOOD`, on the ALIGN page and the STATUS page's RSSI line; a failed search or lost
+  link says `NO SIGNAL: CHECK DISHES` or `SIGNAL TOO WEAK: ALIGN`. The why (no radio on the frequency, out of range,
+  not facing, path blocked, each dish pair's distance and off-axis angles) is `/rcdebug microwave <pos>`.
+- [ ] A dish just out of range, aimed right, still shows on the align graph as a weak signal (`TOO WEAK`) and fades
+  out by a quarter past the range (`microwave_dish_range` 1500 by default; set it to 20 to try: at 20 blocks -70 dBm,
+  22 still decodes (POOR), 23 too weak, 25 gone). Walking a pair apart, the grade goes GOOD, FAIR, POOR, TOO WEAK, NO SIGNAL.
+- [x] The dish model now turns to where the maths points it: a dish set to AZ 0 looks north, 90 east, 180 south, 270
+  west (it was drawn 180 off, so a pair "pointing at each other" by eye read NOT FACING). Two dishes aimed at each
+  other by eye now show a signal. The horn is a plain block model and was not affected.
+- [ ] The path is now checked block by block (`MicrowavePaths`), not on the HF terrain atlas, which blocked your two
+  dishes over a one-block step: the yard layout (dishes on two-block poles, a dozen blocks apart over stepped snow)
+  links. A tree trunk or leaves in the beam, or a wall, still blocks it (the beam leaves each dish from 0.75 blocks
+  above its block; the four blocks nearest each dish never count).
+
+## J-pole with coax beside it (added 2026-10-27, evening)
+
+Reported 2026-10-27: a J-pole lost its texture transparency (the mount drew as a solid pink block) once coax was laid
+beside it. The coax run-in model (`antenna_coax`) and the J-pole's upper half had no render type, so the multipart
+mixed solid and cutout parts; both are cutout now, like the lower half.
+
+- [x] A J-pole with and without coax beside it looks the same: see-through where the texture is, on all four facings.
+  The Ionosonde and the 5-BTV with coax beside their base too (they share the run-in model).
+
+## Thin wire, coloured wire, spaced bundles (added 2026-10-27, late; GameTests pass)
+
+Maintainer's design: power wire is 1 px square now (coax stays 2 px), so wire and coax tell apart however dyed, and
+seven strands fit in a bundle with a pixel between them. Sixteen dyed wires like dyed coax (`tools/coax_colours.py`
+tints `wire_<colour>.png`; `tools/wire_assets.py` makes every part model, the dynamic models, blockstates and the 3D
+wire items).
+
+- [x] Plain wire: a 1 px line on the floor, up walls, over steps, hanging, through a passthrough; corners and stubs
+  meet with no gaps; the hitbox still picks it up easily. The held/inventory wire is the 1 px cross.
+  - ![junction between the two has a 1 px gap](testing_shots/2026-10-27-193801-junction-between-the-two-has-a-1-px-gap.png)
+  - Note (2026-10-27): where the two wires meet, I did notice a little cube on its own that doesnt look like it's touching the rest
+- [x] Coloured wire: the whole cable takes the dye (not a stripe); items in the Power section of the tab; dye a laid
+  run; `8 wire + dye` recipe; red beside blue stays apart, plain joins both (`/rcdebug network`).
+- [ ] Bundles: strands sit with a 1 px gap (wire 1 px, coax 2 px); red and blue wire may share a block, plain + any
+  colour of wire may not (one shorted conductor); a 7-strand bundle fits; the join to a lone wire still eases over.
+- [x] Faults on a coloured strand follow only its colour: a red loop shorts (and burns the red strand out of the
+  bundle) while the blue beside it carries on.
+
+## H19 needs power (added 2026-10-27, late)
+
+- [ ] An H19 with no power wire shows a dark glass when opened: no boot, nothing drawn, keys do nothing (Esc closes).
+  A wire from a charged battery to it (`aprs_terminal_power_use`, 3/tick) with a powered radio on its TNC: it boots
+  when opened. Pull the wire, or switch the radio off: dark again; back on, it boots afresh. The block's READY /
+  CONTACT / MSG lamp is dark too without power. A microwave radio serving it (touching or on its wire) counts as its
+  radio when that is on.
+- [ ] The redstone RFI sound comes from the radio only, mixing with its static; lightning crackle no longer sets it off.
+
+## Redstone RFI sound (added 2026-10-27, late)
+
+- [ ] `redstone_rfi.ogg` plays at an HF radio when redstone switches near its antenna, coax or power wire: a lever flip
+  is a short burst that dies away, a clock keeps it going (the file loops), louder the more switching; silent on a
+  quiet station and with the receiver muted. It sits on top of the static as the old placeholder hum did.
+
+## WEFAX: two sheets, plain names, fax-tone bulletins (added 2026-10-27, late)
+
+Maintainer's notes from testing: the chart was hard to read (which blob is what, where am I), and the solar bulletin
+went out as an APRS burst.
+
+- [ ] A printed sheet stays up on the screen until you click it (tooltip "Click to take the sheet"); it goes into your
+  inventory. On the block, the maintainer's new model shows the "Message Ready" sheet sticking out of the tray while
+  one waits and the "No message Ready" lip otherwise (`tools/wefax_models.py` splits the model; blockstate `ready`).
+  Printing again with a sheet still in the tray pushes it out of the front as before. Breaking the block drops it.
+- [ ] WX REPT now prints two sheets: the RADAR (rain screens, each storm "S3 SVR T-STORM" with its arrow, "YOU" at the
+  station's ring, legend "LGT..HVY RAIN  N UP") and then a FORECAST sheet: the report lines, then every storm within
+  1500 blocks nearest first ("S3 SVR T-STORM 420 NE" / "MOVING SE, ARR 12 MIN", or PASSES CLEAR, or FORMING). A
+  tornadic storm reads SVR T-STORM until a tornado is actually down, then "TORNADO EF2". AUTO prints the same pair.
+- [ ] A solar bulletin (processor answering SOLR WX, or a timed one) sounds like a fax going out, `wefax_bulletin_seconds`
+  (20 s) of picture tones on every radio on the frequency, not a packet chirp; the WEFAX waits up to 45 s for it.
+- [ ] Over the air, two radios on 7.050 MHz a few blocks apart, each with its own antenna, the WEFAX beside one and
+  the processor (SOUNDER ONLINE, its radio on) beside the other: SOLR WX prints the bulletin FROM the processor's
+  call sign. If not, `/rcdebug radio` on each and tell me what the processor's terminal says.
+
+
+- [x] Right click a laid coax with a power wire in hand: both cables sit in the block, side by side, each a pixel or
+  two off the middle, and the stubs still meet the block faces (no gaps at the joins to the next block or a device).
+  A third and fourth kind (dyed coax) spread the ribbon further. The same coax colour, or sneaking, places next to it as before.
+- [x] Runs through a bundle: straight, round a corner, up a wall (hug), over a step (climb), hanging from a ceiling.
+  Each strand bends like a lone wire would; a lone wire of the same kind beside the bundle lines up except for the
+  strand's sideways offset (expected jog).
+  - Note (2026-10-27): the 1 px step where a strand leaves a bundle (the screenshot). Fixed the same evening: both blocks now meet a crossing at the same place, halfway between their offsets, and each stub slants to it (`WireLook.Faces`, a shear in `WireLook.Affine`); same for a strand entering a device (it eases to the centre) and for runs up a wall. Check the join in the screenshot, a bundle into a radio, a bundle up a wall into a lone wire, and a hanging bundle.
+- [x] The hitbox outline is the union of the strands. Sneak + right click with an empty hand takes out the strand
+  nearest the crosshair and hands it back; with two left and one taken, the block is a plain wire again. Breaking
+  drops every cable. Pick-block gives the first strand.
+- [x] Dye on a bundle recolours only the coax strand under the crosshair, along its run. Jade on a bundle lists the
+  radios/antennas on its coax strands.
+- [x] The strands' faces render in both light and dark, no z-fighting between strands, no missing faces where a stub was stretched.
+  - Note (2026-10-27): though I wish they were separated by 1 px of space when they can fit
+
+## Direction finder and commercial repeater on power (added 2026-10-27; GameTests pass)
+
+- [x] A direction finder with no power wire: POWER does nothing visible (screen dark, lamp off). With a charged
+  battery wired to the terminal, or to any module touching it, it boots and works as before; pulling the wire darkens it.
+- [x] The commercial repeater's PWR lamp stays dark until a power wire reaches any of its four cells (the wire draws a
+  stub into that cell); it then repeats as before. Wired straight to solar panels (no charge controller) it runs in
+  daylight and on into the night on its battery, the beacon on cell 3 blinking while nothing comes in; it goes dark
+  once the battery is flat (`/rcdebug radio` on the bottom cell shows the stored energy).
 
 ## Telephone handset, ring and wall phone (added 2026-10-27; GameTests pass)
 
@@ -30,9 +165,11 @@ rerun it after any re-export. (`phone_Item.json` was renamed to `phone_item.json
 
 ## Ionospheric Processor: SOLAR WX over the air, blackout alerts, terminal (added 2026-10-27; GameTests pass)
 
-- [ ] Right click the processor: an amber terminal with the call sign (the placer's), SOUNDER ONLINE / NO IONOSONDE,
+- [!] Right click the processor: an amber terminal with the call sign (the placer's), SOUNDER ONLINE / NO IONOSONDE,
   the radio's frequency, any blackout forecast, what it has sent, and three controls (click or keys 1, 2, 3): timed
   bulletins (default off), blackout alerts (default on), send a bulletin now. A low terminal hum while open.
+  - Note (2026-10-27): need to make a more obvious screen on the moel. Also, it's not finding a radio with a tuner in between it and the radio.. Also jei blocking it
+  - Note (2026-10-27): fixed the same evening: a radio on the far side of a tuner or duplexer touching the rack now counts; the terminal is registered with JEI like the other station screens; the screen face is on the model bounty list.
 - [ ] WEFAX SOLR WX far away, its radio on the processor's radio's frequency: "Asking for the solar weather...", packet
   tones out and back, then the bulletin prints with "FROM <call sign>". With no processor answering: after 15 seconds a
   low beep and "no Ionospheric Processor answered".
@@ -256,12 +393,14 @@ Run with Create: `./gradlew runClient -PwithCreate` (Create Crafts & Additions n
 - [ ] Telephone: EXT shows its extension; key another extension and CALL: the far phone rings (bell), CALL answers,
   voices near each phone come out of the other clean and a little fuller than SSB; HANG ends it. EXT + number + CALL
   changes the extension. Phones work touching a microwave radio or on its power wire.
-- [ ] HF manpack (recipe: bundle, leather chestplate, 20m QRP, any 10m radio): sneak right click wears it (chest; or the
+- [!] HF manpack (recipe: bundle, leather chestplate, 20m QRP, any 10m radio): sneak right click wears it (chest; or the
   Curios back slot), the pack draws on the back (check its position), right click in hand or the J key opens the
   olive panel: PWR, SSB/CW, BAND 10/20, FREQ knob (wheel or click halves), AF, MIC, PTT, TX lamp, battery %. Static
   follows you while it is on; voice from a station on frequency comes out where you stand; CW sends with PTT or the CW
   key and plays back. Click the handset: the panel closes and you hold it; hold right click to talk; sneak right click
   hangs it up.
+  - Note (2026-10-27): shift right click doesnt open ui while on curios backpack slot.
+  - Note (2026-10-27): by design the key (J, Open Worn Manpack) opens a worn pack and sneak + right click with it in hand wears it. Added the same evening: sneak + right click on nothing with an empty hand while wearing it (chest or Curios) opens the panel too. In hand, a plain right click opens it; if that does nothing in creative, say so, I could not reproduce it from the code.
 - [ ] Handheld direction finder: right click sets a frequency; held while a station transmits there within line of
   sight range, it beeps and blinks, faster as you face the station. No audio comes through.
 - [ ] Wired speakers play the radio's static as well as its voice (the loudspeaker's carries further).

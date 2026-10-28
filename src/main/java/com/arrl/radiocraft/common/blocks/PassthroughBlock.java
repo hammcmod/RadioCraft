@@ -74,9 +74,9 @@ public class PassthroughBlock extends WireBlock implements EntityBlock {
 		return true;
 	}
 
-	/** Anything a wire of either kind links to, or any wire. */
+	/** Anything a wire of either kind links to, or any cable (a wire or a bundle). */
 	private static boolean canLink(BlockState state) {
-		return state.getBlock() instanceof WireBlock || isValidConnection(state, true) || isValidConnection(state, false);
+		return Strand.isCable(state) || isValidConnection(state, true) || isValidConnection(state, false);
 	}
 
 	@Override
@@ -128,8 +128,9 @@ public class PassthroughBlock extends WireBlock implements EntityBlock {
 		}
 		Map<BlockPos, Direction> links = getLinks(level, pos, state);
 		if(links.size() >= 2) {
-			WireUtils.splitNetworks(level, pos, links, true, no -> no instanceof PowerNetworkObject, WireUtils.powerWires());
-			WireUtils.splitNetworks(level, pos, links, true, no -> no instanceof ICoaxNetworkObject, WireUtils.coaxWires());
+			Strand self = new Strand(pos, this);
+			WireUtils.splitNetworks(level, self, java.util.Set.of(self), links, no -> no instanceof PowerNetworkObject, WireUtils.powerWires());
+			WireUtils.splitNetworks(level, self, java.util.Set.of(self), links, no -> no instanceof ICoaxNetworkObject, WireUtils.coaxWires());
 		}
 		// Skip WireBlock#onRemove (it would split one kind again); Block#onRemove drops the block entity.
 		if(!state.is(newState.getBlock()))

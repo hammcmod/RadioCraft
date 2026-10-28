@@ -105,6 +105,13 @@ public final class MicrowaveMath {
 	public static final double HOLD_DBM = -93.0D;
 	/** Below this a link works but is marginal (telephone calls break up), dBm. */
 	public static final double GOOD_DBM = -75.0D;
+	/** Between {@link #GOOD_DBM} and this the meter reads FAIR; below it, down to {@link #SENSITIVITY_DBM}, POOR. */
+	public static final double FAIR_DBM = -82.0D;
+	/**
+	 * Past the edge of range the signal keeps falling instead of vanishing: from {@link #EDGE_DBM} at the range to
+	 * {@link #FLOOR_DBM} at this many times it, so a dish just out of range aimed right still shows a weak bar.
+	 */
+	public static final double OUT_OF_RANGE_FACTOR = 1.25D;
 	/** The signal from right beside the far dish, dead on, and from the edge of range, dBm. */
 	public static final double NEAR_DBM = -40.0D, EDGE_DBM = -70.0D;
 	/** The most a pointing error costs at one end: what a dish still picks up on its sidelobes, dB. */
@@ -126,9 +133,36 @@ public final class MicrowaveMath {
 		return Math.min(SIDELOBE_LOSS, 12.0D * f * f);
 	}
 
-	/** The signal dead on at {@code distance} of a link reaching {@code range}: {@link #NEAR_DBM} close in to {@link #EDGE_DBM} at the edge. */
+	/**
+	 * The signal dead on at {@code distance} of a link reaching {@code range}: {@link #NEAR_DBM} close in to
+	 * {@link #EDGE_DBM} at the edge, then straight down to {@link #FLOOR_DBM} at {@link #OUT_OF_RANGE_FACTOR} times the range.
+	 */
 	public static double distanceLevel(double distance, double range) {
-		return NEAR_DBM + (EDGE_DBM - NEAR_DBM) * Math.log10(1.0D + 9.0D * Math.max(0.0D, distance) / Math.max(1.0D, range));
+		range = Math.max(1.0D, range);
+		if(distance > range)
+			return EDGE_DBM + (FLOOR_DBM - EDGE_DBM) * Math.min(1.0D, (distance / range - 1.0D) / (OUT_OF_RANGE_FACTOR - 1.0D));
+		return NEAR_DBM + (EDGE_DBM - NEAR_DBM) * Math.log10(1.0D + 9.0D * Math.max(0.0D, distance) / range);
+	}
+
+	/** What the meter calls a level: the only thing the radio knows about the far end. */
+	public enum Grade {
+		NONE("NO SIGNAL"), WEAK("TOO WEAK"), POOR("POOR"), FAIR("FAIR"), GOOD("GOOD");
+
+		public final String label;
+
+		Grade(String label) {
+			this.label = label;
+		}
+	}
+
+	public static Grade grade(double rssi) {
+		if(rssi <= NO_SIGNAL_DBM + 0.5D)
+			return Grade.NONE;
+		if(rssi < SENSITIVITY_DBM)
+			return Grade.WEAK;
+		if(rssi < FAIR_DBM)
+			return Grade.POOR;
+		return rssi < GOOD_DBM ? Grade.FAIR : Grade.GOOD;
 	}
 
 	/** Why two dishes do or do not link. */
@@ -137,20 +171,31 @@ public final class MicrowaveMath {
 	/** A link's state and its signal level (dBm, {@link #NO_SIGNAL_DBM} when there is none). */
 	public record Signal(Result result, double rssi) {}
 
+	/** Whether the straight path between two ends is clear: {@link MicrowavePaths} in a level, {@link #clearPath} on the atlas. */
+	@FunctionalInterface
+	public interface Path {
+		boolean clear(End a, End b);
+	}
+
+	/** {@link #signalAlong} with the path judged on the terrain atlas ({@link #clearPath}). */
+	public static Signal signal(TerrainMath.HeightSource heights, End a, End b, double beamWidth, double loss) {
+		return signalAlong((x, y) -> clearPath(heights, x, y), a, b, beamWidth, loss);
+	}
+
 	/**
 	 * How two dishes hear each other: in range, each within {@link #VISIBLE_ANGLE} of the other, a clear path, and the
 	 * signal level for dishes {@code beamWidth} degrees wide. A signal that is there at all reads at least
 	 * {@link #FLOOR_DBM}, so a roughly aimed pair always shows something to peak.
 	 */
-	public static Signal signal(TerrainMath.HeightSource heights, End a, End b, double beamWidth, double loss) {
+	public static Signal signalAlong(Path path, End a, End b, double beamWidth, double loss) {
 		double distance = Math.hypot(b.x() - a.x(), b.z() - a.z());
 		double range = linkRange(a.range(), b.range(), loss);
-		if(distance > range)
+		if(distance > range * OUT_OF_RANGE_FACTOR)
 			return new Signal(Result.OUT_OF_RANGE, NO_SIGNAL_DBM);
 		double offA = offAxis(a, b.x(), b.y(), b.z()), offB = offAxis(b, a.x(), a.y(), a.z());
 		if(offA > VISIBLE_ANGLE || offB > VISIBLE_ANGLE)
 			return new Signal(Result.NOT_FACING, NO_SIGNAL_DBM);
-		if(!clearPath(heights, a, b))
+		if(!path.clear(a, b))
 			return new Signal(Result.BLOCKED, NO_SIGNAL_DBM);
 		double rssi = Math.max(FLOOR_DBM, distanceLevel(distance, range) - pointingLoss(offA, beamWidth) - pointingLoss(offB, beamWidth));
 		return new Signal(rssi >= SENSITIVITY_DBM ? Result.OK : Result.WEAK, rssi);

@@ -5,6 +5,12 @@ listed in [doc/Testing.md](doc/Testing.md#bug-audit-2026-10); each fix has a tes
 
 ## Ongoing cleanup (maintainer, 2026-10-27)
 
+- **Flaky GameTests (seen 2026-10-27 evening, two runs, different tests each time).** `wefaxAsksOverTheAir` and
+  `teletypeAsksOverTheAir` failed once: the `ionospheric` batch ran straight after `blackout_night`, whose solar
+  blackout (noise 1.0) was still on, so nothing got through on HF. `weakRttyPrintsGarbled` failed once on its own
+  randomness ("a weak signal printed perfectly"). Fix: the blackout batches should clear their event in `@AfterBatch`,
+  and the garble test should force its odds or retry. Neither is a gameplay bug.
+
 - **Docs in step with the mod.** After each batch of features, bring the in-game guide book (Patchouli,
   `assets/radiocraft/patchouli_books/guide`) and the website's wiki (`Radiocraft-Website` repo) up to date with
   each other and with what the mod really does: new blocks and items, changed numbers, recipes. Fill gaps both ways.
@@ -276,6 +282,15 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
     before the comment: wind, gust over 10 minutes, temperature, rain over the last hour, humidity, pressure);
     receiving H19s decode it in the station list and details. Cups spin with the wind. Recipe C_C / QRQ / _B_.
   - [ ] Weather station: alert tone (1050 Hz) over SSB on hazards
+- [x] Microwave ALIGN reason (2026-10-27): the meter hears any powered radio on the frequency when no master is
+  set, and FAR END says why there is no signal (no radio on the frequency / out of range / not facing / path blocked).
+  The path is walked block by block (`MicrowavePaths`): the HF terrain atlas (4x4 averages, +1) blocked dishes on
+  short poles over a one-block step. The atlas only answers where chunks are not loaded.
+  The dish renderer turned the model 180 off its azimuth (`SatelliteDishRenderer`, fixed the same evening): the
+  maths and the picture disagreed, so dishes aimed by eye read NOT FACING. Then (maintainer): the screens only
+  grade the level (NO SIGNAL / TOO WEAK / POOR / FAIR / GOOD, `MicrowaveMath.Grade`), the reasons moved to
+  `/rcdebug microwave <pos>`, and past the edge of range the signal falls to the floor by 1.25x the range instead of
+  vanishing (`OUT_OF_RANGE_FACTOR`), so a dish just out of range still shows weak when aimed.
 - [x] Microwave signal level and ALIGN page (2026-10-26): links have an RSSI (distance, and a pointing loss at each
   dish growing with the square of the error); they hold above -90 dBm within a 45 degree capture angle; the ALIGN page
   shows it live with a graph and nudges the dish half a degree at a time; marginal links (below -75) make calls lossy.
@@ -283,8 +298,12 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   coax joins its own colour or plain coax (`WireBlock#joins`, used by the drawing and the network walk), so parallel
   runs (direction finder modules) stay apart. Dye a laid run in place or craft 8 + dye. Assets from
   tools/coax_colours.py and tools/wire_assets.py. Recipes that take coax still want plain coax.
-- [x] Commercial gear and tapes (2026-10-26, maintainer's design): commercial repeater (four-tall rack, duplexer and
-  power built in, twice the transmit strength, not craftable, breaks into itself); commercial radio module (sealed
+- [x] Commercial gear and tapes (2026-10-26, maintainer's design): commercial repeater (four-tall rack, duplexer
+  built in, twice the transmit strength and draw, not craftable, breaks into itself; since 2026-10-27 it wants the
+  station's power wire, to any cell of the rack: `WireUtils#linkTarget`/`wireLinksOf` send wire on an upper cell of a
+  stacked block to the bottom one; it has its own battery and charge controller (`commercial_repeater_battery`,
+  `commercial_repeater_charge_rate`): an indirect and a direct consumer, so batteries or bare solar panels feed it,
+  and it rides out an outage on what it stored, the cell-3 beacon blinking while it does); commercial radio module (sealed
   all-band transmitter: numbers station, static beacon, dead air, DF beeper or CW beacon on a fixed frequency, own
   antenna, breaks into one rare part; `/rcdebug module`); tape reels (60 colourways; blank, found server tapes from
   config/radiocraft/tapes or the world with `tapes_in_world`, or recorded) and the tape player (plays out loud and
@@ -294,6 +313,20 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [x] Create alternator (2026-10-26): with Create and without Create Crafts & Additions, RadioCraft adds CC&A's
   alternator (MIT, adapted in `compat/create`, see THIRD_PARTY.md) so Create rotation charges batteries. Dev runs
   with Create: `-PwithCreate`; the dev NeoForge went to 21.1.248 for it (Create 6.0.10 needs 21.1.219+).
+- [x] Sable support (2026-10-28, requested by a player): radios, antennas and station gear work on Sable sub-levels
+  (airships, boats; Create Aeronautics). Sable Companion (MIT) is bundled and returns positions unchanged without Sable;
+  `compat/sable/Sublevels` gives the real place of a block on a ship, used for range, skip, terrain, solar weather,
+  weather reports, WEFAX, lightning, direction finding, the transmitter log, APRS beacons and maps, mics and speaker
+  audio (voice channels follow the ship); directional antennas (Yagi, Moxon, loops, dish) turn with the ship, microwave
+  dishes aim with it. `MixinSableAssembly` (@Pseudo) carries antenna wires onto a new ship when both ends go;
+  `data/sable/tags` gives our blocks Sable mass and volume and keeps antenna wires on ships. Another Weather Mod's side:
+  storms push ships and tornadoes lift them, and Sable reads its wind. Dev runs: `-PwithSable`. Playtest pending
+  (NeedsTesting).
+  - [ ] An antenna wire with only one end on a new ship is left behind and drops (Sable has no hook for that case)
+  - [ ] Lightning on ships: Sable stops strikes inside plots, so only our antennas draw a bolt to a ship (where it
+    really is). Open: lightning rods aboard do nothing (vanilla looks for rods in the world grid), a deck over an
+    antenna does not shelter it, the bolt sets no fire there, and on a turned ship it can land past the 2.5 block hit
+    range and do no damage. Left for the alpha testers (maintainer, 2026-10-28).
   - [x] Antenna damage (2026-10-25): with Another Weather Mod, winds over 33 m/s may blow antenna parts and wire
     holders down (up to 30 % each time the wind picks one, at 60 m/s); `wind_antenna_damage_enabled`
 - [ ] WEFAX receiver model: its Rotary elements are turned -85, 80 and 42.5 degrees, which Minecraft 1.21.1 cannot
@@ -343,6 +376,32 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [x] Wire Passthrough (2026-10-21, maintainer request): an item that turns a plain solid block into a conductor
   for both wire kinds while keeping its look (`PassthroughBlock` + mimic block entity + renderer). Open: should
   Jade name the mimicked block; a 2-thick wall needs two of them.
+- [x] H19 needs power (2026-10-27, maintainer): `AprsTerminalNetworkObject` draws `aprs_terminal_power_use`; the
+  terminal is on only with power and a powered radio through the gear (or a microwave radio serving it); the screen
+  is dark glass otherwise and boots when it comes on. RFI sound follows the redstone part of the interference only.
+- [x] WEFAX tray and RFI sound (2026-10-27, maintainer): a printed sheet waits in the tray (blockstate `ready`, the
+  maintainer's model split by `tools/wefax_models.py` into idle/ready) and on the screen until clicked; the next
+  print pushes it out. `redstone_rfi.ogg` replaces the placeholder hum in `RadioInterferenceHumSoundInstance`.
+- [x] WEFAX readability (2026-10-27, maintainer): WX REPT prints the radar and a forecast text sheet (storms
+  numbered, named in plain words via `StormReport#chartName`, bearing, heading, arrival; `WeatherReports#stormList`),
+  "YOU" at the station; tornadic storms are "SVR T-STORM" until a tornado is down. Solar bulletins go out as
+  `wefax_bulletin_seconds` of fax tones (`FaxAudio.data`) instead of an AFSK burst; SOLR WX waits 45 s.
+- [x] Thin and coloured wire (2026-10-27, maintainer's design): power wire is 1 px square (coax 2 px: thin hookup
+  wire against fat RG-8), sixteen dyed wires exactly like dyed coax (`COLOURED_WIRE`, tinted textures from
+  `tools/coax_colours.py`, all part models from `tools/wire_assets.py`, `WireBlock#width`, hitbox pieces per width).
+  Bundles lay strands by width with a pixel between (`WireLook#layout`, `Strand#offsets`, fractional offsets); power
+  wires may share a block only if they do not join (`WireBundleBlock#canAdd`); faults walk per strand along the
+  colours it joins (`WireFaults`). Waterproof wire stays plain.
+- [x] Wire bundles (2026-10-27, maintainer request): up to 7 cables in one block (`WireBundleBlock` + block entity,
+  no item): a wire item used on a wire of another kind lays it in with it; sneak + empty hand takes out the strand
+  under the crosshair; breaking drops all. One power wire at most (two would be a shorted loop), no duplicate kinds.
+  Each strand is kept as the `BlockState` it would have as a lone wire, so bends, hugging, climbs and links are the
+  wire's own; the network walk (`WireUtils`) runs on `(pos, kind)` strands, so two coax colours in one bundle stay
+  apart. Strands draw side by side (`Strand#offset`, `WireLook#affine`: stubs stretched to the face so nothing gaps);
+  one hitbox, but clicks pick the nearest strand. Faults, lightning coax burn-out, Jade and the antenna coax stubs
+  know about bundles. Crossings between blocks meet halfway between the two sides' offsets and each stub slants to
+  the meeting point (`WireLook.Faces`, shear terms in `WireLook.Affine`), so a strand leaving a bundle for a lone
+  wire or a device no longer steps sideways (maintainer's screenshot, 2026-10-27 evening).
 - [x] Wires hug walls (2026-10-21, maintainer request): wire, waterproof wire and coax climb a solid block like
   redstone dust and link diagonally to the wire or device on top, instead of a floating vertical piece. Also gave the
   waterproof wire the blockstate it never had.
@@ -410,6 +469,10 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   (8), doubled on skip; bearings typed in from other stations give a fix (`DirectionFinding`); the map enabled one
   (crafted with the World Map Module, which journeyman cartographers sell) plots it on an amber map.
   - [x] Recipes for the direction finder and its module (maintainer's, 2026-10-26)
+  - [x] The direction finder draws power (2026-10-27, maintainer request): `direction_finder_power_use` a tick
+    while on (`DirectionFinderNetworkObject`, still a microwave `StationLink`), dark without it. A wire to any module
+    feeds it: modules pass power on by touching (`IPassThroughNetworkObject#passesThrough(power)` and
+    `linksDirectlyTo(other, power)` keep the coax side untouched).
   - [x] Handheld direction finder (2026-10-26): set a frequency, beeps and blinks faster facing the station
     (`TransmitterLog`, `HandheldDfClient`); recipe from the maintainer
 - [x] Microwave links (2026-10-26): `MicrowaveRadioBlockEntity` (callsign + 4 digit hex ID, unique; 5925-7125 MHz in

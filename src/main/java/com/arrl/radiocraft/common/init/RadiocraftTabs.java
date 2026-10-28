@@ -143,6 +143,7 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.RADIO_SPEAKER.get());
         output.accept(RadiocraftItems.HAND_MICROPHONE.get());
         output.accept(RadiocraftItems.WIRE.get());
+        RadiocraftItems.COLOURED_WIRE.values().forEach(wire -> output.accept(wire.get()));
 
         RadiocraftItems.VHF_HANDHELD_VARIANTS.values().forEach(output::accept);
 

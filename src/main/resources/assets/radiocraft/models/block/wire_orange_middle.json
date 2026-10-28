@@ -1,0 +1,79 @@
+{
+	"credit": "The cube in the middle of the block that the stubs meet",
+	"parent": "block/block",
+	"textures": {
+		"0": "radiocraft:block/wire_orange",
+		"particle": "radiocraft:block/wire_orange"
+	},
+	"elements": [
+		{
+			"name": "wire",
+			"from": [
+				7.5,
+				0,
+				7.5
+			],
+			"to": [
+				8.5,
+				1,
+				8.5
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						12,
+						4,
+						13,
+						5
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						14,
+						4,
+						15,
+						5
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						12,
+						2,
+						13,
+						3
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						14,
+						2,
+						15,
+						3
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						12,
+						0,
+						13,
+						1
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						14,
+						0,
+						15,
+						1
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

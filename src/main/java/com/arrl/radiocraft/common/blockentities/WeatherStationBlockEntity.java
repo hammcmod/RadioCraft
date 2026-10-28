@@ -72,7 +72,7 @@ public class WeatherStationBlockEntity extends BlockEntity {
 		WeatherStationBlockEntity best = null;
 		double bestDistance = (double)RANGE * RANGE;
 		for(WeatherStationBlockEntity station : map.values()) {
-			double distance = station.worldPosition.distSqr(pos);
+			double distance = com.arrl.radiocraft.compat.sable.Sublevels.distSqr(level, station.worldPosition, pos);
 			if(!station.isRemoved() && distance <= bestDistance) {
 				best = station;
 				bestDistance = distance;
@@ -177,7 +177,7 @@ public class WeatherStationBlockEntity extends BlockEntity {
 	}
 
 	private void read(ServerLevel level, long now) {
-		report = WeatherSources.get(level).report(level, worldPosition);
+		report = WeatherSources.get(level).report(level, com.arrl.radiocraft.compat.sable.Sublevels.world(level, worldPosition));
 		long minute = now / MINUTE;
 		int g = (int)(minute % GUST_MINUTES);
 		if(gustMinute[g] != minute) {

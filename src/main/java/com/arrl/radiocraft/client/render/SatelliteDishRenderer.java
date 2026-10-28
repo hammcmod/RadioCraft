@@ -32,8 +32,9 @@ public class SatelliteDishRenderer extends GeoBlockRenderer<SatelliteDishBlockEn
     }
 
     /**
-     * Turned by the azimuth. The model unturned faces south (compass 180), and a positive turn about Y goes the other
-     * way round from the compass, so 180 less the bearing.
+     * Turned by the azimuth. The model unturned faces north (compass 0, as GeckoLib draws a north-facing block), and a
+     * positive turn about Y goes the other way round from the compass, so minus the bearing. (It was drawn 180 off until
+     * 2026-10-27: a dish set to 180 looked north while the link maths had it pointing south.)
      */
     @Override
     protected void rotateBlock(Direction facing, PoseStack poseStack) {
@@ -42,7 +43,7 @@ public class SatelliteDishRenderer extends GeoBlockRenderer<SatelliteDishBlockEn
             super.rotateBlock(facing, poseStack);
             return;
         }
-        poseStack.mulPose(Axis.YP.rotationDegrees(180.0F - dish.getAzimuth()));
+        poseStack.mulPose(Axis.YP.rotationDegrees(-dish.getAzimuth()));
     }
 
     public static class SatelliteDishModel extends DefaultedBlockGeoModel<SatelliteDishBlockEntity> {

@@ -43,13 +43,9 @@ What was done for the parrot controller, as the pattern for the next one:
 
 ### Sound: redstone interference buzz
 
-Not a model, but the same kind of ask. `RadioInterferenceHumSoundInstance` plays when redstone keeps switching near a
-station (a clock next to the coax). It currently reuses `morse.ogg` pitched down to a hum as a placeholder.
+Done 2026-10-27: the maintainer's `redstone_rfi.ogg` (19 s of switching hash) plays through `RadioInterferenceHumSoundInstance`,
+its loudness following the interference level, so a lever flip is a short burst and a clock keeps it going.
 
-- Wanted: `rfi_buzz.ogg`, a 1 to 2 second seamless loop of a mains-style buzz (50/60 Hz fundamental with harmonics,
-  a little crackle), mono OGG Vorbis like the existing `static.ogg`.
-- To wire it in: drop the file in `assets/radiocraft/sounds/`, add an `rfi_buzz` entry to `sounds.json`, register it
-  in `RadiocraftSoundEvents` next to `STATIC`, and point the hum sound instance at it (one line, pitch back to 1.0).
 
 ### Textures: crystals and crystal-quality radios
 
@@ -214,3 +210,6 @@ RadioCraft. Each is a plain JSON block model like the parrot controller, unless 
 - **Storm Protector** (Another Weather Mod, creative only, built): wanted its own look in place of the command
   block's textures. Draft 2026-10-25: riveted slate with a brass frame, a shield and lightning bolt on the sides and
   a storm spiral on the ends (`storm_protector_side.png`, `storm_protector_top.png`, model now `cube_column`).
+- **Ionospheric Processor screen** (maintainer, 2026-10-27): the rack's terminal screen is not obvious enough on the
+  model; wants a clearly readable amber screen face (lit while on, as the block state already provides) so players
+  see there is something to right click.

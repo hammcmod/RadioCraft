@@ -1,5 +1,7 @@
 """Paints the dyed coax textures: the maintainer's coaxial_wire.png with a tracer stripe in each dye colour, one pixel
-along every side of the jacket, so it shows from any angle. Writes textures/block/coaxial_wire_<colour>.png.
+along every side of the jacket, so it shows from any angle. Writes textures/block/coaxial_wire_<colour>.png. Also the
+dyed power wire textures (2026-10-27): the whole of wire.png tinted to the dye, keeping its shading, since a 1 px cable
+has no room for a stripe. Writes textures/block/wire_<colour>.png; the wire items are 3D and need no icon.
 
     pip install pillow
     python tools/coax_colours.py
@@ -52,7 +54,24 @@ def icon_stripe(icon, colour):
     return out
 
 
+def tinted(base, colour):
+    """Every opaque pixel takes the dye colour at the pixel's own brightness (the darkest jacket shade is the dye's half tone)."""
+    out = base.copy()
+    r, g, b = colour
+    for y in range(base.height):
+        for x in range(base.width):
+            pr, pg, pb, a = base.getpixel((x, y))
+            if a == 0:
+                continue
+            k = 0.5 + 0.5 * min(1.0, ((pr + pg + pb) / 3) / 73)  # 73 is the jacket's highlight in wire.png.
+            out.putpixel((x, y), (int(r * k), int(g * k), int(b * k), a))
+    return out
+
+
 if __name__ == "__main__":
+    wire = Image.open(TEXTURES / "wire.png").convert("RGBA")
+    for name, colour in COLOURS.items():
+        tinted(wire, colour).save(TEXTURES / f"wire_{name}.png")
     base = Image.open(TEXTURES / "coaxial_wire.png").convert("RGBA")
     for name, colour in COLOURS.items():
         stripe(base, colour).save(TEXTURES / f"coaxial_wire_{name}.png")
@@ -61,4 +80,4 @@ if __name__ == "__main__":
         icon_stripe(icon, colour).save(ITEMS / f"coax_wire_icon_{name}.png")
         model = {"parent": "minecraft:item/generated", "textures": {"layer0": f"radiocraft:item/coax_wire_icon_{name}"}}
         (ASSETS / "models/item" / f"coax_wire_{name}.json").write_text(json.dumps(model, indent=2) + "\n")
-    print("wrote", len(COLOURS), "dyed coax textures, icons and item models")
+    print("wrote", len(COLOURS), "dyed coax textures, icons and item models, and", len(COLOURS), "dyed wire textures")

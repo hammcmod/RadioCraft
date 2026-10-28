@@ -148,4 +148,58 @@ public final class WeatherReports {
 		return String.format(Locale.ROOT, "_%02d%02d%02d%02dc%03ds%03dg%03dt%sr%03dh%02db%05d", month, day, hour, minute, dir,
 				Math.min(999, speed), Math.min(999, gustMph), temp, Math.min(999, rain), humidity >= 100 ? 0 : humidity, pressure);
 	}
+
+
+	/** "NE", "SSW": the compass point of a bearing in degrees. */
+	public static String compass(double degrees) {
+		String[] points = { "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW" };
+		return points[(int)Math.floor(((degrees % 360 + 360) % 360 + 11.25) / 22.5) % 16];
+	}
+
+	/** True if a tornado is on the ground under {@code storm} now (the weather at its centre says so). */
+	public static boolean tornadoDown(ServerLevel level, WeatherSource source, StormReport storm, long now) {
+		if(storm.kind() != StormReport.Kind.TORNADO || storm.worldWide() || !storm.formed(now))
+			return false;
+		StormReport.TrackPoint at = storm.at(now);
+		return source.report(level, BlockPos.containing(at.x(), level.getSeaLevel(), at.z())).hazards().contains(WeatherReport.Hazard.TORNADO);
+	}
+
+	/**
+	 * One line per storm within {@code range} of {@code pos}, nearest first: its chart number and plain name, how far
+	 * and which way it is, where it is heading, and when it gets here (or that it misses). The forecast sheet's list.
+	 */
+	public static List<String> stormList(ServerLevel level, WeatherSource source, BlockPos pos, int range) {
+		long now = level.getGameTime();
+		List<StormReport> storms = new ArrayList<>(source.storms(level, pos, range, true));
+		storms.removeIf(StormReport::worldWide);
+		storms.sort(java.util.Comparator.comparingDouble(s -> {
+			StormReport.TrackPoint at = s.at(Math.max(now, s.formsAt()));
+			return Math.hypot(at.x() - pos.getX(), at.z() - pos.getZ());
+		}));
+		List<String> lines = new ArrayList<>();
+		for(StormReport storm : storms) {
+			StormReport.TrackPoint at = storm.at(Math.max(now, storm.formsAt()));
+			double dx = at.x() - pos.getX(), dz = at.z() - pos.getZ();
+			int distance = (int)Math.round(Math.hypot(dx, dz));
+			String where = distance <= at.radius() ? "OVERHEAD" : distance + " " + compass(Math.toDegrees(Math.atan2(dx, -dz)));
+			StormReport.TrackPoint later = storm.at(Math.max(now, storm.formsAt()) + 10 * 1200L);
+			double mx = later.x() - at.x(), mz = later.z() - at.z();
+			String heading = Math.hypot(mx, mz) < 4 ? "STILL" : "MOVING " + compass(Math.toDegrees(Math.atan2(mx, -mz)));
+			String name = "S" + storm.id() + " " + storm.chartName(tornadoDown(level, source, storm, now));
+			lines.add(name + (storm.formed(now) ? "" : " FORMING") + " " + where);
+			lines.add("  " + heading + arrival(level, source, pos, storm, now));
+		}
+		if(lines.isEmpty())
+			lines.add("NO STORMS WITHIN " + range);
+		return lines;
+	}
+
+	/** ", ARR 12 MIN" / ", HERE, ENDS 5 MIN" / ", PASSES CLEAR" for {@code storm} at {@code pos}. */
+	private static String arrival(ServerLevel level, WeatherSource source, BlockPos pos, StormReport storm, long now) {
+		Optional<WeatherSource.Arrival> next = source.nextArrival(level, pos, source.forecastHorizon(level));
+		if(next.isEmpty() || next.get().storm().id() != storm.id())
+			return ", PASSES CLEAR";
+		WeatherSource.Arrival a = next.get();
+		return a.arrivalTick() <= now ? ", HERE, ENDS " + duration(a.departureTick() - now) : ", ARR " + duration(a.arrivalTick() - now);
+	}
 }

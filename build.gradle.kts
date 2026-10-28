@@ -173,6 +173,14 @@ repositories {
     maven("https://maven.theillusivec4.top/") { name = "Curios Maven" }
     maven("https://maven.createmod.net") { name = "Create Maven" } // Create, Ponder, Flywheel
     maven("https://mvn.devos.one/snapshots") { name = "Registrate Maven" } // Registrate, which Create needs at runtime
+    // Sable and Sable Companion (moving block structures: airships, boats). Only these two groups come from here.
+    exclusiveContent {
+        forRepository { maven("https://maven.ryanhcode.dev/releases") { name = "Sable Maven" } }
+        filter {
+            includeGroup("dev.ryanhcode.sable")
+            includeGroup("dev.ryanhcode.sable-companion")
+        }
+    }
 }
 
 val jade_version = "15.10.0+neoforge"
@@ -185,6 +193,9 @@ val create_version = "6.0.10-280"
 val ponder_version = "1.0.82"
 val flywheel_version = "1.0.6"
 val registrate_version = "MC1.21-1.3.0+67"
+val sable_companion_version = "1.6.0"
+val sable_version = "2.0.6"
+val veil_version = "4.3.2"
 
 dependencies {
     compileOnly(libs.mixinextras.common)
@@ -225,6 +236,24 @@ dependencies {
         runtimeOnly("net.createmod.ponder:ponder-neoforge:${ponder_version}+mc${mcVersion}") { isTransitive = false }
         runtimeOnly("dev.engine-room.flywheel:flywheel-neoforge-${mcVersion}:${flywheel_version}")
         runtimeOnly("com.tterrag.registrate:Registrate:${registrate_version}")
+    }
+
+    // Sable Companion (MIT, https://github.com/ryanhcode/sable-companion), from maven.ryanhcode.dev (declared above).
+    // Bundled in the mod jar: without Sable it returns every position unchanged; with Sable installed it maps blocks on a
+    // moving sub-level (airship, boat) to where they really are, so radios on ships keep working (compat/sable/Sublevels).
+    implementation("dev.ryanhcode.sable-companion:sable-companion-common-${mcVersion}:${sable_companion_version}")
+    jarJar("dev.ryanhcode.sable-companion:sable-companion-common-${mcVersion}:[${sable_companion_version},)") {
+        version { prefer(sable_companion_version) }
+    }
+    // Sable's API (PolyForm Shield), compile only and never bundled: mixin/MixinSableAssembly carries antenna wires onto
+    // a new ship, and is skipped (@Pseudo) when Sable is not installed.
+    compileOnly("dev.ryanhcode.sable:sable-common-${mcVersion}:${sable_version}") { isTransitive = false }
+    // Sable itself only in dev runs that ask for it: ./gradlew runClient -PwithSable. It needs Veil
+    // (maven.blamejared.com) and its Rapier physics natives.
+    if(project.hasProperty("withSable")) {
+        runtimeOnly("dev.ryanhcode.sable:sable-neoforge-${mcVersion}:${sable_version}") { isTransitive = false }
+        runtimeOnly("dev.ryanhcode.sable:sable-sable_rapier-${mcVersion}:${sable_version}") { isTransitive = false }
+        runtimeOnly("foundry.veil:veil-neoforge-${mcVersion}:${veil_version}") { isTransitive = false }
     }
 
     testImplementation(platform("org.junit:junit-bom:5.10.2"))

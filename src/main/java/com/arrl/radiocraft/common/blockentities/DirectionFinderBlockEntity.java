@@ -97,6 +97,8 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 	public record Linked(String from, DirectionFinding.Line line) {}
 
 	// Synced to the client.
+	/** Whether the power wire feeds it this tick; the screen stays dark without it. */
+	private boolean powered = false;
 	private final List<Linked> linked = new ArrayList<>();
 	private final List<BlockPos> modules = new ArrayList<>();
 	private final List<ModuleStatus> statuses = new ArrayList<>();
@@ -143,7 +145,7 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 	 * (within half an SSB channel on HF, a channel step on 2m).
 	 */
 	public void hear(BlockPos module, IAntennaPacket packet) {
-		if(!on || !module.equals(reference) || level == null)
+		if(!isOn() || !module.equals(reference) || level == null)
 			return;
 		Band band = packet.getBand();
 		double tolerance = band != null && band.isVhf() ? RadiocraftServerConfig.VHF_FREQUENCY_STEP.get() / 2.0D : 1500.0D;
@@ -151,10 +153,10 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 			return;
 		if(packet.getSource() == null || packet.getSource().getAntennaPos() == null)
 			return;
-		BlockPos from = packet.getSource().getAntennaPos().position();
+		BlockPos from = packet.getSource().getAntennaPos().world(); // Where it really is (it may be on a Sable ship).
 		heardFrom = from;
 		heardStrength = packet.getStrength();
-		heardSkip = band != null && from.distSqr(worldPosition) > (double)band.losRange() * band.losRange();
+		heardSkip = band != null && from.distSqr(here()) > (double)band.losRange() * band.losRange();
 		heardAt = level.getGameTime();
 	}
 
@@ -182,20 +184,21 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 
 	private void serverTick(ServerLevel serverLevel) {
 		long now = serverLevel.getGameTime();
+		refreshPower();
 		if((now + worldPosition.asLong()) % 10L == 0L)
 			refreshModules(serverLevel);
 		if((now + worldPosition.asLong()) % 20L == 0L)
 			refreshLinked(serverLevel);
 
 		int usable = usableModules();
-		boolean nowHearing = on && heardAt >= 0 && now - heardAt <= HEARD_TICKS && reference != null;
+		boolean nowHearing = isOn() && heardAt >= 0 && now - heardAt <= HEARD_TICKS && reference != null;
 		if(nowHearing != hearing) {
 			hearing = nowHearing;
 			dirty = true;
 			if(hearing)
 				sound(SoundEvents.NOTE_BLOCK_BIT.value(), 1.4F, 0.4F); // Signal found.
 		}
-		if(!on) {
+		if(!isOn()) {
 			if(locked != 0 || !Double.isNaN(bearing)) {
 				locked = 0;
 				bearing = sigma = Double.NaN;
@@ -224,7 +227,8 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 				sigma = s;
 			}
 			if(locked >= DirectionFinding.MIN_MODULES && from != null) { // Follows a moving station, with this lock's error.
-				double fresh = DirectionFinding.normalize(DirectionFinding.bearing(worldPosition.getX() + 0.5D, worldPosition.getZ() + 0.5D,
+				BlockPos here = here();
+				double fresh = DirectionFinding.normalize(DirectionFinding.bearing(here.getX() + 0.5D, here.getZ() + 0.5D,
 						from.getX() + 0.5D, from.getZ() + 0.5D) + errorOffset);
 				if(Double.isNaN(bearing) || DirectionFinding.difference(fresh, bearing) >= 0.5D) {
 					bearing = fresh;
@@ -263,12 +267,39 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 	public void onLoad() {
 		super.onLoad();
 		if(level != null && !level.isClientSide)
-			getNetworkObject(level, worldPosition); // On the power wire, a microwave radio can serve it there.
+			getNetworkObject(level, worldPosition); // On the power wire: its supply, and a microwave radio can serve it there.
 	}
 
 	@Override
 	public com.arrl.radiocraft.api.benetworks.BENetworkObject createNetworkObject() {
-		return new com.arrl.radiocraft.common.be_networks.network_objects.MicrowaveNetworkObjects.StationLink(level, worldPosition);
+		return new com.arrl.radiocraft.common.be_networks.network_objects.DirectionFinderNetworkObject(level, worldPosition);
+	}
+
+	@Override
+	public void onNetworkObjectCreated(Level level, BlockPos pos, com.arrl.radiocraft.api.benetworks.BENetworkObject networkObject) {
+		if(networkObject instanceof com.arrl.radiocraft.common.be_networks.network_objects.DirectionFinderNetworkObject finder)
+			finder.wantsOn = on; // The POWER button is saved here, not on the object.
+	}
+
+	/** The network object, if the capability has it (always on a loaded server block entity). */
+	@Nullable
+	private com.arrl.radiocraft.common.be_networks.network_objects.DirectionFinderNetworkObject networkObject() {
+		if(level == null || level.isClientSide)
+			return null;
+		return getNetworkObject(level, worldPosition) instanceof com.arrl.radiocraft.common.be_networks.network_objects.DirectionFinderNetworkObject finder ? finder : null;
+	}
+
+	/**
+	 * Whether the wire feeds it this tick (see {@link com.arrl.radiocraft.common.be_networks.network_objects.DirectionFinderNetworkObject}): switched on with
+	 * nothing on the wire it stays dark, like a radio with no battery.
+	 */
+	private void refreshPower() {
+		com.arrl.radiocraft.common.be_networks.network_objects.DirectionFinderNetworkObject finder = networkObject();
+		boolean now = finder != null && finder.isPowered;
+		if(now != powered) {
+			powered = now;
+			dirty = true;
+		}
 	}
 
 	/**
@@ -290,7 +321,7 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 							now.add(previous);
 							continue;
 						}
-						BlockPos at = other.getBlockPos();
+						BlockPos at = other.here();
 						now.add(new Linked(peer.identity(), new DirectionFinding.Line(at.getX() + 0.5D, at.getZ() + 0.5D, other.getBearing(), other.getSigma())));
 					}
 		}
@@ -385,7 +416,7 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 		for(int i = 0; i < modules.size(); i++) {
 			ModuleStatus status = statuses.get(i);
 			if(status == ModuleStatus.READY || status == ModuleStatus.LOCKED) {
-				ModuleStatus wanted = on && lit < locked ? ModuleStatus.LOCKED : ModuleStatus.READY;
+				ModuleStatus wanted = isOn() && lit < locked ? ModuleStatus.LOCKED : ModuleStatus.READY;
 				if(wanted == ModuleStatus.LOCKED)
 					lit++;
 				if(wanted != status) {
@@ -393,7 +424,7 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 					dirty = true;
 				}
 			}
-			DirectionFinderModuleBlock.Lamp lamp = !on ? DirectionFinderModuleBlock.Lamp.OFF
+			DirectionFinderModuleBlock.Lamp lamp = !isOn() ? DirectionFinderModuleBlock.Lamp.OFF
 					: statuses.get(i) == ModuleStatus.LOCKED ? DirectionFinderModuleBlock.Lamp.GREEN
 					: statuses.get(i) == ModuleStatus.READY ? DirectionFinderModuleBlock.Lamp.OFF
 					: DirectionFinderModuleBlock.Lamp.RED;
@@ -411,7 +442,7 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 		BlockState state = getBlockState();
 		if(!(state.getBlock() instanceof DirectionFinderBlock))
 			return;
-		DirectionFinderBlock.Display wanted = !on ? DirectionFinderBlock.Display.OFF
+		DirectionFinderBlock.Display wanted = !isOn() ? DirectionFinderBlock.Display.OFF
 				: hasBearing() ? DirectionFinderBlock.Display.COMPASS : DirectionFinderBlock.Display.ON;
 		if(state.getValue(DirectionFinderBlock.DISPLAY) != wanted)
 			serverLevel.setBlock(worldPosition, state.setValue(DirectionFinderBlock.DISPLAY, wanted), Block.UPDATE_CLIENTS);
@@ -426,6 +457,12 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 		lockTicks = 0;
 		lockedSource = null;
 		bearing = sigma = Double.NaN;
+		com.arrl.radiocraft.common.be_networks.network_objects.DirectionFinderNetworkObject finder = networkObject();
+		if(finder != null) {
+			finder.wantsOn = on;
+			finder.resolvePower(); // So the screen sees the result without waiting a tick.
+			powered = finder.isPowered;
+		}
 		markDirtyNow();
 	}
 
@@ -504,8 +541,19 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 		return bands.getFirst();
 	}
 
+	/** Running: switched on and fed by its power wire (see {@link #isSwitchedOn}). */
 	public boolean isOn() {
+		return on && powered;
+	}
+
+	/** The POWER button, whatever the wire is doing. */
+	public boolean isSwitchedOn() {
 		return on;
+	}
+
+	/** True while the wire feeds it (meaningful with {@link #isSwitchedOn}). */
+	public boolean isPowered() {
+		return powered;
 	}
 
 	public boolean isBootPending() {
@@ -561,11 +609,18 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 		return List.copyOf(entries);
 	}
 
+	/** Where this direction finder really is: its block, or its place in the world when on a Sable ship. */
+	public BlockPos here() {
+		return com.arrl.radiocraft.compat.sable.Sublevels.world(level, worldPosition);
+	}
+
 	/** This station's bearing line, plus every one typed in: what the fix is made from. */
 	public List<DirectionFinding.Line> lines() {
 		List<DirectionFinding.Line> lines = new ArrayList<>();
-		if(hasBearing())
-			lines.add(new DirectionFinding.Line(worldPosition.getX() + 0.5D, worldPosition.getZ() + 0.5D, bearing, sigma));
+		if(hasBearing()) {
+			BlockPos here = here();
+			lines.add(new DirectionFinding.Line(here.getX() + 0.5D, here.getZ() + 0.5D, bearing, sigma));
+		}
 		for(Entry entry : entries)
 			lines.add(entry.line());
 		for(Linked from : linked)
@@ -619,6 +674,7 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 			sigma = tag.getDouble("sigma");
 			hearing = tag.getBoolean("hearing");
 			meter = tag.getDouble("meter");
+			powered = tag.getBoolean("powered");
 			linked.clear();
 			for(Tag entry : tag.getList("linked", Tag.TAG_COMPOUND)) {
 				CompoundTag line = (CompoundTag)entry;
@@ -638,6 +694,7 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 		if(antennaType != null)
 			tag.putString("antennaType", antennaType.toString());
 		tag.putInt("locked", locked);
+		tag.putBoolean("powered", powered);
 		tag.putDouble("bearing", bearing);
 		tag.putDouble("sigma", sigma);
 		tag.putBoolean("hearing", hearing);

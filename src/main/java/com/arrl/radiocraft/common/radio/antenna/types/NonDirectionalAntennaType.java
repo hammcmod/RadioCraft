@@ -9,6 +9,7 @@ import com.arrl.radiocraft.common.radio.solar.Aurora;
 import com.arrl.radiocraft.common.radio.solar.SporadicE;
 import com.arrl.radiocraft.common.radio.solar.SolarEventManager;
 import com.arrl.radiocraft.common.radio.terrain.TerrainPropagation;
+import com.arrl.radiocraft.compat.sable.Sublevels;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
@@ -54,7 +55,7 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
     }
 
     protected double computeDistance(IAntennaPacket packet, BlockPos destination) {
-        return Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(destination));
+        return Math.sqrt(Sublevels.distSqr(packet.getLevel(), packet.getSource().getAntennaPos().position(), destination));
     }
 
     protected double modifyDistanceForTransmit(IAntennaPacket packet, T data, BlockPos destination, double distance) {
@@ -64,7 +65,9 @@ public abstract class NonDirectionalAntennaType<T extends AntennaData> implement
     protected double getPropagationStrength(IAntennaPacket packet, BlockPos destination, double distance, boolean isCW) {
         double effectiveDistance = isCW ? distance / CW_RANGE_MULTIPLIER : distance;
         Level level = packet.getLevel();
-        BlockPos source = packet.getSource().getAntennaPos().position();
+        // Where both ends really are (either may be on a Sable ship), for solar weather, aurora and terrain.
+        BlockPos source = packet.getSource().getAntennaPos().world();
+        destination = Sublevels.world(level, destination);
         // Solar weather only touches the sky wave: a poor or closed band weakens skip, line of sight is unchanged. An
         // aurora over either end costs HF a condition step, and lets VHF skip between two stations under it.
         double skip = getSkipEfficiency() * SolarEventManager.getCondition(level, packet.getBand(), source, destination).getSkipMultiplier();

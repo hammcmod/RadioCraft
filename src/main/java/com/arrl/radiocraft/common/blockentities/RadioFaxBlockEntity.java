@@ -621,6 +621,7 @@ public class RadioFaxBlockEntity extends BlockEntity implements MenuProvider, St
 		}
 		if(channel == null || encoder == null)
 			return;
+		RadiocraftVoicePlugin.followBlock(channel, level, worldPosition);
 		int frames = level.getGameTime() % 2 == 0 ? 3 : 2;
 		for(int i = 0; i < frames; i++)
 			channel.send(encoder.encode(FaxAudio.monitorFrame(monitorFrames++, calling)));

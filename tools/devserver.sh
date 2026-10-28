@@ -69,7 +69,9 @@ start() {
   if rcon_up; then echo "Dev server already running."; return 0; fi
   configure
   : > "$LOG"
-  nohup ./gradlew runServer --console=plain > "$LOG" 2>&1 &
+  # DEVSERVER_GRADLE_ARGS adds Gradle flags, e.g. DEVSERVER_GRADLE_ARGS=-PwithSable (or -PwithCreate).
+  # shellcheck disable=SC2086
+  nohup ./gradlew runServer --console=plain ${DEVSERVER_GRADLE_ARGS:-} > "$LOG" 2>&1 &
   echo $! > "$PIDFILE"
   echo "Starting dev server (pid $(cat "$PIDFILE")), log: $LOG"
   wait_ready 600 || return 1

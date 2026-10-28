@@ -32,6 +32,8 @@ public class CommonConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_RECEIVER_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_REPEATER_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> VHF_REPEATER_TRANSMIT_TICK;
+	public static final ModConfigSpec.ConfigValue<Integer> COMMERCIAL_REPEATER_BATTERY;
+	public static final ModConfigSpec.ConfigValue<Integer> COMMERCIAL_REPEATER_CHARGE_RATE;
 	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_20M_RECEIVE_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_20M_TRANSMIT_TICK;
 	public static final ModConfigSpec.ConfigValue<Integer> QRP_RADIO_40M_RECEIVE_TICK;
@@ -78,6 +80,8 @@ public class CommonConfig {
 		VHF_RECEIVER_TICK = BUILDER.comment("*VHF Receiver power consumption per tick (while receiving) #default 2").define("vhf_receiver", 2);
 		VHF_REPEATER_RECEIVE_TICK = BUILDER.comment("*VHF Repeater power consumption per tick (while listening) #default 4").define("vhf_repeater_receive", 4);
 		VHF_REPEATER_TRANSMIT_TICK = BUILDER.comment("*VHF Repeater power consumption per tick (while transmitting) #default 17").define("vhf_repeater_transmit", 17);
+		COMMERCIAL_REPEATER_BATTERY = BUILDER.comment("*The commercial repeater's built-in battery: what it stores to ride out an outage (about 20 minutes listening, 2.5 transmitting, at the defaults). #default 100000").define("commercial_repeater_battery", 100000);
+		COMMERCIAL_REPEATER_CHARGE_RATE = BUILDER.comment("*Most power a tick the commercial repeater's built-in charge controller takes from the wire, from batteries or solar panels alike. #default 60").define("commercial_repeater_charge_rate", 60);
 
 
 		BUILDER.pop();

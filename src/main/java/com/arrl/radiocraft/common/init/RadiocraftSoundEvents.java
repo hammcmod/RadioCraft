@@ -13,6 +13,8 @@ public class RadiocraftSoundEvents {
 
 	public static Supplier<SoundEvent> STATIC = SOUND_EVENTS.register("static", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("static"), 32.0F));
 	public static Supplier<SoundEvent> MORSE = SOUND_EVENTS.register("morse", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("morse"), 32.0F));
+	/** Broadband switching noise a radio picks up from redstone near its antenna (maintainer's recording, 2026-10-27, 19 s). */
+	public static Supplier<SoundEvent> REDSTONE_RFI = SOUND_EVENTS.register("redstone_rfi", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("redstone_rfi"), 32.0F));
 	/** The solar weather station printing its report (maintainer's sound, 2026-10-21). */
 	public static Supplier<SoundEvent> TELETYPE = SOUND_EVENTS.register("teletype", () -> SoundEvent.createFixedRangeEvent(Radiocraft.id("teletype"), 16.0F));
 	/** The bell at the end of the report, and on placing the station. */

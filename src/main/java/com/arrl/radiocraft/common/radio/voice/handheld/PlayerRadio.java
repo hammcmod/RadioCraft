@@ -296,9 +296,9 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
 
                     AntennaPos pos = antenna.getAntennaPos();
 
-                    if(pos == null || pos.level() != thisPos.level() || BandUtils.outOfReach(band, thisPos.position(), pos.position())) continue;
+                    if(pos == null || pos.level() != thisPos.level() || BandUtils.outOfReach(band, thisPos.world(), pos.world())) continue;
 
-                    double distance = Math.sqrt(thisPos.position().distSqr(pos.position()));
+                    double distance = Math.sqrt(thisPos.world().distSqr(pos.world()));
                     packet.setDestination(antenna);
                     double lineOfSight = BandUtils.getBaseStrength(packet.getBand(), distance, 1.0F, 0.0F, packet.getLevel().isDay());
                     if(lineOfSight > 0.0D) // A handheld has no skip: only hills and roofs in the way.
@@ -423,7 +423,7 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
             AntennaPos source = antennaPacket.getSource() == null ? null : antennaPacket.getSource().getAntennaPos();
             AntennaPos here = getAntennaPos();
             boolean beyondLos = source != null && here != null && antennaPacket.getBand() != null
-                    && source.position().distSqr(here.position()) > (double)antennaPacket.getBand().losRange() * antennaPacket.getBand().losRange();
+                    && source.world().distSqr(here.world()) > (double)antennaPacket.getBand().losRange() * antennaPacket.getBand().losRange();
             // FM: full volume however weak the signal; it fades into hiss and dropouts instead (RadioVoiceProcessor#fmFade).
             double level = (isHeld ? 1.0D : 0.5D) * gain;
             short[] rawAudio = processor.process(antennaPacket.getRawAudio(), com.arrl.radiocraft.common.radio.voice.SpeakerKind.BUILT_IN.apply(RadioVoiceProcessor.currentSettings()), level, beyondLos ? 1.0D : 0.0D, 0.0D, 0.0D, splatter);

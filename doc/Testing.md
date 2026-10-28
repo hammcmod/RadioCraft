@@ -36,6 +36,11 @@ Create is left out of dev runs unless asked for: add `-PwithCreate` (to `runGame
 `runServer`) to load Create, Ponder, Flywheel and Registrate, so `CreateGameTests` really turns an alternator
 (without Create it passes at once). Run the GameTests both ways before committing Create compat changes.
 
+Sable is left out the same way: `-PwithSable` loads Sable 2.0.6, its Rapier physics and Veil (`runClient`,
+`runServer`; the dev server takes it as `DEVSERVER_GRADLE_ARGS=-PwithSable tools/devserver.sh start`). Make a ship with
+`/sable assemble area <from> <to>`, move it with `/sable teleport <uuid> <x y z> <yaw pitch>` (`/sable paused true`
+holds it still), and see where a ship block really is with `/rcdebug sable <pos>`. The GameTests run without Sable.
+
 Writing tests:
 
 - Put them in a class annotated `@GameTestHolder(Radiocraft.MOD_ID)` and `@PrefixGameTestTemplate(false)`, with
@@ -93,6 +98,7 @@ Read-only:
 | `rcdebug radio <pos>` | band, frequency, power, mode, PTT, gains, measured SWR, static factor, the power flag synced to clients, connected antennas with SWR |
 | `rcdebug antenna <pos>` | recognized antenna type, its data, SWR at the centre of every band |
 | `rcdebug network <pos>` | network object, energy, and every network it is on with its members |
+| `rcdebug sable <pos>` | whether the block is on a Sable sub-level (ship), and where it really is in the world |
 | `rcdebug solar` | current solar event, noise, progress, time of day, weather, each HF band's condition |
 | `rcdebug solar set <event>` | start a fresh spell of an event (`blackout`, `great`, ...) in this dimension |
 | `rcdebug solar aurora on\|off` | light an aurora for a day now, or end / cancel one (state shows in `rcdebug solar`) |

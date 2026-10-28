@@ -242,7 +242,7 @@ public final class BatteryFires {
 		BlockPos strike = bolt.blockPosition();
 		Set<BlockPos> walked = new HashSet<>();
 		for(BlockPos at : BlockPos.betweenClosed(strike.offset(-range, -range, -range), strike.offset(range, range, range))) {
-			if(walked.contains(at) || !(level.getBlockState(at).getBlock() instanceof WireBlock wire) || !wire.isPower)
+			if(walked.contains(at) || !WireFaults.hasPowerWire(level, at)) // A wire block, or a bundle's power cable.
 				continue;
 			BlockPos wirePos = at.immutable();
 			walked.add(wirePos);

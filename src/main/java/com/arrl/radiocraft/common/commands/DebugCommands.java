@@ -84,6 +84,8 @@ public class DebugCommands {
 			.then(Commands.literal("radio").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::radio)))
 			.then(Commands.literal("antenna").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::antenna)))
 			.then(Commands.literal("network").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::network)))
+			.then(Commands.literal("microwave").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::microwave)))
+			.then(Commands.literal("sable").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::sable)))
 			.then(Commands.literal("tapes").executes(DebugCommands::tapes)
 					.then(Commands.literal("give").then(Commands.argument("track", StringArgumentType.greedyString()).executes(DebugCommands::giveTape)))
 					.then(Commands.literal("reload").executes(ctx -> {
@@ -317,6 +319,57 @@ public class DebugCommands {
 			out.add(obj.diagnose());
 		}
 		return send(ctx, out);
+	}
+
+	/**
+	 * A microwave radio's dishes and every other radio it could hear, with why the signal is what it is: the screens only
+	 * show the signal level (a radio cannot know why the far end is quiet), this says out of range, not facing, blocked.
+	 */
+	private static int microwave(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
+		net.minecraft.server.level.ServerLevel level = ctx.getSource().getLevel();
+		BlockPos pos = BlockPosArgument.getLoadedBlockPos(ctx, "pos");
+		if(!(level.getBlockEntity(pos) instanceof com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity radio))
+			return fail(ctx, "No microwave radio there");
+		List<String> lines = new ArrayList<>();
+		List<com.arrl.radiocraft.common.blockentities.MicrowaveDishBlockEntity> dishes = radio.dishes(level);
+		lines.add(String.format(Locale.ROOT, "%s %d MHz phase=%s powered=%s rssi=%.1f%s", radio.identity(), radio.getFrequency(), radio.getPhase(), radio.isPowered(),
+				radio.getRssi(), radio.getAlignReason().isEmpty() ? "" : " (" + radio.getAlignReason() + ")"));
+		for(com.arrl.radiocraft.common.blockentities.MicrowaveDishBlockEntity dish : dishes)
+			lines.add(String.format(Locale.ROOT, "  %s at %s az=%.1f el=%.1f range=%.0f", dish.isHorn() ? "horn" : "dish", dish.getBlockPos().toShortString(),
+					dish.getAzimuth(), dish.getElevation(), dish.getRange()));
+		if(dishes.isEmpty())
+			lines.add("  no dish on its coax");
+		for(com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity other : com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity.loaded(level)) {
+			if(other == radio)
+				continue;
+			com.arrl.radiocraft.common.radio.microwave.MicrowaveMath.Signal signal = com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity.bestSignal(level, radio, other);
+			lines.add(String.format(Locale.ROOT, "%s at %s %d MHz powered=%s phase=%s: %s rssi=%.1f", other.identity(), other.getBlockPos().toShortString(),
+					other.getFrequency(), other.isPowered(), other.getPhase(), signal.result(), signal.rssi()));
+			for(com.arrl.radiocraft.common.blockentities.MicrowaveDishBlockEntity mine : dishes)
+				for(com.arrl.radiocraft.common.blockentities.MicrowaveDishBlockEntity theirs : other.dishes(level)) {
+					com.arrl.radiocraft.common.radio.microwave.MicrowaveMath.End a = mine.end(), b = theirs.end();
+					lines.add(String.format(Locale.ROOT, "  %s -> %s: %.0f blocks, off axis %.0f / %.0f deg, path %s",
+							mine.getBlockPos().toShortString(), theirs.getBlockPos().toShortString(), Math.hypot(b.x() - a.x(), b.z() - a.z()),
+							com.arrl.radiocraft.common.radio.microwave.MicrowaveMath.offAxis(a, b.x(), b.y(), b.z()),
+							com.arrl.radiocraft.common.radio.microwave.MicrowaveMath.offAxis(b, a.x(), a.y(), a.z()),
+							com.arrl.radiocraft.common.radio.microwave.MicrowavePaths.in(level).clear(a, b) ? "clear" : "BLOCKED"));
+				}
+		}
+		return send(ctx, lines);
+	}
+
+	/** Whether the block at a position is on a Sable sub-level, and where it really is (compat/sable/Sublevels). */
+	private static int sable(CommandContext<CommandSourceStack> ctx) {
+		ServerLevel level = ctx.getSource().getLevel();
+		BlockPos pos = BlockPosArgument.getBlockPos(ctx, "pos");
+		var ship = com.arrl.radiocraft.compat.sable.Sublevels.at(level, pos);
+		if(ship == null)
+			return send(ctx, List.of(pos.toShortString() + " is not on a sub-level"
+					+ (net.neoforged.fml.ModList.get().isLoaded("sable") ? "" : " (Sable is not installed)")));
+		net.minecraft.world.phys.Vec3 at = com.arrl.radiocraft.compat.sable.Sublevels.worldCenter(level, pos);
+		return send(ctx, List.of(pos.toShortString() + " is on sub-level " + (ship.getName() == null ? ship.getUniqueId() : ship.getName()),
+				String.format(Locale.ROOT, "really at %.2f, %.2f, %.2f (block %s)", at.x, at.y, at.z,
+						com.arrl.radiocraft.compat.sable.Sublevels.world(level, pos).toShortString())));
 	}
 
 	private static int network(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {

@@ -20,6 +20,17 @@ import java.util.List;
 public class RadiocraftVoicePlugin implements VoicechatPlugin {
 
 	public static VoicechatServerApi API = null;
+
+	/**
+	 * Moves {@code channel}, a block's speaker, to where the block at {@code pos} really is when it rides a Sable ship;
+	 * leaves it be otherwise. Call before sending audio. Game or voice thread.
+	 */
+	public static void followBlock(@org.jetbrains.annotations.Nullable de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel channel, @org.jetbrains.annotations.Nullable Level level, net.minecraft.core.BlockPos pos) {
+		if(channel == null || API == null || !com.arrl.radiocraft.compat.sable.Sublevels.onSublevel(level, pos))
+			return;
+		Vec3 at = com.arrl.radiocraft.compat.sable.Sublevels.worldCenter(level, pos);
+		channel.updateLocation(API.createPosition(at.x, at.y, at.z));
+	}
 	public static EncodingManager encodingManager = new EncodingManager();
 
 	//TODO not currently working, will be used by audiochannels such as those in PlayerRadio

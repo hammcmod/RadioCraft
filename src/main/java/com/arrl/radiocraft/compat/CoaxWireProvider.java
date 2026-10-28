@@ -12,7 +12,11 @@ import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
 import net.minecraft.core.BlockPos;
+import com.arrl.radiocraft.common.blocks.Strand;
 import com.arrl.radiocraft.common.blocks.WireBlock;
+import com.arrl.radiocraft.common.be_networks.WireUtils;
+import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -56,7 +60,7 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
         Level level = accessor.getLevel();
         BlockPos pos = accessor.getPosition();
-        if(!com.arrl.radiocraft.common.be_networks.WireUtils.isCoax(level.getBlockState(pos)))
+        if(!WireUtils.hasCoax(level, pos))
             return;
 
         Set<BlockPos> visitedObjects = new HashSet<>();
@@ -88,10 +92,17 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
         data.putInt("coaxTunerCount", tunerCount);
     }
 
+    /**
+     * Everything on the coax at {@code pos} (every coax strand there, in a bundle), or on the coax runs touching the
+     * device at {@code pos}. Follows the same strands the network walk does, so a bundle's colours stay apart.
+     */
     public static void collectConnections(Level level, BlockPos pos, Set<BlockPos> visitedObjects) {
-        Set<BlockPos> visitedWires = new HashSet<>();
-        if(com.arrl.radiocraft.common.be_networks.WireUtils.isCoax(level.getBlockState(pos))) {
-            collectWireConnections(level, pos, visitedWires, visitedObjects);
+        Set<Strand> visitedWires = new HashSet<>();
+        Set<WireBlock> coax = Set.of(WireUtils.coaxWires());
+        if(WireUtils.hasCoax(level, pos)) {
+            for(Strand strand : Strand.at(level, pos))
+                if(coax.contains(strand.kind()) && !strand.kind().conductsAll())
+                    collectWireConnections(level, strand, visitedWires, visitedObjects);
             return;
         }
 
@@ -99,8 +110,8 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
         if(origin instanceof ICoaxNetworkObject)
             visitedObjects.add(pos);
 
-        for(BlockPos checkPos : WireBlock.wireLinksAround(level, pos, Set.of(com.arrl.radiocraft.common.be_networks.WireUtils.coaxWires())).keySet())
-            collectWireConnections(level, checkPos, visitedWires, visitedObjects); // Neighbours and climbers coming up to this device.
+        for(BlockPos checkPos : WireBlock.wireLinksAround(level, pos, coax).keySet())
+            enter(level, checkPos, null, coax, visitedWires, visitedObjects); // Neighbours and climbers coming up to this device.
         for(Direction direction : Direction.values()) {
             BlockPos checkPos = pos.relative(direction);
             if(IBENetworks.getObject(level, checkPos) instanceof ICoaxNetworkObject)
@@ -108,23 +119,33 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
         }
     }
 
-    private static void collectWireConnections(Level level, BlockPos pos, Set<BlockPos> visitedWires, Set<BlockPos> visitedObjects) {
-        if(!visitedWires.add(pos))
-            return;
-        if(!(level.getBlockState(pos).getBlock() instanceof WireBlock wire))
-            return;
+    /** Into the coax strands at {@code pos} that {@code from} joins (any, for a device). */
+    private static void enter(Level level, BlockPos pos, @Nullable WireBlock from, Set<WireBlock> coax, Set<Strand> visitedWires, Set<BlockPos> visitedObjects) {
+        for(Strand strand : Strand.at(level, pos))
+            if(coax.contains(strand.kind()) && (from == null || from.joins(strand.kind())))
+                collectWireConnections(level, strand, visitedWires, visitedObjects);
+    }
 
-        for(BlockPos checkPos : wire.getLinks(level, pos).keySet()) { // Six neighbours plus climb links, see WireBlock#getLinks.
-            if(com.arrl.radiocraft.common.be_networks.WireUtils.isCoax(level.getBlockState(checkPos))) {
-                collectWireConnections(level, checkPos, visitedWires, visitedObjects);
+    private static void collectWireConnections(Level level, Strand strand, Set<Strand> visitedWires, Set<BlockPos> visitedObjects) {
+        if(!visitedWires.add(strand))
+            return;
+        WireBlock wire = strand.kind();
+        BlockState state = strand.state(level);
+        if(wire == null || state == null)
+            return;
+        Set<WireBlock> coax = Set.of(WireUtils.coaxWires());
+
+        for(BlockPos checkPos : wire.getLinks(level, strand.pos(), state).keySet()) { // Six neighbours plus climb links, see WireBlock#getLinks.
+            if(!Strand.at(level, checkPos).isEmpty()) {
+                enter(level, checkPos, wire, coax, visitedWires, visitedObjects);
                 continue;
             }
 
             BENetworkObject object = IBENetworks.getObject(level, checkPos);
             if(object instanceof ICoaxNetworkObject && visitedObjects.add(checkPos) && object instanceof ICoaxPassThrough) {
                 // The run carries on through a tuner.
-                for(BlockPos beyondPos : WireBlock.wireLinksAround(level, checkPos, Set.of(com.arrl.radiocraft.common.be_networks.WireUtils.coaxWires())).keySet())
-                    collectWireConnections(level, beyondPos, visitedWires, visitedObjects);
+                for(BlockPos beyondPos : WireBlock.wireLinksAround(level, checkPos, coax).keySet())
+                    enter(level, beyondPos, null, coax, visitedWires, visitedObjects);
             }
         }
     }

@@ -99,6 +99,8 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 	private final float[] history = new float[HISTORY];
 	/** Who the signal comes from, for the ALIGN page ("" for nobody in view). */
 	private String alignName = "";
+	/** Why there is no signal on the ALIGN page ("" while there is one, or nothing to say). */
+	private String alignReason = "";
 
 	/** A dish on this radio's coax, as the screen shows it. */
 	public record DishInfo(BlockPos pos, float azimuth, float elevation, boolean horn) {}
@@ -243,7 +245,8 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 	/**
 	 * The radio this one is pointed at, for the signal reading: its master while linked (or lost), the master found,
 	 * the strongest subscriber of a master, or else, before any link, the loudest radio on its frequency on the other
-	 * side (a master for a subscriber, a would-be subscriber for a master), so both ends can align before linking.
+	 * side (a master for a subscriber, a would-be subscriber for a master), failing that the loudest radio on the
+	 * frequency whatever its role, so both ends can align before anyone has been made master.
 	 */
 	@Nullable
 	private MicrowaveRadioBlockEntity alignTarget(ServerLevel serverLevel) {
@@ -255,9 +258,11 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 		if(target != null)
 			return target;
 		List<MicrowaveRadioBlockEntity> heard = phase == Phase.BROADCASTING ? subscribersOf(serverLevel) : List.of();
+		List<MicrowaveRadioBlockEntity> onFrequency = loaded(serverLevel).stream().filter(other -> other != this && other.powered && other.frequency == frequency).toList();
 		if(heard.isEmpty()) // Not linked: a master hears radios on its frequency trying to reach it, the rest hear masters.
-			heard = loaded(serverLevel).stream().filter(other -> other != this && other.powered && other.frequency == frequency
-					&& (phase == Phase.BROADCASTING) != (other.phase == Phase.BROADCASTING)).toList();
+			heard = onFrequency.stream().filter(other -> (phase == Phase.BROADCASTING) != (other.phase == Phase.BROADCASTING)).toList();
+		if(heard.isEmpty()) // Nobody made master yet: whatever is on the frequency, so the dishes can be peaked first.
+			heard = onFrequency;
 		MicrowaveRadioBlockEntity best = null;
 		double bestRssi = Double.NEGATIVE_INFINITY;
 		for(MicrowaveRadioBlockEntity other : heard) {
@@ -273,8 +278,15 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 	/** Takes a reading of the signal for the ALIGN page. The far end's callsign shows only once its signal decodes. */
 	private void sample(ServerLevel serverLevel) {
 		MicrowaveRadioBlockEntity target = alignTarget(serverLevel);
-		rssi = target == null ? (float)MicrowaveMath.NO_SIGNAL_DBM : (float)bestSignal(serverLevel, this, target).rssi();
+		MicrowaveMath.Signal signal = target == null ? null : bestSignal(serverLevel, this, target);
+		rssi = signal == null ? (float)MicrowaveMath.NO_SIGNAL_DBM : (float)signal.rssi();
 		alignName = target == null || rssi < MicrowaveMath.SENSITIVITY_DBM ? "" : target.identity();
+		alignReason = signal == null ? (target == null ? "NO RADIO ON " + frequency + " MHZ" : "") : switch(signal.result()) {
+			case OUT_OF_RANGE -> "OUT OF RANGE";
+			case NOT_FACING -> "NOT FACING: TURN DISHES";
+			case BLOCKED -> "PATH BLOCKED BY GROUND";
+			default -> "";
+		};
 		System.arraycopy(history, 1, history, 0, HISTORY - 1);
 		history[HISTORY - 1] = rssi;
 		dirty = true;
@@ -284,9 +296,10 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 	public static MicrowaveMath.Signal bestSignal(Level level, MicrowaveRadioBlockEntity a, MicrowaveRadioBlockEntity b) {
 		MicrowaveMath.Signal best = new MicrowaveMath.Signal(MicrowaveMath.Result.OUT_OF_RANGE, MicrowaveMath.NO_SIGNAL_DBM);
 		double capture = RadiocraftServerConfig.MICROWAVE_BEAM_WIDTH.get(), loss = blackoutLoss(level);
+		MicrowaveMath.Path path = com.arrl.radiocraft.common.radio.microwave.MicrowavePaths.in(level);
 		for(MicrowaveDishBlockEntity da : a.dishes(level))
 			for(MicrowaveDishBlockEntity db : b.dishes(level)) {
-				MicrowaveMath.Signal signal = MicrowaveMath.signal(TerrainPropagation.atlas(level), da.end(), db.end(), capture, loss);
+				MicrowaveMath.Signal signal = MicrowaveMath.signalAlong(path, da.end(), db.end(), capture, loss);
 				boolean better = signal.rssi() > best.rssi()
 						|| (signal.rssi() == best.rssi() && signal.result().ordinal() > best.result().ordinal()); // The furthest it got.
 				if(better)
@@ -303,6 +316,11 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 	/** The last {@link #HISTORY} signal readings, oldest first. */
 	public float[] getRssiHistory() {
 		return history.clone();
+	}
+
+	/** Why there is nothing on the meter (for {@code /rcdebug microwave}, not the screens): no radio on the frequency, out of range, not facing, or the ground in the way. "" otherwise. */
+	public String getAlignReason() {
+		return alignReason;
 	}
 
 	/** Who the signal is from, "" for nobody or a signal too weak to decode. */
@@ -456,7 +474,10 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 		return id != null && id.getPath().equals("blackout") ? RadiocraftServerConfig.MICROWAVE_BLACKOUT_LOSS.get() : 0.0D;
 	}
 
-	/** Null if some dish of {@code a} links with some dish of {@code b}; otherwise why not, for the screen. */
+	/**
+	 * Null if some dish of {@code a} links with some dish of {@code b}; otherwise what the radio can tell from its
+	 * meter (too weak, or nothing at all). Why there is nothing is not the radio's to know: {@code /rcdebug microwave}.
+	 */
 	@Nullable
 	public static String linkProblem(Level level, MicrowaveRadioBlockEntity a, MicrowaveRadioBlockEntity b) {
 		if(a.dishes(level).isEmpty())
@@ -466,9 +487,7 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 		return switch(bestSignal(level, a, b).result()) {
 			case OK -> null;
 			case WEAK -> "SIGNAL TOO WEAK: ALIGN";
-			case NOT_FACING -> "NOTHING IN VIEW: TURN DISHES";
-			case BLOCKED -> "PATH BLOCKED";
-			default -> "OUT OF RANGE";
+			default -> "NO SIGNAL: CHECK DISHES";
 		};
 	}
 
@@ -490,6 +509,7 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 		double beam = RadiocraftServerConfig.MICROWAVE_BEAM_WIDTH.get(), loss = blackoutLoss(level);
 		List<MicrowaveDishBlockEntity> ends = new ArrayList<>(a.dishes(level));
 		ends.addAll(master.dishes(level));
+		MicrowaveMath.Path path = com.arrl.radiocraft.common.radio.microwave.MicrowavePaths.in(level);
 		for(MicrowaveRadioBlockEntity other : loaded(level)) {
 			if(other == a || other == master || !other.powered || master.worldPosition.equals(other.master) || other.worldPosition.equals(a.master))
 				continue; // The link itself, and the master's other subscribers.
@@ -500,7 +520,7 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 					MicrowaveMath.End mine = ours.end(), them = theirs.end();
 					double distance = Math.hypot(them.x() - mine.x(), them.z() - mine.z());
 					if(distance <= MicrowaveMath.linkRange(mine.range(), them.range(), loss) && MicrowaveMath.inBeam(mine, them.x(), them.y(), them.z(), beam)
-							&& MicrowaveMath.clearPath(TerrainPropagation.atlas(level), mine, them))
+							&& path.clear(mine, them))
 						return true;
 				}
 		}
@@ -828,6 +848,7 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 			for(int i = 0; i < HISTORY; i++)
 				history[i] = i < tenths.length ? tenths[i] / 10.0F : (float)MicrowaveMath.NO_SIGNAL_DBM;
 			alignName = tag.getString("alignName");
+			alignReason = tag.getString("alignReason");
 			dishInfo.clear();
 			for(Tag entry : tag.getList("dishes", Tag.TAG_COMPOUND)) {
 				CompoundTag dish = (CompoundTag)entry;
@@ -862,6 +883,7 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 		tag.putFloat("rssi", rssi);
 		tag.put("rssiHistory", new net.minecraft.nbt.IntArrayTag(toTenths(history)));
 		tag.putString("alignName", alignName);
+		tag.putString("alignReason", alignReason);
 		return tag;
 	}
 

@@ -62,6 +62,20 @@ public final class ManpackClient {
 		return player == null ? ItemStack.EMPTY : ManpackRadio.find(player);
 	}
 
+	/**
+	 * Sneak + right click on nothing, with an empty hand, while wearing the pack (chest or Curios back slot) opens its
+	 * panel too: the key does the same, but sneak + right click is what everyone tries first (reported 2026-10-27).
+	 */
+	@SubscribeEvent
+	public static void onRightClickEmpty(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickEmpty event) {
+		Minecraft mc = Minecraft.getInstance();
+		if(event.getEntity() != mc.player || !mc.player.isShiftKeyDown() || mc.screen != null || manpack().isEmpty())
+			return;
+		ItemStack held = mc.player.getItemInHand(event.getHand());
+		if(held.isEmpty() && !(manpack() == mc.player.getMainHandItem() || manpack() == mc.player.getOffhandItem()))
+			com.arrl.radiocraft.client.screens.ManpackScreen.open();
+	}
+
 	@SubscribeEvent
 	public static void onClientTick(ClientTickEvent.Post event) {
 		Minecraft mc = Minecraft.getInstance();

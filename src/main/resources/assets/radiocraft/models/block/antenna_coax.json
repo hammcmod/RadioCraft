@@ -1,5 +1,6 @@
 {
 	"parent": "block/block",
+	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "radiocraft:block/coaxial_wire",
 		"particle": "radiocraft:block/coaxial_wire"

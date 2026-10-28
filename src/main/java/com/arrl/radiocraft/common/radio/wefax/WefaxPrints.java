@@ -61,7 +61,12 @@ public final class WefaxPrints {
 
 	/** A sheet of text, {@code lines} under {@code title}: the solar weather report. */
 	public static Print printText(ServerLevel level, BlockPos center, Component name, String title, List<String> lines) {
-		byte[] pixels = WefaxChart.paintText(title, lines);
+		return printText(level, center, name, title, lines, false);
+	}
+
+	/** As {@link #printText(ServerLevel, BlockPos, Component, String, List)}, with the WEFAX banner bottom right (the solar sheets). */
+	public static Print printText(ServerLevel level, BlockPos center, Component name, String title, List<String> lines, boolean banner) {
+		byte[] pixels = WefaxChart.paintText(title, lines, banner);
 		List<Component> lore = new ArrayList<>();
 		for(String line : lines)
 			lore.add(Component.literal(line).withStyle(ChatFormatting.GRAY));

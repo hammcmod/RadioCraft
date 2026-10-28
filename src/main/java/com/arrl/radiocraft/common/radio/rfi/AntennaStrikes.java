@@ -65,7 +65,7 @@ public final class AntennaStrikes {
 			IAntenna.AntennaPos pos = antenna.getAntennaPos();
 			if(pos == null || pos.level() != level || antenna.getPlayer() != null)
 				continue;
-			if(pos.position().getCenter().distanceTo(at) <= HIT_RANGE && damages(antenna.getType().lightningDamageFactor(), level.random.nextDouble()))
+			if(com.arrl.radiocraft.compat.sable.Sublevels.worldCenter(level, pos.position()).distanceTo(at) <= HIT_RANGE && damages(antenna.getType().lightningDamageFactor(), level.random.nextDouble()))
 				surge(level, pos.position());
 		}
 	}
@@ -105,12 +105,14 @@ public final class AntennaStrikes {
 		ArrayDeque<BlockPos> queue = new ArrayDeque<>(first);
 		while(!queue.isEmpty() && seen.size() < MAX_COAX) {
 			BlockPos at = queue.poll();
-			BlockState state = level.getBlockState(at);
-			if(!(state.getBlock() instanceof WireBlock wire))
-				continue;
-			for(BlockPos next : wire.getLinks(level, at, state).keySet()) {
-				if(coax.contains(level.getBlockState(next).getBlock()) && seen.add(next))
-					queue.add(next);
+			for(BlockState state : com.arrl.radiocraft.common.blocks.Strand.statesAt(level, at)) { // A coax block, or a bundle's coax strands.
+				WireBlock wire = (WireBlock)state.getBlock();
+				if(!coax.contains(wire))
+					continue;
+				for(BlockPos next : wire.getLinks(level, at, state).keySet()) {
+					if(WireUtils.hasCoax(level, next) && seen.add(next))
+						queue.add(next);
+				}
 			}
 		}
 		List<BlockPos> burnt = new ArrayList<>();
@@ -120,9 +122,15 @@ public final class AntennaStrikes {
 		}
 		Set<BlockPos> done = new HashSet<>();
 		for(BlockPos pos : burnt) {
-			if(!done.add(pos) || !coax.contains(level.getBlockState(pos).getBlock()))
+			if(!done.add(pos) || !WireUtils.hasCoax(level, pos))
 				continue;
-			level.removeBlock(pos, false);
+			if(level.getBlockState(pos).getBlock() instanceof com.arrl.radiocraft.common.blocks.WireBundleBlock) { // The coax burns out of the bundle; the power wire stays.
+				for(BlockState state : com.arrl.radiocraft.common.blocks.Strand.statesAt(level, pos))
+					if(coax.contains((WireBlock)state.getBlock()))
+						com.arrl.radiocraft.common.blocks.WireBundleBlock.remove(level, pos, (WireBlock)state.getBlock());
+			}
+			else
+				level.removeBlock(pos, false);
 			level.sendParticles(ParticleTypes.LARGE_SMOKE, pos.getX() + 0.5D, pos.getY() + 0.2D, pos.getZ() + 0.5D, 4, 0.2D, 0.1D, 0.2D, 0.02D);
 			level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 1.2F);
 		}

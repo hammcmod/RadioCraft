@@ -28,13 +28,13 @@ public class RadiocraftBlockLootProvider extends BlockLootSubProvider {
     }
 
     /**
-     * The blocks given a loot table. Two drop themselves in code instead: the passthrough (itself plus the wall block
-     * it replaced) and the desk charger (itself, with the radio it holds).
+     * The blocks given a loot table. Three drop themselves in code instead: the passthrough (itself plus the wall block
+     * it replaced), the desk charger (itself, with the radio it holds) and the wire bundle (the cables in it).
      */
     public static List<Block> blocks() {
         return RadiocraftBlocks.BLOCKS.getEntries().stream()
                 .<Block>map(holder -> holder.get())
-                .filter(block -> block != RadiocraftBlocks.PASSTHROUGH.get() && block != RadiocraftBlocks.DESK_CHARGER.get())
+                .filter(block -> block != RadiocraftBlocks.PASSTHROUGH.get() && block != RadiocraftBlocks.DESK_CHARGER.get() && block != RadiocraftBlocks.WIRE_BUNDLE.get())
                 .toList();
     }
 

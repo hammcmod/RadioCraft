@@ -1,37 +1,42 @@
 {
-  "name": "Coax & Baluns",
-  "icon": "radiocraft:coax_wire",
-  "category": "radiocraft:antennas",
-  "sortnum": 0,
-  "pages": [
-    {
-      "type": "patchouli:text",
-      "text": "$(item)Coax$() carries the signal from the radio to the antenna. Lay it like redstone: it climbs walls and hangs from ceilings. One radio per antenna: two radios or two antennas on one coax run $(thing)overdraw$() and nothing works.$(br2)With nothing on its coax a radio still reaches about $(thing)8 blocks$() from its bare connector."
-    },
-    {
-      "type": "patchouli:text",
-      "text": "A $(item)balun$() joins coax to antenna wire, and its ratio decides the antenna:$(li)$(thing)1:1$(): dipole, inverted V, end-fed, vertical$(li)$(thing)2:1$(): quad loops$(li)$(thing)4:1$(): off-centre-fed dipole$(li)$(thing)9:1$(): random wire",
-      "title": "Baluns"
-    },
-    {
-      "type": "patchouli:text",
-      "title": "Coloured coax",
-      "text": "Coax comes in sixteen colours. Coax joins only its own colour or plain coax, so runs of different colours can lie side by side and stay apart (a $(l:radiocraft:direction_finding/direction_finder)direction finder$(/l) needs this). Plain coax joins any colour.$(br2)Use a dye on laid coax to colour the whole run, or sneak to colour one block. Recipes that take coax want plain coax."
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "radiocraft:balun_one_to_one",
-      "recipe2": "radiocraft:balun_two_to_one"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "radiocraft:balun_four_to_one",
-      "recipe2": "radiocraft:balun_nine_to_one"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "radiocraft:coax_wire_red",
-      "text": "Eight coax round any dye."
-    }
-  ]
+ "name": "Coax & Baluns",
+ "icon": "radiocraft:coax_wire",
+ "category": "radiocraft:antennas",
+ "sortnum": 0,
+ "pages": [
+  {
+   "type": "patchouli:text",
+   "text": "$(item)Coax$() carries the signal from the radio to the antenna. Lay it like redstone: it climbs walls and hangs from ceilings. One radio per antenna: two radios or two antennas on one coax run $(thing)overdraw$() and nothing works.$(br2)With nothing on its coax a radio still reaches about $(thing)8 blocks$() from its bare connector."
+  },
+  {
+   "type": "patchouli:text",
+   "text": "A $(item)balun$() joins coax to antenna wire, and its ratio decides the antenna:$(li)$(thing)1:1$(): dipole, inverted V, end-fed, vertical$(li)$(thing)2:1$(): quad loops$(li)$(thing)4:1$(): off-centre-fed dipole$(li)$(thing)9:1$(): random wire",
+   "title": "Baluns"
+  },
+  {
+   "type": "patchouli:text",
+   "title": "Coloured coax",
+   "text": "Coax comes in sixteen colours. Coax joins only its own colour or plain coax, so runs of different colours can lie side by side and stay apart (a $(l:radiocraft:direction_finding/direction_finder)direction finder$(/l) needs this). Plain coax joins any colour.$(br2)Use a dye on laid coax to colour the whole run, or sneak to colour one block. Recipes that take coax want plain coax."
+  },
+  {
+   "type": "patchouli:text",
+   "title": "Bundles",
+   "text": "Use a wire item of another kind on laid coax (or coax on a wire) and both lie in the same block: a $(item)Wire Bundle$() of up to seven cables, one power wire and any colours of coax, drawn side by side. Each cable keeps its own links, so a bundle behind a radio can carry its power wire and its coax out together and part them wherever you like.$(br2)Sneak + right click a bundle with an empty hand to take out the cable under the crosshair; breaking it drops them all. Dye recolours the coax under the crosshair."
+  },
+  {
+   "type": "patchouli:crafting",
+   "recipe": "radiocraft:balun_one_to_one",
+   "recipe2": "radiocraft:balun_two_to_one"
+  },
+  {
+   "type": "patchouli:crafting",
+   "recipe": "radiocraft:balun_four_to_one",
+   "recipe2": "radiocraft:balun_nine_to_one"
+  },
+  {
+   "type": "patchouli:crafting",
+   "recipe": "radiocraft:coax_wire_red",
+   "text": "Eight coax round any dye."
+  }
+ ]
 }

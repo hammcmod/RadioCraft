@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "radiocraft:block/wire_white_dynamic"
+    }
+  }
+}

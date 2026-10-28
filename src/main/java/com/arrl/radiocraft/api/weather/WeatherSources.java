@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.api.weather;
 
 import com.arrl.radiocraft.common.radio.weather.VanillaWeatherSource;
+import com.arrl.radiocraft.compat.sable.Sublevels;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
@@ -34,6 +35,7 @@ public final class WeatherSources {
 
 	/** Whether it rains at {@code pos}, from whichever source runs {@code level}. Client levels ask vanilla. */
 	public static boolean isRaining(Level level, BlockPos pos) {
+		pos = Sublevels.world(level, pos); // A station on a Sable ship: the weather where the ship is.
 		if(level instanceof ServerLevel server)
 			return get(level).rainAt(server, pos.getX() + 0.5, pos.getZ() + 0.5, level.getGameTime()) > 0.2;
 		return level.isRaining();
@@ -54,7 +56,7 @@ public final class WeatherSources {
 		WeatherSource source = get(level);
 		if(!source.isLocal())
 			return false;
-		for(WeatherReport.Hazard hazard : source.report(server, pos).hazards())
+		for(WeatherReport.Hazard hazard : source.report(server, Sublevels.world(level, pos)).hazards())
 			if(SEVERE.contains(hazard))
 				return true;
 		return false;
@@ -62,6 +64,7 @@ public final class WeatherSources {
 
 	/** Whether it thunders at {@code pos} (vanilla's threshold, 0.9). Client levels ask vanilla. */
 	public static boolean isThundering(Level level, BlockPos pos) {
+		pos = Sublevels.world(level, pos);
 		if(level instanceof ServerLevel server)
 			return get(level).thunderAt(server, pos.getX() + 0.5, pos.getZ() + 0.5, level.getGameTime()) > 0.9;
 		return level.isThundering();

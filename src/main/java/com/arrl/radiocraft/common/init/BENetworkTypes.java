@@ -35,7 +35,10 @@ public class BENetworkTypes {
         BENetworkRegistry.registerObject(MicrowaveNetworkObjects.Radio.TYPE, MicrowaveNetworkObjects.Radio::new);
         BENetworkRegistry.registerObject(MicrowaveNetworkObjects.StationLink.TYPE, MicrowaveNetworkObjects.StationLink::new);
         BENetworkRegistry.registerObject(RepeaterNetworkObject.TYPE, (level, pos) -> new RepeaterNetworkObject(level, pos, 0, 0));
-        BENetworkRegistry.registerObject(com.arrl.radiocraft.common.blockentities.CommercialRepeaterBlockEntity.SelfPowered.TYPE, com.arrl.radiocraft.common.blockentities.CommercialRepeaterBlockEntity.SelfPowered::new);
+        BENetworkRegistry.registerObject(com.arrl.radiocraft.common.blockentities.CommercialRepeaterBlockEntity.Commercial.TYPE,
+                (level, pos) -> new com.arrl.radiocraft.common.blockentities.CommercialRepeaterBlockEntity.Commercial(level, pos, 0, 0));
+        BENetworkRegistry.registerObject(DirectionFinderNetworkObject.TYPE, DirectionFinderNetworkObject::new);
+        BENetworkRegistry.registerObject(AprsTerminalNetworkObject.TYPE, AprsTerminalNetworkObject::new);
     }
 
 }

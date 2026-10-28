@@ -46,6 +46,7 @@ import com.arrl.radiocraft.common.items.CordedMicrophoneItem;
 import com.arrl.radiocraft.common.items.MicCord;
 import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio;
 import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadioManager;
+import com.arrl.radiocraft.compat.sable.Sublevels;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -134,6 +135,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     // Redstone interference (see RedstoneInterference). The server gathers pops during a tick, scales them for the band
     // and config, and sends the result to clients, which keep their own decaying copy for the static volume.
     protected final InterferenceLevel interference = new InterferenceLevel();
+    /** The part of {@link #interference} that redstone switching caused: what the RFI sound follows (lightning static does not set it off). */
+    protected final InterferenceLevel redstoneInterference = new InterferenceLevel();
     private double pendingInterference = 0.0D; // Redstone pops, still to be scaled for band and config.
     private double pendingDirectInterference = 0.0D; // Already scaled noise from other sources (lightning).
     private AntennaNetworkObject zoneAntenna = null;
@@ -163,6 +166,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     public static <T extends BlockEntity> void tick(Level level, BlockPos pos, BlockState state, T t) {
         if(t instanceof RadioBlockEntity be) {
+            if(!level.isClientSide)
+                be.voiceReceiver.setFrame(Sublevels.frame(level, pos)); // Its speaker audio follows a Sable ship it rides.
             RadioNetworkObject networkObject = (RadioNetworkObject)be.getNetworkObject(level, pos);
             boolean powered = networkObject != null && networkObject.isPowered;
             boolean shouldUpdate = false;
@@ -346,6 +351,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             }
             else if(sendingData.isFax())
                 dataFrames = com.arrl.radiocraft.common.radio.voice.FaxAudio.frames(sendingData);
+            else if(sendingData.kind() == TncPacket.Kind.SOLAR) // A bulletin is a fax sheet: the picture tones, for as long as the server says.
+                dataFrames = com.arrl.radiocraft.common.radio.voice.FaxAudio.data(RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.get() * 20, sendingData.id());
             else
                 dataFrames = Afsk.burst(sendingData.airBytes(), sendingData.id());
             dataFrame = 0;
@@ -530,12 +537,14 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         }
 
         if(pendingInterference > 0.0D || pendingDirectInterference > 0.0D) {
-            double scaled = pendingInterference * RedstoneInterference.bandFactor(band) * RedstoneInterference.configFactor(antennaSWR) + pendingDirectInterference;
+            double redstone = pendingInterference * RedstoneInterference.bandFactor(band) * RedstoneInterference.configFactor(antennaSWR);
+            double scaled = redstone + pendingDirectInterference;
             pendingInterference = 0.0D;
             pendingDirectInterference = 0.0D;
             if(scaled > 0.0D) {
                 interference.add(serverLevel.getGameTime(), scaled);
-                CInterferencePacket.sendToTracking(serverLevel, worldPosition, scaled);
+                redstoneInterference.add(serverLevel.getGameTime(), redstone);
+                CInterferencePacket.sendToTracking(serverLevel, worldPosition, scaled, redstone);
             }
         }
 
@@ -830,6 +839,15 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return interference;
     }
 
+    /** The redstone part of the interference, 0 to 1 (see {@link #redstoneInterference}). */
+    public double getRedstoneInterference() {
+        return level == null ? 0.0D : redstoneInterference.get(level.getGameTime());
+    }
+
+    public InterferenceLevel getRedstoneInterferenceLevel() {
+        return redstoneInterference;
+    }
+
     // -------------------- PARROT --------------------
 
     /**
@@ -1052,7 +1070,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected boolean isSkipPath(IAntennaPacket packet) {
         if(band == null || packet.getSource() == null || packet.getSource().getAntennaPos() == null)
             return false;
-        return packet.getSource().getAntennaPos().position().distSqr(worldPosition) > (double)band.losRange() * band.losRange();
+        return Sublevels.distSqr(level, packet.getSource().getAntennaPos().position(), worldPosition) > (double)band.losRange() * band.losRange();
     }
 
     /** A number for the path between the sender and this radio, so each path fades on its own. */
@@ -1307,7 +1325,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     @Override
     public Vec3 getPos() {
-        return this.micPos.get().getCenter();
+        return Sublevels.worldCenter(level, this.micPos.get()); // Players near a radio on a Sable ship are near the ship.
     }
 
     /** The frequency the antenna's match is measured at: where the radio transmits from its dial (a repeater: its output). */

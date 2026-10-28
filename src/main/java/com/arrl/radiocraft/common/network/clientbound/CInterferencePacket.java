@@ -21,7 +21,8 @@ import org.jetbrains.annotations.NotNull;
  * @param pos The radio.
  * @param amount Noise added this tick, 0 to 1.
  */
-public record CInterferencePacket(BlockPos pos, float amount) implements CustomPacketPayload {
+/** A radio's interference this tick: all of it ({@code amount}, for the static) and the part redstone switching caused ({@code redstone}, for the RFI sound). */
+public record CInterferencePacket(BlockPos pos, float amount, float redstone) implements CustomPacketPayload {
 
     public static final CustomPacketPayload.Type<CInterferencePacket> TYPE = new CustomPacketPayload.Type<>(Radiocraft.id("c_interference"));
 
@@ -30,6 +31,8 @@ public record CInterferencePacket(BlockPos pos, float amount) implements CustomP
             CInterferencePacket::pos,
             ByteBufCodecs.FLOAT,
             CInterferencePacket::amount,
+            ByteBufCodecs.FLOAT,
+            CInterferencePacket::redstone,
             CInterferencePacket::new
     );
 
@@ -40,12 +43,15 @@ public record CInterferencePacket(BlockPos pos, float amount) implements CustomP
 
     public static void handle(final CInterferencePacket packet, final IPayloadContext context) {
         context.enqueueWork(() -> {
-            if(context.player().level().getBlockEntity(packet.pos()) instanceof RadioBlockEntity radio)
-                radio.getInterferenceLevel().add(context.player().level().getGameTime(), packet.amount());
+            if(context.player().level().getBlockEntity(packet.pos()) instanceof RadioBlockEntity radio) {
+                long now = context.player().level().getGameTime();
+                radio.getInterferenceLevel().add(now, packet.amount());
+                radio.getRedstoneInterferenceLevel().add(now, packet.redstone());
+            }
         });
     }
 
-    public static void sendToTracking(ServerLevel level, BlockPos pos, double amount) {
-        PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(pos), new CInterferencePacket(pos, (float)amount));
+    public static void sendToTracking(ServerLevel level, BlockPos pos, double amount, double redstone) {
+        PacketDistributor.sendToPlayersTrackingChunk(level, new ChunkPos(pos), new CInterferencePacket(pos, (float)amount, (float)redstone));
     }
 }

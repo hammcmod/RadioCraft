@@ -528,10 +528,9 @@ public class MicrowaveRadioScreen extends StationPanelScreen<MicrowaveRadioMenu>
 	private static String rssiLine(MicrowaveRadioBlockEntity radio) {
 		double rssi = radio.getRssi();
 		if(rssi <= MicrowaveMath.NO_SIGNAL_DBM + 0.5D)
-			return "RSSI ----.- DBM  NOTHING IN VIEW";
+			return "RSSI ----.- DBM  NO SIGNAL";
 		int bars = (int)Math.round(Math.max(0.0D, Math.min(1.0D, (rssi - GRAPH_LOW) / (GRAPH_HIGH - GRAPH_LOW))) * 8);
-		return String.format(Locale.ROOT, "RSSI %6.1f DBM %s %s", rssi, "|".repeat(bars) + " ".repeat(8 - bars),
-				rssi >= MicrowaveMath.SENSITIVITY_DBM ? "DECODES" : "TOO WEAK");
+		return String.format(Locale.ROOT, "RSSI %6.1f DBM %s %s", rssi, "|".repeat(bars) + " ".repeat(8 - bars), MicrowaveMath.grade(rssi).label);
 	}
 
 	private void composeFound() {
@@ -607,9 +606,9 @@ public class MicrowaveRadioScreen extends StationPanelScreen<MicrowaveRadioMenu>
 				dish.azimuth(), dish.elevation()), NORMAL);
 		double rssi = radio.getRssi();
 		boolean none = rssi <= MicrowaveMath.NO_SIGNAL_DBM + 0.5D;
-		String far = !radio.getAlignName().isEmpty() ? radio.getAlignName() : none ? "NONE IN VIEW" : "SIGNAL, NOT DECODED";
+		String far = !radio.getAlignName().isEmpty() ? radio.getAlignName() : none ? "NO SIGNAL" : "SIGNAL, NOT DECODED";
 		put(3, 1, dots("FAR END ", label) + " " + far, NORMAL);
-		String grade = none ? "NO SIGNAL" : rssi >= MicrowaveMath.GOOD_DBM ? "GOOD" : rssi >= MicrowaveMath.SENSITIVITY_DBM ? "DECODES" : "TOO WEAK";
+		String grade = MicrowaveMath.grade(rssi).label; // All the radio knows: how loud. Why not, see /rcdebug microwave.
 		put(4, 1, dots("RSSI ", label) + " " + (none ? "----.-" : String.format(Locale.ROOT, "%6.1f", rssi)) + " DBM  " + grade,
 				!none && rssi >= MicrowaveMath.SENSITIVITY_DBM ? NORMAL : INVERSE);
 		int width = 26, filled = none ? 0 : (int)Math.round(Math.max(0.0D, Math.min(1.0D, (rssi - GRAPH_LOW) / (GRAPH_HIGH - GRAPH_LOW))) * width);

@@ -97,7 +97,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.BALUN_TWO_TO_ONE, "Balun (2:1)");
 			provider.addBlock(RadiocraftBlocks.BALUN_NINE_TO_ONE, "Balun (9:1)");
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
+			provider.addBlock(RadiocraftBlocks.WIRE_BUNDLE, "Wire Bundle");
 			RadiocraftBlocks.COLOURED_COAX.forEach((colour, block) -> provider.addBlock(block, dyeName(colour) + " Coaxial Wire"));
+			RadiocraftBlocks.COLOURED_WIRE.forEach((colour, block) -> provider.addBlock(block, dyeName(colour) + " Wire"));
 			provider.addBlock(RadiocraftBlocks.RADIO_INTERFACE, "Radio Interface");
 			provider.addBlock(RadiocraftBlocks.APRS_TERMINAL, "H19 APRS Terminal");
 			RadiocraftBlocks.RADIO_FAXES.forEach((wood, block) -> provider.addBlock(block, woodName(wood) + " Radio Fax"));
@@ -212,6 +214,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("item.radiocraft.wefax_chart.forecast", "WEFAX Forecast Chart");
 			provider.add("item.radiocraft.wefax_chart.surface", "WEFAX Surface Analysis");
 			provider.add("item.radiocraft.wefax_chart.solar", "WEFAX Solar Weather Report");
+			provider.add("screen.radiocraft.wefax.take", "Click to take the sheet");
 			provider.add("tooltip.radiocraft.wefax_receiver", "Put a radio with an antenna beside it and paper in it: prints weather charts and the solar report.");
 			provider.add("screen.radiocraft.wefax.weather", "WX REPT: print the next weather chart (radar, forecast, surface analysis)");
 			provider.add("screen.radiocraft.wefax.solar", "SOLR WX: print the solar weather report");
@@ -373,6 +376,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("message", "solar_weather_station.band"), "%s Band: %s");
             provider.add("subtitles.radiocraft.teletype", "Teletype printing");
             provider.add("subtitles.radiocraft.teletype_ding", "Teletype bell");
+            provider.add("subtitles.radiocraft.redstone_rfi", "Radio picks up interference");
             provider.add(Radiocraft.translationKey("solar_event", "none"), "None");
             provider.add(Radiocraft.translationKey("solar_event", "great"), "Great");
             provider.add(Radiocraft.translationKey("solar_event", "good"), "Good");
@@ -387,6 +391,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "wire"), "Carries power between solar panels, charge controllers, batteries and radios. Runs along the ground, up walls and over steps.");
             provider.add(Radiocraft.translationKey("tooltip", "waterproof_wire"), "Power wire that can be laid under water. Runs along the ground, up walls and over steps.");
             provider.add(Radiocraft.translationKey("tooltip", "coax_wire"), "Carries the signal between a radio and its antenna's balun. Runs along the ground, up walls and over steps.");
+            provider.add(Radiocraft.translationKey("tooltip", "wire_bundle"), "Use on a wire of another kind to lay both in one block (up to 7). Sneak + right click a bundle with an empty hand to take one out.");
             provider.add("key.categories.radiocraft", "RadioCraft");
             provider.add("key.radiocraft.worn_ptt", "Talk on worn radio");
             provider.add("death.attack.radiocraft.electrocution", "%1$s was electrocuted");

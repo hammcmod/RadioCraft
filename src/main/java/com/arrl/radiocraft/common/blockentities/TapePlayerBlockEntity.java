@@ -272,6 +272,7 @@ public class TapePlayerBlockEntity extends BlockEntity implements MenuProvider, 
 				channel.setDistance(16.0F);
 			encoder = RadiocraftVoicePlugin.API.createEncoder();
 		}
+		RadiocraftVoicePlugin.followBlock(channel, level, worldPosition);
 		if(channel != null && encoder != null)
 			channel.send(encoder.encode(frame.clone()));
 		de.maxhenkel.voicechat.api.ServerLevel voiceLevel = RadiocraftVoicePlugin.API.fromServerLevel(level);
@@ -312,7 +313,7 @@ public class TapePlayerBlockEntity extends BlockEntity implements MenuProvider, 
 
 	@Override
 	public Vec3 getPos() {
-		return worldPosition.getCenter();
+		return com.arrl.radiocraft.compat.sable.Sublevels.worldCenter(level, worldPosition);
 	}
 
 	@Override

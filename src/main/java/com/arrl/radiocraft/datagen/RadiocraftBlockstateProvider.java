@@ -47,7 +47,7 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		duplexer();
 		complexHorizontalBlockWithItem(RadiocraftBlocks.DUMMY_LOAD.get());
 		deskMicrophone();
-		complexHorizontalBlockWithItem(RadiocraftBlocks.WEFAX_RECEIVER.get());
+		wefax();
 		complexBlockWithItem(RadiocraftBlocks.SOLAR_PANEL.get());
 		complexBlockWithItem(RadiocraftBlocks.ANTENNA_POLE.get());
 		towerFoothold(RadiocraftBlocks.TOWER_FOOTHOLD.get());
@@ -156,6 +156,18 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 				.rotationY(((int)state.getValue(MicrophoneBlock.FACING).toYRot() + 180) % 360)
 				.build());
 		simpleBlockItem(block, left);
+	}
+
+	/** The WEFAX receiver: the tray's empty lip, or a printed sheet sticking out of it while one waits to be taken (tools/wefax_models.py). */
+	private void wefax() {
+		Block block = RadiocraftBlocks.WEFAX_RECEIVER.get();
+		ModelFile idle = models().getExistingFile(modLoc("block/wefax_receiver_idle"));
+		ModelFile ready = models().getExistingFile(modLoc("block/wefax_receiver_ready"));
+		getVariantBuilder(block).forAllStates(state -> ConfiguredModel.builder()
+				.modelFile(state.getValue(com.arrl.radiocraft.common.blocks.WefaxReceiverBlock.READY) ? ready : idle)
+				.rotationY(((int)state.getValue(com.arrl.radiocraft.common.blocks.WefaxReceiverBlock.FACING).toYRot() + 180) % 360)
+				.build());
+		simpleBlockItem(block, idle);
 	}
 
 	/** The duplexer, turned like the other horizontal blocks, with its coax run down to the repeater when it sits on one. */

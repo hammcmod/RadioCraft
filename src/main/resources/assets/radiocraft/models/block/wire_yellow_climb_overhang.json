@@ -1,0 +1,81 @@
+{
+	"credit": "Climb up the north face ending at a device: the cable runs on over the wall's top to the device's middle",
+	"parent": "block/block",
+	"textures": {
+		"0": "radiocraft:block/wire_yellow",
+		"particle": "radiocraft:block/wire_yellow"
+	},
+	"elements": [
+		{
+			"name": "wire",
+			"from": [
+				7.5,
+				16,
+				-7
+			],
+			"to": [
+				8.5,
+				17,
+				0.5
+			],
+			"faces": {
+				"east": {
+					"uv": [
+						0,
+						3,
+						7,
+						4
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						7,
+						7,
+						8
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						0,
+						1,
+						7,
+						2
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						0,
+						5,
+						7,
+						6
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"north": {
+					"uv": [
+						7,
+						0,
+						8,
+						1
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						7,
+						0,
+						8,
+						1
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

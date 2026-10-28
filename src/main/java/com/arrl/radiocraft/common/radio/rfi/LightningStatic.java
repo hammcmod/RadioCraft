@@ -39,7 +39,7 @@ public class LightningStatic {
 		if(strength <= 0.0D)
 			return;
 		for(PickupZone zone : RedstoneInterference.getZones(level)) {
-			double falloff = falloff(Math.sqrt(zone.radioPos().distToCenterSqr(pos)), range);
+			double falloff = falloff(com.arrl.radiocraft.compat.sable.Sublevels.worldCenter(level, zone.radioPos()).distanceTo(pos), range);
 			if(falloff > 0.0D && level.getBlockEntity(zone.radioPos()) instanceof RadioBlockEntity radio)
 				radio.addDirectInterference(strength * falloff * RedstoneInterference.bandFactor(radio.getBand()));
 		}

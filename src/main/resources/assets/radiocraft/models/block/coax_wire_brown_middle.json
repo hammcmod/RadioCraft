@@ -1,5 +1,5 @@
 {
-	"credit": "Made with Blockbench",
+	"credit": "The cube in the middle of the block that the stubs meet",
 	"parent": "block/block",
 	"textures": {
 		"0": "radiocraft:block/coaxial_wire_brown",
@@ -18,15 +18,6 @@
 				2,
 				9
 			],
-			"rotation": {
-				"angle": 0,
-				"axis": "y",
-				"origin": [
-					8,
-					8,
-					8
-				]
-			},
 			"faces": {
 				"north": {
 					"uv": [

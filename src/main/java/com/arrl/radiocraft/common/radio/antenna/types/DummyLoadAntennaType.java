@@ -40,7 +40,7 @@ public class DummyLoadAntennaType implements IAntennaType<EmptyAntennaData> {
 	private static double distance(IAntennaPacket packet, BlockPos other) {
 		if(packet.getSource() == null || packet.getSource().getAntennaPos() == null || packet.getSource().getAntennaPos().level() != packet.getLevel())
 			return Double.MAX_VALUE;
-		return Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(other));
+		return Math.sqrt(com.arrl.radiocraft.compat.sable.Sublevels.distSqr(packet.getLevel(), packet.getSource().getAntennaPos().position(), other));
 	}
 
 	@Override

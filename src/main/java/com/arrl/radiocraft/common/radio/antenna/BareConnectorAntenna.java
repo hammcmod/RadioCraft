@@ -84,7 +84,7 @@ public class BareConnectorAntenna implements IAntenna {
 		AntennaPos there = other.getAntennaPos();
 		if(there == null || there.level() != pos.level())
 			return Double.MAX_VALUE;
-		return Math.sqrt(there.position().distSqr(pos.position()));
+		return Math.sqrt(there.world().distSqr(pos.world()));
 	}
 
 	@Override
@@ -106,7 +106,7 @@ public class BareConnectorAntenna implements IAntenna {
 
 	@Override
 	public void receiveAudioPacket(AntennaVoicePacket packet) {
-		packet.setStrength(packet.getStrength() * strengthAt(Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(pos.position()))));
+		packet.setStrength(packet.getStrength() * strengthAt(Math.sqrt(packet.getSource().getAntennaPos().world().distSqr(pos.world()))));
 		if(packet.getStrength() > 0.0D)
 			radio.receiveVoice(packet);
 	}
@@ -123,7 +123,7 @@ public class BareConnectorAntenna implements IAntenna {
 
 	@Override
 	public void receiveCWPacket(AntennaCWPacket packet) {
-		packet.setStrength(packet.getStrength() * strengthAt(Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(pos.position()))));
+		packet.setStrength(packet.getStrength() * strengthAt(Math.sqrt(packet.getSource().getAntennaPos().world().distSqr(pos.world()))));
 		if(packet.getStrength() > 0.0D && radio instanceof HFRadioBlockEntity hf
 				&& BandUtils.areFrequenciesEqualWithTolerance(hf.getFrequency(), packet.getFrequency(), 1000.0F))
 			hf.receiveCW(packet);
@@ -141,7 +141,7 @@ public class BareConnectorAntenna implements IAntenna {
 
 	@Override
 	public void receiveDataPacket(AntennaDataPacket packet) {
-		packet.setStrength(packet.getStrength() * strengthAt(Math.sqrt(packet.getSource().getAntennaPos().position().distSqr(pos.position()))));
+		packet.setStrength(packet.getStrength() * strengthAt(Math.sqrt(packet.getSource().getAntennaPos().world().distSqr(pos.world()))));
 		if(packet.getStrength() > 0.0D)
 			radio.receiveData(packet);
 	}

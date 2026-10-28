@@ -14,10 +14,17 @@ import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-/** The WEFAX receiver prints on paper, one sheet a chart, and the sheet comes out of its front. */
+/** The WEFAX receiver prints on paper, one sheet a chart; the sheet waits in the tray until taken, or is pushed out of the front. */
 @GameTestHolder(Radiocraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class WefaxGameTests {
+
+	/** The tests here set these for themselves; whatever happens, the next batch gets the defaults back. */
+	@net.minecraft.gametest.framework.AfterBatch(batch = "wefax")
+	public static void restoreConfig(net.minecraft.server.level.ServerLevel level) {
+		RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.set(RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.getDefault());
+		RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.set(RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.getDefault());
+	}
 
 	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = "wefax")
 	public static void printsASheetOutOfTheFront(GameTestHelper helper) {
@@ -37,9 +44,17 @@ public class WefaxGameTests {
 					helper.assertTrue(receiver.getPaper() == 2, "a sheet should be used, " + receiver.getPaper() + " left");
 					helper.assertTrue(receiver.getPixels().length == 128 * 128, "no picture to draw");
 				})
+				.thenWaitUntil(() -> helper.assertTrue(GameTestUtil.blockEntity(helper, pos, WefaxReceiverBlockEntity.class).hasReadySheet(), "no sheet in the tray yet"))
+				.thenExecute(() -> {
+					WefaxReceiverBlockEntity receiver = GameTestUtil.blockEntity(helper, pos, WefaxReceiverBlockEntity.class);
+					helper.assertFalse(receiver.isPrinting(), "still printing");
+					helper.assertTrue(helper.getBlockState(pos).getValue(WefaxReceiverBlock.READY), "the model does not show the sheet in the tray");
+					helper.assertItemEntityNotPresent(Items.FILLED_MAP, pos.south(), 1.5D);
+					receiver.takeSheet(null); // Nobody to hand it to: out of the front.
+					helper.assertFalse(helper.getBlockState(pos).getValue(WefaxReceiverBlock.READY), "the tray still shows a sheet");
+				})
 				.thenWaitUntil(() -> helper.assertItemEntityPresent(Items.FILLED_MAP, pos.south(), 1.5D))
 				.thenExecute(() -> {
-					helper.assertFalse(GameTestUtil.blockEntity(helper, pos, WefaxReceiverBlockEntity.class).isPrinting(), "still printing");
 					RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.set(needsRadio);
 					RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.set(solarAlways);
 				})

@@ -6,11 +6,13 @@ import com.arrl.radiocraft.common.radio.voice.RadioVoiceProcessor;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import com.arrl.radiocraft.common.radio.voice.SpeakerKind;
 import com.arrl.radiocraft.common.radio.voice.SquelchTail;
+import com.arrl.radiocraft.compat.sable.Sublevels;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import de.maxhenkel.voicechat.api.opus.OpusEncoder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.List;
@@ -28,6 +30,8 @@ import java.util.UUID;
 public class BEVoiceReceiver implements IVoiceReceiver {
 
 	private LocationalAudioChannel receiveChannel = null;
+	// Where the radio's Sable ship stands (GROUND when it is not on one): set by the game thread each tick, read here.
+	private volatile Sublevels.Frame frame = Sublevels.Frame.GROUND;
 	private final int x;
 	private final int y;
 	private final int z;
@@ -61,6 +65,19 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 		receiveChannel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), level, RadiocraftVoicePlugin.API.createPosition(x, y, z));
 		if(receiveChannel != null)
 			receiveChannel.setDistance(16.0F);
+	}
+
+	/** Where the radio's Sable ship stands this tick ({@link Sublevels.Frame#GROUND} off a ship). Game thread. */
+	public void setFrame(Sublevels.Frame frame) {
+		this.frame = frame;
+	}
+
+	/** Moves {@code channel} to where {@code local} (a point in the radio's own block grid) really is, on a ship. */
+	static void follow(@org.jetbrains.annotations.Nullable LocationalAudioChannel channel, Sublevels.Frame frame, double x, double y, double z) {
+		if(channel == null || frame.isGround())
+			return;
+		Vec3 at = frame.apply(new Vec3(x, y, z));
+		channel.updateLocation(RadiocraftVoicePlugin.API.createPosition(at.x, at.y, at.z));
 	}
 
 	/** What the radio itself plays through: its own speaker, or a desk or premium speaker touching it. */
@@ -136,6 +153,8 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 		if(fmSignal >= 0.0D)
 			processor.fmFade(rawAudio, fmSignal, level);
 		byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
+		Sublevels.Frame frame = this.frame;
+		follow(receiveChannel, frame, x, y, z);
 		receiveChannel.send(opusAudio);
 		if(fmSignal >= 0.0D)
 			tail.heard(fmSignal, level, antennaPacket.getSourcePlayer(), System.nanoTime());
@@ -146,7 +165,7 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 				return;
 			for(WiredSpeaker target : wired) {
 				SpeakerOutput output = outputs.computeIfAbsent(target, t -> new SpeakerOutput(voiceLevel, t));
-				output.play(clean.clone(), target.kind().apply(settings), level * target.kind().loudness, rasp, pitchShiftHz, splatter, qrm, fmSignal);
+				output.play(clean.clone(), target.kind().apply(settings), level * target.kind().loudness, rasp, pitchShiftHz, splatter, qrm, fmSignal, frame);
 			}
 		}
 	}
@@ -161,12 +180,16 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 			return;
 		UUID source = tail.source();
 		OpusEncoder encoder = RadiocraftVoicePlugin.encodingManager.getOrCreate(source).getEncoder(); // Carries on from the voice.
+		Sublevels.Frame ship = this.frame;
+		follow(receiveChannel, ship, x, y, z);
 		for(short[] frame : frames)
 			receiveChannel.send(encoder.encode(frame));
 		synchronized(outputs) {
-			for(Map.Entry<WiredSpeaker, SpeakerOutput> entry : outputs.entrySet())
+			for(Map.Entry<WiredSpeaker, SpeakerOutput> entry : outputs.entrySet()) {
+				entry.getValue().follow(ship);
 				for(short[] frame : frames)
 					entry.getValue().send(scaled(frame, entry.getKey().kind().loudness));
+			}
 		}
 	}
 
@@ -201,11 +224,12 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 	/** One wired speaker's audio: a channel where it stands, heard as far as its kind carries. */
 	private static final class SpeakerOutput {
 		private final LocationalAudioChannel channel;
+		private final BlockPos pos;
 		private final RadioVoiceProcessor processor = new RadioVoiceProcessor();
 		private final OpusEncoder encoder;
 
 		SpeakerOutput(ServerLevel level, WiredSpeaker speaker) {
-			BlockPos pos = speaker.pos();
+			pos = speaker.pos();
 			channel = RadiocraftVoicePlugin.API.createLocationalAudioChannel(UUID.randomUUID(), level,
 					RadiocraftVoicePlugin.API.createPosition(pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D));
 			if(channel != null)
@@ -213,9 +237,15 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 			encoder = RadiocraftVoicePlugin.API.createEncoder();
 		}
 
-		void play(short[] pcm, RadioVoiceProcessor.Settings settings, double level, double rasp, double pitchShiftHz, double splatter, double qrm, double fmSignal) {
+		/** A wired speaker rides the same ship as its radio. */
+		void follow(Sublevels.Frame frame) {
+			BEVoiceReceiver.follow(channel, frame, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
+		}
+
+		void play(short[] pcm, RadioVoiceProcessor.Settings settings, double level, double rasp, double pitchShiftHz, double splatter, double qrm, double fmSignal, Sublevels.Frame frame) {
 			if(channel == null)
 				return;
+			follow(frame);
 			short[] audio = processor.process(pcm, settings, level, rasp, pitchShiftHz, splatter, qrm);
 			if(fmSignal >= 0.0D)
 				processor.fmFade(audio, fmSignal, level);

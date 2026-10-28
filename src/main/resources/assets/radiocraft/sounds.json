@@ -60,5 +60,11 @@
         "stream": false
       }
     ]
+  },
+  "redstone_rfi": {
+    "subtitle": "subtitles.radiocraft.redstone_rfi",
+    "sounds": [
+      "radiocraft:redstone_rfi"
+    ]
   }
 }

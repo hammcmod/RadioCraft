@@ -145,7 +145,10 @@ public class IonosphericProcessorBlockEntity extends BlockEntity implements INet
 		return online;
 	}
 
-	/** Radios touching either half of the rack. */
+	/**
+	 * Radios touching either half of the rack, or touching a tuner or duplexer that touches it (a station often has its
+	 * tuner between the rack and the radio; reported 2026-10-27).
+	 */
 	public List<RadioBlockEntity> getRadios() {
 		List<RadioBlockEntity> radios = new ArrayList<>();
 		if(level == null)
@@ -153,8 +156,16 @@ public class IonosphericProcessorBlockEntity extends BlockEntity implements INet
 		for(BlockPos half : List.of(worldPosition, worldPosition.above()))
 			for(Direction direction : Direction.values()) {
 				BlockPos at = half.relative(direction);
-				if(level.isLoaded(at) && level.getBlockEntity(at) instanceof RadioBlockEntity radio && !radios.contains(radio))
+				if(!level.isLoaded(at))
+					continue;
+				if(level.getBlockEntity(at) instanceof RadioBlockEntity radio && !radios.contains(radio))
 					radios.add(radio);
+				else if(com.arrl.radiocraft.api.capabilities.IBENetworks.getObject(level, at) instanceof com.arrl.radiocraft.common.be_networks.ICoaxPassThrough)
+					for(Direction beyond : Direction.values()) {
+						BlockPos far = at.relative(beyond);
+						if(level.isLoaded(far) && level.getBlockEntity(far) instanceof RadioBlockEntity radio && !radios.contains(radio))
+							radios.add(radio);
+					}
 			}
 		return radios;
 	}

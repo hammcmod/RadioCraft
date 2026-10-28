@@ -30,6 +30,26 @@ public record StormReport(long id, Kind kind, boolean worldWide, long formsAt, L
 		};
 	}
 
+	/**
+	 * The name a chart or forecast calls it, in plain words: "RAIN", "T-STORM", "SVR T-STORM" (a supercell too: its hail
+	 * core is drawn, not announced), "TORNADO EF2" only once a tornado is down ({@code tornadoDown}); until then a
+	 * tornadic storm is a severe thunderstorm like any other, as the warnings would have it (maintainer, 2026-10-27).
+	 */
+	public String chartName(boolean tornadoDown) {
+		return switch(kind) {
+			case SHOWER -> "RAIN";
+			case THUNDERSTORM -> "T-STORM";
+			case STRONG_THUNDERSTORM -> "HVY T-STORM";
+			case SEVERE_THUNDERSTORM, SUPERCELL -> "SVR T-STORM";
+			case TORNADO -> tornadoDown ? "TORNADO" + (category >= 0 ? " EF" + category : "") : "SVR T-STORM";
+			case HURRICANE -> category == 0 ? "TROP STORM" : "HURRICANE" + (category > 0 ? " " + category : "");
+			case DENSE_FOG -> "FOG";
+			case HEAT_WAVE -> "HEAT WAVE";
+			case COLD_SNAP -> "COLD SNAP";
+			case OTHER -> "WEATHER";
+		};
+	}
+
 	/** What sort of storm. */
 	public enum Kind {
 		SHOWER, THUNDERSTORM,

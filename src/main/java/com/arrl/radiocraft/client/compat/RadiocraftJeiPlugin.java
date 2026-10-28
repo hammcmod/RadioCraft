@@ -34,6 +34,7 @@ public class RadiocraftJeiPlugin implements IModPlugin {
 		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.MicrowaveRadioScreen.class, RadiocraftJeiPlugin::properties);
 		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.TelephoneScreen.class, RadiocraftJeiPlugin::properties);
 		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.WefaxReceiverScreen.class, RadiocraftJeiPlugin::properties);
+		registration.addGuiScreenHandler(com.arrl.radiocraft.client.screens.IonosphericProcessorScreen.class, RadiocraftJeiPlugin::properties); // Was missing (2026-10-27): JEI covered it.
 	}
 
 	private static IGuiProperties properties(StationPanelScreen<?> screen) {

@@ -3,6 +3,7 @@ package com.arrl.radiocraft.common.blocks.antennas;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -40,16 +41,17 @@ public final class CoaxStubs {
 	/** {@code state} with a run from each side that has coax on it, for placing. */
 	public static BlockState around(BlockState state, LevelReader level, BlockPos pos) {
 		for(Direction direction : Direction.Plane.HORIZONTAL)
-			state = state.setValue(side(direction), isCoax(level.getBlockState(pos.relative(direction))));
+			state = state.setValue(side(direction), isCoax(level, pos.relative(direction)));
 		return state;
 	}
 
-	/** {@code state} after the block on {@code direction} became {@code neighbour}, for updateShape. */
-	public static BlockState update(BlockState state, Direction direction, BlockState neighbour) {
-		return direction.getAxis().isHorizontal() ? state.setValue(side(direction), isCoax(neighbour)) : state;
+	/** {@code state} after the block on {@code direction} (at {@code neighbourPos}) changed, for updateShape. */
+	public static BlockState update(BlockState state, Direction direction, BlockGetter level, BlockPos neighbourPos) {
+		return direction.getAxis().isHorizontal() ? state.setValue(side(direction), isCoax(level, neighbourPos)) : state;
 	}
 
-	public static boolean isCoax(BlockState state) {
-		return com.arrl.radiocraft.common.be_networks.WireUtils.isCoax(state); // Any colour.
+	/** True for coax of any colour at {@code pos}, on its own or in a bundle. */
+	public static boolean isCoax(BlockGetter level, BlockPos pos) {
+		return com.arrl.radiocraft.common.be_networks.WireUtils.hasCoax(level, pos);
 	}
 }

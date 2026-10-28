@@ -1,21 +1,31 @@
 {
-  "name": "Wire",
-  "icon": "radiocraft:wire",
-  "category": "radiocraft:power",
-  "sortnum": 1,
-  "pages": [
-    {
-      "type": "patchouli:text",
-      "text": "Power $(item)wire$() is laid like redstone and climbs walls. $(item)Waterproof wire$() survives in water. A $(item)wire passthrough$() turns a solid block into a conductor for both power and coax, keeping its look, so cables can go through walls."
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "radiocraft:wire",
-      "recipe2": "radiocraft:waterproof_wire"
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "radiocraft:passthrough"
-    }
-  ]
+ "name": "Wire",
+ "icon": "radiocraft:wire",
+ "category": "radiocraft:power",
+ "sortnum": 1,
+ "pages": [
+  {
+   "type": "patchouli:text",
+   "text": "Power $(item)wire$() is laid like redstone and climbs walls. $(item)Waterproof wire$() survives in water. A $(item)wire passthrough$() turns a solid block into a conductor for both power and coax, keeping its look, so cables can go through walls.$(br2)Use coax on a laid wire (or wire on coax) and both lie in one block as a $(l:radiocraft:antennas/coax)wire bundle$(/l)."
+  },
+  {
+   "type": "patchouli:text",
+   "title": "Coloured wire",
+   "text": "Wire comes in sixteen colours, like coax: a colour joins only its own colour or plain wire, so two runs can lie side by side, or share a bundle, without becoming one circuit. Plain wire joins any colour. Wire is thin and coax fat, so you can tell them apart whatever the colour.$(br2)Use a dye on laid wire to colour the whole run (sneak for one block), or craft eight wire round a dye. Waterproof wire stays plain."
+  },
+  {
+   "type": "patchouli:crafting",
+   "recipe": "radiocraft:wire_red",
+   "text": "Eight wire round any dye."
+  },
+  {
+   "type": "patchouli:crafting",
+   "recipe": "radiocraft:wire",
+   "recipe2": "radiocraft:waterproof_wire"
+  },
+  {
+   "type": "patchouli:crafting",
+   "recipe": "radiocraft:passthrough"
+  }
+ ]
 }

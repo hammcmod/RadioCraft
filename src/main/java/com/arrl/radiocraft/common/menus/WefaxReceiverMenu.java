@@ -45,6 +45,7 @@ public class WefaxReceiverMenu extends AbstractContainerMenu implements StationM
 					blockEntity.printSolar(player);
 			}
 			case "auto" -> blockEntity.setAuto(!blockEntity.isAuto());
+			case "take" -> blockEntity.takeSheet(player);
 			default -> {}
 		}
 	}

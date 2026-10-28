@@ -1,41 +1,41 @@
 {
-  "name": "Direction Finder",
-  "icon": "radiocraft:direction_finder",
-  "category": "radiocraft:direction_finding",
-  "sortnum": 0,
-  "pages": [
-    {
-      "type": "patchouli:text",
-      "text": "The $(item)Direction Finder$() is an amber terminal that tells you which way a signal comes from. It listens through $(item)Direction Finder Modules$(): stack $(thing)3 to 8$() of them against the terminal or against each other, and run coax from the back of each to its own antenna.$(br2)Every module needs the $(thing)same kind of antenna$(). A module with none, or a different one, shows a red lamp."
-    },
-    {
-      "type": "patchouli:text",
-      "title": "Keep the runs apart",
-      "text": "Each module's coax must reach one antenna and nothing else. Coax laid side by side joins up, and an antenna shared between two modules (or a module and a radio) is overdrawn and hears nothing.$(br2)Lay each run in its own $(l:radiocraft:antennas/coax)dyed coax$(/l) colour: coax joins only its own colour or plain coax."
-    },
-    {
-      "type": "patchouli:text",
-      "title": "Taking a bearing",
-      "text": "Switch it on with POWER on the side panel. Tune with the arrows or the scroll wheel (shift for ten steps), change band with up and down, or press F and type a frequency in MHz.$(br2)When someone transmits there, $(thing)*RX*$() flashes and the modules lock one by one, about 2.5 seconds each. From three locked a compass needle shows the bearing, with its error."
-    },
-    {
-      "type": "patchouli:text",
-      "title": "Accuracy",
-      "text": "More modules, a tighter bearing:$(li)3 locked: about 10 degrees$(li)4: 7$(li)5: 5$(li)6: 3.5$(li)7: 2.5$(li)8: 1.5$(br)A signal arriving by skip is twice as rough, and a weak one half as rough again. After five quiet seconds the locks fall away, but the last bearing stays on screen."
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "radiocraft:direction_finder",
-      "recipe2": "radiocraft:direction_finder_module"
-    },
-    {
-      "type": "patchouli:text",
-      "title": "Map Enabled",
-      "text": "Craft a direction finder with a $(item)World Map Module$() and its FIX page draws the fix on a map of the world instead of a grid. Journeyman $(thing)cartographers$() sell the module for 12 emeralds and a compass."
-    },
-    {
-      "type": "patchouli:crafting",
-      "recipe": "radiocraft:map_direction_finder"
-    }
-  ]
+ "name": "Direction Finder",
+ "icon": "radiocraft:direction_finder",
+ "category": "radiocraft:direction_finding",
+ "sortnum": 0,
+ "pages": [
+  {
+   "type": "patchouli:text",
+   "text": "The $(item)Direction Finder$() is an amber terminal that tells you which way a signal comes from. It listens through $(item)Direction Finder Modules$(): stack $(thing)3 to 8$() of them against the terminal or against each other, and run coax from the back of each to its own antenna.$(br2)Every module needs the $(thing)same kind of antenna$(). A module with none, or a different one, shows a red lamp."
+  },
+  {
+   "type": "patchouli:text",
+   "title": "Keep the runs apart",
+   "text": "Each module's coax must reach one antenna and nothing else. Coax laid side by side joins up, and an antenna shared between two modules (or a module and a radio) is overdrawn and hears nothing.$(br2)Lay each run in its own $(l:radiocraft:antennas/coax)dyed coax$(/l) colour: coax joins only its own colour or plain coax."
+  },
+  {
+   "type": "patchouli:text",
+   "title": "Taking a bearing",
+   "text": "It needs power: run a $(l:radiocraft:power/wire)power wire$(/l) to the terminal, or to any of its modules (they pass it on), from a battery. Switch it on with POWER on the side panel; with no power the screen stays dark. Tune with the arrows or the scroll wheel (shift for ten steps), change band with up and down, or press F and type a frequency in MHz.$(br2)When someone transmits there, $(thing)*RX*$() flashes and the modules lock one by one, about 2.5 seconds each. From three locked a compass needle shows the bearing, with its error."
+  },
+  {
+   "type": "patchouli:text",
+   "title": "Accuracy",
+   "text": "More modules, a tighter bearing:$(li)3 locked: about 10 degrees$(li)4: 7$(li)5: 5$(li)6: 3.5$(li)7: 2.5$(li)8: 1.5$(br)A signal arriving by skip is twice as rough, and a weak one half as rough again. After five quiet seconds the locks fall away, but the last bearing stays on screen."
+  },
+  {
+   "type": "patchouli:crafting",
+   "recipe": "radiocraft:direction_finder",
+   "recipe2": "radiocraft:direction_finder_module"
+  },
+  {
+   "type": "patchouli:text",
+   "title": "Map Enabled",
+   "text": "Craft a direction finder with a $(item)World Map Module$() and its FIX page draws the fix on a map of the world instead of a grid. Journeyman $(thing)cartographers$() sell the module for 12 emeralds and a compass."
+  },
+  {
+   "type": "patchouli:crafting",
+   "recipe": "radiocraft:map_direction_finder"
+  }
+ ]
 }

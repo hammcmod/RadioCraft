@@ -8,6 +8,7 @@ import com.arrl.radiocraft.common.blocks.MicrowaveHornBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.DirectionFinding;
 import com.arrl.radiocraft.common.radio.microwave.MicrowaveMath;
+import com.arrl.radiocraft.compat.sable.Sublevels;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -78,7 +80,17 @@ public class MicrowaveDishBlockEntity extends BlockEntity implements INetworkObj
 	/** Where the beam starts: the dish a little above its block, the horn's mouth two blocks up. */
 	public MicrowaveMath.End end() {
 		double up = isHorn() ? 2.5D : 0.75D;
-		return new MicrowaveMath.End(worldPosition.getX() + 0.5D, worldPosition.getY() + up, worldPosition.getZ() + 0.5D, azimuth, elevation, getRange());
+		Vec3 mouth = new Vec3(worldPosition.getX() + 0.5D, worldPosition.getY() + up, worldPosition.getZ() + 0.5D);
+		Sublevels.Frame ship = Sublevels.frame(level, worldPosition);
+		if(ship.isGround())
+			return new MicrowaveMath.End(mouth.x, mouth.y, mouth.z, azimuth, elevation, getRange());
+		// On a Sable ship: the beam starts where the dish really is, and points where the ship has turned it.
+		Vec3 at = ship.apply(mouth);
+		double az = Math.toRadians(azimuth), el = Math.toRadians(elevation);
+		Vec3 pointing = ship.applyDirection(new Vec3(Math.sin(az) * Math.cos(el), Math.sin(el), -Math.cos(az) * Math.cos(el)));
+		double worldAzimuth = DirectionFinding.normalize(Math.toDegrees(Math.atan2(pointing.x, -pointing.z)));
+		double worldElevation = Math.toDegrees(Math.atan2(pointing.y, Math.hypot(pointing.x, pointing.z)));
+		return new MicrowaveMath.End(at.x, at.y, at.z, worldAzimuth, worldElevation, getRange());
 	}
 
 	/** The nearest of the four directions to where it points, for the block state. */
