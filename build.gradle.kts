@@ -5,7 +5,13 @@ plugins {
     `eclipse`
 
     alias(libs.plugins.moddevgradle)
+    // Shadow, to shade JOrbis into the mod jar under our own package (see the dependencies block).
+    id("com.gradleup.shadow") version "8.3.6"
 }
+
+// Libraries copied into the mod jar with their packages relocated, instead of jar-in-jar.
+val shade: Configuration by configurations.creating
+configurations.implementation.get().extendsFrom(shade)
 
 /**
  * Determines the version from Git tags following semantic versioning.
@@ -220,10 +226,10 @@ dependencies {
     runtimeOnly(files("libs/anotherweathermod-neoforge-1.21.1-1.9.0.jar"))
 
     // JOrbis (LGPL, Maven Central), to decode the server's tape .ogg files into audio on a dedicated server, where
-    // Minecraft's own Vorbis decoder (LWJGL) is not present. Bundled in the mod jar.
-    implementation("org.jcraft:jorbis:0.0.17")
-    jarJar("org.jcraft:jorbis:[0.0.17,0.1)")
-    additionalRuntimeClasspath("org.jcraft:jorbis:0.0.17")
+    // Minecraft's own Vorbis decoder (LWJGL) is not present. Shaded into the mod jar with its packages relocated
+    // (tasks.shadowJar below): the Minecraft client ships its own jorbis module, and a jar-in-jar copy made the client
+    // fail module resolution with "reads more than one module named jorbis" (issue #101).
+    shade("org.jcraft:jorbis:0.0.17")
 
     // Create (https://github.com/Creators-of-Create/Create), for the alternator: compat/create only loads when Create is
     // installed and Create Crafts & Additions is not (it has its own). From maven.createmod.net (declared above).
@@ -289,6 +295,25 @@ tasks.withType<ProcessResources>().configureEach {
     inputs.properties(expandProps)
 }
 
+
+// The shipped jar is the shadow jar: the mod's classes, the shaded libraries relocated under our package, and the
+// jar-in-jar mods from the jarJar task. The plain jar keeps a "slim" classifier so the two cannot be confused.
+tasks.jar {
+    archiveClassifier = "slim"
+}
+
+tasks.shadowJar {
+    configurations = listOf(shade)
+    archiveClassifier = ""
+    relocate("com.jcraft", "com.arrl.radiocraft.shaded.com.jcraft")
+    from(tasks.named("jarJar"))
+    exclude("META-INF/maven/**")
+    // Shadow leaves relocated class files' timestamps alone; the slim jar's are reproducible too.
+}
+
+tasks.assemble {
+    dependsOn(tasks.shadowJar)
+}
 
 tasks.withType<Jar>().configureEach {
     from(rootProject.file("LICENSE")) {

@@ -11,7 +11,7 @@ MODS="$INST/minecraft/mods"
 NEO=$(grep -m1 -E '^neoforge = "' gradle/libs.versions.toml | cut -d'"' -f2)
 MC=$(grep -m1 -E '^minecraft = "' gradle/libs.versions.toml | cut -d'"' -f2)
 
-[[ "${1:-}" == "--no-build" ]] || ./gradlew jar --console=plain -q
+[[ "${1:-}" == "--no-build" ]] || ./gradlew shadowJar --console=plain -q
 
 mkdir -p "$MODS"
 if [[ ! -f "$INST/instance.cfg" ]]; then
@@ -34,9 +34,11 @@ cat > "$INST/mmc-pack.json" <<PACK
 PACK
 
 rm -f "$MODS"/radiocraft-*.jar
-cp build/libs/radiocraft-neoforge-*.jar "$MODS"/
+# The newest shaded jar only (not the slim, sources or javadoc jars, nor older builds left in build/libs).
+JAR=$(ls -t build/libs/radiocraft-neoforge-*.jar | grep -v -E -- "-(slim|sources|javadoc)\.jar$" | head -1)
+cp "$JAR" "$MODS"/
 # keep only the main jar
-rm -f "$MODS"/*-sources.jar "$MODS"/*-javadoc.jar
+rm -f "$MODS"/*-sources.jar "$MODS"/*-javadoc.jar "$MODS"/*-slim.jar
 
 C=~/.gradle/caches/modules-2/files-2.1
 for pat in "curse.maven/simple-voice-chat-416089" "software.bernie.geckolib/geckolib-neoforge-$MC" \

@@ -1,0 +1,31 @@
+{
+  "_comment": "Projects push-versions.ps1 / modrinth_release.py can release. Modrinth project ids and the dependencies each version declares (dependency_type: required | optional | incompatible | embedded). A project with no modrinth entry is released on GitHub only.",
+  "radiocraft": {
+    "root": ".",
+    "jar_prefix": "radiocraft-neoforge-1.21.1-",
+    "notes": "doc/ReleaseNotes-{major_minor}.md",
+    "github": "hammcmod/RadioCraft",
+    "modrinth": {
+      "project_id": "i9iitQG6",
+      "loaders": ["neoforge"],
+      "game_versions": ["1.21.1"],
+      "dependencies": [
+        {"project_id": "9eGKb6K1", "dependency_type": "required", "_name": "Simple Voice Chat"},
+        {"project_id": "8BmcQJ2H", "dependency_type": "required", "_name": "GeckoLib"},
+        {"project_id": "nU0bVIaL", "dependency_type": "optional", "_name": "Patchouli (guide book)"},
+        {"project_id": "vvuO3ImH", "dependency_type": "optional", "_name": "Curios (belt slot)"},
+        {"project_id": "nvQzSEkH", "dependency_type": "optional", "_name": "Jade"},
+        {"project_id": "Eyw0UxEx", "dependency_type": "optional", "_name": "The One Probe"},
+        {"project_id": "u6dRKJwZ", "dependency_type": "optional", "_name": "JEI"},
+        {"project_id": "LNytGWDc", "dependency_type": "optional", "_name": "Create (alternator)"},
+        {"project_id": "T9PomCSv", "dependency_type": "optional", "_name": "Sable (ships)"}
+      ]
+    }
+  },
+  "anotherweathermod": {
+    "root": "../AnotherWeatherMod",
+    "jar_prefix": "anotherweathermod-neoforge-1.21.1-",
+    "notes": "doc/ReleaseNotes-{version}.md",
+    "github": "ITCMD/AnotherWeatherMod"
+  }
+}

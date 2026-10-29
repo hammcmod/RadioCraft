@@ -34,6 +34,13 @@ Run the unit tests and GameTests before committing. Add a GameTest when fixing a
 ## Commit & Pull Request Guidelines
 Use concise, present-tense commit messages (`Fix antenna wire sync`) and keep related changes in a single commit when practical. PRs should outline the player-facing impact, list testing done (`runClient`, `test`), and reference any linked GitHub issues or design docs. Screenshots or clips help reviewers validate UI or in-game changes. Confirm the build is clean and data generator output is committed before requesting review.
 
+## Releasing
+Tag the commit with the version (`1.9.1`; the jar version comes from the tag), then `tools\push-versions.ps1 -Version 1.9.1
+-Build -GitHub` builds and publishes it to Modrinth (and GitHub) with the matching section of `doc/ReleaseNotes-<major.minor>.md`
+as the changelog. Tokens live in `~/.radiocraft/` or the environment, never in the repo; project ids and dependency lists
+are in `tools/modrinth_projects.json`. The shipped jar is the shadow jar (JOrbis relocated inside it); the `-slim` jar is
+not for players.
+
 ## Development Environment Notes
 `tools/deploy-prism.sh` builds the mod and installs it plus its runtime dependencies into a Prism Launcher instance named "RadioCraft Dev". Use dedicated Gradle run directories to avoid polluting personal saves. If you adjust configuration files under `run/`, do not commit them unless they are required defaults. When introducing new dependencies, add them through `build.gradle.kts` and cite the source Maven repository.
 

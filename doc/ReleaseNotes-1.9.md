@@ -1,3 +1,10 @@
+# RadioCraft alpha 1.9.1
+
+A fix for 1.9.0, which could not start on a client ([issue #101](https://github.com/hammcmod/RadioCraft/issues/101)):
+the game closed at once with `Module neoforge.coremods reads more than one module named jorbis`. The tape decoder's
+JOrbis library was packed as a second copy of a module the Minecraft client already ships. It is now shaded into the
+mod under its own package, so there is only one. Dedicated servers were not affected. Nothing else changed.
+
 # RadioCraft alpha 1.9.0
 
 Everything since the 1.2.0 release (commit 1476893, 2026-10-21). Minecraft 1.21.1, NeoForge. Needs Simple Voice
