@@ -35,15 +35,24 @@ public class RadioVoiceProcessor {
 	 * @param highHz  Low-pass corner, the top of the voice channel.
 	 * @param drive   Soft clipping drive: 1 is barely there, 3 is a crunchy speaker.
 	 * @param enabled False passes the audio through untouched except for the output level.
+	 * @param smoothSeconds How long the output level and the FM signal take to settle on a new value (a one-pole time
+	 *                      constant), so a step in signal strength is not heard as a jump at the next 20 ms frame. 0
+	 *                      follows each frame's value at once.
 	 */
-	public record Settings(double lowHz, double highHz, double drive, boolean enabled) {
+	public record Settings(double lowHz, double highHz, double drive, boolean enabled, double smoothSeconds) {
 		public static final Settings SSB = new Settings(300.0D, 2700.0D, 1.6D, true);
+
+		/** With no smoothing. */
+		public Settings(double lowHz, double highHz, double drive, boolean enabled) {
+			this(lowHz, highHz, drive, enabled, 0.0D);
+		}
 	}
 
 	/** The settings from the server config. */
 	public static Settings currentSettings() {
 		return new Settings(RadiocraftServerConfig.VOICE_BAND_LOW.get(), RadiocraftServerConfig.VOICE_BAND_HIGH.get(),
-				RadiocraftServerConfig.VOICE_DRIVE.get(), RadiocraftServerConfig.VOICE_PROCESSING_ENABLED.get());
+				RadiocraftServerConfig.VOICE_DRIVE.get(), RadiocraftServerConfig.VOICE_PROCESSING_ENABLED.get(),
+				RadiocraftServerConfig.VOICE_LEVEL_SMOOTHING.get());
 	}
 
 	private final Biquad[] filters = new Biquad[4];
@@ -67,6 +76,9 @@ public class RadioVoiceProcessor {
 	private int fmGateLeft = 0;
 	private double fmGate = 1.0D;
 	private double fmHiss = 0.0D;
+	private double levelNow = -1.0D; // The smoothed output level; below 0 until the first frame.
+	private double signalNow = -1.0D; // The smoothed FM signal, the same way.
+	private double smoothSeconds = 0.0D; // From the last frame's settings, for fmFade.
 
 	/** Loudness of the static an FM receiver plays with the squelch open on nothing, as a fraction of full scale. */
 	static final double FM_STATIC = 0.3D;
@@ -77,11 +89,27 @@ public class RadioVoiceProcessor {
 	 * keeps its volume throughout. {@code gain} is the output level the frame was made at, so the static matches it.
 	 */
 	public short[] fmFade(short[] pcm, double signal, double gain) {
-		double hiss = ReceiverMix.fmHiss(signal), dropout = ReceiverMix.fmDropout(signal);
-		if(hiss <= 0.0D && dropout <= 0.0D && fmGate >= 1.0D)
+		return fmFade(pcm, signal, gain, smoothSeconds);
+	}
+
+	/** As above, the signal settling over {@code smoothSeconds} (see {@link Settings#smoothSeconds}). */
+	public short[] fmFade(short[] pcm, double signal, double gain, double smoothSeconds) {
+		if(signalNow < 0.0D)
+			signalNow = signal;
+		double settle = smoothSeconds > 0.0D ? coefficient(smoothSeconds) : 0.0D;
+		boolean settled = Math.abs(signalNow - signal) < 1e-4D;
+		if(settled)
+			signalNow = signal;
+		double hiss = ReceiverMix.fmHiss(signalNow), dropout = ReceiverMix.fmDropout(signalNow);
+		if(settled && hiss <= 0.0D && dropout <= 0.0D && fmGate >= 1.0D)
 			return pcm;
 		double smooth = coefficient(0.003D); // No clicks where the voice drops out and comes back.
 		for(int i = 0; i < pcm.length; i++) {
+			if(!settled) { // Glide toward this frame's signal rather than stepping to it.
+				signalNow = settle * signalNow + (1.0D - settle) * signal;
+				hiss = ReceiverMix.fmHiss(signalNow);
+				dropout = ReceiverMix.fmDropout(signalNow);
+			}
 			if(--fmGateLeft <= 0) {
 				fmOpen = nextRandom() >= dropout;
 				fmGateLeft = (int)(SAMPLE_RATE * (0.04D + 0.14D * nextRandom()));
@@ -116,9 +144,15 @@ public class RadioVoiceProcessor {
 	 * @param qrm          Splatter from a signal next door (FM), 0 to 1; it crackles whether or not this one is talking.
 	 */
 	public short[] process(short[] pcm, Settings settings, double level, double rasp, double pitchShiftHz, double splatter, double qrm) {
+		smoothSeconds = settings.smoothSeconds();
+		if(levelNow < 0.0D)
+			levelNow = level;
+		double settle = smoothSeconds > 0.0D ? coefficient(smoothSeconds) : 0.0D;
 		if(!settings.enabled()) {
-			for(int i = 0; i < pcm.length; i++)
-				pcm[i] = clamp(pcm[i] * level);
+			for(int i = 0; i < pcm.length; i++) {
+				levelNow = settle * levelNow + (1.0D - settle) * level;
+				pcm[i] = clamp(pcm[i] * levelNow);
+			}
 			return pcm;
 		}
 		setUpFilters(settings.lowHz(), settings.highHz());
@@ -179,7 +213,8 @@ public class RadioVoiceProcessor {
 				x *= 1.0D - rasp + rasp * Math.min(2.0D, raspLevel * 2.0D);
 			}
 
-			pcm[i] = clamp(x * level * 32767.0D);
+			levelNow = settle * levelNow + (1.0D - settle) * level;
+			pcm[i] = clamp(x * levelNow * 32767.0D);
 		}
 		return pcm;
 	}
@@ -246,7 +281,7 @@ public class RadioVoiceProcessor {
 	}
 
 	/** One-pole smoothing coefficient for a time constant in seconds. */
-	private static double coefficient(double seconds) {
+	static double coefficient(double seconds) {
 		return Math.exp(-1.0D / (seconds * SAMPLE_RATE));
 	}
 

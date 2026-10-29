@@ -1485,6 +1485,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             zoneAntenna = null;
             if(level instanceof ServerLevel serverLevel)
                 stopTransmitInterference(serverLevel);
+            voiceReceiver.close(); // Its Opus encoders; it makes new ones if it plays again.
         }
         super.setRemoved();
     }
@@ -1498,6 +1499,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             zoneAntenna = null;
             if(level instanceof ServerLevel serverLevel)
                 stopTransmitInterference(serverLevel);
+            voiceReceiver.close(); // Its Opus encoders; it makes new ones if it plays again.
         }
         super.onChunkUnloaded();
     }

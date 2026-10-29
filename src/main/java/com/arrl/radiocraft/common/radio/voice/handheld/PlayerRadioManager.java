@@ -33,7 +33,9 @@ public class PlayerRadioManager {
         UUID uuid = event.getEntity().getUUID();
         get(uuid).ifPresentOrElse(u -> u.setPlayer(null), () -> Radiocraft.LOGGER.error("Player radio was null on leave, onPlayerJoined not called? Player: {} uuid {}", event.getEntity().getName(), event.getEntity().getUUID()));
         Radiocraft.LOGGER.debug("Player radio removed for {} uuid {}", event.getEntity().getName(), event.getEntity().getUUID());
-        playerRadios.remove(uuid);
+        PlayerRadio removed = playerRadios.remove(uuid);
+        if(removed != null)
+            removed.closeAudio();
     }
 
     @SubscribeEvent

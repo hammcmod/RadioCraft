@@ -9,6 +9,25 @@ writes back here: `- [ ]` not tested, `- [x]` passed, `- [!]` needs work, with `
 it to [todo.md](../todo.md)), then sets it back to `[ ]` for the next playtest.
 
 
+## Two stations at once, and smoother signal changes (added 2026-10-29)
+
+Stations heard at the same time are now mixed into the radio's one audio stream (`VoiceMix`) instead of their frames
+being sent one after another. SSB adds them up; FM captures the stronger (at twice the other's strength), roughened
+as the other comes close, and flips between them in garbled bursts when neither captures. Received volume and FM hiss
+now glide to a new signal strength over `voice_level_smoothing` (0.15 s; 0 turns it off). Unit tests cover the mixing
+and smoothing; GameTests have no voice chat, so none of this is heard in them. Needs two players (or a player and a
+parrot station) talking at once.
+
+- [ ] SSB, two players talking at once on one frequency: both voices heard over each other, clean (no choppy
+  alternation, no crackle), the weaker one quieter.
+- [ ] FM (2m base or handheld), one station much stronger: only it is heard, slightly rough; the weaker one is gone.
+- [ ] FM, two stations about as strong: a garbled mess that flips between them every tenth of a second or so.
+- [ ] One station alone sounds exactly as before, with no added delay.
+- [ ] Walk a handheld out to the edge of range: the hiss swells in instead of stepping up every few blocks; the voice
+  does not lag noticeably behind. Compare with `voice_level_smoothing = 0`.
+- [ ] Wired speakers play the same mix as the radio.
+- [ ] The handheld's signal meter reads sensibly: it now takes the RMS of the whole frame (it was using one sample).
+
 ## Radio sites and modules on the air (added 2026-10-28, evening)
 
 Six sites generate in normal worlds (`radio_sites`), placed unturned; `SiteGameTests` checks every station in each

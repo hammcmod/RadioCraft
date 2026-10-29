@@ -45,7 +45,8 @@ public enum SpeakerKind {
 	public RadioVoiceProcessor.Settings apply(RadioVoiceProcessor.Settings settings) {
 		double width = Math.max(0.0D, settings.highHz() - settings.lowHz());
 		double trim = width * (1.0D - range) / 2.0D;
-		return new RadioVoiceProcessor.Settings(settings.lowHz() + trim, settings.highHz() - trim, settings.drive() * driveFactor, settings.enabled());
+		return new RadioVoiceProcessor.Settings(settings.lowHz() + trim, settings.highHz() - trim, settings.drive() * driveFactor, settings.enabled(),
+				settings.smoothSeconds());
 	}
 
 	/** The better of two speakers touching one radio. */

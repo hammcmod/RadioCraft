@@ -49,7 +49,10 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna {
 
     private EntityAudioChannel receiveChannel = null;
-    private final RadioVoiceProcessor processor = new RadioVoiceProcessor(); // Used under this object's lock (receive is synchronized).
+    // Stations heard at once are lined up and mixed (FM capture); under this object's lock (receive is synchronized).
+    private final com.arrl.radiocraft.common.radio.voice.VoiceMix.Aligner aligner = new com.arrl.radiocraft.common.radio.voice.VoiceMix.Aligner();
+    private final com.arrl.radiocraft.common.radio.voice.VoiceMix.Renderer renderer = new com.arrl.radiocraft.common.radio.voice.VoiceMix.Renderer();
+    private de.maxhenkel.voicechat.api.opus.OpusEncoder encoder; // The handheld's own, not the talker's (shared by every radio).
     private WeakReference<Player> playerRef = null; // Use a weak ref here, so it isn't able to permanently load the entity.
     private volatile AntennaNetwork network = null;
 
@@ -426,11 +429,18 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                     && source.world().distSqr(here.world()) > (double)antennaPacket.getBand().losRange() * antennaPacket.getBand().losRange();
             // FM: full volume however weak the signal; it fades into hiss and dropouts instead (RadioVoiceProcessor#fmFade).
             double level = (isHeld ? 1.0D : 0.5D) * gain;
-            short[] rawAudio = processor.process(antennaPacket.getRawAudio(), com.arrl.radiocraft.common.radio.voice.SpeakerKind.BUILT_IN.apply(RadioVoiceProcessor.currentSettings()), level, beyondLos ? 1.0D : 0.0D, 0.0D, 0.0D, splatter);
-            processor.fmFade(rawAudio, packetStrength, level);
+            long now = System.nanoTime();
+            List<com.arrl.radiocraft.common.radio.voice.VoiceMix.Signal> slot = aligner.offer(new com.arrl.radiocraft.common.radio.voice.VoiceMix.Signal(
+                    com.arrl.radiocraft.common.radio.voice.VoiceMix.key(antennaPacket.getSourcePlayer(), antennaPacket.getSource()), antennaPacket.getSourcePlayer(),
+                    antennaPacket.getRawAudio(), level, beyondLos ? 1.0D : 0.0D, 0.0D, 0.0D, splatter, packetStrength), now);
+            if(slot.isEmpty())
+                return; // Another station leads: this frame goes out mixed with its next one.
+            com.arrl.radiocraft.common.radio.voice.VoiceMix.Mixed mixed = renderer.render(slot,
+                    com.arrl.radiocraft.common.radio.voice.SpeakerKind.BUILT_IN.apply(RadioVoiceProcessor.currentSettings()), 1.0D, now);
+            short[] rawAudio = mixed.pcm();
             long runningTotal = 0;
             for(short sample : rawAudio)
-                runningTotal = sample * sample;
+                runningTotal += (long)sample * sample;
 
             //TODO rework receiving to be per handheld, when frequency support is added
             for(SynchronousRadioState state : this.radios) {
@@ -440,9 +450,8 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
                 }
             }
 
-            byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
-            receiveChannel.send(opusAudio);
-            squelchTail.heard(packetStrength, level, antennaPacket.getSourcePlayer(), System.nanoTime());
+            receiveChannel.send(encoder().encode(rawAudio));
+            squelchTail.heard(mixed.loudest().fmSignal(), mixed.loudest().level(), mixed.loudest().source(), now);
         }
     }
 
@@ -451,9 +460,23 @@ public class PlayerRadio implements IVoiceTransmitter, IVoiceReceiver, IAntenna 
         List<short[]> frames = squelchTail.drain(System.nanoTime(), gameTime % 2 == 0 ? 3 : 2);
         if(frames.isEmpty() || receiveChannel == null || RadiocraftVoicePlugin.API == null || !isReceiving())
             return;
-        de.maxhenkel.voicechat.api.opus.OpusEncoder encoder = RadiocraftVoicePlugin.encodingManager.getOrCreate(squelchTail.source()).getEncoder();
+        de.maxhenkel.voicechat.api.opus.OpusEncoder encoder = encoder();
         for(short[] frame : frames)
             receiveChannel.send(encoder.encode(frame));
+    }
+
+    private de.maxhenkel.voicechat.api.opus.OpusEncoder encoder() {
+        if(encoder == null)
+            encoder = RadiocraftVoicePlugin.API.createEncoder();
+        return encoder;
+    }
+
+    /** Lets go of the handheld's Opus encoder (the player left); a new one is made if it plays again. */
+    public synchronized void closeAudio() {
+        if(encoder != null) {
+            encoder.close();
+            encoder = null;
+        }
     }
 
     public void setNetwork(AntennaNetwork network) {

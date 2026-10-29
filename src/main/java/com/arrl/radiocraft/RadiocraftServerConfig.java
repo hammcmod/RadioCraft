@@ -100,6 +100,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> VOICE_BAND_LOW;
 	public static final ModConfigSpec.ConfigValue<Integer> VOICE_BAND_HIGH;
 	public static final ModConfigSpec.ConfigValue<Double> VOICE_DRIVE;
+	public static final ModConfigSpec.ConfigValue<Double> VOICE_LEVEL_SMOOTHING;
 	public static final ModConfigSpec.ConfigValue<Double> VHF_NOISE_FLOOR;
 	public static final ModConfigSpec.ConfigValue<Double> SKIP_FADING_DEPTH;
 
@@ -360,6 +361,8 @@ public class RadiocraftServerConfig {
 		VOICE_BAND_LOW = BUILDER.comment(" Lowest voice frequency the radio passes, in Hz").defineInRange("voice_band_low", 300, 20, 4000);
 		VOICE_BAND_HIGH = BUILDER.comment(" Highest voice frequency the radio passes, in Hz").defineInRange("voice_band_high", 2700, 500, 20000);
 		VOICE_DRIVE = BUILDER.comment(" Speaker overdrive on voice peaks: 1 is barely there, 3 is crunchy").defineInRange("voice_drive", 1.6, 0.1, 10.0);
+		VOICE_LEVEL_SMOOTHING = BUILDER.comment(" Seconds a received signal's volume and FM hiss take to follow a change in its strength, so",
+				" walking into a weak spot fades into static instead of stepping. 0 follows every change at once").defineInRange("voice_level_smoothing", 0.15, 0.0, 2.0);
 		VHF_NOISE_FLOOR = BUILDER.comment(" Receiver noise on VHF (FM), which has no solar noise: how far a weak VHF signal is pushed down").defineInRange("vhf_noise_floor", 0.15, 0.0, 1.0);
 		SKIP_FADING_DEPTH = BUILDER.comment(" How deep skip signals fade in and out (QSB): 0 steady, 1 fades to nothing").defineInRange("skip_fading_depth", 0.5, 0.0, 1.0);
 		BUILDER.pop();

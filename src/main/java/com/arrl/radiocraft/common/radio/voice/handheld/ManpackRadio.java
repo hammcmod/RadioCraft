@@ -70,7 +70,10 @@ public class ManpackRadio implements IAntenna {
 	private volatile boolean screenPtt = false;
 	private volatile boolean indoors = false;
 	private volatile boolean transmitting = false;
-	private final RadioVoiceProcessor processor = new RadioVoiceProcessor();
+	// Stations heard at once are added up (SSB); used under this object's lock.
+	private final com.arrl.radiocraft.common.radio.voice.VoiceMix.Aligner aligner = new com.arrl.radiocraft.common.radio.voice.VoiceMix.Aligner();
+	private final com.arrl.radiocraft.common.radio.voice.VoiceMix.Renderer renderer = new com.arrl.radiocraft.common.radio.voice.VoiceMix.Renderer();
+	private de.maxhenkel.voicechat.api.opus.OpusEncoder encoder; // The manpack's own, not the talker's.
 	private LocationalAudioChannel channel = null;
 
 	// The S-meter, and power use, between ticks.
@@ -282,9 +285,16 @@ public class ManpackRadio implements IAntenna {
 				channel.setDistance(12.0F);
 			}
 			channel.updateLocation(RadiocraftVoicePlugin.API.createPosition(player.getX(), player.getEyeY(), player.getZ()));
-			short[] audio = processor.process(packet.getRawAudio(), SpeakerKind.BUILT_IN.apply(RadioVoiceProcessor.currentSettings()), level, 0.0D,
-					effect.pitchShiftHz(), effect.splatter(), 0.0D);
-			channel.send(RadiocraftVoicePlugin.encodingManager.getOrCreate(packet.getSourcePlayer()).getEncoder().encode(audio));
+			long now = System.nanoTime();
+			List<com.arrl.radiocraft.common.radio.voice.VoiceMix.Signal> slot = aligner.offer(new com.arrl.radiocraft.common.radio.voice.VoiceMix.Signal(
+					com.arrl.radiocraft.common.radio.voice.VoiceMix.key(packet.getSourcePlayer(), packet.getSource()), packet.getSourcePlayer(),
+					packet.getRawAudio(), level, 0.0D, effect.pitchShiftHz(), effect.splatter(), 0.0D, -1.0D), now);
+			if(slot.isEmpty())
+				return; // Another station leads: this frame goes out mixed with its next one.
+			short[] audio = renderer.render(slot, SpeakerKind.BUILT_IN.apply(RadioVoiceProcessor.currentSettings()), 1.0D, now).pcm();
+			if(encoder == null)
+				encoder = RadiocraftVoicePlugin.API.createEncoder();
+			channel.send(encoder.encode(audio));
 		}
 	}
 
@@ -346,6 +356,13 @@ public class ManpackRadio implements IAntenna {
 			ManpackRadio radio = RADIOS.remove(event.getEntity().getUUID());
 			if(radio != null && radio.network != null)
 				radio.network.removeAntenna(radio);
+			if(radio != null)
+				synchronized(radio) {
+					if(radio.encoder != null) {
+						radio.encoder.close();
+						radio.encoder = null;
+					}
+				}
 		}
 
 		@SubscribeEvent

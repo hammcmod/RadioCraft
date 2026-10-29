@@ -6,6 +6,7 @@ import com.arrl.radiocraft.common.radio.voice.RadioVoiceProcessor;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
 import com.arrl.radiocraft.common.radio.voice.SpeakerKind;
 import com.arrl.radiocraft.common.radio.voice.SquelchTail;
+import com.arrl.radiocraft.common.radio.voice.VoiceMix;
 import com.arrl.radiocraft.compat.sable.Sublevels;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.AudioChannel;
@@ -26,6 +27,10 @@ import java.util.UUID;
  * The radio plays through its own speaker, or a better one touching it ({@link #setSpeaker}), and also through every
  * wired speaker on its wire ({@link #setWiredSpeakers}): each of those is its own channel where the speaker stands,
  * with its own processor (filters carry state) and Opus encoder (so the streams do not share encoder state).
+ * <p>
+ * Stations heard at the same time are mixed into one stream ({@link VoiceMix}): SSB adds them up, FM captures the
+ * stronger. Everything here runs under this receiver's lock: voice arrives on the voice chat thread, and parrot echoes
+ * and the squelch tail on the game thread.
  */
 public class BEVoiceReceiver implements IVoiceReceiver {
 
@@ -37,7 +42,9 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 	private final int z;
 
 	private boolean isReceiving;
-	private final RadioVoiceProcessor processor = new RadioVoiceProcessor(); // Only touched from the voice chat thread.
+	private final VoiceMix.Aligner aligner = new VoiceMix.Aligner();
+	private final VoiceMix.Renderer renderer = new VoiceMix.Renderer();
+	private OpusEncoder encoder; // This receiver's own: an encoder per talker would be shared by every radio hearing them.
 	private static boolean warnedNoApi = false;
 
 	/** A wired speaker this radio plays through. */
@@ -46,7 +53,7 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 	private volatile SpeakerKind speaker = SpeakerKind.BUILT_IN; // Set on the game thread, read on the voice thread.
 	private volatile List<WiredSpeaker> wiredSpeakers = List.of();
 	// Voice thread only: the channel, processor and encoder of each wired speaker, kept while it stays wired.
-	private final Map<WiredSpeaker, SpeakerOutput> outputs = new HashMap<>(); // Guarded by itself: the squelch tail plays from the game thread.
+	private final Map<WiredSpeaker, SpeakerOutput> outputs = new HashMap<>();
 	private final SquelchTail tail = new SquelchTail();
 	private List<WiredSpeaker> outputsFor = List.of();
 
@@ -140,34 +147,50 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 		}
 
 		ServerLevel voiceLevel = RadiocraftVoicePlugin.API.fromServerLevel(antennaPacket.getLevel());
-		if(receiveChannel == null)
-			openChannel(voiceLevel);
-		if(receiveChannel == null)
-			return;
-
+		VoiceMix.Signal signal = new VoiceMix.Signal(VoiceMix.key(antennaPacket.getSourcePlayer(), antennaPacket.getSource()),
+				antennaPacket.getSourcePlayer(), antennaPacket.getRawAudio(), level, rasp, pitchShiftHz, splatter, qrm, fmSignal);
 		RadioVoiceProcessor.Settings settings = RadioVoiceProcessor.currentSettings();
 		List<WiredSpeaker> wired = wiredSpeakers;
-		short[] clean = wired.isEmpty() ? null : antennaPacket.getRawAudio().clone(); // The radio's processing works in place.
-
-		short[] rawAudio = processor.process(antennaPacket.getRawAudio(), speaker.apply(settings), level, rasp, pitchShiftHz, splatter, qrm);
-		if(fmSignal >= 0.0D)
-			processor.fmFade(rawAudio, fmSignal, level);
-		byte[] opusAudio = RadiocraftVoicePlugin.encodingManager.getOrCreate(antennaPacket.getSourcePlayer()).getEncoder().encode(rawAudio);
-		Sublevels.Frame frame = this.frame;
-		follow(receiveChannel, frame, x, y, z);
-		receiveChannel.send(opusAudio);
-		if(fmSignal >= 0.0D)
-			tail.heard(fmSignal, level, antennaPacket.getSourcePlayer(), System.nanoTime());
-
-		synchronized(outputs) {
-			syncOutputs(wired);
-			if(clean == null)
+		long now = System.nanoTime();
+		synchronized(this) {
+			if(receiveChannel == null)
+				openChannel(voiceLevel);
+			if(receiveChannel == null)
 				return;
+			List<VoiceMix.Signal> slot = aligner.offer(signal, now);
+			if(slot.isEmpty())
+				return; // Another station is leading: this frame goes out mixed with its next one.
+
+			VoiceMix.Mixed mixed = renderer.render(slot, speaker.apply(settings), 1.0D, now);
+			follow(receiveChannel, this.frame, x, y, z);
+			receiveChannel.send(encoder().encode(mixed.pcm()));
+			VoiceMix.Signal loudest = mixed.loudest();
+			if(loudest.fm())
+				tail.heard(loudest.fmSignal(), loudest.level(), loudest.source(), now);
+
+			syncOutputs(wired);
 			for(WiredSpeaker target : wired) {
 				SpeakerOutput output = outputs.computeIfAbsent(target, t -> new SpeakerOutput(voiceLevel, t));
-				output.play(clean.clone(), target.kind().apply(settings), level * target.kind().loudness, rasp, pitchShiftHz, splatter, qrm, fmSignal, frame);
+				output.play(slot, target.kind().apply(settings), target.kind().loudness, this.frame, now);
 			}
 		}
+	}
+
+	private OpusEncoder encoder() {
+		if(encoder == null)
+			encoder = RadiocraftVoicePlugin.API.createEncoder();
+		return encoder;
+	}
+
+	/** Lets go of the encoders; the receiver makes new ones if it plays again. */
+	public synchronized void close() {
+		if(encoder != null) {
+			encoder.close();
+			encoder = null;
+		}
+		outputs.values().forEach(SpeakerOutput::close);
+		outputs.clear();
+		outputsFor = List.of();
 	}
 
 	/**
@@ -178,13 +201,12 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 		List<short[]> frames = tail.drain(System.nanoTime(), gameTime % 2 == 0 ? 3 : 2); // 2.5 frames of 20 ms a tick.
 		if(frames.isEmpty() || receiveChannel == null || RadiocraftVoicePlugin.API == null)
 			return;
-		UUID source = tail.source();
-		OpusEncoder encoder = RadiocraftVoicePlugin.encodingManager.getOrCreate(source).getEncoder(); // Carries on from the voice.
-		Sublevels.Frame ship = this.frame;
-		follow(receiveChannel, ship, x, y, z);
-		for(short[] frame : frames)
-			receiveChannel.send(encoder.encode(frame));
-		synchronized(outputs) {
+		synchronized(this) {
+			Sublevels.Frame ship = this.frame;
+			follow(receiveChannel, ship, x, y, z);
+			OpusEncoder encoder = encoder(); // Carries on from the voice.
+			for(short[] frame : frames)
+				receiveChannel.send(encoder.encode(frame));
 			for(Map.Entry<WiredSpeaker, SpeakerOutput> entry : outputs.entrySet()) {
 				entry.getValue().follow(ship);
 				for(short[] frame : frames)
@@ -200,7 +222,7 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 		return out;
 	}
 
-	/** Lets go of the outputs of speakers no longer wired; holding {@link #outputs}. */
+	/** Lets go of the outputs of speakers no longer wired; holding the lock. */
 	private void syncOutputs(List<WiredSpeaker> wired) {
 		if(wired == outputsFor)
 			return;
@@ -225,7 +247,7 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 	private static final class SpeakerOutput {
 		private final LocationalAudioChannel channel;
 		private final BlockPos pos;
-		private final RadioVoiceProcessor processor = new RadioVoiceProcessor();
+		private final VoiceMix.Renderer renderer = new VoiceMix.Renderer();
 		private final OpusEncoder encoder;
 
 		SpeakerOutput(ServerLevel level, WiredSpeaker speaker) {
@@ -242,14 +264,11 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 			BEVoiceReceiver.follow(channel, frame, pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D);
 		}
 
-		void play(short[] pcm, RadioVoiceProcessor.Settings settings, double level, double rasp, double pitchShiftHz, double splatter, double qrm, double fmSignal, Sublevels.Frame frame) {
+		void play(List<VoiceMix.Signal> slot, RadioVoiceProcessor.Settings settings, double loudness, Sublevels.Frame ship, long nanos) {
 			if(channel == null)
 				return;
-			follow(frame);
-			short[] audio = processor.process(pcm, settings, level, rasp, pitchShiftHz, splatter, qrm);
-			if(fmSignal >= 0.0D)
-				processor.fmFade(audio, fmSignal, level);
-			channel.send(encoder.encode(audio));
+			follow(ship);
+			channel.send(encoder.encode(renderer.render(slot, settings, loudness, nanos).pcm()));
 		}
 
 		/** Sends a frame as it is (the squelch tail, already at its level). */
