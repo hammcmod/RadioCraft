@@ -1,3 +1,11 @@
+# RadioCraft alpha 1.9.2
+
+A fix for 1.9.1, which could not start at all: the game stopped with `Failed to load mod file
+META-INF/jarjar/sable-companion-common-1.21.1-1.6.0.jar`. The build step that fixed 1.9.0's JOrbis crash also unpacked
+the bundled Sable Companion library, so the jar named a file it no longer had. The library is bundled intact again.
+Sable stays optional; RadioCraft starts without it. Every release is now launched on a real NeoForge server and client
+before it is published. Nothing else changed.
+
 # RadioCraft alpha 1.9.1
 
 A fix for 1.9.0, which could not start on a client ([issue #101](https://github.com/hammcmod/RadioCraft/issues/101)):

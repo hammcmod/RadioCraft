@@ -27,6 +27,11 @@ jobs:
       - name: Build Mod
         run: ./gradlew build
 
+      # Starts the built jar on a real NeoForge dedicated server, outside the dev environment (the client side
+      # needs a display and runs in tools/push-versions.ps1 before each release).
+      - name: Production Launch Test
+        run: ./gradlew prodLaunchTest -PlaunchSide=server -Ppython=python3
+
       - name: Save Artifacts
         uses: actions/upload-artifact@v4
         with:

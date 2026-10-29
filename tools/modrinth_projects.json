@@ -1,10 +1,11 @@
 {
-  "_comment": "Projects push-versions.ps1 / modrinth_release.py can release. Modrinth project ids and the dependencies each version declares (dependency_type: required | optional | incompatible | embedded). A project with no modrinth entry is released on GitHub only.",
+  "_comment": "Projects push-versions.ps1 / modrinth_release.py can release. launch_test: the Gradle task that must pass on the jar before it is published. Modrinth project ids and the dependencies each version declares (dependency_type: required | optional | incompatible | embedded). A project with no modrinth entry is released on GitHub only.",
   "radiocraft": {
     "root": ".",
     "jar_prefix": "radiocraft-neoforge-1.21.1-",
     "notes": "doc/ReleaseNotes-{major_minor}.md",
     "github": "hammcmod/RadioCraft",
+    "launch_test": "prodLaunchTest",
     "modrinth": {
       "project_id": "i9iitQG6",
       "loaders": ["neoforge"],

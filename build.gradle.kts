@@ -1,3 +1,6 @@
+import java.util.zip.ZipFile
+import java.util.zip.ZipInputStream
+
 plugins {
     `java`
     `maven-publish`
@@ -293,26 +296,123 @@ tasks.withType<ProcessResources>().configureEach {
     }
 
     inputs.properties(expandProps)
+    // The data generator's cache sits in src/generated/resources; it is not a resource.
+    exclude(".cache/**")
 }
 
 
-// The shipped jar is the shadow jar: the mod's classes, the shaded libraries relocated under our package, and the
-// jar-in-jar mods from the jarJar task. The plain jar keeps a "slim" classifier so the two cannot be confused.
+// The shipped jar is built in two steps. Shadow relocates the shaded libraries into an intermediate jar, then modJar
+// copies that jar's entries and adds the jar-in-jar mods from the jarJar task. The nested jars must not go through
+// Shadow: it unpacks every .jar it is given, which left metadata.json pointing at a missing nested jar and stopped
+// 1.9.1 from loading ("Failed to load mod file META-INF/jarjar/sable-companion-..."). The plain jar keeps a "slim"
+// classifier so it cannot be confused with the shipped jar. verifyModJar (part of check) guards the result.
 tasks.jar {
     archiveClassifier = "slim"
 }
 
 tasks.shadowJar {
     configurations = listOf(shade)
-    archiveClassifier = ""
+    archiveClassifier = "shaded"
+    destinationDirectory = layout.buildDirectory.dir("tmp/shadowJar")
     relocate("com.jcraft", "com.arrl.radiocraft.shaded.com.jcraft")
-    from(tasks.named("jarJar"))
     exclude("META-INF/maven/**")
-    // Shadow leaves relocated class files' timestamps alone; the slim jar's are reproducible too.
+}
+
+val modJar = tasks.register<Jar>("modJar") {
+    description = "Builds the shipped mod jar: the shadow jar plus the jar-in-jar mods."
+    group = "build"
+    archiveClassifier = ""
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(zipTree(tasks.shadowJar.flatMap { it.archiveFile })) { exclude("META-INF/MANIFEST.MF") }
+    from(tasks.named("jarJar"))
 }
 
 tasks.assemble {
-    dependsOn(tasks.shadowJar)
+    dependsOn(modJar)
+}
+
+// Reads the shipped jar the way the loader will, so a packaging mistake fails the build instead of a player's game.
+val verifyModJar = tasks.register("verifyModJar") {
+    description = "Checks the shipped jar: nested jars present and intact, shaded libraries relocated."
+    group = "verification"
+    // -PverifyJar=<path> checks another jar instead, such as a downloaded release.
+    val jarFile = providers.gradleProperty("verifyJar").map { layout.projectDirectory.file(it) }
+        .orElse(modJar.flatMap { it.archiveFile })
+    inputs.file(jarFile)
+    if (!project.hasProperty("verifyJar")) dependsOn(modJar)
+    doLast {
+        val problems = mutableListOf<String>()
+        ZipFile(jarFile.get().asFile).use { zip ->
+            val names = zip.entries().asSequence().map { it.name }.toSet()
+            for (required in listOf("META-INF/MANIFEST.MF", "META-INF/neoforge.mods.toml", "radiocraft.mixins.json")) {
+                if (required !in names) problems += "missing $required"
+            }
+            // Every jar listed in the jar-in-jar metadata must be in the jar as an intact jar, not unpacked into it.
+            val meta = zip.getEntry("META-INF/jarjar/metadata.json")
+            val listed = if (meta == null) emptyList() else {
+                val json = zip.getInputStream(meta).use { groovy.json.JsonSlurper().parse(it) } as Map<*, *>
+                (json["jars"] as List<*>).map { (it as Map<*, *>)["path"] as String }
+            }
+            for (path in listed) {
+                val entry = zip.getEntry(path)
+                if (entry == null) { problems += "jar-in-jar metadata lists $path, which is not in the jar"; continue }
+                val nested = mutableListOf<String>()
+                ZipInputStream(zip.getInputStream(entry)).use { zin ->
+                    while (true) { val e = zin.nextEntry ?: break; nested += e.name }
+                }
+                if (nested.none { it.endsWith(".class") }) problems += "$path has no classes (not a jar?)"
+                val loose = nested.filter { it.endsWith(".class") && it in names }
+                if (loose.isNotEmpty()) problems += "$path is also unpacked into the jar (${loose.size} classes, e.g. ${loose.first()})"
+            }
+            val strayJars = names.filter { it.endsWith(".jar") && it !in listed }
+            if (strayJars.isNotEmpty()) problems += "jars not listed in the jar-in-jar metadata: $strayJars"
+            // Shaded libraries exist only relocated: a second copy under the original package clashes with the copy the
+            // Minecraft client ships ("reads more than one module named jorbis", issue #101).
+            if (names.any { it.startsWith("com/jcraft/") }) problems += "unrelocated com/jcraft classes in the jar"
+            if (names.none { it.startsWith("com/arrl/radiocraft/shaded/com/jcraft/") }) problems += "relocated JOrbis missing"
+            if (listed.any { it.contains("jorbis") }) problems += "JOrbis is jar-in-jar; it must be shaded (issue #101)"
+        }
+        if (problems.isNotEmpty()) {
+            throw GradleException("The mod jar ${jarFile.get().asFile.name} is broken:\n  " + problems.joinToString("\n  "))
+        }
+    }
+}
+
+tasks.check {
+    dependsOn(verifyModJar)
+}
+
+// The mods a player must install with RadioCraft, for prodLaunchTest. Optional mods (Sable, Create, Patchouli...) are
+// left out on purpose: the mod has to start without them.
+val prodTestMods: Configuration by configurations.creating { isTransitive = false }
+dependencies {
+    prodTestMods(libs.voicechat)
+    prodTestMods("software.bernie.geckolib:geckolib-neoforge-${mcVersion}:${geckolib_version}")
+}
+
+// Starts the shipped jar in a real NeoForge install (tools/prod_launch_test.py): a dedicated server and a production
+// client, outside the dev environment, so a jar that will not load fails here instead of in a player's launcher.
+// -PlaunchSide=server|client|both (default both; the client needs a display).
+// Run by tools/push-versions.ps1 before every RadioCraft release. -Ppython=python3 picks the interpreter.
+tasks.register<Exec>("prodLaunchTest") {
+    description = "Launches the shipped jar on a production NeoForge server and client."
+    group = "verification"
+    // -PlaunchJar=<path> launches that jar instead of building one (push-versions.ps1 tests the jar it uploads).
+    val jar = providers.gradleProperty("launchJar").map { layout.projectDirectory.file(it) }
+        .orElse(modJar.flatMap { it.archiveFile })
+    if (!project.hasProperty("launchJar")) dependsOn(verifyModJar)
+    val mods = prodTestMods
+    val neo = libs.versions.neoforge.asProvider().get()
+    val side = providers.gradleProperty("launchSide").orElse("both")
+    val python = providers.gradleProperty("python").orElse(if (System.getProperty("os.name").startsWith("Windows")) "python" else "python3")
+    inputs.file(jar)
+    inputs.files(mods)
+    workingDir = projectDir
+    doFirst {
+        commandLine(listOf(python.get(), "tools/prod_launch_test.py", "--jar", jar.get().asFile.absolutePath,
+            "--neoforge", neo, "--mc", mcVersion, "--side", side.get(), "--work", "build/prod-launch") +
+            mods.files.flatMap { listOf("--mod", it.absolutePath) })
+    }
 }
 
 tasks.withType<Jar>().configureEach {

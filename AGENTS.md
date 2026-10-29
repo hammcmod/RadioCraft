@@ -27,6 +27,7 @@ Target Java 21 and four-space indentation. Class and enum names follow `UpperCam
 See [doc/Testing.md](doc/Testing.md) for the full guide and the list of known bugs. In short:
 - `./gradlew test`: JUnit 5 unit tests in `src/test/java` for pure logic (no game bootstrap). Name test classes after the unit under test with a `Test` suffix (e.g., `BandUtilsTest`).
 - `./gradlew runGameTestServer`: in-world GameTests in `src/gametest` (a dev-only source set, never shipped). Known bugs are `required = false` tests; make them required once fixed.
+- `./gradlew prodLaunchTest`: the shipped jar on a real NeoForge server and client, outside the dev environment.
 - `tools/devserver.sh start` + `python tools/rcon.py "<command>"`: a live headless dev server driven over RCON. Use `/rcdebug` to inspect and drive radios, antennas, networks and solar weather.
 
 Run the unit tests and GameTests before committing. Add a GameTest when fixing a bug or adding gameplay behavior that can be checked server-side. Rendering, GUIs and audio still need `runClient` and a human: list anything that needs that in [doc/NeedsTesting.md](doc/NeedsTesting.md) for the maintainer's next playtest. The maintainer works through that file with `tools/needs_testing.py`: at the start of a session look for items marked `- [!]` (needs work) and their `Note (date):` comments and screenshots under `doc/testing_shots/`, fix them, and set them back to `- [ ]`.
@@ -38,8 +39,10 @@ Use concise, present-tense commit messages (`Fix antenna wire sync`) and keep re
 Tag the commit with the version (`1.9.1`; the jar version comes from the tag), then `tools\push-versions.ps1 -Version 1.9.1
 -Build -GitHub` builds and publishes it to Modrinth (and GitHub) with the matching section of `doc/ReleaseNotes-<major.minor>.md`
 as the changelog. Tokens live in `~/.radiocraft/` or the environment, never in the repo; project ids and dependency lists
-are in `tools/modrinth_projects.json`. The shipped jar is the shadow jar (JOrbis relocated inside it); the `-slim` jar is
-not for players.
+are in `tools/modrinth_projects.json`. The shipped jar comes from the `modJar` task: Shadow relocates JOrbis, then the
+jar-in-jar mods are added untouched (never feed nested jars through Shadow, it unpacks them). The `-slim` jar is not
+for players. Before publishing, push-versions.ps1 launches the jar on a production NeoForge server and client
+(`./gradlew prodLaunchTest`, see doc/Testing.md) and stops if it does not load. Never skip that for a release.
 
 ## Development Environment Notes
 `tools/deploy-prism.sh` builds the mod and installs it plus its runtime dependencies into a Prism Launcher instance named "RadioCraft Dev". Use dedicated Gradle run directories to avoid polluting personal saves. If you adjust configuration files under `run/`, do not commit them unless they are required defaults. When introducing new dependencies, add them through `build.gradle.kts` and cite the source Maven repository.

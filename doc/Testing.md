@@ -1,12 +1,13 @@
 # Testing RadioCraft
 
-Three layers, cheapest first. Use the cheapest one that can answer the question.
+Three layers, cheapest first, plus a launch test of the shipped jar. Use the cheapest one that can answer the question.
 
 | Layer | Command | Time | Use it for |
 |---|---|---|---|
 | Unit tests | `./gradlew test` | ~20 s | Pure math: propagation, SWR, noise/static formulas, band tables, packet codecs |
 | GameTests | `./gradlew runGameTestServer` | ~1 min | In-world behavior: structures, networks, block entities, save/load |
 | Dev server + RCON | `tools/devserver.sh start`, then `python tools/rcon.py "<cmd>"` | ~20 s to start, instant after | Poking a live world, building scenarios, watching state change over time, server restarts |
+| Production launch | `./gradlew prodLaunchTest` | ~2 min (first run downloads ~400 MB) | The shipped jar loading outside the dev environment: packaging, jar-in-jar, module clashes |
 
 Things none of these cover: rendering, GUIs, and audio. Check those in `./gradlew runClient`
 (or `tools/deploy-prism.sh` for a Prism Launcher instance), and for audio, by ear.
@@ -64,6 +65,25 @@ Writing tests:
   `batch = "..."`: batches run one after another, plots in a batch run at the same time.
 
 In a dev client you can also run them interactively: `/test runall`, `/test run radiocraft:<name>`.
+
+## Production launch test (`tools/prod_launch_test.py`)
+
+Every dev run loads the mod from `build/classes`, so none of them sees the jar players install. Two releases shipped
+jars that could not start: 1.9.0 packed JOrbis as a second copy of a module the client already has (issue #101), and
+1.9.1 had Shadow unpack the Sable Companion jar-in-jar, leaving `metadata.json` pointing at a missing file.
+
+- `verifyModJar` runs in every `build` (it is part of `check`). It opens the shipped jar and fails if a jar-in-jar
+  entry is missing or was also unpacked into the jar, or if JOrbis is not relocated. `-PverifyJar=<path>` checks
+  another jar, such as a downloaded release.
+- `prodLaunchTest` installs NeoForge from its installer under `build/prod-launch`, puts the jar plus only the required
+  mods (Simple Voice Chat, GeckoLib) in `mods/`, and starts it. No Sable, Create or other optional mod: RadioCraft
+  must start without them. The server must reach "Done" and place `radiocraft:dummy_load` from the console. The client
+  is launched from the version json the way a launcher does, offline, and must get through mod loading to the block
+  atlas. Any crash, early exit or mod-loader ERROR line fails it. Logs: `build/prod-launch/server.log`, `client.log`.
+- `-PlaunchSide=server|client|both` (default both; the client opens a window). `-PlaunchJar=<path>` launches a given
+  jar instead of building one. It also flags any jar-in-jar that is also a Minecraft or NeoForge library.
+- `tools/push-versions.ps1` runs it on the exact jar it is about to upload and refuses to publish if it fails
+  (`-SkipLaunchTest` to override). CI runs the server side on every push.
 
 ## 3. Dev server + RCON
 

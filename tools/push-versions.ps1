@@ -26,7 +26,11 @@ doc/ReleaseNotes-<major.minor>.md); the "# " section naming the version is used.
 .PARAMETER Jar
 The jar to upload. Defaults to build/libs/<jar_prefix><Version>.jar.
 .PARAMETER Build
-Run `gradlew build` first (unit tests included).
+Run `gradlew build` first (unit tests and the jar check included).
+.PARAMETER SkipLaunchTest
+Do not launch the jar before publishing. A project with "launch_test" in modrinth_projects.json (RadioCraft) otherwise
+starts the exact jar being uploaded on a production NeoForge server and client first (tools/prod_launch_test.py),
+and refuses to publish it if either fails to load.
 .PARAMETER Tag
 Create the git tag <Version> on HEAD (refusing if the tree is dirty) and push it with the branch.
 .PARAMETER GitHub
@@ -49,6 +53,7 @@ param(
     [switch]$GitHub,
     [switch]$NoModrinth,
     [switch]$Featured,
+    [switch]$SkipLaunchTest,
     [switch]$DryRun,
     [string]$ModrinthToken,
     [string]$GitHubToken
@@ -91,6 +96,13 @@ try {
 
     if (-not $Jar) { $Jar = Join-Path "build/libs" ("{0}{1}.jar" -f $cfg.jar_prefix, $Version) }
     if (-not (Test-Path $Jar)) { throw "No jar at $Jar. Is HEAD at the $Version tag? Build with -Build, or pass -Jar." }
+
+    if ($cfg.launch_test -and -not $SkipLaunchTest) {
+        Write-Host "Launching $Jar on a production NeoForge server and client..."
+        $jarPath = (Resolve-Path $Jar).Path
+        & .\gradlew $cfg.launch_test "-PlaunchJar=$jarPath" --console=plain
+        if ($LASTEXITCODE) { throw "The launch test failed: $Jar does not load outside the dev environment. Not publishing." }
+    }
 
     if (-not $Notes) {
         $majorMinor = ($Version -split "\.")[0..1] -join "."

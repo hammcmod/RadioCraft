@@ -11,7 +11,7 @@ MODS="$INST/minecraft/mods"
 NEO=$(grep -m1 -E '^neoforge = "' gradle/libs.versions.toml | cut -d'"' -f2)
 MC=$(grep -m1 -E '^minecraft = "' gradle/libs.versions.toml | cut -d'"' -f2)
 
-[[ "${1:-}" == "--no-build" ]] || ./gradlew shadowJar --console=plain -q
+[[ "${1:-}" == "--no-build" ]] || ./gradlew modJar --console=plain -q
 
 mkdir -p "$MODS"
 if [[ ! -f "$INST/instance.cfg" ]]; then
@@ -34,7 +34,7 @@ cat > "$INST/mmc-pack.json" <<PACK
 PACK
 
 rm -f "$MODS"/radiocraft-*.jar
-# The newest shaded jar only (not the slim, sources or javadoc jars, nor older builds left in build/libs).
+# The newest shipped jar only (not the slim, sources or javadoc jars, nor older builds left in build/libs).
 JAR=$(ls -t build/libs/radiocraft-neoforge-*.jar | grep -v -E -- "-(slim|sources|javadoc)\.jar$" | head -1)
 cp "$JAR" "$MODS"/
 # keep only the main jar
