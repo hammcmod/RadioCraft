@@ -1,0 +1,24 @@
+{
+  "values": [
+    "minecraft:meadow",
+    "minecraft:grove",
+    "minecraft:cherry_grove",
+    "minecraft:snowy_slopes",
+    "minecraft:windswept_hills",
+    "minecraft:windswept_gravelly_hills",
+    "minecraft:windswept_forest",
+    "minecraft:windswept_savanna",
+    "minecraft:savanna_plateau",
+    "minecraft:stony_peaks",
+    "minecraft:plains",
+    "minecraft:sunflower_plains",
+    "minecraft:snowy_plains",
+    "minecraft:taiga",
+    "minecraft:savanna",
+    "minecraft:forest",
+    "minecraft:birch_forest",
+    "minecraft:snowy_taiga",
+    "minecraft:badlands",
+    "minecraft:wooded_badlands"
+  ]
+}

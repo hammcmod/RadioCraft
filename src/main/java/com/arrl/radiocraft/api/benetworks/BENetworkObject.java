@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -25,12 +26,29 @@ public class BENetworkObject {
      */
     public static final ResourceLocation DEFAULT_TYPE = Radiocraft.id("default");
     /**
+     * Where an object is on a network: the side of the block the run touches, and whether it is the power network
+     * there. A side has one slot for power and one for everything else (coax), so a bundle of power wire and coax into
+     * one face puts the object on both (2026-10-28: with one slot a side, a bundle into a microwave radio's face left it
+     * on its coax network only, and it never powered on).
+     */
+    public record Slot(Direction side, boolean power) {
+        public static Slot of(Direction side, BENetwork network) {
+            return new Slot(side, network instanceof PowerBENetwork);
+        }
+
+        /** The NBT key: the side's name, with "_power" for the power slot. */
+        String key() {
+            return power ? side.getName() + "_power" : side.getName();
+        }
+    }
+
+    /**
      * The networks this {@link BENetworkObject} is in.
      */
-    protected final Map<Direction, BENetwork> networks = new HashMap<>();
+    protected final Map<Slot, BENetwork> networks = new HashMap<>();
 
-    /** The networks this object is in, by the side of the block they touch. Read only. */
-    public Map<Direction, BENetwork> getNetworks() {
+    /** The networks this object is in, by side and kind. Read only. */
+    public Map<Slot, BENetwork> getNetworks() {
         return Collections.unmodifiableMap(networks);
     }
     /**
@@ -65,7 +83,12 @@ public class BENetworkObject {
      * @return The network this {@link BENetworkObject} is in.
      */
     public BENetwork getNetwork(@NotNull Direction side) {
-        return networks.get(side);
+        return getNetwork(side, false);
+    }
+
+    /** The power network ({@code power}) or the other one (coax) on {@code side}, or null. */
+    public BENetwork getNetwork(@NotNull Direction side, boolean power) {
+        return networks.get(new Slot(side, power));
     }
 
     /**
@@ -74,7 +97,7 @@ public class BENetworkObject {
      * @param network The {@link BENetwork} to set.
      */
     public void setNetwork(@NotNull Direction side, BENetwork network) {
-        networks.put(side, network);
+        networks.put(Slot.of(side, network), network); // A power network goes in the side's power slot.
     }
 
     /**
@@ -83,9 +106,9 @@ public class BENetworkObject {
      * @param newNetwork The new network.
      */
     public void replaceNetwork(BENetwork original, BENetwork newNetwork) {
-        for(Direction dir : networks.keySet()) {
-            if(networks.get(dir) == original)
-                setNetwork(dir, newNetwork); // The same run can touch more than one side, so replace every match.
+        for(Slot slot : List.copyOf(networks.keySet())) {
+            if(networks.get(slot) == original)
+                networks.put(slot, newNetwork); // The same run can touch more than one side, so replace every match.
         }
     }
 
@@ -175,8 +198,8 @@ public class BENetworkObject {
      */
     public void save(CompoundTag nbt) {
         CompoundTag networksTag = new CompoundTag();
-        for(Entry<Direction, BENetwork> entry : networks.entrySet())
-            networksTag.putUUID(entry.getKey().getName(), entry.getValue().getUUID());
+        for(Entry<Slot, BENetwork> entry : networks.entrySet())
+            networksTag.putUUID(entry.getKey().key(), entry.getValue().getUUID());
         nbt.put("networks", networksTag);
     }
 
@@ -190,7 +213,9 @@ public class BENetworkObject {
         for(String key : networksTag.getAllKeys()) {
             BENetwork network = cap.getNetwork(networksTag.getUUID(key));
             network.add(this);
-            networks.put(Direction.byName(key), network);
+            Direction side = Direction.byName(key.endsWith("_power") ? key.substring(0, key.length() - "_power".length()) : key);
+            if(side != null && network != null)
+                networks.put(Slot.of(side, network), network); // By the network's kind: saves before 2026-10-28 had the side only.
         }
     }
 

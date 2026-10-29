@@ -97,6 +97,7 @@ Read-only:
 |---|---|
 | `rcdebug radio <pos>` | band, frequency, power, mode, PTT, gains, measured SWR, static factor, the power flag synced to clients, connected antennas with SWR |
 | `rcdebug antenna <pos>` | recognized antenna type, its data, SWR at the centre of every band |
+| `rcdebug stations` | the commercial radio module stations on the air in this level, nearest first; "predicted" ones are at radio sites not generated yet |
 | `rcdebug network <pos>` | network object, energy, and every network it is on with its members |
 | `rcdebug sable <pos>` | whether the block is on a Sable sub-level (ship), and where it really is in the world |
 | `rcdebug solar` | current solar event, noise, progress, time of day, weather, each HF band's condition |

@@ -1,0 +1,11 @@
+{
+  "type": "radiocraft:site",
+  "biomes": "#radiocraft:has_structure/repeater_site",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "beard_thin",
+  "template": "radiocraft:sites/repeater_site",
+  "ground": 1,
+  "max_slope": 8,
+  "min_y": 130
+}

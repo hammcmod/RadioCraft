@@ -1,0 +1,18 @@
+{
+  "structures": [
+    {
+      "structure": "radiocraft:long_lines",
+      "weight": 1
+    },
+    {
+      "structure": "radiocraft:repeater_site",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 8,
+    "separation": 3,
+    "salt": 20261029
+  }
+}

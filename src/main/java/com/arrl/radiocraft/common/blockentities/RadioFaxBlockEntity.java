@@ -518,21 +518,19 @@ public class RadioFaxBlockEntity extends BlockEntity implements MenuProvider, St
 
 	// -------------------- MICROWAVE LINK --------------------
 
-	/** The fax answering to {@code to} at the far end of a microwave link serving this one, and the radio it is on. */
+	/**
+	 * The fax answering to {@code to} that this one reaches over microwave (relayed through other sites,
+	 * {@code MicrowaveRoutes}), and the radio here that carries it out.
+	 */
 	@Nullable
 	private RadioFaxBlockEntity linkPeer(String to, BlockPos[] radioOut) {
 		if(level == null)
 			return null;
-		for(MicrowaveRadioBlockEntity radio : MicrowaveRadioBlockEntity.servingStation(level, worldPosition)) {
-			if(!radio.isLinked())
-				continue;
-			for(MicrowaveRadioBlockEntity far : radio.peers())
-				for(BlockEntity station : far.stations())
-					if(station instanceof RadioFaxBlockEntity fax && fax != this && fax.isForMe(to)) {
-						radioOut[0] = radio.getBlockPos();
-						return fax;
-					}
-		}
+		for(com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.Route route : com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.from(level, worldPosition))
+			if(route.station() instanceof RadioFaxBlockEntity fax && fax != this && fax.isForMe(to)) {
+				radioOut[0] = route.first().getBlockPos();
+				return fax;
+			}
 		return null;
 	}
 
@@ -580,14 +578,16 @@ public class RadioFaxBlockEntity extends BlockEntity implements MenuProvider, St
 	private void tickLink(ServerLevel level, long now) {
 		if(now < deadline)
 			return;
-		MicrowaveRadioBlockEntity radio = linkRadioPos == null ? null : MicrowaveRadioBlockEntity.at(level, linkRadioPos);
 		RadioFaxBlockEntity far = linkPeerPos != null && level.getBlockEntity(linkPeerPos) instanceof RadioFaxBlockEntity fax ? fax : null;
-		if(radio == null || far == null || !radio.isLinked() || far.phase != Phase.RECEIVING || !far.peer.equals(myCallsign())) {
+		// The way there is looked up again each packet: a link on the way may have dropped, or another taken over.
+		com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.Route route = far == null ? null : com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.to(level, worldPosition, far);
+		if(route == null || far.phase != Phase.RECEIVING || !far.peer.equals(myCallsign())) {
 			fail("LINK LOST");
 			return;
 		}
+		linkRadioPos = route.first().getBlockPos();
 		deadline = now + packetTicks;
-		if(!radio.getsThrough()) { // Interference: the packet goes again.
+		if(!route.getsThrough()) { // Interference: the packet goes again.
 			retries++;
 			if(++packetRetries > RadiocraftServerConfig.FAX_PACKET_RETRIES.get())
 				fail("FAILED " + packetsDone + "/" + FaxRates.PACKETS);

@@ -135,12 +135,14 @@ public enum CoaxWireProvider implements IBlockComponentProvider, IServerDataProv
             return;
         Set<WireBlock> coax = Set.of(WireUtils.coaxWires());
 
-        for(BlockPos checkPos : wire.getLinks(level, strand.pos(), state).keySet()) { // Six neighbours plus climb links, see WireBlock#getLinks.
-            if(!Strand.at(level, checkPos).isEmpty()) {
-                enter(level, checkPos, wire, coax, visitedWires, visitedObjects);
+        for(java.util.Map.Entry<BlockPos, Direction> link : wire.getLinks(level, strand.pos(), state).entrySet()) { // Six neighbours plus climb links, see WireBlock#getLinks.
+            if(!Strand.at(level, link.getKey()).isEmpty()) {
+                enter(level, link.getKey(), wire, coax, visitedWires, visitedObjects);
                 continue;
             }
 
+            // Where the link really goes, as the network walk sees it: a horn's other base blocks feed its origin.
+            BlockPos checkPos = WireUtils.linkTarget(level, link.getKey(), link.getValue());
             BENetworkObject object = IBENetworks.getObject(level, checkPos);
             if(object instanceof ICoaxNetworkObject && visitedObjects.add(checkPos) && object instanceof ICoaxPassThrough) {
                 // The run carries on through a tuner.

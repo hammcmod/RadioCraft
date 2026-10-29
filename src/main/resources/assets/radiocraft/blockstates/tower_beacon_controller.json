@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "powered=false": {
+      "model": "radiocraft:block/tower_beam_thin_dynamic"
+    },
+    "powered=true": {
+      "model": "radiocraft:block/tower_beam_thin_dynamic"
+    }
+  }
+}

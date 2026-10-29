@@ -417,6 +417,15 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .define('S', Items.STICK)
                 .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
                 .save(recipeOutput);
+        // Wire junction (maintainer, 2026-10-28): an iron box round a piece of plain wire, two at a time.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.WIRE_JUNCTION.get(), 2)
+                .pattern(" I ")
+                .pattern("IWI")
+                .pattern(" I ")
+                .define('I', Items.IRON_INGOT)
+                .define('W', RadiocraftItems.WIRE.get())
+                .unlockedBy("has_wire", has(RadiocraftItems.WIRE.get()))
+                .save(recipeOutput);
         // Tower beams, all iron, four at a time: an X of lattice round a heavier core.
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.TOWER_BEAM_THIN.get(), 4)
                 .pattern("N N")
@@ -440,6 +449,13 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .define('I', Items.IRON_INGOT)
                 .define('B', Items.IRON_BLOCK)
                 .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
+                .save(recipeOutput);
+        // Tower beacon (maintainer, 2026-10-28): a redstone lamp and torch on a tower beam of any size.
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, RadiocraftItems.TOWER_BEACON.get())
+                .requires(Items.REDSTONE_TORCH)
+                .requires(Ingredient.of(RadiocraftItems.TOWER_BEAM_THIN.get(), RadiocraftItems.TOWER_BEAM.get(), RadiocraftItems.TOWER_BEAM_THICK.get()))
+                .requires(Items.REDSTONE_LAMP)
+                .unlockedBy("has_redstone_lamp", has(Items.REDSTONE_LAMP))
                 .save(recipeOutput);
     }
 

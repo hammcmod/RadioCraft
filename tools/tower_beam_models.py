@@ -17,6 +17,11 @@ past the 16-unit boundary, which is legal (elements may reach -16..32). Corner a
 along a body diagonal that no single-axis rotation reaches, so they are stair-stepped: three cubes two units apart
 along the diagonal, the last one overlapping the neighbour's first.
 
+Layers: parts that overlap with faces in the same plane would flicker (z-fight) where they cross, at every bend. The
+core and the face arms never overlap each other and stay as they are; each edge arm is grown by its own multiple of
+LAYER (0.01 px) on every side, distinct within the arms turned about the same axis (whose flat sides share a plane
+with each other, the core and the face arms), and each corner arm by its own multiple, distinct among the corners.
+
 The parts are meant for a dynamic baked model (or a block entity's ModelData) that reads the 26 neighbours: 26
 boolean blockstate properties would be 2^26 states, which Minecraft cannot register.
 
@@ -40,6 +45,7 @@ SIZES = {"tower_beam_thick": 8, "tower_beam": 6, "tower_beam_thin": 4}
 C = 8                           # the block centre
 EDGE_LEN = 8 * math.sqrt(2)     # centre to the middle of a block edge
 STEP = 2                        # the stair step of a corner arm
+LAYER = 0.01                    # pixels between overlapping parts, so coplanar faces do not z-fight
 
 DIRS = [(x, y, z) for y in (1, 0, -1) for z in (-1, 0, 1) for x in (1, 0, -1) if (x, y, z) != (0, 0, 0)]
 AXES = "xyz"
@@ -109,7 +115,31 @@ def core(t):
     return [beam_box("core", [C - h] * 3, [C + h] * 3, t, "y")]
 
 
+def inflate(el, by):
+    """Grows a box by `by` units on every side (in its own, unrotated frame); UVs stay as they are."""
+    if by:
+        el["from"] = [round(v - by, 4) for v in el["from"]]
+        el["to"] = [round(v + by, 4) for v in el["to"]]
+    return el
+
+
+def layer(d):
+    """The arm's layer: 0 for face arms; edge arms 1-4 within their rotation axis; corner arms 1-8."""
+    nz = [i for i in range(3) if d[i]]
+    if len(nz) == 1:
+        return 0
+    if len(nz) == 2:
+        axis = [i for i in range(3) if not d[i]][0]
+        group = [e for e in DIRS if sum(1 for v in e if v) == 2 and not e[axis]]
+        return group.index(d) + 1
+    return [e for e in DIRS if all(e)].index(d) + 1
+
+
 def arm(d, t):
+    return [inflate(el, layer(d) * LAYER) for el in arm_boxes(d, t)]
+
+
+def arm_boxes(d, t):
     h = t / 2
     nz = [i for i in range(3) if d[i]]
     if len(nz) == 1:                                # a face arm: core face to block boundary

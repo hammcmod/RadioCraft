@@ -45,10 +45,55 @@ public final class WireLook {
 	 * The vertical side of a wire's look. {@code hug}: the edge the run up (or the climb) follows, null for the middle
 	 * or no run up. {@code arrive}: the edge a run from below comes in on (from the wire below or a climber), null for
 	 * the middle or none. {@code back}: a second climb up the wall opposite {@code hug} (a one-wide trench).
+	 * <p>
+	 * The reaches are how far, in pixels, the cable on an edge sits out past the block face to touch what it runs up:
+	 * 0 against a solid wall (the cable straddles the face), more against a tower beam, whose steel is set back in its
+	 * block. {@code hugReach} for the run up {@code hug} (at its top, where it meets the block above or goes over the
+	 * wall), {@code arriveReach} where the run from below comes in on {@code arrive} (negative: set back inside this
+	 * block, from a climber that ran up a beam under us), {@code backReach} for the second climb.
+	 * <p>
+	 * {@code feed}: the side a microwave horn's base is on, whose feed is at the middle of its four base blocks; the
+	 * stub that way runs across the base block's floor to it, ending {@code feedSide} pixels to the side (along x for
+	 * a north or south feed, z for east or west). Null for none.
+	 * <p>
+	 * {@code stubs}: how far each horizontal stub reaches past its face ({@link #stubReach}), packed a byte a side;
+	 * negative where the cable next door turns out towards us beyond its own face (a run up a beam turning back over
+	 * the beam's top), so our stub stops where it is instead of running on past it.
 	 */
-	public record Look(@Nullable Direction hug, @Nullable Direction arrive, End end, boolean back) {
+	public record Look(@Nullable Direction hug, @Nullable Direction arrive, End end, boolean back, int hugReach, int arriveReach, int backReach,
+					   @Nullable Direction feed, int feedSide, int reachBottom, int reachTop, int stubs) {
 		public static final Look NONE = new Look(null, null, End.NONE, false);
+
+		/** No stubs set back. */
+		public Look(@Nullable Direction hug, @Nullable Direction arrive, End end, boolean back, int hugReach, int arriveReach, int backReach,
+					@Nullable Direction feed, int feedSide, int reachBottom, int reachTop) {
+			this(hug, arrive, end, back, hugReach, arriveReach, backReach, feed, feedSide, reachBottom, reachTop, 0);
+		}
+
+		/** The reach of the stub towards horizontal side {@code dir} (see {@code stubs}). */
+		public int stubReach(Direction dir) {
+			return (byte)(stubs >> (8 * dir.get2DDataValue()));
+		}
+
+		/** {@code stubs} with side {@code dir}'s stub reaching {@code reach}. */
+		public static int withStub(int stubs, Direction dir, int reach) {
+			int shift = 8 * dir.get2DDataValue();
+			return (stubs & ~(0xFF << shift)) | ((reach & 0xFF) << shift);
+		}
+
+		/** Against solid walls only: no reach. */
+		public Look(@Nullable Direction hug, @Nullable Direction arrive, End end, boolean back) {
+			this(hug, arrive, end, back, 0, 0, 0);
+		}
+
+		/** No horn feed; the run up the edge from the arrival's reach (if it comes up this edge) to the hugged wall's. */
+		public Look(@Nullable Direction hug, @Nullable Direction arrive, End end, boolean back, int hugReach, int arriveReach, int backReach) {
+			this(hug, arrive, end, back, hugReach, arriveReach, backReach, null, 0, arrive != null && arrive == hug ? arriveReach : hugReach, hugReach);
+		}
 	}
+
+	/** How far a stub to a horn's feed reaches past the block face, pixels: across the whole base block. */
+	public static final int FEED_REACH = 16;
 
 	/** A piece of cable: the part model suffix ("edge" -> "wire_edge") and whether it is turned per edge. */
 	public enum Part {
@@ -64,8 +109,30 @@ public final class WireLook {
 		}
 	}
 
-	/** A piece placed on an edge ({@code dir}, north being the model's own orientation), or unturned (null). */
-	public record Placed(Part part, @Nullable Direction dir) {}
+	/**
+	 * A piece placed on an edge ({@code dir}, north being the model's own orientation), or unturned (null). {@code foot}
+	 * and {@code head}: pixels the piece is moved out past the {@code dir} face to meet cable against a tower beam
+	 * ({@link Look#hugReach}), at the foot and the head of a run up the edge (the same for any other piece).
+	 */
+	public record Placed(Part part, @Nullable Direction dir, int foot, int head, int side) {
+		public Placed(Part part, @Nullable Direction dir) {
+			this(part, dir, 0, 0, 0);
+		}
+
+		public Placed(Part part, @Nullable Direction dir, int foot, int head) {
+			this(part, dir, foot, head, 0);
+		}
+
+		/** Whether the piece is moved out past its face (to a beam, or across to a horn's feed, {@code side} off). */
+		public boolean reaches() {
+			return foot != 0 || head != 0 || side != 0;
+		}
+
+		/** The piece where it would be against a solid wall: for the hitbox, which must stay inside the block. */
+		public Placed plain() {
+			return reaches() ? new Placed(part, dir) : this;
+		}
+	}
 
 	/**
 	 * The pieces to draw for a wire with these connections and this look, in a fixed order (so equal looks give equal
@@ -100,25 +167,47 @@ public final class WireLook {
 			out.add(new Placed(Part.MIDDLE, null));
 		for(Direction dir : Direction.Plane.HORIZONTAL) {
 			boolean link = connected.contains(dir);
+			int reach = edgeReach(look, dir); // A stub to an edge run reaches out to where that run is.
 			if(middle && (link || edgeCable.contains(dir)))
-				out.add(new Placed(Part.HORIZONTAL, dir));
+				out.add(link && dir == look.feed() ? new Placed(Part.HORIZONTAL, dir, FEED_REACH, FEED_REACH, look.feedSide())
+						: new Placed(Part.HORIZONTAL, dir, reach, reach));
 			else if(link && arrive == dir && hug == null)
-				out.add(new Placed(Part.CORNER, dir));
+				out.add(new Placed(Part.CORNER, dir, look.arriveReach(), look.arriveReach()));
 		}
 		if(hug != null) {
-			out.add(new Placed(arrive == hug ? Part.EDGE_FULL : Part.EDGE, hug));
+			// A run up the edge, from its reach at the bottom of the block to its reach at the top (world y), so it
+			// meets the run in the blocks above and below wherever it carries on; the stubs and overhangs at its ends
+			// take the hugged wall's own reach.
+			int head = look.hugReach();
+			out.add(new Placed(arrive == hug ? Part.EDGE_FULL : Part.EDGE, hug, look.reachBottom(), look.reachTop()));
 			if(look.end() == End.CLIMB_DEVICE)
-				out.add(new Placed(Part.CLIMB_OVERHANG, hug));
+				out.add(new Placed(Part.CLIMB_OVERHANG, hug, head, head));
 			if(look.end() == End.UP_DEVICE)
-				out.add(new Placed(Part.UP_OVERHANG, hug));
-			if(back != null)
-				out.add(new Placed(arrive == back ? Part.EDGE_FULL : Part.EDGE, back));
+				out.add(new Placed(Part.UP_OVERHANG, hug, head, head));
+			if(back != null) {
+				int backFoot = arrive == back ? look.arriveReach() : look.backReach();
+				out.add(new Placed(arrive == back ? Part.EDGE_FULL : Part.EDGE, back, backFoot, look.backReach()));
+			}
 		}
 		else if(up)
 			out.add(new Placed(Part.VERTICAL, null));
 		if(out.isEmpty())
 			out.add(new Placed(Part.MIDDLE, null));
 		return List.copyOf(out);
+	}
+
+	/**
+	 * How far out the cable on edge {@code dir} sits ({@link Look}), where a stub towards that edge must reach: on the
+	 * edge the run from below arrives on, its reach there; on the hugged edge (or the back wall), the run's.
+	 */
+	private static int edgeReach(Look look, Direction dir) {
+		if(dir == look.arrive())
+			return look.arriveReach();
+		if(dir == look.hug())
+			return look.hugReach();
+		if(look.back() && look.hug() != null && dir == look.hug().getOpposite())
+			return look.backReach();
+		return dir.getAxis().isHorizontal() ? look.stubReach(dir) : 0;
 	}
 
 	/**
@@ -163,13 +252,22 @@ public final class WireLook {
 	 * laterally: halfway between this strand's offset and the neighbour's (a lone wire or a device is at 0), so both
 	 * blocks draw the crossing at the same place. World directions, whatever way up the wire is.
 	 */
-	public record Faces(double down, double up, double north, double south, double west, double east) {
+	public record Faces(Lateral down, Lateral up, Lateral north, Lateral south, Lateral west, Lateral east) {
+		/** The same offset both ways at every face (the tests, and strands of an unflipped bundle). */
+		public Faces(double down, double up, double north, double south, double west, double east) {
+			this(Lateral.of(down), Lateral.of(up), Lateral.of(north), Lateral.of(south), Lateral.of(west), Lateral.of(east));
+		}
+
 		/** Every face at {@code offset}: a strand whose neighbours sit where it does (and the lone wire, at 0). */
 		public static Faces all(double offset) {
+			return all(Lateral.of(offset));
+		}
+
+		public static Faces all(Lateral offset) {
 			return new Faces(offset, offset, offset, offset, offset, offset);
 		}
 
-		public double at(Direction dir) {
+		public Lateral at(Direction dir) {
 			return switch(dir) {
 				case DOWN -> down;
 				case UP -> up;
@@ -181,9 +279,46 @@ public final class WireLook {
 		}
 	}
 
-	/** {@link #affine(Placed, double, Faces, boolean)} for a strand whose neighbours all sit at its own offset. */
+	/**
+	 * Where a strand sits off the middle of the block, in sixteenths: {@code x} for the cable in a north-south run (and
+	 * up a north or south wall), {@code z} in an east-west run (and up an east or west wall). A bundle lays its strands
+	 * out the same way along both (its place in the bundle, {@link #layout}), each turned round or not
+	 * ({@code WireBundleBlockEntity}) so that strands keep their order round every bend instead of crossing.
+	 */
+	public record Lateral(double x, double z) {
+		public static final Lateral ZERO = new Lateral(0.0D, 0.0D);
+
+		public static Lateral of(double both) {
+			return new Lateral(both, both);
+		}
+
+		/** Across a cable leaving by {@code dir}: x for north or south, z for east or west. */
+		public double across(Direction dir) {
+			return dir.getAxis() == Direction.Axis.X ? z : x;
+		}
+
+		/** Along a cable leaving by {@code dir}: where the middle sits on that axis. */
+		public double along(Direction dir) {
+			return dir.getAxis() == Direction.Axis.X ? x : z;
+		}
+
+		public Lateral halfwayTo(Lateral other) {
+			return new Lateral((x + other.x) / 2.0D, (z + other.z) / 2.0D);
+		}
+
+		public boolean isZero() {
+			return x == 0.0D && z == 0.0D;
+		}
+	}
+
+	/** {@link #affine(Placed, Lateral, Faces, boolean)} for a strand whose neighbours all sit at its own offset. */
 	public static Affine affine(Placed placed, int offset) {
 		return affine(placed, offset, Faces.all(offset), false);
+	}
+
+	/** {@link #affine(Placed, Lateral, Faces, boolean)} with the same offset both ways. */
+	public static Affine affine(Placed placed, double own, Faces faces, boolean ceiling) {
+		return affine(placed, Lateral.of(own), faces, ceiling);
 	}
 
 	/**
@@ -191,35 +326,102 @@ public final class WireLook {
 	 * block, {@code faces} where it meets each neighbour, {@code ceiling} whether the wire hangs (its pieces are drawn
 	 * upside down, so a run "up" an edge goes down the block in world y).
 	 */
-	public static Affine affine(Placed placed, double own, Faces faces, boolean ceiling) {
+	public static Affine affine(Placed placed, Lateral own, Faces faces, boolean ceiling) {
+		Affine base = baseAffine(placed, own, faces, ceiling);
+		return placed.reaches() ? reach(base, placed, own, ceiling) : base;
+	}
+
+	/** Where a stub meets the middle, block units out past its face (negative: inside the block). */
+	private static final double STUB_INNER = -7.0D / 16.0D;
+	/** Half a coax cable's width, block units: the overhangs' caps reach this far past the run's centre line. */
+	private static final double CAP = 1.0D / 16.0D;
+	/** Where a climb overhang ends, out over the wall's top towards the middle of what stands on it, block units. */
+	private static final double OVERHANG_END = 7.0D / 16.0D;
+
+	/**
+	 * {@code base} followed by moving the piece out past its {@code dir} face to cable against a tower beam
+	 * ({@link Placed#foot}/{@link Placed#head} pixels): a run up the edge slides out (slanting if foot and head differ),
+	 * a corner slides out, and a stub or overhang is stretched along its length with its far end where it was, so it
+	 * still joins the middle or what stands on top.
+	 */
+	private static Affine reach(Affine base, Placed placed, Lateral own, boolean ceiling) {
 		Direction dir = placed.dir();
-		double o = own / 16.0D;
+		if(dir == null || dir.getAxis() == Direction.Axis.Y)
+			return base;
+		double foot = placed.foot() / 16.0D, head = placed.head() / 16.0D;
+		// Where the stub meets the middle, out past its face: a strand {@code own} sixteenths off moves its middle
+		// toward or away from this face (along both axes), and the stub's inner end with it.
+		boolean towards = dir.getAxisDirection() == Direction.AxisDirection.POSITIVE;
+		double inner = STUB_INNER + (towards ? own.along(dir) : -own.along(dir)) / 16.0D;
+		// The move as a map of u, the distance out past the face (negative inside): u' = a * u + b + c * y.
+		double a = 1.0D, b, c = 0.0D;
+		switch(placed.part()) {
+			case EDGE, EDGE_FULL -> { // foot at world y 0, head at world y 1, either way up.
+				b = foot;
+				c = head - foot;
+			}
+			case CORNER -> b = foot;
+			case HORIZONTAL -> { // The face end goes out to the run; the middle end stays.
+				a = (head - inner) / -inner;
+				b = inner * (1.0D - a);
+			}
+			case UP_OVERHANG -> { // Its outer cap goes out with the run; the end over the middle stays.
+				a = (head + CAP - inner) / (CAP - inner);
+				b = inner * (1.0D - a);
+			}
+			case CLIMB_OVERHANG -> { // Its inner cap goes out with the run; the end over the wall's top stays.
+				a = (OVERHANG_END - head + CAP) / (OVERHANG_END + CAP);
+				b = OVERHANG_END * (1.0D - a);
+			}
+			default -> {
+				return base;
+			}
+		}
+		// u in block coordinates: north -z, south z - 1, west -x, east x - 1. Solved for the new x or z.
+		boolean positive = dir.getAxisDirection() == Direction.AxisDirection.POSITIVE;
+		double shift = positive ? (1.0D - a) + b : -b, slope = positive ? c : -c;
+		// A stub to a horn's feed also slants sideways: none at its middle end, side pixels at its far end. The lateral
+		// coordinate gains m * (new axis coordinate) + n, the axis coordinate being linear in x, y and z itself.
+		double k = placed.part() == Part.HORIZONTAL && placed.side() != 0 ? placed.side() / 16.0D / (head - inner) : 0.0D;
+		double m = positive ? k : -k, n = positive ? -k * (1.0D + inner) : -k * inner;
+		if(dir.getAxis() == Direction.Axis.X) {
+			double ax = a * base.sx(), a0 = a * base.tx() + shift, ay = a * base.kxy() + slope, az = a * base.kxz();
+			return new Affine(ax, a0, ay, az, base.sz() + m * az, base.tz() + m * a0 + n, base.kzx() + m * ax, base.kzy() + m * ay);
+		}
+		double az = a * base.sz(), a0 = a * base.tz() + shift, ax = a * base.kzx(), ay = a * base.kzy() + slope;
+		return new Affine(base.sx() + m * ax, base.tx() + m * a0 + n, base.kxy() + m * ay, base.kxz() + m * az, az, a0, ax, ay);
+	}
+
+	private static Affine baseAffine(Placed placed, Lateral own, Faces faces, boolean ceiling) {
+		Direction dir = placed.dir();
 		Direction top = ceiling ? Direction.DOWN : Direction.UP, bottom = top.getOpposite(); // World ends of a run "up".
 		switch(placed.part()) {
 			case MIDDLE -> {
-				return own == 0.0D ? Affine.NONE : Affine.of(1.0D, o, 1.0D, o);
+				return own.isZero() ? Affine.NONE : Affine.of(1.0D, own.x() / 16.0D, 1.0D, own.z() / 16.0D);
 			}
 			case VERTICAL -> { // From the middle (our offset) to the block above (its meeting point), along y.
-				return slantY(o, faces.at(top) / 16.0D, ceiling, o, faces.at(top) / 16.0D, ceiling);
+				Lateral up = faces.at(top);
+				return slantY(own.x() / 16.0D, up.x() / 16.0D, ceiling, own.z() / 16.0D, up.z() / 16.0D, ceiling);
 			}
 			case HORIZONTAL, UP_OVERHANG -> {
-				double face = faces.at(dir) / 16.0D; // Lateral offset at the block face; o at the inner end.
+				double o = own.across(dir) / 16.0D, face = faces.at(dir).across(dir) / 16.0D; // o at the inner end, face at the face.
 				if(placed.part() == Part.UP_OVERHANG)
-					face = o = faces.at(top) / 16.0D; // Carries on from the top of the edge run at the meeting point above.
-				return stub(dir, o, face, own);
+					face = o = faces.at(top).across(dir) / 16.0D; // Carries on from the top of the edge run at the meeting point above.
+				return stub(dir, o, face, own.along(dir));
 			}
 			case CORNER -> { // The little cube at the edge: at the meeting point with the neighbour it turns to.
-				double face = faces.at(dir) / 16.0D;
+				double face = faces.at(dir).across(dir) / 16.0D;
 				return dir.getAxis() == Direction.Axis.Z ? Affine.of(1.0D, face, 1.0D, 0.0D) : Affine.of(1.0D, 0.0D, 1.0D, face);
 			}
 			case EDGE -> { // Up the wall: our offset at the foot, the meeting point with the block above at the top.
-				return alongWall(dir, o, faces.at(top) / 16.0D, ceiling);
+				// The foot meets the cable it carries on from on this side (a neighbour it links to here), else our own place.
+				return alongWall(dir, faces.at(dir).across(dir) / 16.0D, faces.at(top).across(dir) / 16.0D, ceiling);
 			}
 			case EDGE_FULL -> { // Through from the block below to the block above.
-				return alongWall(dir, faces.at(bottom) / 16.0D, faces.at(top) / 16.0D, ceiling);
+				return alongWall(dir, faces.at(bottom).across(dir) / 16.0D, faces.at(top).across(dir) / 16.0D, ceiling);
 			}
 			case CLIMB_OVERHANG -> { // Over the wall's top: at the meeting point with whatever is on top.
-				double face = faces.at(top) / 16.0D;
+				double face = faces.at(top).across(dir) / 16.0D;
 				return dir.getAxis() == Direction.Axis.Z ? Affine.of(1.0D, face, 1.0D, 0.0D) : Affine.of(1.0D, 0.0D, 1.0D, face);
 			}
 		}

@@ -10,6 +10,11 @@ listed in [doc/Testing.md](doc/Testing.md#bug-audit-2026-10); each fix has a tes
   blackout (noise 1.0) was still on, so nothing got through on HF. `weakRttyPrintsGarbled` failed once on its own
   randomness ("a weak signal printed perfectly"). Fix: the blackout batches should clear their event in `@AfterBatch`,
   and the garble test should force its odds or retry. Neither is a gameplay bug.
+  `h19BootsWhenTheRadioComesOn` failed once on 2026-10-28 ("the radio coming on did not make it boot") and passed on
+  the rerun: the boot flag and the radio-on flag are set in different ticks.
+  `auroraCarriesVhfAndWeakensHf` and `sporadicEOpensVhfInGoodConditions` failed once together on 2026-10-28 (VHF
+  carried 1500-2000 blocks with no aurora) and passed on the rerun: another batch's propagation state still on.
+  `weakSignalSendsPacketsAgain` (fax) failed once on 2026-10-28 and passed twice after: its packet loss is random.
 
 - **Docs in step with the mod.** After each batch of features, bring the in-game guide book (Patchouli,
   `assets/radiocraft/patchouli_books/guide`) and the website's wiki (`Radiocraft-Website` repo) up to date with
@@ -295,7 +300,8 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   dish growing with the square of the error); they hold above -90 dBm within a 45 degree capture angle; the ALIGN page
   shows it live with a graph and nudges the dish half a degree at a time; marginal links (below -75) make calls lossy.
 - [x] Dyed coax (2026-10-26): sixteen colours, one block each (a colour property would multiply coax's states);
-  coax joins its own colour or plain coax (`WireBlock#joins`, used by the drawing and the network walk), so parallel
+  coax joins only its own colour, plain being one (`WireBlock#joins`, used by the drawing and the network walk;
+  since 2026-10-28 plain no longer joins every colour, wire too, maintainer), so parallel
   runs (direction finder modules) stay apart. Dye a laid run in place or craft 8 + dye. Assets from
   tools/coax_colours.py and tools/wire_assets.py. Recipes that take coax still want plain coax.
 - [x] Commercial gear and tapes (2026-10-26, maintainer's design): commercial repeater (four-tall rack, duplexer
@@ -496,10 +502,46 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   battery swapped with a small battery (sneak right click with one in the other hand)
 - [x] Tower beams, the "tower legs" (2026-10-26): thin, normal and thick, joining every beam they touch (26 directions,
   `TowerBeamModel`). Recipes 2026-10-27, all iron, 4 at a time: thin `N N/NIN/N N`, normal `I I/ I /I I`, thick `I I/ B /I I`.
+- [x] Tower beams on a tower (maintainer, 2026-10-28): beams bear on solid blocks around them like iron bars (and on
+  antennas, baluns and poles above and below; `TowerBeamBlock#arms`), diagonal braces need the blocks beside their
+  edge or corner empty (`pathClear`), footholds hang on beams set back against the steel (`TowerFootholdBlock.Mount`,
+  models from `tools/foothold_reach_models.py`), and wires hug and climb beams drawn out against the steel
+  (`WireLook.Look#hugReach`, `Placed#foot/head`). Bends no longer z-fight (`tools/tower_beam_models.py` LAYER).
+  `TowerBeamGameTests`.
+- [x] Microwave sites (maintainer, 2026-10-28): radios touching or on one power wire are one data network, so links
+  relay site to site (`MicrowaveRoutes`, `microwave_max_hops` 8); the H19, direction finder, fax and telephone all
+  route through it. `sitesRelayAcrossTwoLinks`.
+- [x] Tower Beacon Controller (maintainer, 2026-10-28): a thin beam putting out redstone 2 s on, 2 s off with the
+  world clock, for obstruction lights; creative and structures only. `beaconControllerBlinks`. The Tower Beacon itself
+  crafts from a redstone torch, any tower beam and a redstone lamp (maintainer, 2026-10-28).
+- [x] Microwave horn (maintainer, 2026-10-28): coax at any base block feeds it, drawn to the middle of the base;
+  the horn is drawn by `MicrowaveHornRenderer` turned to its azimuth; it tilts +/-45 degrees inside, unseen.
+  `coaxAtAnyBaseBlockFeedsTheHorn`.
+- [x] Footholds stack with nothing behind them (maintainer, 2026-10-28), and stand 0.01 px off a beam. `footholdsStack`.
+- [x] Bundle drawing (maintainer, 2026-10-28): strands keep their order round bends (`BundleOrientation`: each
+  bundle turns its x or z layout round, solved along the run), splits peel off the near side, runs up lattice legs stay
+  straight (`WireBlock#runReach`), stubs to an edge run end at the strand's place, strands sit 0.01 px apart
+  (`WireModel.STRAND_LAYER`). `/rcdebug wires <from> <to>` (`WireGeometry`) checks drawn cable for gaps and crossings.
+  `BundleLayoutGameTests`. Open: a strand that joins a bundle from the far side still has to cross the others.
+- [x] Network objects keep a power and a coax network per side (`BENetworkObject.Slot`): a bundle of power wire and
+  coax into one face left a microwave radio on its coax network only, unpowered (2026-10-28). `MicrowavePowerGameTests`.
+- [x] Wire Junction (maintainer, 2026-10-28): joins power wire of any colour (a power pass-through, `WireJunctionNetworkObject`);
+  not coax. Half-height steel box from `tools/wire_junction_models.py`. `aJunctionJoinsColours`. Recipe ` I /IWI/ I ` (iron, plain wire), 2 (maintainer approved).
+- [ ] Battery meter (maintainer, 2026-10-28)
 - [ ] More radio models and brands (maintainer, 2026-10-23)
-- [ ] Structures (maintainer, 2026-10-23): the worldgen plumbing to place the mod's own structures
-  - [ ] AT&T Long Lines site (maintainer, 2026-10-23); the microwave horn is only found in structures (2026-10-27),
-    so this is the natural home for one
+- [x] Structures (maintainer, 2026-10-23; done 2026-10-28): `radiocraft:site` (`SiteStructure`, `SitePiece`,
+  `SiteProcessor`), structure sets `radio_sites` (spacing 28, separation 9) and `radio_mountain_sites` (spacing 8,
+  separation 3: the repeater site and Long Lines, only on ground at y 130 and up, so a closer grid to find any). Six sites, templates in
+  `data/radiocraft/structure/sites` built by `Sites` (dev only, `/rcsite build|save|capture|place|check`): AP&P Long
+  Lines (the maintainer's build: 1 to 4 horns, each with its microwave radio), repeater site (folded dipole, commercial
+  repeater, module), buried desert bunker (no power), ionospheric observatory, weather observatory (H19 and weather
+  station), FCC direction-finding station. Optional parts are `variants` in the structure JSON (kept by world seed and
+  spot); the other sites (not the bunker) have a module a third of the time (`min_y` for the height). In one test
+  world (8 by 8 km) that gave about 20 repeater sites and 1 to 3 Long Lines; the low sites come every ~850 blocks.
+  `SiteGameTests`.
+  - [x] Commercial radio modules on the air with their chunks unloaded (maintainer, 2026-10-28): `CommercialStations`
+    (saved per level) sends every module's station; sites not generated yet are worked out around players like
+    `/locate` does (`SitePrediction`, `commercial_station_range` 6000) with the very program the module will get.
   - [ ] Prepper bunker (maintainer, 2026-10-23)
 - [ ] Add something radio-related to villages (maintainer, 2026-10-23)
 - [x] Tower foothold (2026-10-24): `tower_foothold` (crafted: 3 from iron + stick, never breaks) and

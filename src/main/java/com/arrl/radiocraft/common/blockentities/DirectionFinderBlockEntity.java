@@ -303,27 +303,24 @@ public class DirectionFinderBlockEntity extends BlockEntity implements MenuProvi
 	}
 
 	/**
-	 * Bearings from the direction finders at the other ends of every microwave link this one is on, tuned to the same
-	 * frequency: added to the fix as if typed in. With interference a bearing may not get through this time; the last
-	 * one stays until it does.
+	 * Bearings from every direction finder this one reaches over microwave (relayed through other sites,
+	 * {@code MicrowaveRoutes}), tuned to the same frequency: added to the fix as if typed in. With interference on the
+	 * way a bearing may not get through this time; the last one stays until it does.
 	 */
 	private void refreshLinked(ServerLevel serverLevel) {
 		List<Linked> now = new ArrayList<>();
-		for(com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity radio : com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity.servingStation(serverLevel, worldPosition)) {
-			if(!radio.isLinked())
+		for(com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.Route route : com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.from(serverLevel, worldPosition)) {
+			if(!(route.station() instanceof DirectionFinderBlockEntity other) || other == this || !other.isOn() || !other.hasBearing()
+					|| Math.abs(other.getFrequency() - frequency) >= 1.0F)
 				continue;
-			for(com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity peer : radio.peers())
-				for(BlockEntity station : peer.stations())
-					if(station instanceof DirectionFinderBlockEntity other && other != this && other.isOn() && other.hasBearing()
-							&& Math.abs(other.getFrequency() - frequency) < 1.0F) {
-						Linked previous = linked.stream().filter(l -> l.from().equals(peer.identity())).findFirst().orElse(null);
-						if(!radio.getsThrough() && previous != null) {
-							now.add(previous);
-							continue;
-						}
-						BlockPos at = other.here();
-						now.add(new Linked(peer.identity(), new DirectionFinding.Line(at.getX() + 0.5D, at.getZ() + 0.5D, other.getBearing(), other.getSigma())));
-					}
+			String from = route.last().identity();
+			Linked previous = linked.stream().filter(l -> l.from().equals(from)).findFirst().orElse(null);
+			if(!route.getsThrough() && previous != null) {
+				now.add(previous);
+				continue;
+			}
+			BlockPos at = other.here();
+			now.add(new Linked(from, new DirectionFinding.Line(at.getX() + 0.5D, at.getZ() + 0.5D, other.getBearing(), other.getSigma())));
 		}
 		if(!now.equals(linked)) {
 			linked.clear();

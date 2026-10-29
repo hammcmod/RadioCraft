@@ -23,6 +23,8 @@ public class BENetworkTypes {
         BENetworkRegistry.registerObject(com.arrl.radiocraft.common.be_networks.network_objects.AutoTunerNetworkObject.TYPE,
                 com.arrl.radiocraft.common.be_networks.network_objects.AutoTunerNetworkObject::new);
         BENetworkRegistry.registerObject(DuplexerNetworkObject.TYPE, DuplexerNetworkObject::new);
+        BENetworkRegistry.registerObject(com.arrl.radiocraft.common.be_networks.network_objects.WireJunctionNetworkObject.TYPE,
+                com.arrl.radiocraft.common.be_networks.network_objects.WireJunctionNetworkObject::new);
         BENetworkRegistry.registerObject(com.arrl.radiocraft.common.be_networks.network_objects.BandFollowingAntennaNetworkObject.TYPE,
                 com.arrl.radiocraft.common.be_networks.network_objects.BandFollowingAntennaNetworkObject::new);
         BENetworkRegistry.registerObject(com.arrl.radiocraft.common.be_networks.network_objects.DummyLoadNetworkObject.TYPE,

@@ -80,6 +80,7 @@ public class Radiocraft {
         RadiocraftDataComponent.DATA_COMPONENTS.register(modEventBus);
         RadiocraftLootModifiers.LOOT_MODIFIERS.register(modEventBus);
         RadiocraftIngredientTypes.INGREDIENT_TYPES.register(modEventBus);
+        RadiocraftStructures.register(modEventBus);
         com.arrl.radiocraft.compat.create.CreateCompat.register(modEventBus); // The alternator, with Create.
 
         modEventBus.addListener(Radiocraft::gatherData);

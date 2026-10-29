@@ -1,0 +1,10 @@
+{
+  "type": "radiocraft:site",
+  "biomes": "#radiocraft:has_structure/buried_site",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "none",
+  "template": "radiocraft:sites/buried_site",
+  "ground": 8,
+  "max_slope": 8
+}

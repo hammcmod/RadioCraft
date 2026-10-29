@@ -115,6 +115,18 @@ public class MicrowaveHornBlock extends Block implements net.minecraft.world.lev
 		return origin.offset(dx, y - ORIGIN_Y, dz);
 	}
 
+	/** World x and z of the horn's feed: the point where its four base blocks meet, under the throat. */
+	public static double[] feedXZ(BlockPos origin, Direction facing) {
+		int minX = Integer.MAX_VALUE, minZ = Integer.MAX_VALUE;
+		for(int x = 0; x < SIZE_X; x++)
+			for(int z = 0; z < SIZE_Z; z++) {
+				BlockPos at = partPos(origin, facing, x, 0, z);
+				minX = Math.min(minX, at.getX());
+				minZ = Math.min(minZ, at.getZ());
+			}
+		return new double[] { minX + 1.0D, minZ + 1.0D };
+	}
+
 	/** The origin part's position for the part in {@code state} at {@code pos}. */
 	public static BlockPos originOf(BlockState state, BlockPos pos) {
 		Direction facing = state.getValue(FACING);
@@ -201,6 +213,15 @@ public class MicrowaveHornBlock extends Block implements net.minecraft.world.lev
 			else
 				level.setBlock(at, net.minecraft.world.level.block.Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL | Block.UPDATE_SUPPRESS_DROPS);
 		}
+	}
+
+	/**
+	 * The blocks draw nothing themselves: the placed part's renderer draws the whole horn, turned to where it points
+	 * ({@code client.render.MicrowaveHornRenderer}).
+	 */
+	@Override
+	protected @NotNull net.minecraft.world.level.block.RenderShape getRenderShape(@NotNull BlockState state) {
+		return net.minecraft.world.level.block.RenderShape.ENTITYBLOCK_ANIMATED;
 	}
 
 	/** Only the placed part has a block entity: it is the horn's end of the link. */

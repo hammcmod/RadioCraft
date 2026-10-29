@@ -33,9 +33,63 @@ import java.util.List;
 public class WireBundleBlockEntity extends BlockEntity {
 
 	private final List<BlockState> strands = new ArrayList<>();
+	/**
+	 * Whether the strands are laid out the other way round across a north-south run ({@code flipX}) or an east-west
+	 * one ({@code flipZ}): set along each run of bundles by {@link com.arrl.radiocraft.common.blocks.BundleOrientation}
+	 * so the strands keep their order round every bend instead of crossing.
+	 */
+	private boolean flipX = false, flipZ = false;
 
 	public WireBundleBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.WIRE_BUNDLE.get(), pos, state);
+	}
+
+	/** Where a strand {@code offset} sixteenths along the bundle's layout sits, turned as this bundle is. */
+	public com.arrl.radiocraft.common.blocks.WireLook.Lateral lateral(double offset) {
+		return new com.arrl.radiocraft.common.blocks.WireLook.Lateral(flipX ? -offset : offset, flipZ ? -offset : offset);
+	}
+
+	public boolean flipX() {
+		return flipX;
+	}
+
+	public boolean flipZ() {
+		return flipZ;
+	}
+
+	/** Sets the turns; true if they changed (the caller syncs). */
+	public boolean setFlips(boolean x, boolean z) {
+		if(x == flipX && z == flipZ)
+			return false;
+		flipX = x;
+		flipZ = z;
+		setChanged();
+		return true;
+	}
+
+	/**
+	 * Puts the strands in the order of {@code kinds} (the run's order, chosen by
+	 * {@link com.arrl.radiocraft.common.blocks.BundleOrientation} so strands turning off cross as few others as they
+	 * can; kinds not listed go last). Returns whether the order changed. Server side; the solve syncs.
+	 */
+	public boolean setOrder(List<WireBlock> kinds) {
+		List<BlockState> before = List.copyOf(strands);
+		strands.sort(Comparator.comparingInt(s -> {
+			int at = kinds.indexOf((WireBlock)s.getBlock());
+			return at < 0 ? Integer.MAX_VALUE : at;
+		}));
+		if(before.equals(strands))
+			return false;
+		setChanged();
+		return true;
+	}
+
+	/** Loaded with its chunk: the run's turns are worked out again (bundles laid before they existed, or edited offline). */
+	@Override
+	public void onLoad() {
+		super.onLoad();
+		if(level != null && !level.isClientSide)
+			com.arrl.radiocraft.common.blocks.BundleOrientation.queueLoaded(level, worldPosition);
 	}
 
 	/** The strands, in display order. Read only. */
@@ -107,6 +161,8 @@ public class WireBundleBlockEntity extends BlockEntity {
 		for(BlockState strand : strands)
 			list.add(NbtUtils.writeBlockState(strand));
 		tag.put("strands", list);
+		tag.putBoolean("flipX", flipX);
+		tag.putBoolean("flipZ", flipZ);
 	}
 
 	@Override
@@ -115,7 +171,13 @@ public class WireBundleBlockEntity extends BlockEntity {
 		List<BlockState> loaded = new ArrayList<>();
 		for(Tag entry : tag.getList("strands", Tag.TAG_COMPOUND))
 			loaded.add(NbtUtils.readBlockState(BuiltInRegistries.BLOCK.asLookup(), (CompoundTag)entry));
-		setStrands(loaded);
+		// In the order saved: the run's solve may have chosen it (see #setOrder), not just the colours' rank.
+		strands.clear();
+		for(BlockState state : loaded)
+			if(state.getBlock() instanceof WireBlock)
+				strands.add(state);
+		flipX = tag.getBoolean("flipX");
+		flipZ = tag.getBoolean("flipZ");
 	}
 
 	@Override

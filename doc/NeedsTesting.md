@@ -9,6 +9,117 @@ writes back here: `- [ ]` not tested, `- [x]` passed, `- [!]` needs work, with `
 it to [todo.md](../todo.md)), then sets it back to `[ ]` for the next playtest.
 
 
+## Radio sites and modules on the air (added 2026-10-28, evening)
+
+Six sites generate in normal worlds (`radio_sites`), placed unturned; `SiteGameTests` checks every station in each
+works as found. A commercial radio module is sent from `CommercialStations` whether its chunk is loaded or not, and
+one at a site nobody has found yet is on the air once a player is within `commercial_station_range` (6000) of it.
+
+- [ ] In a new normal world, `/locate structure radiocraft:repeater_site` (and the others): each site sits on its
+  ground, not floating or buried (the buried bunker excepted), with the terrain blended round it; Long Lines and the
+  repeater site only on high ground (y 130 and up).
+- [ ] Copies of Long Lines have 1 to 4 horns, each still with its microwave radio inside; no stray horn parts.
+- [ ] Some observatories and DF stations have a commercial radio module (a third of them); the bunker never does.
+- [ ] Before going to a site with a module, tune to it from far off (`/rcdebug stations` lists the nearest, predicted ones
+  marked): its program is heard, and is the same one the module plays once found.
+- [ ] Fly away from a module until its chunk unloads: it is still heard (HF skip, or 2m within range).
+- [ ] No lag spike while flying fast over new ground (the sites ahead are worked out off the server thread).
+- [ ] Wires and bundles still look lit right (no dark patches under or beside cables, outdoors and in caves): skylight
+  now passes them without asking their shape, which fixed a hang when a site with wires generated.
+
+## Tower beam bends without flicker (added 2026-10-28)
+
+Reported: where beams bend, the overlapping parts' textures glitch (z-fighting). The diagonal arms now sit 0.01 px
+apart in layers (`tools/tower_beam_models.py`, `LAYER`): edge arms grow 0.01-0.04 px, corner arms 0.01-0.08 px.
+
+- [ ] Thin, normal and thick beams: an L bend (east + north), a diagonal off a straight run (east + north_east), two
+  diagonals from one block (north_east + north_west), an up-and-over bend (up + up_east) and a corner diagonal: no
+  flickering stripes where the parts cross, from near and from a few blocks back.
+- [ ] The diagonal arms do not look visibly fatter than the straight ones.
+
+## Wire Junction (added 2026-10-28)
+
+- [ ] A half-height galvanised steel box (creative tab, next to the duplexer): red wire into one side and blue out
+  another power a radio from a battery as one circuit; any colour, any side, up and down too.
+- [ ] Wire meets its sides with no gap; coax laid beside it does not connect.
+- [ ] Looks right: lid rim and corner screws on top, seam and knockout on the sides.
+
+
+## Bundles round bends, up lattice legs, power through a bundle (added 2026-10-28, afternoon)
+
+Checked on a copy of the Structure Design world with the new `/rcdebug wires <from> <to>` (98 problems before, 9
+after: all where a strand joins or leaves across others, now 0.01 px apart so they cross without flicker).
+
+- [ ] A bundle laid round bends of both hands (north then east, north then west, and the rest): the strands keep their
+  order round every bend, no crossing over.
+- [ ] Strands peeling off one by one to a row of radios leave from the near side, without crossing the others.
+- [ ] A bundle up the side of a lattice tower leg (beam, gap, beam): one straight line against the steel, no zigzag,
+  no gaps between blocks; where the beams end it eases back to the block edge over one block.
+- [ ] Where a strand has to cross others (it joins from the far side), it crosses without flickering.
+- [ ] Microwave radios on a run of wire bundled with coax to their dishes power on (they were stuck on the coax only).
+- [ ] Your existing bundles look right after loading (their turns are worked out when the chunk loads).
+- [ ] Strands climbing a wall onto the floor above (the hole at the top of the tower) arrive in the same order they
+  went up, no crossing at the lip. (Fixed later the same day: climbs now count in the turns.)
+- [ ] A cable coming in from the side to a bundle running up an edge (the black coax halfway up the tower) meets that
+  strand's run straight on, no slanting stub.
+- [ ] (Later fix) The black coax halfway up the tower: the bundle's black strand turns onto the beam top and meets the
+  wire lying there, no piece up at the top of the block. A bundle that was hanging from the ceiling there settles to the
+  floor by itself when the chunk loads.
+- [ ] Orange coming up through the hole at the top of the tower runs straight up and over, not slanting across.
+- [ ] Down the radio row the strands peel off to their radios without crossing: a run now picks its own colour order
+  (green first there). Bundles may show their colours in a different order from before; that is expected.
+- [ ] The Jade tooltip on coax into a horn's other base blocks lists the horn (it showed "Connected Antennas: 0").
+- [ ] Microwave radios wired from one battery of a bank turn on and draw on the whole bank: a battery's sides are now
+  one circuit, so every wire touching it joins (before, the radios only had the one battery they touched, and it was flat).
+- [ ] A charge controller now passes up to 180 FE a tick (20 panels in full sun; was 45). Several controllers set
+  against one array split its power; the panels' tooltip still shows what the whole row makes.
+- [ ] Holding a foothold, click the front of a foothold with open air behind it: the new one goes on top of the stack,
+  in line with the beam, and again on the next click. Clicking a foothold's side still places one beside it on a wall.
+
+
+## Microwave sites, beacon controller, horn feed and turning, stacked footholds (added 2026-10-28, late morning)
+
+Needs a client restart and `./gradlew runData` (the beacon controller's name, loot and pickaxe tag).
+
+- [ ] Three sites in a row (A, B, C), B with two microwave radios touching or on one power wire, one linked to A and
+  one to C: a phone at A rings a phone at C, an H19 at A's beacon shows on C's H19, a fax goes A to C, and a direction
+  finder at C gets A's bearing. `microwave_max_hops` set to 1 stops it.
+- [ ] Tower Beacon Controller (creative tab, no recipe): looks like a thin beam, joins beams, and a redstone lamp or
+  dust beside it blinks 2 s on, 2 s off; several controllers blink together.
+- [ ] Coax laid against the outside of any of the horn's four base blocks connects (the radio finds the horn) and is
+  drawn running across that base block's floor to the middle where the four meet; coax beside the horn higher up does
+  not connect.
+- [ ] Turning a horn left or right on the radio's ALIGN page turns the whole horn about the middle of its base; up and
+  down stop at +/-45 degrees and do not tilt it. Its hitboxes stay where it was placed. It stays drawn when the block
+  it was placed from is off screen, and breaking any part still takes it down.
+- [ ] A foothold placed on top of another stays up with nothing behind it, in line with the one below (against a beam
+  too); breaking the bottom one brings the ones standing on it down.
+- [ ] No flicker on a beam just under a foothold's bottom rung (the rail now stops 0.01 px short of the steel).
+- [ ] A redstone torch (or lamp, lantern) on top of a beam or the beacon controller: the beam reaches up into it, no gap.
+- [ ] Back away from a horn: it stays drawn out to 256 blocks (or your render distance), not popping out at 64.
+- [ ] Tower Beacon (shapeless: redstone torch, any tower beam, redstone lamp): a thin red light like a 300 mm TWR beacon. On a Tower Beacon Controller it blinks
+  2 s on, 2 s off, glass glowing full bright at night, lighting the area (light 11); dark with no signal; the beam
+  below reaches up into it. Looks right next to the thin beam (same width)?
+
+
+## Tower beams: ground, walls, braces, footholds and coax (added 2026-10-28)
+
+Needs a client restart (Java changes) and `./gradlew runData` first (the foothold's new `mount` blockstate).
+
+- [ ] A beam on the ground reaches down to it (no gap under the core); one against a wall or under a ceiling reaches
+  out to it, as iron bars do; a beam on its own in the air is still a straight post.
+- [ ] A beam reaches up into an antenna, balun or pole mounted on top of it, and down into one hung under it.
+- [ ] A diagonal brace is not drawn when any block (a wall, a fence, a wire, a foothold, a torch) stands beside the edge
+  or corner it would run through; another beam there is fine.
+- [ ] Footholds can be placed on the side of a beam (all three thicknesses), sit right against the steel, climb like
+  a ladder there, and the outline matches; breaking the beam drops the foothold; on a full block they are as before.
+- [ ] Coax (and power wire, and a bundle) laid up the side of a beam column hugs it, drawn against the steel, not at
+  the block edge; the stub from the floor run to it reaches the run with no gap.
+- [ ] At the top it climbs over the beam's top onto an antenna or balun standing on it (the radio finds the antenna).
+- [ ] A run that carries on up past the top of the beams eases back to the block edge over one block, no step.
+- [ ] Clicking the cable on a beam still selects it (its hitbox stays at the block edge, inside its own block).
+
+
 ## Radios on Sable ships (added 2026-10-28; GameTests pass without Sable)
 
 Run `./gradlew runClient -PwithSable` (Sable 2.0.6 with Veil and its Rapier physics; add `-PwithCreate` for Create).
@@ -165,7 +276,7 @@ rerun it after any re-export. (`phone_Item.json` was renamed to `phone_item.json
 
 ## Ionospheric Processor: SOLAR WX over the air, blackout alerts, terminal (added 2026-10-27; GameTests pass)
 
-- [!] Right click the processor: an amber terminal with the call sign (the placer's), SOUNDER ONLINE / NO IONOSONDE,
+- [ ] Right click the processor: an amber terminal with the call sign (the placer's), SOUNDER ONLINE / NO IONOSONDE,
   the radio's frequency, any blackout forecast, what it has sent, and three controls (click or keys 1, 2, 3): timed
   bulletins (default off), blackout alerts (default on), send a bulletin now. A low terminal hum while open.
   - Note (2026-10-27): need to make a more obvious screen on the moel. Also, it's not finding a radio with a tuner in between it and the radio.. Also jei blocking it
@@ -393,7 +504,7 @@ Run with Create: `./gradlew runClient -PwithCreate` (Create Crafts & Additions n
 - [ ] Telephone: EXT shows its extension; key another extension and CALL: the far phone rings (bell), CALL answers,
   voices near each phone come out of the other clean and a little fuller than SSB; HANG ends it. EXT + number + CALL
   changes the extension. Phones work touching a microwave radio or on its power wire.
-- [!] HF manpack (recipe: bundle, leather chestplate, 20m QRP, any 10m radio): sneak right click wears it (chest; or the
+- [ ] HF manpack (recipe: bundle, leather chestplate, 20m QRP, any 10m radio): sneak right click wears it (chest; or the
   Curios back slot), the pack draws on the back (check its position), right click in hand or the J key opens the
   olive panel: PWR, SSB/CW, BAND 10/20, FREQ knob (wheel or click halves), AF, MIC, PTT, TX lamp, battery %. Static
   follows you while it is on; voice from a station on frequency comes out where you stand; CW sends with PTT or the CW

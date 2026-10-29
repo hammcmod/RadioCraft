@@ -86,6 +86,10 @@ public class DebugCommands {
 			.then(Commands.literal("network").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::network)))
 			.then(Commands.literal("microwave").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::microwave)))
 			.then(Commands.literal("sable").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::sable)))
+			.then(Commands.literal("wires").then(Commands.argument("from", BlockPosArgument.blockPos()).then(Commands.argument("to", BlockPosArgument.blockPos())
+					.executes(DebugCommands::wires))))
+			.then(Commands.literal("flipbundles").then(Commands.argument("from", BlockPosArgument.blockPos()).then(Commands.argument("to", BlockPosArgument.blockPos())
+					.executes(DebugCommands::flipBundles))))
 			.then(Commands.literal("tapes").executes(DebugCommands::tapes)
 					.then(Commands.literal("give").then(Commands.argument("track", StringArgumentType.greedyString()).executes(DebugCommands::giveTape)))
 					.then(Commands.literal("reload").executes(ctx -> {
@@ -95,6 +99,7 @@ public class DebugCommands {
 			.then(Commands.literal("module").then(Commands.argument("pos", BlockPosArgument.blockPos()).executes(DebugCommands::module)
 					.then(Commands.argument("program", StringArgumentType.word()).then(Commands.argument("mhz", DoubleArgumentType.doubleArg(0))
 							.executes(DebugCommands::setModule)))))
+			.then(Commands.literal("stations").executes(DebugCommands::stations))
 			.then(Commands.literal("wx").executes(DebugCommands::wx)
 					.then(Commands.literal("aprs").executes(DebugCommands::wxAprs)))
 			.then(Commands.literal("wefax")
@@ -358,6 +363,41 @@ public class DebugCommands {
 		return send(ctx, lines);
 	}
 
+	/** Checks the cable drawn in a box: strands that do not meet across a face, or run through each other (WireGeometry). */
+	private static int wires(CommandContext<CommandSourceStack> ctx) {
+		BlockPos from = BlockPosArgument.getBlockPos(ctx, "from"), to = BlockPosArgument.getBlockPos(ctx, "to");
+		List<String> problems = com.arrl.radiocraft.common.blocks.WireGeometry.check(ctx.getSource().getLevel(), from, to);
+		List<String> out = new ArrayList<>();
+		if(from.equals(to)) // One block: every strand's look, pieces and centre line, to see why.
+			out.addAll(com.arrl.radiocraft.common.blocks.WireGeometry.describe(ctx.getSource().getLevel(), from));
+		out.add(problems.isEmpty() ? "Cable checks out in " + from.toShortString() + " to " + to.toShortString() : problems.size() + " problems:");
+		out.addAll(problems.subList(0, Math.min(60, problems.size())));
+		return send(ctx, out);
+	}
+
+	/**
+	 * Turns every bundle in the box round on both axes, without solving again (every link and bend still holds, since
+	 * all turn together), and prints the strands running through each other before and after: to see whether the
+	 * solver ({@link com.arrl.radiocraft.common.blocks.BundleOrientation}) picked the better way. Any change nearby
+	 * solves again.
+	 */
+	private static int flipBundles(CommandContext<CommandSourceStack> ctx) {
+		ServerLevel level = ctx.getSource().getLevel();
+		BlockPos from = BlockPosArgument.getBlockPos(ctx, "from"), to = BlockPosArgument.getBlockPos(ctx, "to");
+		List<BlockPos> bundles = new ArrayList<>();
+		for(BlockPos pos : BlockPos.betweenClosed(from, to))
+			if(level.getBlockEntity(pos) instanceof com.arrl.radiocraft.common.blockentities.WireBundleBlockEntity)
+				bundles.add(pos.immutable());
+		int before = com.arrl.radiocraft.common.blocks.WireGeometry.crossings(level, bundles);
+		for(BlockPos pos : bundles) {
+			var bundle = (com.arrl.radiocraft.common.blockentities.WireBundleBlockEntity)level.getBlockEntity(pos);
+			bundle.setFlips(!bundle.flipX(), !bundle.flipZ());
+			level.sendBlockUpdated(pos, level.getBlockState(pos), level.getBlockState(pos), net.minecraft.world.level.block.Block.UPDATE_CLIENTS);
+		}
+		int after = com.arrl.radiocraft.common.blocks.WireGeometry.crossings(level, bundles);
+		return send(ctx, List.of(bundles.size() + " bundles turned round: " + before + " crossings before, " + after + " after"));
+	}
+
 	/** Whether the block at a position is on a Sable sub-level, and where it really is (compat/sable/Sublevels). */
 	private static int sable(CommandContext<CommandSourceStack> ctx) {
 		ServerLevel level = ctx.getSource().getLevel();
@@ -384,16 +424,17 @@ public class DebugCommands {
 		out.add("networkObject " + pos.toShortString() + " " + obj.getClass().getSimpleName() + " type=" + obj.getType());
 		if(obj instanceof PowerNetworkObject power)
 			out.add(String.format(Locale.ROOT, "energy=%d/%d", power.getStorage().getEnergyStored(), power.getStorage().getMaxEnergyStored()));
-		for(Direction dir : Direction.values()) {
-			BENetwork network = obj.getNetwork(dir);
-			if(network == null)
-				continue;
-			StringBuilder members = new StringBuilder();
-			for(BENetworkObject member : network.getNetworkObjects())
-				members.append(' ').append(member.getClass().getSimpleName().replace("NetworkObject", "")).append('@').append(member.getPos().toShortString());
-			out.add(String.format(Locale.ROOT, "  %-5s %s %s members:%s", dir.getName(), network.getType().getPath(),
-					network.getUUID().toString().substring(0, 8), members));
-		}
+		for(Direction dir : Direction.values())
+			for(boolean power : new boolean[] { true, false }) {
+				BENetwork network = obj.getNetwork(dir, power);
+				if(network == null)
+					continue;
+				StringBuilder members = new StringBuilder();
+				for(BENetworkObject member : network.getNetworkObjects())
+					members.append(' ').append(member.getClass().getSimpleName().replace("NetworkObject", "")).append('@').append(member.getPos().toShortString());
+				out.add(String.format(Locale.ROOT, "  %-5s %s %s members:%s", dir.getName(), network.getType().getPath(),
+						network.getUUID().toString().substring(0, 8), members));
+			}
 		return send(ctx, out);
 	}
 
@@ -578,6 +619,22 @@ public class DebugCommands {
 			return fail(ctx, "No commercial radio module (its bottom cell) at " + pos.toShortString());
 		return send(ctx, List.of(String.format(java.util.Locale.ROOT, "module at %s: %s on %s, %.4f MHz", pos.toShortString(),
 				module.getKind() == null ? "not started" : module.getKind().name().toLowerCase(java.util.Locale.ROOT), module.getBandName(), module.getFrequency() / 1e6)));
+	}
+
+	/** The commercial radio module stations on the air in this level, nearest first (predicted ones are at sites not generated yet). */
+	private static int stations(CommandContext<CommandSourceStack> ctx) {
+		net.minecraft.server.level.ServerLevel level = ctx.getSource().getLevel();
+		BlockPos from = BlockPos.containing(ctx.getSource().getPosition());
+		List<com.arrl.radiocraft.common.radio.CommercialStations.Station> stations = new java.util.ArrayList<>(
+				com.arrl.radiocraft.common.radio.CommercialStations.get(level).stations());
+		stations.sort(java.util.Comparator.comparingDouble(station -> station.pos().distSqr(from)));
+		List<String> lines = new java.util.ArrayList<>();
+		lines.add(stations.size() + " commercial stations on the air");
+		for(com.arrl.radiocraft.common.radio.CommercialStations.Station station : stations.subList(0, Math.min(12, stations.size())))
+			lines.add(String.format(java.util.Locale.ROOT, "%s (%d blocks): %s %s, %.4f MHz, %s%s", station.pos().toShortString(),
+					(int)Math.sqrt(station.pos().distSqr(from)), station.kind().name().toLowerCase(java.util.Locale.ROOT), station.band(),
+					station.frequency() / 1e6, station.callsign(), station.predicted() ? " (predicted)" : ""));
+		return send(ctx, lines);
 	}
 
 	/** Sets a commercial radio module's program (numbers, static_beacon, dead_air, df_beeper, cw_beacon) and frequency. */

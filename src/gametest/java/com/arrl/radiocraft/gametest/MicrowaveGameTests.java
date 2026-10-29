@@ -100,6 +100,57 @@ public class MicrowaveGameTests {
 	}
 
 	/**
+	 * Coax touching any of the horn's four base blocks reaches its feed (the block entity in the placed corner), drawn
+	 * across the base to where the four meet; coax beside the horn higher up does not connect at all.
+	 */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 60, batch = BATCH + "_hornfeed")
+	public static void coaxAtAnyBaseBlockFeedsTheHorn(GameTestHelper helper) {
+		// World coordinates throughout: a test plot may be rotated, and the horn's parts are laid out in the world.
+		net.minecraft.server.level.ServerLevel level = helper.getLevel();
+		com.arrl.radiocraft.common.blocks.MicrowaveHornBlock horn = RadiocraftBlocks.MICROWAVE_HORN.get();
+		net.minecraft.core.Direction facing = net.minecraft.core.Direction.EAST;
+		BlockPos origin = helper.absolutePos(new BlockPos(7, 1, 7));
+		net.minecraft.world.level.block.state.BlockState state = horn.defaultBlockState().setValue(com.arrl.radiocraft.common.blocks.MicrowaveHornBlock.FACING, facing);
+		level.setBlockAndUpdate(origin, state);
+		horn.setPlacedBy(level, origin, state, null, new net.minecraft.world.item.ItemStack(com.arrl.radiocraft.common.init.RadiocraftItems.MICROWAVE_HORN.get()));
+		java.util.Set<BlockPos> hornBlocks = new java.util.HashSet<>();
+		BlockPos found = null;
+		for(var part : horn.parts(origin, facing)) {
+			hornBlocks.add(part.getKey());
+			if(part.getValue().getValue(com.arrl.radiocraft.common.blocks.MicrowaveHornBlock.PART_Y) == 0 && !part.getKey().equals(origin))
+				found = part.getKey(); // A base block that is not the one with the block entity.
+		}
+		helper.assertTrue(found != null, "No other base block");
+		BlockPos base = found;
+		net.minecraft.core.Direction outward = null; // The side of that base block facing out of the horn.
+		for(net.minecraft.core.Direction dir : net.minecraft.core.Direction.Plane.HORIZONTAL)
+			if(!hornBlocks.contains(base.relative(dir)))
+				outward = dir;
+		helper.assertTrue(outward != null, "The base block has no outside");
+		net.minecraft.core.Direction out = outward, in = outward.getOpposite();
+		BlockPos coax = base.relative(out), radioPos = base.relative(out, 2);
+		level.setBlockAndUpdate(radioPos, RadiocraftBlocks.MICROWAVE_RADIO.get().defaultBlockState());
+		com.arrl.radiocraft.common.blocks.WireBlock wire = RadiocraftBlocks.COAX_WIRE.get();
+		level.setBlockAndUpdate(coax, wire.getBlockState(level, coax));
+		helper.succeedWhen(() -> {
+			MicrowaveRadioBlockEntity radio = (MicrowaveRadioBlockEntity)level.getBlockEntity(radioPos);
+			helper.assertTrue(radio != null && radio.dishes(level).size() == 1, "The radio does not reach the horn through a base block");
+			java.util.Set<BlockPos> onTheCoax = new java.util.HashSet<>(); // What the coax's Jade tooltip lists.
+			com.arrl.radiocraft.compat.CoaxWireProvider.collectConnections(level, coax, onTheCoax);
+			helper.assertTrue(onTheCoax.contains(origin), "The coax tooltip does not see the horn through a base block: " + onTheCoax);
+			helper.assertFalse(wire.canConnectTo(level, base.above()), "Coax would connect to the horn's second layer");
+			MicrowaveDishBlockEntity feedEnd = (MicrowaveDishBlockEntity)level.getBlockEntity(origin);
+			feedEnd.setElevation(80.0D);
+			helper.assertTrue(feedEnd.getElevation() == 45.0F, "The horn tilts past 45 degrees: " + feedEnd.getElevation());
+			feedEnd.setElevation(-80.0D);
+			helper.assertTrue(feedEnd.getElevation() == -45.0F, "The horn tilts past -45 degrees: " + feedEnd.getElevation());
+			feedEnd.setElevation(0.0D);
+			var look = wire.look(level, coax, level.getBlockState(coax));
+			helper.assertTrue(look.feed() == in && Math.abs(look.feedSide()) == 8, "The coax does not run to the feed: " + look.feed() + " " + look.feedSide());
+		});
+	}
+
+	/**
 	 * A radio with coax up a two-block pole to a dish on top, at {@code radio}, the pole {@code step} blocks along x and
 	 * the dish pointing {@code azimuth}: the maintainer's yard layout of 2026-10-27.
 	 */
@@ -175,6 +226,78 @@ public class MicrowaveGameTests {
 	 * Over a link: an APRS packet heard at one H19 shows up at the other, and a phone call rings through and is answered.
 	 * A batch of its own: run beside {@link #linkFoundConfirmedAndLost}, its B could find that test's broadcasting A.
 	 */
+	/**
+	 * Three sites in a chain: A links to B1, B2 sits on top of B1 (one site: one data network) and links on to C. A phone
+	 * at A rings a phone at C, two links away; with {@code microwave_max_hops} at 1 it cannot.
+	 *
+	 * <pre>
+	 *   A (2,1,3) coax, dish east  ->  dish west, coax, B1 (13,1,3)        link one, 6905 MHz
+	 *                                   B2 (13,2,3), coax up, dish south  ->  dish north, coax, C (13,4,15)   link two, 6995 MHz
+	 * </pre>
+	 */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = BATCH + "_hops")
+	public static void sitesRelayAcrossTwoLinks(GameTestHelper helper) {
+		BlockPos a = new BlockPos(2, 1, 3), b1 = new BlockPos(13, 1, 3), b2 = b1.above(), c = new BlockPos(13, 4, 15);
+		station(helper, a, 1);
+		station(helper, b1, -1);
+		helper.setBlock(b2, RadiocraftBlocks.MICROWAVE_RADIO.get());
+		GameTestUtil.placeWire(helper, b2.above(), RadiocraftBlocks.COAX_WIRE.get());
+		helper.setBlock(b2.above(2), RadiocraftBlocks.SATELLITE_DISH.get());
+		helper.setBlock(c, RadiocraftBlocks.MICROWAVE_RADIO.get());
+		GameTestUtil.placeWire(helper, c.north(), RadiocraftBlocks.COAX_WIRE.get());
+		helper.setBlock(c.north(2), RadiocraftBlocks.SATELLITE_DISH.get());
+		helper.setBlock(a.north(), RadiocraftBlocks.TELEPHONE.get());
+		helper.setBlock(c.west(), RadiocraftBlocks.TELEPHONE.get());
+		helper.startSequence()
+				.thenIdle(3)
+				.thenExecute(() -> {
+					RadiocraftServerConfig.MICROWAVE_SEARCH_SECONDS.set(1);
+					dish(helper, a.east(2)).setAzimuth(90.0D);
+					dish(helper, b1.west(2)).setAzimuth(270.0D);
+					dish(helper, b2.above(2)).setAzimuth(180.0D);
+					dish(helper, c.north(2)).setAzimuth(0.0D);
+					String[] calls = { "MWG", "MWH", "MWI", "MWJ" };
+					BlockPos[] at = { a, b1, b2, c };
+					int[] mhz = { 6905, 6905, 6995, 6995 };
+					for(int i = 0; i < 4; i++) {
+						MicrowaveRadioBlockEntity radio = radio(helper, at[i]);
+						radio.togglePower();
+						helper.assertTrue(radio.setIdentity(calls[i] + RUN, 0x0A10 + i), calls[i] + " could not take its callsign");
+						radio.setFrequency(mhz[i]);
+					}
+				})
+				.thenWaitUntil(() -> helper.assertTrue(radio(helper, a).isPowered() && radio(helper, c).isPowered()
+						&& radio(helper, b2).getDishInfo().size() == 1 && radio(helper, b1).getDishInfo().size() == 1, "Radios not up yet"))
+				.thenExecute(() -> {
+					radio(helper, a).broadcast();
+					radio(helper, b2).broadcast();
+					radio(helper, b1).search();
+					radio(helper, c).search();
+				})
+				.thenWaitUntil(() -> helper.assertTrue(radio(helper, b1).getPhase() == Phase.FOUND && radio(helper, c).getPhase() == Phase.FOUND,
+						"Not found yet: B1 " + radio(helper, b1).getPhase() + ", C " + radio(helper, c).getPhase()))
+				.thenExecute(() -> {
+					radio(helper, b1).confirm();
+					radio(helper, c).confirm();
+				})
+				.thenWaitUntil(() -> helper.assertTrue(radio(helper, a).isLinked() && radio(helper, b2).isLinked(), "Links not up yet"))
+				.thenExecute(() -> {
+					TelephoneBlockEntity caller = GameTestUtil.blockEntity(helper, a.north(), TelephoneBlockEntity.class);
+					TelephoneBlockEntity callee = GameTestUtil.blockEntity(helper, c.west(), TelephoneBlockEntity.class);
+					// Hop limit 1: C is two links away. Put the limit back before any assert can leave it set.
+					RadiocraftServerConfig.MICROWAVE_MAX_HOPS.set(1);
+					boolean reachedAtOne = caller.reachable().contains(callee);
+					RadiocraftServerConfig.MICROWAVE_MAX_HOPS.set(8);
+					helper.assertFalse(reachedAtOne, "A phone two links away was reachable with a hop limit of one");
+					caller.dial(callee.getExtension());
+					helper.assertTrue(callee.getState() == TelephoneBlockEntity.State.RINGING, "The phone two links away is not ringing: " + caller.getStatus());
+					callee.answer();
+					helper.assertTrue(caller.getState() == TelephoneBlockEntity.State.IN_CALL, "The relayed call is not up");
+					callee.hangUp();
+				})
+				.thenSucceed();
+	}
+
 	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH + "_relay")
 	public static void aprsAndCallsCrossTheLink(GameTestHelper helper) {
 		crossTheLink(helper, 6875, true);

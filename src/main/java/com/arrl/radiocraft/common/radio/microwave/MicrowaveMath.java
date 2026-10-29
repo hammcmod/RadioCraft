@@ -31,6 +31,8 @@ public final class MicrowaveMath {
 
 	/** Lowest and highest a dish can point, degrees above the horizon. */
 	public static final double MIN_ELEVATION = -45.0D, MAX_ELEVATION = 90.0D;
+	/** Degrees the large horn points up or down at most, either way (inside the horn: it does not tilt to look at). */
+	public static final double HORN_TILT = 45.0D;
 
 	/**
 	 * One end: where the dish is, where it points (compass azimuth, and elevation in degrees above the horizon), and

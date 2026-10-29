@@ -173,20 +173,15 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 	// -------------------- MICROWAVE LINK --------------------
 
 	/**
-	 * Sends a packet this terminal heard or sent across every microwave link it is on, to the H19s at the other ends:
-	 * two APRS networks joined into one. Interference loses half of them.
+	 * Sends a packet this terminal heard or sent over the microwave network it is on, to every H19 it reaches (relayed
+	 * through other sites, {@code MicrowaveRoutes}): APRS networks joined into one. Interference on a link loses half.
 	 */
 	private void relayToLink(TncPacket packet) {
 		if(level == null || level.isClientSide)
 			return;
-		for(MicrowaveRadioBlockEntity radio : MicrowaveRadioBlockEntity.servingStation(level, worldPosition)) {
-			if(!radio.isLinked() || !radio.getsThrough())
-				continue;
-			for(MicrowaveRadioBlockEntity peer : radio.peers())
-				for(BlockEntity station : peer.stations())
-					if(station instanceof AprsTerminalBlockEntity terminal && terminal != this)
-						terminal.receiveFromLink(packet);
-		}
+		for(com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.Route route : com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.from(level, worldPosition))
+			if(route.station() instanceof AprsTerminalBlockEntity terminal && terminal != this && route.getsThrough())
+				terminal.receiveFromLink(packet);
 	}
 
 	/**

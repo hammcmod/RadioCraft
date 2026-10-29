@@ -1,0 +1,58 @@
+{
+  "type": "radiocraft:site",
+  "biomes": "#radiocraft:has_structure/long_lines",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "beard_thin",
+  "template": "radiocraft:sites/long_lines",
+  "ground": 1,
+  "max_slope": 10,
+  "min_y": 130,
+  "variants": [
+    {
+      "parts": [
+        [
+          [1, 33, 2, 2, 36, 3],
+          [10, 2, 9, 10, 2, 9]
+        ],
+        [
+          [5, 33, 2, 6, 36, 3],
+          [10, 2, 8, 10, 2, 8]
+        ],
+        [
+          [1, 33, 8, 2, 36, 9],
+          [10, 2, 10, 10, 2, 10]
+        ],
+        [
+          [5, 33, 8, 6, 36, 9],
+          [10, 2, 7, 10, 2, 7]
+        ]
+      ],
+      "keep": {
+        "type": "minecraft:uniform",
+        "min_inclusive": 1,
+        "max_inclusive": 4
+      }
+    },
+    {
+      "parts": [
+        [
+          [10, 1, 5, 10, 4, 5]
+        ]
+      ],
+      "keep": {
+        "type": "minecraft:weighted_list",
+        "distribution": [
+          {
+            "data": 0,
+            "weight": 2
+          },
+          {
+            "data": 1,
+            "weight": 1
+          }
+        ]
+      }
+    }
+  ]
+}

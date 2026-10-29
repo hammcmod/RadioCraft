@@ -15,6 +15,8 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_BLACKOUT_LOSS;
 	public static final ModConfigSpec.ConfigValue<Double> MICROWAVE_BEAM_WIDTH;
 	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_INTERFERENCE_MHZ;
+	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_MAX_HOPS;
+	public static final ModConfigSpec.ConfigValue<Integer> COMMERCIAL_STATION_RANGE;
 	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_POWER_USE;
 	public static final ModConfigSpec.ConfigValue<Integer> DIRECTION_FINDER_POWER_USE;
 	public static final ModConfigSpec.ConfigValue<Integer> MICROWAVE_SEARCH_SECONDS;
@@ -505,6 +507,8 @@ public class RadiocraftServerConfig {
 		MICROWAVE_BEAM_WIDTH = BUILDER.comment(" A dish's beam width, degrees: pointing half this far off costs 3 dB at that end, the full width 12 dB, down",
 				" to 30 dB on its sidelobes. Wider is more forgiving to aim; it also sets how far off a stray dish interferes",
 				" (an existing world keeps the value it saved)").defineInRange("microwave_beam_width", 45.0, 1.0, 180.0);
+		MICROWAVE_MAX_HOPS = BUILDER.comment(" Most microwave links a call, fax, APRS packet or bearing is relayed over. Radios at one site (touching, or on",
+				" one power wire) join their links into one network, so a chain of sites relays end to end").defineInRange("microwave_max_hops", 8, 1, 64);
 		MICROWAVE_INTERFERENCE_MHZ = BUILDER.comment(" Another dish in view on a frequency this close (MHz) spoils a link").defineInRange("microwave_interference_mhz", 30, 0, 1200);
 		MICROWAVE_POWER_USE = BUILDER.comment(" Power a microwave radio draws per tick while on (a 20m radio transmitting draws 26)").defineInRange("microwave_power_use", 26, 0, 10000);
 		DIRECTION_FINDER_POWER_USE = BUILDER.comment(" Power a direction finder draws per tick while on, from a wire to it or to any of its modules (radios_need_power = false runs it free)").defineInRange("direction_finder_power_use", 6, 0, 10000);
@@ -514,6 +518,12 @@ public class RadiocraftServerConfig {
 		BUILDER.push("HF Manpack");
 		MANPACK_RECEIVE_USE = BUILDER.comment(" Energy per tick while it is on and listening").defineInRange("manpack_receive_use", 2, 0, 10000);
 		MANPACK_TRANSMIT_USE = BUILDER.comment(" Energy per tick while it transmits (QRP)").defineInRange("manpack_transmit_use", 13, 0, 10000);
+		BUILDER.pop();
+
+		BUILDER.push("Commercial Stations");
+		COMMERCIAL_STATION_RANGE = BUILDER.comment(" Commercial radio modules stay on the air with their chunks unloaded. A radio site with a module nobody has",
+				" been near yet is on the air too, once a player comes within this many blocks of where it will be (0: only",
+				" sites already generated are)").defineInRange("commercial_station_range", 6000, 0, 100000);
 		BUILDER.pop();
 
 		SPEC = BUILDER.build();

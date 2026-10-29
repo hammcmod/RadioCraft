@@ -149,9 +149,36 @@ public class PassthroughBlock extends WireBlock implements EntityBlock {
 		return Shapes.block();
 	}
 
+	/** A solid wall block: no skylight through it (a cable's lets it through). */
+	@Override
+	protected boolean propagatesSkylightDown(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+		return false;
+	}
+
 	@Override
 	public @NotNull FluidState getFluidState(@NotNull BlockState state) {
 		return net.minecraft.world.level.material.Fluids.EMPTY.defaultFluidState(); // A solid wall block, never waterlogged.
+	}
+
+	/*
+	 * Never waterlogged, though a WireBlock is a SimpleWaterloggedBlock: these would read the waterlogged property this
+	 * block has not got (water flowing up to it, a bucket on it, a structure template with water round it).
+	 */
+	@Override
+	public boolean canPlaceLiquid(@Nullable net.minecraft.world.entity.player.Player player, @NotNull BlockGetter level, @NotNull BlockPos pos,
+								  @NotNull BlockState state, @NotNull net.minecraft.world.level.material.Fluid fluid) {
+		return false;
+	}
+
+	@Override
+	public boolean placeLiquid(@NotNull net.minecraft.world.level.LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull FluidState fluid) {
+		return false;
+	}
+
+	@Override
+	public @NotNull ItemStack pickupBlock(@Nullable net.minecraft.world.entity.player.Player player, @NotNull net.minecraft.world.level.LevelAccessor level,
+										  @NotNull BlockPos pos, @NotNull BlockState state) {
+		return ItemStack.EMPTY;
 	}
 
 	@Override

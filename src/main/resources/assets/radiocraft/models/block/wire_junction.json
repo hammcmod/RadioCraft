@@ -1,0 +1,81 @@
+{
+	"credit": "RadioCraft",
+	"parent": "block/block",
+	"textures": {
+		"top": "radiocraft:block/wire_junction_top",
+		"side": "radiocraft:block/wire_junction_side",
+		"particle": "radiocraft:block/wire_junction_side"
+	},
+	"elements": [
+		{
+			"name": "box",
+			"from": [
+				0,
+				0,
+				0
+			],
+			"to": [
+				16,
+				8,
+				16
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						0,
+						8,
+						16,
+						16
+					],
+					"texture": "#side"
+				},
+				"south": {
+					"uv": [
+						0,
+						8,
+						16,
+						16
+					],
+					"texture": "#side"
+				},
+				"east": {
+					"uv": [
+						0,
+						8,
+						16,
+						16
+					],
+					"texture": "#side"
+				},
+				"west": {
+					"uv": [
+						0,
+						8,
+						16,
+						16
+					],
+					"texture": "#side"
+				},
+				"up": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#top"
+				},
+				"down": {
+					"uv": [
+						0,
+						0,
+						16,
+						16
+					],
+					"texture": "#top",
+					"cullface": "down"
+				}
+			}
+		}
+	]
+}

@@ -38,7 +38,7 @@ import java.util.function.Function;
 
 /**
  * A tower beam's block model: the core plus an arm toward each neighbouring beam, picked while the chunk is drawn
- * ({@link TowerBeamBlock#connections}), from the part models {@code <prefix>core} and {@code <prefix>arm_<name>}
+ * ({@link TowerBeamBlock#arms}: touching beams, and blocks it bears on), from the part models {@code <prefix>core} and {@code <prefix>arm_<name>}
  * that {@code tools/tower_beam_models.py} draws. A beam with no beam beside it is drawn as a straight post.
  * <p>
  * Used from a block model JSON as {@code {"loader": "radiocraft:tower_beam", "prefix": "radiocraft:block/tower_beam_"}}.
@@ -47,17 +47,8 @@ public final class TowerBeamModel {
 
 	public static final ResourceLocation LOADER_ID = Radiocraft.id("tower_beam");
 	private static final ModelProperty<Integer> MASK = new ModelProperty<>();
-	/** Up and down: the arms of a lone beam. */
-	private static final int POST = bit("up") | bit("down");
 
 	private TowerBeamModel() {}
-
-	private static int bit(String name) {
-		for(int i = 0; i < TowerBeamBlock.OFFSETS.size(); i++)
-			if(TowerBeamBlock.OFFSETS.get(i).name().equals(name))
-				return 1 << i;
-		throw new IllegalArgumentException(name);
-	}
 
 	public enum Loader implements IGeometryLoader<Geometry> {
 		INSTANCE;
@@ -110,7 +101,7 @@ public final class TowerBeamModel {
 
 		@Override
 		public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
-			return modelData.derive().with(MASK, TowerBeamBlock.connections(level, pos)).build();
+			return modelData.derive().with(MASK, TowerBeamBlock.arms(level, pos)).build();
 		}
 
 		@Override
@@ -119,7 +110,7 @@ public final class TowerBeamModel {
 			if(side != null)
 				return List.of(); // Everything sits in the unculled list, as the parts overlap at the block edges.
 			Integer found = data.get(MASK);
-			int mask = found == null || found == 0 ? POST : found;
+			int mask = found == null || found == 0 ? TowerBeamBlock.POST : found;
 			return quadCache.computeIfAbsent(mask, m -> {
 				List<BakedQuad> quads = new ArrayList<>();
 				addAll(quads, core, state, rand, renderType);

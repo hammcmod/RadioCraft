@@ -583,6 +583,27 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 		return out;
 	}
 
+	/**
+	 * The other microwave radios at this one's site: touching it, or on its power wire. One data network, like radios
+	 * on a site's switch: what comes in on one radio's link goes on out of the others' ({@code MicrowaveRoutes}).
+	 */
+	public List<MicrowaveRadioBlockEntity> siteMates() {
+		List<MicrowaveRadioBlockEntity> out = new ArrayList<>();
+		if(level == null)
+			return out;
+		for(Direction direction : Direction.values()) {
+			BlockPos at = worldPosition.relative(direction);
+			if(level.isLoaded(at) && level.getBlockEntity(at) instanceof MicrowaveRadioBlockEntity radio)
+				out.add(radio);
+		}
+		MicrowaveNetworkObjects.Radio object = radioObject();
+		if(object != null)
+			for(BlockPos at : object.wiredRadios())
+				if(level.isLoaded(at) && level.getBlockEntity(at) instanceof MicrowaveRadioBlockEntity radio && !out.contains(radio))
+					out.add(radio);
+		return out;
+	}
+
 	/** The microwave radios serving the station at {@code pos}: touching it, or on its power wire. */
 	public static List<MicrowaveRadioBlockEntity> servingStation(Level level, BlockPos pos) {
 		List<MicrowaveRadioBlockEntity> out = new ArrayList<>();

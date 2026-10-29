@@ -89,6 +89,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.TOWER_FOOTHOLD, "Tower Foothold");
 			provider.addBlock(RadiocraftBlocks.OLD_TOWER_FOOTHOLD, "Old Tower Foothold");
 			provider.addBlock(RadiocraftBlocks.DUPLEXER, "Duplexer");
+			provider.addBlock(RadiocraftBlocks.WIRE_JUNCTION, "Wire Junction");
+			provider.add("tooltip.radiocraft.wire_junction", "Joins power wire of any colour run into it. Not coax.");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_TUNER, "Antenna Tuner");
 			provider.addBlock(RadiocraftBlocks.AUTO_TUNER, "Automatic Antenna Tuner");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_CONNECTOR, "Antenna Connector");
@@ -124,6 +126,9 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.WEFAX_RECEIVER, "WEFAX Receiver");
 			provider.addBlock(RadiocraftBlocks.DESK_CHARGER, "Desk Charger");
 			provider.addBlock(RadiocraftBlocks.TOWER_BEAM_THIN, "Thin Tower Beam");
+			provider.addBlock(RadiocraftBlocks.TOWER_BEACON, "Tower Beacon");
+			provider.addBlock(RadiocraftBlocks.TOWER_BEACON_CONTROLLER, "Tower Beacon Controller");
+			provider.add("tooltip.radiocraft.tower_beacon_controller", "Flashes a tower's lights: a redstone signal two seconds on, two seconds off. Found on towers.");
 			provider.addBlock(RadiocraftBlocks.TOWER_BEAM, "Tower Beam");
 			provider.addBlock(RadiocraftBlocks.TOWER_BEAM_THICK, "Thick Tower Beam");
 			provider.addBlock(RadiocraftBlocks.MICROWAVE_HORN, "Microwave Horn Antenna");

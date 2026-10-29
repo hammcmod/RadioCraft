@@ -98,6 +98,8 @@
   "block.radiocraft.tape_player": "Tape Player",
   "block.radiocraft.telephone": "Telephone",
   "block.radiocraft.teletype": "Teletype Machine",
+  "block.radiocraft.tower_beacon": "Tower Beacon",
+  "block.radiocraft.tower_beacon_controller": "Tower Beacon Controller",
   "block.radiocraft.tower_beam": "Tower Beam",
   "block.radiocraft.tower_beam_thick": "Thick Tower Beam",
   "block.radiocraft.tower_beam_thin": "Thin Tower Beam",
@@ -119,6 +121,7 @@
   "block.radiocraft.wire_cyan": "Cyan Wire",
   "block.radiocraft.wire_gray": "Gray Wire",
   "block.radiocraft.wire_green": "Green Wire",
+  "block.radiocraft.wire_junction": "Wire Junction",
   "block.radiocraft.wire_light_blue": "Light Blue Wire",
   "block.radiocraft.wire_light_gray": "Light Gray Wire",
   "block.radiocraft.wire_lime": "Lime Wire",
@@ -503,6 +506,7 @@
   "tooltip.radiocraft.telephone_handset": "On its phone's cord: talk into it during a call. Sneak and right click the phone to hang up. The cord reaches 5 blocks.",
   "tooltip.radiocraft.teletype": "RTTY through the radios it touches, printed on its own paper. SOLAR WX prints the solar conditions, which it reads through a radio with an antenna (not a dummy load) next to it. A comparator reads 1 (blackout) to 6 (great).",
   "tooltip.radiocraft.teletype_roll": "Torn off a teletype. Right click to read it; right click a teletype with an empty roll to feed it back in.",
+  "tooltip.radiocraft.tower_beacon_controller": "Flashes a tower's lights: a redstone signal two seconds on, two seconds off. Found on towers.",
   "tooltip.radiocraft.tower_foothold": "A rung for climbing a tower, or standing on. Place it against a wall like a ladder.",
   "tooltip.radiocraft.vhf_base_station": "2m FM transceiver for local contacts and repeaters. Needs a VHF antenna on coax.",
   "tooltip.radiocraft.vhf_handheld_battery_swap": "Click battery on VHF Handheld to swap batteries",
@@ -513,6 +517,7 @@
   "tooltip.radiocraft.wefax_receiver": "Put a radio with an antenna beside it and paper in it: prints weather charts and the solar report.",
   "tooltip.radiocraft.wire": "Carries power between solar panels, charge controllers, batteries and radios. Runs along the ground, up walls and over steps.",
   "tooltip.radiocraft.wire_bundle": "Use on a wire of another kind to lay both in one block (up to 7). Sneak + right click a bundle with an empty hand to take one out.",
+  "tooltip.radiocraft.wire_junction": "Joins power wire of any colour run into it. Not coax.",
   "tooltip.radiocraft.world_map_module": "Craft it with a direction finder to plot fixes on a map. Cartographers sell them.",
   "tooltip.radiocraft.yagi_antenna": "Directional VHF antenna: strongest in the direction it points. Connect it with coax."
 }

@@ -13,7 +13,7 @@ import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-/** Dyed coax: side by side runs of different colours stay apart; plain coax joins any colour. */
+/** Dyed coax: side by side runs of different colours stay apart, plain beside a colour too. */
 @GameTestHolder(Radiocraft.MOD_ID)
 @PrefixGameTestTemplate(false)
 public class DyedCoaxGameTests {
@@ -50,10 +50,10 @@ public class DyedCoaxGameTests {
 					helper.assertTrue(antennas(helper, RADIO_A) == 1, "the red run has " + antennas(helper, RADIO_A) + " antennas");
 					helper.assertTrue(antennas(helper, RADIO_B) == 1, "the blue run has " + antennas(helper, RADIO_B) + " antennas");
 					helper.assertFalse(helper.getBlockState(RADIO_A.south()).getValue(WireBlock.EAST), "the red coax is drawn joined to the blue");
-					run(helper, RADIO_B, RadiocraftBlocks.COAX_WIRE.get()); // Plain now: it joins the red.
+					run(helper, RADIO_B, RadiocraftBlocks.COAX_WIRE.get()); // Plain now: a colour of its own, it stays apart.
 				})
 				.thenIdle(2)
-				.thenExecute(() -> helper.assertTrue(antennas(helper, RADIO_A) == 2, "plain coax beside red should join it, "
+				.thenExecute(() -> helper.assertTrue(antennas(helper, RADIO_A) == 1, "plain coax beside red joined it, "
 						+ antennas(helper, RADIO_A) + " antennas"))
 				.thenSucceed();
 	}

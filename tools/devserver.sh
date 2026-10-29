@@ -11,6 +11,8 @@
 # The world is a superflat creative world in runs/server/devworld (runs/ is gitignored). Delete that folder for a
 # fresh world. A dev client (./gradlew runClient) can join at localhost because online-mode is off.
 # Build inside x/z -48..47: those chunks are force loaded so they keep ticking with nobody online.
+# DEVSERVER_WORLD, DEVSERVER_LEVEL_TYPE and DEVSERVER_STRUCTURES pick another world, e.g. a normal one with structures
+# to find the radio sites in: DEVSERVER_WORLD=sitesworld DEVSERVER_LEVEL_TYPE=minecraft:normal DEVSERVER_STRUCTURES=true
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -34,12 +36,12 @@ configure() {
   set_prop rcon.password "$RCON_PASSWORD"
   set_prop broadcast-rcon-to-ops false
   set_prop online-mode false
-  set_prop level-name devworld
-  set_prop level-type 'minecraft\:flat'
+  set_prop level-name "${DEVSERVER_WORLD:-devworld}"
+  set_prop level-type "${DEVSERVER_LEVEL_TYPE:-minecraft\:flat}"
   set_prop gamemode creative
   set_prop difficulty peaceful
   set_prop spawn-protection 0
-  set_prop generate-structures false
+  set_prop generate-structures "${DEVSERVER_STRUCTURES:-false}"
   set_prop spawn-monsters false
   set_prop motd 'RadioCraft dev server'
 }

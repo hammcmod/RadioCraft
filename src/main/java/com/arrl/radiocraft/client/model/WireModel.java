@@ -69,7 +69,17 @@ public final class WireModel {
 	 * What a wire block draws: its parts, whether upside down, how far off the middle (a strand of a bundle) and where it
 	 * meets the cable in each neighbouring block ({@link WireLook.Faces}).
 	 */
-	public record Key(List<WireLook.Placed> parts, boolean ceiling, double offset, WireLook.Faces faces) {}
+	public record Key(List<WireLook.Placed> parts, boolean ceiling, WireLook.Lateral offset, WireLook.Faces faces, double nudge) {
+		public Key(List<WireLook.Placed> parts, boolean ceiling, WireLook.Lateral offset, WireLook.Faces faces) {
+			this(parts, ceiling, offset, faces, 0.0D);
+		}
+	}
+
+	/**
+	 * How far apart, in blocks, the strands of a bundle are drawn on every axis, one step per place in the bundle:
+	 * 0.01 px, so strands that cross where one leaves the bundle, or touch at a bend, never share a face (z-fighting).
+	 */
+	public static final double STRAND_LAYER = 0.01D / 16.0D;
 
 	/** One strand of a bundle: the kind's model, what it draws, and the strand's state (for the quads' tint and shade). */
 	private record StrandDraw(Baked model, Key key, BlockState state) {}
@@ -145,13 +155,18 @@ public final class WireModel {
 		public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
 			if(!(state.getBlock() instanceof WireBlock wire))
 				return modelData;
-			return modelData.derive().with(PARTS, keyFor(level, pos, state, wire, 0.0D)).build();
+			return modelData.derive().with(PARTS, keyFor(level, pos, state, wire, com.arrl.radiocraft.common.blocks.Strand.loneOffset(level, pos, state))).build();
 		}
 
 		/** What a wire of kind {@code wire} in {@code state} at {@code pos} draws, {@code offset} sixteenths off the middle. */
-		static Key keyFor(BlockAndTintGetter level, BlockPos pos, BlockState state, WireBlock wire, double offset) {
+		static Key keyFor(BlockAndTintGetter level, BlockPos pos, BlockState state, WireBlock wire, WireLook.Lateral offset) {
+			return keyFor(level, pos, state, wire, offset, 0.0D);
+		}
+
+		/** As above, drawn {@code nudge} blocks off on every axis ({@link #STRAND_LAYER}). */
+		static Key keyFor(BlockAndTintGetter level, BlockPos pos, BlockState state, WireBlock wire, WireLook.Lateral offset, double nudge) {
 			List<WireLook.Placed> placed = WireLook.parts(wire.look(level, pos, state), WireBlock.lookConnections(state));
-			return new Key(placed, WireBlock.isCeiling(state), offset, wire.faces(level, pos, offset));
+			return new Key(placed, WireBlock.isCeiling(state), offset, wire.faces(level, pos, offset), nudge);
 		}
 
 		@Override
@@ -163,7 +178,7 @@ public final class WireModel {
 			if(key == null) { // No level to look at (breaking overlay, a state with no model data): connections only.
 				boolean wire = state != null && state.getBlock() instanceof WireBlock;
 				key = new Key(wire ? WireLook.parts(WireLook.Look.NONE, WireBlock.lookConnections(state)) : List.of(new WireLook.Placed(WireLook.Part.MIDDLE, null)),
-						wire && WireBlock.isCeiling(state), 0.0D, WireLook.Faces.all(0.0D));
+						wire && WireBlock.isCeiling(state), WireLook.Lateral.ZERO, WireLook.Faces.all(0.0D));
 			}
 			return quadsFor(key, state, rand, renderType);
 		}
@@ -172,28 +187,29 @@ public final class WireModel {
 		List<BakedQuad> quadsFor(Key key, @Nullable BlockState state, RandomSource rand, @Nullable RenderType renderType) {
 			return quadCache.computeIfAbsent(key, k -> {
 				Map<WireLook.Part, Map<Integer, BakedModel>> set = k.ceiling() ? flipped : parts;
-				boolean plain = k.offset() == 0 && k.faces().equals(WireLook.Faces.all(0.0D));
+				boolean plain = k.offset().isZero() && k.faces().equals(WireLook.Faces.all(0.0D));
 				List<BakedQuad> quads = new ArrayList<>();
 				for(WireLook.Placed p : k.parts()) {
 					BakedModel model = set.get(p.part()).get(p.part().rotates ? WireLook.rotation(p.dir()) : 0);
 					if(model == null)
 						continue;
-					WireLook.Affine affine = plain ? WireLook.Affine.NONE : WireLook.affine(p, k.offset(), k.faces(), k.ceiling());
+					WireLook.Affine affine = plain && !p.reaches() ? WireLook.Affine.NONE : WireLook.affine(p, k.offset(), k.faces(), k.ceiling());
 					for(BakedQuad quad : model.getQuads(state, null, rand, ModelData.EMPTY, renderType))
-						quads.add(affine.equals(WireLook.Affine.NONE) ? quad : moved(quad, affine));
+						quads.add(affine.equals(WireLook.Affine.NONE) && k.nudge() == 0.0D ? quad : moved(quad, affine, k.nudge()));
 				}
 				return List.copyOf(quads);
 			});
 		}
 
 		/** {@code quad} with {@code affine} applied to its corners (x and z, y untouched; a slant is slight enough that the faces keep their directions). */
-		private static BakedQuad moved(BakedQuad quad, WireLook.Affine affine) {
+		private static BakedQuad moved(BakedQuad quad, WireLook.Affine affine, double nudge) {
 			int[] vertices = quad.getVertices().clone();
 			for(int i = 0; i < 4; i++) {
 				int at = i * IQuadTransformer.STRIDE + IQuadTransformer.POSITION;
 				float x = Float.intBitsToFloat(vertices[at]), y = Float.intBitsToFloat(vertices[at + 1]), z = Float.intBitsToFloat(vertices[at + 2]);
-				vertices[at] = Float.floatToRawIntBits((float)affine.x(x, y, z));
-				vertices[at + 2] = Float.floatToRawIntBits((float)affine.z(x, y, z));
+				vertices[at] = Float.floatToRawIntBits((float)(affine.x(x, y, z) + nudge));
+				vertices[at + 1] = Float.floatToRawIntBits((float)(y + nudge));
+				vertices[at + 2] = Float.floatToRawIntBits((float)(affine.z(x, y, z) + nudge));
 			}
 			return new BakedQuad(vertices, quad.getTintIndex(), quad.getDirection(), quad.getSprite(), quad.isShade(), quad.hasAmbientOcclusion());
 		}
@@ -250,13 +266,13 @@ public final class WireModel {
 			if(!(level.getBlockEntity(pos) instanceof WireBundleBlockEntity bundle))
 				return modelData;
 			List<BlockState> strands = bundle.strands();
-			double[] offsets = Strand.offsets(strands);
+			WireLook.Lateral[] offsets = Strand.laterals(level, pos, strands);
 			List<StrandDraw> draws = new ArrayList<>(strands.size());
 			for(int i = 0; i < strands.size(); i++) {
 				BlockState strand = strands.get(i);
 				Baked model = modelOf(strand);
 				if(model != null)
-					draws.add(new StrandDraw(model, Baked.keyFor(level, pos, strand, (WireBlock)strand.getBlock(), offsets[i]), strand));
+					draws.add(new StrandDraw(model, Baked.keyFor(level, pos, strand, (WireBlock)strand.getBlock(), offsets[i], i * STRAND_LAYER), strand));
 			}
 			return modelData.derive().with(STRANDS, List.copyOf(draws)).build();
 		}

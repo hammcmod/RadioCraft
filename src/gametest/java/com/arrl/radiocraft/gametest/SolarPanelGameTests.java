@@ -16,6 +16,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
+import java.util.List;
+
 /**
  * Solar panels touching each other, or a charge controller, join without wire: a row of panels is one network with
  * the controller at its end. Batteries still need wire. Own batch because it sets the time of day.
@@ -105,5 +107,40 @@ public class SolarPanelGameTests {
                     helper.assertTrue(looseCharge == 0, "The loose battery must stay empty, has " + looseCharge);
                     helper.succeed();
                 });
+    }
+
+    /**
+     * Two charge controllers on one row of panels, both wired to the same battery: they split the panels' power
+     * between them and nothing goes round in a loop (the battery gains no more than the panels make).
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = "solar")
+    public static void twoControllersShareOneRow(GameTestHelper helper) {
+        helper.getLevel().setDayTime(6000); // Noon.
+        BlockPos west = PANEL_A.west(), battery = new BlockPos(7, 2, 10);
+        helper.setBlock(CONTROLLER, RadiocraftBlocks.CHARGE_CONTROLLER.get());
+        helper.setBlock(west, RadiocraftBlocks.CHARGE_CONTROLLER.get());
+        for(BlockPos panel : List.of(PANEL_A, PANEL_B, PANEL_C))
+            helper.setBlock(panel, RadiocraftBlocks.SOLAR_PANEL.get());
+        helper.setBlock(battery, RadiocraftBlocks.LARGE_BATTERY.get());
+        for(BlockPos pos : List.of(CONTROLLER.south(), CONTROLLER.south(2), battery.east(), west.south(), west.south(2), battery.west()))
+            GameTestUtil.placeWire(helper, pos, RadiocraftBlocks.WIRE.get());
+        int[] start = new int[1];
+        int span = 40;
+        helper.startSequence()
+                .thenIdle(10)
+                .thenExecute(() -> start[0] = GameTestUtil.networkObject(helper, battery, BatteryNetworkObject.class).getStorage().getEnergyStored())
+                .thenIdle(span)
+                .thenExecute(() -> {
+                    ChargeControllerNetworkObject a = GameTestUtil.networkObject(helper, CONTROLLER, ChargeControllerNetworkObject.class);
+                    ChargeControllerNetworkObject b = GameTestUtil.networkObject(helper, west, ChargeControllerNetworkObject.class);
+                    helper.assertTrue(a.getLastPowerTick() > 0 && b.getLastPowerTick() > 0,
+                            "Both controllers should pass power on: " + a.getLastPowerTick() + " and " + b.getLastPowerTick());
+                    int made = 0;
+                    for(BlockPos panel : List.of(PANEL_A, PANEL_B, PANEL_C))
+                        made += GameTestUtil.networkObject(helper, panel, SolarPanelNetworkObject.class).getLastPowerTick();
+                    int gained = GameTestUtil.networkObject(helper, battery, BatteryNetworkObject.class).getStorage().getEnergyStored() - start[0];
+                    helper.assertTrue(gained > 0 && gained <= made * (span + 2), "The battery gained " + gained + " in " + span + " ticks from panels making " + made + " a tick");
+                })
+                .thenSucceed();
     }
 }

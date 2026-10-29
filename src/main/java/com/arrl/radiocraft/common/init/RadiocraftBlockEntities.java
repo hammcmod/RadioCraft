@@ -62,6 +62,8 @@ public class RadiocraftBlockEntities {
 	public static final Supplier<BlockEntityType<?>> RADIO_FAX = BLOCK_ENTITY_TYPES.register("radio_fax",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity::new,
 					RadiocraftBlocks.RADIO_FAXES.values().stream().map(net.neoforged.neoforge.registries.DeferredHolder::get).toArray(Block[]::new)).build(null));
+	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.WireJunctionBlockEntity>> WIRE_JUNCTION = BLOCK_ENTITY_TYPES.register("wire_junction",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.WireJunctionBlockEntity::new, RadiocraftBlocks.WIRE_JUNCTION.get()).build(null));
 	public static final Supplier<BlockEntityType<?>> DUPLEXER = BLOCK_ENTITY_TYPES.register("duplexer",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.DuplexerBlockEntity::new, RadiocraftBlocks.DUPLEXER.get()).build(null));
 	public static final Supplier<BlockEntityType<?>> ANTENNA_TUNER = BLOCK_ENTITY_TYPES.register("antenna_tuner",

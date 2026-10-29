@@ -10,7 +10,7 @@
     },
     {
       "type": "patchouli:text",
-      "text": "$(item)Solar panels$() join by touching each other and the $(item)charge controller$() at the end of the row. Run $(item)wire$() from the controller to a $(item)large battery$() and from the battery to the radio. The battery also takes and gives Forge Energy, so other mods' generators can charge it.",
+      "text": "$(item)Solar panels$() join by touching each other and the $(item)charge controller$() at the end of the row. A controller passes up to 180 FE a tick, about 20 panels in full sun; for a bigger array, set more controllers against it, each wired to the batteries, and they share the panels' power. Run $(item)wire$() from the controller to a $(item)large battery$() and from the battery to the radio. The battery also takes and gives Forge Energy, so other mods' generators can charge it.",
       "title": "Building it"
     },
     {

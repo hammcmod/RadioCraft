@@ -90,20 +90,62 @@ public record Strand(BlockPos pos, @Nullable WireBlock kind) {
 	 * Where the cable {@code kind} would meet at {@code pos} sits laterally (see {@link #offsets}): a lone wire or a
 	 * device at 0, a bundle's strand of that kind (or of a kind it runs on as) at its place in the bundle.
 	 */
-	public static double offsetOf(BlockGetter level, BlockPos pos, WireBlock kind) {
+	public static WireLook.Lateral offsetOf(BlockGetter level, BlockPos pos, WireBlock kind) {
 		BlockState state = level.getBlockState(pos);
+		if(state.getBlock() instanceof WireBlock wire)
+			return wire.isSameKind(kind) ? loneOffset(level, pos, state) : WireLook.Lateral.ZERO;
 		if(!(state.getBlock() instanceof WireBundleBlock) || !(level.getBlockEntity(pos) instanceof WireBundleBlockEntity bundle))
-			return 0.0D;
+			return WireLook.Lateral.ZERO;
 		List<BlockState> strands = bundle.strands();
 		double[] offsets = offsets(strands);
 		int fallback = -1;
 		for(int i = 0; i < strands.size(); i++) {
 			WireBlock there = (WireBlock)strands.get(i).getBlock();
 			if(there == kind)
-				return offsets[i];
+				return bundle.lateral(offsets[i]);
 			if(fallback < 0 && kind.isSameKind(there))
 				fallback = i;
 		}
-		return fallback < 0 ? 0.0D : offsets[fallback];
+		return fallback < 0 ? WireLook.Lateral.ZERO : bundle.lateral(offsets[fallback]);
+	}
+
+	/**
+	 * Where the lone wire in {@code state} at {@code pos} is drawn: in the middle, unless it only joins bundle strands
+	 * that all sit at the same place (one block of cable on its own between two bundles, say, where a strand comes up
+	 * through a hole and turns), when it keeps their line instead of jinking to the middle and back.
+	 */
+	public static WireLook.Lateral loneOffset(BlockGetter level, BlockPos pos, BlockState state) {
+		if(!(state.getBlock() instanceof WireBlock wire) || !state.hasProperty(WireBlock.NORTH))
+			return WireLook.Lateral.ZERO;
+		WireLook.Lateral found = null;
+		int links = 0;
+		for(net.minecraft.core.Direction dir : net.minecraft.core.Direction.values()) {
+			if(!state.getValue(WireBlock.PROPERTY_BY_DIRECTION.get(dir)))
+				continue;
+			BlockPos next = pos.relative(dir);
+			if(!(level.getBlockState(next).getBlock() instanceof WireBundleBlock))
+				return WireLook.Lateral.ZERO; // Only between bundles (which never ask a lone wire back, so no loop).
+			WireLook.Lateral there = offsetOf(level, next, wire);
+			if(found != null && !found.equals(there))
+				return WireLook.Lateral.ZERO;
+			found = there;
+			links++;
+		}
+		return links >= 2 ? found : WireLook.Lateral.ZERO;
+	}
+
+	/**
+	 * Where each strand at {@code pos} sits ({@link #offsets}), turned round on either axis as its bundle is
+	 * ({@code WireBundleBlockEntity#lateral}); a lone wire at the middle.
+	 */
+	public static WireLook.Lateral[] laterals(BlockGetter level, BlockPos pos, List<BlockState> strands) {
+		double[] offsets = offsets(strands);
+		WireLook.Lateral[] out = new WireLook.Lateral[offsets.length];
+		WireBundleBlockEntity bundle = level.getBlockState(pos).getBlock() instanceof WireBundleBlock
+				&& level.getBlockEntity(pos) instanceof WireBundleBlockEntity entity ? entity : null;
+		for(int i = 0; i < offsets.length; i++)
+			out[i] = bundle != null ? bundle.lateral(offsets[i])
+					: offsets.length == 1 ? loneOffset(level, pos, strands.get(i)) : WireLook.Lateral.of(offsets[i]);
+		return out;
 	}
 }

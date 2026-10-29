@@ -76,7 +76,7 @@ public class WireUtils {
 	public static void mergeNetworks(Level level, Strand strand, Predicate<BENetworkObject> connection, Supplier<BENetwork> fallbackSupplier, WireBlock... wires) {
 		Map<BENetworkObject, Direction> connections = getConnections(new HashMap<>(), new HashSet<>(), level, strand, connection, Set.of(wires));
 		if(!connections.isEmpty())
-			joinAll(level, connections, fallbackSupplier);
+			joinAll(level, connections, fallbackSupplier, isPowerWalk(Set.of(wires)));
 	}
 
 	/** {@link #mergeNetworks(Level, Strand, Predicate, Supplier, WireBlock...)} for every strand at {@code pos} of a kind in {@code wires}. */
@@ -97,12 +97,12 @@ public class WireUtils {
 	 * @param fallbackSupplier Creates the new network if none of the objects had one.
 	 * @return The network every object is now on.
 	 */
-	public static BENetwork joinAll(Level level, Map<BENetworkObject, Direction> connections, Supplier<BENetwork> fallbackSupplier) {
+	public static BENetwork joinAll(Level level, Map<BENetworkObject, Direction> connections, Supplier<BENetwork> fallbackSupplier, boolean power) {
 		Set<BENetwork> existingNetworks = new HashSet<>();
 		Set<BENetworkObject> nullItems = new HashSet<>(); // These network objects don't have a network on that side.
 
 		for(BENetworkObject networkObject : connections.keySet()) {
-			BENetwork network = networkObject.getNetwork(connections.get(networkObject));
+			BENetwork network = networkObject.getNetwork(connections.get(networkObject), power); // This walk's kind of network on that side.
 
 			if(network == null)
 				nullItems.add(networkObject);
@@ -169,7 +169,7 @@ public class WireUtils {
 
 			BENetwork networkToReplace = null; // Search for a network on the wire first. Just in case there isn't one for some reason.
 			for(BENetworkObject networkObject : connections.keySet()) {
-				networkToReplace = networkObject.getNetwork(connections.get(networkObject));
+				networkToReplace = networkObject.getNetwork(connections.get(networkObject), isPowerWalk(wireSet));
 				if(networkToReplace != null)
 					break;
 			}
@@ -255,7 +255,7 @@ public class WireUtils {
 				continue; // Nothing on the other end yet; whatever loads there later will connect to us.
 
 			connections.put(networkObject, dir);
-			joinAll(level, connections, fallbackSupplier);
+			joinAll(level, connections, fallbackSupplier, power);
 		}
 
 		// Devices that link by touching (solar panels to each other and to a charge controller): no wire needed.
@@ -275,12 +275,12 @@ public class WireUtils {
 			Map<BENetworkObject, Direction> connections = new HashMap<>();
 			addConnection(connections, blacklist, level, checkPos, other, dir.getOpposite(), validConnection, wireSet);
 			connections.put(networkObject, dir);
-			joinAll(level, connections, fallbackSupplier);
+			joinAll(level, connections, fallbackSupplier, power);
 		}
 
 		if(passThrough && !allConnections.isEmpty()) {
 			allConnections.put(networkObject, firstSide);
-			joinAll(level, allConnections, fallbackSupplier);
+			joinAll(level, allConnections, fallbackSupplier, power);
 		}
 	}
 
@@ -368,6 +368,8 @@ public class WireUtils {
 		BlockState state = level.getBlockState(target);
 		if(state.hasProperty(StackedBlocks.PART) && state.getValue(StackedBlocks.PART) > 0)
 			return StackedBlocks.bottom(target, state, StackedBlocks.PART);
+		if(state.getBlock() instanceof com.arrl.radiocraft.common.blocks.MicrowaveHornBlock) // Any base block: the feed.
+			return com.arrl.radiocraft.common.blocks.MicrowaveHornBlock.originOf(state, target);
 		return duplexerOnTop(level, target) && side == repeaterBack(state) ? target.above() : target;
 	}
 
@@ -379,6 +381,17 @@ public class WireUtils {
 	public static Map<BlockPos, Direction> wireLinksOf(BlockGetter level, BlockPos pos, Set<WireBlock> wires) {
 		Map<BlockPos, Direction> links = WireBlock.wireLinksAround(level, pos, wires);
 		BlockState state = level.getBlockState(pos);
+		if(state.getBlock() instanceof com.arrl.radiocraft.common.blocks.MicrowaveHornBlock horn && com.arrl.radiocraft.common.blocks.MicrowaveHornBlock.isOrigin(state)) {
+			// The horn takes coax at any of its four base blocks, all to the one feed.
+			Direction facing = state.getValue(com.arrl.radiocraft.common.blocks.MicrowaveHornBlock.FACING);
+			for(Map.Entry<BlockPos, BlockState> part : horn.parts(pos, facing)) {
+				if(part.getValue().getValue(com.arrl.radiocraft.common.blocks.MicrowaveHornBlock.PART_Y) != 0 || part.getKey().equals(pos))
+					continue;
+				for(Map.Entry<BlockPos, Direction> link : WireBlock.wireLinksAround(level, part.getKey(), wires).entrySet())
+					if(link.getValue().getAxis().isHorizontal() && !(level.getBlockState(link.getKey()).getBlock() instanceof com.arrl.radiocraft.common.blocks.MicrowaveHornBlock))
+						links.putIfAbsent(link.getKey(), link.getValue());
+			}
+		}
 		if(state.hasProperty(StackedBlocks.PART) && state.getValue(StackedBlocks.PART) == 0) {
 			for(int cell = 1; cell < StackedBlocks.HEIGHT; cell++) {
 				BlockPos upper = pos.above(cell);

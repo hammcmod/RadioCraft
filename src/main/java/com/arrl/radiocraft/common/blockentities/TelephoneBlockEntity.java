@@ -147,39 +147,26 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 
 	// -------------------- REACH --------------------
 
-	/** Phones this one can call: on the same microwave radio, or on a radio linked to one of its radios. */
+	/**
+	 * Phones this one can call: on the microwave network it is on, at this site or relayed through other sites
+	 * ({@code MicrowaveRoutes}).
+	 */
 	public List<TelephoneBlockEntity> reachable() {
 		List<TelephoneBlockEntity> out = new ArrayList<>();
 		if(level == null)
 			return out;
-		List<MicrowaveRadioBlockEntity> radios = new ArrayList<>();
-		for(MicrowaveRadioBlockEntity radio : MicrowaveRadioBlockEntity.servingStation(level, worldPosition)) {
-			if(!radio.isPowered())
-				continue;
-			if(!radios.contains(radio))
-				radios.add(radio);
-			for(MicrowaveRadioBlockEntity peer : radio.peers())
-				if(!radios.contains(peer))
-					radios.add(peer);
-		}
-		for(MicrowaveRadioBlockEntity radio : radios)
-			for(BlockEntity station : radio.stations())
-				if(station instanceof TelephoneBlockEntity phone && phone != this && !out.contains(phone))
-					out.add(phone);
+		for(com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.Route route : com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.from(level, worldPosition))
+			if(route.station() instanceof TelephoneBlockEntity phone && phone != this)
+				out.add(phone);
 		return out;
 	}
 
-	/** True if any radio on the way to {@code other} has interference, or a signal too weak for a clean call. */
+	/** True if any link on the way to {@code other} has interference, or a signal too weak for a clean call. */
 	private boolean lossyTo(TelephoneBlockEntity other) {
 		if(level == null)
 			return false;
-		for(MicrowaveRadioBlockEntity radio : MicrowaveRadioBlockEntity.servingStation(level, worldPosition))
-			if(radio.hasInterference() || radio.isMarginal())
-				return true;
-		for(MicrowaveRadioBlockEntity radio : MicrowaveRadioBlockEntity.servingStation(level, other.worldPosition))
-			if(radio.hasInterference() || radio.isMarginal())
-				return true;
-		return false;
+		com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.Route route = com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.to(level, worldPosition, other);
+		return route != null && route.lossy();
 	}
 
 	// -------------------- CALLS --------------------

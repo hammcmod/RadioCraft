@@ -11,7 +11,7 @@
   {
    "type": "patchouli:text",
    "title": "Coloured wire",
-   "text": "Wire comes in sixteen colours, like coax: a colour joins only its own colour or plain wire, so two runs can lie side by side, or share a bundle, without becoming one circuit. Plain wire joins any colour. Wire is thin and coax fat, so you can tell them apart whatever the colour.$(br2)Use a dye on laid wire to colour the whole run (sneak for one block), or craft eight wire round a dye. Waterproof wire stays plain."
+   "text": "Wire comes in sixteen colours, like coax: a colour joins only its own colour (plain wire is a colour of its own), so two runs can lie side by side, or share a bundle, without becoming one circuit. To join runs of different colours, run them into a Wire Junction: every power wire touching it is one circuit (coax does not join it). Wire is thin and coax fat, so you can tell them apart whatever the colour.$(br2)Use a dye on laid wire to colour the whole run (sneak for one block), or craft eight wire round a dye. Waterproof wire stays plain."
   },
   {
    "type": "patchouli:crafting",

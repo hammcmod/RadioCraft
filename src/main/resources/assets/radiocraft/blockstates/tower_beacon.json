@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "lit=false": {
+      "model": "radiocraft:block/tower_beacon"
+    },
+    "lit=true": {
+      "model": "radiocraft:block/tower_beacon_lit"
+    }
+  }
+}

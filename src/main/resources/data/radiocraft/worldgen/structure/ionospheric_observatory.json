@@ -1,0 +1,32 @@
+{
+  "type": "radiocraft:site",
+  "biomes": "#radiocraft:has_structure/ionospheric_observatory",
+  "step": "surface_structures",
+  "spawn_overrides": {},
+  "terrain_adaptation": "beard_thin",
+  "template": "radiocraft:sites/ionospheric_observatory",
+  "ground": 1,
+  "max_slope": 6,
+  "variants": [
+    {
+      "parts": [
+        [
+          [2, 1, 8, 2, 4, 8]
+        ]
+      ],
+      "keep": {
+        "type": "minecraft:weighted_list",
+        "distribution": [
+          {
+            "data": 0,
+            "weight": 2
+          },
+          {
+            "data": 1,
+            "weight": 1
+          }
+        ]
+      }
+    }
+  ]
+}

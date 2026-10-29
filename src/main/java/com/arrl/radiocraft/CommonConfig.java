@@ -51,7 +51,7 @@ public class CommonConfig {
 		LARGE_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of large batteries. #default 260000 integer").define("large_battery_capacity", 260000);
 		LARGE_BATTERY_OUTPUT = BUILDER.comment("*Max output per tick for a large battery. #default 80").define("large_battery_output", 80);
 		SMALL_BATTERY_CAPACITY = BUILDER.comment("*Energy capacity of small batteries; a newly crafted one starts 50-70% charged. #default 60000 integer").define("small_battery_capacity", 60000);
-		CHARGE_CONTROLLER_TICK = BUILDER.comment("*Amount of power a charge controller can process each tick. #default 45 integer").define("charge_controller_tick", 45);
+		CHARGE_CONTROLLER_TICK = BUILDER.comment("*Amount of power a charge controller can process each tick: enough for 20 solar panels in full sun. Several controllers touching one array share its power. #default 180 integer").define("charge_controller_tick", 180);
 		CHARGE_CONTROLLER_BATTERY_CHARGE = BUILDER.comment("*Amount of power a charge controller can transfer to a small battery each tick. #default 8 integer").define("charge_controller_battery_charge", 8);
 		SOLAR_PANEL_MAX_OUTPUT = BUILDER.comment("*Maximum output of a solar power per tick. #default 9").define("solar_panel_max_output integer", 9);
 		SOLAR_PANEL_RAIN_MULTIPLIER = BUILDER.comment("*Multiplier for solar panel output while raining #default 0.5").define("solar_panel_rain_multiplier double", 0.5D);

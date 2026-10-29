@@ -103,4 +103,26 @@ public class PassthroughGameTests {
                     helper.succeed();
                 });
     }
+
+    /**
+     * Water beside a passthrough flows up to it and stops, and a bucket cannot fill or empty it: it has no waterlogged
+     * property though it is a wire (this used to crash, the first time a template put one down by water).
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 60)
+    public static void waterStopsAtAPassthrough(GameTestHelper helper) {
+        BlockPos wall = new BlockPos(5, 2, 5);
+        passthrough(helper, wall);
+        helper.setBlock(wall.west(), Blocks.WATER);
+        helper.setBlock(wall.above().west(), Blocks.WATER);
+        com.arrl.radiocraft.common.blocks.PassthroughBlock block = RadiocraftBlocks.PASSTHROUGH.get();
+        net.minecraft.world.level.block.state.BlockState state = helper.getBlockState(wall);
+        helper.assertFalse(block.canPlaceLiquid(null, helper.getLevel(), helper.absolutePos(wall), state, net.minecraft.world.level.material.Fluids.WATER),
+                "a passthrough takes water");
+        helper.assertTrue(block.pickupBlock(null, helper.getLevel(), helper.absolutePos(wall), state).isEmpty(), "water came out of a passthrough");
+        helper.runAfterDelay(40, () -> {
+            helper.assertBlockPresent(RadiocraftBlocks.PASSTHROUGH.get(), wall);
+            helper.assertTrue(helper.getBlockState(wall).getFluidState().isEmpty(), "the passthrough is waterlogged");
+            helper.succeed();
+        });
+    }
 }

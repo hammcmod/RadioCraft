@@ -71,6 +71,8 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.TOWER_BEAM_THIN.get());
         output.accept(RadiocraftItems.TOWER_BEAM.get());
         output.accept(RadiocraftItems.TOWER_BEAM_THICK.get());
+        output.accept(RadiocraftItems.TOWER_BEACON.get());
+        output.accept(RadiocraftItems.TOWER_BEACON_CONTROLLER.get()); // Not craftable: creative and structures.
         output.accept(RadiocraftItems.SATELLITE_DISH.get()); // The microwave dish.
         output.accept(RadiocraftItems.MICROWAVE_HORN.get()); // The large horn: a dish with six times the reach.
         output.accept(RadiocraftItems.MICROWAVE_RADIO.get());
@@ -97,6 +99,7 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.COMMERCIAL_REPEATER.get());
         output.accept(RadiocraftItems.COMMERCIAL_RADIO_MODULE.get());
         output.accept(RadiocraftItems.DUPLEXER.get());
+        output.accept(RadiocraftItems.WIRE_JUNCTION.get());
 
         // APRS and packet
         output.accept(RadiocraftItems.RADIO_INTERFACE.get());

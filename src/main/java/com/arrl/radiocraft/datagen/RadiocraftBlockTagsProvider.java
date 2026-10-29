@@ -34,6 +34,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.WIRE.get())
                 .add(RadiocraftBlocks.WATERPROOF_WIRE.get())
                 .add(RadiocraftBlocks.COLOURED_WIRE.values().stream().map(net.neoforged.neoforge.registries.DeferredHolder::get).toArray(Block[]::new))
+                .add(RadiocraftBlocks.WIRE_JUNCTION.get())
                 .add(RadiocraftBlocks.SOLAR_PANEL.get())
                 .add(RadiocraftBlocks.LARGE_BATTERY.get())
                 .add(RadiocraftBlocks.CHARGE_CONTROLLER.get())

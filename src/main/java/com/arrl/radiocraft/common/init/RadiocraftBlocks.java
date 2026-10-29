@@ -84,6 +84,9 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, ParrotControllerBlock> PARROT_CONTROLLER = BLOCKS.register("parrot_controller", () -> new ParrotControllerBlock(PROPERTIES_RADIO));
 
 	// Antenna blocks
+	/** Joins power wire of any colour (colours otherwise keep apart). */
+	public static final DeferredHolder<Block, WireJunctionBlock> WIRE_JUNCTION = BLOCKS.register("wire_junction",
+			() -> new WireJunctionBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK).strength(2.0F).noOcclusion()));
 	public static final DeferredHolder<Block, DuplexerBlock> DUPLEXER = BLOCKS.register("duplexer", () -> new DuplexerBlock(PROPERTIES_STONE_NO_OCCLUDE));
 	public static final DeferredHolder<Block, AntennaTunerBlock> ANTENNA_TUNER = BLOCKS.register("antenna_tuner", () -> new AntennaTunerBlock(PROPERTIES_STONE));
 	public static final DeferredHolder<Block, AutoTunerBlock> AUTO_TUNER = BLOCKS.register("auto_tuner", () -> new AutoTunerBlock(PROPERTIES_STONE_NO_OCCLUDE));
@@ -131,6 +134,11 @@ public class RadiocraftBlocks {
 
 	// Tower legs: lattice beams that join every beam touching them (see TowerBeamBlock).
 	public static final DeferredHolder<Block, TowerBeamBlock> TOWER_BEAM_THIN = BLOCKS.register("tower_beam_thin", () -> new TowerBeamBlock(PROPERTIES_IRON_BARS, 4));
+	/** A thin beam that flashes a tower's obstruction lights: redstone 2 s on, 2 s off. Creative and structures only. */
+	/** A tower's red obstruction light: lit by redstone, light 11. */
+	public static final DeferredHolder<Block, TowerBeaconBlock> TOWER_BEACON = BLOCKS.register("tower_beacon",
+			() -> new TowerBeaconBlock(Properties.ofFullCopy(Blocks.REDSTONE_LAMP).noOcclusion().sound(net.minecraft.world.level.block.SoundType.METAL)));
+	public static final DeferredHolder<Block, TowerBeaconControllerBlock> TOWER_BEACON_CONTROLLER = BLOCKS.register("tower_beacon_controller", () -> new TowerBeaconControllerBlock(PROPERTIES_IRON_BARS));
 	public static final DeferredHolder<Block, TowerBeamBlock> TOWER_BEAM = BLOCKS.register("tower_beam", () -> new TowerBeamBlock(PROPERTIES_IRON_BARS, 6));
 	public static final DeferredHolder<Block, TowerBeamBlock> TOWER_BEAM_THICK = BLOCKS.register("tower_beam_thick", () -> new TowerBeamBlock(PROPERTIES_IRON_BARS, 8));
 	/** The AT&T Long Lines horn-reflector, two by two blocks and four tall. Decorative for now. */

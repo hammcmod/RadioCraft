@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:redstone_torch"
+    },
+    [
+      {
+        "item": "radiocraft:tower_beam_thin"
+      },
+      {
+        "item": "radiocraft:tower_beam"
+      },
+      {
+        "item": "radiocraft:tower_beam_thick"
+      }
+    ],
+    {
+      "item": "minecraft:redstone_lamp"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:tower_beacon"
+  }
+}

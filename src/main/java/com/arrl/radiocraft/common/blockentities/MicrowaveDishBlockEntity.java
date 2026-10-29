@@ -71,7 +71,9 @@ public class MicrowaveDishBlockEntity extends BlockEntity implements INetworkObj
 	}
 
 	public void setElevation(double degrees) {
-		elevation = (float)Math.max(MicrowaveMath.MIN_ELEVATION, Math.min(MicrowaveMath.MAX_ELEVATION, degrees));
+		// A horn tilts inside itself (it does not show), and only so far: the feed horn's reach within the reflector.
+		double low = isHorn() ? -MicrowaveMath.HORN_TILT : MicrowaveMath.MIN_ELEVATION, high = isHorn() ? MicrowaveMath.HORN_TILT : MicrowaveMath.MAX_ELEVATION;
+		elevation = (float)Math.max(low, Math.min(high, degrees));
 		setChanged();
 		if(level != null && !level.isClientSide)
 			level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);

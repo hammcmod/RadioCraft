@@ -102,6 +102,7 @@ public class RadiocraftItems {
 
 	// TODO: This may be supposed to be a BlockItem, but this compiles so meh?
 	public static final DeferredHolder<Item, AntennaPoleItem> ANTENNA_POLE = ITEMS.register("antenna_pole", () -> new AntennaPoleItem(RadiocraftBlocks.ANTENNA_POLE.get(), new Item.Properties()));
+	public static final Supplier<BlockItem> WIRE_JUNCTION = simpleBlockItem("wire_junction", RadiocraftBlocks.WIRE_JUNCTION);
 	public static final Supplier<BlockItem> DUPLEXER = simpleBlockItem("duplexer", RadiocraftBlocks.DUPLEXER);
 	public static final Supplier<BlockItem> ANTENNA_TUNER = simpleBlockItem("antenna_tuner", RadiocraftBlocks.ANTENNA_TUNER);
 	public static final Supplier<BlockItem> AUTO_TUNER = simpleBlockItem("auto_tuner", RadiocraftBlocks.AUTO_TUNER);
@@ -131,10 +132,12 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> TELETYPE = simpleBlockItem("teletype", RadiocraftBlocks.TELETYPE);
 	public static final Supplier<BlockItem> MICROPHONE = simpleBlockItem("microphone", RadiocraftBlocks.MICROPHONE);
 	public static final Supplier<BlockItem> WEFAX_RECEIVER = simpleBlockItem("wefax_receiver", RadiocraftBlocks.WEFAX_RECEIVER);
-	public static final Supplier<BlockItem> TOWER_FOOTHOLD = simpleBlockItem("tower_foothold", RadiocraftBlocks.TOWER_FOOTHOLD);
-	public static final Supplier<BlockItem> OLD_TOWER_FOOTHOLD = simpleBlockItem("old_tower_foothold", RadiocraftBlocks.OLD_TOWER_FOOTHOLD);
+	public static final Supplier<BlockItem> TOWER_FOOTHOLD = ITEMS.register("tower_foothold", () -> new com.arrl.radiocraft.common.items.TowerFootholdItem(RadiocraftBlocks.TOWER_FOOTHOLD.get(), new Properties()));
+	public static final Supplier<BlockItem> OLD_TOWER_FOOTHOLD = ITEMS.register("old_tower_foothold", () -> new com.arrl.radiocraft.common.items.TowerFootholdItem(RadiocraftBlocks.OLD_TOWER_FOOTHOLD.get(), new Properties()));
 
 	public static final Supplier<BlockItem> TOWER_BEAM_THIN = simpleBlockItem("tower_beam_thin", RadiocraftBlocks.TOWER_BEAM_THIN);
+	public static final Supplier<BlockItem> TOWER_BEACON = simpleBlockItem("tower_beacon", RadiocraftBlocks.TOWER_BEACON);
+	public static final Supplier<BlockItem> TOWER_BEACON_CONTROLLER = simpleBlockItem("tower_beacon_controller", RadiocraftBlocks.TOWER_BEACON_CONTROLLER);
 	public static final Supplier<BlockItem> TOWER_BEAM = simpleBlockItem("tower_beam", RadiocraftBlocks.TOWER_BEAM);
 	public static final Supplier<BlockItem> TOWER_BEAM_THICK = simpleBlockItem("tower_beam_thick", RadiocraftBlocks.TOWER_BEAM_THICK);
 	public static final Supplier<BlockItem> MICROWAVE_HORN = simpleBlockItem("microwave_horn", RadiocraftBlocks.MICROWAVE_HORN);

@@ -45,6 +45,7 @@ public class RadiocraftCapabilities {
 	@SubscribeEvent
 	public static void registerCapabilities(RegisterCapabilitiesEvent event) {
 		event.registerBlock(BE_NETWORKS, (level, pos, state, be, side) -> BENetworksCapability.get(level),
+				RadiocraftBlocks.WIRE_JUNCTION.get(),
 				RadiocraftBlocks.CHARGE_CONTROLLER.get(),
 				RadiocraftBlocks.SOLAR_PANEL.get(),
 				RadiocraftBlocks.LARGE_BATTERY.get(),

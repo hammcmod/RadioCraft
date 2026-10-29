@@ -1,0 +1,26 @@
+{
+  "structures": [
+    {
+      "structure": "radiocraft:buried_site",
+      "weight": 1
+    },
+    {
+      "structure": "radiocraft:ionospheric_observatory",
+      "weight": 1
+    },
+    {
+      "structure": "radiocraft:weather_observatory",
+      "weight": 1
+    },
+    {
+      "structure": "radiocraft:direction_finding_station",
+      "weight": 1
+    }
+  ],
+  "placement": {
+    "type": "minecraft:random_spread",
+    "spacing": 28,
+    "separation": 9,
+    "salt": 20261028
+  }
+}

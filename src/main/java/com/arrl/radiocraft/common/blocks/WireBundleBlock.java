@@ -185,6 +185,7 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 	 * wires around are refreshed ({@link WireClimbUpdater}) and the six neighbours follow us ({@code updateShape}).
 	 */
 	static void changed(Level level, BlockPos pos) {
+		BundleOrientation.queue(level, pos); // Its strands' bends may have changed: re-solve the run's turns.
 		BlockState state = level.getBlockState(pos);
 		level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
 		level.blockUpdated(pos, state.getBlock());
@@ -196,7 +197,7 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 	public static WireBlock strandAt(BlockGetter level, BlockPos pos, BlockHitResult hit) {
 		List<BlockState> strands = Strand.statesAt(level, pos);
 		Vec3 at = hit.getLocation().subtract(Vec3.atLowerCornerOf(pos));
-		double[] offsets = Strand.offsets(strands);
+		WireLook.Lateral[] offsets = Strand.laterals(level, pos, strands);
 		WireBlock best = null;
 		double bestDistance = Double.MAX_VALUE;
 		for(int i = 0; i < strands.size(); i++) {
@@ -242,8 +243,10 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 					WireFaults.queue(serverLevel, pos);
 				changed |= entity.put(kind.followNeighbours(level, pos, old));
 			}
-			if(changed)
+			if(changed) {
 				realLevel.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+				BundleOrientation.queue(realLevel, pos);
+			}
 		}
 		return state;
 	}
@@ -261,7 +264,14 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 	}
 
 	@Override
+	protected void onPlace(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState oldState, boolean movedByPiston) {
+		super.onPlace(state, level, pos, oldState, movedByPiston);
+		BundleOrientation.queue(level, pos); // A new bundle joins the run: its turns, and its neighbours'.
+	}
+
+	@Override
 	public void onRemove(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull BlockState newState, boolean movedByPiston) {
+		BundleOrientation.queue(level, pos); // The runs either side may have split.
 		if(newState.is(this))
 			return;
 		if(!level.isClientSide) {
@@ -383,10 +393,20 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 	private static final Map<ShapeKey, VoxelShape> SHAPE_CACHE = new ConcurrentHashMap<>();
 
 	/** The outlines of all the strands, each drawn where it sits in the bundle. */
+	/**
+	 * Skylight passes a cable (unless it is under water), decided without its shape: the shape reads the neighbours,
+	 * and the light engine asks from its own thread, where reading a neighbour in a chunk not loaded yet waits on the
+	 * server thread, which may be waiting on the light (a hang, as when a radio site generated).
+	 */
+	@Override
+	protected boolean propagatesSkylightDown(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos) {
+		return state.getFluidState().isEmpty();
+	}
+
 	@Override
 	public @NotNull VoxelShape getShape(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
 		List<BlockState> strands = Strand.statesAt(level, pos);
-		double[] offsets = Strand.offsets(strands);
+		WireLook.Lateral[] offsets = Strand.laterals(level, pos, strands);
 		List<VoxelShape> parts = new ArrayList<>(strands.size());
 		for(int i = 0; i < strands.size(); i++)
 			parts.add(((WireBlock)strands.get(i).getBlock()).shapeFor(level, pos, strands.get(i), offsets[i]));

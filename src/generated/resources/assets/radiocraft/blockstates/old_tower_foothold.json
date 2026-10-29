@@ -1,62 +1,242 @@
 {
   "variants": {
-    "broken=false,facing=east,waterlogged=false": {
+    "broken=false,facing=east,mount=beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_5",
+      "y": 90
+    },
+    "broken=false,facing=east,mount=beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_5",
+      "y": 90
+    },
+    "broken=false,facing=east,mount=thick_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_4",
+      "y": 90
+    },
+    "broken=false,facing=east,mount=thick_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_4",
+      "y": 90
+    },
+    "broken=false,facing=east,mount=thin_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_6",
+      "y": 90
+    },
+    "broken=false,facing=east,mount=thin_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_6",
+      "y": 90
+    },
+    "broken=false,facing=east,mount=wall,waterlogged=false": {
       "model": "radiocraft:block/tower_foothold",
       "y": 90
     },
-    "broken=false,facing=east,waterlogged=true": {
+    "broken=false,facing=east,mount=wall,waterlogged=true": {
       "model": "radiocraft:block/tower_foothold",
       "y": 90
     },
-    "broken=false,facing=north,waterlogged=false": {
+    "broken=false,facing=north,mount=beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_5"
+    },
+    "broken=false,facing=north,mount=beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_5"
+    },
+    "broken=false,facing=north,mount=thick_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_4"
+    },
+    "broken=false,facing=north,mount=thick_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_4"
+    },
+    "broken=false,facing=north,mount=thin_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_6"
+    },
+    "broken=false,facing=north,mount=thin_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_6"
+    },
+    "broken=false,facing=north,mount=wall,waterlogged=false": {
       "model": "radiocraft:block/tower_foothold"
     },
-    "broken=false,facing=north,waterlogged=true": {
+    "broken=false,facing=north,mount=wall,waterlogged=true": {
       "model": "radiocraft:block/tower_foothold"
     },
-    "broken=false,facing=south,waterlogged=false": {
+    "broken=false,facing=south,mount=beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_5",
+      "y": 180
+    },
+    "broken=false,facing=south,mount=beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_5",
+      "y": 180
+    },
+    "broken=false,facing=south,mount=thick_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_4",
+      "y": 180
+    },
+    "broken=false,facing=south,mount=thick_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_4",
+      "y": 180
+    },
+    "broken=false,facing=south,mount=thin_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_6",
+      "y": 180
+    },
+    "broken=false,facing=south,mount=thin_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_6",
+      "y": 180
+    },
+    "broken=false,facing=south,mount=wall,waterlogged=false": {
       "model": "radiocraft:block/tower_foothold",
       "y": 180
     },
-    "broken=false,facing=south,waterlogged=true": {
+    "broken=false,facing=south,mount=wall,waterlogged=true": {
       "model": "radiocraft:block/tower_foothold",
       "y": 180
     },
-    "broken=false,facing=west,waterlogged=false": {
+    "broken=false,facing=west,mount=beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_5",
+      "y": 270
+    },
+    "broken=false,facing=west,mount=beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_5",
+      "y": 270
+    },
+    "broken=false,facing=west,mount=thick_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_4",
+      "y": 270
+    },
+    "broken=false,facing=west,mount=thick_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_4",
+      "y": 270
+    },
+    "broken=false,facing=west,mount=thin_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_reach_6",
+      "y": 270
+    },
+    "broken=false,facing=west,mount=thin_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_reach_6",
+      "y": 270
+    },
+    "broken=false,facing=west,mount=wall,waterlogged=false": {
       "model": "radiocraft:block/tower_foothold",
       "y": 270
     },
-    "broken=false,facing=west,waterlogged=true": {
+    "broken=false,facing=west,mount=wall,waterlogged=true": {
       "model": "radiocraft:block/tower_foothold",
       "y": 270
     },
-    "broken=true,facing=east,waterlogged=false": {
+    "broken=true,facing=east,mount=beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_5",
+      "y": 90
+    },
+    "broken=true,facing=east,mount=beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_5",
+      "y": 90
+    },
+    "broken=true,facing=east,mount=thick_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_4",
+      "y": 90
+    },
+    "broken=true,facing=east,mount=thick_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_4",
+      "y": 90
+    },
+    "broken=true,facing=east,mount=thin_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_6",
+      "y": 90
+    },
+    "broken=true,facing=east,mount=thin_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_6",
+      "y": 90
+    },
+    "broken=true,facing=east,mount=wall,waterlogged=false": {
       "model": "radiocraft:block/tower_foothold_broken",
       "y": 90
     },
-    "broken=true,facing=east,waterlogged=true": {
+    "broken=true,facing=east,mount=wall,waterlogged=true": {
       "model": "radiocraft:block/tower_foothold_broken",
       "y": 90
     },
-    "broken=true,facing=north,waterlogged=false": {
+    "broken=true,facing=north,mount=beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_5"
+    },
+    "broken=true,facing=north,mount=beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_5"
+    },
+    "broken=true,facing=north,mount=thick_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_4"
+    },
+    "broken=true,facing=north,mount=thick_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_4"
+    },
+    "broken=true,facing=north,mount=thin_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_6"
+    },
+    "broken=true,facing=north,mount=thin_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_6"
+    },
+    "broken=true,facing=north,mount=wall,waterlogged=false": {
       "model": "radiocraft:block/tower_foothold_broken"
     },
-    "broken=true,facing=north,waterlogged=true": {
+    "broken=true,facing=north,mount=wall,waterlogged=true": {
       "model": "radiocraft:block/tower_foothold_broken"
     },
-    "broken=true,facing=south,waterlogged=false": {
+    "broken=true,facing=south,mount=beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_5",
+      "y": 180
+    },
+    "broken=true,facing=south,mount=beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_5",
+      "y": 180
+    },
+    "broken=true,facing=south,mount=thick_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_4",
+      "y": 180
+    },
+    "broken=true,facing=south,mount=thick_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_4",
+      "y": 180
+    },
+    "broken=true,facing=south,mount=thin_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_6",
+      "y": 180
+    },
+    "broken=true,facing=south,mount=thin_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_6",
+      "y": 180
+    },
+    "broken=true,facing=south,mount=wall,waterlogged=false": {
       "model": "radiocraft:block/tower_foothold_broken",
       "y": 180
     },
-    "broken=true,facing=south,waterlogged=true": {
+    "broken=true,facing=south,mount=wall,waterlogged=true": {
       "model": "radiocraft:block/tower_foothold_broken",
       "y": 180
     },
-    "broken=true,facing=west,waterlogged=false": {
+    "broken=true,facing=west,mount=beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_5",
+      "y": 270
+    },
+    "broken=true,facing=west,mount=beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_5",
+      "y": 270
+    },
+    "broken=true,facing=west,mount=thick_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_4",
+      "y": 270
+    },
+    "broken=true,facing=west,mount=thick_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_4",
+      "y": 270
+    },
+    "broken=true,facing=west,mount=thin_beam,waterlogged=false": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_6",
+      "y": 270
+    },
+    "broken=true,facing=west,mount=thin_beam,waterlogged=true": {
+      "model": "radiocraft:block/tower_foothold_broken_reach_6",
+      "y": 270
+    },
+    "broken=true,facing=west,mount=wall,waterlogged=false": {
       "model": "radiocraft:block/tower_foothold_broken",
       "y": 270
     },
-    "broken=true,facing=west,waterlogged=true": {
+    "broken=true,facing=west,mount=wall,waterlogged=true": {
       "model": "radiocraft:block/tower_foothold_broken",
       "y": 270
     }

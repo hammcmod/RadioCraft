@@ -97,6 +97,17 @@ public final class MicrowaveNetworkObjects {
 			return new ArrayList<>(out);
 		}
 
+		/** The other microwave radios on this radio's power wire: the same site's data network. */
+		public List<BlockPos> wiredRadios() {
+			Set<BlockPos> out = new LinkedHashSet<>();
+			for(BENetwork network : networks.values())
+				if(network instanceof PowerBENetwork)
+					for(BENetworkObject object : network.getNetworkObjects())
+						if(object instanceof Radio && object != this)
+							out.add(object.getPos());
+			return new ArrayList<>(out);
+		}
+
 		/** Everything wired to this radio's power wire that serves as a station (H19, direction finder, telephone). */
 		public List<BlockPos> wiredStations() {
 			Set<BlockPos> out = new LinkedHashSet<>();

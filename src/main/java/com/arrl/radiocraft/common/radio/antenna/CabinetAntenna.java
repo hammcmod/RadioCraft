@@ -16,7 +16,10 @@ import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -27,9 +30,17 @@ import java.util.UUID;
  */
 public class CabinetAntenna implements IAntenna {
 
+	/** How long the strengths {@link #transmitAudioFrames} works out are kept, in ticks. */
+	public static final long REACH_TICKS = 20L;
+
 	private final AntennaPos pos;
 	@Nullable
 	private AntennaNetwork network;
+	private Map<IAntenna, Double> reach = Map.of();
+	private long reachAt = Long.MIN_VALUE;
+	@Nullable
+	private Band reachBand;
+	private float reachHertz;
 
 	public CabinetAntenna(Level level, BlockPos pos) {
 		this.pos = new AntennaPos(pos.immutable(), level);
@@ -42,6 +53,7 @@ public class CabinetAntenna implements IAntenna {
 			return;
 		unregister();
 		wanted.addAntenna(this);
+		reachAt = Long.MIN_VALUE;
 		network = wanted;
 	}
 
@@ -77,6 +89,54 @@ public class CabinetAntenna implements IAntenna {
 			packet.setStrength(CabinetAntennaType.INSTANCE.getTransmitEfficiency(packet, new EmptyAntennaData(), there.position(), false));
 			if(packet.getStrength() > 0.0D)
 				antenna.receiveAudioPacket(packet);
+		}
+	}
+
+	/**
+	 * Sends a tick's {@code frames} together: how strongly each antenna hears this one is worked out once for them all,
+	 * and kept for {@link #REACH_TICKS} (the bands and the terrain change slowly), so a world full of stations sending
+	 * every tick stays cheap. An antenna that has left the network since is skipped, and a new one is heard from the
+	 * next time the strengths are worked out.
+	 */
+	public void transmitAudioFrames(de.maxhenkel.voicechat.api.ServerLevel level, List<short[]> frames, Band band, float frequencyHertz, UUID sourcePlayer) {
+		if(frames.isEmpty())
+			return;
+		TransmitterLog.record(this, pos, band, frequencyHertz); // On the air: direction finders can hear it.
+		long now = pos.level().getGameTime();
+		if(reachAt == Long.MIN_VALUE || now - reachAt >= REACH_TICKS || now < reachAt || band != reachBand || frequencyHertz != reachHertz) {
+			Map<IAntenna, Double> fresh = new HashMap<>();
+			for(IAntenna antenna : others()) {
+				AntennaPos there = antenna.getAntennaPos();
+				if(there == null || there.level() != pos.level())
+					continue;
+				AntennaVoicePacket packet = new AntennaVoicePacket(level, frames.getFirst(), band, frequencyHertz, 1.0F, this, sourcePlayer, 0.0F);
+				packet.setDestination(antenna);
+				double strength = CabinetAntennaType.INSTANCE.getTransmitEfficiency(packet, new EmptyAntennaData(), there.position(), false);
+				if(strength > 0.0D)
+					fresh.put(antenna, strength);
+			}
+			reach = fresh;
+			reachAt = now;
+			reachBand = band;
+			reachHertz = frequencyHertz;
+		}
+		AntennaNetwork current = network;
+		if(current == null)
+			return;
+		Set<IAntenna> all = current.allAntennas();
+		for(Map.Entry<IAntenna, Double> entry : reach.entrySet()) {
+			boolean present;
+			synchronized(all) {
+				present = all.contains(entry.getKey());
+			}
+			if(!present)
+				continue;
+			for(short[] frame : frames) {
+				AntennaVoicePacket packet = new AntennaVoicePacket(level, frame.clone(), band, frequencyHertz, 1.0F, this, sourcePlayer, 0.0F);
+				packet.setDestination(entry.getKey());
+				packet.setStrength(entry.getValue());
+				entry.getKey().receiveAudioPacket(packet);
+			}
 		}
 	}
 

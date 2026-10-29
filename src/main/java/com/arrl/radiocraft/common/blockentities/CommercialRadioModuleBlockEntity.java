@@ -1,9 +1,9 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.common.blocks.CommercialRadioModuleBlock;
-import com.arrl.radiocraft.common.blocks.StackedBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.radio.Band;
+import com.arrl.radiocraft.common.radio.CommercialStations;
 import com.arrl.radiocraft.common.radio.antenna.CabinetAntenna;
 import com.arrl.radiocraft.common.radio.voice.StationProgram;
 import net.minecraft.core.BlockPos;
@@ -17,18 +17,19 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 
 /**
  * A commercial radio module's works, in the bottom cell of its cabinet: a sealed all-band transmitter running one
  * {@link StationProgram} on one frequency for good, through its own antenna ({@link CabinetAntenna}). Players cannot
  * change it. A structure (or {@code /rcdebug module}) sets the program, band and frequency in its saved data; left
- * unset, it picks them at random the first time it runs.
+ * unset, it picks them at random the first time it runs. It is sent from {@link CommercialStations}, which keeps it on
+ * the air while its chunk is unloaded too; the block registers it there and works the lamps.
  */
 public class CommercialRadioModuleBlockEntity extends BlockEntity implements net.minecraft.world.MenuProvider {
+
+	public static final String ID = "radiocraft:commercial_radio_module";
 
 	/** The bands it may pick from at random. */
 	private static final String[] BANDS = { "80m", "40m", "20m", "10m", "2m" };
@@ -39,15 +40,13 @@ public class CommercialRadioModuleBlockEntity extends BlockEntity implements net
 	private long seed;
 	private String callsign = "";
 
-	@Nullable
-	private StationProgram program;
-	@Nullable
-	private CabinetAntenna antenna;
-	private final UUID voiceId;
+	/** Its station is on the list: false just loaded, or set up afresh. */
+	private boolean registered = false;
+	/** Its chunk is unloading: the station stays on the air. */
+	private boolean unloading = false;
 
 	public CommercialRadioModuleBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.COMMERCIAL_RADIO_MODULE.get(), pos, state);
-		voiceId = UUID.nameUUIDFromBytes(("radiocraft-module-" + pos.asLong()).getBytes(StandardCharsets.UTF_8));
 	}
 
 	/** Sets what it sends and where, as a structure or an operator's command does. */
@@ -55,9 +54,9 @@ public class CommercialRadioModuleBlockEntity extends BlockEntity implements net
 		this.kind = kind;
 		this.bandName = band.name();
 		this.frequency = frequency;
-		program = null;
-		if(antenna != null)
-			antenna.register(band);
+		registered = false;
+		if(level instanceof ServerLevel server)
+			register(server);
 		setChanged();
 		if(level != null && !level.isClientSide)
 			level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
@@ -76,18 +75,49 @@ public class CommercialRadioModuleBlockEntity extends BlockEntity implements net
 		return bandName;
 	}
 
-	/** Picks a program, band and frequency at random. */
-	private void randomize(ServerLevel level) {
-		RandomSource random = level.getRandom();
+	/**
+	 * Writes a program, band, frequency, seed and callsign picked with {@code random} into a module's saved tag
+	 * {@code tag}, for one at {@code pos} (the callsign's digit goes by where it is). A radio site's modules are set up
+	 * like this as the site is placed, from a random source that the world seed and the site's spot fix.
+	 */
+	public static void preset(CompoundTag tag, Level level, BlockPos pos, RandomSource random) {
 		StationProgram.Kind[] kinds = StationProgram.Kind.values();
 		Band band = Band.getBand(BANDS[random.nextInt(BANDS.length)]);
 		float step = band.isVhf() ? 5_000.0F : 1_000.0F;
 		int channels = (int)((band.maxFrequency() - band.minFrequency()) / step);
 		float hz = band.minFrequency() + step * random.nextInt(Math.max(1, channels));
-		seed = random.nextLong();
-		if(callsign.isEmpty())
-			callsign = com.arrl.radiocraft.common.radio.Callsigns.generateRepeater(level, worldPosition, random);
-		configure(kinds[random.nextInt(kinds.length)], band, hz);
+		tag.putLong("seed", random.nextLong());
+		if(tag.getString("callsign").isEmpty())
+			tag.putString("callsign", com.arrl.radiocraft.common.radio.Callsigns.generateRepeater(level, pos, random));
+		tag.putString("program", kinds[random.nextInt(kinds.length)].name().toLowerCase(Locale.ROOT));
+		tag.putString("band", band.name());
+		tag.putFloat("frequency", hz);
+	}
+
+	/** Picks a program, band and frequency at random. */
+	private void randomize(ServerLevel level) {
+		CompoundTag tag = new CompoundTag();
+		tag.putString("callsign", callsign);
+		preset(tag, level, worldPosition, level.getRandom());
+		seed = tag.getLong("seed");
+		callsign = tag.getString("callsign");
+		configure(StationProgram.Kind.byName(tag.getString("program")), Band.getBand(tag.getString("band")), tag.getFloat("frequency"));
+	}
+
+	/** This module's station, or null before it has a program. */
+	@Nullable
+	public CommercialStations.Station station() {
+		if(kind == null || Band.getBand(bandName) == null)
+			return null;
+		return new CommercialStations.Station(worldPosition.immutable(), kind, bandName, frequency, seed, callsign, false);
+	}
+
+	private void register(ServerLevel level) {
+		CommercialStations.Station station = station();
+		if(station == null)
+			return;
+		CommercialStations.get(level).register(station);
+		registered = true;
 	}
 
 	public static void tick(Level level, BlockPos pos, BlockState state, CommercialRadioModuleBlockEntity module) {
@@ -96,22 +126,11 @@ public class CommercialRadioModuleBlockEntity extends BlockEntity implements net
 	}
 
 	private void serverTick(ServerLevel level) {
-		Band band = bandName.isEmpty() ? null : Band.getBand(bandName);
-		if(kind == null || band == null) {
+		if(kind == null || Band.getBand(bandName) == null)
 			randomize(level);
-			band = Band.getBand(bandName);
-		}
-		if(antenna == null) {
-			antenna = new CabinetAntenna(level, worldPosition.above(StackedBlocks.HEIGHT - 1));
-			antenna.register(band);
-		}
-		if(program == null)
-			program = new StationProgram(kind, seed, callsign.isEmpty() ? "X0X" : callsign, () -> numbersTape(level));
-		long now = level.getGameTime();
-		List<short[]> frames = program.frames(now, now % 2 == 0 ? 3 : 2);
-		for(short[] frame : frames)
-			antenna.transmitAudioPacket(() -> level, frame, band, frequency, voiceId);
-		lamps(level, !frames.isEmpty());
+		if(!registered || level.getGameTime() % 20 == 0)
+			register(level); // Again now and then: a no-op unless the list lost it.
+		lamps(level, CommercialStations.get(level).isSending(worldPosition));
 	}
 
 	/**
@@ -119,7 +138,7 @@ public class CommercialRadioModuleBlockEntity extends BlockEntity implements net
 	 * null if there are none (or the one picked is still being decoded: Morse this time, the tape next).
 	 */
 	@Nullable
-	private static List<short[]> numbersTape(ServerLevel level) {
+	public static List<short[]> numbersTape(ServerLevel level) {
 		List<String> tracks = com.arrl.radiocraft.common.radio.tape.TapeLibrary.tracks(level.getServer(), com.arrl.radiocraft.common.radio.tape.TapeLibrary.NUMBERS);
 		if(tracks.isEmpty())
 			return null;
@@ -164,19 +183,18 @@ public class CommercialRadioModuleBlockEntity extends BlockEntity implements net
 		return new com.arrl.radiocraft.common.menus.CommercialRadioModuleMenu(id, this);
 	}
 
+	/** Broken (not unloaded): its station goes off the air. */
 	@Override
 	public void setRemoved() {
 		super.setRemoved();
-		if(antenna != null) {
-			antenna.unregister();
-			antenna = null;
-		}
+		if(!unloading && level instanceof ServerLevel server)
+			CommercialStations.get(server).remove(worldPosition);
 	}
 
 	@Override
 	public void onChunkUnloaded() {
 		super.onChunkUnloaded();
-		setRemoved();
+		unloading = true;
 	}
 
 	@Override
@@ -199,6 +217,6 @@ public class CommercialRadioModuleBlockEntity extends BlockEntity implements net
 		frequency = tag.getFloat("frequency");
 		seed = tag.contains("seed") ? tag.getLong("seed") : worldPosition.asLong();
 		callsign = tag.getString("callsign");
-		program = null;
+		registered = false;
 	}
 }

@@ -166,4 +166,75 @@ class WireLookTest {
         assertEquals(6.0D, fat[6], 1e-9);
         assertEquals(2.0D, fat[1] - fat[0], 1e-9);
     }
+
+    // ---- Cable against a tower beam (2026-10-28): drawn out past the block face to the beam's steel ----
+
+    @Test
+    void runUpABeamCarriesItsReachOnEveryPieceOnThatEdge() {
+        // Comes in from the south on the floor and goes up a normal beam (steel 5 px back) on the north edge.
+        assertEquals(List.of(p(Part.MIDDLE, null), new Placed(Part.HORIZONTAL, NORTH, 5, 5), p(Part.HORIZONTAL, SOUTH),
+                        new Placed(Part.EDGE, NORTH, 5, 5)),
+                WireLook.parts(new Look(NORTH, null, End.NONE, false, 5, 0, 0), links(SOUTH, UP)));
+    }
+
+    @Test
+    void runPastTheTopOfABeamEasesBackToTheEdge() {
+        // The wire below ran up a thin beam (6 px); here the wall is gone and the run carries on up.
+        assertEquals(List.of(new Placed(Part.EDGE_FULL, NORTH, 6, 0)),
+                WireLook.parts(new Look(NORTH, NORTH, End.NONE, false, 0, 6, 0), links(UP, DOWN)));
+    }
+
+    @Test
+    void runUpABeamSlidesOutPastTheFace() {
+        WireLook.Affine north = WireLook.affine(new Placed(Part.EDGE, NORTH, 5, 5), 0);
+        assertEquals(0.5D - 5.0D / 16.0D, north.z(0.0D, 0.5D, 0.5D), 1e-9);
+        assertEquals(0.5D, north.x(0.5D, 0.5D, 0.5D), 1e-9);
+        WireLook.Affine east = WireLook.affine(new Placed(Part.EDGE, EAST, 4, 4), 0);
+        assertEquals(1.0D + 4.0D / 16.0D, east.x(1.0D, 0.5D, 0.5D), 1e-9);
+    }
+
+    @Test
+    void runEasingBackSlantsFromFootToHead() {
+        WireLook.Affine floor = WireLook.affine(new Placed(Part.EDGE_FULL, SOUTH, 6, 0), 0);
+        assertEquals(1.0D + 6.0D / 16.0D, floor.z(0.5D, 0.0D, 1.0D), 1e-9); // Out at the foot,
+        assertEquals(1.0D, floor.z(0.5D, 1.0D, 1.0D), 1e-9);                 // back on the face at the head.
+        WireLook.Affine hanging = WireLook.affine(new Placed(Part.EDGE_FULL, SOUTH, 6, 0), 0, WireLook.Faces.all(0), true);
+        assertEquals(1.0D + 6.0D / 16.0D, hanging.z(0.5D, 0.0D, 1.0D), 1e-9); // Foot and head are world bottom and top,
+        assertEquals(1.0D, hanging.z(0.5D, 1.0D, 1.0D), 1e-9);                 // either way up.
+    }
+
+    @Test
+    void stubToABeamRunStretchesOutWithItsMiddleEndInPlace() {
+        WireLook.Affine stub = WireLook.affine(new Placed(Part.HORIZONTAL, WEST, 5, 5), 0);
+        assertEquals(-5.0D / 16.0D, stub.x(0.0D), 1e-9);        // The face end out at the run,
+        assertEquals(7.0D / 16.0D, stub.x(7.0D / 16.0D), 1e-9); // the middle end where it was.
+    }
+
+    @Test
+    void climbOverABeamKeepsItsFarEndOverTheMiddle() {
+        WireLook.Affine over = WireLook.affine(new Placed(Part.CLIMB_OVERHANG, NORTH, 4, 4), 0);
+        assertEquals(-7.0D / 16.0D, over.z(-7.0D / 16.0D), 1e-9);           // Far end over the beam's middle,
+        assertEquals((1.0D - 4.0D) / 16.0D, over.z(1.0D / 16.0D), 1e-9);    // inner cap out with the run.
+    }
+
+    @Test
+    void hitboxPieceIsTheWallPiece() {
+        assertSame(Part.EDGE, new Placed(Part.EDGE, NORTH, 5, 5).plain().part());
+        assertEquals(p(Part.EDGE, NORTH), new Placed(Part.EDGE, NORTH, 5, 5).plain());
+    }
+
+    @Test
+    void stubToAHornFeedRunsAcrossTheBaseAndSlantsToTheCorner() {
+        Look look = new Look(null, null, End.NONE, false, 0, 0, 0, NORTH, 8, 0, 0);
+        assertEquals(List.of(p(Part.MIDDLE, null), new Placed(Part.HORIZONTAL, NORTH, 16, 16, 8)), WireLook.parts(look, links(NORTH)));
+        WireLook.Affine feed = WireLook.affine(new Placed(Part.HORIZONTAL, NORTH, 16, 16, 8), 0);
+        assertEquals(-1.0D, feed.z(0.5D, 0.0D, 0.0D), 1e-9);                    // The face end across the whole base block,
+        assertEquals(1.0D, feed.x(0.5D, 0.0D, 0.0D), 1e-9);                     // over at the corner where the four meet;
+        assertEquals(7.0D / 16.0D, feed.z(0.5D, 0.0D, 7.0D / 16.0D), 1e-9);     // the middle end where it was.
+        assertEquals(0.5D, feed.x(0.5D, 0.0D, 7.0D / 16.0D), 1e-9);
+        WireLook.Affine east = WireLook.affine(new Placed(Part.HORIZONTAL, EAST, 16, 16, -8), 0);
+        assertEquals(2.0D, east.x(1.0D, 0.0D, 0.5D), 1e-9);
+        assertEquals(0.0D, east.z(1.0D, 0.0D, 0.5D), 1e-9);
+        assertEquals(0.5D, east.z(9.0D / 16.0D, 0.0D, 0.5D), 1e-9);
+    }
 }

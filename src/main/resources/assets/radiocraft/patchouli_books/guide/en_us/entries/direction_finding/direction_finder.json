@@ -11,7 +11,7 @@
   {
    "type": "patchouli:text",
    "title": "Keep the runs apart",
-   "text": "Each module's coax must reach one antenna and nothing else. Coax laid side by side joins up, and an antenna shared between two modules (or a module and a radio) is overdrawn and hears nothing.$(br2)Lay each run in its own $(l:radiocraft:antennas/coax)dyed coax$(/l) colour: coax joins only its own colour or plain coax."
+   "text": "Each module's coax must reach one antenna and nothing else. Coax laid side by side joins up, and an antenna shared between two modules (or a module and a radio) is overdrawn and hears nothing.$(br2)Lay each run in its own $(l:radiocraft:antennas/coax)dyed coax$(/l) colour: coax joins only its own colour (plain is a colour of its own)."
   },
   {
    "type": "patchouli:text",

@@ -61,11 +61,17 @@ public class RadiocraftBlockstateProvider extends BlockStateProvider {
 		radio(RadiocraftBlocks.ALL_BAND_RADIO.get());
 	}
 
-	/** Both footholds share the maintainer's models (built by tools/build_models.py): whole, or with the rung bent. */
+	/**
+	 * Both footholds share the maintainer's models (built by tools/build_models.py): whole, or with the rung bent; on a
+	 * tower beam, the copies moved back against the steel (tools/foothold_reach_models.py, {@link TowerFootholdBlock#MOUNT}).
+	 */
 	private void towerFoothold(Block block) {
 		ModelFile whole = models().getExistingFile(modLoc("block/tower_foothold"));
-		ModelFile broken = models().getExistingFile(modLoc("block/tower_foothold_broken"));
-		horizontalBlock(block, state -> state.getValue(TowerFootholdBlock.BROKEN) ? broken : whole);
+		horizontalBlock(block, state -> {
+			String name = state.getValue(TowerFootholdBlock.BROKEN) ? "block/tower_foothold_broken" : "block/tower_foothold";
+			int reach = state.getValue(TowerFootholdBlock.MOUNT).reach;
+			return models().getExistingFile(modLoc(reach == 0 ? name : name + "_reach_" + reach));
+		});
 		simpleBlockItem(block, whole);
 	}
 

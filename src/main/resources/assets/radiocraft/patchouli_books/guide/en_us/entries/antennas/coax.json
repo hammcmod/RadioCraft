@@ -16,7 +16,7 @@
   {
    "type": "patchouli:text",
    "title": "Coloured coax",
-   "text": "Coax comes in sixteen colours. Coax joins only its own colour or plain coax, so runs of different colours can lie side by side and stay apart (a $(l:radiocraft:direction_finding/direction_finder)direction finder$(/l) needs this). Plain coax joins any colour.$(br2)Use a dye on laid coax to colour the whole run, or sneak to colour one block. Recipes that take coax want plain coax."
+   "text": "Coax comes in sixteen colours. Coax joins only coax of its own colour (plain is a colour of its own), so runs of different colours can lie side by side and stay apart (a $(l:radiocraft:direction_finding/direction_finder)direction finder$(/l) needs this). Plain coax joins any colour.$(br2)Use a dye on laid coax to colour the whole run, or sneak to colour one block. Recipes that take coax want plain coax."
   },
   {
    "type": "patchouli:text",
