@@ -27,6 +27,6 @@
     "root": "../AnotherWeatherMod",
     "jar_prefix": "anotherweathermod-neoforge-1.21.1-",
     "notes": "doc/ReleaseNotes-{version}.md",
-    "github": "ITCMD/AnotherWeatherMod"
+    "github": "RadiocraftARRL/AnotherWeatherMod"
   }
 }

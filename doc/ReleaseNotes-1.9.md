@@ -24,7 +24,7 @@ mod under its own package, so there is only one. Dedicated servers were not affe
 # RadioCraft alpha 1.9.0
 
 Everything since the 1.2.0 release (commit 1476893, 2026-10-21). Minecraft 1.21.1, NeoForge. Needs Simple Voice
-Chat; [Another Weather Mod](https://github.com/ITCMD/AnotherWeatherMod) 1.9.0 is optional and adds live storms to the
+Chat; [Another Weather Mod](https://github.com/RadiocraftARRL/AnotherWeatherMod) 1.9.0 is optional and adds live storms to the
 weather reports and WEFAX charts.
 
 ## Radios

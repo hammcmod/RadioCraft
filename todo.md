@@ -275,7 +275,7 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   new UI; the teletype keeps the SOLAR WX code (and its comparator) until then. Standard weather only with a
   compatible weather mod
   (see [doc/TncRework.md](doc/TncRework.md)); we may end up writing our own weather mod
-  - [x] Our own weather mod (2026-10-24): Another Weather Mod, MIT, github.com/ITCMD/AnotherWeatherMod (localized
+  - [x] Our own weather mod (2026-10-24): Another Weather Mod, MIT, github.com/RadiocraftARRL/AnotherWeatherMod (localized
     moving storms, hail, blizzards, sandstorms, hurricanes, regrowth, forecasts, an API). Its jar is in `libs/`
     (compile and dev runtime) until it is on a Maven; it stays optional for players.
   - [x] Weather API (2026-10-25): `api/weather` `WeatherSource` (vanilla always, Another Weather Mod when installed,

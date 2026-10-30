@@ -22,7 +22,7 @@ View details about the project, and read the wiki: [https://radiocraft.bigtimera
 - Solar and battery power, repeaters with duplexers and CTCSS, APRS terminals with maps, a teletype, a radio fax,
   microwave links and direction finding
 - Radio sites that generate in the world, some with commercial stations already on the air
-- Weather reports and WEFAX charts, with live storms when [Another Weather Mod](https://github.com/ITCMD/AnotherWeatherMod)
+- Weather reports and WEFAX charts, with live storms when [Another Weather Mod](https://github.com/RadiocraftARRL/AnotherWeatherMod)
   is installed
 
 The in-game guide book (given on first join, or `/radio guide`) covers every block and how to build each station.
