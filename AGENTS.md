@@ -36,9 +36,12 @@ Run the unit tests and GameTests before committing. Add a GameTest when fixing a
 Use concise, present-tense commit messages (`Fix antenna wire sync`) and keep related changes in a single commit when practical. PRs should outline the player-facing impact, list testing done (`runClient`, `test`), and reference any linked GitHub issues or design docs. Screenshots or clips help reviewers validate UI or in-game changes. Confirm the build is clean and data generator output is committed before requesting review.
 
 ## Releasing
-Tag the commit with the version (`1.9.1`; the jar version comes from the tag), then `tools\push-versions.ps1 -Version 1.9.1
--Build -GitHub` builds and publishes it to Modrinth (and GitHub) with the matching section of `doc/ReleaseNotes-<major.minor>.md`
-as the changelog. Tokens live in `~/.radiocraft/` or the environment, never in the repo; project ids and dependency lists
+Pushing code and releasing are separate: `tools\push-versions.ps1 -PushOnly` pushes the branch and its tags to GitHub
+(RadiocraftARRL/RadioCraft, from `tools/modrinth_projects.json`) without a release. Release only when the maintainer asks,
+so players are not sent too many versions. Tag the commit with the version (`1.9.1`; the jar version comes from the tag),
+then `tools\push-versions.ps1 -Version 1.9.1 -Build` pushes the branch and tag, builds, and publishes it to Modrinth and as
+a GitHub release (`-NoGitHubRelease` for Modrinth only) with the matching section of `doc/ReleaseNotes-<major.minor>.md` as
+the changelog. Build a release from a clean checkout of the tag (a `git worktree`) when the tree has other work in it. Tokens live in `~/.radiocraft/` or the environment, never in the repo; project ids and dependency lists
 are in `tools/modrinth_projects.json`. The shipped jar comes from the `modJar` task: Shadow relocates JOrbis, then the
 jar-in-jar mods are added untouched (never feed nested jars through Shadow, it unpacks them). The `-slim` jar is not
 for players. Before publishing, push-versions.ps1 launches the jar on a production NeoForge server and client

@@ -1,6 +1,6 @@
 # RadioCraft alpha 1.9.3
 
-A fix for `radiocraft-server.toml` ([issue #102](https://github.com/hammcmod/RadioCraft/issues/102)): the server log
+A fix for `radiocraft-server.toml` ([issue #102](https://github.com/RadiocraftARRL/RadioCraft/issues/102)): the server log
 repeated "Configuration file ... is not correct. Correcting" and any band frequency edited in the file went back to its
 default. The band edges were saved in a form the config could not read back, so every load rewrote the file and the
 rewrite triggered another load. They read back correctly now, and the release check fails on that warning. Nothing

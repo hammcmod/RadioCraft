@@ -4,7 +4,7 @@
     "root": ".",
     "jar_prefix": "radiocraft-neoforge-1.21.1-",
     "notes": "doc/ReleaseNotes-{major_minor}.md",
-    "github": "hammcmod/RadioCraft",
+    "github": "RadiocraftARRL/RadioCraft",
     "launch_test": "prodLaunchTest",
     "modrinth": {
       "project_id": "i9iitQG6",

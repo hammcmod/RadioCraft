@@ -24,7 +24,7 @@ import urllib.request
 import uuid
 from pathlib import Path
 
-USER_AGENT = "hammcmod/RadioCraft release tool (github.com/hammcmod/RadioCraft)"
+USER_AGENT = "RadiocraftARRL/RadioCraft release tool (github.com/RadiocraftARRL/RadioCraft)"
 MODRINTH = "https://api.modrinth.com/v2"
 GITHUB = "https://api.github.com"
 

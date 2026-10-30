@@ -2,7 +2,7 @@ modLoader="javafml" #mandatory
 loaderVersion="${loader_version_range}" #mandatory
 
 license="GNU GPLv3"
-issueTrackerURL="https://github.com/hammcmod/RadioCraft/issues" #optional
+issueTrackerURL="https://github.com/RadiocraftARRL/RadioCraft/issues" #optional
 
 [[mods]] #mandatory
     modId="radiocraft" #mandatory
