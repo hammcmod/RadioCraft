@@ -29,9 +29,9 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Map;
 
 /**
- * A phone PABX: the exchange for telephones wired to it (touching, or on its data wire) where there is no microwave
- * radio. It needs power, and gives its phones their extensions. Its lamp is green while it is powered. The size of a
- * direction finder module.
+ * A phone PABX: the exchange every telephone needs, for the phones wired to it (touching, or on its data wire). It
+ * needs power, and gives its phones their extensions; right click to set its numbers. Its lamp is green while it is
+ * powered. The size of a direction finder module.
  */
 public class PabxBlock extends AbstractNetworkBlock {
 
@@ -57,7 +57,9 @@ public class PabxBlock extends AbstractNetworkBlock {
 
 	@Override
 	protected @NotNull InteractionResult useWithoutItem(@NotNull BlockState state, @NotNull Level level, @NotNull BlockPos pos, @NotNull Player player, @NotNull BlockHitResult hit) {
-		return InteractionResult.PASS;
+		if(!level.isClientSide && player instanceof net.minecraft.server.level.ServerPlayer serverPlayer && level.getBlockEntity(pos) instanceof PabxBlockEntity pabx)
+			serverPlayer.openMenu(pabx, pos);
+		return InteractionResult.sidedSuccess(level.isClientSide);
 	}
 
 	@Override

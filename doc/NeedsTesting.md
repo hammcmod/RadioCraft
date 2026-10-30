@@ -253,9 +253,16 @@ wire items).
 ## Phone PABX, small fixes (added 2026-10-30, evening)
 
 - [ ] Phone PABX: the size of a direction finder module, faces you when placed, the pabx.png front with a dark lamp
-  that turns green once it has power. Two phones touching it or on its data wire get extensions 100 and 101 and can
-  call each other with no microwave radio; take its power away (or break it) and dialing says NO LINE. Next to a
-  powered microwave radio the radio is the exchange, as before. Recipe: iron, data wire, a comparator, redstone.
+  that turns green once it has power. Every phone needs one now: a phone on a microwave radio alone says NO LINE.
+  Recipe: iron, data wire, a comparator, redstone.
+- [ ] Right click a PABX: the keypad screen (PHONE PABX on top, MODE / SET / BACK). MODE steps MASTER NO, FIRST EXT,
+  BEHIND A PABX; SET saves the keyed number or flips BEHIND. Changing FIRST EXT renumbers its phones within a second.
+- [ ] Two sites linked over microwave, a PABX touching each radio (master numbers 601 and 602), a phone on each:
+  601's phone dials 602 + the far extension and it rings; a bare extension does not. The phone screen shows NO. and
+  its full number; the far end shows who is calling.
+- [ ] A PABX set behind another (touching it, or on its data wire), master 7: from the front PABX's phones 7 + the
+  extension rings it; its phones reach the front ones by bare extension, and the far site by 602 7 + extension.
+- [ ] The call timer counts up during a call (it stuck at 0:00).
 - [ ] Breaking a WEFAX receiver (and a charge controller that is on) throws its own coloured particles, not the
   purple and black "no texture" ones.
 - [ ] Antenna switch: the knob hub's octagon no longer flickers (z-fighting) from any angle.

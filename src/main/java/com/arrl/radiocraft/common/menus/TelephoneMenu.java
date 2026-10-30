@@ -35,11 +35,11 @@ public class TelephoneMenu extends AbstractContainerMenu implements StationMenu 
 	@Override
 	public void handleAction(ServerPlayer player, String action, CompoundTag data) {
 		switch(action) {
-			case "dial" -> blockEntity.dial(data.getInt("number"));
+			case "dial" -> blockEntity.dial(data.getString("number"));
 			case "answer" -> blockEntity.answer();
 			case "hangup" -> blockEntity.hangUp();
 			case "extension" -> {
-				if(!blockEntity.setExtension(data.getInt("number")))
+				if(!blockEntity.setExtension(data.getInt("extension")))
 					player.displayClientMessage(Component.translatable("screen.radiocraft.telephone.extension_taken"), true);
 			}
 			default -> {}

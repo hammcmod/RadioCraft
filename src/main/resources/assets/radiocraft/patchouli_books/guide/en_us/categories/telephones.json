@@ -1,0 +1,6 @@
+{
+  "name": "Telephones",
+  "description": "Desk and wall phones, and the PABXes that connect them: across a building, or between sites over microwave links.",
+  "icon": "radiocraft:telephone",
+  "sortnum": 11
+}

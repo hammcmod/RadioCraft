@@ -42,11 +42,12 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * A desk telephone on a microwave radio (touching it, or on its power wire). Each phone has an extension, numbered
- * from 0 as phones are placed; its owner can change it to any number no phone it can reach already has. Dial an
- * extension: a phone on the same radio, or on any radio across the microwave link, rings until it is answered (or
- * for 30 seconds). While a call is up, voices near either phone come out of the other at phone quality
- * ({@link #PHONE_QUALITY}): fuller than SSB, and clean, as the link is digital.
+ * A desk telephone on a phone PABX (touching it, or on its data wire): every phone needs one. The PABX numbers its
+ * phones; a phone's owner can change its extension to any number no other phone on that PABX has. Dial a number (see
+ * {@link PabxBlockEntity#resolve}): an extension on the same PABX, or a PABX's number and an extension, across the
+ * PABXes behind one another and the microwave links between them. It rings until it is answered (or for 30 seconds).
+ * While a call is up, voices near either phone come out of the other at phone quality ({@link #PHONE_QUALITY}):
+ * fuller than SSB, and clean, as the link is digital.
  */
 public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectProvider, MenuProvider, IVoiceTransmitter {
 
@@ -72,7 +73,10 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	private State state = State.IDLE;
 	@Nullable
 	private BlockPos partner = null;
-	private int partnerExtension = -1;
+	/** The other end's number as this phone would dial it (synced, for the screen). */
+	private String partnerNumber = "";
+	/** This phone's number as dialed from across the microwave link (synced, for the screen); its extension alone without a PABX number. */
+	private String fullNumber = "";
 	private String status = "";
 	private int stateTicks = 0;
 	/** The client's copy: the game time the state began, for the call timer (stateTicks only counts on the server). */
@@ -110,10 +114,6 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 			LOADED.computeIfAbsent(level.dimension(), k -> new ConcurrentHashMap<>()).put(worldPosition, this);
 			VoiceTransmitters.addListener(level, this);
 			getNetworkObject(level, worldPosition);
-			if(extension < 0 && level.getServer() != null) {
-				extension = TelephoneExtensions.get(level.getServer()).next();
-				setChanged();
-			}
 		}
 	}
 
@@ -149,42 +149,18 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 
 	// -------------------- REACH --------------------
 
-	/**
-	 * Phones this one can call: on the microwave network it is on, at this site or relayed through other sites
-	 * ({@code MicrowaveRoutes}); with no powered microwave radio serving it, the phones on a powered PABX it is on.
-	 */
-	public List<TelephoneBlockEntity> reachable() {
-		List<TelephoneBlockEntity> out = new ArrayList<>();
-		if(level == null)
-			return out;
-		if(!microwaveLine()) {
-			for(TelephoneBlockEntity phone : PabxBlockEntity.reachable(level, worldPosition))
-				if(phone != this)
-					out.add(phone);
-			return out;
-		}
-		for(com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.Route route : com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.from(level, worldPosition))
-			if(route.station() instanceof TelephoneBlockEntity phone && phone != this)
-				out.add(phone);
-		return out;
+	/** The PABX this phone is on (the nearest touching it or on its data wire), or null. */
+	@Nullable
+	public PabxBlockEntity pabx() {
+		return level == null ? null : PabxBlockEntity.of(level, worldPosition);
 	}
 
-	/** True if a powered microwave radio serves this phone: then it is the exchange, not a PABX. */
-	private boolean microwaveLine() {
-		return level != null && MicrowaveRadioBlockEntity.servingStation(level, worldPosition).stream().anyMatch(MicrowaveRadioBlockEntity::isPowered);
-	}
-
-	/** True if this phone has a line: a powered microwave radio or PABX serves it. */
-	public boolean hasLine() {
-		return level != null && (microwaveLine() || PabxBlockEntity.serving(level, worldPosition).stream().anyMatch(PabxBlockEntity::isPowered));
-	}
-
-	/** True if any link on the way to {@code other} has interference, or a signal too weak for a clean call. */
-	private boolean lossyTo(TelephoneBlockEntity other) {
-		if(level == null)
-			return false;
-		com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.Route route = com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.to(level, worldPosition, other);
-		return route != null && route.lossy();
+	/** How {@code viewer} dials this phone: its extension on the same PABX, its full number from anywhere else. */
+	private String numberFrom(TelephoneBlockEntity viewer) {
+		PabxBlockEntity mine = pabx();
+		if(mine != null && mine == viewer.pabx())
+			return Integer.toString(extension);
+		return mine == null ? Integer.toString(extension) : mine.fullPrefix() + extension;
 	}
 
 	// -------------------- CALLS --------------------
@@ -198,6 +174,14 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		if(level == null)
 			return;
 		tickHandset();
+		if(level.getGameTime() % 40 == 0) { // Its number follows its PABX's settings.
+			PabxBlockEntity pabx = pabx();
+			String number = extension < 0 ? "" : pabx == null ? Integer.toString(extension) : pabx.fullPrefix() + extension;
+			if(!number.equals(fullNumber)) {
+				fullNumber = number;
+				sync();
+			}
+		}
 		if(state == State.IDLE)
 			return;
 		stateTicks++;
@@ -209,17 +193,17 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		if(state == State.RINGING)
 			ring(level, stateTicks);
 		if(state == State.CALLING && stateTicks >= RING_TICKS) {
-			other.reset("MISSED CALL FROM " + extension);
+			other.reset("MISSED CALL FROM " + numberFrom(other));
 			reset("NO ANSWER");
 			return;
 		}
 		if(stateTicks % 20 == 0) { // Still reachable?
-			if(!reachable().contains(other)) {
+			if(!PabxBlockEntity.connected(pabx(), other.pabx())) {
 				other.drop("CALL DROPPED");
 				drop("CALL DROPPED");
 				return;
 			}
-			lossy = lossyTo(other);
+			lossy = PabxBlockEntity.lossy(pabx(), other.pabx());
 		}
 	}
 
@@ -345,37 +329,36 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 			level.setBlock(worldPosition, blockState.setValue(com.arrl.radiocraft.common.blocks.TelephoneBlock.OFF_HOOK, offHook), Block.UPDATE_ALL);
 	}
 
-	/** Dials {@code number}: rings that phone if it can be reached and is free. */
-	public void dial(int number) {
-		if(level == null || state != State.IDLE)
+	/** Dials {@code number} (digits): rings that phone if it can be reached and is free. */
+	public void dial(String number) {
+		if(level == null || state != State.IDLE || number.isEmpty())
 			return;
-		if(number == extension) {
-			status = "THAT IS THIS PHONE";
-			sync();
-			return;
-		}
-		if(!hasLine()) {
-			status = "NO LINE: NO PABX OR RADIO ON";
-			sync();
-			return;
-		}
-		TelephoneBlockEntity callee = reachable().stream().filter(phone -> phone.extension == number).findFirst().orElse(null);
-		if(callee == null)
-			status = "EXTENSION " + number + " NOT FOUND";
-		else if(callee.state != State.IDLE)
-			status = "BUSY";
+		PabxBlockEntity pabx = pabx();
+		if(pabx == null)
+			status = "NO LINE: NO PABX";
+		else if(pabx.exchange() == null)
+			status = "NO LINE: PABX HAS NO POWER";
 		else {
-			state = State.CALLING;
-			partner = callee.worldPosition;
-			partnerExtension = number;
-			stateTicks = 0;
-			status = "";
-			callee.state = State.RINGING;
-			callee.partner = worldPosition;
-			callee.partnerExtension = extension;
-			callee.stateTicks = 0;
-			callee.status = "";
-			callee.sync();
+			TelephoneBlockEntity callee = pabx.resolve(number);
+			if(callee == this)
+				status = "THAT IS THIS PHONE";
+			else if(callee == null)
+				status = "NUMBER " + number + " NOT FOUND";
+			else if(callee.state != State.IDLE)
+				status = "BUSY";
+			else {
+				state = State.CALLING;
+				partner = callee.worldPosition;
+				partnerNumber = number;
+				stateTicks = 0;
+				status = "";
+				callee.state = State.RINGING;
+				callee.partner = worldPosition;
+				callee.partnerNumber = numberFrom(callee);
+				callee.stateTicks = 0;
+				callee.status = "";
+				callee.sync();
+			}
 		}
 		sync();
 	}
@@ -393,7 +376,7 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		stateTicks = caller.stateTicks = 0;
 		partnerPhone = caller;
 		caller.partnerPhone = this;
-		lossy = caller.lossy = lossyTo(caller);
+		lossy = caller.lossy = PabxBlockEntity.lossy(pabx(), caller.pabx());
 		caller.sync();
 		sync();
 		level.playSound(null, worldPosition, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 0.6F, 1.4F);
@@ -417,7 +400,7 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		state = State.IDLE;
 		partner = null;
 		partnerPhone = null;
-		partnerExtension = -1;
+		partnerNumber = "";
 		stateTicks = 0;
 		status = why;
 		sync();
@@ -431,11 +414,12 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		sync();
 	}
 
-	/** Changes the extension; false if a phone it can reach has it already. */
+	/** Changes the extension; false without a PABX, or if another phone on its PABX has it already. */
 	public boolean setExtension(int number) {
-		if(number < 0 || number > 99999)
+		if(number < 0 || number > PabxBlockEntity.MAX_EXTENSION)
 			return false;
-		if(reachable().stream().anyMatch(phone -> phone.extension == number))
+		PabxBlockEntity pabx = pabx();
+		if(pabx == null || pabx.phones().stream().anyMatch(phone -> phone != this && phone.extension == number))
 			return false;
 		extension = number;
 		sync();
@@ -525,8 +509,13 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		return state;
 	}
 
-	public int getPartnerExtension() {
-		return partnerExtension;
+	public String getPartnerNumber() {
+		return partnerNumber;
+	}
+
+	/** This phone's number from across the microwave link (client side, synced). */
+	public String getFullNumber() {
+		return fullNumber;
 	}
 
 	public String getStatus() {
@@ -563,7 +552,8 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 			catch(IllegalArgumentException e) {
 				state = State.IDLE;
 			}
-			partnerExtension = tag.getInt("partnerExtension");
+			partnerNumber = tag.getString("partnerNumber");
+			fullNumber = tag.getString("fullNumber");
 			status = tag.getString("status");
 			stateSince = tag.getLong("stateSince");
 		}
@@ -573,7 +563,8 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	public @NotNull CompoundTag getUpdateTag(@NotNull HolderLookup.Provider registries) {
 		CompoundTag tag = saveWithoutMetadata(registries);
 		tag.putString("state", state.name());
-		tag.putInt("partnerExtension", partnerExtension);
+		tag.putString("partnerNumber", partnerNumber);
+		tag.putString("fullNumber", fullNumber);
 		tag.putString("status", status);
 		tag.putLong("stateSince", level == null ? 0L : level.getGameTime() - stateTicks);
 		return tag;
@@ -592,29 +583,5 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	@Override
 	public @Nullable AbstractContainerMenu createMenu(int id, @NotNull Inventory inventory, @NotNull Player player) {
 		return new TelephoneMenu(id, this);
-	}
-
-	/** Extensions handed out in order to new phones, from 0, for the whole server. */
-	public static class TelephoneExtensions extends net.minecraft.world.level.saveddata.SavedData {
-		private int next = 0;
-
-		public static TelephoneExtensions get(net.minecraft.server.MinecraftServer server) {
-			return server.overworld().getDataStorage().computeIfAbsent(new Factory<>(TelephoneExtensions::new, (tag, registries) -> {
-				TelephoneExtensions out = new TelephoneExtensions();
-				out.next = tag.getInt("next");
-				return out;
-			}, null), "radiocraft_telephone_extensions");
-		}
-
-		public int next() {
-			setDirty();
-			return next++;
-		}
-
-		@Override
-		public @NotNull CompoundTag save(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-			tag.putInt("next", next);
-			return tag;
-		}
 	}
 }

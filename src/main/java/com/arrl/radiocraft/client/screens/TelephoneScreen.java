@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFW;
 
 /**
- * The telephone's screen: the desk phone from above. Key in an extension and press CALL; CALL also answers a ringing
+ * The telephone's screen: the desk phone from above. Key in a number and press CALL; CALL also answers a ringing
  * phone, HANG hangs up. EXT, then the new number and CALL, changes this phone's extension. * clears the number, #
  * dials it. The number keys on the keyboard work too (ENTER dials, BACKSPACE deletes).
  */
@@ -68,7 +68,7 @@ public class TelephoneScreen extends StationPanelScreen<TelephoneMenu> {
 			number = "";
 		else if(c == '#')
 			call();
-		else if(number.length() < 5)
+		else if(number.length() < (settingExtension ? 5 : 12))
 			number += c;
 	}
 
@@ -82,7 +82,10 @@ public class TelephoneScreen extends StationPanelScreen<TelephoneMenu> {
 		if(number.isEmpty() || phone.getState() != TelephoneBlockEntity.State.IDLE)
 			return;
 		CompoundTag data = new CompoundTag();
-		data.putInt("number", Integer.parseInt(number));
+		if(settingExtension)
+			data.putInt("extension", Integer.parseInt(number));
+		else
+			data.putString("number", number);
 		send(settingExtension ? "extension" : "dial", data);
 		settingExtension = false;
 		number = "";
@@ -168,16 +171,22 @@ public class TelephoneScreen extends StationPanelScreen<TelephoneMenu> {
 		int x = leftPos + LCD[0] + 4, y = topPos + LCD[1] + 4;
 		String state = switch(phone.getState()) {
 			case IDLE -> settingExtension ? "NEW EXT" : "READY";
-			case CALLING -> "RINGING " + phone.getPartnerExtension();
-			case RINGING -> (now / 400L) % 2L == 0L ? "CALL FROM " + phone.getPartnerExtension() : "";
-			case IN_CALL -> String.format("TALK %d  %d:%02d", phone.getPartnerExtension(), phone.getStateTicks() / 1200, phone.getStateTicks() / 20 % 60);
+			case CALLING -> "RINGING " + phone.getPartnerNumber();
+			case RINGING -> (now / 400L) % 2L == 0L ? "CALL FROM " + phone.getPartnerNumber() : "";
+			case IN_CALL -> String.format("TALK %s  %d:%02d", phone.getPartnerNumber(), phone.getStateTicks() / 1200, phone.getStateTicks() / 20 % 60);
 		};
 		text(guiGraphics, "EXT " + phone.getExtension(), x, y, 1.0F, LCD_INK, false);
 		text(guiGraphics, state, x + LCD[2] - 8 - font.width(state) * 0.75F, y + 1, 0.75F, LCD_INK, false);
 		String line = !number.isEmpty() ? number + ((now / 400L) % 2L == 0L ? "_" : "")
 				: phone.getState() == TelephoneBlockEntity.State.RINGING ? "CALL TO ANSWER"
-				: phone.getStatus().isEmpty() ? (settingExtension ? "KEY NEW NUMBER" : "") : phone.getStatus();
+				: phone.getStatus().isEmpty() ? (settingExtension ? "KEY NEW NUMBER" : numberLine(phone)) : phone.getStatus();
 		text(guiGraphics, line, x, y + 12, number.isEmpty() ? 0.75F : 1.0F, LCD_INK, false);
+	}
+
+	/** This phone's number from outside its PABX, when that differs from its extension. */
+	private static String numberLine(TelephoneBlockEntity phone) {
+		String full = phone.getFullNumber();
+		return full.isEmpty() || full.equals(Integer.toString(phone.getExtension())) ? "" : "NO. " + full;
 	}
 
 	@Override

@@ -1,0 +1,31 @@
+{
+  "name": "Phone PABX",
+  "icon": "radiocraft:pabx",
+  "category": "radiocraft:telephones",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A $(item)Phone PABX$() is the exchange every $(l:radiocraft:telephones/telephone)telephone$(/l) needs. Phones touching it or on its $(l:radiocraft:radios/data_wire)data wire$(/l) call each other by extension. It needs power from the power wire; its lamp is green while it has it.$(br2)Right click it to set it up. MODE steps through the settings, key a number and press SET."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Settings",
+      "text": "$(li)$(thing)Master number$(): how other PABXes dial this one, before the extension.$(li)$(thing)First extension$(): its phones are numbered from here, 100 by default. Changing it numbers them all again.$(li)$(thing)Behind a PABX$(): it hangs off another PABX it is wired to, as one of its lines."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Over microwave",
+      "text": "Put a PABX touching a $(l:radiocraft:microwave/microwave_radio)microwave radio$(/l), or on its data wire, and its phones can call the phones on every PABX across the link: dial the far PABX's master number, then the extension. With master number 602 and extension 100, that is $(thing)602100$().$(br2)A microwave radio alone is not an exchange: phones on it need a PABX too."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Behind another",
+      "text": "Wire a PABX set $(thing)behind$() to another one and its master number works like an extension there. Behind 602, a PABX numbered 7 with extension 100 is $(thing)7100$() from 602's phones and $(thing)6027100$() from across the link. Its own phones still dial each other by extension, and reach the rest through the PABX above."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:pabx"
+    }
+  ]
+}

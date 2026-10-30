@@ -1,7 +1,6 @@
 package com.arrl.radiocraft.gametest;
 
 import com.arrl.radiocraft.Radiocraft;
-import com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity;
 import com.arrl.radiocraft.common.blockentities.TelephoneBlockEntity;
 import com.arrl.radiocraft.common.blocks.TelephoneBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
@@ -37,7 +36,7 @@ import java.util.UUID;
 public class TelephoneGameTests {
 
 	private static final String BATCH = "telephone";
-	/** One microwave radio with a phone touching it on each side: they can call each other without a link. */
+	/** One PABX with a phone touching it on each side. */
 	private static final BlockPos RADIO = new BlockPos(5, 2, 5);
 	private static final BlockPos PHONE_A = RADIO.north();
 	private static final BlockPos PHONE_B = RADIO.south();
@@ -60,7 +59,7 @@ public class TelephoneGameTests {
 	}
 
 	private static void exchange(GameTestHelper helper) {
-		helper.setBlock(RADIO, RadiocraftBlocks.MICROWAVE_RADIO.get());
+		helper.setBlock(RADIO, RadiocraftBlocks.PABX.get());
 		helper.setBlock(PHONE_A, RadiocraftBlocks.TELEPHONE.get());
 		helper.setBlock(PHONE_B, RadiocraftBlocks.TELEPHONE.get());
 	}
@@ -76,10 +75,10 @@ public class TelephoneGameTests {
 		ServerPlayer player = player(helper, "phone-answerer");
 		helper.startSequence()
 				.thenIdle(2)
-				.thenExecute(() -> GameTestUtil.blockEntity(helper, RADIO, MicrowaveRadioBlockEntity.class).togglePower())
-				.thenWaitUntil(() -> helper.assertTrue(GameTestUtil.blockEntity(helper, RADIO, MicrowaveRadioBlockEntity.class).isPowered(), "the microwave radio is not up"))
+				.thenWaitUntil(() -> helper.assertTrue(GameTestUtil.blockEntity(helper, RADIO, com.arrl.radiocraft.common.blockentities.PabxBlockEntity.class).isPowered()
+						&& phone(helper, PHONE_A).getExtension() != phone(helper, PHONE_B).getExtension(), "the PABX is not up"))
 				.thenExecute(() -> {
-					phone(helper, PHONE_A).dial(phone(helper, PHONE_B).getExtension());
+					phone(helper, PHONE_A).dial(Integer.toString(phone(helper, PHONE_B).getExtension()));
 					helper.assertTrue(phone(helper, PHONE_B).getState() == TelephoneBlockEntity.State.RINGING, "B is not ringing: " + phone(helper, PHONE_A).getStatus());
 					stand(helper, player, PHONE_B, 1.5D);
 					player.setShiftKeyDown(true);
@@ -113,15 +112,15 @@ public class TelephoneGameTests {
 		ServerPlayer player = player(helper, "phone-walker");
 		helper.startSequence()
 				.thenIdle(2)
-				.thenExecute(() -> GameTestUtil.blockEntity(helper, RADIO, MicrowaveRadioBlockEntity.class).togglePower())
-				.thenWaitUntil(() -> helper.assertTrue(GameTestUtil.blockEntity(helper, RADIO, MicrowaveRadioBlockEntity.class).isPowered(), "the microwave radio is not up"))
+				.thenWaitUntil(() -> helper.assertTrue(GameTestUtil.blockEntity(helper, RADIO, com.arrl.radiocraft.common.blockentities.PabxBlockEntity.class).isPowered()
+						&& phone(helper, PHONE_A).getExtension() != phone(helper, PHONE_B).getExtension(), "the PABX is not up"))
 				.thenExecute(() -> {
 					stand(helper, player, PHONE_A, 1.5D);
 					player.setShiftKeyDown(true);
 					helper.useBlock(PHONE_A, player);
 					player.setShiftKeyDown(false);
 					helper.assertTrue(offHook(helper, PHONE_A), "the handset did not come up");
-					phone(helper, PHONE_A).dial(phone(helper, PHONE_B).getExtension());
+					phone(helper, PHONE_A).dial(Integer.toString(phone(helper, PHONE_B).getExtension()));
 					helper.assertTrue(phone(helper, PHONE_A).getState() == TelephoneBlockEntity.State.CALLING, "A is not calling");
 					stand(helper, player, PHONE_A, TelephoneBlockEntity.CORD_LENGTH + 2.0D);
 				})

@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "A $(item)Microwave Radio$() links two or more sites over $(item)microwave dishes$(). It carries:$(li)APRS between $(l:radiocraft:digital/aprs)H19 terminals$(/l) (the far one sends it on again)$(li)$(l:radiocraft:direction_finding/fixes)direction finder bearings$(/l)$(li)$(l:radiocraft:microwave/telephone)telephone calls$(/l)$(br)Stations join it by touching it or by $(l:radiocraft:radios/data_wire)data wire$(/l); so do the site's other microwave radios. Dishes go on its coax."
+      "text": "A $(item)Microwave Radio$() links two or more sites over $(item)microwave dishes$(). It carries:$(li)APRS between $(l:radiocraft:digital/aprs)H19 terminals$(/l) (the far one sends it on again)$(li)$(l:radiocraft:direction_finding/fixes)direction finder bearings$(/l)$(li)$(l:radiocraft:telephones/telephone)telephone calls$(/l)$(br)Stations join it by touching it or by $(l:radiocraft:radios/data_wire)data wire$(/l); so do the site's other microwave radios. Dishes go on its coax."
     },
     {
       "type": "patchouli:multiblock",
@@ -21,7 +21,12 @@
           "a": "radiocraft:coax_wire[east=true,west=true]",
           "D": "radiocraft:satellite_dish[facing=east]",
           "d": "radiocraft:data_wire[north=true,south=true]",
-          "T": "radiocraft:telephone[facing=west]"
+          "T": "radiocraft:telephone[facing=west]",
+          "l": "radiocraft:wire[east=true,south=true]",
+          "R": "radiocraft:wire[north=true,south=true,west=true]",
+          "w": "radiocraft:wire[north=true,south=true]",
+          "j": "radiocraft:wire[north=true,east=true]",
+          "P": "radiocraft:pabx[facing=west,lit=true]"
         },
         "pattern": [
           [
@@ -31,16 +36,16 @@
             " Q   ",
             " r   ",
             " V   ",
-            " r   ",
-            " 0aaD",
-            " d   ",
+            "lR   ",
+            "w0aaD",
+            "jP   ",
             " d   ",
             " d   ",
             " T   "
           ]
         ]
       },
-      "text": "Solar power runs the radio; coax takes it to the dish, and $(l:radiocraft:radios/data_wire)data wire$() to a telephone. Build the far site the same way, its dish turned back towards this one."
+      "text": "Solar power runs the radio; coax takes it to the dish, and a $(l:radiocraft:telephones/pabx)Phone PABX$(/l) touching it serves a telephone on its $(l:radiocraft:radios/data_wire)data wire$(/l), fed by a branch of the power wire. Build the far site the same way, its dish turned back towards this one."
     },
     {
       "type": "patchouli:text",

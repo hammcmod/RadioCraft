@@ -1,0 +1,36 @@
+{
+  "name": "Telephones",
+  "icon": "radiocraft:telephone",
+  "category": "radiocraft:telephones",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A $(item)Telephone$() needs a $(l:radiocraft:telephones/pabx)Phone PABX$(/l): put it touching one, or on its $(l:radiocraft:radios/data_wire)data wire$(/l). The PABX gives it an $(thing)extension$(), shown on its screen. Place it on top of a block for a desk phone, or against the side of one to hang it on the wall.$(br2)Key a number and press CALL; the far phone rings for 30 seconds."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Who you can call",
+      "text": "$(li)A phone on the same PABX: its extension, like $(thing)101$().$(li)A phone on another PABX across a $(l:radiocraft:microwave/microwave_radio)microwave link$(/l): that PABX's master number, then the extension: $(thing)602101$().$(li)A phone on a PABX behind yours: that PABX's number, then the extension.$(br)A phone's screen shows its full number from across the link."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Talking",
+      "text": "$(thing)Sneak and right click$() with an empty hand to pick up the handset: it answers a ringing phone, and only you are heard, with the far end at your ear. The cord reaches 5 blocks. Sneak and right click with the handset to hang up.$(br2)Left on its cradle the phone is a speakerphone: CALL answers, anyone close by is heard, HANG ends it."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Voice chat",
+      "text": "Calls carry your voice through Simple Voice Chat. If its microphone is set to $(thing)push to talk$(), hold its talk key while you speak on the phone. With $(thing)voice activation$() (open mic) the phone just hears you.$(br2)Open mic never keys a radio: radios still only transmit while their own PTT is held. Players near you hear you through voice chat either way."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Extensions",
+      "text": "The other end sounds clean and a little fuller than SSB. Interference or a weak microwave link makes it break up.$(br2)To change a phone's extension press EXT, key the new number and CALL. No two phones on one PABX may share one."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:telephone"
+    }
+  ]
+}

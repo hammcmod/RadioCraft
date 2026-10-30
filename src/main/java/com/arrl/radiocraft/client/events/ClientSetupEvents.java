@@ -48,6 +48,7 @@ public class ClientSetupEvents {
 		event.register(RadiocraftMenuTypes.DIRECTION_FINDER.get(), DirectionFinderScreen::new);
 		event.register(RadiocraftMenuTypes.MICROWAVE_RADIO.get(), MicrowaveRadioScreen::new);
 		event.register(RadiocraftMenuTypes.TELEPHONE.get(), TelephoneScreen::new);
+		event.register(RadiocraftMenuTypes.PABX.get(), com.arrl.radiocraft.client.screens.PabxScreen::new);
 		event.register(RadiocraftMenuTypes.IONOSPHERIC_PROCESSOR.get(), com.arrl.radiocraft.client.screens.IonosphericProcessorScreen::new);
 		event.register(RadiocraftMenuTypes.TAPE_PLAYER.get(), com.arrl.radiocraft.client.screens.TapePlayerScreen::new);
 		event.register(RadiocraftMenuTypes.WEFAX_RECEIVER.get(), com.arrl.radiocraft.client.screens.WefaxReceiverScreen::new);

@@ -8,6 +8,7 @@ import com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity;
 import com.arrl.radiocraft.common.radio.microwave.MicrowaveMath;
 import com.arrl.radiocraft.common.blockentities.MicrowaveRadioBlockEntity.Phase;
 import com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity;
+import com.arrl.radiocraft.common.blockentities.PabxBlockEntity;
 import com.arrl.radiocraft.common.blockentities.TelephoneBlockEntity;
 import com.arrl.radiocraft.common.blockentities.radio.RadioBlockEntity;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
@@ -246,8 +247,11 @@ public class MicrowaveGameTests {
 		helper.setBlock(c, RadiocraftBlocks.MICROWAVE_RADIO.get());
 		GameTestUtil.placeWire(helper, c.north(), RadiocraftBlocks.COAX_WIRE.get());
 		helper.setBlock(c.north(2), RadiocraftBlocks.SATELLITE_DISH.get());
-		helper.setBlock(a.north(), RadiocraftBlocks.TELEPHONE.get());
-		helper.setBlock(c.west(), RadiocraftBlocks.TELEPHONE.get());
+		// Each site's phone is on a PABX touching its radio (every phone needs one, 2026-10-30).
+		helper.setBlock(a.north(), RadiocraftBlocks.PABX.get());
+		helper.setBlock(a.north(2), RadiocraftBlocks.TELEPHONE.get());
+		helper.setBlock(c.west(), RadiocraftBlocks.PABX.get());
+		helper.setBlock(c.west(2), RadiocraftBlocks.TELEPHONE.get());
 		helper.startSequence()
 				.thenIdle(3)
 				.thenExecute(() -> {
@@ -282,14 +286,17 @@ public class MicrowaveGameTests {
 				})
 				.thenWaitUntil(() -> helper.assertTrue(radio(helper, a).isLinked() && radio(helper, b2).isLinked(), "Links not up yet"))
 				.thenExecute(() -> {
-					TelephoneBlockEntity caller = GameTestUtil.blockEntity(helper, a.north(), TelephoneBlockEntity.class);
-					TelephoneBlockEntity callee = GameTestUtil.blockEntity(helper, c.west(), TelephoneBlockEntity.class);
+					TelephoneBlockEntity caller = GameTestUtil.blockEntity(helper, a.north(2), TelephoneBlockEntity.class);
+					TelephoneBlockEntity callee = GameTestUtil.blockEntity(helper, c.west(2), TelephoneBlockEntity.class);
+					PabxBlockEntity pabxA = GameTestUtil.blockEntity(helper, a.north(), PabxBlockEntity.class);
+					GameTestUtil.blockEntity(helper, c.west(), PabxBlockEntity.class).setMaster("203");
+					String number = "203" + callee.getExtension();
 					// Hop limit 1: C is two links away. Put the limit back before any assert can leave it set.
 					RadiocraftServerConfig.MICROWAVE_MAX_HOPS.set(1);
-					boolean reachedAtOne = caller.reachable().contains(callee);
+					boolean reachedAtOne = pabxA.resolve(number) == callee;
 					RadiocraftServerConfig.MICROWAVE_MAX_HOPS.set(8);
 					helper.assertFalse(reachedAtOne, "A phone two links away was reachable with a hop limit of one");
-					caller.dial(callee.getExtension());
+					caller.dial(number);
 					helper.assertTrue(callee.getState() == TelephoneBlockEntity.State.RINGING, "The phone two links away is not ringing: " + caller.getStatus());
 					callee.answer();
 					helper.assertTrue(caller.getState() == TelephoneBlockEntity.State.IN_CALL, "The relayed call is not up");
@@ -357,8 +364,10 @@ public class MicrowaveGameTests {
 		station(helper, B, -1);
 		helper.setBlock(A.north(), RadiocraftBlocks.APRS_TERMINAL.get());
 		helper.setBlock(B.north(), RadiocraftBlocks.APRS_TERMINAL.get());
-		helper.setBlock(A.south(), RadiocraftBlocks.TELEPHONE.get());
-		helper.setBlock(B.south(), RadiocraftBlocks.TELEPHONE.get());
+		helper.setBlock(A.south(), RadiocraftBlocks.PABX.get());
+		helper.setBlock(A.south(2), RadiocraftBlocks.TELEPHONE.get());
+		helper.setBlock(B.south(), RadiocraftBlocks.PABX.get());
+		helper.setBlock(B.south(2), RadiocraftBlocks.TELEPHONE.get());
 		helper.startSequence()
 				.thenIdle(3)
 				.thenExecute(() -> {
@@ -384,9 +393,12 @@ public class MicrowaveGameTests {
 					AprsTerminalBlockEntity there = GameTestUtil.blockEntity(helper, B.north(), AprsTerminalBlockEntity.class);
 					helper.assertTrue(there.getBeacons().stream().anyMatch(heard -> heard.packet().from().equals("W1TST")), "The beacon did not cross the link");
 
-					TelephoneBlockEntity caller = GameTestUtil.blockEntity(helper, A.south(), TelephoneBlockEntity.class);
-					TelephoneBlockEntity callee = GameTestUtil.blockEntity(helper, B.south(), TelephoneBlockEntity.class);
-					caller.dial(callee.getExtension());
+					TelephoneBlockEntity caller = GameTestUtil.blockEntity(helper, A.south(2), TelephoneBlockEntity.class);
+					TelephoneBlockEntity callee = GameTestUtil.blockEntity(helper, B.south(2), TelephoneBlockEntity.class);
+					GameTestUtil.blockEntity(helper, B.south(), PabxBlockEntity.class).setMaster("602");
+					caller.dial(Integer.toString(callee.getExtension()));
+					helper.assertTrue(callee.getState() == TelephoneBlockEntity.State.IDLE, "A bare extension rang a phone on another PABX");
+					caller.dial("602" + callee.getExtension());
 					helper.assertTrue(callee.getState() == TelephoneBlockEntity.State.RINGING, "The far phone is not ringing: " + caller.getStatus());
 					callee.answer();
 					helper.assertTrue(caller.getState() == TelephoneBlockEntity.State.IN_CALL && callee.getState() == TelephoneBlockEntity.State.IN_CALL, "The call is not up");
