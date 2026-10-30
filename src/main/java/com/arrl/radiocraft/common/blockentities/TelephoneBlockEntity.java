@@ -75,6 +75,8 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	private int partnerExtension = -1;
 	private String status = "";
 	private int stateTicks = 0;
+	/** The client's copy: the game time the state began, for the call timer (stateTicks only counts on the server). */
+	private long stateSince = -1L;
 
 	// The other phone while in a call, for the voice thread.
 	@Nullable
@@ -532,6 +534,8 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	}
 
 	public int getStateTicks() {
+		if(level != null && level.isClientSide && stateSince >= 0L) // The call timer stuck at 0:00 (2026-10-30).
+			return (int)Math.max(0L, level.getGameTime() - stateSince);
 		return stateTicks;
 	}
 
@@ -561,6 +565,7 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 			}
 			partnerExtension = tag.getInt("partnerExtension");
 			status = tag.getString("status");
+			stateSince = tag.getLong("stateSince");
 		}
 	}
 
@@ -570,6 +575,7 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		tag.putString("state", state.name());
 		tag.putInt("partnerExtension", partnerExtension);
 		tag.putString("status", status);
+		tag.putLong("stateSince", level == null ? 0L : level.getGameTime() - stateTicks);
 		return tag;
 	}
 
