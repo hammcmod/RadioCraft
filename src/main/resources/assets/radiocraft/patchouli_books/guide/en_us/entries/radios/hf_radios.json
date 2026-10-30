@@ -45,7 +45,33 @@
           ]
         ]
       },
-      "text": "Solar power, radio, coax, a 1:1 balun and two poles. String antenna wire from the balun to each pole, 5 blocks each way."
+      "text": "Solar power, radio, coax, a 1:1 balun and two poles. String antenna wire from the balun to each pole, 5 blocks each way.",
+      "radiocraft_wires": [
+        [
+          [
+            3,
+            0,
+            7
+          ],
+          [
+            3,
+            0,
+            2
+          ]
+        ],
+        [
+          [
+            3,
+            0,
+            7
+          ],
+          [
+            3,
+            0,
+            12
+          ]
+        ]
+      ]
     },
     {
       "type": "patchouli:crafting",

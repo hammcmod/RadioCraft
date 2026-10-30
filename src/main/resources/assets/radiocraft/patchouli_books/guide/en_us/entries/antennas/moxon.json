@@ -34,7 +34,93 @@
           ]
         ]
       },
-      "text": "Wire balun to both front poles, each front pole one back, then the reflector from the third poles round the back. It beams away from the reflector."
+      "text": "Wire balun to both front poles, each front pole one back, then the reflector from the third poles round the back. It beams away from the reflector.",
+      "radiocraft_wires": [
+        [
+          [
+            1,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            3
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            3
+          ],
+          [
+            0,
+            0,
+            7
+          ]
+        ],
+        [
+          [
+            0,
+            0,
+            7
+          ],
+          [
+            1,
+            0,
+            7
+          ]
+        ],
+        [
+          [
+            2,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            0
+          ]
+        ],
+        [
+          [
+            3,
+            0,
+            0
+          ],
+          [
+            3,
+            0,
+            7
+          ]
+        ],
+        [
+          [
+            3,
+            0,
+            7
+          ],
+          [
+            2,
+            0,
+            7
+          ]
+        ]
+      ]
     }
   ]
 }

@@ -40,7 +40,33 @@
           ]
         ]
       },
-      "text": "Wire from the balun to each pole, 5 blocks each side. Solar panels, controller and battery power it."
+      "text": "Wire from the balun to each pole, 5 blocks each side. Solar panels, controller and battery power it.",
+      "radiocraft_wires": [
+        [
+          [
+            3,
+            0,
+            7
+          ],
+          [
+            3,
+            0,
+            2
+          ]
+        ],
+        [
+          [
+            3,
+            0,
+            7
+          ],
+          [
+            3,
+            0,
+            12
+          ]
+        ]
+      ]
     },
     {
       "type": "patchouli:text",

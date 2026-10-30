@@ -74,7 +74,45 @@
           ]
         ]
       },
-      "text": "Balun and two corner poles, all 4 blocks up. String wire balun, corner, apex corner, balun."
+      "text": "Balun and two corner poles, all 4 blocks up. String wire balun, corner, apex corner, balun.",
+      "radiocraft_wires": [
+        [
+          [
+            0,
+            4,
+            0
+          ],
+          [
+            6,
+            4,
+            3
+          ]
+        ],
+        [
+          [
+            6,
+            4,
+            3
+          ],
+          [
+            0,
+            4,
+            7
+          ]
+        ],
+        [
+          [
+            0,
+            4,
+            7
+          ],
+          [
+            0,
+            4,
+            0
+          ]
+        ]
+      ]
     }
   ]
 }
