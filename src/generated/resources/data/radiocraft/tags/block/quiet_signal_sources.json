@@ -1,0 +1,29 @@
+{
+  "values": [
+    "radiocraft:wefax_receiver",
+    {
+      "id": "anotherweathermod:wind_vane",
+      "required": false
+    },
+    {
+      "id": "anotherweathermod:barometer",
+      "required": false
+    },
+    {
+      "id": "anotherweathermod:thermometer",
+      "required": false
+    },
+    {
+      "id": "anotherweathermod:rain_gauge",
+      "required": false
+    },
+    {
+      "id": "anotherweathermod:solar_detector",
+      "required": false
+    },
+    {
+      "id": "anotherweathermod:tornado_sensor",
+      "required": false
+    }
+  ]
+}

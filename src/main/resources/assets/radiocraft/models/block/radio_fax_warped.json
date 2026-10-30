@@ -7,9 +7,9 @@
 	],
 	"textures": {
 		"0": "radiocraft:block/radio_fax",
-		"wood": "minecraft:block/warped_stem",
-		"wood_top": "minecraft:block/warped_stem_top",
-		"particle": "minecraft:block/warped_stem"
+		"wood": "minecraft:block/warped_planks",
+		"wood_top": "minecraft:block/warped_planks",
+		"particle": "minecraft:block/warped_planks"
 	},
 	"elements": [
 		{

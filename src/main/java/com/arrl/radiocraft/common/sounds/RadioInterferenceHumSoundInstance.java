@@ -42,7 +42,7 @@ public class RadioInterferenceHumSoundInstance extends AbstractTickableSoundInst
 		if(radio.wasPowered() && radio.shouldPlayStatic() && !radio.isReceiverMuted()) {
 			double level = radio.getRedstoneInterference(); // Redstone only: lightning static is the static's business.
 			double heard = level < THRESHOLD ? 0.0D : Math.min(1.0D, Math.sqrt(level)); // Loud quickly, like switching hash does.
-			volume = (float)(heard * MAX_VOLUME * radio.getStaticVolume());
+			volume = (float)(heard * MAX_VOLUME * radio.getStaticVolume() * radio.getSpeakerGain()); // The volume knob, as the static.
 		}
 		else
 			volume = 0.0F;

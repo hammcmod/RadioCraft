@@ -11,6 +11,7 @@ import com.arrl.radiocraft.common.blocks.WireBlock;
 import com.arrl.radiocraft.common.entities.AntennaWire;
 import com.arrl.radiocraft.common.entities.IAntennaWire;
 import com.arrl.radiocraft.common.radio.Band;
+import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceKey;
@@ -141,9 +142,12 @@ public class RedstoneInterference {
 	/**
 	 * How noisy one update from {@code state} is: 1 for redstone signal sources (dust, repeaters, comparators, torches,
 	 * levers, observers...), {@link #DRIVEN_BLOCK_FACTOR} for blocks that only get driven by redstone, 0 for anything
-	 * else (a block being placed or broken is not electrical).
+	 * else (a block being placed or broken is not electrical). Sources in {@code radiocraft:quiet_signal_sources} report a
+	 * reading rather than switch a load, so they are 0 too.
 	 */
 	public static double switchWeight(BlockState state) {
+		if(state.is(RadiocraftTags.Blocks.QUIET_SIGNAL_SOURCES))
+			return 0.0D;
 		if(state.isSignalSource())
 			return 1.0D;
 		if(state.hasProperty(BlockStateProperties.POWERED) || state.hasProperty(BlockStateProperties.EXTENDED) || state.hasProperty(BlockStateProperties.TRIGGERED))

@@ -150,4 +150,29 @@ public class RedstoneInterferenceGameTests {
             helper.succeed();
         });
     }
+
+    /**
+     * A weather instrument's reading changing is not switching: Another Weather Mod's wind vane re-reads every second and,
+     * in a storm, popped the radio beside it each time (2026-10-30). Runs only when that mod is loaded.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 200)
+    public static void weatherInstrumentReadingsAreSilent(GameTestHelper helper) {
+        net.minecraft.world.level.block.Block vane = net.minecraft.core.registries.BuiltInRegistries.BLOCK
+                .get(net.minecraft.resources.ResourceLocation.fromNamespaceAndPath("anotherweathermod", "wind_vane"));
+        if(vane == Blocks.AIR) {
+            helper.succeed(); // Another Weather Mod is not installed.
+            return;
+        }
+        buildStation(helper, RADIO_A, BALUN_A);
+        helper.runAfterDelay(5, () -> setupSsb(helper, RADIO_A, 0));
+        net.minecraft.world.level.block.state.properties.IntegerProperty power = net.minecraft.world.level.block.state.properties.BlockStateProperties.POWER;
+        helper.runAtTickTime(30, () -> {
+            helper.setBlock(BY_RADIO, vane.defaultBlockState().setValue(power, 3));
+            helper.setBlock(BY_RADIO, vane.defaultBlockState().setValue(power, 9));
+        });
+        helper.runAtTickTime(32, () -> {
+            helper.assertTrue(radio(helper, RADIO_A).getInterference() == 0.0D, "The wind vane made noise: " + radio(helper, RADIO_A).getInterference());
+            helper.succeed();
+        });
+    }
 }

@@ -7,9 +7,9 @@
 	],
 	"textures": {
 		"0": "radiocraft:block/radio_fax",
-		"wood": "minecraft:block/cherry_log",
-		"wood_top": "minecraft:block/cherry_log_top",
-		"particle": "minecraft:block/cherry_log"
+		"wood": "minecraft:block/cherry_planks",
+		"wood_top": "minecraft:block/cherry_planks",
+		"particle": "minecraft:block/cherry_planks"
 	},
 	"elements": [
 		{

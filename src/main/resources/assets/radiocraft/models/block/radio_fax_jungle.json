@@ -7,9 +7,9 @@
 	],
 	"textures": {
 		"0": "radiocraft:block/radio_fax",
-		"wood": "minecraft:block/jungle_log",
-		"wood_top": "minecraft:block/jungle_log_top",
-		"particle": "minecraft:block/jungle_log"
+		"wood": "minecraft:block/jungle_planks",
+		"wood_top": "minecraft:block/jungle_planks",
+		"particle": "minecraft:block/jungle_planks"
 	},
 	"elements": [
 		{

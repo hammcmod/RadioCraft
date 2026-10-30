@@ -4,6 +4,7 @@ import com.arrl.radiocraft.Radiocraft;
 import com.arrl.radiocraft.common.init.RadiocraftBlocks;
 import com.arrl.radiocraft.common.init.RadiocraftTags;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.data.PackOutput;
@@ -67,6 +68,17 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.RADIO_FAXES.values().stream().map(net.neoforged.neoforge.registries.DeferredHolder::get).toArray(Block[]::new))
                 .add(RadiocraftBlocks.RADIO_INTERFACE.get(), RadiocraftBlocks.TELETYPE.get(), RadiocraftBlocks.WEFAX_RECEIVER.get(),
                         RadiocraftBlocks.TAPE_PLAYER.get(), RadiocraftBlocks.IONOSPHERIC_PROCESSOR.get());
+
+        // Signal sources that only report a reading: Another Weather Mod's instruments re-read the weather every second, and
+        // in a storm each new reading popped a nearby radio with interference (2026-10-30).
+        tag(RadiocraftTags.Blocks.QUIET_SIGNAL_SOURCES)
+                .add(RadiocraftBlocks.WEFAX_RECEIVER.get())
+                .addOptional(ResourceLocation.fromNamespaceAndPath("anotherweathermod", "wind_vane"))
+                .addOptional(ResourceLocation.fromNamespaceAndPath("anotherweathermod", "barometer"))
+                .addOptional(ResourceLocation.fromNamespaceAndPath("anotherweathermod", "thermometer"))
+                .addOptional(ResourceLocation.fromNamespaceAndPath("anotherweathermod", "rain_gauge"))
+                .addOptional(ResourceLocation.fromNamespaceAndPath("anotherweathermod", "solar_detector"))
+                .addOptional(ResourceLocation.fromNamespaceAndPath("anotherweathermod", "tornado_sensor"));
 
         // Define the COAX_BLOCKS tag
         tag(RadiocraftTags.Blocks.COAX_BLOCKS)

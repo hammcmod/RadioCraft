@@ -7,9 +7,9 @@
 	],
 	"textures": {
 		"0": "radiocraft:block/radio_fax",
-		"wood": "minecraft:block/mangrove_log",
-		"wood_top": "minecraft:block/mangrove_log_top",
-		"particle": "minecraft:block/mangrove_log"
+		"wood": "minecraft:block/mangrove_planks",
+		"wood_top": "minecraft:block/mangrove_planks",
+		"particle": "minecraft:block/mangrove_planks"
 	},
 	"elements": [
 		{

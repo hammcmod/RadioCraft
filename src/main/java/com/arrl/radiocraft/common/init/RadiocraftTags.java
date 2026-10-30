@@ -15,6 +15,11 @@ public class RadiocraftTags {
 		public static final TagKey<Block> POWER_BLOCKS = TagKey.create(Registries.BLOCK, Radiocraft.id("power_blocks"));
 		/** Blocks data wire runs into (radios always do, see {@code WireBlock#isDataConnection}). */
 		public static final TagKey<Block> DATA_BLOCKS = TagKey.create(Registries.BLOCK, Radiocraft.id("data_blocks"));
+		/**
+		 * Redstone signal sources whose output is a reading, not a switch (weather instruments, the WEFAX receiver's
+		 * alarm): their updates make no redstone interference.
+		 */
+		public static final TagKey<Block> QUIET_SIGNAL_SOURCES = TagKey.create(Registries.BLOCK, Radiocraft.id("quiet_signal_sources"));
 	}
 
 }

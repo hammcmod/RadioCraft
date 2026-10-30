@@ -7,9 +7,9 @@
 	],
 	"textures": {
 		"0": "radiocraft:block/radio_fax",
-		"wood": "minecraft:block/bamboo_block",
-		"wood_top": "minecraft:block/bamboo_block_top",
-		"particle": "minecraft:block/bamboo_block"
+		"wood": "minecraft:block/bamboo_planks",
+		"wood_top": "minecraft:block/bamboo_planks",
+		"particle": "minecraft:block/bamboo_planks"
 	},
 	"elements": [
 		{

@@ -7,9 +7,9 @@
 	],
 	"textures": {
 		"0": "radiocraft:block/radio_fax",
-		"wood": "minecraft:block/crimson_stem",
-		"wood_top": "minecraft:block/crimson_stem_top",
-		"particle": "minecraft:block/crimson_stem"
+		"wood": "minecraft:block/crimson_planks",
+		"wood_top": "minecraft:block/crimson_planks",
+		"particle": "minecraft:block/crimson_planks"
 	},
 	"elements": [
 		{

@@ -245,6 +245,10 @@ wire items).
 - [ ] `redstone_rfi.ogg` plays at an HF radio when redstone switches near its antenna, coax or power wire: a lever flip
   is a short burst that dies away, a clock keeps it going (the file loops), louder the more switching; silent on a
   quiet station and with the receiver muted. It sits on top of the static as the old placeholder hum did.
+- [ ] (2026-10-30) Under a storm by a station with Another Weather Mod instruments (wind vane, rain gauge...) nearby:
+  no more "pbbt pbbt" from the radio as their readings change. The RFI noise follows the radio's volume knob (silent
+  at 0) and fades with distance like the static (the file is mono now); flying off, it is gone within about 16 blocks.
+- [ ] (2026-10-30) The teletype and WEFAX printing chatter also fades with distance (mono now).
 
 ## WEFAX: two sheets, plain names, fax-tone bulletins (added 2026-10-27, late)
 
@@ -882,9 +886,9 @@ Dev runs have Another Weather Mod (from `libs/`); its own checklist is in its re
 The Digital Transfer Interface is gone; the **Radio Fax** (one per log, in the dev tab and craftable from that log,
 glass, wire, an HF board and paper) replaces it. Audio needs voice chat.
 
-- [ ] Model: a log-clad desk fax facing the player, a cream deck with a keypad and LCD at the front, a sheet in the
+- [ ] Model: a plank-clad desk fax (each wood's planks, 2026-10-30; it was the log) facing the player, a cream deck with a keypad and LCD at the front, a sheet in the
   front tray and one standing in the feeder at the back; the floor cable runs to a Radio Interface or a radio beside
-  it. All eleven woods look right (bamboo, crimson and warped use the block / stem textures).
+  it. All eleven woods look right.
 - [ ] Screen: a cream fascia with the document slot and SEND key on the left, PAPER / BOOK / MAP supplies and the
   four-slot RECEIVED tray along the bottom, the grey LCD top right, and the vanilla inventory below. Hover tips on
   each.

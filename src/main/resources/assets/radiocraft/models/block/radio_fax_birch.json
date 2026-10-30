@@ -7,9 +7,9 @@
 	],
 	"textures": {
 		"0": "radiocraft:block/radio_fax",
-		"wood": "minecraft:block/birch_log",
-		"wood_top": "minecraft:block/birch_log_top",
-		"particle": "minecraft:block/birch_log"
+		"wood": "minecraft:block/birch_planks",
+		"wood_top": "minecraft:block/birch_planks",
+		"particle": "minecraft:block/birch_planks"
 	},
 	"elements": [
 		{

@@ -7,9 +7,9 @@
 	],
 	"textures": {
 		"0": "radiocraft:block/radio_fax",
-		"wood": "minecraft:block/oak_log",
-		"wood_top": "minecraft:block/oak_log_top",
-		"particle": "minecraft:block/oak_log"
+		"wood": "minecraft:block/oak_planks",
+		"wood_top": "minecraft:block/oak_planks",
+		"particle": "minecraft:block/oak_planks"
 	},
 	"elements": [
 		{

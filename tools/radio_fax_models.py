@@ -1,9 +1,9 @@
-"""Writes the radio fax machine's block models, one per log, its detail texture, its GUI panel and the teletype roll
+"""Writes the radio fax machine's block models, one per wood, its detail texture, its GUI panel and the teletype roll
 item texture.
 
     python tools/radio_fax_models.py [--preview DIR --logs DIR]
 
-- radio_fax_<wood>          a desk fax machine, 14 by 12 and 13 tall: a log-clad case (the vanilla log textures, so
+- radio_fax_<wood>          a desk fax machine, 14 by 12 and 13 tall: a plank-clad case (the vanilla planks, so
                             there is one detail texture, radio_fax.png, and a model per wood: oak, spruce, birch,
                             jungle, acacia, dark_oak, mangrove, cherry, bamboo, crimson and warped), a cream deck with
                             a keypad and a small grey LCD at the front, a sheet lying in the front tray, and a sheet
@@ -13,8 +13,8 @@ item texture.
 - textures/item/teletype_roll.png
                             a torn-off roll of teletype paper
 
-`--preview DIR` writes DIR/assets/radiocraft/models/block/radiocraft_preview.json with every wood in a row; the log
-textures are read from `--logs DIR` (a folder of <wood>_log.png and <wood>_log_top.png pulled out of the client jar).
+`--preview DIR` writes DIR/assets/radiocraft/models/block/radiocraft_preview.json with every wood in a row; the plank
+textures are read from `--logs DIR` (a folder of <wood>_planks.png pulled out of the client jar).
 """
 import argparse
 import sys
@@ -33,12 +33,9 @@ WOODS = ["oak", "spruce", "birch", "jungle", "acacia", "dark_oak", "mangrove", "
 
 
 def log_textures(wood):
-    """The vanilla side and end textures of a wood's log (stems in the nether, the bamboo block)."""
-    if wood in ("crimson", "warped"):
-        return f"minecraft:block/{wood}_stem", f"minecraft:block/{wood}_stem_top"
-    if wood == "bamboo":
-        return "minecraft:block/bamboo_block", "minecraft:block/bamboo_block_top"
-    return f"minecraft:block/{wood}_log", f"minecraft:block/{wood}_log_top"
+    """The case's side and end textures: the wood's planks all round, as the recipe takes planks (maintainer, 2026-10-30;
+    it was the log, bark and end grain)."""
+    return f"minecraft:block/{wood}_planks", f"minecraft:block/{wood}_planks"
 
 
 PAPER = (236, 232, 220)
@@ -79,7 +76,7 @@ def paint_fax():
 
 def fax_elements(b):
     return [
-        # The case: logs round the outside, the fascia on top, end grain underneath.
+        # The case: planks round the outside and underneath, the fascia on top.
         b.box("case", [1, 0.5, 2], [15, 6, 14], "wood", {"up": "deck", "down": "wood_top"}),
         b.box("foot_nw", [2, 0, 3], [4, 0.5, 5], "foot"),
         b.box("foot_ne", [12, 0, 3], [14, 0.5, 5], "foot"),
