@@ -19,10 +19,10 @@
       "multiblock": {
         "mapping": {
           "S": "radiocraft:solar_panel",
-          "K": "radiocraft:charge_controller[facing=south]",
-          "B": "radiocraft:large_battery[facing=south]",
+          "K": "radiocraft:charge_controller[facing=west]",
+          "B": "radiocraft:large_battery[facing=west]",
           "a": "radiocraft:wire[east=true,west=true]",
-          "0": "radiocraft:hf_radio_20m[facing=south]"
+          "0": "radiocraft:hf_radio_20m[facing=west]"
         },
         "pattern": [
           [

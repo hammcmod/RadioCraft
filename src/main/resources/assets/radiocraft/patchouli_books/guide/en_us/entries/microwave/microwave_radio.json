@@ -9,6 +9,40 @@
       "text": "A $(item)Microwave Radio$() links two or more sites over $(item)microwave dishes$(). It carries:$(li)APRS between $(l:radiocraft:digital/aprs)H19 terminals$(/l) (the far one sends it on again)$(li)$(l:radiocraft:direction_finding/fixes)direction finder bearings$(/l)$(li)$(l:radiocraft:microwave/telephone)telephone calls$(/l)$(br)Stations join it by touching it or by $(l:radiocraft:radios/data_wire)data wire$(/l); so do the site's other microwave radios. Dishes go on its coax."
     },
     {
+      "type": "patchouli:multiblock",
+      "name": "Microwave site",
+      "multiblock": {
+        "mapping": {
+          "G": "radiocraft:solar_panel",
+          "Q": "radiocraft:charge_controller[facing=west]",
+          "V": "radiocraft:large_battery[facing=west]",
+          "r": "radiocraft:wire[north=true,south=true]",
+          "0": "radiocraft:microwave_radio[facing=west]",
+          "a": "radiocraft:coax_wire[east=true,west=true]",
+          "D": "radiocraft:satellite_dish[facing=east]",
+          "d": "radiocraft:data_wire[north=true,south=true]",
+          "T": "radiocraft:telephone[facing=west]"
+        },
+        "pattern": [
+          [
+            " G   ",
+            " G   ",
+            " G   ",
+            " Q   ",
+            " r   ",
+            " V   ",
+            " r   ",
+            " 0aaD",
+            " d   ",
+            " d   ",
+            " d   ",
+            " T   "
+          ]
+        ]
+      },
+      "text": "Solar power runs the radio; coax takes it to the dish, and $(l:radiocraft:radios/data_wire)data wire$() to a telephone. Build the far site the same way, its dish turned back towards this one."
+    },
+    {
       "type": "patchouli:text",
       "title": "Setting up",
       "text": "It runs on power (26 FE/t while on). Press POWER, then SETUP: [C] a call sign, [I] a four digit ID, [F] a frequency from 5925 to 7125 MHz in 10 MHz steps. Each call sign and ID pair can only be used once.$(br2)Both ends of a link must be on the same frequency."

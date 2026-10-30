@@ -21,10 +21,10 @@
           "B": "radiocraft:balun_one_to_one[placed_on=down]",
           "P": "radiocraft:antenna_pole",
           "a": "radiocraft:coax_wire[north=true,south=true]",
-          "0": "radiocraft:hf_radio_20m[facing=north]",
+          "0": "radiocraft:hf_radio_20m[facing=west]",
           "G": "radiocraft:solar_panel",
-          "Q": "radiocraft:charge_controller[facing=south]",
-          "V": "radiocraft:large_battery[facing=south]",
+          "Q": "radiocraft:charge_controller[facing=west]",
+          "V": "radiocraft:large_battery[facing=west]",
           "r": "radiocraft:wire[east=true,west=true]"
         },
         "pattern": [

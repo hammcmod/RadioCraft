@@ -13,16 +13,16 @@
       "name": "APRS station",
       "multiblock": {
         "mapping": {
-          "I": "radiocraft:radio_interface[facing=north]",
-          "H": "radiocraft:aprs_h19[facing=north]",
-          "T": "radiocraft:radio_fax_oak[facing=north]",
+          "I": "radiocraft:radio_interface[facing=west]",
+          "H": "radiocraft:aprs_h19[facing=west]",
+          "T": "radiocraft:radio_fax_oak[facing=west]",
           "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
           "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
           "a": "radiocraft:coax_wire[north=true,south=true]",
-          "0": "radiocraft:vhf_base_station[facing=north]",
+          "0": "radiocraft:vhf_base_station[facing=west]",
           "G": "radiocraft:solar_panel",
-          "Q": "radiocraft:charge_controller[facing=south]",
-          "V": "radiocraft:large_battery[facing=south]",
+          "Q": "radiocraft:charge_controller[facing=west]",
+          "V": "radiocraft:large_battery[facing=west]",
           "r": "radiocraft:wire[east=true,west=true]"
         },
         "pattern": [

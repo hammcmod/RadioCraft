@@ -14,13 +14,13 @@
       "multiblock": {
         "mapping": {
           "S": "radiocraft:solar_panel",
-          "K": "radiocraft:charge_controller[facing=south]",
-          "B": "radiocraft:large_battery[facing=south]",
+          "K": "radiocraft:charge_controller[facing=west]",
+          "B": "radiocraft:large_battery[facing=west]",
           "w": "radiocraft:wire[east=true,west=true]",
           "J": "radiocraft:j_pole_antenna[half=lower,facing=north]",
           "U": "radiocraft:j_pole_antenna[half=upper,facing=north]",
           "a": "radiocraft:coax_wire[north=true,south=true]",
-          "0": "radiocraft:vhf_base_station[facing=north]"
+          "0": "radiocraft:vhf_base_station[facing=west]"
         },
         "pattern": [
           [
