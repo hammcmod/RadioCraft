@@ -149,16 +149,32 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 
 	/**
 	 * Phones this one can call: on the microwave network it is on, at this site or relayed through other sites
-	 * ({@code MicrowaveRoutes}).
+	 * ({@code MicrowaveRoutes}); with no powered microwave radio serving it, the phones on a powered PABX it is on.
 	 */
 	public List<TelephoneBlockEntity> reachable() {
 		List<TelephoneBlockEntity> out = new ArrayList<>();
 		if(level == null)
 			return out;
+		if(!microwaveLine()) {
+			for(TelephoneBlockEntity phone : PabxBlockEntity.reachable(level, worldPosition))
+				if(phone != this)
+					out.add(phone);
+			return out;
+		}
 		for(com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.Route route : com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes.from(level, worldPosition))
 			if(route.station() instanceof TelephoneBlockEntity phone && phone != this)
 				out.add(phone);
 		return out;
+	}
+
+	/** True if a powered microwave radio serves this phone: then it is the exchange, not a PABX. */
+	private boolean microwaveLine() {
+		return level != null && MicrowaveRadioBlockEntity.servingStation(level, worldPosition).stream().anyMatch(MicrowaveRadioBlockEntity::isPowered);
+	}
+
+	/** True if this phone has a line: a powered microwave radio or PABX serves it. */
+	public boolean hasLine() {
+		return level != null && (microwaveLine() || PabxBlockEntity.serving(level, worldPosition).stream().anyMatch(PabxBlockEntity::isPowered));
 	}
 
 	/** True if any link on the way to {@code other} has interference, or a signal too weak for a clean call. */
@@ -336,8 +352,8 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 			sync();
 			return;
 		}
-		if(MicrowaveRadioBlockEntity.servingStation(level, worldPosition).stream().noneMatch(MicrowaveRadioBlockEntity::isPowered)) {
-			status = "NO LINE: NO MICROWAVE RADIO ON";
+		if(!hasLine()) {
+			status = "NO LINE: NO PABX OR RADIO ON";
 			sync();
 			return;
 		}
@@ -402,6 +418,14 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		partnerExtension = -1;
 		stateTicks = 0;
 		status = why;
+		sync();
+	}
+
+	/** Sets the extension a PABX gives this phone ({@link PabxBlockEntity}). */
+	public void assignExtension(int number) {
+		if(number == extension)
+			return;
+		extension = number;
 		sync();
 	}
 

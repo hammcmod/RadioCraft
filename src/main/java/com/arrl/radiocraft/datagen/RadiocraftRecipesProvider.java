@@ -133,6 +133,17 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .define('P', Items.TERRACOTTA)
                 .unlockedBy("has_microphone_element", has(RadiocraftItems.MICROPHONE_ELEMENT.get()))
                 .save(recipeOutput, Radiocraft.id("telephone"));
+        // The phone PABX: a comparator for the switching, data wire for the lines, a redstone ringer, in an iron case.
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.PABX.get(), 1)
+                .pattern("III")
+                .pattern("DCD")
+                .pattern("IRI")
+                .define('I', Items.IRON_INGOT)
+                .define('D', RadiocraftItems.DATA_WIRE.get())
+                .define('C', Items.COMPARATOR)
+                .define('R', Items.REDSTONE)
+                .unlockedBy("has_telephone", has(RadiocraftItems.TELEPHONE.get()))
+                .save(recipeOutput, Radiocraft.id("pabx"));
         // The weather station: copper cups, a quartz radiation shield, a comparator for the electronics, a bars mast mount.
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.WEATHER_STATION.get(), 1)
                 .pattern("C C")

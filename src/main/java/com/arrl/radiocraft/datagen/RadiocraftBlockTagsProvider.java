@@ -55,7 +55,8 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.DIRECTION_FINDER_MODULE.get()) // Passes power on to the finder and the next module.
                 .add(RadiocraftBlocks.MICROWAVE_RADIO.get())
                 .add(RadiocraftBlocks.DIRECTION_FINDER.get(), RadiocraftBlocks.MAP_DIRECTION_FINDER.get())
-                .add(RadiocraftBlocks.APRS_TERMINAL.get()); // The H19 is mains fed (TerminalPowerGameTests).
+                .add(RadiocraftBlocks.APRS_TERMINAL.get()) // The H19 is mains fed (TerminalPowerGameTests).
+                .add(RadiocraftBlocks.PABX.get());
 
         // Data wire (2026-10-30) links these to radios and to each other; power wire no longer does. Radios take it too
         // (WireBlock#isDataConnection).
@@ -63,7 +64,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
                 .add(RadiocraftBlocks.DATA_WIRE.get())
                 .add(RadiocraftBlocks.WALL_SPEAKER.get(), RadiocraftBlocks.LOUDSPEAKER.get()) // The wire is their speaker line.
                 .add(RadiocraftBlocks.MICROWAVE_RADIO.get()) // The line to the stations it serves and its site's other radios:
-                .add(RadiocraftBlocks.TELEPHONE.get(), RadiocraftBlocks.APRS_TERMINAL.get(),
+                .add(RadiocraftBlocks.TELEPHONE.get(), RadiocraftBlocks.PABX.get(), RadiocraftBlocks.APRS_TERMINAL.get(),
                         RadiocraftBlocks.DIRECTION_FINDER.get(), RadiocraftBlocks.MAP_DIRECTION_FINDER.get())
                 .add(RadiocraftBlocks.RADIO_FAXES.values().stream().map(net.neoforged.neoforge.registries.DeferredHolder::get).toArray(Block[]::new))
                 .add(RadiocraftBlocks.RADIO_INTERFACE.get(), RadiocraftBlocks.TELETYPE.get(), RadiocraftBlocks.WEFAX_RECEIVER.get(),

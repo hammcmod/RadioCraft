@@ -250,6 +250,18 @@ wire items).
   at 0) and fades with distance like the static (the file is mono now); flying off, it is gone within about 16 blocks.
 - [ ] (2026-10-30) The teletype and WEFAX printing chatter also fades with distance (mono now).
 
+## Phone PABX, small fixes (added 2026-10-30, evening)
+
+- [ ] Phone PABX: the size of a direction finder module, faces you when placed, the pabx.png front with a dark lamp
+  that turns green once it has power. Two phones touching it or on its data wire get extensions 100 and 101 and can
+  call each other with no microwave radio; take its power away (or break it) and dialing says NO LINE. Next to a
+  powered microwave radio the radio is the exchange, as before. Recipe: iron, data wire, a comparator, redstone.
+- [ ] Breaking a WEFAX receiver (and a charge controller that is on) throws its own coloured particles, not the
+  purple and black "no texture" ones.
+- [ ] Antenna switch: the knob hub's octagon no longer flickers (z-fighting) from any angle.
+- [ ] HF manpack screen: no overlap; with the handset out, the empty bay lines up with the divider and no handset
+  edge shows; the BAT reading sits against the right edge of the window.
+
 ## WEFAX: two sheets, plain names, fax-tone bulletins (added 2026-10-27, late)
 
 Maintainer's notes from testing: the chart was hard to read (which blob is what, where am I), and the solar bulletin

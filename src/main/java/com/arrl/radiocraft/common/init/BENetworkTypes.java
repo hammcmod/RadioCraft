@@ -45,6 +45,7 @@ public class BENetworkTypes {
                 (level, pos) -> new com.arrl.radiocraft.common.blockentities.CommercialRepeaterBlockEntity.Commercial(level, pos, 0, 0));
         BENetworkRegistry.registerObject(DirectionFinderNetworkObject.TYPE, DirectionFinderNetworkObject::new);
         BENetworkRegistry.registerObject(AprsTerminalNetworkObject.TYPE, AprsTerminalNetworkObject::new);
+        BENetworkRegistry.registerObject(com.arrl.radiocraft.common.be_networks.network_objects.PabxNetworkObject.TYPE, com.arrl.radiocraft.common.be_networks.network_objects.PabxNetworkObject::new);
     }
 
 }

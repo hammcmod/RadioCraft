@@ -156,6 +156,7 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> DIRECTION_FINDER_MODULE = simpleBlockItem("direction_finder_module", RadiocraftBlocks.DIRECTION_FINDER_MODULE);
 	public static final Supplier<BlockItem> MICROWAVE_RADIO = simpleBlockItem("microwave_radio", RadiocraftBlocks.MICROWAVE_RADIO);
 	public static final Supplier<BlockItem> TELEPHONE = simpleBlockItem("telephone", RadiocraftBlocks.TELEPHONE);
+	public static final Supplier<BlockItem> PABX = simpleBlockItem("pabx", RadiocraftBlocks.PABX);
 	/** A telephone's handset while it is off the hook; never crafted or in a creative tab. */
 	public static final DeferredHolder<Item, com.arrl.radiocraft.common.items.TelephoneHandsetItem> TELEPHONE_HANDSET = ITEMS.register("telephone_handset",
 			() -> new com.arrl.radiocraft.common.items.TelephoneHandsetItem(new Properties()));

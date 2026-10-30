@@ -77,6 +77,7 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.MICROWAVE_HORN.get()); // The large horn: a dish with six times the reach.
         output.accept(RadiocraftItems.MICROWAVE_RADIO.get());
         output.accept(RadiocraftItems.TELEPHONE.get());
+        output.accept(RadiocraftItems.PABX.get());
 
         // Speakers (released 2026-10-27)
         RadiocraftItems.DESK_SPEAKERS.values().forEach(item -> output.accept(item.get()));

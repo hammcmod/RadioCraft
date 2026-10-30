@@ -1,0 +1,21 @@
+{
+  "name": "Phone PABX",
+  "icon": "radiocraft:pabx",
+  "category": "radiocraft:microwave",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "A $(item)Phone PABX$() is a small exchange: $(l:radiocraft:microwave/telephone)telephones$(/l) touching it or on its $(l:radiocraft:radios/data_wire)data wire$(/l) can call each other, with no microwave radio. It needs power from the power wire; its lamp is green while it has it.$(br2)Each phone it picks up gets the lowest free $(thing)extension$() from 100. You can still change one with EXT."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "With a microwave radio",
+      "text": "A microwave radio is its own PABX. A phone a powered radio serves calls through the radio, out over its links, and a PABX on the same wire is not needed."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:pabx"
+    }
+  ]
+}

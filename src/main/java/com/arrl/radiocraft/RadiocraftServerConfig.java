@@ -84,6 +84,7 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Integer> FAX_PACKET_RETRIES;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_MESSAGE_RETRY_SECONDS;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_TERMINAL_POWER_USE;
+	public static final ModConfigSpec.ConfigValue<Integer> PABX_POWER_USE;
 	public static final ModConfigSpec.ConfigValue<Integer> APRS_MESSAGE_RETRIES;
 	public static final ModConfigSpec.ConfigValue<Boolean> APRS_BEACON_DEFAULT;
 	public static final ModConfigSpec.ConfigValue<Boolean> APRS_DIGIPEAT_DEFAULT;
@@ -320,6 +321,7 @@ public class RadiocraftServerConfig {
 		FAX_SOLID_SIGNAL = BUILDER.comment(" Signal strength (0 to 1) at and above which a radio fax loses no packets").defineInRange("fax_solid_signal", 0.5D, 0.0D, 1.0D);
 		FAX_PACKET_RETRIES = BUILDER.comment(" Times one fax packet is sent again without an ack before the fax fails").defineInRange("fax_packet_retries", 15, 0, 100);
 		APRS_TERMINAL_POWER_USE = BUILDER.comment(" Power the H19 terminal draws per tick, always: dark without it (radios_need_power = false runs it free)").defineInRange("aprs_terminal_power_use", 3, 0, 10000);
+		PABX_POWER_USE = BUILDER.comment(" Power a phone PABX draws per tick, always: no calls through it without (radios_need_power = false runs it free)").defineInRange("pabx_power_use", 2, 0, 10000);
 		APRS_MESSAGE_RETRY_SECONDS = BUILDER.comment(" Seconds an APRS message waits for its ack before it is sent again")
 				.defineInRange("aprs_message_retry_seconds", 20, 2, 600);
 		APRS_MESSAGE_RETRIES = BUILDER.comment(" Times an APRS message is sent again without an ack before it shows FAILED")

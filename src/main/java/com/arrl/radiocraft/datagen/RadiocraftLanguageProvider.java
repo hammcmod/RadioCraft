@@ -157,6 +157,8 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("tooltip.radiocraft.manpack_mic", "Hold right click to talk. Sneak right click hangs it back up.");
 			provider.add("key.radiocraft.open_manpack", "Open Worn Manpack");
 			provider.addBlock(RadiocraftBlocks.TELEPHONE, "Telephone");
+			provider.addBlock(RadiocraftBlocks.PABX, "Phone PABX");
+			provider.add("tooltip.radiocraft.pabx", "The exchange for telephones touching it or on its data wire, where there is no microwave radio: they can call each other. Needs power; gives its phones extensions from 100. A microwave radio is its own PABX.");
 			provider.addBlock(RadiocraftBlocks.WEATHER_STATION, "Weather Station");
 			// The alternator only exists with Create (compat/create), so it is named by key.
 			provider.add("block.radiocraft.alternator", "Alternator");
@@ -165,7 +167,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("container.radiocraft.telephone", "Telephone");
 			provider.add("tooltip.radiocraft.microwave_radio", "A digital point to multipoint link over microwave dishes on its coax. Carries APRS between H19s, bearings between direction finders, and telephone calls.");
 			provider.add("tooltip.radiocraft.microwave_dish", "One end of a microwave link: coax it to a microwave radio and point it at the other end's dish.");
-			provider.add("tooltip.radiocraft.telephone", "Put it on a microwave radio (touching, or on its wire) and dial another phone's extension. Sneak and right click to pick up the handset; place it on the side of a block to hang it on the wall.");
+			provider.add("tooltip.radiocraft.telephone", "Put it on a microwave radio or a powered Phone PABX (touching, or on its data wire) and dial another phone's extension. Sneak and right click to pick up the handset; place it on the side of a block to hang it on the wall.");
 			provider.add("tooltip.radiocraft.weather_station", "Put it up high in the open. Any H19 APRS terminal within 64 blocks sends its weather in its beacons.");
 			provider.add("screen.radiocraft.microwave.identity_taken", "Another microwave radio already has that callsign and ID");
 			provider.add("screen.radiocraft.telephone.extension_taken", "A phone on this line already has that extension");

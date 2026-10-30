@@ -49,6 +49,7 @@
     "radiocraft:microwave_radio",
     "radiocraft:direction_finder",
     "radiocraft:map_direction_finder",
-    "radiocraft:aprs_h19"
+    "radiocraft:aprs_h19",
+    "radiocraft:pabx"
   ]
 }

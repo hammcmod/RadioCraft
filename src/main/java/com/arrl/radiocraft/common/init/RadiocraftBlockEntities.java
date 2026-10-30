@@ -116,6 +116,8 @@ public class RadiocraftBlockEntities {
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.WeatherStationBlockEntity::new, RadiocraftBlocks.WEATHER_STATION.get()).build(null));
 	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity>> IONOSPHERIC_PROCESSOR = BLOCK_ENTITY_TYPES.register("ionospheric_processor",
 			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity::new, RadiocraftBlocks.IONOSPHERIC_PROCESSOR.get()).build(null));
+	public static final Supplier<BlockEntityType<com.arrl.radiocraft.common.blockentities.PabxBlockEntity>> PABX = BLOCK_ENTITY_TYPES.register("pabx",
+			() -> BlockEntityType.Builder.of(com.arrl.radiocraft.common.blockentities.PabxBlockEntity::new, RadiocraftBlocks.PABX.get()).build(null));
 	public static final Supplier<BlockEntityType<TelephoneBlockEntity>> TELEPHONE = BLOCK_ENTITY_TYPES.register("telephone",
 			() -> BlockEntityType.Builder.of(TelephoneBlockEntity::new, RadiocraftBlocks.TELEPHONE.get()).build(null));
 	public static final Supplier<BlockEntityType<MicrowaveDishBlockEntity>> MICROWAVE_HORN = BLOCK_ENTITY_TYPES.register("microwave_horn",
