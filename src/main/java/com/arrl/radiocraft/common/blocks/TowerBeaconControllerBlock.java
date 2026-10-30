@@ -58,6 +58,22 @@ public class TowerBeaconControllerBlock extends TowerBeamBlock {
 			level.scheduleTick(pos, this, 1); // Picks up the phase straight away.
 	}
 
+	/**
+	 * Restarts the blink if it is not running: a controller a structure put down at world generation never had
+	 * {@link #onPlace}, so it stood stuck on (or off) in sites already generated (seen 2026-10-30). New sites start it in
+	 * {@link com.arrl.radiocraft.common.worldgen.SitePiece#postProcess}.
+	 */
+	@Override
+	protected boolean isRandomlyTicking(@NotNull BlockState state) {
+		return true;
+	}
+
+	@Override
+	protected void randomTick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
+		if(!level.getBlockTicks().hasScheduledTick(pos, this))
+			level.scheduleTick(pos, this, 1);
+	}
+
 	@Override
 	protected void tick(@NotNull BlockState state, @NotNull ServerLevel level, @NotNull BlockPos pos, @NotNull RandomSource random) {
 		long now = level.getGameTime();

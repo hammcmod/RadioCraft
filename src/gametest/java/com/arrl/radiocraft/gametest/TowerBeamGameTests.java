@@ -86,6 +86,24 @@ public class TowerBeamGameTests {
     }
 
     /**
+     * A controller with no tick scheduled, as one a structure put down at world generation (it stood stuck lit in a
+     * repeater site, 2026-10-30), starts blinking again at its next random tick.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 200)
+    public static void stuckBeaconControllerRestartsOnARandomTick(GameTestHelper helper) {
+        BlockPos controller = new BlockPos(4, 2, 4);
+        helper.setBlock(controller.below(), Blocks.STONE);
+        helper.setBlock(controller, RadiocraftBlocks.TOWER_BEACON_CONTROLLER.get());
+        BlockPos at = helper.absolutePos(controller);
+        helper.getLevel().getBlockTicks().clearArea(new net.minecraft.world.level.levelgen.structure.BoundingBox(at));
+        helper.setBlock(controller, helper.getBlockState(controller).setValue(TowerBeaconControllerBlock.POWERED, true));
+        helper.getLevel().getBlockTicks().clearArea(new net.minecraft.world.level.levelgen.structure.BoundingBox(at));
+        helper.assertFalse(helper.getLevel().getBlockTicks().hasScheduledTick(at, RadiocraftBlocks.TOWER_BEACON_CONTROLLER.get()), "a tick is still scheduled");
+        helper.getBlockState(controller).randomTick(helper.getLevel(), at, helper.getLevel().getRandom());
+        helper.succeedWhen(() -> helper.assertFalse(helper.getBlockState(controller).getValue(TowerBeaconControllerBlock.POWERED), "still stuck on"));
+    }
+
+    /**
      * A player holding a foothold and clicking the front of one with open air behind it (above a lone beam) builds the
      * stack upwards, as scaffolding does, rather than trying to place it out in front with nothing to hang on.
      */

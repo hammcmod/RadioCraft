@@ -263,6 +263,8 @@ wire items).
 - [ ] A PABX set behind another (touching it, or on its data wire), master 7: from the front PABX's phones 7 + the
   extension rings it; its phones reach the front ones by bare extension, and the far site by 602 7 + extension.
 - [ ] The call timer counts up during a call (it stuck at 0:00).
+- [ ] A repeater site's red tower beacon blinks (2 s on, 2 s off) in a freshly generated site, and in an already
+  generated one it starts blinking within a minute or two of the chunk loading (it stood solid red).
 - [ ] Breaking a WEFAX receiver (and a charge controller that is on) throws its own coloured particles, not the
   purple and black "no texture" ones.
 - [ ] Antenna switch: the knob hub's octagon no longer flickers (z-fighting) from any angle.

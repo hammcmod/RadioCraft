@@ -91,6 +91,17 @@ public class SitePiece extends TemplateStructurePiece {
 		return out;
 	}
 
+	/** Places the template, then starts the blink of each Tower Beacon Controller in it (placing it there does not). */
+	@Override
+	public void postProcess(@NotNull net.minecraft.world.level.WorldGenLevel level, @NotNull net.minecraft.world.level.StructureManager structureManager,
+							@NotNull net.minecraft.world.level.chunk.ChunkGenerator generator, @NotNull RandomSource random, @NotNull BoundingBox box,
+							@NotNull net.minecraft.world.level.ChunkPos chunkPos, @NotNull BlockPos pos) {
+		super.postProcess(level, structureManager, generator, random, box, chunkPos, pos);
+		for(StructureTemplate.StructureBlockInfo info : template.filterBlocks(templatePosition, placeSettings, RadiocraftBlocks.TOWER_BEACON_CONTROLLER.get()))
+			if(box.isInside(info.pos()) && level.getBlockState(info.pos()).is(RadiocraftBlocks.TOWER_BEACON_CONTROLLER.get()))
+				level.scheduleTick(info.pos(), RadiocraftBlocks.TOWER_BEACON_CONTROLLER.get(), 1);
+	}
+
 	@Override
 	protected void handleDataMarker(@NotNull String name, @NotNull BlockPos pos, @NotNull ServerLevelAccessor level, @NotNull RandomSource random, @NotNull BoundingBox box) {
 	}
