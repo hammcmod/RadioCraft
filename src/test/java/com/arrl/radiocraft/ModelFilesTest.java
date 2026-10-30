@@ -79,6 +79,45 @@ class ModelFilesTest {
         assertTrue(seen.size() > 20, "Only found " + seen.size() + " models; is the test running from the project folder?");
     }
 
+    /**
+     * Every block model a blockstate uses names a particle texture, itself or through a parent: without one, breaking
+     * the block shows the purple and black "no texture" particles (the WEFAX receiver did, 2026-10-30). Models with a
+     * custom loader and those built on vanilla parents (which set it from their own textures) are left out.
+     */
+    @Test
+    void blockModelsHaveAParticle() throws IOException {
+        ArrayDeque<String> used = new ArrayDeque<>();
+        for(Path root : List.of(MAIN, GENERATED))
+            for(Path file : jsonFiles(root.resolve("blockstates")))
+                collectModels(JsonParser.parseString(Files.readString(file)), used);
+        Set<String> missing = new java.util.TreeSet<>();
+        for(String id : new HashSet<>(used)) {
+            String at = id;
+            boolean ok = false;
+            for(int depth = 0; depth < 16 && !ok; depth++) {
+                if(!at.startsWith("radiocraft:")) {
+                    ok = !at.equals("minecraft:block/block"); // A vanilla parent sets its particle from its textures.
+                    break;
+                }
+                Path file = find("models/" + at.substring("radiocraft:".length()) + ".json");
+                if(file == null) {
+                    ok = true; // Missing models are the other test's business.
+                    break;
+                }
+                JsonObject model = JsonParser.parseString(Files.readString(file)).getAsJsonObject();
+                if(model.has("loader") || model.has("textures") && model.getAsJsonObject("textures").has("particle"))
+                    ok = true;
+                else if(model.has("parent"))
+                    at = qualify(model.get("parent").getAsString());
+                else
+                    break;
+            }
+            if(!ok)
+                missing.add(id);
+        }
+        assertTrue(missing.isEmpty(), "Block models with no particle texture: " + missing);
+    }
+
     private static void collectModels(JsonElement json, ArrayDeque<String> out) {
         if(json.isJsonObject()) {
             for(var entry : json.getAsJsonObject().entrySet()) {

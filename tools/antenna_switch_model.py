@@ -88,9 +88,10 @@ def body(b):
     els.append(b.box("out_1", [13, 0, 7], [15, 2, 9], "connector", {"east": "connector_end", "down": "bottom"}))
     els.append(b.box("out_2", [7, 0, 13], [9, 2, 15], "connector", {"south": "connector_end", "down": "bottom"}))
     els.append(b.box("out_3", [1, 0, 7], [3, 2, 9], "connector", {"west": "connector_end", "down": "bottom"}))
-    # the knob hub: two squares at 45 degrees make an octagon
+    # the knob hub: two squares at 45 degrees make an octagon. The turned one is a hair lower and smaller, so no face of
+    # one lies in the plane of the other's (their tops at one height z-fought, 2026-10-30)
     els.append(b.box("hub", [6, 6, 6], [10, 7, 10], "knob"))
-    els.append(b.box("hub_turned", [6, 6, 6], [10, 7, 10], "knob", rotation={"angle": 45, "axis": "y", "origin": [8, 6, 8]}))
+    els.append(b.box("hub_turned", [6.05, 6.05, 6.05], [9.95, 6.9, 9.95], "knob", rotation={"angle": 45, "axis": "y", "origin": [8, 6, 8]}))
     return els
 
 

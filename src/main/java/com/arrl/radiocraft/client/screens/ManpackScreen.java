@@ -41,8 +41,8 @@ public class ManpackScreen extends Screen {
 	private static final int[] MODE = {58, 136, 22, 28};
 	private static final int[] PTT = {98, 140, 44, 22};
 	private static final int[] LAMP = {156, 146, 12, 12};
-	private static final int[] HANDSET = {204, 22, 52, 126};
-	private static final int[] BAY = {202, 0, 56, 176};
+	private static final int[] HANDSET = {212, 22, 52, 126};
+	private static final int[] BAY = {202, 0, 62, 176};
 	private static final int AMBER = 0xFFFFB84A, RED = 0xFFFF5040, DIM = 0xFF6E5220;
 
 	private int left, top;
@@ -246,7 +246,8 @@ public class ManpackScreen extends Screen {
 		for(int i = 0; i < 10; i++)
 			guiGraphics.fill(x + 30 + i * 6, y + 28, x + 34 + i * 6, y + 32, i < bars ? AMBER : DIM);
 		int percent = Math.round(100.0F * state.energy() / Math.max(1, ManpackState.CAPACITY));
-		small(guiGraphics, "BAT " + percent + "%", x + WINDOW[2] - 34, y + 26, percent < 15 ? RED : AMBER);
+		String battery = "BAT " + percent + "%";
+		small(guiGraphics, battery, x + WINDOW[2] - 3 - font.width(battery) * 0.6F, y + 26, percent < 15 ? RED : AMBER); // Against the right edge.
 	}
 
 	private void small(GuiGraphics guiGraphics, String text, float x, float y, int colour) {

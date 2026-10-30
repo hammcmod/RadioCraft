@@ -6,7 +6,8 @@
 		64
 	],
 	"textures": {
-		"3": "radiocraft:block/wefax_machine"
+		"3": "radiocraft:block/wefax_machine",
+		"particle": "radiocraft:block/wefax_machine"
 	},
 	"elements": [
 		{
