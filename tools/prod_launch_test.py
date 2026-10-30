@@ -51,6 +51,9 @@ FATAL_PATTERNS = [
         r"Exception in thread \"main\"",
         r"Mixin apply failed|MixinApplyError|InvalidMixinException",
         r"Missing or unsupported mandatory dependencies",
+        # Not a load failure, but a config value that does not read back as written: NeoForge rewrites the file on
+        # every load and its file watcher reloads it, in a loop (1.9.2, the band frequencies were Floats).
+        r"radiocraft-\w+\.toml.* is not correct",
     )
 ]
 ERROR_LINE = re.compile(r"/(ERROR|FATAL)\]")

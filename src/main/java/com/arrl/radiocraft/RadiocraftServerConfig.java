@@ -170,9 +170,11 @@ public class RadiocraftServerConfig {
 	public static final ModConfigSpec.ConfigValue<Double> CRYSTAL_POOR_EXTRA_NOISE;
 	public static final ModConfigSpec.ConfigValue<Double> CRYSTAL_POOR_DRIFT_HZ;
 
-	public record BandConfig(String name, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Float> minFrequency, ModConfigSpec.ConfigValue<Float> maxFrequency) {
+	public record BandConfig(String name, ModConfigSpec.ConfigValue<Integer> losRange, ModConfigSpec.ConfigValue<Integer> minSkipDay, ModConfigSpec.ConfigValue<Integer> maxSkipDay, ModConfigSpec.ConfigValue<Integer> minSkipNight, ModConfigSpec.ConfigValue<Integer> maxSkipNight, ModConfigSpec.ConfigValue<Double> minFrequency, ModConfigSpec.ConfigValue<Double> maxFrequency) {
 		public Band getBand() {
-			return new Band(name, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get(), maxFrequency.get());
+			// Doubles in the file: TOML reads every decimal back as a Double, and a Float value would fail its check and be
+			// rewritten on every load (the file watcher then reloads it, forever).
+			return new Band(name, losRange.get(), minSkipDay.get(), maxSkipDay.get(), minSkipNight.get(), maxSkipNight.get(), minFrequency.get().floatValue(), maxFrequency.get().floatValue());
 		}
 	}
 
@@ -201,8 +203,8 @@ public class RadiocraftServerConfig {
 					BUILDER.comment(" maximum range for the skip effect during the day").define(band.name() + "m_maxSkipDay", band.maxSkipDay()),
 					BUILDER.comment(" minimum range for the skip effect during the night").define(band.name() + "m_minSkipNight", band.minSkipNight()),
 					BUILDER.comment(" maximum range for the skip effect during the night").define(band.name() + "m_maxSkipNight", band.maxSkipNight()),
-					BUILDER.comment(" The minimum frequency for this band").define(band.name() + "m_minFrequency", band.minFrequency()),
-					BUILDER.comment(" The maximum frequency for this band").define(band.name() + "m_maxFrequency", band.maxFrequency())
+					BUILDER.comment(" The minimum frequency for this band").defineInRange(band.name() + "m_minFrequency", (double)band.minFrequency(), 0.0D, 1.0E12D),
+					BUILDER.comment(" The maximum frequency for this band").defineInRange(band.name() + "m_maxFrequency", (double)band.maxFrequency(), 0.0D, 1.0E12D)
 			));
 			BUILDER.pop();
 		}

@@ -425,6 +425,19 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   station. The computer's terminal lists the linked remote chests; pick one to send items from your inventory into it
   and pull items from it into yours.
 
+### Ideas (maintainer, 2026-10-30)
+- [ ] WEFAX tornado watch: a forecast product meaning a tornado is possible but unlikely. Needs Another Weather Mod to
+  report the risk ahead of time (its side is in that repo's todo.md).
+- [ ] WEFAX redstone output: 1 for a message, 2 for a severe thunderstorm, 3 for a tornado watch, 4 for a hurricane.
+  The signal comes only when a message is received and the machine has paper to print it on.
+- [ ] WEFAX weather charts (radar, forecast, surface analysis) at twice the resolution, for more detail and easier
+  reading. The solar weather report stays as it is. A vanilla map is 128 x 128 pixels, so 256 x 256 needs our own
+  map data and renderer, or four maps tiled together.
+- [ ] Data wire: a light grey 1 px wire connecting radios and accessories that are not next to each other. It goes in
+  wire bundles. Recipe: 3 wire + 6 insulation makes 16. After this, plain wire only carries power and no longer
+  connects devices or speakers; only data wire does. Existing worlds need a plan for wired speakers and devices
+  already joined by plain wire.
+
 ### World & Progression Additions
 - [ ] In-game guide book like the Create mod's (Ponder-style scenes) explaining radios, antennas, power and the
   digital interface (maintainer, 2026-10-21)
