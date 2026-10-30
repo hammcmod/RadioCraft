@@ -225,8 +225,8 @@ dependencies {
     // Another Weather Mod (MIT, https://github.com/ITCMD/AnotherWeatherMod), localized storms for WX reports and WEFAX
     // charts. Optional for players: compat/anotherweathermod only runs when it is installed. The jar is kept in libs/
     // until the mod is on a Maven (Modrinth); it is on the runtime classpath too, so dev runs have localized weather.
-    compileOnly(files("libs/anotherweathermod-neoforge-1.21.1-1.9.0.jar"))
-    runtimeOnly(files("libs/anotherweathermod-neoforge-1.21.1-1.9.0.jar"))
+    compileOnly(files("libs/anotherweathermod-neoforge-1.21.1-1.10.0.jar"))
+    runtimeOnly(files("libs/anotherweathermod-neoforge-1.21.1-1.10.0.jar"))
 
     // JOrbis (LGPL, Maven Central), to decode the server's tape .ogg files into audio on a dedicated server, where
     // Minecraft's own Vorbis decoder (LWJGL) is not present. Shaded into the mod jar with its packages relocated
