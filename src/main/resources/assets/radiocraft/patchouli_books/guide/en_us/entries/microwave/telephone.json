@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "A $(item)Telephone$() touching a $(l:radiocraft:microwave/microwave_radio)microwave radio$(/l), or on its power wire, can call any phone on the same radio or at the far end of its links. Place it on top of a block for a desk phone, or against the side of one to hang it on the wall.$(br2)Each phone has an $(thing)extension$(). Key a number and press CALL; the far phone rings for 30 seconds."
+      "text": "A $(item)Telephone$() touching a $(l:radiocraft:microwave/microwave_radio)microwave radio$(/l), or on its $(l:radiocraft:radios/data_wire)data wire$(/l), can call any phone on the same radio or at the far end of its links. Place it on top of a block for a desk phone, or against the side of one to hang it on the wall.$(br2)Each phone has an $(thing)extension$(). Key a number and press CALL; the far phone rings for 30 seconds."
     },
     {
       "type": "patchouli:text",

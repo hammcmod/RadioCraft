@@ -31,6 +31,8 @@
     "radiocraft:parrot_controller",
     "radiocraft:wire_junction",
     "radiocraft:duplexer",
+    "radiocraft:antenna_switch",
+    "radiocraft:antenna_splitter",
     "radiocraft:antenna_tuner",
     "radiocraft:auto_tuner",
     "radiocraft:tower_foothold",

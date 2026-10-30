@@ -13,4 +13,13 @@ public interface IPassThroughNetworkObject {
 	default boolean passesThrough(boolean power) {
 		return true;
 	}
+
+	/**
+	 * True if the walk ({@code power} or coax) passes through this object on its {@code side}: everything on the sides
+	 * that do is one network, and a side that does not is a dead end, its own network with this object at the end. All
+	 * sides by default; the antenna switch passes only its input and the output it is turned to.
+	 */
+	default boolean passesSide(boolean power, net.minecraft.core.Direction side) {
+		return true;
+	}
 }

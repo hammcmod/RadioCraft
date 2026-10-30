@@ -84,17 +84,11 @@ public class RadioInterfaceBlockEntity extends BlockEntity implements MenuProvid
 
 	// -------------------- RADIOS --------------------
 
-	/** Radios on any side of this interface. */
+	/** Radios on any side of this interface, or on its data wire. */
 	public List<RadioBlockEntity> getRadios() {
 		if(level == null)
 			return List.of();
-		List<RadioBlockEntity> radios = new ArrayList<>();
-		for(Direction direction : Direction.values()) {
-			BlockPos at = worldPosition.relative(direction);
-			if(level.isLoaded(at) && level.getBlockEntity(at) instanceof RadioBlockEntity radio)
-				radios.add(radio);
-		}
-		return radios;
+		return com.arrl.radiocraft.common.be_networks.DataWire.linked(level, worldPosition, RadioBlockEntity.class);
 	}
 
 	/**

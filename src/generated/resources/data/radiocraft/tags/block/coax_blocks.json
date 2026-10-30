@@ -18,6 +18,8 @@
     "radiocraft:coax_wire_red",
     "radiocraft:coax_wire_black",
     "radiocraft:duplexer",
+    "radiocraft:antenna_splitter",
+    "radiocraft:antenna_switch",
     "radiocraft:antenna_tuner",
     "radiocraft:auto_tuner",
     "radiocraft:antenna_connector",

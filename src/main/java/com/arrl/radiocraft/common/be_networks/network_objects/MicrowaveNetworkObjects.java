@@ -39,8 +39,8 @@ public final class MicrowaveNetworkObjects {
 	}
 
 	/**
-	 * A microwave radio: on the power wire, where it draws {@code microwave_power_use} a tick while on (and where the
-	 * stations it serves may be wired), and on the coax to its dishes.
+	 * A microwave radio: on the power wire, where it draws {@code microwave_power_use} a tick while on, and on the coax
+	 * to its dishes. The stations it serves are wired to it with data wire ({@code DataWire}).
 	 */
 	public static class Radio extends PowerNetworkObject implements ICoaxNetworkObject {
 
@@ -97,29 +97,7 @@ public final class MicrowaveNetworkObjects {
 			return new ArrayList<>(out);
 		}
 
-		/** The other microwave radios on this radio's power wire: the same site's data network. */
-		public List<BlockPos> wiredRadios() {
-			Set<BlockPos> out = new LinkedHashSet<>();
-			for(BENetwork network : networks.values())
-				if(network instanceof PowerBENetwork)
-					for(BENetworkObject object : network.getNetworkObjects())
-						if(object instanceof Radio && object != this)
-							out.add(object.getPos());
-			return new ArrayList<>(out);
-		}
-
-		/** Everything wired to this radio's power wire that serves as a station (H19, direction finder, telephone). */
-		public List<BlockPos> wiredStations() {
-			Set<BlockPos> out = new LinkedHashSet<>();
-			for(BENetwork network : networks.values())
-				if(network instanceof PowerBENetwork)
-					for(BENetworkObject object : network.getNetworkObjects())
-						if(object instanceof StationLink)
-							out.add(object.getPos());
-			return new ArrayList<>(out);
-		}
-
-		@Override
+						@Override
 		public void save(CompoundTag nbt) {
 			super.save(nbt);
 			nbt.putBoolean("wantsOn", wantsOn);
@@ -138,8 +116,9 @@ public final class MicrowaveNetworkObjects {
 	}
 
 	/**
-	 * A station that a microwave radio can serve over the power wire as well as by touching: the H19, the direction
-	 * finder and the telephone. It takes no power; the wire is its line to the radio.
+	 * A station that a microwave radio could serve over the power wire: the H19, the direction finder and the
+	 * telephone. Since 2026-10-30 that line is data wire ({@code DataWire}); the object stays so saved worlds load, and
+	 * the direction finder still takes its power through it.
 	 */
 	public static class StationLink extends PowerNetworkObject {
 
@@ -159,18 +138,7 @@ public final class MicrowaveNetworkObjects {
 			return false;
 		}
 
-		/** The microwave radios on this station's power wire. */
-		public List<BlockPos> wiredRadios() {
-			Set<BlockPos> out = new LinkedHashSet<>();
-			for(BENetwork network : networks.values())
-				if(network instanceof PowerBENetwork)
-					for(BENetworkObject object : network.getNetworkObjects())
-						if(object instanceof Radio)
-							out.add(object.getPos());
-			return new ArrayList<>(out);
-		}
-
-		@Override
+				@Override
 		public ResourceLocation getType() {
 			return TYPE;
 		}

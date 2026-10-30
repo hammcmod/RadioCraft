@@ -1,0 +1,17 @@
+{
+  "name": "Antenna Splitter",
+  "icon": "radiocraft:antenna_splitter",
+  "category": "radiocraft:antennas",
+  "sortnum": 13,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Two radios on one antenna's coax $(thing)overdraw$() it and neither hears a thing. Put an $(item)Antenna Splitter$() on the coax instead: coax from the antenna into one side, coax to each radio out of the others. Every radio behind it hears the antenna, each a little weaker the more there are.$(br2)It is $(thing)receive only$(): nothing can transmit through it. Give a transmitter its own antenna."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:antenna_splitter",
+      "text": "Four coax round an iron ingot."
+    }
+  ]
+}

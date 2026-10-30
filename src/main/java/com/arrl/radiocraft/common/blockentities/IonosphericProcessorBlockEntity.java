@@ -167,6 +167,10 @@ public class IonosphericProcessorBlockEntity extends BlockEntity implements INet
 							radios.add(radio);
 					}
 			}
+		for(BlockPos half : List.of(worldPosition, worldPosition.above()))
+			for(RadioBlockEntity radio : com.arrl.radiocraft.common.be_networks.DataWire.wired(level, half, RadioBlockEntity.class))
+				if(!radios.contains(radio))
+					radios.add(radio); // Or on its data wire.
 		return radios;
 	}
 

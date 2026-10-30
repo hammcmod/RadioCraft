@@ -29,4 +29,16 @@ public class GameTestDefaults {
             RadiocraftServerConfig.APRS_DIGIPEAT_DEFAULT.set(false);
         }
     }
+
+    /**
+     * Puts the level's propagation back to normal: average solar conditions, no aurora, no sporadic E. Batches that
+     * change them call it after themselves, and batches that need a quiet sky before, since a failed test never reaches
+     * its own clean-up and the next batch would inherit a blackout (seen 2026-10-27/28).
+     */
+    public static void calmSky(net.minecraft.server.level.ServerLevel level) {
+        com.arrl.radiocraft.common.radio.solar.SolarEventManager.setEvent(level,
+                com.arrl.radiocraft.common.init.RadiocraftData.SOLAR_EVENTS.getValue(com.arrl.radiocraft.Radiocraft.id("average")).getInstance());
+        com.arrl.radiocraft.common.radio.solar.Aurora.clear(level);
+        com.arrl.radiocraft.common.radio.solar.SporadicE.close(level);
+    }
 }

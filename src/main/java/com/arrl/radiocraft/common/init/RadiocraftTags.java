@@ -13,6 +13,8 @@ public class RadiocraftTags {
 		public static final TagKey<Block> ANTENNA_WIRE_HOLDERS = TagKey.create(Registries.BLOCK, Radiocraft.id("antenna_wire_holders"));
 		public static final TagKey<Block> COAX_BLOCKS = TagKey.create(Registries.BLOCK, Radiocraft.id("coax_blocks"));
 		public static final TagKey<Block> POWER_BLOCKS = TagKey.create(Registries.BLOCK, Radiocraft.id("power_blocks"));
+		/** Blocks data wire runs into (radios always do, see {@code WireBlock#isDataConnection}). */
+		public static final TagKey<Block> DATA_BLOCKS = TagKey.create(Registries.BLOCK, Radiocraft.id("data_blocks"));
 	}
 
 }

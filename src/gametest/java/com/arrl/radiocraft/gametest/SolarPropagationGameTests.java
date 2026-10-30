@@ -83,6 +83,16 @@ public class SolarPropagationGameTests {
                 .thenSucceed();
     }
 
+    @net.minecraft.gametest.framework.AfterBatch(batch = "blackout_day")
+    public static void afterDayBlackout(net.minecraft.server.level.ServerLevel level) {
+        GameTestDefaults.calmSky(level);
+    }
+
+    @net.minecraft.gametest.framework.AfterBatch(batch = "blackout_night")
+    public static void afterNightBlackout(net.minecraft.server.level.ServerLevel level) {
+        GameTestDefaults.calmSky(level);
+    }
+
     /** At night a blackout leaves 40m and 80m poor (weak but usable); 10m and 20m stay closed. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100, batch = "blackout_night")
     public static void blackoutLeavesLowBandsPoorAtNight(GameTestHelper helper) {

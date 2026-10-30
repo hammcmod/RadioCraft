@@ -41,6 +41,13 @@ What was done for the parrot controller, as the pattern for the next one:
 ## Open bounties
 
 
+### Model: antenna splitter (2026-10-30)
+
+`radiocraft:antenna_splitter`: a receive-only splitter, one antenna to several radios. A small metal box with coax
+connectors (SO-239 style) on its sides, the full block width and about 6 px high so coax meets its sides (the shape is
+0-16 x 0-6 x 0-16). For now `models/block/antenna_splitter.json` is a placeholder slab of iron and anvil textures.
+
+
 ### Sound: redstone interference buzz
 
 Done 2026-10-27: the maintainer's `redstone_rfi.ogg` (19 s of switching hash) plays through `RadioInterferenceHumSoundInstance`,
@@ -112,7 +119,7 @@ Asked for by the maintainer 2026-10-25, drafted the same day from `tools/station
 ### Models: tower beams and the antenna switch
 
 Asked for by the maintainer 2026-10-26, drafted the same day (the beams were registered the same day, with a
-dynamic model that reads the 26 neighbours, `client/model/TowerBeamModel`; the antenna switch is not registered yet):
+dynamic model that reads the 26 neighbours, `client/model/TowerBeamModel`; the antenna switch was registered 2026-10-30):
 
 - **Tower beams** (`tower_beam_thick` 8x8, `tower_beam` 6x6, `tower_beam_thin` 4x4, all 16 tall straight up), from
   `tools/tower_beam_models.py`: steel lattice beams in the iron bars palette that connect to any touching beam,

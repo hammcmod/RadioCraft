@@ -7,8 +7,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.Level;
 
 /**
- * A wired speaker (wall speaker, loudspeaker) on a power wire. It takes no power: the wire is its speaker line, and
- * every radio on the same wire run plays through it (see {@code RadioBlockEntity#refreshSpeakers}).
+ * A wired speaker (wall speaker, loudspeaker) as it was on a power wire. Since 2026-10-30 its line is data wire
+ * ({@code DataWire}, {@code RadioBlockEntity#refreshSpeakers}) and power wire no longer runs into it; the object stays
+ * registered so worlds that saved it still load.
  */
 public class SpeakerNetworkObject extends PowerNetworkObject {
 

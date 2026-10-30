@@ -1,0 +1,17 @@
+{
+  "name": "Antenna Switch",
+  "icon": "radiocraft:antenna_switch",
+  "category": "radiocraft:antennas",
+  "sortnum": 14,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "An $(item)Antenna Switch$() gives one radio three antennas, one at a time. Run the radio's coax into it: the brass input turns to face that coax by itself. The other three sides are outputs 1, 2 and 3, clockwise from the input, each to an antenna's coax.$(br2)Right click to turn the knob to the next output. The radio has only that antenna; the other two are left disconnected."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:antenna_switch",
+      "text": "The splitter's box with a lever for the knob."
+    }
+  ]
+}

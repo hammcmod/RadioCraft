@@ -62,6 +62,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 
 			provider.addBlock(RadiocraftBlocks.WIRE, "Wire");
 			provider.addBlock(RadiocraftBlocks.WATERPROOF_WIRE, "Waterproof Wire");
+			provider.addBlock(RadiocraftBlocks.DATA_WIRE, "Data Wire");
 			provider.addBlock(RadiocraftBlocks.SOLAR_PANEL, "Solar Panel");
 			provider.addBlock(RadiocraftBlocks.TELETYPE, "Teletype Machine");
 			provider.addBlock(RadiocraftBlocks.LARGE_BATTERY, "Large Battery");
@@ -89,6 +90,11 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.TOWER_FOOTHOLD, "Tower Foothold");
 			provider.addBlock(RadiocraftBlocks.OLD_TOWER_FOOTHOLD, "Old Tower Foothold");
 			provider.addBlock(RadiocraftBlocks.DUPLEXER, "Duplexer");
+			provider.addBlock(RadiocraftBlocks.ANTENNA_SPLITTER, "Antenna Splitter");
+			provider.addBlock(RadiocraftBlocks.ANTENNA_SWITCH, "Antenna Switch");
+			provider.add("tooltip.radiocraft.antenna_switch", "One radio, three antennas: the brass input turns to the radio's coax by itself. Right click to switch between outputs 1, 2 and 3.");
+			provider.add("message.radiocraft.antenna_switch", "Antenna %s");
+			provider.add("tooltip.radiocraft.antenna_splitter", "Receive only: coax from one antenna to several radios on its other sides. Each hears the antenna, a little weaker; none can transmit through it.");
 			provider.addBlock(RadiocraftBlocks.WIRE_JUNCTION, "Wire Junction");
 			provider.add("tooltip.radiocraft.wire_junction", "Joins power wire of any colour run into it. Not coax.");
 			provider.addBlock(RadiocraftBlocks.ANTENNA_TUNER, "Antenna Tuner");
@@ -251,6 +257,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("screen.radiocraft.ionospheric_processor.nowhere", "Nothing to send it through: no radio on and no WEFAX beside it");
 			provider.add("screen.radiocraft.ionospheric_processor.no_ionosonde", "No Ionosonde Antenna on its coax");
 			provider.add("message.radiocraft.solar_weather_station.blackout_expected", "Blackout expected in about %s min");
+			provider.add("message.radiocraft.lightning_fried_radio", "The lightning fried the radio you were carrying");
 			provider.add("screen.radiocraft.wefax.no_paper", "Out of paper");
 			provider.add("screen.radiocraft.wefax.busy", "Still printing");
 			provider.add("item.radiocraft.aprs_map.from", "From the H19 at %s, %s, %s");
@@ -395,6 +402,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
             provider.add(Radiocraft.translationKey("tooltip", "passthrough"), "Use on a plain solid block: it keeps its look but lets wire and coax run straight through it. Break it to get both back.");
             provider.add(Radiocraft.translationKey("tooltip", "wire"), "Carries power between solar panels, charge controllers, batteries and radios. Runs along the ground, up walls and over steps.");
             provider.add(Radiocraft.translationKey("tooltip", "waterproof_wire"), "Power wire that can be laid under water. Runs along the ground, up walls and over steps.");
+            provider.add(Radiocraft.translationKey("tooltip", "data_wire"), "Links a radio to accessories, wired speakers and stations that are not beside it. Carries no power. Runs along the ground, up walls and over steps.");
             provider.add(Radiocraft.translationKey("tooltip", "coax_wire"), "Carries the signal between a radio and its antenna's balun. Runs along the ground, up walls and over steps.");
             provider.add(Radiocraft.translationKey("tooltip", "wire_bundle"), "Use on a wire of another kind to lay both in one block (up to 7). Sneak + right click a bundle with an empty hand to take one out.");
             provider.add("key.categories.radiocraft", "RadioCraft");

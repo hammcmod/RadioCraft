@@ -96,7 +96,7 @@ public class NewBlocksGameTests {
 				.thenSucceed();
 	}
 
-	/** Wall speakers and loudspeakers on the radio's wire run each play the radio. */
+	/** Wall speakers and loudspeakers on the radio's data wire each play the radio. */
 	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 120)
 	public static void wiredSpeakersOnTheRadiosWire(GameTestHelper helper) {
 		BlockPos radio = new BlockPos(3, 1, 4);
@@ -106,8 +106,8 @@ public class NewBlocksGameTests {
 		helper.startSequence()
 				.thenIdle(2)
 				.thenExecute(() -> {
-					GameTestUtil.placeWire(helper, radio.east(), RadiocraftBlocks.WIRE.get());
-					GameTestUtil.placeWire(helper, radio.east(2), RadiocraftBlocks.WIRE.get());
+					GameTestUtil.placeWire(helper, radio.east(), RadiocraftBlocks.DATA_WIRE.get());
+					GameTestUtil.placeWire(helper, radio.east(2), RadiocraftBlocks.DATA_WIRE.get());
 				})
 				.thenWaitUntil(() -> {
 					List<BEVoiceReceiver.WiredSpeaker> wired = receiver(helper, radio).getWiredSpeakers();

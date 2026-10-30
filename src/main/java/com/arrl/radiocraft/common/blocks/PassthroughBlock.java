@@ -76,7 +76,7 @@ public class PassthroughBlock extends WireBlock implements EntityBlock {
 
 	/** Anything a wire of either kind links to, or any cable (a wire or a bundle). */
 	private static boolean canLink(BlockState state) {
-		return Strand.isCable(state) || isValidConnection(state, true) || isValidConnection(state, false);
+		return Strand.isCable(state) || isValidConnection(state, true) || isValidConnection(state, false) || isDataConnection(state);
 	}
 
 	@Override

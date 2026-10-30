@@ -94,6 +94,13 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     protected final BEVoiceReceiver voiceReceiver; // Acts as a container for voip channel info
     protected double antennaSWR; // Used clientside to calculate volume of static, and serverside for overdraw.
+    /**
+     * True while the radio's only antenna is a dummy load (synced): it takes in almost no signal, so almost no static
+     * either (maintainer, 2026-10-30), see {@link #DUMMY_LOAD_STATIC}.
+     */
+    protected boolean onDummyLoad;
+    /** The share of the static a radio on a dummy load still plays: the receiver's own hiss. */
+    public static final double DUMMY_LOAD_STATIC = 0.05D;
     protected boolean tuneFail; // An automatic tuner on the coax gave up on the antenna; the screen says TUNE FAIL.
     /**
      * More than one radio (or direction finder module) shares this radio's antenna coax, or it has more than one
@@ -208,6 +215,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.antennaSWR = newSWR;
                 shouldUpdate = true; // If SWR has changed, notify the client about it.
             }
+            boolean dummyLoad = antenna instanceof com.arrl.radiocraft.common.be_networks.network_objects.DummyLoadNetworkObject;
+            if(dummyLoad != be.onDummyLoad) {
+                be.onDummyLoad = dummyLoad;
+                shouldUpdate = true;
+            }
             if(be.tickSyncedSignal(level.getGameTime()))
                 shouldUpdate = true; // The client ducks its static under the signal.
 
@@ -225,7 +237,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
                 be.tickMeter(serverLevel);
                 be.tickData(serverLevel, powered);
                 if((serverLevel.getGameTime() + pos.asLong()) % 20L == 0L) // Speakers come and go rarely: once a second is plenty.
-                    be.refreshSpeakers(serverLevel, networkObject);
+                    be.refreshSpeakers(serverLevel);
             }
             be.additionalTick();
         }
@@ -235,10 +247,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
 
     /**
      * Finds what the radio plays through: the best speaker touching it ({@link com.arrl.radiocraft.common.blocks.SpeakerBlock},
-     * else its own built-in one), and every wired speaker on the power wire it is on
-     * ({@link com.arrl.radiocraft.common.blocks.WiredSpeakerBlock}).
+     * else its own built-in one), and every wired speaker touching it or on its data wire
+     * ({@link com.arrl.radiocraft.common.blocks.WiredSpeakerBlock}, {@link com.arrl.radiocraft.common.be_networks.DataWire}).
+     * Power wire no longer reaches them (2026-10-30).
      */
-    protected void refreshSpeakers(ServerLevel serverLevel, @Nullable RadioNetworkObject networkObject) {
+    protected void refreshSpeakers(ServerLevel serverLevel) {
         com.arrl.radiocraft.common.radio.voice.SpeakerKind best = com.arrl.radiocraft.common.radio.voice.SpeakerKind.BUILT_IN;
         for(Direction direction : Direction.values()) {
             BlockPos at = worldPosition.relative(direction);
@@ -248,19 +261,9 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         voiceReceiver.setSpeaker(best);
 
         List<BEVoiceReceiver.WiredSpeaker> wired = new java.util.ArrayList<>();
-        if(networkObject != null) {
-            java.util.Set<BlockPos> seen = new java.util.HashSet<>();
-            for(com.arrl.radiocraft.api.benetworks.BENetwork network : networkObject.getNetworks().values()) {
-                if(!(network instanceof com.arrl.radiocraft.api.benetworks.PowerBENetwork))
-                    continue;
-                for(BENetworkObject object : network.getNetworkObjects()) {
-                    if(object instanceof com.arrl.radiocraft.common.be_networks.network_objects.SpeakerNetworkObject && seen.add(object.getPos())
-                            && serverLevel.isLoaded(object.getPos())
-                            && serverLevel.getBlockState(object.getPos()).getBlock() instanceof com.arrl.radiocraft.common.blocks.WiredSpeakerBlock speaker)
-                        wired.add(new BEVoiceReceiver.WiredSpeaker(object.getPos(), speaker.getKind()));
-                }
-            }
-        }
+        for(BlockPos at : com.arrl.radiocraft.common.be_networks.DataWire.linked(serverLevel, worldPosition))
+            if(serverLevel.isLoaded(at) && serverLevel.getBlockState(at).getBlock() instanceof com.arrl.radiocraft.common.blocks.WiredSpeakerBlock speaker)
+                wired.add(new BEVoiceReceiver.WiredSpeaker(at.immutable(), speaker.getKind()));
         if(!wired.equals(voiceReceiver.getWiredSpeakers())) {
             voiceReceiver.setWiredSpeakers(wired);
             updateBlock(); // Clients play the static through them too.
@@ -429,16 +432,21 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         recordSignal(strength);
         for(RadioInterfaceBlockEntity radioInterface : getRadioInterfaces())
             radioInterface.receive(this, payload);
-        for(Direction direction : Direction.values()) { // Teletypes, fax machines and WEFAX receivers have their own modems and take packets straight from the radio.
-            if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity teletype)
+        // Teletypes, fax machines and WEFAX receivers have their own modems and take packets straight from the radio:
+        // touching it, or on its data wire.
+        java.util.Set<Object> fed = new java.util.HashSet<>();
+        for(BlockPos at : com.arrl.radiocraft.common.be_networks.DataWire.linked(level, worldPosition)) {
+            if(!level.isLoaded(at))
+                continue;
+            if(level.getBlockEntity(at) instanceof com.arrl.radiocraft.common.blockentities.TeletypeBlockEntity teletype && fed.add(teletype))
                 teletype.receive(payload);
-            else if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity fax)
+            else if(level.getBlockEntity(at) instanceof com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity fax && fed.add(fax))
                 fax.receive(payload);
-            else if(level.getBlockEntity(worldPosition.relative(direction)) instanceof com.arrl.radiocraft.common.blockentities.WefaxReceiverBlockEntity wefax)
+            else if(level.getBlockEntity(at) instanceof com.arrl.radiocraft.common.blockentities.WefaxReceiverBlockEntity wefax && fed.add(wefax))
                 wefax.receive(payload); // Solar bulletins from an Ionospheric Processor.
             else {
-                com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity processor = com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity.at(level, worldPosition.relative(direction));
-                if(processor != null)
+                com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity processor = com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity.at(level, at);
+                if(processor != null && fed.add(processor))
                     processor.receive(payload); // Requests for the solar weather.
             }
         }
@@ -485,17 +493,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return strength > 0.0D && strength >= copyThreshold(noise);
     }
 
-    /** Radio interfaces on any side of this radio. */
+    /** Radio interfaces on any side of this radio, or on its data wire. */
     public List<RadioInterfaceBlockEntity> getRadioInterfaces() {
         if(level == null)
             return List.of();
-        List<RadioInterfaceBlockEntity> found = new java.util.ArrayList<>();
-        for(Direction direction : Direction.values()) {
-            BlockPos at = worldPosition.relative(direction);
-            if(level.isLoaded(at) && level.getBlockEntity(at) instanceof RadioInterfaceBlockEntity radioInterface)
-                found.add(radioInterface);
-        }
-        return found;
+        return com.arrl.radiocraft.common.be_networks.DataWire.linked(level, worldPosition, RadioInterfaceBlockEntity.class);
     }
 
     // -------------------- S-METER (COMPARATOR OUTPUT) --------------------
@@ -1352,7 +1354,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(antennaSWR <= 0.01D)
             return 0.0D;
         else {
-            return SWRHelper.getEfficiencyMultiplier(antennaSWR);
+            return SWRHelper.getEfficiencyMultiplier(antennaSWR) * (onDummyLoad ? DUMMY_LOAD_STATIC : 1.0D);
         }
     }
 
@@ -1382,6 +1384,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         nbt.putFloat("speakerGain", speakerGain);
         nbt.putFloat("micGain", micGain);
         nbt.putDouble("antennaSWR", antennaSWR);
+        nbt.putBoolean("dummyLoad", onDummyLoad);
         nbt.putBoolean("tuneFail", tuneFail);
         nbt.putBoolean("coaxShared", coaxShared);
         if(micHolder != null && micId != null) {
@@ -1412,6 +1415,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         speakerGain = nbt.contains("speakerGain") ? nbt.getFloat("speakerGain") : 1.0F;
         micGain = nbt.contains("micGain") ? nbt.getFloat("micGain") : 1.0F;
         antennaSWR = nbt.getDouble("antennaSWR");
+        onDummyLoad = nbt.getBoolean("dummyLoad");
         tuneFail = nbt.getBoolean("tuneFail");
         coaxShared = nbt.getBoolean("coaxShared");
         micHolder = nbt.hasUUID("micHolder") ? nbt.getUUID("micHolder") : null;

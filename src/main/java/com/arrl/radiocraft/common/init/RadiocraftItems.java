@@ -60,6 +60,7 @@ public class RadiocraftItems {
 	// Block Items
 	public static final Supplier<BlockItem> WIRE = simpleBlockItem("wire", RadiocraftBlocks.WIRE);
 	public static final Supplier<BlockItem> WATERPROOF_WIRE = simpleBlockItem("waterproof_wire", RadiocraftBlocks.WATERPROOF_WIRE);
+	public static final Supplier<BlockItem> DATA_WIRE = simpleBlockItem("data_wire", RadiocraftBlocks.DATA_WIRE);
 	public static final java.util.Map<net.minecraft.world.item.DyeColor, Supplier<BlockItem>> COLOURED_WIRE = colouredWire();
 
 	private static java.util.Map<net.minecraft.world.item.DyeColor, Supplier<BlockItem>> colouredWire() {
@@ -104,6 +105,8 @@ public class RadiocraftItems {
 	public static final DeferredHolder<Item, AntennaPoleItem> ANTENNA_POLE = ITEMS.register("antenna_pole", () -> new AntennaPoleItem(RadiocraftBlocks.ANTENNA_POLE.get(), new Item.Properties()));
 	public static final Supplier<BlockItem> WIRE_JUNCTION = simpleBlockItem("wire_junction", RadiocraftBlocks.WIRE_JUNCTION);
 	public static final Supplier<BlockItem> DUPLEXER = simpleBlockItem("duplexer", RadiocraftBlocks.DUPLEXER);
+	public static final Supplier<BlockItem> ANTENNA_SPLITTER = simpleBlockItem("antenna_splitter", RadiocraftBlocks.ANTENNA_SPLITTER);
+	public static final Supplier<BlockItem> ANTENNA_SWITCH = simpleBlockItem("antenna_switch", RadiocraftBlocks.ANTENNA_SWITCH);
 	public static final Supplier<BlockItem> ANTENNA_TUNER = simpleBlockItem("antenna_tuner", RadiocraftBlocks.ANTENNA_TUNER);
 	public static final Supplier<BlockItem> AUTO_TUNER = simpleBlockItem("auto_tuner", RadiocraftBlocks.AUTO_TUNER);
 	public static final Supplier<BlockItem> ANTENNA_CONNECTOR = simpleBlockItem("antenna_connector", RadiocraftBlocks.ANTENNA_CONNECTOR);

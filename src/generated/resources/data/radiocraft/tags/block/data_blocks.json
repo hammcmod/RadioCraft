@@ -1,0 +1,28 @@
+{
+  "values": [
+    "radiocraft:data_wire",
+    "radiocraft:wall_speaker",
+    "radiocraft:loudspeaker",
+    "radiocraft:microwave_radio",
+    "radiocraft:telephone",
+    "radiocraft:aprs_h19",
+    "radiocraft:direction_finder",
+    "radiocraft:map_direction_finder",
+    "radiocraft:radio_fax_oak",
+    "radiocraft:radio_fax_spruce",
+    "radiocraft:radio_fax_birch",
+    "radiocraft:radio_fax_jungle",
+    "radiocraft:radio_fax_acacia",
+    "radiocraft:radio_fax_dark_oak",
+    "radiocraft:radio_fax_mangrove",
+    "radiocraft:radio_fax_cherry",
+    "radiocraft:radio_fax_bamboo",
+    "radiocraft:radio_fax_crimson",
+    "radiocraft:radio_fax_warped",
+    "radiocraft:radio_interface",
+    "radiocraft:teletype",
+    "radiocraft:wefax_receiver",
+    "radiocraft:tape_player",
+    "radiocraft:ionospheric_processor"
+  ]
+}

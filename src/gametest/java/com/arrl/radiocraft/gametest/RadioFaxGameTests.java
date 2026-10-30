@@ -229,8 +229,24 @@ public class RadioFaxGameTests {
                 .thenSucceed();
     }
 
+    private static final String WEAK_BATCH = "fax_weak";
+
+    /**
+     * Packet loss is random: at the default rate a whole fax went through without a loss once (2026-10-28). Its own
+     * batch raises the rate a fifth (at half again the fax ran out of time, doubled it gave up), so a loss is all but certain, without slowing the other fax tests.
+     */
+    @net.minecraft.gametest.framework.BeforeBatch(batch = WEAK_BATCH)
+    public static void lossyFax(net.minecraft.server.level.ServerLevel level) {
+        com.arrl.radiocraft.RadiocraftServerConfig.FAX_PACKET_LOSS.set(Math.min(1.0D, com.arrl.radiocraft.RadiocraftServerConfig.FAX_PACKET_LOSS.getDefault() * 1.2D));
+    }
+
+    @net.minecraft.gametest.framework.AfterBatch(batch = WEAK_BATCH)
+    public static void normalFax(net.minecraft.server.level.ServerLevel level) {
+        com.arrl.radiocraft.RadiocraftServerConfig.FAX_PACKET_LOSS.set(com.arrl.radiocraft.RadiocraftServerConfig.FAX_PACKET_LOSS.getDefault());
+    }
+
     /** Four blocks apart the signal is weak: packets are lost and sent again, and the fax still gets through. */
-    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 3000, batch = BATCH)
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 6000, batch = WEAK_BATCH)
     public static void weakSignalSendsPacketsAgain(GameTestHelper helper) {
         BlockPos radioB = RADIO_A.east(4);
         station(helper, RADIO_A, 144_810, "W6FAA", Direction.WEST);

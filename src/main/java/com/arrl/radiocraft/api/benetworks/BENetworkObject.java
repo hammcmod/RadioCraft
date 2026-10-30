@@ -129,6 +129,17 @@ public class BENetworkObject {
         return linksDirectlyTo(other);
     }
 
+    /** Takes this object off its networks of one kind only: the power ones ({@code power}) or the others (coax). */
+    public void clearNetworks(boolean power) {
+        for(Slot slot : List.copyOf(networks.keySet())) {
+            if(slot.power() != power)
+                continue;
+            BENetwork network = networks.remove(slot);
+            if(!networks.containsValue(network))
+                network.remove(this, true);
+        }
+    }
+
     /**
      * Clears all networks this {@link BENetworkObject} is in.
      */

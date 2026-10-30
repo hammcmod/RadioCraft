@@ -79,7 +79,7 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 	}
 
 	/**
-	 * The order strands are drawn in from the left: power wire, then coax, plain before the colours in dye order. Fixed
+	 * The order strands are drawn in from the left: power wire, data wire, then coax, plain before the colours in dye order. Fixed
 	 * so the same cables in the next block fall in the same places.
 	 */
 	public static int rank(WireBlock kind) {
@@ -87,7 +87,9 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 			return 99;
 		if(kind.isPower)
 			return kind.isWaterproof ? 1 : kind.colour == null ? 0 : 2 + kind.colour.getId();
-		return kind.colour == null ? 18 : 19 + kind.colour.getId();
+		if(kind.isData)
+			return 18;
+		return kind.colour == null ? 19 : 20 + kind.colour.getId();
 	}
 
 	@Nullable
@@ -310,7 +312,7 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 		if(stack.getItem() instanceof DyeItem dye) {
 			WireBlock kind = strandAt(level, pos, hit);
 			WireBlock target = RadiocraftBlocks.COLOURED_COAX.get(dye.getDyeColor()).get();
-			if(kind == null || kind.isPower || kind == target)
+			if(kind == null || !kind.isCoax() || kind == target)
 				return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 			if(!level.isClientSide) {
 				WireBlock.dyeRun(level, new Strand(pos, kind), target, player.isShiftKeyDown());

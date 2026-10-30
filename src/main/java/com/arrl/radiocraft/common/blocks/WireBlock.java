@@ -79,6 +79,12 @@ import java.util.function.Supplier;
 public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	public final boolean isPower;
+	/**
+	 * Data wire (2026-10-30): the line between radios, their accessories, wired speakers and the stations a microwave
+	 * radio serves. It carries no power and joins no power or coax network: what it links is found by walking it
+	 * ({@code DataWire}). Power wire no longer links devices.
+	 */
+	public final boolean isData;
 	public final boolean isWaterproof;
 	/** A dyed cable's colour (null for plain): it only joins cable of the same colour, plain counting as one (see {@link #joins}). */
 	@Nullable
@@ -203,9 +209,14 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	private static final Map<Double, Pieces> PIECES = new ConcurrentHashMap<>();
 
-	/** How thick the cable is drawn, pixels: power wire 1, coax 2 (thin hookup wire against fat RG-8, so they tell apart however dyed). */
+	/** How thick the cable is drawn, pixels: power and data wire 1, coax 2 (thin hookup wire against fat RG-8, so they tell apart however dyed). */
 	public double width() {
-		return isPower ? 1.0D : 2.0D;
+		return isCoax() ? 2.0D : 1.0D;
+	}
+
+	/** True for coax of any colour (not power wire, data wire or a passthrough). */
+	public boolean isCoax() {
+		return !isPower && !isData && !conductsAll();
 	}
 
 	public WireBlock(Properties properties, boolean isPower, boolean isWaterproof) {
@@ -215,6 +226,16 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	/** {@code colour} for dyed coax (null for plain): see {@link #joins}. */
     @SuppressWarnings("this-escape")
 	public WireBlock(Properties properties, boolean isPower, boolean isWaterproof, @Nullable net.minecraft.world.item.DyeColor colour) {
+		this(properties, isPower, false, isWaterproof, colour);
+	}
+
+	/** The data wire: {@code isData} true, {@code isPower} false. */
+	public static WireBlock data(Properties properties) {
+		return new WireBlock(properties, false, true, false, null);
+	}
+
+    @SuppressWarnings("this-escape")
+	protected WireBlock(Properties properties, boolean isPower, boolean isData, boolean isWaterproof, @Nullable net.minecraft.world.item.DyeColor colour) {
 		super(properties);
 		this.colour = colour;
 		// trySetValue: a subclass may define fewer properties (the passthrough only has the six connections).
@@ -225,6 +246,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 				.setValue(UP, false).setValue(DOWN, false)
 				.trySetValue(HUG, Edge.NONE).trySetValue(CLIMB, Climb.NONE).trySetValue(CEILING, false));
 		this.isPower = isPower;
+		this.isData = isData;
         this.isWaterproof = isWaterproof;
 	}
 
@@ -349,7 +371,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		int reachTop = hug == null ? 0 : runReach(level, pos, hug, Direction.UP, hugReach);
 		Direction feed = null;
 		int feedSide = 0;
-		if(!isPower)
+		if(isCoax())
 			for(Direction dir : Direction.Plane.HORIZONTAL)
 				if(state.getValue(PROPERTY_BY_DIRECTION.get(dir))) {
 					Integer side = hornFeedSide(level, pos, dir);
@@ -577,7 +599,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	/** True if {@code other} is a wire this one runs on as (power with power, coax with coax of a colour that joins). */
 	public boolean isSameKind(WireBlock other) {
-		return !other.conductsAll() && other.isPower == isPower && joins(other);
+		return !other.conductsAll() && other.isPower == isPower && other.isData == isData && joins(other);
 	}
 
 	/**
@@ -718,6 +740,10 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	/** The network bookkeeping for a strand of this kind that has just appeared at {@code pos} (as a block or in a bundle). */
 	public void strandPlaced(Level level, BlockPos pos, BlockState state) {
+		if(isData) {
+			com.arrl.radiocraft.common.be_networks.DataWire.changed(level); // No network: what it links is walked when asked.
+			return;
+		}
 		if(checkMultipleSides(level, pos, state)) // Only bother running merge if this wire is actually connecting things.
 			WireUtils.mergeNetworks(level, new Strand(pos, this), connectionPredicate(), networkSupplier(), networkWires());
 		if(isPower && level instanceof ServerLevel serverLevel)
@@ -753,6 +779,10 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	 * every strand gone at the same time in {@code gone} (the walk must not pass through any of them).
 	 */
 	public void strandRemoved(Level level, BlockPos pos, BlockState state, Set<Strand> gone) {
+		if(isData) {
+			com.arrl.radiocraft.common.be_networks.DataWire.changed(level);
+			return;
+		}
 		Map<BlockPos, Direction> links = getLinks(level, pos, state); // The old state: the strand is already gone.
 		if(links.size() >= 2) // Only bother running split if this wire was actually connecting things.
 			WireUtils.splitNetworks(level, new Strand(pos, this), gone, links, connectionPredicate(), networkWires());
@@ -786,7 +816,9 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		Map<BlockPos, Direction> oldLinks = climbChanged ? getLinks(level, pos, old) : Map.of();
 
 		store.accept(fresh);
-		if(!climbChanged)
+		if(isData)
+			com.arrl.radiocraft.common.be_networks.DataWire.changed(level);
+		if(!climbChanged || isData)
 			return true;
 
 		Map<BlockPos, Direction> newLinks = getLinks(level, pos, fresh);
@@ -808,6 +840,8 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
 		if(isPower && level instanceof ServerLevel serverLevel)
 			WireFaults.queue(serverLevel, pos); // Water next to it, a wire joined on: look again next tick.
+		if(isData && level instanceof ServerLevel serverLevel)
+			com.arrl.radiocraft.common.be_networks.DataWire.changed(serverLevel); // A device came or went at its end.
 		return followNeighbours(level, pos, state);
 	}
 
@@ -993,7 +1027,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			}
 			return net.minecraft.world.ItemInteractionResult.sidedSuccess(level.isClientSide);
 		}
-		if(isWaterproof || conductsAll() || !(stack.getItem() instanceof net.minecraft.world.item.DyeItem dye))
+		if(isWaterproof || isData || conductsAll() || !(stack.getItem() instanceof net.minecraft.world.item.DyeItem dye))
 			return super.useItemOn(stack, state, level, pos, player, hand, hit);
 		WireBlock target = (isPower ? com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_WIRE : com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_COAX).get(dye.getDyeColor()).get();
 		if(target == this)
@@ -1049,7 +1083,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	public boolean canConnectTo(BlockGetter level, BlockPos pos) {
 		BlockState state = level.getBlockState(pos);
 		if(state.getBlock() instanceof MicrowaveHornBlock) // Coax goes to the feed, in the base: only the bottom layer takes it.
-			return !isPower && state.getValue(MicrowaveHornBlock.PART_Y) == 0;
+			return isCoax() && state.getValue(MicrowaveHornBlock.PART_Y) == 0;
 		if(state.getBlock() instanceof WireBlock wire)
 			return joins(wire); // The same kind of wire (of a colour that matches), a passthrough, or a device.
 		if(state.getBlock() instanceof WireBundleBlock) {
@@ -1058,7 +1092,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 					return true;
 			return false;
 		}
-		return isValidConnection(state, isPower);
+		return isData ? isDataConnection(state) : isValidConnection(state, isPower);
 	}
 
 	/**
@@ -1070,7 +1104,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 	public boolean joins(WireBlock other) {
 		if(conductsAll() || other.conductsAll())
 			return true;
-		if(isPower != other.isPower)
+		if(isPower != other.isPower || isData != other.isData)
 			return false;
 		return colour == other.colour;
 	}
@@ -1091,6 +1125,11 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 		);
 	}
 
+	/** True for a block data wire runs into: one tagged {@code radiocraft:data_blocks}, or any radio. */
+	public static boolean isDataConnection(BlockState state) {
+		return state.is(RadiocraftTags.Blocks.DATA_BLOCKS) || state.getBlock() instanceof RadioBlock;
+	}
+
 	public static boolean isValidConnection(BlockState state, boolean isPower) {
 		return isPower ? state.is(RadiocraftTags.Blocks.POWER_BLOCKS) : state.is(RadiocraftTags.Blocks.COAX_BLOCKS) || state.getBlock() instanceof RadioBlock;
 	}
@@ -1098,7 +1137,7 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
     @Override
     public void appendHoverText(@NotNull ItemStack stack, Item.@NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        tooltipComponents.add(Component.translatable("tooltip.radiocraft." + (isPower ? (isWaterproof ? "waterproof_wire" : "wire") : "coax_wire")));
+        tooltipComponents.add(Component.translatable("tooltip.radiocraft." + (isData ? "data_wire" : isPower ? (isWaterproof ? "waterproof_wire" : "wire") : "coax_wire")));
         tooltipComponents.add(Component.translatable("tooltip.radiocraft.wire_bundle").withStyle(net.minecraft.ChatFormatting.GRAY));
     }
 }

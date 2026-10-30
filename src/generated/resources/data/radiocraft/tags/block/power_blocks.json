@@ -46,23 +46,9 @@
     "radiocraft:vhf_repeater",
     "radiocraft:commercial_repeater",
     "radiocraft:direction_finder_module",
-    "radiocraft:wall_speaker",
-    "radiocraft:loudspeaker",
     "radiocraft:microwave_radio",
-    "radiocraft:telephone",
-    "radiocraft:aprs_h19",
     "radiocraft:direction_finder",
     "radiocraft:map_direction_finder",
-    "radiocraft:radio_fax_oak",
-    "radiocraft:radio_fax_spruce",
-    "radiocraft:radio_fax_birch",
-    "radiocraft:radio_fax_jungle",
-    "radiocraft:radio_fax_acacia",
-    "radiocraft:radio_fax_dark_oak",
-    "radiocraft:radio_fax_mangrove",
-    "radiocraft:radio_fax_cherry",
-    "radiocraft:radio_fax_bamboo",
-    "radiocraft:radio_fax_crimson",
-    "radiocraft:radio_fax_warped"
+    "radiocraft:aprs_h19"
   ]
 }

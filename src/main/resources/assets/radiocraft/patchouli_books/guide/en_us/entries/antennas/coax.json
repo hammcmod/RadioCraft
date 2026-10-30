@@ -21,7 +21,7 @@
   {
    "type": "patchouli:text",
    "title": "Bundles",
-   "text": "Use a wire item of another kind on laid coax (or coax on a wire) and both lie in the same block: a $(item)Wire Bundle$() of up to seven cables, one power wire and any colours of coax, drawn side by side. Each cable keeps its own links, so a bundle behind a radio can carry its power wire and its coax out together and part them wherever you like.$(br2)Sneak + right click a bundle with an empty hand to take out the cable under the crosshair; breaking it drops them all. Dye recolours the coax under the crosshair."
+   "text": "Use a wire item of another kind on laid coax (or coax on a wire) and both lie in the same block: a $(item)Wire Bundle$() of up to seven cables, power wire, $(l:radiocraft:radios/data_wire)data wire$(/l) and any colours of coax, drawn side by side. Each cable keeps its own links, so a bundle behind a radio can carry its power wire and its coax out together and part them wherever you like.$(br2)Sneak + right click a bundle with an empty hand to take out the cable under the crosshair; breaking it drops them all. Dye recolours the coax under the crosshair."
   },
   {
    "type": "patchouli:crafting",

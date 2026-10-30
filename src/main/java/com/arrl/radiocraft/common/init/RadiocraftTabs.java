@@ -99,6 +99,8 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.COMMERCIAL_REPEATER.get());
         output.accept(RadiocraftItems.COMMERCIAL_RADIO_MODULE.get());
         output.accept(RadiocraftItems.DUPLEXER.get());
+        output.accept(RadiocraftItems.ANTENNA_SPLITTER.get());
+        output.accept(RadiocraftItems.ANTENNA_SWITCH.get());
         output.accept(RadiocraftItems.WIRE_JUNCTION.get());
 
         // APRS and packet
@@ -122,6 +124,7 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.LARGE_BATTERY.get());
         output.accept(RadiocraftItems.SMALL_BATTERY.get());
         output.accept(RadiocraftItems.WATERPROOF_WIRE.get());
+        output.accept(RadiocraftItems.DATA_WIRE.get());
 
         output.accept(RadiocraftItems.DESK_CHARGER.get());
 

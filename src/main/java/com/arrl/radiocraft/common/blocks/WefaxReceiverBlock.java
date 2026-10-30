@@ -124,6 +124,17 @@ public class WefaxReceiverBlock extends BaseEntityBlock {
 	}
 
 	@Nullable
+	/** The alert level of what it printed, 0 to 4 (see WefaxReceiverBlockEntity#getSignal), out of every side. */
+	@Override
+	protected boolean isSignalSource(@NotNull BlockState state) {
+		return true;
+	}
+
+	@Override
+	protected int getSignal(@NotNull BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull Direction direction) {
+		return level.getBlockEntity(pos) instanceof WefaxReceiverBlockEntity receiver ? receiver.getSignal() : 0;
+	}
+
 	@Override
 	public BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
 		return new WefaxReceiverBlockEntity(pos, state);

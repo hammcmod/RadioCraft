@@ -62,6 +62,8 @@ public class RadiocraftCapabilities {
 				RadiocraftBlocks.VHF_REPEATER.get(),
 				RadiocraftBlocks.COMMERCIAL_REPEATER.get(),
 				RadiocraftBlocks.DUPLEXER.get(),
+				RadiocraftBlocks.ANTENNA_SPLITTER.get(),
+				RadiocraftBlocks.ANTENNA_SWITCH.get(),
 				RadiocraftBlocks.ANTENNA_TUNER.get(),
 				RadiocraftBlocks.AUTO_TUNER.get(),
 				RadiocraftBlocks.BALUN_ONE_TO_ONE.get(),

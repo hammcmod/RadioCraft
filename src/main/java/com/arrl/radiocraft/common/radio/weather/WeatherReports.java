@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.common.radio.weather;
 
+import com.arrl.radiocraft.api.weather.DayOutlook;
 import com.arrl.radiocraft.api.weather.StormReport;
 import com.arrl.radiocraft.api.weather.WeatherReport;
 import com.arrl.radiocraft.api.weather.WeatherSource;
@@ -93,6 +94,12 @@ public final class WeatherReports {
 		String warning = hazards(here);
 		if(warning != null)
 			lines.add("WARNING: " + warning);
+		if(source.tornadoWatch(level, pos))
+			lines.add("TORNADO WATCH: A TORNADO IS POSSIBLE");
+		DayOutlook today = source.outlook(level, pos, 0), tomorrow = source.outlook(level, pos, 1);
+		if(today.type() != DayOutlook.Type.UNKNOWN)
+			lines.add("TODAY " + today.type().words() + ", TOMORROW " + tomorrow.type().words()
+					+ (tomorrow.tornadoWatch() ? ", TORNADO WATCH" : ""));
 		long horizon = source.forecastHorizon(level);
 		Optional<WeatherSource.Arrival> next = source.nextArrival(level, pos, horizon);
 		if(next.isPresent()) {

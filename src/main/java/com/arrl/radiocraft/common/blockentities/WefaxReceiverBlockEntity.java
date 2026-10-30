@@ -1,5 +1,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
+import com.arrl.radiocraft.api.weather.StormReport;
+
 import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.api.weather.WeatherReport;
@@ -68,6 +70,14 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 	private WefaxPrints.Print queuedPrint = null;
 	/** A printed sheet waiting in the tray (shown on the screen and the model) until someone takes it. */
 	private ItemStack ready = ItemStack.EMPTY;
+	/**
+	 * The redstone signal (maintainer, 2026-10-30): 1 for a message, 2 for a severe thunderstorm, 3 for a tornado watch,
+	 * 4 for a hurricane. It comes on when a message starts printing (so only with paper), stays at the highest of the
+	 * messages since, and goes off when the printed sheet is taken from the tray.
+	 */
+	private int signal;
+	/** The signal of the sheet being printed, which is what is left when the one before it is taken. */
+	private int printingSignal;
 
 	private final ItemStackHandler paper = new ItemStackHandler(1) {
 		@Override
@@ -198,17 +208,54 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		lines.add("");
 		lines.addAll(WeatherReports.stormList(serverLevel, source, here, FORECAST_RANGE));
 		queuedPrint = WefaxPrints.printText(serverLevel, here, Component.translatable("item.radiocraft.wefax_chart.forecast"), "FORECAST", lines);
-		start(WefaxPrints.printChart(serverLevel, source, here, WefaxChart.Type.RADAR, ""));
+		start(WefaxPrints.printChart(serverLevel, source, here, WefaxChart.Type.RADAR, ""), alertLevel(serverLevel, source, here));
 	}
 
-	/** Radios beside it, and those reached through the station gear it touches. */
+	/**
+	 * The redstone level a weather report from {@code pos} gives: 4 for a hurricane, 3 for a tornado or a tornado
+	 * watch, 2 for a severe thunderstorm (or a supercell, hail or damaging wind), else 1. Storms within
+	 * {@link #FORECAST_RANGE}, forecast ones included, count.
+	 */
+	public static int alertLevel(ServerLevel level, WeatherSource source, BlockPos pos) {
+		WeatherReport now = source.report(level, pos);
+		if(now.has(WeatherReport.Hazard.HURRICANE_EYE))
+			return 4;
+		int alert = 1;
+		for(StormReport storm : source.storms(level, pos, FORECAST_RANGE, true)) {
+			switch(storm.kind()) {
+				case HURRICANE -> { return 4; }
+				case TORNADO -> alert = Math.max(alert, 3);
+				case SEVERE_THUNDERSTORM, SUPERCELL -> alert = Math.max(alert, 2);
+				default -> {}
+			}
+		}
+		if(now.has(WeatherReport.Hazard.TORNADO) || source.tornadoWatch(level, pos))
+			alert = Math.max(alert, 3);
+		if(now.has(WeatherReport.Hazard.DAMAGING_WIND) || now.has(WeatherReport.Hazard.HAIL))
+			alert = Math.max(alert, 2);
+		return alert;
+	}
+
+	/** The redstone signal, 0 to 4 (see {@link #signal}). */
+	public int getSignal() {
+		return signal;
+	}
+
+	private void setSignal(int value) {
+		if(signal == value)
+			return;
+		signal = value;
+		setChanged();
+		if(level != null && !level.isClientSide)
+			level.updateNeighborsAt(worldPosition, getBlockState().getBlock());
+	}
+
+	/** Radios beside it or on its data wire, and those reached through the station gear it is linked to. */
 	public List<RadioBlockEntity> getRadios() {
 		List<RadioBlockEntity> radios = new ArrayList<>();
 		if(level == null)
 			return radios;
-		for(Direction direction : Direction.values())
-			if(level.getBlockEntity(worldPosition.relative(direction)) instanceof RadioBlockEntity radio)
-				radios.add(radio);
+		radios.addAll(com.arrl.radiocraft.common.be_networks.DataWire.linked(level, worldPosition, RadioBlockEntity.class));
 		for(RadioInterfaceBlockEntity radioInterface : StationBus.find(level, worldPosition).interfaces())
 			for(RadioBlockEntity radio : radioInterface.getRadios())
 				if(!radios.contains(radio))
@@ -348,6 +395,13 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 	}
 
 	private void start(WefaxPrints.Print print) {
+		start(print, 1);
+	}
+
+	/** Starts printing a message whose redstone level is {@code alert} (see {@link #signal}). */
+	private void start(WefaxPrints.Print print, int alert) {
+		printingSignal = alert;
+		setSignal(Math.max(signal, alert));
 		if(!ready.isEmpty() && level instanceof ServerLevel serverLevel)
 			eject(serverLevel); // The next sheet pushes the one nobody took out of the front.
 		paper.extractItem(0, 1, false);
@@ -452,6 +506,7 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		ItemStack sheet = ready;
 		ready = ItemStack.EMPTY;
 		setReady(serverLevel, false);
+		setSignal(isPrinting() ? printingSignal : 0); // Read: the alarm stops, unless the next message is coming out.
 		if(player != null && !player.getInventory().add(sheet))
 			player.drop(sheet, false);
 		else if(player == null)
@@ -517,6 +572,8 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		}
 		tag.putLong("lastAlertAt", lastAlertAt);
 		tag.putLong("requestUntil", requestUntil);
+		tag.putInt("signal", signal);
+		tag.putInt("printingSignal", printingSignal);
 	}
 
 	@Override
@@ -535,6 +592,8 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		solarHeardAt = tag.contains("solarHeardAt") ? tag.getLong("solarHeardAt") : -1L;
 		lastAlertAt = tag.contains("lastAlertAt") ? tag.getLong("lastAlertAt") : -1L;
 		requestUntil = tag.contains("requestUntil") ? tag.getLong("requestUntil") : -1L;
+		signal = tag.getInt("signal");
+		printingSignal = tag.getInt("printingSignal");
 	}
 
 	@Override

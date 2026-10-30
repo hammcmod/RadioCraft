@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "A $(item)Microwave Radio$() links two or more sites over $(item)microwave dishes$(). It carries:$(li)APRS between $(l:radiocraft:digital/aprs)H19 terminals$(/l) (the far one sends it on again)$(li)$(l:radiocraft:direction_finding/fixes)direction finder bearings$(/l)$(li)$(l:radiocraft:microwave/telephone)telephone calls$(/l)$(br)Stations join it by touching it or by sharing its power wire. Dishes go on its coax."
+      "text": "A $(item)Microwave Radio$() links two or more sites over $(item)microwave dishes$(). It carries:$(li)APRS between $(l:radiocraft:digital/aprs)H19 terminals$(/l) (the far one sends it on again)$(li)$(l:radiocraft:direction_finding/fixes)direction finder bearings$(/l)$(li)$(l:radiocraft:microwave/telephone)telephone calls$(/l)$(br)Stations join it by touching it or by $(l:radiocraft:radios/data_wire)data wire$(/l); so do the site's other microwave radios. Dishes go on its coax."
     },
     {
       "type": "patchouli:text",

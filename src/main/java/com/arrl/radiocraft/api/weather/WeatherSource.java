@@ -56,6 +56,19 @@ public interface WeatherSource {
 	long forecastHorizon(ServerLevel level);
 
 	/**
+	 * True if a tornado is possible near {@code pos} soon, though probably will not happen: a tornado watch. WEFAX prints
+	 * it and gives it redstone level 3. False for sources that cannot tell.
+	 */
+	default boolean tornadoWatch(ServerLevel level, BlockPos pos) {
+		return false;
+	}
+
+	/** The day {@code daysAhead} from today (0 today, 1 tomorrow) at {@code pos}; {@link DayOutlook#UNKNOWN} if the source cannot say. */
+	default DayOutlook outlook(ServerLevel level, BlockPos pos, int daysAhead) {
+		return DayOutlook.UNKNOWN;
+	}
+
+	/**
 	 * A storm reaching a place.
 	 *
 	 * @param peak the worst weather it brings there

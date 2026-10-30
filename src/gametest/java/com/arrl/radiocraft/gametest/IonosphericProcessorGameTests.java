@@ -38,6 +38,7 @@ public class IonosphericProcessorGameTests {
 	@net.minecraft.gametest.framework.BeforeBatch(batch = BATCH)
 	public static void quickBulletins(net.minecraft.server.level.ServerLevel level) {
 		RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.set(2);
+		GameTestDefaults.calmSky(level); // Its stations talk over HF: a blackout left by another batch would silence them.
 	}
 
 	@net.minecraft.gametest.framework.AfterBatch(batch = BATCH)

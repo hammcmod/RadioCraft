@@ -90,6 +90,30 @@ public class DummyLoadGameTests {
                 .thenSucceed();
     }
 
+    /**
+     * Next to no static on a dummy load (maintainer, 2026-10-30): little signal gets in, so little noise does. A radio
+     * on a matched J-pole plays it at full volume.
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100, batch = BATCH)
+    public static void dummyLoadIsNearlySilent(GameTestHelper helper) {
+        BlockPos load = new BlockPos(3, 2, 6), pole = new BlockPos(10, 2, 3);
+        station(helper, load, RadiocraftBlocks.VHF_BASE_STATION.get());
+        GameTestUtil.radioWithJPole(helper, pole);
+        helper.startSequence()
+                .thenWaitUntil(() -> helper.assertTrue(antennas(helper, load).size() == 1 && antennas(helper, pole).size() == 1, "Antennas not seen yet"))
+                .thenExecute(() -> {
+                    powerOn(helper, load);
+                    powerOn(helper, pole);
+                })
+                .thenWaitUntil(() -> {
+                    double onLoad = radio(helper, load).getStaticVolume(), onPole = radio(helper, pole).getStaticVolume();
+                    helper.assertTrue(onPole > 0.5D, "The J-pole radio's static is " + onPole);
+                    helper.assertTrue(onLoad > 0.0D && onLoad <= onPole * RadioBlockEntity.DUMMY_LOAD_STATIC + 1e-9,
+                            "The dummy load radio's static is " + onLoad + " against " + onPole + " on a J-pole");
+                })
+                .thenSucceed();
+    }
+
     /** Two stations on dummy loads hear each other a few blocks apart, on VHF and HF, but not 14 blocks apart. */
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100, batch = BATCH)
     public static void reachesOnlyAFewBlocks(GameTestHelper helper) {

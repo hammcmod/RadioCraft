@@ -247,6 +247,8 @@ public final class WefaxChart {
 			case DENSE_FOG -> new String[] { "#####", "", "#####", "", "#####" };
 			case HEAT_WAVE -> new String[] { "#...#", "#...#", "#####", "#...#", "#...#" };
 			case COLD_SNAP -> new String[] { "#.#.#", ".###.", "#####", ".###.", "#.#.#" };
+			// High wind: streaks.
+			case HIGH_WIND -> new String[] { "####.", "", ".####", "", "###.." };
 			case OTHER -> new String[] { ".###.", "#...#", "#...#", "#...#", ".###." };
 		};
 		for(int dz = -3; dz <= 3; dz++)

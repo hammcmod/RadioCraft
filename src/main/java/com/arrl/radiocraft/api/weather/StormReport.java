@@ -46,6 +46,7 @@ public record StormReport(long id, Kind kind, boolean worldWide, long formsAt, L
 			case DENSE_FOG -> "FOG";
 			case HEAT_WAVE -> "HEAT WAVE";
 			case COLD_SNAP -> "COLD SNAP";
+			case HIGH_WIND -> "HIGH WIND";
 			case OTHER -> "WEATHER";
 		};
 	}
@@ -62,11 +63,13 @@ public record StormReport(long id, Kind kind, boolean worldWide, long formsAt, L
 		/** A supercell with a tornado down for part of its life. */
 		TORNADO, HURRICANE,
 		/** Thick fog, heat waves and cold snaps: weather with no rain. */
-		DENSE_FOG, HEAT_WAVE, COLD_SNAP, OTHER;
+		DENSE_FOG, HEAT_WAVE, COLD_SNAP,
+		/** Clear weather with strong, gusty wind. */
+		HIGH_WIND, OTHER;
 
 		/** Whether it brings rain (fog, heat waves and cold snaps do not). */
 		public boolean bringsRain() {
-			return this != DENSE_FOG && this != HEAT_WAVE && this != COLD_SNAP;
+			return this != DENSE_FOG && this != HEAT_WAVE && this != COLD_SNAP && this != HIGH_WIND;
 		}
 
 		/** A short name for charts and teletype reports. */
@@ -82,6 +85,7 @@ public record StormReport(long id, Kind kind, boolean worldWide, long formsAt, L
 				case DENSE_FOG -> "FOG";
 				case HEAT_WAVE -> "HEAT";
 				case COLD_SNAP -> "COLD";
+				case HIGH_WIND -> "WIND";
 				case OTHER -> "WX";
 			};
 		}

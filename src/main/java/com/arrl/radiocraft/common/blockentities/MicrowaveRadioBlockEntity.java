@@ -565,7 +565,7 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 		return !interference || level == null || level.random.nextBoolean();
 	}
 
-	/** The stations this radio serves: block entities touching it, and those on its power wire. */
+	/** The stations this radio serves: block entities touching it, and those on its data wire. */
 	public List<BlockEntity> stations() {
 		List<BlockEntity> out = new ArrayList<>();
 		if(level == null)
@@ -575,16 +575,14 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 			if(level.isLoaded(at) && level.getBlockEntity(at) instanceof BlockEntity be && !(be instanceof MicrowaveRadioBlockEntity))
 				out.add(be);
 		}
-		MicrowaveNetworkObjects.Radio object = radioObject();
-		if(object != null)
-			for(BlockPos at : object.wiredStations())
-				if(level.isLoaded(at) && level.getBlockEntity(at) instanceof BlockEntity be && !out.contains(be))
-					out.add(be);
+		for(BlockEntity be : com.arrl.radiocraft.common.be_networks.DataWire.wired(level, worldPosition, BlockEntity.class))
+			if(!(be instanceof MicrowaveRadioBlockEntity) && !out.contains(be))
+				out.add(be);
 		return out;
 	}
 
 	/**
-	 * The other microwave radios at this one's site: touching it, or on its power wire. One data network, like radios
+	 * The other microwave radios at this one's site: touching it, or on its data wire. One data network, like radios
 	 * on a site's switch: what comes in on one radio's link goes on out of the others' ({@code MicrowaveRoutes}).
 	 */
 	public List<MicrowaveRadioBlockEntity> siteMates() {
@@ -596,15 +594,13 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 			if(level.isLoaded(at) && level.getBlockEntity(at) instanceof MicrowaveRadioBlockEntity radio)
 				out.add(radio);
 		}
-		MicrowaveNetworkObjects.Radio object = radioObject();
-		if(object != null)
-			for(BlockPos at : object.wiredRadios())
-				if(level.isLoaded(at) && level.getBlockEntity(at) instanceof MicrowaveRadioBlockEntity radio && !out.contains(radio))
-					out.add(radio);
+		for(MicrowaveRadioBlockEntity radio : com.arrl.radiocraft.common.be_networks.DataWire.wired(level, worldPosition, MicrowaveRadioBlockEntity.class))
+			if(radio != this && !out.contains(radio))
+				out.add(radio);
 		return out;
 	}
 
-	/** The microwave radios serving the station at {@code pos}: touching it, or on its power wire. */
+	/** The microwave radios serving the station at {@code pos}: touching it, or on its data wire. */
 	public static List<MicrowaveRadioBlockEntity> servingStation(Level level, BlockPos pos) {
 		List<MicrowaveRadioBlockEntity> out = new ArrayList<>();
 		for(Direction direction : Direction.values()) {
@@ -612,11 +608,9 @@ public class MicrowaveRadioBlockEntity extends BlockEntity implements INetworkOb
 			if(level.isLoaded(at) && level.getBlockEntity(at) instanceof MicrowaveRadioBlockEntity radio)
 				out.add(radio);
 		}
-		if(level.getBlockEntity(pos) instanceof INetworkObjectProvider provider
-				&& provider.getNetworkObject(level, pos) instanceof MicrowaveNetworkObjects.StationLink link)
-			for(BlockPos at : link.wiredRadios())
-				if(level.isLoaded(at) && level.getBlockEntity(at) instanceof MicrowaveRadioBlockEntity radio && !out.contains(radio))
-					out.add(radio);
+		for(MicrowaveRadioBlockEntity radio : com.arrl.radiocraft.common.be_networks.DataWire.wired(level, pos, MicrowaveRadioBlockEntity.class))
+			if(!out.contains(radio))
+				out.add(radio);
 		return out;
 	}
 

@@ -1,7 +1,9 @@
 """Paints the dyed coax textures: the maintainer's coaxial_wire.png with a tracer stripe in each dye colour, one pixel
 along every side of the jacket, so it shows from any angle. Writes textures/block/coaxial_wire_<colour>.png. Also the
 dyed power wire textures (2026-10-27): the whole of wire.png tinted to the dye, keeping its shading, since a 1 px cable
-has no room for a stripe. Writes textures/block/wire_<colour>.png; the wire items are 3D and need no icon.
+has no room for a stripe. Writes textures/block/wire_<colour>.png; the wire items are 3D and need no icon. And the data
+wire (2026-10-30): wire.png in light grey with darker flecks along it, so it tells apart from light grey power wire.
+Writes textures/block/data_wire.png.
 
     pip install pillow
     python tools/coax_colours.py
@@ -24,6 +26,8 @@ COLOURS = {
     "light_gray": (157, 157, 151), "cyan": (22, 156, 156), "purple": (137, 50, 184), "blue": (60, 68, 170),
     "brown": (131, 84, 50), "green": (94, 124, 22), "red": (176, 46, 38), "black": (29, 29, 33),
 }
+# The data wire's jacket: lighter than the light grey dye, a little cool.
+DATA_WIRE = (222, 224, 226)
 # The jacket's four sides are 7 x 2 strips at rows 0, 2, 4 and 6; the stripe runs along the second row of each.
 STRIPE_ROWS = (1, 3, 5, 7)
 LENGTH = 7
@@ -80,4 +84,11 @@ if __name__ == "__main__":
         icon_stripe(icon, colour).save(ITEMS / f"coax_wire_icon_{name}.png")
         model = {"parent": "minecraft:item/generated", "textures": {"layer0": f"radiocraft:item/coax_wire_icon_{name}"}}
         (ASSETS / "models/item" / f"coax_wire_{name}.json").write_text(json.dumps(model, indent=2) + "\n")
+    data = tinted(wire, DATA_WIRE)
+    for y in STRIPE_ROWS:
+        for x in range(LENGTH):
+            if x % 3 == 1:  # Flecks along the jacket: twisted pairs showing through.
+                r, g, b, a = data.getpixel((x, y))
+                data.putpixel((x, y), (int(r * 0.6), int(g * 0.6), int(b * 0.65), a))
+    data.save(TEXTURES / "data_wire.png")
     print("wrote", len(COLOURS), "dyed coax textures, icons and item models, and", len(COLOURS), "dyed wire textures")

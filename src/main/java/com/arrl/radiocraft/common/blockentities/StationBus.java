@@ -13,8 +13,8 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * The station bus: radio interfaces and the terminals (APRS, file transfer) joined by touching, directly or through
- * one another, the way a terminal is cabled to its modem. A terminal works through every radio interface on its bus
+ * The station bus: radio interfaces and the terminals (APRS, file transfer) joined by touching or by data wire,
+ * directly or through one another, the way a terminal is cabled to its modem. A terminal works through every radio interface on its bus
  * and sends under the first callsign it finds there. It is searched afresh each time; a bus is only a few blocks.
  */
 public record StationBus(List<RadioInterfaceBlockEntity> interfaces, List<StationTerminal> terminals) {
@@ -45,6 +45,9 @@ public record StationBus(List<RadioInterfaceBlockEntity> interfaces, List<Statio
 				if(next.distManhattan(start) <= MAX_REACH && visited.add(next))
 					queue.add(next);
 			}
+			for(BlockPos next : com.arrl.radiocraft.common.be_networks.DataWire.reached(level, at)) // However far the wire runs.
+				if(visited.add(next))
+					queue.add(next);
 		}
 		return new StationBus(interfaces, terminals);
 	}

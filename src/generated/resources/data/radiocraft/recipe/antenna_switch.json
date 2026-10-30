@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "radiocraft:coax_wire"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    },
+    "L": {
+      "item": "minecraft:lever"
+    }
+  },
+  "pattern": [
+    " C ",
+    "CIC",
+    " L "
+  ],
+  "result": {
+    "count": 1,
+    "id": "radiocraft:antenna_switch"
+  }
+}

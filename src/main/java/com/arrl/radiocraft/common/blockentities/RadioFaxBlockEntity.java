@@ -244,14 +244,12 @@ public class RadioFaxBlockEntity extends BlockEntity implements MenuProvider, St
 		return level == null ? new StationBus(List.of(), List.of()) : StationBus.find(level, worldPosition);
 	}
 
-	/** The radios the fax works through: those touching it, and those on the radio interfaces of its bus. */
+	/** The radios the fax works through: those touching it or on its data wire, and those on the radio interfaces of its bus. */
 	public List<RadioBlockEntity> radios() {
 		Set<RadioBlockEntity> out = new LinkedHashSet<>();
 		if(level == null)
 			return List.of();
-		for(Direction direction : Direction.values())
-			if(level.getBlockEntity(worldPosition.relative(direction)) instanceof RadioBlockEntity radio)
-				out.add(radio);
+		out.addAll(com.arrl.radiocraft.common.be_networks.DataWire.linked(level, worldPosition, RadioBlockEntity.class));
 		for(RadioInterfaceBlockEntity radioInterface : bus().interfaces())
 			out.addAll(radioInterface.getRadios());
 		return new ArrayList<>(out);

@@ -195,6 +195,9 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         // Basic components
         buildWireRecipe(recipeOutput);
         buildWaterproofWireRecipe(recipeOutput);
+        buildDataWireRecipe(recipeOutput);
+        buildAntennaSplitterRecipe(recipeOutput);
+        buildAntennaSwitchRecipe(recipeOutput);
         buildInsulationRecipes(recipeOutput);
         buildAntennaPoleRecipe(recipeOutput);
         buildTowerFootholdRecipe(recipeOutput);
@@ -386,6 +389,43 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.WATERPROOF_WIRE.get(), 3)
                 .pattern("KKK")
                 .pattern("###")
+                .define('#', RadiocraftItems.WIRE.get())
+                .define('K', RadiocraftItems.INSULATION.get())
+                .unlockedBy("has_insulation", has(RadiocraftItems.INSULATION.get()))
+                .save(recipeOutput);
+    }
+
+    /** The antenna switch (maintainer, 2026-10-30): the splitter's box with a lever for the knob. */
+    private void buildAntennaSwitchRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.ANTENNA_SWITCH.get(), 1)
+                .pattern(" C ")
+                .pattern("CIC")
+                .pattern(" L ")
+                .define('C', RadiocraftItems.COAX_WIRE.get())
+                .define('I', Items.IRON_INGOT)
+                .define('L', Items.LEVER)
+                .unlockedBy("has_coax_wire", has(RadiocraftItems.COAX_WIRE.get()))
+                .save(recipeOutput);
+    }
+
+    /** The receive-only antenna splitter (maintainer, 2026-10-30): a metal box with a coax port on each side. */
+    private void buildAntennaSplitterRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.ANTENNA_SPLITTER.get(), 1)
+                .pattern(" C ")
+                .pattern("CIC")
+                .pattern(" C ")
+                .define('C', RadiocraftItems.COAX_WIRE.get())
+                .define('I', Items.IRON_INGOT)
+                .unlockedBy("has_coax_wire", has(RadiocraftItems.COAX_WIRE.get()))
+                .save(recipeOutput);
+    }
+
+    /** Data wire (maintainer, 2026-10-30): 3 wire and 6 insulation make 16. */
+    private void buildDataWireRecipe(RecipeOutput recipeOutput) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, RadiocraftItems.DATA_WIRE.get(), 16)
+                .pattern("KKK")
+                .pattern("###")
+                .pattern("KKK")
                 .define('#', RadiocraftItems.WIRE.get())
                 .define('K', RadiocraftItems.INSULATION.get())
                 .unlockedBy("has_insulation", has(RadiocraftItems.INSULATION.get()))

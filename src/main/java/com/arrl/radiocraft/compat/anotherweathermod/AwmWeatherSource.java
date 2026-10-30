@@ -1,5 +1,6 @@
 package com.arrl.radiocraft.compat.anotherweathermod;
 
+import com.arrl.radiocraft.api.weather.DayOutlook;
 import com.arrl.radiocraft.api.weather.StormReport;
 import com.arrl.radiocraft.api.weather.WeatherReport;
 import com.arrl.radiocraft.api.weather.WeatherSource;
@@ -44,6 +45,25 @@ final class AwmWeatherSource implements WeatherSource {
 	@Override
 	public boolean isLocal() {
 		return true;
+	}
+
+	@Override
+	public boolean tornadoWatch(ServerLevel level, BlockPos pos) {
+		return api().tornadoWatch(level, pos);
+	}
+
+	@Override
+	public DayOutlook outlook(ServerLevel level, BlockPos pos, int daysAhead) {
+		com.itcmd.anotherweathermod.api.DayOutlook day = api().outlook(level, pos, daysAhead);
+		if(day.regionEdge())
+			return new DayOutlook(DayOutlook.Type.CLOUDY, day.tornadoWatch());
+		DayOutlook.Type type = switch(day.type()) {
+			case DRY -> DayOutlook.Type.DRY;
+			case CHANCE -> DayOutlook.Type.CHANCE;
+			case RAINY -> DayOutlook.Type.RAINY;
+			default -> DayOutlook.Type.UNKNOWN; // A kind of day a newer Another Weather Mod knows and we do not.
+		};
+		return new DayOutlook(type, day.tornadoWatch());
 	}
 
 	@Override

@@ -281,14 +281,13 @@ public class TapePlayerBlockEntity extends BlockEntity implements MenuProvider, 
 				radio.acceptVoicePacket(voiceLevel, frame.clone(), voiceId);
 	}
 
-	/** Keys every radio touching the player, as its push-to-talk would. */
+	/** Keys every radio touching the player or on its data wire, as its push-to-talk would. */
 	private void keyRadios(ServerLevel level) {
 		releaseRadios();
-		for(Direction side : Direction.values())
-			if(level.getBlockEntity(worldPosition.relative(side)) instanceof RadioBlockEntity radio) {
-				radio.setPTTDown(true);
-				keyed.add(radio);
-			}
+		for(RadioBlockEntity radio : com.arrl.radiocraft.common.be_networks.DataWire.linked(level, worldPosition, RadioBlockEntity.class)) {
+			radio.setPTTDown(true);
+			keyed.add(radio);
+		}
 	}
 
 	private void releaseRadios() {

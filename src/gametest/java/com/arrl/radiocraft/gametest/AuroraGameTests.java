@@ -71,7 +71,7 @@ public class AuroraGameTests {
                 .thenExecute(() -> {
                     SolarEventManager.setEvent(helper.getLevel(), RadiocraftData.SOLAR_EVENTS.getValue(Radiocraft.id("average")).getInstance());
                     RadiocraftServerConfig.AURORA_LATITUDE.set(0);
-                    Aurora.clear(helper.getLevel());
+                    GameTestDefaults.calmSky(helper.getLevel()); // No aurora and no sporadic E opening before the measurement.
                     double hfBefore = strength(helper, "20m", 4000);
                     double vhfBefore = strength(helper, "2m", 2000);
                     helper.assertTrue(vhfBefore == 0.0D, "VHF should not reach 2000 blocks without an aurora, was " + vhfBefore);

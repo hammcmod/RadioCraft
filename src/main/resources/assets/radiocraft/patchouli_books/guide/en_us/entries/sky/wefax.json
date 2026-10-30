@@ -14,6 +14,11 @@
       "text": "$(li)$(thing)WX REPT$(): the next chart in turn: radar, forecast, surface analysis.$(li)$(thing)SOLR WX$(): the solar report from an $(l:radiocraft:sky/ionosphere)Ionospheric Processor$(/l): read directly if one touches it or its radio, otherwise asked for over the air (tune to the processor's frequency).$(li)$(thing)AUTO$(): prints a forecast when dangerous weather is coming.$(br)Blackout alerts always print, with three beeps."
     },
     {
+      "type": "patchouli:text",
+      "title": "Alarms",
+      "text": "The receiver puts out a $(thing)redstone signal$() while a message prints and until its sheet is taken from the tray:$(li)1: any message$(li)2: a severe thunderstorm$(li)3: a tornado or a $(thing)tornado watch$() (a tornado is possible, though probably will not happen)$(li)4: a hurricane$(br)The highest of what came in counts. No paper, no message, no signal."
+    },
+    {
       "type": "patchouli:crafting",
       "recipe": "radiocraft:wefax_receiver"
     }

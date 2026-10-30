@@ -9,6 +9,26 @@ writes back here: `- [ ]` not tested, `- [x]` passed, `- [!]` needs work, with `
 it to [todo.md](../todo.md)), then sets it back to `[ ]` for the next playtest.
 
 
+## Data wire, splitter, WEFAX alarms, lightning on carried radios (added 2026-10-30)
+
+- [ ] Data wire looks right: light grey, thinner than coax, the darker flecks visible; tells apart from light grey
+  dyed power wire; in a bundle it sits between the power wires and the coax.
+- [ ] A radio with a teletype five blocks away on data wire: RTTY typed there goes out, and what comes in prints.
+  The same for a radio fax, a WEFAX receiver and a radio interface with an H19.
+- [ ] A wall speaker on data wire from a radio plays it; on plain wire it no longer does.
+- [ ] A microwave radio serves a telephone and an H19 over data wire.
+- [ ] Antenna splitter: two radios behind it both hear the antenna, a little weaker; neither can transmit (nothing
+  heard at the far end). The placeholder box looks acceptable until the model is drawn.
+- [ ] Antenna switch: the model and the knob's pointer face the right ways as the input turns to the radio's coax
+  and the knob is turned (right click, "Antenna 2" message, lever click); the coax meets the connectors; the radio
+  hears only the selected antenna.
+- [ ] A radio on a dummy load is nearly silent: a faint hiss instead of full static (5%).
+- [ ] WEFAX redstone: a lamp beside the receiver lights when a message prints and goes out when the sheet is taken;
+  the redstone signal strength is 2 / 3 / 4 for a severe thunderstorm, a tornado watch, a hurricane.
+- [ ] Weather reports say "TODAY ... TOMORROW ..." and "TORNADO WATCH" with Another Weather Mod 1.9.3.
+- [ ] Struck by lightning (`/summon lightning_bolt` on yourself in survival) with a handheld and a manpack: both
+  fall apart into parts with a message; with the manpack switched on it hurts noticeably more.
+
 ## Two stations at once, and smoother signal changes (added 2026-10-29)
 
 Stations heard at the same time are now mixed into the radio's one audio stream (`VoiceMix`) instead of their frames

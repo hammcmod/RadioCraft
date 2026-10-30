@@ -30,7 +30,7 @@ public class SporadicEGameTests {
     @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 20, batch = "sporadic_e")
     public static void sporadicEOpensVhfInGoodConditions(GameTestHelper helper) {
         SolarEventInstance previous = SolarEventManager.getEvent(helper.getLevel());
-        event(helper, "average");
+        GameTestDefaults.calmSky(helper.getLevel()); // An opening or aurora left over from another batch carries 2m too.
         helper.assertFalse(SporadicE.conditionsAllow(helper.getLevel()), "Average conditions allow sporadic E");
         event(helper, "good");
         helper.assertTrue(SporadicE.conditionsAllow(helper.getLevel()), "Good conditions do not allow sporadic E");

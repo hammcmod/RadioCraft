@@ -530,7 +530,10 @@ public class StationGameTests {
                     helper.assertFalse(terminal.isRadioOn(), "Radio on before it is");
                     powerOn(helper, RADIO_A);
                 })
-                .thenWaitUntil(() -> helper.assertTrue(aprs(helper, APRS_A).isRadioOn(), "Did not see the radio come on"))
+                .thenWaitUntil(() -> { // The radio-on and boot flags are set in different ticks (failed once, 2026-10-28).
+                    helper.assertTrue(aprs(helper, APRS_A).isRadioOn(), "Did not see the radio come on");
+                    helper.assertTrue(aprs(helper, APRS_A).isBootPending(), "The radio coming on did not make it boot");
+                })
                 .thenExecute(() -> {
                     AprsTerminalBlockEntity terminal = aprs(helper, APRS_A);
                     helper.assertTrue(terminal.isBootPending(), "The radio coming on did not make it boot");

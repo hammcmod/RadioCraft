@@ -43,6 +43,8 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
     protected final Set<ITuner> tuners = Collections.synchronizedSet(new HashSet<>());
     /** Duplexers on the run (a repeater's); their cavities filter what goes out and what comes in. */
     protected final Set<DuplexerNetworkObject> duplexers = Collections.synchronizedSet(new HashSet<>());
+    /** Receive-only splitters on the run: every radio behind one hears the antenna, and none can transmit through it. */
+    protected final Set<AntennaSplitterNetworkObject> splitters = Collections.synchronizedSet(new HashSet<>());
     protected StaticAntenna<?> antenna = null;
     protected ResourceLocation networkId;
 
@@ -64,14 +66,13 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
     /** As above, from a transmitter {@code power} times as strong as a standard one. */
     public void transmitAudioPacket(ServerLevel level, short[] rawAudio, Band band, float frequency, UUID sourcePlayer, float ctcssTone, float power) {
         StaticAntenna<?> antenna = this.antenna; // Read once: voice arrives on Simple Voice Chat's thread.
-        if(antenna != null)
+        if(antenna != null && !isSplit())
             antenna.transmitAudioPacket(level, rawAudio, band, frequency, sourcePlayer, ctcssTone, power);
     }
 
     public void receiveAudioPacket(AntennaVoicePacket packet) {
-        packet.setStrength(packet.getStrength() * receivePass(packet.getFrequency()));
-        if(radios.size() == 1) {
-            BlockPos checkPos = radios.iterator().next().getPos();
+        packet.setStrength(packet.getStrength() * receivePass(packet.getFrequency()) * splitShare());
+        for(BlockPos checkPos : receivers()) {
             if(level.isLoaded(checkPos)) {
                 BlockEntity be = level.getChunkAt(checkPos).getBlockEntity(checkPos, LevelChunk.EntityCreationType.IMMEDIATE);
                 if(be instanceof RadioBlockEntity radio) {
@@ -81,19 +82,42 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
                     module.hear(packet);
             }
         }
-        else if(radios.size() > 1)
+        if(isOverdrawn())
             overdraw(level);
     }
 
+    /** True when a receive-only splitter is on the run: nothing transmits through this antenna. */
+    public boolean isSplit() {
+        return !splitters.isEmpty();
+    }
+
+    /**
+     * What each radio behind a splitter gets of the signal: 1/sqrt(n) for n radios (3 dB lost each time the signal is
+     * split in two), all of it with no splitter.
+     */
+    public double splitShare() {
+        int n = radios.size();
+        return isSplit() && n > 1 ? 1.0D / Math.sqrt(n) : 1.0D;
+    }
+
+    /** The radios that hear this antenna: the one on the coax, or every one behind a splitter; none when overdrawn. */
+    private List<BlockPos> receivers() {
+        if(radios.isEmpty() || isOverdrawn())
+            return List.of();
+        synchronized(radios) {
+            return radios.stream().map(BENetworkObject::getPos).toList();
+        }
+    }
+
     public void transmitCWPacket(net.minecraft.server.level.ServerLevel level, Collection<CWBuffer> buffers, Band band, float frequency) {
-        if(antenna != null)
+        if(antenna != null && !isSplit())
             antenna.transmitCWPacket(level, buffers, band, frequency);
     }
 
     public void receiveCWPacket(AntennaCWPacket packet) {
-        if(radios.size() == 1) {
-            if(level.isLoaded(pos)) {
-                BlockEntity be = level.getBlockEntity(radios.iterator().next().getPos());
+        for(BlockPos checkPos : receivers()) {
+            if(level.isLoaded(checkPos)) {
+                BlockEntity be = level.getBlockEntity(checkPos);
                 if(be instanceof HFRadioBlockEntity radio) {
                     if(BandUtils.areFrequenciesEqualWithTolerance(radio.getTunedFrequency(), packet.getFrequency(), 1000.0F)) // Only receive if listening to correct frequency.
                         radio.receiveCW(packet);
@@ -102,28 +126,27 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
                     module.hear(packet);
             }
         }
-        else if(radios.size() > 1)
+        if(isOverdrawn())
             overdraw(level);
     }
 
     /** Sends a digital interface's packet out of the antenna, like voice. */
     public void transmitDataPacket(net.minecraft.server.level.ServerLevel level, TncPacket payload, Band band, float frequency) {
         StaticAntenna<?> antenna = this.antenna;
-        if(antenna != null)
+        if(antenna != null && !isSplit())
             antenna.transmitDataPacket(level, payload, band, frequency);
     }
 
     /** Hands a data packet to the radio on this coax, which decides whether it decodes it. */
     public void receiveDataPacket(AntennaDataPacket packet) {
-        packet.setStrength(packet.getStrength() * receivePass(packet.getFrequency()));
-        if(radios.size() == 1) {
-            BlockPos checkPos = radios.iterator().next().getPos();
+        packet.setStrength(packet.getStrength() * receivePass(packet.getFrequency()) * splitShare());
+        for(BlockPos checkPos : receivers()) {
             if(level.isLoaded(checkPos) && level.getBlockEntity(checkPos) instanceof RadioBlockEntity radio)
                 radio.receiveData(packet);
             else if(level.isLoaded(checkPos) && level.getBlockEntity(checkPos) instanceof DirectionFinderModuleBlockEntity module)
                 module.hear(packet);
         }
-        else if(radios.size() > 1)
+        if(isOverdrawn())
             overdraw(level);
     }
 
@@ -173,6 +196,9 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         else if(object instanceof DuplexerNetworkObject duplexer) {
             if(add) duplexers.add(duplexer); else duplexers.remove(duplexer);
         }
+        else if(object instanceof AntennaSplitterNetworkObject splitter) {
+            if(add) splitters.add(splitter); else splitters.remove(splitter);
+        }
     }
 
     // -------------------- MATCHING --------------------
@@ -182,9 +208,12 @@ public class AntennaNetworkObject extends BENetworkObject implements ICoaxNetwor
         return getTuner() != null;
     }
 
-    /** True when more than one radio shares the coax: the station is overdrawn and no match is possible. */
+    /**
+     * True when more than one radio shares the coax with no splitter: the station is overdrawn and no match is
+     * possible. Behind a receive-only splitter they all listen.
+     */
     public boolean isOverdrawn() {
-        return radios.size() > 1;
+        return radios.size() > 1 && !isSplit();
     }
 
     /**

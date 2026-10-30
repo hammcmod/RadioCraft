@@ -1,0 +1,156 @@
+{
+  "multipart": [
+    {
+      "when": {
+        "facing": "north"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch"
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "output": "1"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "output": "2"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "north",
+        "output": "3"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "east"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "output": "1"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "output": "2"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "east",
+        "output": "3"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer"
+      }
+    },
+    {
+      "when": {
+        "facing": "south"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch",
+        "y": 180
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "output": "1"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "output": "2"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer"
+      }
+    },
+    {
+      "when": {
+        "facing": "south",
+        "output": "3"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch",
+        "y": 270
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "output": "1"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer"
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "output": "2"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer",
+        "y": 90
+      }
+    },
+    {
+      "when": {
+        "facing": "west",
+        "output": "3"
+      },
+      "apply": {
+        "model": "radiocraft:block/antenna_switch_pointer",
+        "y": 180
+      }
+    }
+  ]
+}

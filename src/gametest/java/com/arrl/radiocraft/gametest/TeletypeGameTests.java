@@ -146,8 +146,11 @@ public class TeletypeGameTests {
                 .thenSucceed();
     }
 
-    /** Just under the copy threshold RTTY still prints, but with characters garbled. */
-    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400)
+    /**
+     * Just under the copy threshold RTTY still prints, but with characters garbled. Each character is garbled at random
+     * (about one in seven here), so three lines are sent: one line came through perfect once in a while (2026-10-27).
+     */
+    @GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 900)
     public static void weakRttyPrintsGarbled(GameTestHelper helper) {
         BlockPos far = new BlockPos(8, 2, 6); // 5 blocks from A: (1 - 5/8)^2 = 0.14 against a copy threshold of 0.15.
         station(helper, RADIO_A, 144_590, "W9AAA");
@@ -160,12 +163,16 @@ public class TeletypeGameTests {
                     powerOn(helper, far);
                 })
                 .thenIdle(1)
-                .thenExecute(() -> teletype(helper, RADIO_A.north()).typeRtty(sent + "\n"))
-                .thenWaitUntil(() -> helper.assertFalse(teletype(helper, far.north()).getRttyLines().isEmpty(), "Nothing printed at the weak station"))
+                .thenExecute(() -> { // A line at a time: one call takes at most a packet's worth (64 characters).
+                    for(int line = 0; line < 3; line++)
+                        teletype(helper, RADIO_A.north()).typeRtty(sent + "\n");
+                })
+                .thenWaitUntil(() -> helper.assertTrue(teletype(helper, far.north()).getRttyLines().size() >= 3, "Three lines not printed at the weak station yet"))
                 .thenExecute(() -> {
-                    String printed = teletype(helper, far.north()).getRttyLines().getFirst();
-                    helper.assertTrue(printed.length() == sent.length(), "Garbling changed the length: " + printed);
-                    helper.assertFalse(printed.equals(sent), "A weak signal printed perfectly");
+                    java.util.List<String> printed = teletype(helper, far.north()).getRttyLines().subList(0, 3);
+                    for(String line : printed)
+                        helper.assertTrue(line.length() == sent.length(), "Garbling changed the length: " + line);
+                    helper.assertFalse(printed.stream().allMatch(sent::equals), "A weak signal printed three lines perfectly");
                 })
                 .thenSucceed();
     }

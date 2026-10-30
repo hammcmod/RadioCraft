@@ -38,6 +38,8 @@ public class RadiocraftBlocks {
 	// Power related blocks
 	public static final DeferredHolder<Block, WireBlock> WIRE = BLOCKS.register("wire", () -> new WireBlock(PROPERTIES_WIRES, true, false));
 	public static final Supplier<Block> WATERPROOF_WIRE = BLOCKS.register("waterproof_wire", () -> new WireBlock(PROPERTIES_WIRES, true, true));
+	/** Links radios, accessories, wired speakers and microwave stations that do not touch (see {@code DataWire}). */
+	public static final DeferredHolder<Block, WireBlock> DATA_WIRE = BLOCKS.register("data_wire", () -> WireBlock.data(PROPERTIES_WIRES));
 	/** Dyed power wire, one block per colour: it joins only its own colour and plain wire, so parallel runs stay apart (as dyed coax). */
 	public static final java.util.Map<net.minecraft.world.item.DyeColor, DeferredHolder<Block, WireBlock>> COLOURED_WIRE = colouredWire();
 
@@ -88,6 +90,12 @@ public class RadiocraftBlocks {
 	public static final DeferredHolder<Block, WireJunctionBlock> WIRE_JUNCTION = BLOCKS.register("wire_junction",
 			() -> new WireJunctionBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK).strength(2.0F).noOcclusion()));
 	public static final DeferredHolder<Block, DuplexerBlock> DUPLEXER = BLOCKS.register("duplexer", () -> new DuplexerBlock(PROPERTIES_STONE_NO_OCCLUDE));
+	/** One radio to one of three antennas, chosen by a knob. */
+	public static final DeferredHolder<Block, com.arrl.radiocraft.common.blocks.antennas.AntennaSwitchBlock> ANTENNA_SWITCH = BLOCKS.register("antenna_switch",
+			() -> new com.arrl.radiocraft.common.blocks.antennas.AntennaSwitchBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK).strength(2.0F).noOcclusion()));
+	/** One antenna to several receivers, receive only. */
+	public static final DeferredHolder<Block, com.arrl.radiocraft.common.blocks.antennas.AntennaSplitterBlock> ANTENNA_SPLITTER = BLOCKS.register("antenna_splitter",
+			() -> new com.arrl.radiocraft.common.blocks.antennas.AntennaSplitterBlock(Properties.ofFullCopy(Blocks.IRON_BLOCK).strength(2.0F).noOcclusion()));
 	public static final DeferredHolder<Block, AntennaTunerBlock> ANTENNA_TUNER = BLOCKS.register("antenna_tuner", () -> new AntennaTunerBlock(PROPERTIES_STONE));
 	public static final DeferredHolder<Block, AutoTunerBlock> AUTO_TUNER = BLOCKS.register("auto_tuner", () -> new AutoTunerBlock(PROPERTIES_STONE_NO_OCCLUDE));
 

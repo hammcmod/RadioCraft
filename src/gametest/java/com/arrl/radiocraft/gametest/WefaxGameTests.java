@@ -43,6 +43,9 @@ public class WefaxGameTests {
 					helper.assertTrue(receiver.isPrinting(), "it is not printing");
 					helper.assertTrue(receiver.getPaper() == 2, "a sheet should be used, " + receiver.getPaper() + " left");
 					helper.assertTrue(receiver.getPixels().length == 128 * 128, "no picture to draw");
+					helper.assertTrue(receiver.getSignal() == 1, "a message gives redstone 1, got " + receiver.getSignal());
+					helper.assertTrue(helper.getBlockState(pos).getSignal(helper.getLevel(), helper.absolutePos(pos), Direction.NORTH) == 1,
+							"the block does not put out the signal");
 				})
 				.thenWaitUntil(() -> helper.assertTrue(GameTestUtil.blockEntity(helper, pos, WefaxReceiverBlockEntity.class).hasReadySheet(), "no sheet in the tray yet"))
 				.thenExecute(() -> {
@@ -52,11 +55,31 @@ public class WefaxGameTests {
 					helper.assertItemEntityNotPresent(Items.FILLED_MAP, pos.south(), 1.5D);
 					receiver.takeSheet(null); // Nobody to hand it to: out of the front.
 					helper.assertFalse(helper.getBlockState(pos).getValue(WefaxReceiverBlock.READY), "the tray still shows a sheet");
+					helper.assertTrue(receiver.getSignal() == 0, "the signal stayed on after the sheet was taken: " + receiver.getSignal());
 				})
 				.thenWaitUntil(() -> helper.assertItemEntityPresent(Items.FILLED_MAP, pos.south(), 1.5D))
 				.thenExecute(() -> {
 					RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.set(needsRadio);
 					RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.set(solarAlways);
+				})
+				.thenSucceed();
+	}
+
+	/** Without paper nothing prints and there is no signal, whatever comes in. */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 40, batch = "wefax")
+	public static void noPaperNoSignal(GameTestHelper helper) {
+		boolean solarAlways = RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.get();
+		RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.set(true);
+		BlockPos pos = new BlockPos(6, 2, 6);
+		helper.setBlock(pos, RadiocraftBlocks.WEFAX_RECEIVER.get().defaultBlockState().setValue(WefaxReceiverBlock.FACING, Direction.SOUTH));
+		helper.startSequence()
+				.thenExecute(() -> {
+					WefaxReceiverBlockEntity receiver = GameTestUtil.blockEntity(helper, pos, WefaxReceiverBlockEntity.class);
+					receiver.printSolar(null);
+					receiver.printWeather();
+					RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.set(solarAlways);
+					helper.assertFalse(receiver.isPrinting(), "it printed without paper");
+					helper.assertTrue(receiver.getSignal() == 0, "a signal without paper: " + receiver.getSignal());
 				})
 				.thenSucceed();
 	}

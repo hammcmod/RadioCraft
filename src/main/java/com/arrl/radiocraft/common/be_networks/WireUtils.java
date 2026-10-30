@@ -50,13 +50,13 @@ public class WireUtils {
 
 	/** True for coax of any colour (not a passthrough). */
 	public static boolean isCoax(BlockState state) {
-		return state.getBlock() instanceof WireBlock wire && !wire.isPower && !wire.conductsAll();
+		return state.getBlock() instanceof WireBlock wire && wire.isCoax();
 	}
 
 	/** True if there is coax of any colour at {@code pos}: a coax block, or a bundle with a coax strand. */
 	public static boolean hasCoax(BlockGetter level, BlockPos pos) {
 		for(Strand strand : Strand.at(level, pos))
-			if(strand.kind() != null && !strand.kind().isPower && !strand.kind().conductsAll())
+			if(strand.kind() != null && strand.kind().isCoax())
 				return true;
 		return false;
 	}
@@ -230,7 +230,7 @@ public class WireUtils {
 
 		// A pass-through device (antenna tuner) is one node for all its sides: everything reachable from any side goes
 		// on one network, otherwise the radio on one side and the antenna on the other would never meet.
-		boolean passThrough = networkObject instanceof IPassThroughNetworkObject through && through.passesThrough(power);
+		IPassThroughNetworkObject through = networkObject instanceof IPassThroughNetworkObject t && t.passesThrough(power) ? t : null;
 		Set<Strand> sharedBlacklist = new HashSet<>();
 		sharedBlacklist.add(Strand.device(pos));
 		Map<BENetworkObject, Direction> allConnections = new HashMap<>();
@@ -241,7 +241,7 @@ public class WireUtils {
 			BlockPos checkPos = link.getKey();
 			Direction dir = link.getValue();
 
-			if(passThrough) {
+			if(through != null && through.passesSide(power, dir)) {
 				enter(allConnections, sharedBlacklist, level, checkPos, null, validConnection, wireSet);
 				if(firstSide == null)
 					firstSide = dir;
@@ -264,7 +264,7 @@ public class WireUtils {
 			BENetworkObject other = IBENetworks.getObject(level, checkPos);
 			if(other == null || !validConnection.test(other) || !linksDirectly(networkObject, other, power) || sharedBlacklist.contains(Strand.device(checkPos)))
 				continue;
-			if(passThrough) {
+			if(through != null && through.passesSide(power, dir)) {
 				addConnection(allConnections, sharedBlacklist, level, checkPos, other, dir.getOpposite(), validConnection, wireSet);
 				if(firstSide == null)
 					firstSide = dir;
@@ -278,7 +278,7 @@ public class WireUtils {
 			joinAll(level, connections, fallbackSupplier, power);
 		}
 
-		if(passThrough && !allConnections.isEmpty()) {
+		if(through != null && !allConnections.isEmpty()) {
 			allConnections.put(networkObject, firstSide);
 			joinAll(level, allConnections, fallbackSupplier, power);
 		}
@@ -344,11 +344,13 @@ public class WireUtils {
 	private static void addConnection(Map<BENetworkObject, Direction> connections, Set<Strand> blackList, Level level, BlockPos pos, BENetworkObject networkObject, Direction side, Predicate<BENetworkObject> connection, Set<WireBlock> wires) {
 		connections.put(networkObject, side);
 		boolean power = isPowerWalk(wires);
-		if(!(networkObject instanceof IPassThroughNetworkObject through) || !through.passesThrough(power) || !blackList.add(Strand.device(pos)))
+		if(!(networkObject instanceof IPassThroughNetworkObject through) || !through.passesThrough(power) || !through.passesSide(power, side)
+				|| !blackList.add(Strand.device(pos)))
 			return;
 
-		for(BlockPos checkPos : wireLinksOf(level, pos, wires).keySet())
-			enter(connections, blackList, level, checkPos, null, connection, wires);
+		for(Map.Entry<BlockPos, Direction> link : wireLinksOf(level, pos, wires).entrySet())
+			if(through.passesSide(power, link.getValue())) // Out of the sides it passes only (the antenna switch).
+				enter(connections, blackList, level, link.getKey(), null, connection, wires);
 		// ...and into devices it links to by touching (the next solar panel in a row, the charge controller at its end).
 		for(Direction dir : Direction.values()) {
 			BlockPos checkPos = pos.relative(dir);

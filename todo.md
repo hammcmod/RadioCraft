@@ -5,7 +5,13 @@ listed in [doc/Testing.md](doc/Testing.md#bug-audit-2026-10); each fix has a tes
 
 ## Ongoing cleanup (maintainer, 2026-10-27)
 
-- **Flaky GameTests (seen 2026-10-27 evening, two runs, different tests each time).** `wefaxAsksOverTheAir` and
+- **Flaky GameTests: fixed 2026-10-30** (propagation batches reset the sky with `GameTestDefaults.calmSky`, the weak
+  RTTY test sends three lines, the weak fax test has its own batch with more loss, the H19 boot test waits for both
+  flags). Kept below for the record; watch for new ones.
+  New 2026-10-30: `parrotEchoesVoiceAfterDelay` and `controllerEchoesVoiceAndLightsLeds` heard something on 20m 2 and 5
+  ticks after speaking, once, in the same default sub-batch; the rerun passed. Look for another 20m transmitter in
+  that sub-batch if it comes back.
+  **(seen 2026-10-27 evening, two runs, different tests each time).** `wefaxAsksOverTheAir` and
   `teletypeAsksOverTheAir` failed once: the `ionospheric` batch ran straight after `blackout_night`, whose solar
   blackout (noise 1.0) was still on, so nothing got through on HF. `weakRttyPrintsGarbled` failed once on its own
   randomness ("a weak signal printed perfectly"). Fix: the blackout batches should clear their event in `@AfterBatch`,
@@ -413,10 +419,12 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   waterproof wire the blockstate it never had.
 
 ### Ideas (maintainer, 2026-10-27)
-- [ ] Receive-only antenna splitter: one antenna feeding several receivers (today two radios on one antenna overdraw it)
+- [x] Receive-only antenna splitter (2026-10-30): a coax pass-through block; every radio behind it hears the antenna
+  at 1/sqrt(n) of the signal and none can transmit through it (`AntennaSplitterNetworkObject`, `SplitterGameTests`).
+  Placeholder box (bounty); recipe 4 coax round an iron ingot.
 - [ ] Combined coax-and-wire cable: power and coax run side by side in one block into a radio, split out later
-- [ ] Lightning: being struck breaks a handheld or manpack radio you carry; struck with a manpack switched on does
-  extra damage
+- [x] Lightning (2026-10-30): being struck breaks every handheld and manpack you carry into salvage; a manpack
+  switched on adds `lightning_manpack_extra_damage` (`CarriedRadioStrikes`, server config to switch it off).
 - [ ] Another Weather Mod: ball lightning, a rare event in swamps for players who have not slept
 - [ ] Flooding (some sort: water rising onto stations, shorts, in storms?)
 - [ ] Integration with seasons mods (Serene Seasons etc.): seasonal propagation, solar output, weather
@@ -426,17 +434,23 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   and pull items from it into yours.
 
 ### Ideas (maintainer, 2026-10-30)
-- [ ] WEFAX tornado watch: a forecast product meaning a tornado is possible but unlikely. Needs Another Weather Mod to
-  report the risk ahead of time (its side is in that repo's todo.md).
-- [ ] WEFAX redstone output: 1 for a message, 2 for a severe thunderstorm, 3 for a tornado watch, 4 for a hurricane.
-  The signal comes only when a message is received and the machine has paper to print it on.
+- [x] Antenna switch (2026-10-30): one radio, three antennas (`AntennaSwitchBlock`, the 2026-10-26 model). The input
+  turns to the coax that leads to a radio by itself; right click turns the knob to output 1, 2 or 3; the coax walk
+  passes through it only between the input and that output (`IPassThroughNetworkObject#passesSide`). Recipe: coax
+  round an iron ingot with a lever below. `AntennaSwitchGameTests`.
+- [x] WEFAX tornado watch (2026-10-30): `WeatherSource#tornadoWatch` (Another Weather Mod's watch days); weather
+  reports print "TORNADO WATCH" and today's and tomorrow's day type (`WeatherSource#outlook`, "RAIN LIKELY").
+- [x] WEFAX redstone output (2026-10-30): 1 for a message, 2 for a severe thunderstorm (or supercell, hail, damaging
+  wind), 3 for a tornado or tornado watch, 4 for a hurricane, the highest of what came in. On when a message starts
+  printing (so only with paper), off when the printed sheet is taken (`WefaxReceiverBlockEntity#alertLevel`).
 - [ ] WEFAX weather charts (radar, forecast, surface analysis) at twice the resolution, for more detail and easier
   reading. The solar weather report stays as it is. A vanilla map is 128 x 128 pixels, so 256 x 256 needs our own
   map data and renderer, or four maps tiled together.
-- [ ] Data wire: a light grey 1 px wire connecting radios and accessories that are not next to each other. It goes in
-  wire bundles. Recipe: 3 wire + 6 insulation makes 16. After this, plain wire only carries power and no longer
-  connects devices or speakers; only data wire does. Existing worlds need a plan for wired speakers and devices
-  already joined by plain wire.
+- [x] Data wire (2026-10-30): light grey 1 px wire (`DataWire`, tag `radiocraft:data_blocks`), in bundles too,
+  3 wire + 6 insulation makes 16. It links radios to teletypes, faxes, WEFAX receivers, radio interfaces, the tape
+  player and the Ionospheric Processor, wired speakers to radios, and microwave radios to the stations they serve and
+  their site's other radios; the station bus runs along it. Plain wire only carries power now. Existing worlds: wired
+  speakers and microwave stations on plain wire went quiet and need data wire laid (maintainer accepted, alpha).
 
 ### World & Progression Additions
 - [ ] In-game guide book like the Create mod's (Ponder-style scenes) explaining radios, antennas, power and the

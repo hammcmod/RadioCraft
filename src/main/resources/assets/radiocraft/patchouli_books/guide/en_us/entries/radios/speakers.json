@@ -11,7 +11,7 @@
     {
       "type": "patchouli:text",
       "title": "Wired speakers",
-      "text": "A $(item)wall speaker$() or $(item)loudspeaker$() goes on the radio's $(l:radiocraft:power/wire)power wire$(/l), which doubles as the speaker line, and plays the radio where it stands, static and all. As many as you like can share one radio, and they use no power.$(li)Wall speaker: 80%, a little rough.$(li)Loudspeaker: loud and distorted, heard out to 64 blocks. It has no recipe yet."
+      "text": "A $(item)wall speaker$() or $(item)loudspeaker$() touching the radio, or on its $(l:radiocraft:radios/data_wire)data wire$(/l) (the speaker line), and plays the radio where it stands, static and all. As many as you like can share one radio, and they use no power.$(li)Wall speaker: 80%, a little rough.$(li)Loudspeaker: loud and distorted, heard out to 64 blocks. It has no recipe yet."
     },
     {
       "type": "patchouli:crafting",
