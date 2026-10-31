@@ -145,11 +145,47 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 	}
 
 	/**
-	 * Running: fed by its wire, and with a powered radio to talk to, reached through the station gear (a TNC) or a
-	 * microwave radio serving it. Dark otherwise: nothing boots, nothing shows (maintainer, 2026-10-27).
+	 * Running: with a powered radio to talk to, reached through the station gear (a TNC) or a microwave radio serving
+	 * it, and power: from its own wire, or off the station when it touches it (maintainer, 2026-10-31): against the
+	 * radio interface or other gear that touches a powered radio, or against a powered microwave radio. One cabled to
+	 * its station only by data wire needs a power wire of its own. Dark otherwise: nothing boots, nothing shows.
 	 */
 	public boolean isOn() {
-		return powered && (radioOn || microwaveOn);
+		return (radioOn || microwaveOn) && (powered || stationFed);
+	}
+
+	/** True while it touches its station and draws its power from it (see {@link #isOn()}). */
+	public boolean isStationFed() {
+		return stationFed;
+	}
+
+	private boolean stationFed = false;
+
+	/**
+	 * True if, through station gear touching it and touching one another (no data wire), it reaches a powered radio or
+	 * microwave radio right beside that gear.
+	 */
+	private boolean touchesPoweredRadio() {
+		if(level == null)
+			return false;
+		java.util.Set<BlockPos> seen = new java.util.HashSet<>(java.util.List.of(worldPosition));
+		java.util.ArrayDeque<BlockPos> queue = new java.util.ArrayDeque<>(java.util.List.of(worldPosition));
+		while(!queue.isEmpty() && seen.size() <= 32) {
+			BlockPos at = queue.poll();
+			for(net.minecraft.core.Direction direction : net.minecraft.core.Direction.values()) {
+				BlockPos next = at.relative(direction);
+				if(!level.isLoaded(next) || !seen.add(next))
+					continue;
+				BlockEntity be = level.getBlockEntity(next);
+				if(be instanceof RadioBlockEntity radio && radio.isPowered())
+					return true;
+				if(be instanceof MicrowaveRadioBlockEntity radio && radio.isPowered())
+					return true;
+				if(be instanceof RadioInterfaceBlockEntity || be instanceof StationTerminal)
+					queue.add(next);
+			}
+		}
+		return false;
 	}
 
 	private boolean microwaveOn = false;
@@ -160,11 +196,13 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		if(level != null)
 			for(MicrowaveRadioBlockEntity radio : MicrowaveRadioBlockEntity.servingStation(level, worldPosition))
 				mw |= radio.isPowered();
-		if(now == powered && mw == microwaveOn)
+		boolean fed = touchesPoweredRadio();
+		if(now == powered && mw == microwaveOn && fed == stationFed)
 			return;
 		boolean wasOn = isOn();
 		powered = now;
 		microwaveOn = mw;
+		stationFed = fed;
 		if(isOn() && !wasOn)
 			bootPending = true; // Coming on: the screen boots the next time it is opened.
 		sync();
@@ -336,8 +374,8 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		float frequency = on == null ? 0.0F : on.getFrequency();
 		if(nowOn == radioOn && frequency == radioFrequency)
 			return;
-		if(nowOn && !radioOn && powered) {
-			bootPending = true; // A radio coming on makes it boot (if the wire feeds it; else coming on later does).
+		if(nowOn && !radioOn && (powered || stationFed)) {
+			bootPending = true; // A radio coming on makes it boot (if it has power; else the power coming does).
 			setChanged();
 		}
 		radioOn = nowOn;
@@ -808,6 +846,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		radioOn = tag.getBoolean("radioOn"); // Only in the update tag.
 		powered = tag.getBoolean("powered");
 		microwaveOn = tag.getBoolean("microwaveOn");
+		stationFed = tag.getBoolean("stationFed");
 		radioFrequency = tag.getFloat("radioFrequency");
 		weatherStationDistance = tag.contains("weatherStation") ? tag.getInt("weatherStation") : -1;
 		beacons.clear();
@@ -848,6 +887,7 @@ public class AprsTerminalBlockEntity extends BlockEntity implements MenuProvider
 		tag.putBoolean("radioOn", radioOn);
 		tag.putBoolean("powered", powered);
 		tag.putBoolean("microwaveOn", microwaveOn);
+		tag.putBoolean("stationFed", stationFed);
 		tag.putFloat("radioFrequency", radioFrequency);
 		tag.putInt("weatherStation", weatherStationDistance);
 		return tag;

@@ -471,7 +471,7 @@ public class DebugCommands {
 	}
 
 	/** Makes {@code event} the next one, starting when the current one ends: processors forecast it as they would. */
-	private static int forecastSolar(CommandContext<CommandSourceStack> ctx) {
+	static int forecastSolar(CommandContext<CommandSourceStack> ctx) {
 		String name = StringArgumentType.getString(ctx, "event");
 		com.arrl.radiocraft.common.radio.solar.SolarEvent event = RadiocraftData.SOLAR_EVENTS.getValue(Radiocraft.id(name));
 		if(event == null)
@@ -481,7 +481,7 @@ public class DebugCommands {
 		return send(ctx, List.of("next event " + name + " in " + (upcoming.startGameTime() - ctx.getSource().getLevel().getGameTime()) + " ticks"));
 	}
 
-	private static int solar(CommandContext<CommandSourceStack> ctx) {
+	static int solar(CommandContext<CommandSourceStack> ctx) {
 		ServerLevel level = ctx.getSource().getLevel();
 		SolarEventInstance event = SolarEventManager.getEvent(level);
 		List<String> out = new ArrayList<>();
@@ -512,7 +512,7 @@ public class DebugCommands {
 	}
 
 	/** Starts a fresh spell of the named event ("blackout") in this dimension, for playtesting the weather. */
-	private static int setSolar(CommandContext<CommandSourceStack> ctx) {
+	static int setSolar(CommandContext<CommandSourceStack> ctx) {
 		ServerLevel level = ctx.getSource().getLevel();
 		ResourceLocation id = Radiocraft.id(StringArgumentType.getString(ctx, "event"));
 		if(!RadiocraftData.SOLAR_EVENTS.getKeys().contains(id)) {
@@ -524,7 +524,7 @@ public class DebugCommands {
 	}
 
 	/** Lights an aurora for a day right now, or puts it out (also cancels a forecast one). */
-	private static int aurora(CommandContext<CommandSourceStack> ctx, boolean on) {
+	static int aurora(CommandContext<CommandSourceStack> ctx, boolean on) {
 		ServerLevel level = ctx.getSource().getLevel();
 		if(on)
 			Aurora.schedule(level, level.getGameTime(), 24000);
@@ -534,7 +534,7 @@ public class DebugCommands {
 	}
 
 	/** Opens (for a day) or closes sporadic E in this dimension. */
-	private static int sporadicE(CommandContext<CommandSourceStack> ctx, boolean on) {
+	static int sporadicE(CommandContext<CommandSourceStack> ctx, boolean on) {
 		ServerLevel level = ctx.getSource().getLevel();
 		if(on)
 			com.arrl.radiocraft.common.radio.solar.SporadicE.open(level, 24000);

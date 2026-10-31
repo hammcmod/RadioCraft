@@ -177,13 +177,20 @@ public class TelephoneScreen extends StationPanelScreen<TelephoneMenu> {
 		};
 		text(guiGraphics, "EXT " + phone.getExtension(), x, y, 1.0F, LCD_INK, false);
 		text(guiGraphics, state, x + LCD[2] - 8 - font.width(state) * 0.75F, y + 1, 0.75F, LCD_INK, false);
-		String line = !number.isEmpty() ? number + ((now / 400L) % 2L == 0L ? "_" : "")
+		String cursor = (now / 400L) % 2L == 0L ? "_" : "";
+		// Keying exactly another PABX's master number (and no extension here): which PABX that is.
+		String pabx = number.isEmpty() || settingExtension || phone.getState() != TelephoneBlockEntity.State.IDLE ? null : phone.directoryLabel(number);
+		if(pabx != null) {
+			text(guiGraphics, pabx + cursor, x, y + 13, 0.75F, LCD_INK, false);
+			return;
+		}
+		String line = !number.isEmpty() ? number + cursor
 				: phone.getState() == TelephoneBlockEntity.State.RINGING ? "CALL TO ANSWER"
 				: phone.getStatus().isEmpty() ? (settingExtension ? "KEY NEW NUMBER" : numberLine(phone)) : phone.getStatus();
 		text(guiGraphics, line, x, y + 12, number.isEmpty() ? 0.75F : 1.0F, LCD_INK, false);
 	}
 
-	/** This phone's number from outside its PABX, when that differs from its extension. */
+	/** This phone's number from another PABX (master number and extension), when that differs from its extension. */
 	private static String numberLine(TelephoneBlockEntity phone) {
 		String full = phone.getFullNumber();
 		return full.isEmpty() || full.equals(Integer.toString(phone.getExtension())) ? "" : "NO. " + full;

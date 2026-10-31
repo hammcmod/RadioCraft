@@ -165,7 +165,7 @@ public abstract class RadioScreen<T extends RadioMenu<?>> extends AbstractContai
 
 	/** True while this radio is putting RF out, as far as the client knows: the PTT state synced from the server. */
 	protected boolean isTransmitting() {
-		return menu.blockEntity.isPTTDown();
+		return menu.blockEntity.isPTTDown() || menu.blockEntity.isSendingDataSynced(); // Data going out keys it too.
 	}
 
 

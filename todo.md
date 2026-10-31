@@ -103,7 +103,11 @@ In order. Each step gets GameTests where the server side can be checked; audio s
   repeater transmits, its noise on the input (through the TX cavities) and its carrier (through the RX cavities) leak
   into its receiver. About 1% with a 600 kHz split and a tuned duplexer; a cavity turned onto the other frequency
   deafens it.
-- [ ] Implement antenna analyzer UI and data capture
+- [x] Antenna analyzer readout (2026-10-31, proposal): right click an antenna, its balun, its coax or its radio; it
+  names the antenna, the band it is resonant on (SWR 1.5 or better) or the band it is near and whether it is too short
+  or too long (where its SWR dips, outside the band), or that it needs a tuner, plus the SWR on every band. Fixed the
+  crash on blocks with no antenna (a BlockPos as a chat argument).
+- [ ] Antenna analyzer screen (a swept SWR graph) if chat turns out not to be enough
 - [x] Implement shared antenna behavior hooks so antenna blocks drive propagation (antenna types set SWR, gain, reach)
 - [x] Hook SWR consequences (fire/destruction) into `RadioBlockEntity` (2026-10-23: blown radios, see NeedsTesting)
 - [x] Integrate solar event noise and day/night skip changes so HF radios gain or lose range based on `SolarEventManager` (2026-10-21)
@@ -452,6 +456,17 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   their site's other radios; the station bus runs along it. Plain wire only carries power now. Existing worlds: wired
   speakers and microwave stations on plain wire went quiet and need data wire laid (maintainer accepted, alpha).
 
+### Ideas (maintainer, 2026-10-31)
+- [ ] APRS handheld: a variant of the VHF handheld with a built-in APRS beacon that also receives APRS messages and
+  shows them on its screen. Needs the player's callsign set.
+
+- [x] Weather fax on the air (2026-10-31, maintainer): bulletins go out as real WEFAX audio (`WefaxAudio`: start tone,
+  phasing, the picture as 1500-2300 Hz, stop tone) and print line by line as they arrive, speckle where the radio stops
+  copying; radios show TX while data goes out; WX REPT plays the coast station's tones through the receiver's radio.
+- [x] Blackout keeps local contacts at half range (2026-10-31, maintainer): line of sight copies against
+  `los_solar_noise_share` (0.5) of the solar noise; skip is still dead.
+- [x] `/solarweather` works again (2026-10-31): shows the conditions; `set`, `forecast`, `aurora`, `sporadic_e` for ops.
+
 ### World & Progression Additions
 - [ ] In-game guide book like the Create mod's (Ponder-style scenes) explaining radios, antennas, power and the
   digital interface (maintainer, 2026-10-21)
@@ -524,6 +539,11 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
   - [x] Maintainer's models in (2026-10-27): `telephone_wallmount.json` (drawn lying down, stood up by blockstate x 90)
     and `phone_item.json` (renamed from `phone_Item.json`); the script works out the handset item's display slots
   - [ ] Keep linked radios' chunks loaded? (today a far end in an unloaded chunk drops the link)
+  - [x] Phone PABX numbering like real phone systems (maintainer, 2026-10-31): no "behind" setting; PABXes on one data
+    wire or across microwave links are peers. A local extension wins, else a number starting with a powered PABX's
+    master number rings that extension there. `pabx_master_digits` (3) sets the master length; duplicates on a network
+    are refused. PABX names (10 characters) show on a phone keying the master number ("PABX 603: OFFICE"). Plain
+    settings screen (`PabxScreen`), and JEI keeps off every scaled station panel. `PabxGameTests`, `PabxNumbersTest`.
 - [x] HF manpack (2026-10-26): `HFManpackItem` worn on the chest or Curios back slot, `ManpackRadio` (QRP whip, SSB and
   CW on 10m/20m, re-placed every tick like the VHF handheld), olive panel `ManpackScreen`, handset `ManpackMicItem`,
   battery swapped with a small battery (sneak right click with one in the other hand)

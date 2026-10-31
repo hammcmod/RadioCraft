@@ -1,17 +1,24 @@
 package com.arrl.radiocraft.common.items;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.api.antenna.AntennaTypes;
 import com.arrl.radiocraft.api.antenna.IAntenna;
+import com.arrl.radiocraft.api.benetworks.BENetworkObject;
+import com.arrl.radiocraft.api.capabilities.IBENetworks;
 import com.arrl.radiocraft.api.capabilities.IVHFHandheldCapability;
+import com.arrl.radiocraft.common.be_networks.WireUtils;
+import com.arrl.radiocraft.common.be_networks.network_objects.AntennaNetworkObject;
+import com.arrl.radiocraft.common.be_networks.network_objects.RadioNetworkObject;
 import com.arrl.radiocraft.common.capabilities.RadiocraftCapabilities;
-import com.arrl.radiocraft.common.radio.antenna.AntennaNetwork;
+import com.arrl.radiocraft.common.radio.Band;
+import com.arrl.radiocraft.common.radio.antenna.AntennaAnalysis;
+import com.arrl.radiocraft.common.radio.antenna.StaticAntenna;
+import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
 import com.arrl.radiocraft.common.radio.antenna.networks.AntennaNetworkManager;
 import com.arrl.radiocraft.common.radio.antenna.types.RubberDuckyAntennaType;
-import com.arrl.radiocraft.common.radio.antenna.data.RubberDuckyAntennaData;
-import com.arrl.radiocraft.common.radio.voice.handheld.PlayerRadio;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -20,10 +27,12 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,20 +43,8 @@ public class AntennaAnalyzerItem extends Item {
     }
 
     private static final float FALLBACK_ANALYZER_FREQUENCY_HZ = 146_520_000.0f;
-
-    private Set<IAntenna> getAntennasAt(Level level, BlockPos pos) {
-        Set<IAntenna> allAntennas = new HashSet<IAntenna>();
-        for (Map.Entry<ResourceLocation, AntennaNetwork> entry: AntennaNetworkManager.networks.entrySet()) {
-            for (IAntenna antenna : entry.getValue().allAntennas()) {
-                IAntenna.AntennaPos ap = antenna.getAntennaPos();
-                if (ap == null) continue;
-                if (ap.level() == level && ap.position().equals(pos)) {
-                    allAntennas.add(antenna);
-                }
-            }
-        }
-        return allAntennas;
-    }
+    /** Antennas reported from one click: more than one on a feedline is already a fault (overdraw). */
+    private static final int MAX_REPORTED = 3;
 
     private Set<IAntenna> getPlayerAntennas(Player player) {
         // TODO: This method currently only will get one antenna and that's the antenna known by PlayerRadio.
@@ -61,75 +58,91 @@ public class AntennaAnalyzerItem extends Item {
 
     @Override
     public @NotNull InteractionResult useOn(@NotNull UseOnContext context) {
-        if(context.getLevel().isClientSide()) { return InteractionResult.PASS; }
+        if(context.getLevel().isClientSide()) { return InteractionResult.SUCCESS; }
 
         Player player = context.getPlayer();
+        if(player == null)
+            return InteractionResult.PASS;
 
-        Set<IAntenna> antennas = getAntennasAt(context.getLevel(), context.getClickedPos());
+        List<StaticAntenna<?>> antennas = antennasAt(context.getLevel(), context.getClickedPos());
+        if(antennas == null) {
+            if(hasHandheldRadio(player))
+                reportHandheld(player);
+            else
+                player.displayClientMessage(Component.translatable(Radiocraft.translationKey("message", "antenna_analyzer.nothing")), true);
+            return InteractionResult.CONSUME;
+        }
+        if(antennas.isEmpty()) {
+            player.displayClientMessage(Component.translatable(Radiocraft.translationKey("message", "antenna_analyzer.no_antenna")), true);
+            return InteractionResult.CONSUME;
+        }
+        for(StaticAntenna<?> antenna : antennas.subList(0, Math.min(antennas.size(), MAX_REPORTED)))
+            report(player, antenna);
+        if(antennas.size() > 1)
+            player.sendSystemMessage(Component.translatable(Radiocraft.translationKey("message", "antenna_analyzer.overdraw"), antennas.size()).withStyle(ChatFormatting.YELLOW));
+        return InteractionResult.CONSUME;
+    }
 
-        if (!antennas.isEmpty()) {
-            IAntenna antenna = antennas.iterator().next();
+    /**
+     * The antennas the analyzer reads at {@code pos}: the antenna itself (any block of it, or its balun), every antenna
+     * on a radio's or a coax run's feedline, or null when the block is no part of a station.
+     */
+    private static @Nullable List<StaticAntenna<?>> antennasAt(Level level, BlockPos pos) {
+        BENetworkObject object = IBENetworks.getObject(level, pos);
+        if(object instanceof AntennaNetworkObject feed && feed.getAntenna() != null)
+            return List.of(feed.getAntenna());
+        StaticAntenna<?> direct = AntennaTypes.match(level, pos);
+        if(direct != null)
+            return List.of(direct);
+        if(object instanceof AntennaNetworkObject)
+            return List.of(); // A feed point with nothing on it yet.
+        if(object instanceof RadioNetworkObject radio)
+            return radio.getAntennas().stream().map(AntennaNetworkObject::getAntenna).filter(Objects::nonNull).collect(Collectors.toList());
+        if(WireUtils.hasCoax(level, pos))
+            return WireUtils.getConnections(level, pos, o -> o instanceof AntennaNetworkObject, WireUtils.coaxWires()).keySet().stream()
+                    .map(o -> ((AntennaNetworkObject) o).getAntenna()).filter(Objects::nonNull).collect(Collectors.toList());
+        return null;
+    }
 
-            if (player != null) {
-                player.displayClientMessage(Component.translatable(
-                        Radiocraft.translationKey("message", "antenna_analyzer.network_found"),
-                        antenna.getAntennaPos(), antennas.size()), true);
-                return InteractionResult.CONSUME;
+    private static void report(Player player, StaticAntenna<?> antenna) {
+        AntennaAnalysis.Result result = AntennaAnalysis.analyze(f -> antenna.getSWR((float) f), Band.getDefaults().stream()
+                .map(band -> Band.getBand(band.name())).filter(Objects::nonNull).sorted(Comparator.comparingDouble(Band::minFrequency)).toList());
+        IAntenna.AntennaPos at = antenna.getAntennaPos();
+        player.sendSystemMessage(Component.translatable(Radiocraft.translationKey("message", "antenna_analyzer.header"),
+                AntennaTypes.displayName(antenna.type), at == null ? "?" : formatPos(at.position())).withStyle(ChatFormatting.GOLD));
+        String band = result.best() == null ? "" : result.best().name();
+        String swr = formatSwr(result.bestSwr());
+        String mhz = String.format(Locale.ROOT, "%.3f", result.resonanceHertz() / 1_000_000.0D);
+        String key = switch(result.verdict()) {
+            case RESONANT -> "antenna_analyzer.resonant";
+            case TOO_SHORT -> "antenna_analyzer.too_short";
+            case TOO_LONG -> "antenna_analyzer.too_long";
+            case POOR_MATCH -> "antenna_analyzer.poor_match";
+            case NONE -> "antenna_analyzer.not_resonant";
+        };
+        player.sendSystemMessage(Component.translatable(Radiocraft.translationKey("message", key), band, swr, mhz));
+        String sweep = result.bands().stream().map(b -> b.band().name() + " " + formatSwr(b.swr())).collect(Collectors.joining("  "));
+        player.sendSystemMessage(Component.translatable(Radiocraft.translationKey("message", "antenna_analyzer.sweep"), sweep).withStyle(ChatFormatting.GRAY));
+    }
+
+    private static String formatSwr(double swr) {
+        return !Double.isFinite(swr) || swr >= AntennaAnalysis.USELESS_SWR ? "10+" : String.format(Locale.ROOT, "%.1f", swr);
+    }
+
+    private void reportHandheld(Player player) {
+        Float handheldFrequencyHz = resolveHandheldFrequency(player);
+        float frequencyHz = (handheldFrequencyHz != null && Float.isFinite(handheldFrequencyHz) && handheldFrequencyHz > 0.0f)
+                ? handheldFrequencyHz
+                : FALLBACK_ANALYZER_FREQUENCY_HZ;
+        for(IAntenna antenna : getPlayerAntennas(player)) {
+            if(antenna.getType() instanceof RubberDuckyAntennaType type && antenna.getData() instanceof RubberDuckyAntennaData data) {
+                player.sendSystemMessage(Component.translatable(Radiocraft.translationKey("message", "antenna_analyzer.handheld_with_stats"),
+                        String.format(Locale.ROOT, "%.3f", data.getLength()), String.format(Locale.ROOT, "%.3f", frequencyHz / 1_000_000.0f),
+                        String.format(Locale.ROOT, "%.2f", type.getSWR(data, frequencyHz))));
+                return;
             }
         }
-
-        if(player != null) {
-            Set<IAntenna> playerRadios = getPlayerAntennas(player);
-            if(!playerRadios.isEmpty()) {
-                playerRadios.forEach((it -> {
-                    if (it.getType() instanceof RubberDuckyAntennaType) {
-                        RubberDuckyAntennaType type = (RubberDuckyAntennaType) it.getType();
-                        RubberDuckyAntennaData data = (RubberDuckyAntennaData) it.getData();
-                        // This honestly just prevents us from always saying they have a radio in their inventory. It has mostly no other purpose right now.
-                        boolean hasHandheldRadio = hasHandheldRadio(player);
-                        if (hasHandheldRadio) {
-                            Float handheldFrequencyHz = resolveHandheldFrequency(player);
-                            float frequencyHz = (handheldFrequencyHz != null && Float.isFinite(handheldFrequencyHz) && handheldFrequencyHz > 0.0f)
-                                    ? handheldFrequencyHz
-                                    : FALLBACK_ANALYZER_FREQUENCY_HZ;
-                            String formattedLength = String.format("%.3f", data.getLength());
-                            String formattedFrequencyMhz = String.format("%.3f", frequencyHz / 1_000_000.0f);
-                            String formattedSwr = String.format("%.3f", type.getSWR(data, frequencyHz));
-                            player.sendSystemMessage(Component.translatable(
-                                    Radiocraft.translationKey("message", "antenna_analyzer.handheld_with_stats"),
-                                    formattedLength, formattedFrequencyMhz, formattedSwr));
-                        } else {
-                            player.sendSystemMessage(Component.translatable(
-                                    Radiocraft.translationKey("message", "antenna_analyzer.no_handheld")));
-                        }
-                    } else {
-                        // This should never happen, but hey!
-                        boolean hasHandheldRadio = hasHandheldRadio(player);
-                        if (hasHandheldRadio) {
-                            player.sendSystemMessage(Component.translatable(
-                                    Radiocraft.translationKey("message", "antenna_analyzer.unknown_handheld_antenna")));
-                        } else {
-                            player.sendSystemMessage(Component.translatable(
-                                    Radiocraft.translationKey("message", "antenna_analyzer.no_handheld")));
-                        }
-                    }
-                }));
-                return InteractionResult.CONSUME;
-            } else {
-                player.displayClientMessage(Component.translatable(
-                        Radiocraft.translationKey("message", "antenna_analyzer.no_networks_at"),
-                        context.getClickedPos()), true);
-                if (Radiocraft.IS_DEVELOPMENT_ENV) {
-                    Set<IAntenna> allAntennasExceptPlayer = AntennaNetworkManager.getAllAntennas().stream().filter((it) -> !(it instanceof PlayerRadio)).collect(Collectors.toSet());
-                    player.sendSystemMessage(Component.translatable(
-                            Radiocraft.translationKey("message", "antenna_analyzer.development_summary"),
-                            allAntennasExceptPlayer.size(),
-                            String.join(" ", allAntennasExceptPlayer.stream().map(Object::toString).toList())));
-                }
-            }
-        }
-
-        return InteractionResult.PASS;
+        player.sendSystemMessage(Component.translatable(Radiocraft.translationKey("message", "antenna_analyzer.unknown_handheld_antenna")));
     }
 
     @Override
@@ -141,6 +154,11 @@ public class AntennaAnalyzerItem extends Item {
     public void appendHoverText(@NotNull ItemStack stack, @NotNull TooltipContext context, @NotNull List<Component> tooltipComponents, @NotNull TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
         tooltipComponents.add(Component.translatable(Radiocraft.translationKey("tooltip", "antenna_analyzer")));
+    }
+
+    /** Chat arguments must be text or numbers: a {@link BlockPos} there throws when the message is built. */
+    private static String formatPos(BlockPos pos) {
+        return pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
     }
 
     private boolean hasHandheldRadio(Player player) {

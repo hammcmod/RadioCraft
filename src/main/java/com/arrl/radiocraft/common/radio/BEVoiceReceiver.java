@@ -146,9 +146,22 @@ public class BEVoiceReceiver implements IVoiceReceiver {
 			return;
 		}
 
-		ServerLevel voiceLevel = RadiocraftVoicePlugin.API.fromServerLevel(antennaPacket.getLevel());
-		VoiceMix.Signal signal = new VoiceMix.Signal(VoiceMix.key(antennaPacket.getSourcePlayer(), antennaPacket.getSource()),
-				antennaPacket.getSourcePlayer(), antennaPacket.getRawAudio(), level, rasp, pitchShiftHz, splatter, qrm, fmSignal);
+		play(antennaPacket.getLevel(), new VoiceMix.Signal(VoiceMix.key(antennaPacket.getSourcePlayer(), antennaPacket.getSource()),
+				antennaPacket.getSourcePlayer(), antennaPacket.getRawAudio(), level, rasp, pitchShiftHz, splatter, qrm, fmSignal));
+	}
+
+	/**
+	 * Plays audio from a station that is not in the world (the weather fax coast station), keyed by {@code source},
+	 * at output {@code level}.
+	 */
+	public void receive(net.minecraft.server.level.ServerLevel mcLevel, Object source, short[] pcm, double level) {
+		if(!isReceiving || RadiocraftVoicePlugin.API == null)
+			return;
+		play(mcLevel, new VoiceMix.Signal(VoiceMix.key(null, source), null, pcm, level, 0.0D, 0.0D, 0.0D, 0.0D, -1.0D));
+	}
+
+	private void play(net.minecraft.server.level.ServerLevel mcLevel, VoiceMix.Signal signal) {
+		ServerLevel voiceLevel = RadiocraftVoicePlugin.API.fromServerLevel(mcLevel);
 		RadioVoiceProcessor.Settings settings = RadioVoiceProcessor.currentSettings();
 		List<WiredSpeaker> wired = wiredSpeakers;
 		long now = System.nanoTime();

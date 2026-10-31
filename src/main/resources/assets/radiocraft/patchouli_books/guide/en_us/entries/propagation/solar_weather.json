@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The sun changes from day to day: $(thing)great, good, average, fair, poor$() or a $(thing)blackout$(). Each condition rates every HF band good, fair, poor or closed, by day and by night, and sets the static level. In a blackout HF is dead.$(br2)An $(l:radiocraft:sky/ionosphere)Ionospheric Processor$(/l) measures it and answers a teletype's or WEFAX's SOLAR WX; a comparator on the processor reads 1 (blackout) to 6 (great)."
+      "text": "The sun changes from day to day: $(thing)great, good, average, fair, poor$() or a $(thing)blackout$(). Each condition rates every HF band good, fair, poor or closed, by day and by night, and sets the static level. In a blackout HF skip is dead and the static roars; stations close by still hear each other, at about half their usual range.$(br2)An $(l:radiocraft:sky/ionosphere)Ionospheric Processor$(/l) measures it and answers a teletype's or WEFAX's SOLAR WX; a comparator on the processor reads 1 (blackout) to 6 (great)."
     },
     {
       "type": "patchouli:text",

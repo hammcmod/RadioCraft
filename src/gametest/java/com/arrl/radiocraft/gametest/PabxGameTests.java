@@ -18,9 +18,11 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 /**
  * The phone PABX (2026-10-30): every phone needs one. Phones wired to a powered PABX call each other by extension,
- * numbered from its first extension; a PABX behind another is reached by its master number then the extension, and
- * calls out through the one above. Without a PABX, with it unpowered, or on a microwave radio alone, a phone has no
- * line. Calls between PABXes across a microwave link are in {@link MicrowaveGameTests}.
+ * numbered from its first extension. PABXes on one data wire are peers (2026-10-31): a number that is no extension
+ * here but starts with another's master number rings that extension there; a local extension wins. Master numbers
+ * are exactly {@code pabx_master_digits} long (or none) and unique on a network. Without a PABX, with it unpowered, or
+ * on a microwave radio alone, a phone has no line. Calls between PABXes across a microwave link are in
+ * {@link MicrowaveGameTests}.
  */
 @GameTestHolder(Radiocraft.MOD_ID)
 @PrefixGameTestTemplate(false)
@@ -49,9 +51,29 @@ public class PabxGameTests {
 		if(exchange != null)
 			helper.setBlock(PABX, exchange);
 		helper.setBlock(PHONE_A, RadiocraftBlocks.TELEPHONE.get());
+		helper.setBlock(PHONE_B, RadiocraftBlocks.TELEPHONE.get()); // Before the wire, so the wire is laid onto it.
 		for(int i = 1; i < 4; i++)
 			GameTestUtil.placeWire(helper, PABX.south(i), RadiocraftBlocks.DATA_WIRE.get());
-		helper.setBlock(PHONE_B, RadiocraftBlocks.TELEPHONE.get());
+	}
+
+	/** Why a phone has no extension yet, for a failure message. */
+	private static String why(GameTestHelper helper, BlockPos pos) {
+		TelephoneBlockEntity phone = phone(helper, pos);
+		PabxBlockEntity pabx = phone.pabx();
+		return pabx == null ? "it has no PABX" : "its PABX " + (pabx.isPowered() ? "is up" : "has no power") + " and "
+				+ (pabx.phones().contains(phone) ? "serves it" : "does not serve it");
+	}
+
+	/** Two PABXes on one data wire: {@link #FRONT} with a phone north of it, {@link #BACK} four blocks east with one north of it. */
+	private static final BlockPos FRONT = PABX, BACK = PABX.east(4), FRONT_PHONE = FRONT.north(), BACK_PHONE = BACK.north();
+
+	private static void buildPair(GameTestHelper helper) {
+		helper.setBlock(FRONT, RadiocraftBlocks.PABX.get());
+		helper.setBlock(BACK, RadiocraftBlocks.PABX.get());
+		helper.setBlock(FRONT_PHONE, RadiocraftBlocks.TELEPHONE.get());
+		helper.setBlock(BACK_PHONE, RadiocraftBlocks.TELEPHONE.get());
+		for(int i = 1; i < 4; i++)
+			GameTestUtil.placeWire(helper, FRONT.east(i), RadiocraftBlocks.DATA_WIRE.get());
 	}
 
 	/** A phone touching the PABX rings one on its data wire; the PABX gave them 100 and 101, and its lamp is lit. */
@@ -62,7 +84,8 @@ public class PabxGameTests {
 				.thenWaitUntil(() -> {
 					helper.assertTrue(pabx(helper, PABX).isPowered(), "the PABX is not up");
 					int a = phone(helper, PHONE_A).getExtension(), b = phone(helper, PHONE_B).getExtension();
-					helper.assertTrue(Math.min(a, b) == 100 && Math.max(a, b) == 101, "extensions " + a + " and " + b);
+					helper.assertTrue(Math.min(a, b) == 100 && Math.max(a, b) == 101, "extensions " + a + " and " + b
+							+ "; A: " + why(helper, PHONE_A) + "; B: " + why(helper, PHONE_B));
 				})
 				.thenExecute(() -> {
 					helper.assertTrue(helper.getBlockState(PABX).getValue(PabxBlock.LIT), "the lamp is off");
@@ -115,36 +138,94 @@ public class PabxGameTests {
 	}
 
 	/**
-	 * A PABX behind another (touching it), master number 7: from the front PABX's phone, 7 and the extension rings the
-	 * phone behind; from behind, the front phone's bare extension rings it, through the PABX above.
+	 * Two PABXes on one data wire, 602 and 603 (named OFFICE, first extension 300): a bare extension of the other
+	 * PABX rings nothing, its master number and the extension rings it, both ways. A phone keying 603 is shown
+	 * "PABX 603: OFFICE", and its own number from elsewhere is its master number and extension.
 	 */
-	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 200)
-	public static void pabxBehindAnother(GameTestHelper helper) {
-		BlockPos front = PABX, back = PABX.east(), frontPhone = PABX.west(), backPhone = back.east();
-		helper.setBlock(front, RadiocraftBlocks.PABX.get());
-		helper.setBlock(back, RadiocraftBlocks.PABX.get());
-		helper.setBlock(frontPhone, RadiocraftBlocks.TELEPHONE.get());
-		helper.setBlock(backPhone, RadiocraftBlocks.TELEPHONE.get());
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
+	public static void wiredPabxesCallByMasterNumber(GameTestHelper helper) {
+		buildPair(helper);
 		helper.startSequence()
 				.thenExecute(() -> {
-					pabx(helper, front).setMaster("602");
-					pabx(helper, back).setMaster("7");
-					pabx(helper, back).setBehind(true);
-					pabx(helper, back).setFirstExtension(300);
+					helper.assertTrue(pabx(helper, FRONT).setMaster("602") == null, "602 refused");
+					helper.assertTrue(pabx(helper, BACK).save("603", "300", "office"), "the back PABX did not save: " + pabx(helper, BACK).getStatusKey());
 				})
-				.thenWaitUntil(() -> helper.assertTrue(phone(helper, frontPhone).getExtension() == 100 && phone(helper, backPhone).getExtension() == 300,
-						"extensions " + phone(helper, frontPhone).getExtension() + " and " + phone(helper, backPhone).getExtension()))
+				.thenWaitUntil(() -> helper.assertTrue(phone(helper, FRONT_PHONE).getExtension() == 100 && phone(helper, BACK_PHONE).getExtension() == 300,
+						"extensions " + phone(helper, FRONT_PHONE).getExtension() + " and " + phone(helper, BACK_PHONE).getExtension()))
 				.thenExecute(() -> {
-					helper.assertTrue(pabx(helper, back).parent() == pabx(helper, front), "the back PABX is not behind the front one");
-					helper.assertTrue(pabx(helper, back).fullPrefix().equals("6027"), "full number " + pabx(helper, back).fullPrefix());
-					phone(helper, frontPhone).dial("300");
-					helper.assertTrue(phone(helper, backPhone).getState() == TelephoneBlockEntity.State.IDLE, "a bare extension behind another PABX rang");
-					phone(helper, frontPhone).dial("7300");
-					helper.assertTrue(phone(helper, backPhone).getState() == TelephoneBlockEntity.State.RINGING, "7300 did not ring: " + phone(helper, frontPhone).getStatus());
-					phone(helper, frontPhone).hangUp();
-					phone(helper, backPhone).dial("100");
-					helper.assertTrue(phone(helper, frontPhone).getState() == TelephoneBlockEntity.State.RINGING, "100 from behind did not ring: " + phone(helper, backPhone).getStatus());
-					phone(helper, backPhone).hangUp();
+					helper.assertTrue(pabx(helper, BACK).getName().equals("OFFICE"), "name " + pabx(helper, BACK).getName());
+					TelephoneBlockEntity front = phone(helper, FRONT_PHONE), back = phone(helper, BACK_PHONE);
+					front.dial("300");
+					helper.assertTrue(back.getState() == TelephoneBlockEntity.State.IDLE, "another PABX's bare extension rang");
+					helper.assertTrue(front.getStatus().contains("NOT FOUND"), "status " + front.getStatus());
+					front.dial("603300");
+					helper.assertTrue(back.getState() == TelephoneBlockEntity.State.RINGING, "603300 did not ring: " + front.getStatus());
+					helper.assertTrue(back.getPartnerNumber().equals("602100"), "the caller shows as " + back.getPartnerNumber());
+					front.hangUp();
+					back.dial("602100");
+					helper.assertTrue(front.getState() == TelephoneBlockEntity.State.RINGING, "602100 did not ring: " + back.getStatus());
+					back.hangUp();
+				})
+				.thenWaitUntil(() -> helper.assertTrue("PABX 603: OFFICE".equals(phone(helper, FRONT_PHONE).directoryLabel("603")),
+						"keying 603 shows " + phone(helper, FRONT_PHONE).directoryLabel("603")))
+				.thenExecute(() -> {
+					helper.assertTrue(phone(helper, FRONT_PHONE).directoryLabel("60") == null, "a part of a master number named a PABX");
+					helper.assertTrue(phone(helper, BACK_PHONE).getFullNumber().equals("603300"), "the back phone's number is " + phone(helper, BACK_PHONE).getFullNumber());
+				})
+				.thenSucceed();
+	}
+
+	/**
+	 * A number that is an extension here rings it, even when it also reads as another PABX's master number and an
+	 * extension there: 602's phones are 60330 and 60331, 603's is 30, and 60330 dialed at 602 rings 602's own phone.
+	 */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300)
+	public static void localExtensionWins(GameTestHelper helper) {
+		buildPair(helper);
+		BlockPos second = FRONT.west();
+		helper.setBlock(second, RadiocraftBlocks.TELEPHONE.get());
+		helper.startSequence()
+				.thenExecute(() -> {
+					helper.assertTrue(pabx(helper, FRONT).save("602", "60330", ""), "the front PABX did not save");
+					helper.assertTrue(pabx(helper, BACK).save("603", "30", ""), "the back PABX did not save");
+				})
+				.thenWaitUntil(() -> {
+					int a = phone(helper, FRONT_PHONE).getExtension(), b = phone(helper, second).getExtension(), c = phone(helper, BACK_PHONE).getExtension();
+					helper.assertTrue(Math.min(a, b) == 60330 && Math.max(a, b) == 60331 && c == 30, "extensions " + a + ", " + b + " and " + c);
+				})
+				.thenExecute(() -> {
+					BlockPos called = phone(helper, FRONT_PHONE).getExtension() == 60330 ? FRONT_PHONE : second;
+					BlockPos caller = called == FRONT_PHONE ? second : FRONT_PHONE;
+					phone(helper, caller).dial("60330");
+					helper.assertTrue(phone(helper, called).getState() == TelephoneBlockEntity.State.RINGING, "the local extension did not ring: " + phone(helper, caller).getStatus());
+					helper.assertTrue(phone(helper, BACK_PHONE).getState() == TelephoneBlockEntity.State.IDLE, "603's extension 30 rang instead");
+					phone(helper, caller).hangUp();
+				})
+				.thenSucceed();
+	}
+
+	/**
+	 * Master numbers are exactly pabx_master_digits (3) long or empty, and no two PABXes on one network share one: a
+	 * refused save changes nothing and says why. Names are cleaned to ten upper-case letters, digits, spaces and dashes.
+	 */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 100)
+	public static void masterNumberRules(GameTestHelper helper) {
+		buildPair(helper);
+		helper.startSequence()
+				.thenIdle(5)
+				.thenExecute(() -> {
+					PabxBlockEntity front = pabx(helper, FRONT), back = pabx(helper, BACK);
+					helper.assertTrue("screen.radiocraft.pabx.master_length".equals(front.setMaster("60")), "a two-digit master number was taken");
+					helper.assertTrue("screen.radiocraft.pabx.master_length".equals(front.setMaster("6021")), "a four-digit master number was taken");
+					helper.assertTrue("screen.radiocraft.pabx.master_length".equals(front.setMaster("6a2")), "letters were taken");
+					helper.assertTrue(front.setMaster("602") == null && front.getMaster().equals("602"), "602 was refused");
+					helper.assertTrue("screen.radiocraft.pabx.master_taken".equals(back.setMaster("602")), "a master number on the same wire was taken twice");
+					helper.assertFalse(back.save("602", "200", "x"), "saving a taken master number succeeded");
+					helper.assertTrue(back.getStatusKey().equals("screen.radiocraft.pabx.master_taken"), "status " + back.getStatusKey());
+					helper.assertTrue(back.getMaster().isEmpty() && back.getFirstExtension() == 100 && back.getName().isEmpty(), "a refused save changed settings");
+					helper.assertTrue(back.save("", "200", "off ice-1!x"), "an empty master number was refused");
+					helper.assertTrue(back.getName().equals("OFF ICE-1X"), "name " + back.getName());
+					helper.assertTrue(front.setMaster("") == null && front.getMaster().isEmpty(), "clearing the master number was refused");
 				})
 				.thenSucceed();
 	}

@@ -335,8 +335,27 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         return sendingData != null || !dataQueue.isEmpty();
     }
 
+    /** The client's copy of {@link #isSendingData()}, for the TX lamp. */
+    private boolean syncedSendingData = false;
+
+    /** True while data is going out, as last synced to the client: the TX lamp lights for it. */
+    public boolean isSendingDataSynced() {
+        return syncedSendingData;
+    }
+
     /** Plays the packet in hand out frame by frame (2.5 frames of 20 ms per tick) and sends it once the tones are done. */
     private void tickData(ServerLevel serverLevel, boolean powered) {
+        tickDataFrames(serverLevel, powered);
+        if(isSendingData() != syncedSendingData) {
+            syncedSendingData = isSendingData();
+            updateBlock();
+        }
+    }
+
+    /** The frame at which a bulletin's packet goes out (the end of its start tone), -1 once sent or for other packets. */
+    private int dataHeaderAt = -1;
+
+    private void tickDataFrames(ServerLevel serverLevel, boolean powered) {
         if(!powered) {
             dataQueue.clear();
             sendingData = null;
@@ -346,6 +365,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             sendingData = dataQueue.poll();
             if(sendingData == null)
                 return;
+            dataHeaderAt = -1;
             if(sendingData.kind() == TncPacket.Kind.RTTY) // Straight on from the last characters, or a lead-in after a pause.
                 dataFrames = Rtty.frames(sendingData.text(), serverLevel.getGameTime() - lastRttyGameTime > 2, rttyPhase);
             else if(sendingData.kind() == TncPacket.Kind.FILE) {
@@ -354,8 +374,14 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             }
             else if(sendingData.isFax())
                 dataFrames = com.arrl.radiocraft.common.radio.voice.FaxAudio.frames(sendingData);
-            else if(sendingData.kind() == TncPacket.Kind.SOLAR) // A bulletin is a fax sheet: the picture tones, for as long as the server says.
-                dataFrames = com.arrl.radiocraft.common.radio.voice.FaxAudio.data(RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.get() * 20, sendingData.id());
+            else if(sendingData.kind() == TncPacket.Kind.SOLAR) {
+                // A bulletin is a weather fax sheet: the picture's tones, for as long as the server says. Receivers
+                // learn of it as it starts and print it line by line as the tones come in.
+                dataFrames = com.arrl.radiocraft.common.radio.voice.WefaxAudio.frames(
+                        com.arrl.radiocraft.common.radio.wefax.WefaxPrints.bulletinPixels(sendingData.from(), sendingData.solarLines()),
+                        com.arrl.radiocraft.common.radio.wefax.WefaxChart.SIZE, RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.get() * 20);
+                dataHeaderAt = (int)(dataFrames.size() * com.arrl.radiocraft.common.radio.voice.WefaxAudio.START_SHARE);
+            }
             else
                 dataFrames = Afsk.burst(sendingData.airBytes(), sendingData.id());
             dataFrame = 0;
@@ -367,10 +393,15 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             transmitVoice(() -> serverLevel, dataFrames.get(dataFrame++), getTunedFrequency(), dataVoiceId, 0.0F);
             recordTransmit();
         }
+        if(dataHeaderAt >= 0 && dataFrame >= dataHeaderAt) { // The start tone is done: receivers lock on and start printing.
+            dataHeaderAt = -1;
+            transmitData(serverLevel, sendingData);
+        }
         if(dataFrame >= dataFrames.size()) {
             if(sendingData.kind() == TncPacket.Kind.RTTY)
                 lastRttyGameTime = serverLevel.getGameTime();
-            transmitData(serverLevel, sendingData);
+            if(sendingData.kind() != TncPacket.Kind.SOLAR) // A bulletin went out as it started.
+                transmitData(serverLevel, sendingData);
             sendingData = null;
         }
     }
@@ -411,9 +442,11 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(!effect.audible() || effect.pitchShiftHz() != 0.0D || effect.splatter() > 0.0D)
             return false;
         double strength = packet.getStrength() * effect.strength();
-        if(isSkipPath(packet))
+        boolean skip = isSkipPath(packet);
+        if(skip)
             strength *= ReceiverMix.fading(level.getGameTime() / 20.0D, pathSeed(packet), RadiocraftServerConfig.SKIP_FADING_DEPTH.get());
-        double quality = strength / copyThreshold(getNoiseFloor());
+        double noise = getNoiseFloor(skip);
+        double quality = strength / copyThreshold(noise);
         TncPacket payload = packet.getPayload();
         if(payload.kind() == TncPacket.Kind.RTTY) {
             double collision = rttyCollision(payload.from(), strength, level.getGameTime());
@@ -424,10 +457,10 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         }
         if(payload.kind() == TncPacket.Kind.RTTY && quality >= RTTY_GARBLE_FLOOR && quality < 1.0D)
             payload = payload.withText(Rtty.garble(payload.text(), (1.0D - quality) / (1.0D - RTTY_GARBLE_FLOOR), new java.util.Random(level.getRandom().nextLong())));
-        else if(!decodes(strength, getNoiseFloor()))
+        else if(!decodes(strength, noise))
             return false;
         if((payload.kind() == TncPacket.Kind.FAX_PACKET || payload.kind() == TncPacket.Kind.FAX_ACK) // A weak signal drops fax packets now and then: they are sent again.
-                && level.getRandom().nextDouble() < com.arrl.radiocraft.common.radio.data.FaxRates.lossChance(strength, getNoiseFloor()))
+                && level.getRandom().nextDouble() < com.arrl.radiocraft.common.radio.data.FaxRates.lossChance(strength, noise))
             return false;
         recordSignal(strength);
         for(RadioInterfaceBlockEntity radioInterface : getRadioInterfaces())
@@ -443,7 +476,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             else if(level.getBlockEntity(at) instanceof com.arrl.radiocraft.common.blockentities.RadioFaxBlockEntity fax && fed.add(fax))
                 fax.receive(payload);
             else if(level.getBlockEntity(at) instanceof com.arrl.radiocraft.common.blockentities.WefaxReceiverBlockEntity wefax && fed.add(wefax))
-                wefax.receive(payload); // Solar bulletins from an Ionospheric Processor.
+                wefax.receiveOverAir(payload); // Solar bulletins from an Ionospheric Processor.
             else {
                 com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity processor = com.arrl.radiocraft.common.blockentities.IonosphericProcessorBlockEntity.at(level, at);
                 if(processor != null && fed.add(processor))
@@ -997,8 +1030,6 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * @return True if the radio was listening and the packet is heard.
      */
     public boolean receiveVoice(AntennaVoicePacket packet) {
-        if(!isListening())
-            return false;
         Detuning.Effect effect = getDetuning(packet.getFrequency());
         if(effect.isNone())
             return false;
@@ -1006,6 +1037,12 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         double strength = packet.getStrength();
         if(skip && level != null) // Skip signals swell and fade (QSB); line of sight holds steady.
             strength *= ReceiverMix.fading(level.getGameTime() / 20.0D, pathSeed(packet), RadiocraftServerConfig.SKIP_FADING_DEPTH.get());
+        // A modem beside the radio copies the tones whatever mode the radio's speaker is in, as packets decode.
+        if(level != null && isPowered() && effect.audible() && effect.pitchShiftHz() == 0.0D && effect.splatter() <= 0.0D
+                && decodes(strength * effect.strength(), getNoiseFloor(skip)))
+            lastCopyGameTime = level.getGameTime();
+        if(!isListening())
+            return false;
         if(!effect.audible()) { // The squelch stays shut; the splatter waits for a signal on frequency.
             adjacentQrm = effect.qrm() * strength;
             adjacentQrmGameTime = level == null ? 0L : level.getGameTime();
@@ -1019,7 +1056,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
             parrotVoiceQueue.add(new QueuedVoice(packet.getRawAudio().clone(), packet.getSourcePlayer(), lastSignalGameTime + parrotDelayTicks));
         double rasp = skip && band != null && band.isVhf() ? 1.0D : 0.0D; // A VHF signal beyond line of sight came off the aurora.
         // FM holds its volume as the signal fades and gets noisier instead; SSB sinks into the noise.
-        double level = isFM() ? speakerGain : ReceiverMix.voiceLevel(strength, getNoiseFloor()) * speakerGain;
+        double level = isFM() ? speakerGain : ReceiverMix.voiceLevel(strength, getNoiseFloor(skip)) * speakerGain;
         getVoiceReceiver().receive(packet, level, rasp, effect.pitchShiftHz(), effect.splatter(),
                 Detuning.splatterOn(1.0D, getAdjacentQrm(), strength), isFM() ? strength : -1.0D);
         return true;
@@ -1086,12 +1123,25 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      * plays the same sum as static ({@link com.arrl.radiocraft.common.sounds.RadioStaticSoundInstance}).
      */
     public double getNoiseFloor() {
+        return getNoiseFloor(1.0D);
+    }
+
+    /**
+     * The noise a signal over this path is copied against: a skip signal against the whole noise floor, a line of
+     * sight one against only {@link RadiocraftServerConfig#LOS_SOLAR_NOISE_SHARE} of the solar part (in a blackout the
+     * sky noise is mostly what the dead ionosphere would have carried, and local ground wave still gets through).
+     */
+    public double getNoiseFloor(boolean skip) {
+        return getNoiseFloor(skip ? 1.0D : RadiocraftServerConfig.LOS_SOLAR_NOISE_SHARE.get());
+    }
+
+    private double getNoiseFloor(double solarShare) {
         if(level == null)
             return 0.0D;
         if(band != null && band.isVhf())
             return getCrystalEffect().applyNoise(RadiocraftServerConfig.VHF_NOISE_FLOOR.get());
         SolarEventInstance event = SolarEventManager.getEvent(level);
-        double noise = (event == null ? 0.0D : event.getEvent().getNoise()) + getInterference();
+        double noise = (event == null ? 0.0D : event.getEvent().getNoise()) * solarShare + getInterference();
         if(Aurora.affects(level, worldPosition))
             noise += RadiocraftServerConfig.AURORA_STATIC.get();
         return getCrystalEffect().applyNoise(Math.min(1.0D, noise));
@@ -1152,6 +1202,30 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
     protected void recordSignal(double strength) {
         lastSignalStrength = strength;
         lastSignalGameTime = level == null ? 0L : level.getGameTime();
+    }
+
+    /** When a signal last came in strong enough over the noise for a modem to copy it, -1 for never. Server side. */
+    private volatile long lastCopyGameTime = -1L;
+
+    /**
+     * True if a signal strong enough for a modem to copy reached the radio within the last few ticks: a weather fax
+     * printing from it prints clean lines, and speckle while it is not.
+     */
+    public boolean isCopying(long gameTime) {
+        return lastCopyGameTime >= 0 && gameTime - lastCopyGameTime <= 3;
+    }
+
+    /**
+     * Plays a frame from a station that is not in the world (the weather fax coast station) through the radio's
+     * speaker at {@code strength}, lighting its receive lamp, as if it had come in off the antenna. Server side.
+     */
+    public void playBroadcast(Object source, short[] frame, double strength) {
+        if(!(level instanceof ServerLevel serverLevel) || !isPowered() || !isListening())
+            return;
+        recordSignal(strength);
+        lastCopyGameTime = serverLevel.getGameTime();
+        double out = isFM() ? speakerGain : ReceiverMix.voiceLevel(strength, getNoiseFloor(false)) * speakerGain;
+        getVoiceReceiver().receive(serverLevel, source, frame, out);
     }
 
     /** Strength (0-1) of the last voice or CW signal this radio received, 0 if it never received one. */
@@ -1393,6 +1467,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         }
         nbt.putBoolean("wasPowered", wasPowered);
         nbt.putBoolean("pttDown", isPTTDown);
+        nbt.putBoolean("sendingData", syncedSendingData);
         nbt.putDouble("signal", syncedSignal);
         List<BEVoiceReceiver.WiredSpeaker> wired = voiceReceiver.getWiredSpeakers();
         nbt.putLongArray("wiredSpeakers", wired.stream().mapToLong(speaker -> speaker.pos().asLong()).toArray());
@@ -1422,6 +1497,7 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         micId = nbt.hasUUID("micId") ? nbt.getUUID("micId") : null;
         wasPowered = nbt.getBoolean("wasPowered");
         isPTTDown = nbt.getBoolean("pttDown");
+        syncedSendingData = nbt.getBoolean("sendingData");
         syncedSignal = nbt.getDouble("signal");
         if(nbt.contains("wiredSpeakers")) {
             long[] positions = nbt.getLongArray("wiredSpeakers");

@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(thing)SWR$() measures how well the antenna suits the radio's frequency. 1.0 is perfect; the higher it is, the more power bounces back into the radio instead of being radiated.$(br2)See it in Jade, on the $(l:radiocraft:antennas/tuners)antenna tuner$(/l), or with the $(item)antenna analyzer$()."
+      "text": "$(thing)SWR$() measures how well the antenna suits the radio's frequency. 1.0 is perfect; the higher it is, the more power bounces back into the radio instead of being radiated.$(br2)See it in Jade, on the $(l:radiocraft:antennas/tuners)antenna tuner$(/l), or with the $(item)antenna analyzer$(): right click an antenna, its balun, its coax or its radio and it names the band the antenna is resonant on, or the band it is near and whether it is too short or too long, with its SWR on every band."
     },
     {
       "type": "patchouli:text",

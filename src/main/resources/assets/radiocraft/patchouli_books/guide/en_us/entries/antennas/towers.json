@@ -11,11 +11,29 @@
     {
       "type": "patchouli:text",
       "title": "Tower beams",
-      "text": "Thin, normal and thick $(item)tower beams$() join every beam they touch, edges and corners included, to make lattice towers. They cannot be crafted yet."
+      "text": "Thin, normal and thick $(item)tower beams$() join every beam they touch, edges and corners included, to make lattice towers. Coax can run up them."
     },
     {
       "type": "patchouli:crafting",
       "recipe": "radiocraft:tower_foothold"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:tower_beam_thin",
+      "recipe2": "radiocraft:tower_beam"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:tower_beam_thick"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tower lights",
+      "text": "A $(item)tower beacon$() is the red obstruction light on top of a tower. It lights while it has a redstone signal, a little brighter than a redstone torch, and goes out at once.$(br2)Towers you find carry a $(item)tower beacon controller$(): a thin beam that flashes the lights beside it, two seconds on and two off, all in step. It cannot be crafted; a redstone clock does the same job."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "radiocraft:tower_beacon"
     }
   ]
 }

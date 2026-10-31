@@ -1,6 +1,7 @@
 package com.arrl.radiocraft.common.blockentities;
 
 import com.arrl.radiocraft.Radiocraft;
+import com.arrl.radiocraft.RadiocraftServerConfig;
 import com.arrl.radiocraft.api.benetworks.BENetworkObject;
 import com.arrl.radiocraft.api.benetworks.INetworkObjectProvider;
 import com.arrl.radiocraft.common.be_networks.DataWire;
@@ -9,6 +10,7 @@ import com.arrl.radiocraft.common.blocks.PabxBlock;
 import com.arrl.radiocraft.common.init.RadiocraftBlockEntities;
 import com.arrl.radiocraft.common.menus.PabxMenu;
 import com.arrl.radiocraft.common.radio.microwave.MicrowaveRoutes;
+import com.arrl.radiocraft.common.telephone.PabxNumbers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -30,8 +32,8 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,26 +42,32 @@ import java.util.Set;
  * A phone PABX: every telephone needs one (maintainer, 2026-10-30). The phones it serves (touching it, or on its data
  * wire; a phone joins the nearest PABX) call each other by extension, numbered from {@link #getFirstExtension()}.
  * <p>
- * A PABX is reached from outside by its {@linkplain #getMaster() master number}. Exchanges on a microwave link (the
- * PABX touching a microwave radio, or on its data wire) call each other by master number then extension: from 602's
- * phones, "603100" rings extension 100 on PABX 603. A PABX set {@linkplain #isBehind() behind} hangs off
- * another PABX it is wired to, as one of its lines: its master number works like an extension there, so from outside
- * 602, then 7 (the PABX behind), then 100. A dialed number is looked for at the caller's PABX, then each one above it,
- * then (from the top) at every exchange across the microwave link. It needs power ({@link PabxNetworkObject}); with
- * none, its phones (and those behind it) have no line.
+ * PABXes linked to each other, by data wire (or touching) or across microwave links, however many steps away, are one
+ * phone network of equals (2026-10-31). A number dialed is an extension on the caller's own PABX if it has one;
+ * otherwise, if it starts with the {@linkplain #getMaster() master number} of a powered PABX on the network, the rest
+ * is an extension there: from 602's phones, "603100" rings extension 100 on PABX 603. Master numbers are all
+ * {@link #masterDigits()} long, or empty (only the PABX's own phones can call it), and no two on a network match. Its
+ * {@linkplain #getName() name} shows on a phone keying its master number. It needs power ({@link PabxNetworkObject});
+ * with none, its phones have no line.
  */
 public class PabxBlockEntity extends BlockEntity implements INetworkObjectProvider, MenuProvider {
 
 	public static final int FIRST_EXTENSION = 100;
-	/** Longest master number and extension, digits. */
-	public static final int MAX_MASTER_DIGITS = 6, MAX_EXTENSION = 99999;
+	/** Highest extension. */
+	public static final int MAX_EXTENSION = 99999;
+	/** Most PABXes one network search visits, so a huge web cannot stall a tick. */
+	private static final int MAX_NETWORK = 256;
 
 	private String master = "";
 	private int firstExtension = FIRST_EXTENSION;
-	private boolean behind = false;
+	private String name = "";
 	/** The phones it has numbered, so a number set by hand later is left alone. */
 	private final Set<BlockPos> numbered = new HashSet<>();
 	private boolean powered = false;
+	/** What the last save on its screen came to: a translation key and its argument (synced, not saved). */
+	private String statusKey = "", statusArg = "";
+	/** The client's copy of {@link #masterDigits()}, for the screen. */
+	private int clientMasterDigits = 3;
 
 	public PabxBlockEntity(BlockPos pos, BlockState state) {
 		super(RadiocraftBlockEntities.PABX.get(), pos, state);
@@ -79,12 +87,22 @@ public class PabxBlockEntity extends BlockEntity implements INetworkObjectProvid
 
 	// -------------------- SETTINGS --------------------
 
-	/** True while the wire feeds it. Server side. */
+	/** Digits in a master number (server config {@code pabx_master_digits}). */
+	public static int masterDigits() {
+		try {
+			return RadiocraftServerConfig.PABX_MASTER_DIGITS.get();
+		}
+		catch(IllegalStateException e) { // Config not loaded yet.
+			return 3;
+		}
+	}
+
+	/** True while the wire feeds it (the client's copy is synced). */
 	public boolean isPowered() {
 		return powered;
 	}
 
-	/** The number other exchanges dial it by; empty for none (it can then only be called from its own phones). */
+	/** The number other PABXes dial it by; empty for none (it can then only be called from its own phones). */
 	public String getMaster() {
 		return master;
 	}
@@ -93,36 +111,97 @@ public class PabxBlockEntity extends BlockEntity implements INetworkObjectProvid
 		return firstExtension;
 	}
 
-	/** True if it hangs off another PABX it is wired to, rather than being an exchange of its own. */
-	public boolean isBehind() {
-		return behind;
+	/** Its name, shown on a phone keying its master number; empty for none. */
+	public String getName() {
+		return name;
 	}
 
-	/** Sets the master number (digits only, up to {@link #MAX_MASTER_DIGITS}); false if it is not one. */
-	public boolean setMaster(String number) {
-		if(number.length() > MAX_MASTER_DIGITS || !number.chars().allMatch(Character::isDigit))
-			return false;
+	/** How many digits a master number must have: the client's synced copy, or the server config. */
+	public int getMasterDigits() {
+		return level != null && level.isClientSide ? clientMasterDigits : masterDigits();
+	}
+
+	/** The last save's result, for the screen: a translation key (empty for none) and its argument. */
+	public String getStatusKey() {
+		return statusKey;
+	}
+
+	public String getStatusArg() {
+		return statusArg;
+	}
+
+	/**
+	 * Sets the master number: empty, or exactly {@link #masterDigits()} digits that no other PABX on its network has.
+	 * Returns null if it was set, else the translation key saying why not.
+	 */
+	@Nullable
+	public String setMaster(String number) {
+		String why = masterProblem(number);
+		if(why != null)
+			return why;
 		master = number;
 		sync();
-		return true;
+		return null;
 	}
 
-	/** Sets the first extension and numbers every phone again from it. */
+	/** Why {@code number} cannot be this PABX's master number, as a translation key, or null if it can. */
+	@Nullable
+	private String masterProblem(String number) {
+		if(!PabxNumbers.validMaster(number, masterDigits()))
+			return "screen.radiocraft.pabx.master_length";
+		if(!number.isEmpty())
+			for(PabxBlockEntity other : network().keySet())
+				if(other != this && other.master.equals(number))
+					return "screen.radiocraft.pabx.master_taken";
+		return null;
+	}
+
+	/** Sets the first extension, numbering every phone again from it if it changed. */
 	public boolean setFirstExtension(int first) {
 		if(first < 0 || first > MAX_EXTENSION)
 			return false;
-		firstExtension = first;
-		numbered.clear();
+		if(first != firstExtension) {
+			firstExtension = first;
+			numbered.clear();
+		}
 		sync();
 		return true;
 	}
 
-	public void setBehind(boolean behind) {
-		this.behind = behind;
+	/** Sets the name ({@link PabxNumbers#cleanName}: letters, digits, spaces and dashes, upper case, ten at most). */
+	public void setName(String name) {
+		this.name = PabxNumbers.cleanName(name);
 		sync();
 	}
 
-	// -------------------- THE EXCHANGE --------------------
+	/**
+	 * The screen's Save: all three settings, or none if the master number or first extension will not do. The result
+	 * shows on the screen ({@link #getStatusKey()}). Returns true if saved.
+	 */
+	public boolean save(String number, String first, String newName) {
+		String why = masterProblem(number);
+		int extension = PabxNumbers.digits(first) && first.length() <= PabxNumbers.MAX_EXTENSION_DIGITS ? Integer.parseInt(first) : -1;
+		if(why == null && (extension < 0 || extension > MAX_EXTENSION))
+			why = "screen.radiocraft.pabx.bad_extension";
+		if(why != null) {
+			status(why, why.endsWith("master_length") ? Integer.toString(masterDigits()) : number);
+			return false;
+		}
+		master = number;
+		setFirstExtension(extension);
+		setName(newName);
+		status("screen.radiocraft.pabx.saved", "");
+		return true;
+	}
+
+	/** Sets the line the screen shows under Save (cleared when the screen is opened). */
+	public void status(String key, String arg) {
+		statusKey = key;
+		statusArg = arg;
+		sync();
+	}
+
+	// -------------------- THE NETWORK --------------------
 
 	/** The PABX a phone at {@code pos} belongs to: the nearest one touching it or on its data wire. */
 	@Nullable
@@ -142,155 +221,86 @@ public class PabxBlockEntity extends BlockEntity implements INetworkObjectProvid
 		return out;
 	}
 
-	/** The PABXes wired to this one (touching, or on its data wire). */
-	private List<PabxBlockEntity> wired() {
-		List<PabxBlockEntity> out = new ArrayList<>();
-		if(level != null)
-			for(PabxBlockEntity pabx : DataWire.linked(level, worldPosition, PabxBlockEntity.class))
-				if(pabx != this)
-					out.add(pabx);
+	/**
+	 * Every PABX on this one's phone network, this one first, then outward: those it is wired to (touching, or on its
+	 * data wire) and those across microwave links, and theirs in turn. Each maps to whether the way to it crosses a
+	 * microwave route with interference or a marginal signal.
+	 */
+	public Map<PabxBlockEntity, Boolean> network() {
+		Map<PabxBlockEntity, Boolean> out = new LinkedHashMap<>();
+		out.put(this, false);
+		if(level == null)
+			return out;
+		ArrayDeque<PabxBlockEntity> queue = new ArrayDeque<>(List.of(this));
+		while(!queue.isEmpty() && out.size() < MAX_NETWORK) {
+			PabxBlockEntity at = queue.poll();
+			boolean lossy = out.get(at);
+			for(PabxBlockEntity next : DataWire.linked(level, at.worldPosition, PabxBlockEntity.class))
+				if(out.putIfAbsent(next, lossy) == null)
+					queue.add(next);
+			for(MicrowaveRoutes.Route route : MicrowaveRoutes.from(level, at.worldPosition))
+				if(route.station() instanceof PabxBlockEntity next && out.putIfAbsent(next, lossy || route.lossy()) == null)
+					queue.add(next);
+		}
 		return out;
 	}
 
-	/**
-	 * Who hangs off whom among the PABXes wired together with {@code start}: each one set behind maps to the PABX it is
-	 * a line of, found outward from the exchanges (those not behind) so there are no loops. One behind with no
-	 * exchange to reach is left out, and works as an exchange of its own.
-	 */
-	private static Map<PabxBlockEntity, PabxBlockEntity> tree(PabxBlockEntity start) {
-		List<PabxBlockEntity> cluster = new ArrayList<>();
-		ArrayDeque<PabxBlockEntity> queue = new ArrayDeque<>(List.of(start));
-		Set<PabxBlockEntity> seen = new HashSet<>(List.of(start));
-		while(!queue.isEmpty()) {
-			PabxBlockEntity at = queue.poll();
-			cluster.add(at);
-			for(PabxBlockEntity next : at.wired())
-				if(seen.add(next))
-					queue.add(next);
-		}
-		Map<PabxBlockEntity, PabxBlockEntity> parents = new HashMap<>();
-		Set<PabxBlockEntity> placed = new HashSet<>();
-		for(PabxBlockEntity pabx : cluster)
-			if(!pabx.behind) {
-				queue.add(pabx);
-				placed.add(pabx);
-			}
-		while(!queue.isEmpty()) {
-			PabxBlockEntity at = queue.poll();
-			for(PabxBlockEntity next : at.wired())
-				if(next.behind && placed.add(next)) {
-					parents.put(next, at);
-					queue.add(next);
-				}
-		}
-		return parents;
-	}
-
-	/** The PABX this one is a line of, or null for an exchange. */
+	/** The phone with extension {@code digits} here, or null (also if it has no power). */
 	@Nullable
-	public PabxBlockEntity parent() {
-		return behind ? tree(this).get(this) : null;
-	}
-
-	/** The top of this PABX's tree, or null if it or any PABX above it has no power. */
-	@Nullable
-	public PabxBlockEntity exchange() {
-		Map<PabxBlockEntity, PabxBlockEntity> tree = tree(this);
-		PabxBlockEntity at = this;
-		for(int depth = 0; at != null && depth < 32; depth++) {
-			if(!at.powered)
-				return null;
-			PabxBlockEntity up = tree.get(at);
-			if(up == null)
-				return at;
-			at = up;
-		}
-		return null;
-	}
-
-	/** The number to dial this PABX by from across the microwave link: the master numbers from the top down. */
-	public String fullPrefix() {
-		Map<PabxBlockEntity, PabxBlockEntity> tree = tree(this);
-		StringBuilder prefix = new StringBuilder();
-		PabxBlockEntity at = this;
-		for(int depth = 0; at != null && depth < 32; depth++) {
-			prefix.insert(0, at.master);
-			at = tree.get(at);
-		}
-		return prefix.toString();
-	}
-
-	/** The phone {@code digits} rings at this PABX or below it: one of its extensions, or a PABX behind it by its number. */
-	@Nullable
-	private TelephoneBlockEntity local(String digits, Map<PabxBlockEntity, PabxBlockEntity> tree, int depth) {
-		if(!powered || depth > 32)
+	private TelephoneBlockEntity extension(String digits) {
+		if(!powered)
 			return null;
 		for(TelephoneBlockEntity phone : phones())
-			if(digits.equals(Integer.toString(phone.getExtension())))
+			if(PabxNumbers.isExtension(digits, phone.getExtension()))
 				return phone;
-		for(Map.Entry<PabxBlockEntity, PabxBlockEntity> line : tree.entrySet())
-			if(line.getValue() == this) {
-				PabxBlockEntity below = line.getKey();
-				if(!below.master.isEmpty() && digits.startsWith(below.master) && digits.length() > below.master.length()) {
-					TelephoneBlockEntity phone = below.local(digits.substring(below.master.length()), tree, depth + 1);
-					if(phone != null)
-						return phone;
-				}
-			}
 		return null;
 	}
 
+	/** True if {@code digits} is one of its phones' extensions. */
+	public boolean hasExtension(String digits) {
+		for(TelephoneBlockEntity phone : phones())
+			if(PabxNumbers.isExtension(digits, phone.getExtension()))
+				return true;
+		return false;
+	}
+
 	/**
-	 * The phone {@code digits} rings when dialed from a phone on this PABX: at this PABX and below, then at each PABX
-	 * above, then at the exchanges across the microwave link by their master numbers. Null if none.
+	 * The phone {@code digits} rings when dialed from a phone on this PABX: one of its own extensions, else an
+	 * extension on the powered PABX on its network whose master number {@code digits} starts with. Null if none.
 	 */
 	@Nullable
 	public TelephoneBlockEntity resolve(String digits) {
-		Map<PabxBlockEntity, PabxBlockEntity> tree = tree(this);
-		PabxBlockEntity at = this, top = this;
-		for(int depth = 0; at != null && depth < 32; depth++) {
-			if(!at.powered)
-				return null;
-			TelephoneBlockEntity phone = at.local(digits, tree, 0);
-			if(phone != null)
-				return phone;
-			top = at;
-			at = tree.get(at);
-		}
-		for(PabxBlockEntity exchange : top.linkedExchanges()) {
-			if(exchange.master.isEmpty() || !digits.startsWith(exchange.master) || digits.length() <= exchange.master.length())
-				continue;
-			TelephoneBlockEntity phone = exchange.local(digits.substring(exchange.master.length()), tree(exchange), 0);
+		if(!powered)
+			return null;
+		TelephoneBlockEntity local = extension(digits);
+		if(local != null)
+			return local;
+		for(PabxBlockEntity pabx : network().keySet()) {
+			String rest = PabxNumbers.extensionAfter(digits, pabx.master);
+			TelephoneBlockEntity phone = rest == null ? null : pabx.extension(rest);
 			if(phone != null)
 				return phone;
 		}
 		return null;
 	}
 
-	/** This exchange, then the exchanges (PABXes not behind another) reached over the microwave link from it. */
-	public List<PabxBlockEntity> linkedExchanges() {
-		List<PabxBlockEntity> out = new ArrayList<>(List.of(this));
-		if(level == null)
-			return out;
-		for(MicrowaveRoutes.Route route : MicrowaveRoutes.from(level, worldPosition))
-			if(route.station() instanceof PabxBlockEntity pabx && !pabx.behind && pabx.powered && !out.contains(pabx))
-				out.add(pabx);
+	/** The master numbers and names of the powered PABXes on its network (this one included), nearest first. */
+	public Map<String, String> directory() {
+		Map<String, String> out = new LinkedHashMap<>();
+		for(PabxBlockEntity pabx : network().keySet())
+			if(pabx.powered && !pabx.master.isEmpty())
+				out.putIfAbsent(pabx.master, pabx.name);
 		return out;
 	}
 
-	/** True if the exchanges at the top of {@code a}'s and {@code b}'s trees can still reach each other. */
+	/** True if both have power and are on one network. */
 	public static boolean connected(@Nullable PabxBlockEntity a, @Nullable PabxBlockEntity b) {
-		PabxBlockEntity ea = a == null ? null : a.exchange(), eb = b == null ? null : b.exchange();
-		return ea != null && eb != null && (ea == eb || ea.linkedExchanges().contains(eb));
+		return a != null && b != null && a.powered && b.powered && (a == b || a.network().containsKey(b));
 	}
 
-	/** True if the microwave route between their exchanges has interference or a marginal signal. */
+	/** True if the way between them crosses a microwave route with interference or a marginal signal. */
 	public static boolean lossy(@Nullable PabxBlockEntity a, @Nullable PabxBlockEntity b) {
-		PabxBlockEntity ea = a == null ? null : a.exchange(), eb = b == null ? null : b.exchange();
-		if(ea == null || eb == null || ea == eb || ea.level == null)
-			return false;
-		MicrowaveRoutes.Route route = MicrowaveRoutes.to(ea.level, ea.worldPosition, eb);
-		return route != null && route.lossy();
+		return a != null && b != null && a != b && Boolean.TRUE.equals(a.network().get(b));
 	}
 
 	// -------------------- TICK --------------------
@@ -350,7 +360,7 @@ public class PabxBlockEntity extends BlockEntity implements INetworkObjectProvid
 		super.saveAdditional(tag, registries);
 		tag.putString("master", master);
 		tag.putInt("firstExtension", firstExtension);
-		tag.putBoolean("behind", behind);
+		tag.putString("name", name);
 		ListTag list = new ListTag();
 		for(BlockPos pos : numbered)
 			list.add(LongTag.valueOf(pos.asLong()));
@@ -360,46 +370,33 @@ public class PabxBlockEntity extends BlockEntity implements INetworkObjectProvid
 	@Override
 	protected void loadAdditional(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
 		super.loadAdditional(tag, registries);
-		master = tag.getString("master");
+		master = tag.getString("master"); // A "behind" tag from 1.10.0 is ignored: every PABX is a peer now.
 		firstExtension = tag.contains("firstExtension") ? tag.getInt("firstExtension") : FIRST_EXTENSION;
-		behind = tag.getBoolean("behind");
+		name = PabxNumbers.cleanName(tag.getString("name"));
 		numbered.clear();
 		for(Tag entry : tag.getList("numbered", Tag.TAG_LONG))
 			numbered.add(BlockPos.of(((LongTag)entry).getAsLong()));
-		if(tag.contains("powered"))
-			powered = tag.getBoolean("powered"); // The client's copy.
+		if(tag.contains("powered")) { // The client's copy.
+			powered = tag.getBoolean("powered");
+			clientMasterDigits = tag.getInt("masterDigits");
+			statusKey = tag.getString("statusKey");
+			statusArg = tag.getString("statusArg");
+		}
 	}
 
 	@Override
 	public @NotNull CompoundTag getUpdateTag(@NotNull HolderLookup.Provider registries) {
 		CompoundTag tag = saveWithoutMetadata(registries);
 		tag.putBoolean("powered", powered);
-		tag.putString("prefix", level == null || level.isClientSide ? "" : fullPrefix());
+		tag.putInt("masterDigits", masterDigits());
+		tag.putString("statusKey", statusKey);
+		tag.putString("statusArg", statusArg);
 		return tag;
 	}
 
 	@Override
 	public ClientboundBlockEntityDataPacket getUpdatePacket() {
 		return ClientboundBlockEntityDataPacket.create(this);
-	}
-
-	@Override
-	public void onDataPacket(net.minecraft.network.Connection net, ClientboundBlockEntityDataPacket packet, HolderLookup.Provider registries) {
-		super.onDataPacket(net, packet, registries);
-		prefix = packet.getTag().getString("prefix");
-	}
-
-	@Override
-	public void handleUpdateTag(@NotNull CompoundTag tag, HolderLookup.@NotNull Provider registries) {
-		super.handleUpdateTag(tag, registries);
-		prefix = tag.getString("prefix");
-	}
-
-	/** The client's copy of {@link #fullPrefix()}, for the screen. */
-	private String prefix = "";
-
-	public String getPrefix() {
-		return prefix;
 	}
 
 	// -------------------- MENU --------------------
@@ -411,6 +408,8 @@ public class PabxBlockEntity extends BlockEntity implements INetworkObjectProvid
 
 	@Override
 	public @Nullable AbstractContainerMenu createMenu(int id, @NotNull Inventory inventory, @NotNull Player player) {
+		if(!statusKey.isEmpty())
+			status("", ""); // A fresh screen starts with no message.
 		return new PabxMenu(id, this);
 	}
 }

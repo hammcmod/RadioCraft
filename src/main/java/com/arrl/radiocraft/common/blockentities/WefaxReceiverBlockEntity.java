@@ -18,6 +18,7 @@ import com.arrl.radiocraft.common.radio.data.TncPacket;
 import com.arrl.radiocraft.common.radio.wefax.WefaxChart;
 import com.arrl.radiocraft.common.radio.weather.WeatherReports;
 import com.arrl.radiocraft.common.radio.wefax.WefaxPrints;
+import com.arrl.radiocraft.common.radio.voice.WefaxAudio;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -50,12 +51,22 @@ import java.util.List;
  * charts, a sheet of paper each. WX REPT prints the next chart of the broadcast schedule (radar, forecast, surface
  * analysis, round again); SOLR WX the last solar bulletin an Ionospheric Processor sent that it heard (through its radio,
  * the station gear, or straight from a processor beside it; see {@link #receive}); AUTO prints a forecast by itself when dangerous weather is
- * on its way (at most every {@link #AUTO_GAP_TICKS}). A sheet takes {@link #PRINT_TICKS} to print, drawn line by line
- * on its screen, and comes out of the front.
+ * on its way (at most every {@link #AUTO_GAP_TICKS}). A sheet takes as long to print as a weather fax takes to send
+ * ({@code wefax_bulletin_seconds}), each line printed as its tones come in ({@link WefaxAudio}): from a radio that
+ * stops copying the signal part way, those lines come out as speckle. WX REPT comes from a coast station off the map:
+ * its tones play through the radio beside the receiver, which shows it receiving.
  */
 public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvider, StationTerminal {
 
-	public static final int PRINT_TICKS = 240;
+	/** Where the sheet being printed comes from. */
+	public enum Source {
+		/** Straight from a processor beside it, or the server's always-works report: no radio involved. */
+		LOCAL,
+		/** Over the air from a station in the world: lines print clean only while a radio beside it copies the tones. */
+		OVER_AIR,
+		/** The coast station's broadcast: the tones play through the radios beside it. */
+		BROADCAST
+	}
 	public static final int AUTO_GAP_TICKS = 5 * 60 * 20;
 	public static final int PAPER_MAX = 64;
 	/** How long SOLR WX waits for an Ionospheric Processor to answer over the air. */
@@ -97,6 +108,17 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 	private byte[] pixels = new byte[0];
 	private long printStart = -1L;
 	private ItemStack printing = ItemStack.EMPTY;
+	private int printTicks = 240;
+	private Source printSource = Source.LOCAL;
+	private Source queuedSource = Source.LOCAL;
+	/** Lines of the sheet in hand printed so far, and whether any came out as speckle. */
+	private int rowsDone = 0;
+	private boolean anyLost = false;
+	private boolean pixelsDirty = false;
+	/** The broadcast's tones, made when it starts (not saved: a reloaded broadcast prints on in silence). */
+	@Nullable
+	private List<short[]> broadcastFrames = null;
+	private int broadcastFrame = 0;
 	// The last solar bulletin heard: who sent it, its lines, when, and its id (each arrives once per radio that heard it).
 	private String solarFrom = "";
 	private List<String> solarLines = List.of();
@@ -208,7 +230,8 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		lines.add("");
 		lines.addAll(WeatherReports.stormList(serverLevel, source, here, FORECAST_RANGE));
 		queuedPrint = WefaxPrints.printText(serverLevel, here, Component.translatable("item.radiocraft.wefax_chart.forecast"), "FORECAST", lines);
-		start(WefaxPrints.printChart(serverLevel, source, here, WefaxChart.Type.RADAR, ""), alertLevel(serverLevel, source, here));
+		queuedSource = Source.BROADCAST;
+		start(WefaxPrints.printChart(serverLevel, source, here, WefaxChart.Type.RADAR, ""), alertLevel(serverLevel, source, here), Source.BROADCAST);
 	}
 
 	/**
@@ -289,7 +312,7 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		}
 		IonosphericProcessorBlockEntity processor = localProcessor();
 		if(processor != null) {
-			printBulletin(serverLevel, processor.sender(), processor.bulletinLines());
+			printBulletin(serverLevel, processor.sender(), processor.bulletinLines(), Source.LOCAL);
 			return;
 		}
 		TncPacket query = TncPacket.query(serverLevel.getRandom().nextLong(), sender(), TncPacket.TOPIC_SOLAR);
@@ -316,10 +339,11 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		return requestUntil >= 0L;
 	}
 
-	private void printBulletin(ServerLevel serverLevel, String from, List<String> lines) {
-		List<String> sheet = new ArrayList<>(lines);
-		sheet.add("FROM " + from);
-		start(WefaxPrints.printText(serverLevel, worldPosition, Component.translatable("item.radiocraft.wefax_chart.solar"), "SOLAR WEATHER " + from, sheet, true));
+	private void printBulletin(ServerLevel serverLevel, String from, List<String> lines, Source source) {
+		start(WefaxPrints.printText(serverLevel, worldPosition, Component.translatable("item.radiocraft.wefax_chart.solar"),
+				WefaxPrints.bulletinTitle(from), WefaxPrints.bulletinSheet(from, lines), true), 1, source);
+		if(source == Source.OVER_AIR) // The packet came in as the start tone ended: the print is that far along already.
+			printStart -= Math.round(WefaxAudio.START_SHARE * printTicks);
 	}
 
 	/** True once it has heard a solar bulletin from an Ionospheric Processor. */
@@ -348,6 +372,15 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 	 */
 	@Override
 	public void receive(TncPacket packet) {
+		receive(packet, Source.LOCAL);
+	}
+
+	/** A packet a radio beside it decoded off the air: a bulletin prints line by line as its tones go on coming in. */
+	public void receiveOverAir(TncPacket packet) {
+		receive(packet, Source.OVER_AIR);
+	}
+
+	private void receive(TncPacket packet, Source source) {
 		if(!(level instanceof ServerLevel serverLevel) || packet.id() == lastPacketId)
 			return;
 		if(packet.kind() != TncPacket.Kind.SOLAR && packet.kind() != TncPacket.Kind.ALERT)
@@ -364,10 +397,10 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 				requestUntil = -1L;
 				requester = null;
 				if(!isPrinting() && getPaper() > 0)
-					printBulletin(serverLevel, packet.from(), lines);
+					printBulletin(serverLevel, packet.from(), lines, source);
 			}
 			else if(auto && cannotPrint(true) == null)
-				printBulletin(serverLevel, packet.from(), lines);
+				printBulletin(serverLevel, packet.from(), lines, source);
 		}
 		else {
 			long now = serverLevel.getGameTime();
@@ -395,27 +428,82 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 	}
 
 	private void start(WefaxPrints.Print print) {
-		start(print, 1);
+		start(print, 1, Source.LOCAL);
 	}
 
-	/** Starts printing a message whose redstone level is {@code alert} (see {@link #signal}). */
-	private void start(WefaxPrints.Print print, int alert) {
+	/** How long a sheet takes: as long as a weather fax takes to send. */
+	public static int printDuration() {
+		return RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.get() * 20;
+	}
+
+	/** Starts printing a message whose redstone level is {@code alert} (see {@link #signal}), coming from {@code source}. */
+	private void start(WefaxPrints.Print print, int alert, Source source) {
 		printingSignal = alert;
 		setSignal(Math.max(signal, alert));
 		if(!ready.isEmpty() && level instanceof ServerLevel serverLevel)
 			eject(serverLevel); // The next sheet pushes the one nobody took out of the front.
 		paper.extractItem(0, 1, false);
-		pixels = print.pixels();
+		pixels = print.pixels().clone();
 		printing = print.stack();
 		printStart = level.getGameTime();
+		printTicks = printDuration();
+		printSource = source;
+		rowsDone = 0;
+		anyLost = false;
+		broadcastFrames = source == Source.BROADCAST ? WefaxAudio.frames(pixels, WefaxChart.SIZE, printTicks) : null;
+		broadcastFrame = 0;
 		setChanged();
 		sync();
 	}
 
-	/** How far down the sheet the print has come, 0 to 1 (1 when not printing). */
+	/** How far down the sheet the print has come, 0 to 1 (1 when not printing): the lines whose tones have come in. */
 	public float progress(long gameTime) {
-		return printStart < 0 ? 1.0F : Math.min(1.0F, (gameTime - printStart) / (float)PRINT_TICKS);
+		return printStart < 0 ? 1.0F : WefaxAudio.imageRows(gameTime - printStart, printTicks, WefaxChart.SIZE) / (float)WefaxChart.SIZE;
 	}
+
+	/** True if a radio beside it is copying a signal right now. */
+	private boolean copying(long gameTime) {
+		for(RadioBlockEntity radio : getRadios())
+			if(radio.isCopying(gameTime))
+				return true;
+		return false;
+	}
+
+	/** The line just printed, and the coast station's tones through the radios beside it. */
+	private void tickPrint(ServerLevel level, long now) {
+		int rows = WefaxAudio.imageRows(now - printStart, printTicks, WefaxChart.SIZE);
+		while(rowsDone < rows) {
+			if(printSource == Source.OVER_AIR && !copying(now)) { // Lost under the noise: the stylus prints static.
+				WefaxChart.speckle(pixels, rowsDone, level.getRandom().nextLong());
+				anyLost = true;
+				pixelsDirty = true;
+			}
+			if(rowsDone % 2 == 0) // The stylus across the paper, line after line.
+				level.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE_KEY.get(), SoundSource.BLOCKS, 0.12F, 1.8F);
+			rowsDone++;
+		}
+		if(pixelsDirty && now % 10 == 0) {
+			pixelsDirty = false;
+			sync();
+		}
+		List<short[]> frames = broadcastFrames;
+		if(frames != null) {
+			int count = now % 2 == 0 ? 3 : 2;
+			for(int i = 0; i < count && broadcastFrame < frames.size(); i++) {
+				short[] frame = frames.get(broadcastFrame++);
+				for(RadioBlockEntity radio : getRadios())
+					radio.playBroadcast(this, frame, BROADCAST_STRENGTH);
+			}
+		}
+	}
+
+	/** True if lines of the sheet in hand (or the last one) came out as speckle, lost under the noise. */
+	public boolean hasLostLines() {
+		return anyLost;
+	}
+
+	/** How strong the coast station comes in. */
+	private static final double BROADCAST_STRENGTH = 0.7D;
 
 	/** The picture of the sheet being printed (or the last one), {@link WefaxChart#SIZE} square; empty for none. */
 	public byte[] getPixels() {
@@ -449,7 +537,8 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		if(isPrinting()) {
 			if(now % 9 == 0) // The drum motor, a little lower than the teletype's.
 				level.playSound(null, worldPosition, RadiocraftSoundEvents.TELETYPE_BACKGROUND.get(), SoundSource.BLOCKS, 0.35F, 0.7F);
-			if(now - printStart >= PRINT_TICKS)
+			tickPrint(level, now);
+			if(now - printStart >= printTicks)
 				finish(level);
 			return;
 		}
@@ -463,7 +552,8 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 			if(getPaper() > 0) {
 				WefaxPrints.Print next = queuedPrint;
 				queuedPrint = null;
-				start(next);
+				start(next, 1, queuedSource);
+				queuedSource = Source.LOCAL;
 			}
 			return;
 		}
@@ -485,6 +575,9 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 
 	/** Printed: the sheet waits in the tray, on the screen and sticking out of the model, until someone takes it. */
 	private void finish(ServerLevel level) {
+		if(anyLost) // The sheet was made clean when the print started: put the lost lines' speckle on it.
+			WefaxPrints.repaint(level, printing, pixels);
+		broadcastFrames = null;
 		ready = printing;
 		printing = ItemStack.EMPTY;
 		printStart = -1L;
@@ -561,6 +654,10 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		tag.putInt("schedule", scheduleIndex);
 		tag.putByteArray("pixels", pixels);
 		tag.putLong("printStart", printStart);
+		tag.putInt("printTicks", printTicks);
+		tag.putString("printSource", printSource.name());
+		tag.putInt("rowsDone", rowsDone);
+		tag.putBoolean("anyLost", anyLost);
 		if(!printing.isEmpty())
 			tag.put("printing", printing.save(registries));
 		if(!ready.isEmpty())
@@ -584,6 +681,15 @@ public class WefaxReceiverBlockEntity extends BlockEntity implements MenuProvide
 		scheduleIndex = tag.getInt("schedule");
 		pixels = tag.getByteArray("pixels");
 		printStart = tag.contains("printStart") ? tag.getLong("printStart") : -1L;
+		printTicks = tag.contains("printTicks") ? Math.max(1, tag.getInt("printTicks")) : 240;
+		try {
+			printSource = Source.valueOf(tag.getString("printSource"));
+		}
+		catch(IllegalArgumentException e) {
+			printSource = Source.LOCAL;
+		}
+		rowsDone = tag.getInt("rowsDone");
+		anyLost = tag.getBoolean("anyLost");
 		printing = tag.contains("printing") ? ItemStack.parseOptional(registries, tag.getCompound("printing")) : ItemStack.EMPTY;
 		ready = tag.contains("ready") ? ItemStack.parseOptional(registries, tag.getCompound("ready")) : ItemStack.EMPTY;
 		solarFrom = tag.getString("solarFrom");

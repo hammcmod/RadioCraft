@@ -234,4 +234,104 @@ public class IonosphericProcessorGameTests {
 				.thenWaitUntil(() -> helper.assertTrue(wefaxAt(helper, wefax).hasSolarBulletin(), "the far WEFAX never heard the bulletin"))
 				.thenSucceed();
 	}
+
+	/**
+	 * Over the air the WEFAX starts printing as the bulletin's start tone ends, not after the whole sheet has been sent:
+	 * the sending radio shows it transmitting all the while, and lines come in one after another.
+	 */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+	public static void bulletinPrintsAsItComesIn(GameTestHelper helper) {
+		BlockPos lower = new BlockPos(3, 2, 13);
+		airLink(helper, lower, 3, 145_930_000.0F);
+		BlockPos sender = lower.east(), far = lower.east(4);
+		BlockPos wefax = far.north();
+		helper.setBlock(wefax, RadiocraftBlocks.WEFAX_RECEIVER.get());
+		helper.startSequence()
+				.thenExecute(() -> {
+					powerOn(helper, sender);
+					powerOn(helper, far);
+					wefaxAt(helper, wefax).insertPaper(new ItemStack(Items.PAPER, 2));
+				})
+				.thenWaitUntil(() -> helper.assertTrue(processorAt(helper, lower).isOnline() && radio(helper, far).isPowered(), "not up yet"))
+				.thenExecute(() -> wefaxAt(helper, wefax).printSolar(null))
+				.thenWaitUntil(() -> helper.assertTrue(wefaxAt(helper, wefax).isPrinting(), "no answer printing"))
+				.thenExecute(() -> {
+					helper.assertTrue(radio(helper, sender).isSendingData() && radio(helper, sender).isSendingDataSynced(),
+							"the processor's radio is not showing it transmitting while the sheet comes in");
+					helper.assertTrue(wefaxAt(helper, wefax).progress(helper.getLevel().getGameTime()) < 0.5F, "the sheet arrived all at once");
+				})
+				.thenWaitUntil(() -> helper.assertTrue(wefaxAt(helper, wefax).hasReadySheet(), "the sheet never finished"))
+				.thenExecute(() -> helper.assertFalse(wefaxAt(helper, wefax).hasLostLines(), "a clean signal printed speckled lines"))
+				.thenSucceed();
+	}
+
+	/** The sending radio goes off part way through: the rest of the sheet prints as speckle, and it still comes out. */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BATCH)
+	public static void lostSignalPrintsSpeckle(GameTestHelper helper) {
+		BlockPos lower = new BlockPos(3, 2, 16);
+		airLink(helper, lower, 3, 145_970_000.0F);
+		BlockPos sender = lower.east(), far = lower.east(4);
+		BlockPos wefax = far.north();
+		helper.setBlock(wefax, RadiocraftBlocks.WEFAX_RECEIVER.get());
+		helper.startSequence()
+				.thenExecute(() -> {
+					powerOn(helper, sender);
+					powerOn(helper, far);
+					wefaxAt(helper, wefax).insertPaper(new ItemStack(Items.PAPER, 2));
+				})
+				.thenWaitUntil(() -> helper.assertTrue(processorAt(helper, lower).isOnline() && radio(helper, far).isPowered(), "not up yet"))
+				.thenExecute(() -> wefaxAt(helper, wefax).printSolar(null))
+				.thenWaitUntil(() -> helper.assertTrue(wefaxAt(helper, wefax).isPrinting(), "no answer printing"))
+				.thenIdle(5)
+				.thenExecute(() -> radio(helper, sender).toggle()) // Off the air part way through.
+				.thenWaitUntil(() -> helper.assertTrue(wefaxAt(helper, wefax).hasReadySheet(), "the sheet never finished"))
+				.thenExecute(() -> helper.assertTrue(wefaxAt(helper, wefax).hasLostLines(), "lines after the signal went printed clean"))
+				.thenSucceed();
+	}
+
+	private static final String BLACKOUT_BATCH = BATCH + "_blackout";
+
+	@net.minecraft.gametest.framework.BeforeBatch(batch = BLACKOUT_BATCH)
+	public static void blackout(net.minecraft.server.level.ServerLevel level) {
+		RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.set(2);
+		SolarEventManager.startEvent(level, RadiocraftData.SOLAR_EVENTS.getValue(Radiocraft.id("blackout")));
+	}
+
+	@net.minecraft.gametest.framework.AfterBatch(batch = BLACKOUT_BATCH)
+	public static void afterBlackout(net.minecraft.server.level.ServerLevel level) {
+		RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.set(RadiocraftServerConfig.WEFAX_BULLETIN_SECONDS.getDefault());
+		GameTestDefaults.calmSky(level);
+	}
+
+	/**
+	 * In a blackout HF skip is dead, but stations close by still hear each other at half range (maintainer,
+	 * 2026-10-31): two 40m radios a block apart on bare connectors still get a solar bulletin across. (A bare
+	 * connector loses signal at both ends, so it reaches about a block in a blackout; real antennas reach far further.)
+	 */
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 300, batch = BLACKOUT_BATCH)
+	public static void blackoutStillCarriesLocally(GameTestHelper helper) {
+		BlockPos lower = new BlockPos(3, 2, 4);
+		processor(helper, lower, RadiocraftBlocks.IONOSONDE.get());
+		BlockPos sender = lower.east(), far = lower.east(3);
+		helper.setBlock(sender, RadiocraftBlocks.HF_RADIO_40M.get());
+		helper.setBlock(far, RadiocraftBlocks.HF_RADIO_40M.get());
+		BlockPos wefax = far.north();
+		helper.setBlock(wefax, RadiocraftBlocks.WEFAX_RECEIVER.get());
+		helper.startSequence()
+				.thenExecute(() -> {
+					radio(helper, sender).setFrequency(7_050_000.0F);
+					radio(helper, far).setFrequency(7_050_000.0F);
+					powerOn(helper, sender);
+					powerOn(helper, far);
+					wefaxAt(helper, wefax).insertPaper(new ItemStack(Items.PAPER, 2));
+				})
+				.thenWaitUntil(() -> helper.assertTrue(processorAt(helper, lower).isOnline() && radio(helper, far).isPowered(), "not up yet"))
+				.thenExecute(() -> {
+					helper.assertTrue(radio(helper, far).getNoiseFloor() >= 0.99D, "no blackout: noise " + radio(helper, far).getNoiseFloor());
+					wefaxAt(helper, wefax).printSolar(null);
+					helper.assertTrue(wefaxAt(helper, wefax).isRequesting(), "SOLR WX did not ask over the air");
+				})
+				.thenWaitUntil(() -> helper.assertTrue(wefaxAt(helper, wefax).isPrinting(), "nobody answered in the blackout"))
+				.thenSucceed();
+	}
 }

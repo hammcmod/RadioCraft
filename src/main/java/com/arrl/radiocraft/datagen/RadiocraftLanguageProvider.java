@@ -158,8 +158,21 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("key.radiocraft.open_manpack", "Open Worn Manpack");
 			provider.addBlock(RadiocraftBlocks.TELEPHONE, "Telephone");
 			provider.addBlock(RadiocraftBlocks.PABX, "Phone PABX");
-			provider.add("tooltip.radiocraft.pabx", "Every telephone needs one: phones touching it or on its data wire call each other by extension. Needs power. Right click to set its master number (dialed from other PABXes across a microwave link), its first extension, and whether it is behind another PABX.");
+			provider.add("tooltip.radiocraft.pabx", "Every telephone needs one: phones touching it or on its data wire call each other by extension. Needs power. PABXes on one data wire or across a microwave link call each other by master number, then extension. Right click to set its master number, first extension and name.");
 			provider.add("container.radiocraft.pabx", "Phone PABX");
+			provider.add("screen.radiocraft.pabx.master", "Master number");
+			provider.add("screen.radiocraft.pabx.first", "First extension");
+			provider.add("screen.radiocraft.pabx.name", "PABX name");
+			provider.add("screen.radiocraft.pabx.master_label", "Master number (%s digits, or none)");
+			provider.add("screen.radiocraft.pabx.first_label", "First extension");
+			provider.add("screen.radiocraft.pabx.name_label", "PABX name (up to %s)");
+			provider.add("screen.radiocraft.pabx.save", "Save");
+			provider.add("screen.radiocraft.pabx.powered", "Powered");
+			provider.add("screen.radiocraft.pabx.no_power", "No power");
+			provider.add("screen.radiocraft.pabx.saved", "Saved");
+			provider.add("screen.radiocraft.pabx.master_length", "A master number has exactly %s digits, or none");
+			provider.add("screen.radiocraft.pabx.master_taken", "Another PABX on this network already has master number %s");
+			provider.add("screen.radiocraft.pabx.bad_extension", "The first extension is a number from 0 to 99999");
 			provider.addBlock(RadiocraftBlocks.WEATHER_STATION, "Weather Station");
 			// The alternator only exists with Create (compat/create), so it is named by key.
 			provider.add("block.radiocraft.alternator", "Alternator");
@@ -168,7 +181,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add("container.radiocraft.telephone", "Telephone");
 			provider.add("tooltip.radiocraft.microwave_radio", "A digital point to multipoint link over microwave dishes on its coax. Carries APRS between H19s, bearings between direction finders, and telephone calls.");
 			provider.add("tooltip.radiocraft.microwave_dish", "One end of a microwave link: coax it to a microwave radio and point it at the other end's dish.");
-			provider.add("tooltip.radiocraft.telephone", "Put it on a powered Phone PABX (touching, or on its data wire) and dial another phone's extension, or a PABX's number and an extension. Sneak and right click to pick up the handset; place it on the side of a block to hang it on the wall.");
+			provider.add("tooltip.radiocraft.telephone", "Put it on a powered Phone PABX (touching, or on its data wire) and dial another phone's extension, or another PABX's master number and an extension. Sneak and right click to pick up the handset; place it on the side of a block to hang it on the wall.");
 			provider.add("tooltip.radiocraft.weather_station", "Put it up high in the open. Any H19 APRS terminal within 64 blocks sends its weather in its beacons.");
 			provider.add("screen.radiocraft.microwave.identity_taken", "Another microwave radio already has that callsign and ID");
 			provider.add("screen.radiocraft.telephone.extension_taken", "No PABX, or another phone on it already has that extension");
@@ -201,7 +214,6 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("commands", "callsign.generate.collision"), "%s could not be assigned callsign %s because it is already used by %s. Please assign a unique callsign manually (e.g., %s).");
 			provider.add(Radiocraft.translationKey("commands", "callsign.generate.online.empty"), "No players are currently online.");
 			provider.add(Radiocraft.translationKey("commands", "callsign.generate.online.none"), "All online players already have callsigns.");
-			provider.add(Radiocraft.translationKey("commands", "solarweather.success"), "Event: %s\nProgress: %s\nDuration: %s\nNoise Floor: %s");
 
 			provider.add(Radiocraft.translationKey("screen", "chargecontroller.power"), "%s FE/s");
 			provider.add(Radiocraft.translationKey("screen", "radio.tx"), "Transmitting");
@@ -359,14 +371,20 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("gui", "tab.rtty"), "RTTY");
 			provider.add(Radiocraft.translationKey("gui", "tab.files"), "FILES");
 
-			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.network_found"), "Antenna network at %s has %s antennas");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.header"), "%s at %s");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.resonant"), "Resonant on the %s band: SWR %s at %s MHz.");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.too_short"), "Near the %s band but too short: SWR %s there, resonant at %s MHz. Lengthen it.");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.too_long"), "Near the %s band but too long: SWR %s there, resonant at %s MHz. Shorten it.");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.poor_match"), "Best on the %s band, but the SWR there is %s at best: use a tuner.");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.not_resonant"), "Not resonant on any band.");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.sweep"), "SWR by band: %s");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.overdraw"), "%s antennas on one feedline: a radio on it would see a bad match.");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.nothing"), "Use it on an antenna, its balun, its coax or its radio.");
+			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.no_antenna"), "No antenna on this feedline.");
 			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.handheld_with_stats"), "You are holding a handheld radio; the antenna is %s m long. SWR at %s MHz is %s");
-			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.no_handheld"), "You are not holding a handheld radio");
 			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.unknown_handheld_antenna"), "You are holding a handheld radio, but it's using an antenna we know nothing about.");
-			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.no_networks_at"), "No antenna networks found at %s.");
-			provider.add(Radiocraft.translationKey("message", "antenna_analyzer.development_summary"), "There are %s networks in the world: %s");
 
-            provider.add(Radiocraft.translationKey("tooltip", "antenna_analyzer"), "Used for analyzing antenna networks and handheld radio antennas");
+            provider.add(Radiocraft.translationKey("tooltip", "antenna_analyzer"), "Right click an antenna, its balun, its coax or its radio: the band it is resonant on, whether it is too short or too long, and its SWR on every band.");
             provider.add(Radiocraft.translationKey("tooltip", "parrot_controller"), "Repeats received messages back out the connected radio. Affectionately called a \"parrot\" repeater.");
             provider.add(Radiocraft.translationKey("message", "parrot_controller.delay"), "Repeat delay: %ss");
             provider.add(Radiocraft.translationKey("message", "parrot_controller.linked"), "Linked to the radio to the %s");
@@ -475,6 +493,46 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.add(Radiocraft.translationKey("tooltip", "vhf_handheld_battery_swap"), "Click battery on VHF Handheld to swap batteries");
 			provider.add(Radiocraft.translationKey("tooltip", "crystal_pure"), "Pure crystal: a little less noise.");
 			provider.add(Radiocraft.translationKey("tooltip", "crystal_poor"), "Poor crystal: a little more noise, and it drifts off frequency.");
+			// Shown by ItemTooltipEvents on items whose class adds no tooltip of its own.
+			provider.add(Radiocraft.translationKey("tooltip", "all_band_radio"), "HF and VHF transceiver: 80, 40, 20 and 10m and 2m, in SSB, CW and FM. Needs an antenna for the band on coax.");
+			provider.add(Radiocraft.translationKey("tooltip", "alternator"), "Turn its shaft and it pushes power into the block beside it, such as a large battery.");
+			provider.add(Radiocraft.translationKey("tooltip", "aprs_h19"), "APRS terminal: touch it to a radio interface on a VHF station for beacons, the station list, messages and maps.");
+			provider.add(Radiocraft.translationKey("tooltip", "aprs_map"), "Right click an H19 with an empty map for a map of the APRS stations it has heard.");
+			provider.add(Radiocraft.translationKey("tooltip", "commercial_radio_module"), "Sealed cabinet that sends one thing on one frequency for ever. Found at radio sites; break it for a rare part.");
+			provider.add(Radiocraft.translationKey("tooltip", "commercial_repeater"), "Four-block repeater rack with its duplexer, battery and charge controller built in. Found at radio sites.");
+			provider.add(Radiocraft.translationKey("tooltip", "desk_charger"), "Set a VHF handheld in it to charge. Needs power on its wire.");
+			provider.add(Radiocraft.translationKey("tooltip", "duplexer"), "Set it on a VHF repeater so it can send and receive on one antenna. Coax the antenna from it.");
+			provider.add(Radiocraft.translationKey("tooltip", "microwave_horn"), "A large microwave antenna that reaches six times as far as a dish. Found in structures.");
+			provider.add(Radiocraft.translationKey("tooltip", "radio_interface"), "Touch it to a VHF radio to make a packet station: holds the call sign and the TX switch for APRS and fax.");
+			provider.add(Radiocraft.translationKey("tooltip", "tape_player"), "Plays a tape reel out loud and into every radio touching it, which transmits it.");
+			provider.add(Radiocraft.translationKey("tooltip", "tower_beacon"), "Red obstruction light for the top of a tower. A tower beacon controller makes it blink.");
+			provider.add(Radiocraft.translationKey("tooltip", "tower_beam"), "Joins every tower beam it touches, edges and corners included, into a lattice tower.");
+			provider.add(Radiocraft.translationKey("tooltip", "tower_beam_thin"), "Joins every tower beam it touches, edges and corners included, into a lattice tower.");
+			provider.add(Radiocraft.translationKey("tooltip", "tower_beam_thick"), "Joins every tower beam it touches, edges and corners included, into a lattice tower.");
+			provider.add(Radiocraft.translationKey("tooltip", "vhf_repeater"), "Listens on its input frequency and sends it out on its output. Needs a duplexer, an antenna and power.");
+			provider.add(Radiocraft.translationKey("tooltip", "all_band_circuit_board"), "The heart of the all-band radio, built with a pure encased crystal of every band.");
+			provider.add(Radiocraft.translationKey("tooltip", "antenna_wire"), "Right click one antenna holder, then another, to string wire between them. Feed it from a balun.");
+			provider.add(Radiocraft.translationKey("tooltip", "coaxial_core"), "Insulated wire core, made into coaxial wire.");
+			provider.add(Radiocraft.translationKey("tooltip", "ferrite_core"), "Wound into baluns and the 5-BTV.");
+			provider.add(Radiocraft.translationKey("tooltip", "hand_microphone"), "Part of every radio you talk on.");
+			provider.add(Radiocraft.translationKey("tooltip", "hf_circuit_board"), "Part of HF radios and most station electronics.");
+			provider.add(Radiocraft.translationKey("tooltip", "insulation"), "Wire jackets, coax and antenna parts. Made from kelp, leather or slime.");
+			provider.add(Radiocraft.translationKey("tooltip", "microphone_element"), "A carbon capsule: the heart of every microphone and telephone.");
+			provider.add(Radiocraft.translationKey("tooltip", "radio_speaker"), "Part of every radio and speaker.");
+			provider.add(Radiocraft.translationKey("tooltip", "tape_reel"), "Plays in a tape player, out loud and over the radios touching it.");
+			provider.add(Radiocraft.translationKey("tooltip", "vhf_handheld"), "2m FM radio you carry: hold right click to talk, sneak right click to open it. Runs on a small battery.");
+			provider.add(Radiocraft.translationKey("tooltip", "vhf_handheld_poor"), "2m FM radio you carry: hold right click to talk, sneak right click to open it. Runs on a small battery.");
+			provider.add(Radiocraft.translationKey("tooltip", "vhf_handheld_pure"), "2m FM radio you carry: hold right click to talk, sneak right click to open it. Runs on a small battery.");
+			for(CrystalBand band : CrystalBand.values())
+				for(CrystalQuality quality : CrystalQuality.values()) {
+					String makes = switch(quality) {
+						case POOR -> "Makes a Cheap radio that drifts off frequency.";
+						case GOOD -> "Makes the plain radio.";
+						case PURE -> "Makes a Premium radio: a touch less static.";
+					};
+					provider.add(Radiocraft.translationKey("tooltip", "crystal_" + band.getId() + "_" + quality.getId()), "Found digging sand. Encase it in iron before it goes in a radio.");
+					provider.add(Radiocraft.translationKey("tooltip", "encased_crystal_" + band.getId() + "_" + quality.getId()), makes + " Craft it with a radio to swap that radio's crystal.");
+				}
 
 			provider.add(Radiocraft.translationKey("message", "battery_swapped"), "Battery swapped");
             provider.add(Radiocraft.translationKey("message", "radio_battery_empty"), "Radio battery depleted");

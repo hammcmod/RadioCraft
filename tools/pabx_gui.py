@@ -1,28 +1,54 @@
-"""Writes the phone PABX's screen textures from the telephone's: the same keypad, with the labels on EXT, CALL and
-HANG painted out (the screen writes MODE, SET and BACK there).
+"""Writes the phone PABX's screen texture: a plain vanilla-style grey panel, 176 x 166 on a 256 x 256 sheet
+(PabxScreen draws the text boxes, the Save button and the text on it).
 
     python tools/pabx_gui.py
 """
-from collections import Counter
 from pathlib import Path
 
 from PIL import Image
 
 GUI = Path(__file__).resolve().parent.parent / "src/main/resources/assets/radiocraft/textures/gui"
-BUTTONS = [(142, 54, 26, 22), (24, 206, 62, 22), (94, 206, 62, 22)]  # EXT, CALL, HANG, as in TelephoneScreen
+WIDTH, HEIGHT = 176, 166
+
+BLACK = (0, 0, 0, 255)
+LIGHT = (255, 255, 255, 255)
+FACE = (198, 198, 198, 255)
+SHADOW = (85, 85, 85, 255)
 
 
-def blank(image):
+def panel(w, h):
+    image = Image.new("RGBA", (256, 256), (0, 0, 0, 0))
     px = image.load()
-    for x0, y0, w, h in BUTTONS:
-        inner = [(x, y) for x in range(x0 + 3, x0 + w - 3) for y in range(y0 + 3, y0 + h - 3)]
-        face = Counter(px[x, y] for x, y in inner).most_common(1)[0][0]
-        for x, y in inner:
-            px[x, y] = face
+    for x in range(w):
+        for y in range(h):
+            px[x, y] = FACE
+    # Black outline with the corners cut, as vanilla's container panels.
+    for x in range(2, w - 2):
+        px[x, 0] = BLACK
+        px[x, h - 1] = BLACK
+    for y in range(2, h - 2):
+        px[0, y] = BLACK
+        px[w - 1, y] = BLACK
+    for x, y in ((1, 1), (w - 2, 1), (1, h - 2), (w - 2, h - 2)):
+        px[x, y] = BLACK
+    for x, y in ((0, 0), (1, 0), (0, 1), (w - 1, 0), (w - 2, 0), (w - 1, 1),
+                 (0, h - 1), (1, h - 1), (0, h - 2), (w - 1, h - 1), (w - 2, h - 1), (w - 1, h - 2)):
+        px[x, y] = (0, 0, 0, 0)
+    # Light top and left edge, dark bottom and right, two pixels each.
+    for i in (1, 2):
+        for x in range(2, w - 3):
+            px[x, i] = LIGHT
+        for y in range(2, h - 3):
+            px[i, y] = LIGHT
+        for x in range(3, w - 2):
+            px[x, h - 1 - i] = SHADOW
+        for y in range(3, h - 2):
+            px[w - 1 - i, y] = SHADOW
+    px[2, 2] = LIGHT
+    px[w - 3, h - 3] = SHADOW
     return image
 
 
-for name in ("telephone", "telephone_widgets"):
-    out = GUI / (name.replace("telephone", "pabx") + ".png")
-    blank(Image.open(GUI / f"{name}.png").convert("RGBA")).save(out)
-    print("wrote", out)
+out = GUI / "pabx.png"
+panel(WIDTH, HEIGHT).save(out)
+print("wrote", out)

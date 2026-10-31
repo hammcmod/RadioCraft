@@ -12,7 +12,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
 
-/** The phone PABX's screen: its master number, first extension and whether it is behind another PABX. No slots. */
+/** The phone PABX's screen: its master number, first extension and name. No slots. */
 public class PabxMenu extends AbstractContainerMenu implements StationMenu {
 
 	public final PabxBlockEntity blockEntity;
@@ -34,9 +34,7 @@ public class PabxMenu extends AbstractContainerMenu implements StationMenu {
 	@Override
 	public void handleAction(ServerPlayer player, String action, CompoundTag data) {
 		switch(action) {
-			case "master" -> blockEntity.setMaster(data.getString("number"));
-			case "first" -> blockEntity.setFirstExtension(data.getInt("number"));
-			case "behind" -> blockEntity.setBehind(data.getBoolean("behind"));
+			case "save" -> blockEntity.save(data.getString("master"), data.getString("first"), data.getString("name"));
 			default -> {}
 		}
 	}

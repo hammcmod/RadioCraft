@@ -11,7 +11,7 @@
     {
       "type": "patchouli:text",
       "title": "Who you can call",
-      "text": "$(li)A phone on the same PABX: its extension, like $(thing)101$().$(li)A phone on another PABX across a $(l:radiocraft:microwave/microwave_radio)microwave link$(/l): that PABX's master number, then the extension: $(thing)602101$().$(li)A phone on a PABX behind yours: that PABX's number, then the extension.$(br)A phone's screen shows its full number from across the link."
+      "text": "$(li)A phone on the same PABX: its extension, like $(thing)101$().$(li)A phone on another PABX on the same data wire or across a $(l:radiocraft:microwave/microwave_radio)microwave link$(/l): that PABX's master number, then the extension: $(thing)603101$(). Key just the master number and the screen names that PABX.$(br)A phone's screen shows its full number from other PABXes."
     },
     {
       "type": "patchouli:text",

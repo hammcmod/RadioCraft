@@ -73,6 +73,35 @@ public final class WefaxPrints {
 		return new Print(sheet(level, center, pixels, name, lore), pixels);
 	}
 
+	/** The title a solar bulletin from {@code from} prints under. */
+	public static String bulletinTitle(String from) {
+		return "SOLAR WEATHER " + from;
+	}
+
+	/** A solar bulletin's lines as printed: the report, then who sent it. */
+	public static List<String> bulletinSheet(String from, List<String> lines) {
+		List<String> sheet = new ArrayList<>(lines);
+		sheet.add("FROM " + from);
+		return sheet;
+	}
+
+	/** The picture of a solar bulletin: what the sending radio's fax tones carry and the receiver prints. */
+	public static byte[] bulletinPixels(String from, List<String> lines) {
+		return WefaxChart.paintText(bulletinTitle(from), bulletinSheet(from, lines), true);
+	}
+
+	/** Paints {@code pixels} over the picture of a sheet already printed (lines lost in the noise, say). */
+	public static void repaint(ServerLevel level, ItemStack sheet, byte[] pixels) {
+		MapId id = sheet.get(DataComponents.MAP_ID);
+		MapItemSavedData data = id == null ? null : level.getMapData(id);
+		if(data == null || pixels.length != WefaxChart.SIZE * WefaxChart.SIZE)
+			return;
+		for(int z = 0; z < WefaxChart.SIZE; z++)
+			for(int x = 0; x < WefaxChart.SIZE; x++)
+				data.updateColor(x, z, pixels[x + z * WefaxChart.SIZE]);
+		data.setDirty();
+	}
+
 	/** A locked map of {@code pixels}, named and with {@code lore}, on fax paper. */
 	private static ItemStack sheet(ServerLevel level, BlockPos center, byte[] pixels, Component name, List<Component> lore) {
 		MapId id = level.getFreeMapId();

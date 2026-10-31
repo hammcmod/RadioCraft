@@ -11,6 +11,7 @@ import com.arrl.radiocraft.common.menus.TelephoneMenu;
 import com.arrl.radiocraft.common.radio.VoiceTransmitters;
 import com.arrl.radiocraft.common.radio.voice.RadioVoiceProcessor;
 import com.arrl.radiocraft.common.radio.voice.RadiocraftVoicePlugin;
+import com.arrl.radiocraft.common.telephone.PabxNumbers;
 import de.maxhenkel.voicechat.api.ServerLevel;
 import de.maxhenkel.voicechat.api.audiochannel.LocationalAudioChannel;
 import de.maxhenkel.voicechat.api.opus.OpusEncoder;
@@ -36,16 +37,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * A desk telephone on a phone PABX (touching it, or on its data wire): every phone needs one. The PABX numbers its
  * phones; a phone's owner can change its extension to any number no other phone on that PABX has. Dial a number (see
- * {@link PabxBlockEntity#resolve}): an extension on the same PABX, or a PABX's number and an extension, across the
- * PABXes behind one another and the microwave links between them. It rings until it is answered (or for 30 seconds).
+ * {@link PabxBlockEntity#resolve}): an extension on the same PABX, or another PABX's master number and an extension
+ * there, on the PABXes wired together or linked by microwave. It rings until it is answered (or for 30 seconds).
  * While a call is up, voices near either phone come out of the other at phone quality ({@link #PHONE_QUALITY}):
  * fuller than SSB, and clean, as the link is digital.
  */
@@ -75,8 +79,12 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 	private BlockPos partner = null;
 	/** The other end's number as this phone would dial it (synced, for the screen). */
 	private String partnerNumber = "";
-	/** This phone's number as dialed from across the microwave link (synced, for the screen); its extension alone without a PABX number. */
+	/** This phone's number as dialed from another PABX (synced, for the screen); its extension alone without a master number. */
 	private String fullNumber = "";
+	/** The master numbers and names of the PABXes this phone can call (synced, for the screen's "PABX 603: NAME"). */
+	private Map<String, String> directory = Map.of();
+	/** The extensions on this phone's own PABX (synced, for the screen: a local extension wins over a master number). */
+	private Set<Integer> localExtensions = Set.of();
 	private String status = "";
 	private int stateTicks = 0;
 	/** The client's copy: the game time the state began, for the call timer (stateTicks only counts on the server). */
@@ -160,7 +168,7 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		PabxBlockEntity mine = pabx();
 		if(mine != null && mine == viewer.pabx())
 			return Integer.toString(extension);
-		return mine == null ? Integer.toString(extension) : mine.fullPrefix() + extension;
+		return mine == null ? Integer.toString(extension) : mine.getMaster() + extension;
 	}
 
 	// -------------------- CALLS --------------------
@@ -174,11 +182,18 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		if(level == null)
 			return;
 		tickHandset();
-		if(level.getGameTime() % 40 == 0) { // Its number follows its PABX's settings.
+		if(level.getGameTime() % 40 == 0) { // Its number and directory follow the PABXes' settings.
 			PabxBlockEntity pabx = pabx();
-			String number = extension < 0 ? "" : pabx == null ? Integer.toString(extension) : pabx.fullPrefix() + extension;
-			if(!number.equals(fullNumber)) {
+			String number = extension < 0 ? "" : pabx == null ? Integer.toString(extension) : pabx.getMaster() + extension;
+			Map<String, String> reachable = pabx == null || !pabx.isPowered() ? Map.of() : pabx.directory();
+			Set<Integer> locals = new TreeSet<>();
+			if(pabx != null)
+				for(TelephoneBlockEntity phone : pabx.phones())
+					locals.add(phone.getExtension());
+			if(!number.equals(fullNumber) || !reachable.equals(directory) || !locals.equals(localExtensions)) {
 				fullNumber = number;
+				directory = reachable;
+				localExtensions = locals;
 				sync();
 			}
 		}
@@ -336,7 +351,7 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		PabxBlockEntity pabx = pabx();
 		if(pabx == null)
 			status = "NO LINE: NO PABX";
-		else if(pabx.exchange() == null)
+		else if(!pabx.isPowered())
 			status = "NO LINE: PABX HAS NO POWER";
 		else {
 			TelephoneBlockEntity callee = pabx.resolve(number);
@@ -513,9 +528,21 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		return partnerNumber;
 	}
 
-	/** This phone's number from across the microwave link (client side, synced). */
+	/** This phone's number from another PABX (client side, synced). */
 	public String getFullNumber() {
 		return fullNumber;
+	}
+
+	/**
+	 * What the screen shows while {@code dialed} is being keyed: "PABX 603: NAME" when it is exactly the master number
+	 * of a PABX this phone can call and no extension on its own PABX, else null. Client side, from the synced directory.
+	 */
+	@Nullable
+	public String directoryLabel(String dialed) {
+		if(!PabxNumbers.digits(dialed) || dialed.length() > 9 || localExtensions.contains(Integer.parseInt(dialed)))
+			return null;
+		String name = directory.get(dialed);
+		return name == null ? null : PabxNumbers.label(dialed, name);
 	}
 
 	public String getStatus() {
@@ -554,6 +581,15 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 			}
 			partnerNumber = tag.getString("partnerNumber");
 			fullNumber = tag.getString("fullNumber");
+			Map<String, String> reachable = new LinkedHashMap<>();
+			CompoundTag entries = tag.getCompound("directory");
+			for(String key : entries.getAllKeys())
+				reachable.put(key, entries.getString(key));
+			directory = reachable;
+			Set<Integer> locals = new TreeSet<>();
+			for(int number : tag.getIntArray("localExtensions"))
+				locals.add(number);
+			localExtensions = locals;
 			status = tag.getString("status");
 			stateSince = tag.getLong("stateSince");
 		}
@@ -565,6 +601,10 @@ public class TelephoneBlockEntity extends BlockEntity implements INetworkObjectP
 		tag.putString("state", state.name());
 		tag.putString("partnerNumber", partnerNumber);
 		tag.putString("fullNumber", fullNumber);
+		CompoundTag entries = new CompoundTag();
+		directory.forEach(entries::putString);
+		tag.put("directory", entries);
+		tag.putIntArray("localExtensions", localExtensions.stream().mapToInt(Integer::intValue).toArray());
 		tag.putString("status", status);
 		tag.putLong("stateSince", level == null ? 0L : level.getGameTime() - stateTicks);
 		return tag;

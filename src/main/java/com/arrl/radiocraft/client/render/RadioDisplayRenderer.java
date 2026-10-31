@@ -89,7 +89,7 @@ public class RadioDisplayRenderer<T extends RadioBlockEntity> implements BlockEn
 	                                java.util.List<RadioDisplays.Lamp> lamps, PoseStack poseStack, MultiBufferSource buffer) {
 		if(lamps.isEmpty())
 			return;
-		boolean tx = radio.isPTTDown(), rx = !tx && radio.getSyncedSignal() > 0.0D;
+		boolean tx = radio.isPTTDown() || radio.isSendingDataSynced(), rx = !tx && radio.getSyncedSignal() > 0.0D;
 		if(!tx && !rx)
 			return;
 		poseStack.pushPose();

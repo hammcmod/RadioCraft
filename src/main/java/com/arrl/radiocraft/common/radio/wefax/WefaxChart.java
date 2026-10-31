@@ -60,6 +60,20 @@ public final class WefaxChart {
 	public static final byte INK = AprsMapPainter.grey(0.0D);
 	static final byte SMUDGE = AprsMapPainter.grey(0.62D);
 
+	/**
+	 * Line {@code row} as a weather fax prints it with no signal to copy: the stylus marks whatever the noise says,
+	 * a scatter of ink and grey over the paper.
+	 */
+	public static void speckle(byte[] pixels, int row, long seed) {
+		if(row < 0 || row >= SIZE || pixels.length != SIZE * SIZE)
+			return;
+		java.util.Random random = new java.util.Random(seed);
+		for(int x = 0; x < SIZE; x++) {
+			double r = random.nextDouble();
+			pixels[row * SIZE + x] = r < 0.25D ? INK : r < 0.55D ? SMUDGE : PAPER;
+		}
+	}
+
 	/** Rain thresholds for the radar's four screens. */
 	static final double[] RAIN_LEVELS = { 0.2, 0.45, 0.7, 0.9 };
 	/** Minutes of motion a radar storm's arrow shows. */

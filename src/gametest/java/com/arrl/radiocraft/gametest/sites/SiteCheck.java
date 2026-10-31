@@ -79,7 +79,7 @@ public final class SiteCheck {
 			else if(entity instanceof AprsTerminalBlockEntity terminal) {
 				line = "powered=" + terminal.isPowered() + " radio=" + terminal.isRadioOn() + " " + terminal.getRadioFrequency() / 1e6 + " MHz callsign="
 						+ terminal.getCallsign() + " beacon=" + terminal.isBeaconEnabled() + " wx=" + terminal.getWeatherStationDistance();
-				if(powered && !terminal.isPowered())
+				if(powered && !terminal.isOn())
 					wrong.add("not running");
 				if(terminal.getCallsign().isEmpty())
 					wrong.add("no callsign");

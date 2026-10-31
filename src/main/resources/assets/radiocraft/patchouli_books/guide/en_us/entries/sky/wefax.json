@@ -6,12 +6,12 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "The $(item)WEFAX receiver$() prints weather charts on paper. It needs a radio with a real antenna beside it (or reached through station gear it touches), and $(item)paper$(): use paper on it to fill the tray, up to 64 sheets.$(br2)Each sheet takes twelve seconds to come off the drum and drops out of the front."
+      "text": "The $(item)WEFAX receiver$() prints weather charts on paper. It needs a radio with a real antenna beside it (or reached through station gear it touches), and $(item)paper$(): use paper on it to fill the tray, up to 64 sheets.$(br2)A sheet prints line by line as its tones come in, about twenty seconds, and drops out of the front. Lines that came in under the noise print as speckle."
     },
     {
       "type": "patchouli:text",
       "title": "Buttons",
-      "text": "$(li)$(thing)WX REPT$(): the next chart in turn: radar, forecast, surface analysis.$(li)$(thing)SOLR WX$(): the solar report from an $(l:radiocraft:sky/ionosphere)Ionospheric Processor$(/l): read directly if one touches it or its radio, otherwise asked for over the air (tune to the processor's frequency).$(li)$(thing)AUTO$(): prints a forecast when dangerous weather is coming.$(br)Blackout alerts always print, with three beeps."
+      "text": "$(li)$(thing)WX REPT$(): the radar chart and the forecast from the coast station, heard through its radio.$(li)$(thing)SOLR WX$(): the solar report from an $(l:radiocraft:sky/ionosphere)Ionospheric Processor$(/l): read directly if one touches it or its radio, otherwise asked for over the air (tune to the processor's frequency).$(li)$(thing)AUTO$(): prints a forecast when dangerous weather is coming.$(br)Blackout alerts always print, with three beeps."
     },
     {
       "type": "patchouli:text",

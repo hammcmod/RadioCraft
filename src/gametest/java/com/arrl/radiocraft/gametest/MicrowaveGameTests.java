@@ -395,7 +395,9 @@ public class MicrowaveGameTests {
 
 					TelephoneBlockEntity caller = GameTestUtil.blockEntity(helper, A.south(2), TelephoneBlockEntity.class);
 					TelephoneBlockEntity callee = GameTestUtil.blockEntity(helper, B.south(2), TelephoneBlockEntity.class);
-					GameTestUtil.blockEntity(helper, B.south(), PabxBlockEntity.class).setMaster("602");
+					helper.assertTrue(GameTestUtil.blockEntity(helper, B.south(), PabxBlockEntity.class).setMaster("602") == null, "602 refused");
+					helper.assertTrue("screen.radiocraft.pabx.master_taken".equals(GameTestUtil.blockEntity(helper, A.south(), PabxBlockEntity.class).setMaster("602")),
+							"A PABX across the link took a master number already in use there");
 					caller.dial(Integer.toString(callee.getExtension()));
 					helper.assertTrue(callee.getState() == TelephoneBlockEntity.State.IDLE, "A bare extension rang a phone on another PABX");
 					caller.dial("602" + callee.getExtension());

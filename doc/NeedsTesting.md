@@ -8,6 +8,44 @@ writes back here: `- [ ]` not tested, `- [x]` passed, `- [!]` needs work, with `
 `![caption](testing_shots/...)` screenshots indented under the item. Whoever picks up a `[!]` item fixes it (or moves
 it to [todo.md](../todo.md)), then sets it back to `[ ]` for the next playtest.
 
+## PABX rework (added 2026-10-31)
+
+PABXes have no "behind" setting any more: all PABXes on one data wire or across microwave links are peers, reached
+by master number + extension (a local extension wins). GameTests pass; these need a client.
+
+- [ ] Right click a PABX: a plain grey panel at normal GUI size, "Phone PABX" and Powered / No power on top, three
+  text boxes (Master number (3 digits, or none), First extension, PABX name (up to 10)) and Save. Typing E in a box
+  does not close it; ENTER saves; the name comes out upper case. The line under Save says Saved, or why not (a
+  2-digit master number, or one another PABX on the network has).
+- [ ] With JEI installed, its item list sits beside the PABX screen, and no longer covers the telephone, H19, fax,
+  microwave radio or other scaled-up station screens (it moves aside or hides the items that would land on them).
+- [ ] Two PABXes on one data wire (or across a microwave link), 602 and 603, 603 named OFFICE: on 602's phone, keying
+  603 shows "PABX 603: OFFICE" on the LCD (just "PABX 603" with no name); keying on to 603100 shows the number again
+  and rings extension 100 there. A phone's NO. line shows its master number + extension.
+
+
+## Weather fax on the air, blackout range, /solarweather (added 2026-10-31)
+
+- [ ] SEND NOW on an Ionospheric Processor with a radio: the radio shows TX for the whole bulletin (about 20 s), and a
+  radio on the same frequency nearby shows RX and plays the weather fax warble (a start buzz, a tick-tock, the picture
+  sliding between two tones, a stop buzz). Does it sound right?
+- [ ] SOLR WX on a far WEFAX: its radio shows TX for the short request, then the processor's radio TX and the WEFAX's
+  radio RX; the sheet rises line by line while the tones play, with a soft stylus tick, not all at the end.
+- [ ] Switch the processor's radio off half way through: the rest of the sheet prints as speckle.
+- [ ] WX REPT: the radio beside the WEFAX shows RX and plays the fax tones while each chart prints.
+- [ ] `/solarweather` shows the conditions (no error); `/solarweather set blackout`, then two HF stations 10 blocks
+  apart still talk and still answer SOLR WX, while far stations cannot. `/solarweather set average` puts it back.
+
+## Antenna analyzer, item tooltips (added 2026-10-31)
+
+- [ ] Antenna analyzer no longer crashes the game: right click grass, a radio with nothing on it, bare coax, a
+  balun, a J-pole, the radio of a working station. Each gives a message, never a crash.
+- [ ] Analyzer on a 20m dipole (5 blocks each arm), its balun, its coax and its radio: "Resonant on the 20m band",
+  then the SWR by band line. Shorten one arm to 4: it says too short and to lengthen it; make both arms 6: too long.
+- [ ] Analyzer on a J-pole: resonant on 2m. On a random wire (never better than SWR 2): it suggests a tuner, or a length change when that would help.
+- [ ] Hover over a crystal, an encased crystal, insulation, a tower beam, the duplexer and the desk charger: each has a
+  grey line saying what it is for (the desk charger used to show a raw `tooltip.radiocraft.desk_charger`). Items
+  that already had a tooltip (radios, wires, speakers) show it once, not twice.
 
 ## Data wire, splitter, WEFAX alarms, lightning on carried radios (added 2026-10-30)
 
@@ -233,11 +271,11 @@ wire items).
 
 ## H19 needs power (added 2026-10-27, late)
 
-- [ ] An H19 with no power wire shows a dark glass when opened: no boot, nothing drawn, keys do nothing (Esc closes).
-  A wire from a charged battery to it (`aprs_terminal_power_use`, 3/tick) with a powered radio on its TNC: it boots
-  when opened. Pull the wire, or switch the radio off: dark again; back on, it boots afresh. The block's READY /
-  CONTACT / MSG lamp is dark too without power. A microwave radio serving it (touching or on its wire) counts as its
-  radio when that is on.
+- [ ] (Changed 2026-10-31: no wire of its own needed.) An H19 on a radio interface beside a powered VHF radio boots
+  when opened, with no power wire to it. Switch the radio off: dark glass, no boot, keys do nothing (Esc closes); back
+  on, it boots afresh. The block's READY / CONTACT / MSG lamp follows. Beside an HF radio it shows nothing (VHF only).
+  A microwave radio serving it (touching or on its wire) counts as its radio when that is on. An H19 cabled to the
+  interface only by data wire stays dark until a power wire with a charged battery reaches it.
 - [ ] The redstone RFI sound comes from the radio only, mixing with its static; lightning crackle no longer sets it off.
 
 ## Redstone RFI sound (added 2026-10-27, late)
@@ -255,13 +293,11 @@ wire items).
 - [ ] Phone PABX: the size of a direction finder module, faces you when placed, the pabx.png front with a dark lamp
   that turns green once it has power. Every phone needs one now: a phone on a microwave radio alone says NO LINE.
   Recipe: iron, data wire, a comparator, redstone.
-- [ ] Right click a PABX: the keypad screen (PHONE PABX on top, MODE / SET / BACK). MODE steps MASTER NO, FIRST EXT,
-  BEHIND A PABX; SET saves the keyed number or flips BEHIND. Changing FIRST EXT renumbers its phones within a second.
+- [ ] Changing a PABX's first extension renumbers its phones within a second (the keypad screen is gone: see
+  "PABX rework" above).
 - [ ] Two sites linked over microwave, a PABX touching each radio (master numbers 601 and 602), a phone on each:
   601's phone dials 602 + the far extension and it rings; a bare extension does not. The phone screen shows NO. and
   its full number; the far end shows who is calling.
-- [ ] A PABX set behind another (touching it, or on its data wire), master 7: from the front PABX's phones 7 + the
-  extension rings it; its phones reach the front ones by bare extension, and the far site by 602 7 + extension.
 - [ ] The call timer counts up during a call (it stuck at 0:00).
 - [ ] A repeater site's red tower beacon blinks (2 s on, 2 s off) in a freshly generated site, and in an already
   generated one it starts blinking within a minute or two of the chunk loading (it stood solid red).

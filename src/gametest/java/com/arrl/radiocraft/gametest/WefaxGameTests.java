@@ -26,7 +26,7 @@ public class WefaxGameTests {
 		RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.set(RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.getDefault());
 	}
 
-	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 400, batch = "wefax")
+	@GameTest(template = GameTestUtil.EMPTY, timeoutTicks = 600, batch = "wefax")
 	public static void printsASheetOutOfTheFront(GameTestHelper helper) {
 		boolean needsRadio = RadiocraftServerConfig.TELETYPE_NEEDS_RADIO.get();
 		boolean solarAlways = RadiocraftServerConfig.WEFAX_SOLAR_ALWAYS.get();
