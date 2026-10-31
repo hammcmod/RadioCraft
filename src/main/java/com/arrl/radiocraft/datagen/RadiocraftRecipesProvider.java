@@ -222,6 +222,7 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
         buildRadioSpeakerRecipe(recipeOutput);
         buildCoaxWireRecipe(recipeOutput);
         buildDyedCoaxRecipes(recipeOutput);
+        buildDyedDataWireRecipes(recipeOutput);
         buildDyedWireRecipes(recipeOutput);
         buildDuplexerRecipe(recipeOutput);
         buildSmallBatteryRecipe(recipeOutput);
@@ -625,6 +626,18 @@ public class RadiocraftRecipesProvider extends RecipeProvider {
                 .define('D', net.minecraft.world.item.DyeItem.byColor(colour))
                 .unlockedBy("has_wire", has(RadiocraftItems.WIRE.get()))
                 .save(recipeOutput, com.arrl.radiocraft.Radiocraft.id("wire_" + colour.getSerializedName())));
+    }
+
+    /** Eight data wire round a dye: eight of that colour, which joins only its own colour. */
+    private void buildDyedDataWireRecipes(RecipeOutput recipeOutput) {
+        RadiocraftItems.COLOURED_DATA_WIRE.forEach((colour, wire) -> ShapedRecipeBuilder.shaped(RecipeCategory.MISC, wire.get(), 8)
+                .pattern("WWW")
+                .pattern("WDW")
+                .pattern("WWW")
+                .define('W', RadiocraftItems.DATA_WIRE.get())
+                .define('D', net.minecraft.world.item.DyeItem.byColor(colour))
+                .unlockedBy("has_data_wire", has(RadiocraftItems.DATA_WIRE.get()))
+                .save(recipeOutput, com.arrl.radiocraft.Radiocraft.id("data_wire_" + colour.getSerializedName())));
     }
 
     /** Eight coax round a dye: eight of that colour, which joins only its own colour and plain coax. */

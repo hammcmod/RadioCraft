@@ -88,8 +88,8 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 		if(kind.isPower)
 			return kind.isWaterproof ? 1 : kind.colour == null ? 0 : 2 + kind.colour.getId();
 		if(kind.isData)
-			return 18;
-		return kind.colour == null ? 19 : 20 + kind.colour.getId();
+			return kind.colour == null ? 18 : 19 + kind.colour.getId();
+		return kind.colour == null ? 35 : 36 + kind.colour.getId();
 	}
 
 	@Nullable
@@ -311,8 +311,9 @@ public class WireBundleBlock extends Block implements SimpleWaterloggedBlock, En
 		}
 		if(stack.getItem() instanceof DyeItem dye) {
 			WireBlock kind = strandAt(level, pos, hit);
-			WireBlock target = RadiocraftBlocks.COLOURED_COAX.get(dye.getDyeColor()).get();
-			if(kind == null || !kind.isCoax() || kind == target)
+			WireBlock target = kind != null && kind.isData ? RadiocraftBlocks.COLOURED_DATA_WIRE.get(dye.getDyeColor()).get()
+					: RadiocraftBlocks.COLOURED_COAX.get(dye.getDyeColor()).get();
+			if(kind == null || !(kind.isCoax() || kind.isData) || kind == target)
 				return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 			if(!level.isClientSide) {
 				WireBlock.dyeRun(level, new Strand(pos, kind), target, player.isShiftKeyDown());

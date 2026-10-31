@@ -6,7 +6,7 @@
   "pages": [
     {
       "type": "patchouli:text",
-      "text": "$(item)Data wire$() is thin light grey cable that links station gear that is not side by side. Lay it like wire from a radio to its $(l:radiocraft:digital/teletype)teletype$(/l), $(l:radiocraft:digital/radio_fax)radio fax$(/l), $(l:radiocraft:sky/wefax)WEFAX receiver$(/l), radio interface or tape player, from a radio to $(l:radiocraft:radios/speakers)wall speakers$(/l), or from a $(l:radiocraft:microwave/microwave_radio)microwave radio$(/l) to the stations it serves.$(br2)It carries no power, and $(l:radiocraft:power/wire)power wire$(/l) no longer links devices: only data wire does. It shares a wire bundle with other cables."
+      "text": "$(item)Data wire$() is thin light grey cable that links station gear that is not side by side. Lay it like wire from a radio to its $(l:radiocraft:digital/teletype)teletype$(/l), $(l:radiocraft:digital/radio_fax)radio fax$(/l), $(l:radiocraft:sky/wefax)WEFAX receiver$(/l), radio interface or tape player, from a radio to $(l:radiocraft:radios/speakers)wall speakers$(/l), or from a $(l:radiocraft:microwave/microwave_radio)microwave radio$(/l) to the stations it serves.$(br2)It carries no power, and $(l:radiocraft:power/wire)power wire$(/l) no longer links devices: only data wire does. It shares a wire bundle with other cables. Dye it (eight round a dye, or use a dye on a run) to keep runs apart: each colour joins only its own."
     },
     {
       "type": "patchouli:crafting",

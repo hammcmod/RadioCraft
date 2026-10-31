@@ -24,6 +24,14 @@ by master number + extension (a local extension wins). GameTests pass; these nee
   and rings extension 100 there. A phone's NO. line shows its master number + extension.
 
 
+## Dyed data wire, creative search by number words (added 2026-10-31)
+
+- [ ] Sixteen dyed data wires in the creative tab after plain data wire: each looks its colour with the dark flecks
+  still showing (tells apart from dyed power wire); 3D item; laid in a bundle beside other cables. A dye used on a
+  plain data wire run recolours it; red and blue runs side by side do not join.
+- [ ] Creative search: "twenty" finds the 20m radios, "twenty meter" too, "five" the 5-BTV, "nine" the 9:1 balun.
+  Hovering those items shows no extra lines.
+
 ## Weather fax on the air, blackout range, /solarweather (added 2026-10-31)
 
 - [ ] SEND NOW on an Ionospheric Processor with a radio: the radio shows TX for the whole bulletin (about 20 s), and a
@@ -34,7 +42,8 @@ by master number + extension (a local extension wins). GameTests pass; these nee
 - [ ] Switch the processor's radio off half way through: the rest of the sheet prints as speckle.
 - [ ] WX REPT: the radio beside the WEFAX shows RX and plays the fax tones while each chart prints.
 - [ ] `/solarweather` shows the conditions (no error); `/solarweather set blackout`, then two HF stations 10 blocks
-  apart still talk and still answer SOLR WX, while far stations cannot. `/solarweather set average` puts it back.
+  apart still talk and still answer SOLR WX, while far stations cannot; their voices flutter (`blackout_los_distortion`
+  0.4) - rough enough to feel the blackout, still easy to understand? `/solarweather set average` puts it back.
 
 ## Antenna analyzer, item tooltips (added 2026-10-31)
 

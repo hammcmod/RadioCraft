@@ -11,6 +11,7 @@ listed in [doc/Testing.md](doc/Testing.md#bug-audit-2026-10); each fix has a tes
   New 2026-10-30: `parrotEchoesVoiceAfterDelay` and `controllerEchoesVoiceAndLightsLeds` heard something on 20m 2 and 5
   ticks after speaking, once, in the same default sub-batch; the rerun passed. Look for another 20m transmitter in
   that sub-batch if it comes back.
+  Came back twice on 2026-10-31 (`parrotEchoesVoiceAfterDelay`, 2 and 5 ticks; reruns passed): worth chasing.
   **(seen 2026-10-27 evening, two runs, different tests each time).** `wefaxAsksOverTheAir` and
   `teletypeAsksOverTheAir` failed once: the `ionospheric` batch ran straight after `blackout_night`, whose solar
   blackout (noise 1.0) was still on, so nothing got through on HF. `weakRttyPrintsGarbled` failed once on its own
@@ -466,6 +467,12 @@ Models and textures we want drawn by someone else are listed in [doc/ModelDesign
 - [x] Blackout keeps local contacts at half range (2026-10-31, maintainer): line of sight copies against
   `los_solar_noise_share` (0.5) of the solar noise; skip is still dead.
 - [x] `/solarweather` works again (2026-10-31): shows the conditions; `set`, `forecast`, `aurora`, `sporadic_e` for ops.
+
+- [x] Dyed data wire (2026-10-31, maintainer): sixteen colours like dyed coax, each joining only its own colour.
+- [x] Creative search by number words (2026-10-31, maintainer): "twenty" finds the 20m radio (`SearchAliases`, added
+  to the tooltip only when the search indexes it, never shown).
+- [x] Blackout flutter (2026-10-31, maintainer): line of sight HF voice gets `blackout_los_distortion` (0.4) of the
+  aurora rasp in a blackout.
 
 ### World & Progression Additions
 - [ ] In-game guide book like the Create mod's (Ponder-style scenes) explaining radios, antennas, power and the

@@ -1,0 +1,79 @@
+{
+	"credit": "Corner on the north edge: joins the top of a run coming up that edge to the neighbour's stub",
+	"parent": "block/block",
+	"textures": {
+		"0": "radiocraft:block/data_wire_lime",
+		"particle": "radiocraft:block/data_wire_lime"
+	},
+	"elements": [
+		{
+			"name": "wire",
+			"from": [
+				7.5,
+				0,
+				-0.5
+			],
+			"to": [
+				8.5,
+				1,
+				0.5
+			],
+			"faces": {
+				"north": {
+					"uv": [
+						7,
+						0,
+						8,
+						1
+					],
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						7,
+						0,
+						8,
+						1
+					],
+					"texture": "#0"
+				},
+				"east": {
+					"uv": [
+						7,
+						0,
+						8,
+						1
+					],
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						7,
+						0,
+						8,
+						1
+					],
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						7,
+						0,
+						8,
+						1
+					],
+					"texture": "#0"
+				},
+				"down": {
+					"uv": [
+						7,
+						0,
+						8,
+						1
+					],
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

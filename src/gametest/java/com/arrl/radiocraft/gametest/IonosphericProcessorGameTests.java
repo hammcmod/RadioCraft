@@ -328,6 +328,8 @@ public class IonosphericProcessorGameTests {
 				.thenWaitUntil(() -> helper.assertTrue(processorAt(helper, lower).isOnline() && radio(helper, far).isPowered(), "not up yet"))
 				.thenExecute(() -> {
 					helper.assertTrue(radio(helper, far).getNoiseFloor() >= 0.99D, "no blackout: noise " + radio(helper, far).getNoiseFloor());
+					helper.assertTrue(Math.abs(radio(helper, far).blackoutDistortion() - RadiocraftServerConfig.BLACKOUT_LOS_DISTORTION.get()) < 1e-6,
+							"local voice is not roughened in the blackout: " + radio(helper, far).blackoutDistortion());
 					wefaxAt(helper, wefax).printSolar(null);
 					helper.assertTrue(wefaxAt(helper, wefax).isRequesting(), "SOLR WX did not ask over the air");
 				})

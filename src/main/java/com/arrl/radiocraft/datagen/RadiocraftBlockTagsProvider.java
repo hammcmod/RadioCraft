@@ -62,6 +62,7 @@ public class RadiocraftBlockTagsProvider extends BlockTagsProvider {
         // (WireBlock#isDataConnection).
         tag(RadiocraftTags.Blocks.DATA_BLOCKS)
                 .add(RadiocraftBlocks.DATA_WIRE.get())
+                .add(RadiocraftBlocks.COLOURED_DATA_WIRE.values().stream().map(net.neoforged.neoforge.registries.DeferredHolder::get).toArray(Block[]::new))
                 .add(RadiocraftBlocks.WALL_SPEAKER.get(), RadiocraftBlocks.LOUDSPEAKER.get()) // The wire is their speaker line.
                 .add(RadiocraftBlocks.MICROWAVE_RADIO.get()) // The line to the stations it serves and its site's other radios:
                 .add(RadiocraftBlocks.TELEPHONE.get(), RadiocraftBlocks.PABX.get(), RadiocraftBlocks.APRS_TERMINAL.get(),

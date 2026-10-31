@@ -25,12 +25,14 @@ VARIANTS = {"wire": ("radiocraft:block/wire", 1), "coax_wire": ("radiocraft:bloc
 for dye in DYES:
     VARIANTS[f"wire_{dye}"] = (f"radiocraft:block/wire_{dye}", 1)
     VARIANTS[f"coax_wire_{dye}"] = (f"radiocraft:block/coaxial_wire_{dye}", 2)
+    VARIANTS[f"data_wire_{dye}"] = (f"radiocraft:block/data_wire_{dye}", 1)
 
 # Blockstate name -> model prefix (the waterproof wire shares the plain wire's models).
 BLOCKSTATES = {"wire": "wire", "waterproof_wire": "wire", "coax_wire": "coax_wire", "data_wire": "data_wire"}
 for dye in DYES:
     BLOCKSTATES[f"wire_{dye}"] = f"wire_{dye}"
     BLOCKSTATES[f"coax_wire_{dye}"] = f"coax_wire_{dye}"
+    BLOCKSTATES[f"data_wire_{dye}"] = f"data_wire_{dye}"
 
 
 def tex(texture):

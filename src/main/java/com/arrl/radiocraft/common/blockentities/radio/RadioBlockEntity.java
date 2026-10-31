@@ -1055,6 +1055,8 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
         if(isParrot()) // Queue the audio as it arrived, before the receiver scales it, so the echo carries one path's loss, not two.
             parrotVoiceQueue.add(new QueuedVoice(packet.getRawAudio().clone(), packet.getSourcePlayer(), lastSignalGameTime + parrotDelayTicks));
         double rasp = skip && band != null && band.isVhf() ? 1.0D : 0.0D; // A VHF signal beyond line of sight came off the aurora.
+        if(!skip && band != null && !band.isVhf())
+            rasp = blackoutDistortion(); // Local HF in a blackout gets through, but rough.
         // FM holds its volume as the signal fades and gets noisier instead; SSB sinks into the noise.
         double level = isFM() ? speakerGain : ReceiverMix.voiceLevel(strength, getNoiseFloor(skip)) * speakerGain;
         getVoiceReceiver().receive(packet, level, rasp, effect.pitchShiftHz(), effect.splatter(),
@@ -1124,6 +1126,16 @@ public abstract class RadioBlockEntity extends BlockEntity implements ITogglable
      */
     public double getNoiseFloor() {
         return getNoiseFloor(1.0D);
+    }
+
+    /**
+     * How much a line of sight HF voice flutters under the solar noise: none up to a poor day's noise (0.7), rising to
+     * {@link RadiocraftServerConfig#BLACKOUT_LOS_DISTORTION} in a full blackout (maintainer, 2026-10-31).
+     */
+    public double blackoutDistortion() {
+        SolarEventInstance event = level == null ? null : SolarEventManager.getEvent(level);
+        double noise = event == null ? 0.0D : event.getEvent().getNoise();
+        return RadiocraftServerConfig.BLACKOUT_LOS_DISTORTION.get() * Math.max(0.0D, Math.min(1.0D, (noise - 0.7D) / 0.3D));
     }
 
     /**

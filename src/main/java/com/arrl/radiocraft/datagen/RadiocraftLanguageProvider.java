@@ -107,6 +107,7 @@ public class RadiocraftLanguageProvider extends LanguageProvider {
 			provider.addBlock(RadiocraftBlocks.COAX_WIRE, "Coaxial Wire");
 			provider.addBlock(RadiocraftBlocks.WIRE_BUNDLE, "Wire Bundle");
 			RadiocraftBlocks.COLOURED_COAX.forEach((colour, block) -> provider.addBlock(block, dyeName(colour) + " Coaxial Wire"));
+			RadiocraftBlocks.COLOURED_DATA_WIRE.forEach((colour, block) -> provider.addBlock(block, dyeName(colour) + " Data Wire"));
 			RadiocraftBlocks.COLOURED_WIRE.forEach((colour, block) -> provider.addBlock(block, dyeName(colour) + " Wire"));
 			provider.addBlock(RadiocraftBlocks.RADIO_INTERFACE, "Radio Interface");
 			provider.addBlock(RadiocraftBlocks.APRS_TERMINAL, "H19 APRS Terminal");

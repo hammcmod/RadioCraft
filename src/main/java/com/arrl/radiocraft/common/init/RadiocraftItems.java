@@ -61,6 +61,13 @@ public class RadiocraftItems {
 	public static final Supplier<BlockItem> WIRE = simpleBlockItem("wire", RadiocraftBlocks.WIRE);
 	public static final Supplier<BlockItem> WATERPROOF_WIRE = simpleBlockItem("waterproof_wire", RadiocraftBlocks.WATERPROOF_WIRE);
 	public static final Supplier<BlockItem> DATA_WIRE = simpleBlockItem("data_wire", RadiocraftBlocks.DATA_WIRE);
+	public static final java.util.Map<net.minecraft.world.item.DyeColor, Supplier<BlockItem>> COLOURED_DATA_WIRE = colouredDataWire();
+
+	private static java.util.Map<net.minecraft.world.item.DyeColor, Supplier<BlockItem>> colouredDataWire() {
+		java.util.Map<net.minecraft.world.item.DyeColor, Supplier<BlockItem>> out = new java.util.EnumMap<>(net.minecraft.world.item.DyeColor.class);
+		RadiocraftBlocks.COLOURED_DATA_WIRE.forEach((colour, block) -> out.put(colour, simpleBlockItem("data_wire_" + colour.getSerializedName(), block)));
+		return out;
+	}
 	public static final java.util.Map<net.minecraft.world.item.DyeColor, Supplier<BlockItem>> COLOURED_WIRE = colouredWire();
 
 	private static java.util.Map<net.minecraft.world.item.DyeColor, Supplier<BlockItem>> colouredWire() {

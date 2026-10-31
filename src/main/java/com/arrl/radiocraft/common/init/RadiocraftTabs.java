@@ -126,6 +126,7 @@ public class RadiocraftTabs {
         output.accept(RadiocraftItems.SMALL_BATTERY.get());
         output.accept(RadiocraftItems.WATERPROOF_WIRE.get());
         output.accept(RadiocraftItems.DATA_WIRE.get());
+        RadiocraftItems.COLOURED_DATA_WIRE.values().forEach(wire -> output.accept(wire.get()));
 
         output.accept(RadiocraftItems.DESK_CHARGER.get());
 

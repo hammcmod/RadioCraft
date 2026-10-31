@@ -1,0 +1,130 @@
+{
+	"credit": "Run up the middle of the block from the middle cube to the ceiling",
+	"parent": "block/block",
+	"textures": {
+		"0": "radiocraft:block/data_wire_lime",
+		"particle": "radiocraft:block/data_wire_lime"
+	},
+	"elements": [
+		{
+			"name": "wire",
+			"from": [
+				7.5,
+				1,
+				7.5
+			],
+			"to": [
+				8.5,
+				9,
+				8.5
+			],
+			"faces": {
+				"east": {
+					"uv": [
+						0,
+						3,
+						7,
+						4
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						7,
+						7,
+						8
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"north": {
+					"uv": [
+						0,
+						5,
+						7,
+						6
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0,
+						1,
+						7,
+						2
+					],
+					"rotation": 90,
+					"texture": "#0"
+				}
+			}
+		},
+		{
+			"name": "wire",
+			"from": [
+				7.5,
+				9,
+				7.5
+			],
+			"to": [
+				8.5,
+				16,
+				8.5
+			],
+			"faces": {
+				"east": {
+					"uv": [
+						0,
+						3,
+						7,
+						4
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"west": {
+					"uv": [
+						0,
+						7,
+						7,
+						8
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"north": {
+					"uv": [
+						0,
+						5,
+						7,
+						6
+					],
+					"rotation": 270,
+					"texture": "#0"
+				},
+				"south": {
+					"uv": [
+						0,
+						1,
+						7,
+						2
+					],
+					"rotation": 90,
+					"texture": "#0"
+				},
+				"up": {
+					"uv": [
+						7,
+						0,
+						8,
+						1
+					],
+					"rotation": 180,
+					"texture": "#0"
+				}
+			}
+		}
+	]
+}

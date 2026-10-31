@@ -40,6 +40,15 @@ public class RadiocraftBlocks {
 	public static final Supplier<Block> WATERPROOF_WIRE = BLOCKS.register("waterproof_wire", () -> new WireBlock(PROPERTIES_WIRES, true, true));
 	/** Links radios, accessories, wired speakers and microwave stations that do not touch (see {@code DataWire}). */
 	public static final DeferredHolder<Block, WireBlock> DATA_WIRE = BLOCKS.register("data_wire", () -> WireBlock.data(PROPERTIES_WIRES));
+	/** Dyed data wire, one block per colour: it joins only its own colour, so parallel runs stay apart (as dyed coax). */
+	public static final java.util.Map<net.minecraft.world.item.DyeColor, DeferredHolder<Block, WireBlock>> COLOURED_DATA_WIRE = colouredDataWire();
+
+	private static java.util.Map<net.minecraft.world.item.DyeColor, DeferredHolder<Block, WireBlock>> colouredDataWire() {
+		java.util.Map<net.minecraft.world.item.DyeColor, DeferredHolder<Block, WireBlock>> out = new java.util.EnumMap<>(net.minecraft.world.item.DyeColor.class);
+		for(net.minecraft.world.item.DyeColor colour : net.minecraft.world.item.DyeColor.values())
+			out.put(colour, BLOCKS.register("data_wire_" + colour.getSerializedName(), () -> WireBlock.data(PROPERTIES_WIRES, colour)));
+		return out;
+	}
 	/** Dyed power wire, one block per colour: it joins only its own colour and plain wire, so parallel runs stay apart (as dyed coax). */
 	public static final java.util.Map<net.minecraft.world.item.DyeColor, DeferredHolder<Block, WireBlock>> COLOURED_WIRE = colouredWire();
 

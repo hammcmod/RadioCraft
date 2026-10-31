@@ -3,7 +3,8 @@ along every side of the jacket, so it shows from any angle. Writes textures/bloc
 dyed power wire textures (2026-10-27): the whole of wire.png tinted to the dye, keeping its shading, since a 1 px cable
 has no room for a stripe. Writes textures/block/wire_<colour>.png; the wire items are 3D and need no icon. And the data
 wire (2026-10-30): wire.png in light grey with darker flecks along it, so it tells apart from light grey power wire.
-Writes textures/block/data_wire.png.
+Writes textures/block/data_wire.png. And the dyed data wire (2026-10-31): the same flecks on a jacket tinted to the dye.
+Writes textures/block/data_wire_<colour>.png.
 
     pip install pillow
     python tools/coax_colours.py
@@ -72,6 +73,17 @@ def tinted(base, colour):
     return out
 
 
+def data_wire(wire, colour):
+    """wire.png tinted to {@code colour} with darker flecks along it: twisted pairs showing through the jacket."""
+    data = tinted(wire, colour)
+    for y in STRIPE_ROWS:
+        for x in range(LENGTH):
+            if x % 3 == 1:
+                r, g, b, a = data.getpixel((x, y))
+                data.putpixel((x, y), (int(r * 0.6), int(g * 0.6), int(b * 0.65), a))
+    return data
+
+
 if __name__ == "__main__":
     wire = Image.open(TEXTURES / "wire.png").convert("RGBA")
     for name, colour in COLOURS.items():
@@ -84,11 +96,7 @@ if __name__ == "__main__":
         icon_stripe(icon, colour).save(ITEMS / f"coax_wire_icon_{name}.png")
         model = {"parent": "minecraft:item/generated", "textures": {"layer0": f"radiocraft:item/coax_wire_icon_{name}"}}
         (ASSETS / "models/item" / f"coax_wire_{name}.json").write_text(json.dumps(model, indent=2) + "\n")
-    data = tinted(wire, DATA_WIRE)
-    for y in STRIPE_ROWS:
-        for x in range(LENGTH):
-            if x % 3 == 1:  # Flecks along the jacket: twisted pairs showing through.
-                r, g, b, a = data.getpixel((x, y))
-                data.putpixel((x, y), (int(r * 0.6), int(g * 0.6), int(b * 0.65), a))
-    data.save(TEXTURES / "data_wire.png")
+    data_wire(wire, DATA_WIRE).save(TEXTURES / "data_wire.png")
+    for name, colour in COLOURS.items():
+        data_wire(wire, colour).save(TEXTURES / f"data_wire_{name}.png")
     print("wrote", len(COLOURS), "dyed coax textures, icons and item models, and", len(COLOURS), "dyed wire textures")

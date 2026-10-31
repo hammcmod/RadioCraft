@@ -231,7 +231,12 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 
 	/** The data wire: {@code isData} true, {@code isPower} false. */
 	public static WireBlock data(Properties properties) {
-		return new WireBlock(properties, false, true, false, null);
+		return data(properties, null);
+	}
+
+	/** Data wire dyed {@code colour} (null for plain): see {@link #joins}. */
+	public static WireBlock data(Properties properties, @Nullable net.minecraft.world.item.DyeColor colour) {
+		return new WireBlock(properties, false, true, false, colour);
 	}
 
     @SuppressWarnings("this-escape")
@@ -1027,9 +1032,11 @@ public class WireBlock extends Block implements SimpleWaterloggedBlock {
 			}
 			return net.minecraft.world.ItemInteractionResult.sidedSuccess(level.isClientSide);
 		}
-		if(isWaterproof || isData || conductsAll() || !(stack.getItem() instanceof net.minecraft.world.item.DyeItem dye))
+		if(isWaterproof || conductsAll() || !(stack.getItem() instanceof net.minecraft.world.item.DyeItem dye))
 			return super.useItemOn(stack, state, level, pos, player, hand, hit);
-		WireBlock target = (isPower ? com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_WIRE : com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_COAX).get(dye.getDyeColor()).get();
+		WireBlock target = (isPower ? com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_WIRE
+				: isData ? com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_DATA_WIRE
+				: com.arrl.radiocraft.common.init.RadiocraftBlocks.COLOURED_COAX).get(dye.getDyeColor()).get();
 		if(target == this)
 			return net.minecraft.world.ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
 		if(!level.isClientSide) {

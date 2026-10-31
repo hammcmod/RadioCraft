@@ -31,9 +31,14 @@ public final class DataWire {
 
 	private DataWire() {}
 
-	/** The wire blocks the walk runs through: the data wire, and the passthrough (which every kind runs through). */
+	/**
+	 * The wire blocks the walk runs through: the data wire of every colour (each joins only its own,
+	 * {@link WireBlock#joins}), and the passthrough (which every kind runs through).
+	 */
 	public static Set<WireBlock> wires() {
-		return Set.of(RadiocraftBlocks.DATA_WIRE.get(), RadiocraftBlocks.PASSTHROUGH.get());
+		Set<WireBlock> wires = new HashSet<>(List.of(RadiocraftBlocks.DATA_WIRE.get(), RadiocraftBlocks.PASSTHROUGH.get()));
+		RadiocraftBlocks.COLOURED_DATA_WIRE.values().forEach(wire -> wires.add(wire.get()));
+		return wires;
 	}
 
 	/** A data wire was laid, lifted or changed in {@code level}: every cached walk there is stale. */
